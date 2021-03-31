@@ -1,0 +1,30 @@
+package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class SNMPGetTableSource extends SNMPSource {
+
+	private static final long serialVersionUID = -8516718446207060520L;
+
+	private List<String> snmpTableSelectColumns = new ArrayList<>();
+
+	@Builder
+	public SNMPGetTableSource(List<Compute> computes, boolean forceSerialization, String oid,
+			List<String> snmpTableSelectColumns) {
+
+		super(computes, forceSerialization, oid);
+		this.snmpTableSelectColumns = snmpTableSelectColumns;
+	}
+
+}

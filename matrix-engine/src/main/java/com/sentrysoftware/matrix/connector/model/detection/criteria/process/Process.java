@@ -1,0 +1,27 @@
+package com.sentrysoftware.matrix.connector.model.detection.criteria.process;
+
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criteria;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Process extends Criteria {
+
+	private static final long serialVersionUID = 4418210555494869095L;
+
+	private String processCommandLine;
+
+	@Builder
+	public Process(boolean forceSerialization, String processCommandLine) {
+
+		super(forceSerialization);
+		this.processCommandLine = processCommandLine;
+	}
+
+	
+}

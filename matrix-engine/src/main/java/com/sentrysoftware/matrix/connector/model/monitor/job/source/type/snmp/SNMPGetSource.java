@@ -1,0 +1,25 @@
+package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp;
+
+import java.util.List;
+
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class SNMPGetSource extends SNMPSource {
+
+	private static final long serialVersionUID = 9174253450745863940L;
+
+	@Builder
+	public SNMPGetSource(List<Compute> computes, boolean forceSerialization, String oid) {
+
+		super(computes, forceSerialization, oid);
+	}
+
+}

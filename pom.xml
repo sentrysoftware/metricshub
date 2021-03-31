@@ -12,6 +12,15 @@
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
+		<lombok.version>1.18.12</lombok.version>
+		<slf4j.version>1.7.30</slf4j.version>
+		<jupiter.version>5.6.2</jupiter.version>
+		<mockito.version>3.3.3</mockito.version>
+		<maven-plugin-api.version>2.0</maven-plugin-api.version>
+		<maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
+		<maven-reporting-impl.version>3.0.0</maven-reporting-impl.version>
+		<maven-reporting-api.version>3.0</maven-reporting-api.version>
+		<plexus-utils.version>3.0.8</plexus-utils.version>
 	</properties>
 
 	<modules>
@@ -19,4 +28,69 @@
 		<module>connector-compiler-plugin</module>
 	</modules>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.maven.reporting</groupId>
+				<artifactId>maven-reporting-impl</artifactId>
+				<version>${maven-reporting-impl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.reporting</groupId>
+				<artifactId>maven-reporting-api</artifactId>
+				<version>${maven-reporting-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-utils</artifactId>
+				<version>${plexus-utils.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-plugin-api</artifactId>
+				<version>${maven-plugin-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.plugin-tools</groupId>
+				<artifactId>maven-plugin-annotations</artifactId>
+				<version>${maven-plugin-annotations.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware</groupId>
+				<artifactId>matrix-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<scope>compile</scope>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
+				<version>${mockito.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
