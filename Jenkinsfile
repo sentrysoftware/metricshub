@@ -1,2 +1,2 @@
-@Library('jenkins-library') _ 
-maven()
+@Library('jenkins-library') _
+maven([ jdkTool: 'jdk-11' ])

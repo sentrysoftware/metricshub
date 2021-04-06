@@ -15,14 +15,14 @@ public enum ConnectorState {
 
 	CONNECTOR_SIMPLE_PROPERTY(new ConnectorSimplePropertyParser());
 
-	private ConnectorStateParser connectorStateProcessor;
+	private IConnectorStateParser connectorStateProcessor;
 
-	public boolean detect(final String key) {
-		return connectorStateProcessor.detect(key);
+	public boolean detect(final String key, final Connector connector) {
+		return connectorStateProcessor.detect(key, connector);
 	}
 
-	public void parse(final String key, final String value, final Connector hdf) {
-		connectorStateProcessor.parse(key, value, hdf);
+	public void parse(final String key, final String value, final Connector connector) {
+		connectorStateProcessor.parse(key, value, connector);
 	}
 
 	public static Set<ConnectorState> getConnectorStates() {
