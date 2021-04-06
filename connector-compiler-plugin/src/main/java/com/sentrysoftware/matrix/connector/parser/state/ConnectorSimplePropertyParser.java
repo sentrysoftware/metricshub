@@ -12,7 +12,7 @@ import lombok.Getter;
 public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 	@Override
-	public boolean detect(final String key, Connector connector) {
+	public boolean detect(final String key, String value, Connector connector) {
 
 		return key.trim().startsWith("hdf.");
 	}
@@ -20,7 +20,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	@Override
 	public void parse(final String key, final String value, final Connector connector) {
 
-		ConnectorSimpleProperty.getConnectorSimpleProperties().stream().filter(state -> state.detect(key, connector))
+		ConnectorSimpleProperty.getConnectorSimpleProperties().stream().filter(state -> state.detect(key, value, connector))
 				.forEach(sp -> sp.parse(key, value, connector));
 	}
 
@@ -35,9 +35,9 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		private IConnectorStateParser connectorStateProcessor;
 
-		public boolean detect(final String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
-			return connectorStateProcessor.detect(key, connector);
+			return connectorStateProcessor.detect(key, value, connector);
 		}
 
 		public void parse(final String key, final String value, final Connector connector) {
@@ -54,7 +54,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class DisplayNameProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			return false;
 		}
@@ -71,7 +71,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class SupersedesProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -89,7 +89,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class AppliesToOSProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -107,7 +107,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class LocalSupportProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -125,7 +125,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class RemoteSupportProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -143,7 +143,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class TypicalPlatformProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -161,7 +161,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class ReliesOnProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
@@ -179,7 +179,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class VersionProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;

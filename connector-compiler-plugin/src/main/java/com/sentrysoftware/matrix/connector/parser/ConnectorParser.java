@@ -68,10 +68,10 @@ public class ConnectorParser {
 	 * @param value the corresponding value we wish to process
 	 * @param connector {@link Connector} instance to update
 	 */
-	private static void parseKeyValue(String key,String value, final Connector connector) {
+	private static void parseKeyValue(String key, String value, final Connector connector) {
 
 		// Get the detected state
-		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key, connector))
+		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key, value, connector))
 				.collect(Collectors.toSet());
 
 		// Control the result

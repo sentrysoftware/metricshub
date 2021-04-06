@@ -17,8 +17,8 @@ public enum ConnectorState {
 
 	private IConnectorStateParser connectorStateProcessor;
 
-	public boolean detect(final String key, final Connector connector) {
-		return connectorStateProcessor.detect(key, connector);
+	public boolean detect(final String key, final String value, final Connector connector) {
+		return connectorStateProcessor.detect(key, value, connector);
 	}
 
 	public void parse(final String key, final String value, final Connector connector) {
