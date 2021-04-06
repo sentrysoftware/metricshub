@@ -71,7 +71,7 @@ public class ConnectorParser {
 	private static void parseKeyValue(String key,String value, final Connector connector) {
 
 		// Get the detected state
-		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key))
+		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key, connector))
 				.collect(Collectors.toSet());
 
 		// Control the result
