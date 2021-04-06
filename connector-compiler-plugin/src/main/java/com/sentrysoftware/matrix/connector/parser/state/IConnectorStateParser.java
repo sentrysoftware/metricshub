@@ -5,12 +5,13 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 public interface IConnectorStateParser {
 
 	/**
-	 * Detect the given line key
+	 * Detect the given line key - value. Use the Connector parameter to check the actual context
 	 * @param key
+	 * @param value
 	 * @param connector
 	 * @return <code>true</code> if the line key is detected
 	 */
-	public boolean detect(final String key, final Connector connector);
+	public boolean detect(final String key, final String value, final Connector connector);
 
 	/**
 	 * Parse the given line and update the passed {@link Connector} object

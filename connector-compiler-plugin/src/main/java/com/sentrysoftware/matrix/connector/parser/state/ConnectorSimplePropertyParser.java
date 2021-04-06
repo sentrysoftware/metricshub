@@ -12,7 +12,7 @@ import lombok.Getter;
 public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 	@Override
-	public boolean detect(final String key, Connector connector) {
+	public boolean detect(final String key, final String value, final Connector connector) {
 
 		return key.trim().startsWith("hdf.");
 	}
@@ -20,7 +20,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	@Override
 	public void parse(final String key, final String value, final Connector connector) {
 
-		ConnectorSimpleProperty.getConnectorSimpleProperties().stream().filter(state -> state.detect(key, connector))
+		ConnectorSimpleProperty.getConnectorSimpleProperties().stream().filter(state -> state.detect(key, value, connector))
 				.forEach(sp -> sp.parse(key, value, connector));
 	}
 
@@ -28,16 +28,20 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	@AllArgsConstructor
 	public enum ConnectorSimpleProperty {
 
-		DISPLAY_NAME(new DisplayNameProcessor()), TYPICAL_PLATFORM(new TypicalPlatformProcessor()),
-		RELIES_ON(new ReliesOnProcessor()), VERSION(new VersionProcessor()),
-		REMOTE_SUPPORT(new RemoteSupportProcessor()), LOCAL_SUPPORT(new LocalSupportProcessor()),
-		APPLIES_TO_OS(new AppliesToOSProcessor()), SUPERSEDES(new SupersedesProcessor());
+		DISPLAY_NAME(new DisplayNameProcessor()),
+		TYPICAL_PLATFORM(new TypicalPlatformProcessor()),
+		RELIES_ON(new ReliesOnProcessor()),
+		VERSION(new VersionProcessor()),
+		REMOTE_SUPPORT(new RemoteSupportProcessor()),
+		LOCAL_SUPPORT(new LocalSupportProcessor()),
+		APPLIES_TO_OS(new AppliesToOSProcessor()),
+		SUPERSEDES(new SupersedesProcessor());
 
 		private IConnectorStateParser connectorStateProcessor;
 
-		public boolean detect(final String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
-			return connectorStateProcessor.detect(key, connector);
+			return connectorStateProcessor.detect(key, value, connector);
 		}
 
 		public void parse(final String key, final String value, final Connector connector) {
@@ -54,13 +58,13 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class DisplayNameProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -71,14 +75,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class SupersedesProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -89,14 +93,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class AppliesToOSProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -107,14 +111,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class LocalSupportProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -125,14 +129,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class RemoteSupportProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -143,14 +147,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class TypicalPlatformProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -161,14 +165,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class ReliesOnProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
@@ -179,14 +183,14 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	public static class VersionProcessor implements IConnectorStateParser {
 
 		@Override
-		public boolean detect(String key, Connector connector) {
+		public boolean detect(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public void parse(String key, String value, Connector connector) {
+		public void parse(final String key, final String value, final Connector connector) {
 
 			// TODO Auto-generated method stub
 
