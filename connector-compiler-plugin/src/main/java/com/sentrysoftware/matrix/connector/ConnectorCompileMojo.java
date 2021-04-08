@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -11,6 +12,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.serialize.ConnectorSerializer;
 
 @Mojo(name = "connector-compile", aggregator = false, executionStrategy = "always", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDirectInvocation = false, requiresOnline = false, requiresProject = true, threadSafe = true)
 public class ConnectorCompileMojo extends AbstractMojo {
@@ -42,6 +46,25 @@ public class ConnectorCompileMojo extends AbstractMojo {
 
 		// Implementation
 		int compiledConnectorCount = 0;
+
+
+		// Need to create outputDirectory?
+		if (!outputDirectory.exists() && !outputDirectory.mkdirs()) {
+			String message = String.format("Could not create outputDirectory: %s" , outputDirectory.getAbsolutePath());
+			logger.error(message);
+			throw new MojoExecutionException(message);
+		}
+
+		Connector connector = Connector.builder().compiledFilename("MS_HW_DellOpenManage.connector").build();
+		try {
+
+			ConnectorSerializer.serialize(outputDirectory.getAbsolutePath(), connector);
+		} catch (IOException e) {
+			String message = String.format("Could not serialize connector: %s on outputDirectory: %s",
+					connector.getCompiledFilename(), outputDirectory.getAbsolutePath());
+			logger.error(message);
+			throw new MojoExecutionException(message);
+		}
 
 		logger.info(
 				"Successfully compiled " + compiledConnectorCount + " Hardware Connectors from " + connectorDirectory

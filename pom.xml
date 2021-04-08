@@ -17,6 +17,7 @@
 	<description>Matrix Parent</description>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
 		<lombok.version>1.18.12</lombok.version>

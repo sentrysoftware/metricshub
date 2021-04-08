@@ -8,15 +8,20 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 
 public class ConnectorSerializer {
 
-	
 	private ConnectorSerializer() {
 
 	}
 
-	public static void serialize(Connector connector, String path) throws IOException {
+	/**
+	 * Under the given path serialize the passed connector
+	 * @param path
+	 * @param connector
+	 * @throws IOException
+	 */
+	public static void serialize(final String path, final Connector connector) throws IOException {
 
-		try (FileOutputStream fileOutputStream = new FileOutputStream(path + connector.getCompiledFilename());
-				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)){
+		try (FileOutputStream fileOutputStream = new FileOutputStream(path + "/" + connector.getCompiledFilename());
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
 			objectOutputStream.writeObject(connector);
 			objectOutputStream.flush();
 		}
