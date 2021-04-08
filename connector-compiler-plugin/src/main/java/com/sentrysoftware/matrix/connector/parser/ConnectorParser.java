@@ -17,7 +17,7 @@ public class ConnectorParser {
 
 	public ConnectorParser(final String connectorFilePath) {
 
-		Assert.isTrue(connectorFilePath != null && connectorFilePath.trim().isEmpty(), "connectorFilePath cannot be null or empty");
+		Assert.isTrue(connectorFilePath != null && !connectorFilePath.trim().isEmpty(), "connectorFilePath cannot be null or empty");
 
 		this.connectorFilePath = connectorFilePath;
 	}
@@ -74,15 +74,10 @@ public class ConnectorParser {
 		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key, value, connector))
 				.collect(Collectors.toSet());
 
-		// Control the result
-		Assert.state(connectorStates.isEmpty(), () -> String.format("Cannot detect the Connector line: '%s=%s'", key, value));
-		Assert.state(connectorStates.size() != 1, () -> String.format("Multiple states for the Connector line: '%s=%s'", key, value));
-
-		// Parse the line
-		connectorStates.stream().findFirst().orElseThrow(
-				() -> new IllegalStateException("connectorStates expected not-empty but we have got an empty set."))
-				.parse(key, value, connector);
-
+		 Optional<ConnectorState> stateOpt = connectorStates.stream().findFirst();
+		 if (stateOpt.isPresent()) {
+			 stateOpt.get().parse(key, value, connector);
+		 }
 		// TODO if the Connector defines an IPMI source then add "ipmitool" to the list of sudoCommands in the Connector bean.
 	}
 
