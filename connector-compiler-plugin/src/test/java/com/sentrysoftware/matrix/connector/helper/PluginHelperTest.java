@@ -1,21 +1,6 @@
 package com.sentrysoftware.matrix.connector.helper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.eq;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
@@ -24,7 +9,19 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.eq;
 
 class PluginHelperTest {
 
@@ -37,12 +34,26 @@ class PluginHelperTest {
 	File testDirectory;
 
 	@Test
-	void testValidateOutputDirectory() throws IllegalAccessException, InvocationTargetException {
+	@SuppressWarnings("all")
+	void testValidateOutputDirectory() {
 
 		assertThrows(IllegalArgumentException.class, () -> PluginHelper.validateOutputDirectory(null));
 
+		// Directory does not exist and cannot be created
+		testDirectory.setWritable(false);
+		File testSubDirectory = new File(testDirectory, "foo");
+		assertThrows(MojoExecutionException.class, () -> PluginHelper.validateOutputDirectory(testSubDirectory));
+
 		try {
+
+			testDirectory.setWritable(true);
+
+			// Directory does not exist and can be created
+			PluginHelper.validateOutputDirectory(testSubDirectory);
+
+			// Directory exists
 			PluginHelper.validateOutputDirectory(testDirectory);
+
 		} catch (Exception e) {
 			fail("Unexpected exception");
 		}
@@ -72,20 +83,20 @@ class PluginHelperTest {
 
 		assertEquals(
 				Stream.of(MS_HW_DELL_OPEN_MANAGE_HDFS, MS_HW_DELL_STORAGE_MANAGER_HDFS).collect(Collectors.toSet()),
-				PluginHelper.getFileList(testDirectory, Arrays.asList("*.hdfs"), null).stream().map(File::getName)
+				PluginHelper.getFileList(testDirectory, Collections.singletonList("*.hdfs"), null).stream().map(File::getName)
 						.collect(Collectors.toSet()));
 
-		assertEquals(Collections.emptySet(), PluginHelper.getFileList(testDirectory, null, Arrays.asList("*.hdfs"))
+		assertEquals(Collections.emptySet(), PluginHelper.getFileList(testDirectory, null, Collections.singletonList("*.hdfs"))
 				.stream().map(File::getName).collect(Collectors.toSet()));
 
 		assertEquals(Collections.emptySet(), PluginHelper.getFileList(testDirectory, null, null).stream()
 				.map(File::getName).collect(Collectors.toSet()));
 
 		assertEquals(Collections.emptySet(),
-				PluginHelper.getFileList(testDirectory, Arrays.asList("*.hdfs"), Arrays.asList("*.hdfs")).stream()
+				PluginHelper.getFileList(testDirectory, Collections.singletonList("*.hdfs"), Collections.singletonList("*.hdfs")).stream()
 						.map(File::getName).collect(Collectors.toSet()));
 
-		List<File> files = PluginHelper.getFileList(testDirectory, Arrays.asList("*.hdfs"), null);
+		List<File> files = PluginHelper.getFileList(testDirectory, Collections.singletonList("*.hdfs"), null);
 		assertEquals(MS_HW_DELL_OPEN_MANAGE_HDFS, files.get(0).getName());
 		assertEquals(MS_HW_DELL_STORAGE_MANAGER_HDFS, files.get(1).getName());
 	}

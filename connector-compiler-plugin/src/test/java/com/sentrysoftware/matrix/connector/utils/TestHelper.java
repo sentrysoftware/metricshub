@@ -17,15 +17,18 @@ public class TestHelper {
 
 	/**
 	 * Invoke the given methodName of the given object
-	 * @param <T>
+	 * @param <T>							The return type of the underlying method
 	 * 
-	 * @param object
-	 * @param methodName
-	 * @param parameterTypes
-	 * @param parameters
-	 * @return {@link Object} instance
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
+	 * @param object						The {@link Object} the underlying method belongs to
+	 * @param methodName					The name of the underlying method
+	 * @param parameterTypes				The types of the parameters
+	 *                                      with which the underlying method should be invoked
+	 * @param parameters					The parameters with which the underlying method should be invoked
+	 *
+	 * @return {@link Object} instance		The value returned by the invocation of the underlying method
+	 *
+	 * @throws IllegalAccessException		If the underlying method is inaccessible
+	 * @throws InvocationTargetException	If the underlying method throws an {@link Exception}
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T invokeMethod(final Object object, final String methodName, final List<Class<?>> parameterTypes,
@@ -38,13 +41,13 @@ public class TestHelper {
 		assertEquals(parameterTypes.size(), parameters.size());
 
 		final Optional<Method> methodOptional = ReflectionUtils.findMethod(object.getClass(), methodName,
-				parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
+				parameterTypes.toArray(new Class<?>[0]));
 		assertTrue(methodOptional.isPresent());
 
 		final Method method = methodOptional.get();
 		method.setAccessible(true);
 
-		return (T) method.invoke(object, parameters.toArray(new Object[parameters.size()]));
+		return (T) method.invoke(object, parameters.toArray(new Object[0]));
 
 	}
 
@@ -70,8 +73,8 @@ public class TestHelper {
 	/**
 	 * Set a static final field of a java class
 	 * @param field {@link Field} instance
-	 * @param newValue new value to set
-	 * @throws Exception
+	 * @param newValue New value to set
+	 * @throws Exception If the static final field could not be set
 	 */
 	public static void setFinalStatic(Field field, Object newValue) throws Exception {
 

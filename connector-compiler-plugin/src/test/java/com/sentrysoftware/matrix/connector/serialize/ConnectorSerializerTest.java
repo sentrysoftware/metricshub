@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.serialize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,16 +28,20 @@ class ConnectorSerializerTest {
 
 		final String[] fileNames = outputDirectory.list();
 
+		assertNotNull(fileNames);
 		assertEquals(1, fileNames.length);
 		assertEquals(expectedFilename, fileNames[0]);
 
 		// Integrity check
 		final File[] serializedConnectors = outputDirectory.listFiles((file, name) -> name.endsWith(".connector"));
 
+		assertNotNull(serializedConnectors);
 		assertEquals(1, serializedConnectors.length);
-		try (final FileInputStream is = new FileInputStream(serializedConnectors[0]);
-				final ObjectInputStream in = new ObjectInputStream(is);) {
-			assertEquals(expected, (Connector) in.readObject());
+		try (
+				final FileInputStream is = new FileInputStream(serializedConnectors[0]);
+				final ObjectInputStream in = new ObjectInputStream(is)
+		) {
+			assertEquals(expected, in.readObject());
 		}
 	}
 
