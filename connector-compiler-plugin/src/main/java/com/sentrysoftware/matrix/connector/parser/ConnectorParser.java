@@ -13,20 +13,13 @@ import lombok.Data;
 @Data
 public class ConnectorParser {
 
-	private String connectorFilePath;
-
-	public ConnectorParser(final String connectorFilePath) {
-
-		Assert.isTrue(connectorFilePath != null && !connectorFilePath.trim().isEmpty(), "connectorFilePath cannot be null or empty");
-
-		this.connectorFilePath = connectorFilePath;
-	}
-
 	/**
 	 * Process Connector file 
 	 * @return {@link Optional} of {@link Connector} instance
 	 */
-	public Optional<Connector> parse() {
+	public Optional<Connector> parse(final String connectorFilePath) {
+
+		Assert.isTrue(connectorFilePath != null && !connectorFilePath.trim().isEmpty(), "connectorFilePath cannot be null or empty");
 
 		try {
 
