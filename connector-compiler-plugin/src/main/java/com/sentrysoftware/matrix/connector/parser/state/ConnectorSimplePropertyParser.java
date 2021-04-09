@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -71,7 +72,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setDisplayName(value.replace("\"", "").trim());
+				connector.setDisplayName(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
 			}
 		}
 	}
@@ -88,7 +89,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 			if (connector != null && value != null) {
 				Set<String> supersedes = new HashSet<>();
 
-				Arrays.stream(value.replace("\"", "").split(","))
+				Arrays.stream(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).split(ConnectorParserConstants.COMA))
 					.forEach(supersedesStr -> supersedes.add(supersedesStr.trim()));
 
 				connector.setSupersedes(supersedes);
@@ -108,7 +109,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 			if (connector != null && value != null) {
 				Set<OSType> osTypes = new HashSet<>();
 
-				Arrays.stream(value.replace("\"", "").split(","))
+				Arrays.stream(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).split(ConnectorParserConstants.COMA))
 					.forEach(osTypeStr -> osTypes.add(OSType.valueOf(osTypeStr.trim().toUpperCase())));
 
 				connector.setAppliesToOS(osTypes);
@@ -126,7 +127,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setLocalSupport(Boolean.parseBoolean(value.replace("\"", "").trim().toLowerCase()));
+				connector.setLocalSupport(Boolean.parseBoolean(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim().toLowerCase()));
 			}
 		}
 	}
@@ -141,7 +142,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setRemoteSupport(Boolean.parseBoolean(value.replace("\"", "").trim().toLowerCase()));
+				connector.setRemoteSupport(Boolean.parseBoolean(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim().toLowerCase()));
 			}
 		}
 	}
@@ -156,7 +157,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setTypicalPlatform(value.replace("\"", "").trim());
+				connector.setTypicalPlatform(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
 			}
 		}
 	}
@@ -171,7 +172,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setReliesOn(value.replace("\"", "").trim());
+				connector.setReliesOn(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
 			}
 		}
 	}
@@ -186,7 +187,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setVersion(value.replace("\"", "").trim());
+				connector.setVersion(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
 			}
 		}
 	}

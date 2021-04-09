@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyP
 
 import junit.framework.Assert;
 
-public class ConnectorSimplePropertyParserTest {
+class ConnectorSimplePropertyParserTest {
 	
 	private static final String DISPLAY_NAME_KEY = "hdf.DisplayName";
 	private static final String SUPERSEDES_KEY = "hdf.Supersedes";
@@ -55,7 +55,7 @@ public class ConnectorSimplePropertyParserTest {
 	// DisplayName tests
 	
 	@Test
-	public void testDisplayNameProcessorDetectKeyNull() {
+	void testDisplayNameProcessorDetectKeyNull() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = null;
 		String value = DISPLAY_NAME_VALUE;
@@ -64,7 +64,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectKeyEmpty() {
+	void testDisplayNameProcessorDetectKeyEmpty() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = "";
 		String value = DISPLAY_NAME_VALUE;
@@ -73,7 +73,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectValueNull() {
+	void testDisplayNameProcessorDetectValueNull() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = null;
@@ -82,7 +82,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectValueEmpty() {
+	void testDisplayNameProcessorDetectValueEmpty() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = "";
@@ -91,7 +91,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectConnectorNull() {
+	void testDisplayNameProcessorDetectConnectorNull() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
@@ -100,7 +100,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectUppercaseOK() {
+	void testDisplayNameProcessorDetectUppercaseOK() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY.toUpperCase();
 		String value = DISPLAY_NAME_VALUE;
@@ -109,7 +109,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectLowercaseOK() {
+	void testDisplayNameProcessorDetectLowercaseOK() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY.toLowerCase();
 		String value = DISPLAY_NAME_VALUE;
@@ -118,7 +118,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testDisplayNameProcessorDetectOK() {
+	void testDisplayNameProcessorDetectOK() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
@@ -127,7 +127,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testDisplayNameProcessorParseConnectorNull() {
+	void testDisplayNameProcessorParseConnectorNull() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
@@ -137,7 +137,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testDisplayNameProcessorParseValueNull() {
+	void testDisplayNameProcessorParseValueNull() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = null;
@@ -147,7 +147,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testDisplayNameProcessorParseTrimOK() {
+	void testDisplayNameProcessorParseTrimOK() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = SPACE.concat(DISPLAY_NAME_VALUE).concat(SPACE);
@@ -157,7 +157,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testDisplayNameProcessorParseOK() {
+	void testDisplayNameProcessorParseOK() {
 		DisplayNameProcessor displayNameProcessor = new DisplayNameProcessor();
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
@@ -169,7 +169,7 @@ public class ConnectorSimplePropertyParserTest {
 	// Supersedes tests
 	
 	@Test
-	public void testSupersedesProcessorDetectKeyNull() {
+	void testSupersedesProcessorDetectKeyNull() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = null;
 		String value = SUPERSEDES_VALUE;
@@ -178,7 +178,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectKeyEmpty() {
+	void testSupersedesProcessorDetectKeyEmpty() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = "";
 		String value = SUPERSEDES_VALUE;
@@ -187,7 +187,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectValueNull() {
+	void testSupersedesProcessorDetectValueNull() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = null;
@@ -196,7 +196,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectValueEmpty() {
+	void testSupersedesProcessorDetectValueEmpty() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = "";
@@ -205,7 +205,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectConnectorNull() {
+	void testSupersedesProcessorDetectConnectorNull() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
@@ -214,7 +214,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectUppercaseOK() {
+	void testSupersedesProcessorDetectUppercaseOK() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY.toUpperCase();
 		String value = SUPERSEDES_VALUE;
@@ -223,7 +223,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectLowercaseOK() {
+	void testSupersedesProcessorDetectLowercaseOK() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY.toLowerCase();
 		String value = SUPERSEDES_VALUE;
@@ -232,7 +232,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testSupersedesProcessorDetectOK() {
+	void testSupersedesProcessorDetectOK() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
@@ -241,7 +241,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testSupersedesProcessorParseConnectorNull() {
+	void testSupersedesProcessorParseConnectorNull() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
@@ -251,7 +251,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testSupersedesProcessorParseValueNull() {
+	void testSupersedesProcessorParseValueNull() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = null;
@@ -261,7 +261,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testSupersedesProcessorParseTrimOK() {
+	void testSupersedesProcessorParseTrimOK() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE_SPACED;
@@ -271,7 +271,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testSupersedesProcessorParseOK() {
+	void testSupersedesProcessorParseOK() {
 		SupersedesProcessor supersedesProcessor = new SupersedesProcessor();
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
@@ -283,7 +283,7 @@ public class ConnectorSimplePropertyParserTest {
 	// AppliesToOS tests
 	
 	@Test
-	public void testAppliesToOSProcessorDetectKeyNull() {
+	void testAppliesToOSProcessorDetectKeyNull() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = null;
 		String value = APPLIES_TO_OS_VALUE;
@@ -292,7 +292,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectKeyEmpty() {
+	void testAppliesToOSProcessorDetectKeyEmpty() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = "";
 		String value =APPLIES_TO_OS_VALUE;
@@ -301,7 +301,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectValueNull() {
+	void testAppliesToOSProcessorDetectValueNull() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = null;
@@ -310,7 +310,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectValueEmpty() {
+	void testAppliesToOSProcessorDetectValueEmpty() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = "";
@@ -319,7 +319,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectConnectorNull() {
+	void testAppliesToOSProcessorDetectConnectorNull() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
@@ -328,7 +328,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectUppercaseOK() {
+	void testAppliesToOSProcessorDetectUppercaseOK() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY.toUpperCase();
 		String value = APPLIES_TO_OS_VALUE;
@@ -337,7 +337,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectLowercaseOK() {
+	void testAppliesToOSProcessorDetectLowercaseOK() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY.toLowerCase();
 		String value = APPLIES_TO_OS_VALUE;
@@ -346,7 +346,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testAppliesToOSProcessorDetectOK() {
+	void testAppliesToOSProcessorDetectOK() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
@@ -355,7 +355,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testAppliesToOSProcessorParseConnectorNull() {
+	void testAppliesToOSProcessorParseConnectorNull() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
@@ -365,7 +365,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testAppliesToOSProcessorParseValueNull() {
+	void testAppliesToOSProcessorParseValueNull() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = null;
@@ -375,7 +375,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testAppliesToOSProcessorParseTrimOK() {
+	void testAppliesToOSProcessorParseTrimOK() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE_SPACED;
@@ -385,7 +385,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testAppliesToOSProcessorParseOK() {
+	void testAppliesToOSProcessorParseOK() {
 		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
@@ -397,7 +397,7 @@ public class ConnectorSimplePropertyParserTest {
 	// LocalSupport tests
 	
 	@Test
-	public void testLocalSupportProcessorDetectKeyNull() {
+	void testLocalSupportProcessorDetectKeyNull() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = null;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -406,7 +406,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectKeyEmpty() {
+	void testLocalSupportProcessorDetectKeyEmpty() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = "";
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -415,7 +415,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectValueNull() {
+	void testLocalSupportProcessorDetectValueNull() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = null;
@@ -424,7 +424,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectValueEmpty() {
+	void testLocalSupportProcessorDetectValueEmpty() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = "";
@@ -433,7 +433,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectConnectorNull() {
+	void testLocalSupportProcessorDetectConnectorNull() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -442,7 +442,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectUppercaseOK() {
+	void testLocalSupportProcessorDetectUppercaseOK() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY.toUpperCase();
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -451,7 +451,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectLowercaseOK() {
+	void testLocalSupportProcessorDetectLowercaseOK() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY.toLowerCase();
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -460,7 +460,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testLocalSupportProcessorDetectOK() {
+	void testLocalSupportProcessorDetectOK() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -469,7 +469,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testLocalSupportProcessorParseConnectorNull() {
+	void testLocalSupportProcessorParseConnectorNull() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -479,7 +479,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testLocalSupportProcessorParseValueNull() {
+	void testLocalSupportProcessorParseValueNull() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = null;
@@ -489,7 +489,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testLocalSupportProcessorParseTrimOK() {
+	void testLocalSupportProcessorParseTrimOK() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = SPACE.concat(LOCAL_SUPPORT_VALUE_TRUE).concat(SPACE);
@@ -499,7 +499,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testLocalSupportProcessorParseTrue() {
+	void testLocalSupportProcessorParseTrue() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
@@ -509,7 +509,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testLocalSupportProcessorParseFalse() {
+	void testLocalSupportProcessorParseFalse() {
 		LocalSupportProcessor localSupportProcessor = new LocalSupportProcessor();
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_FALSE;
@@ -521,7 +521,7 @@ public class ConnectorSimplePropertyParserTest {
 	// RemoteSupport tests
 	
 	@Test
-	public void testRemoteSupportProcessorDetectKeyNull() {
+	void testRemoteSupportProcessorDetectKeyNull() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = null;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -530,7 +530,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectKeyEmpty() {
+	void testRemoteSupportProcessorDetectKeyEmpty() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = "";
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -539,7 +539,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectValueNull() {
+	void testRemoteSupportProcessorDetectValueNull() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = null;
@@ -548,7 +548,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectValueEmpty() {
+	void testRemoteSupportProcessorDetectValueEmpty() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = "";
@@ -557,7 +557,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectConnectorNull() {
+	void testRemoteSupportProcessorDetectConnectorNull() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -566,7 +566,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectUppercaseOK() {
+	void testRemoteSupportProcessorDetectUppercaseOK() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY.toUpperCase();
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -575,7 +575,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectLowercaseOK() {
+	void testRemoteSupportProcessorDetectLowercaseOK() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY.toLowerCase();
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -584,7 +584,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testRemoteSupportProcessorDetectOK() {
+	void testRemoteSupportProcessorDetectOK() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -593,7 +593,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testRemoteSupportProcessorParseConnectorNull() {
+	void testRemoteSupportProcessorParseConnectorNull() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -603,7 +603,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testRemoteSupportProcessorParseValueNull() {
+	void testRemoteSupportProcessorParseValueNull() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = null;
@@ -613,7 +613,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testRemoteSupportProcessorParseTrimOK() {
+	void testRemoteSupportProcessorParseTrimOK() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = SPACE.concat(REMOTE_SUPPORT_VALUE_TRUE).concat(SPACE);
@@ -623,7 +623,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testRemoteSupportProcessorParseTrue() {
+	void testRemoteSupportProcessorParseTrue() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
@@ -633,7 +633,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testRemoteSupportProcessorParseFalse() {
+	void testRemoteSupportProcessorParseFalse() {
 		RemoteSupportProcessor remoteSupportProcessor = new RemoteSupportProcessor();
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_FALSE;
@@ -645,7 +645,7 @@ public class ConnectorSimplePropertyParserTest {
 	// TypicalPlatform tests
 	
 	@Test
-	public void testTypicalPlatformProcessorDetectKeyNull() {
+	void testTypicalPlatformProcessorDetectKeyNull() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = null;
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -654,7 +654,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectKeyEmpty() {
+	void testTypicalPlatformProcessorDetectKeyEmpty() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = "";
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -663,7 +663,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectValueNull() {
+	void testTypicalPlatformProcessorDetectValueNull() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = null;
@@ -672,7 +672,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectValueEmpty() {
+	void testTypicalPlatformProcessorDetectValueEmpty() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = "";
@@ -681,7 +681,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectConnectorNull() {
+	void testTypicalPlatformProcessorDetectConnectorNull() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -690,7 +690,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectUppercaseOK() {
+	void testTypicalPlatformProcessorDetectUppercaseOK() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY.toUpperCase();
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -699,7 +699,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectLowercaseOK() {
+	void testTypicalPlatformProcessorDetectLowercaseOK() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY.toLowerCase();
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -708,7 +708,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testTypicalPlatformProcessorDetectOK() {
+	void testTypicalPlatformProcessorDetectOK() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -717,7 +717,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testTypicalPlatformProcessorParseConnectorNull() {
+	void testTypicalPlatformProcessorParseConnectorNull() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -727,7 +727,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testTypicalPlatformProcessorParseValueNull() {
+	void testTypicalPlatformProcessorParseValueNull() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = null;
@@ -737,7 +737,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testTypicalPlatformProcessorParseTrimOK() {
+	void testTypicalPlatformProcessorParseTrimOK() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = SPACE.concat(TYPICAL_PLATFORM_VALUE).concat(SPACE);
@@ -747,7 +747,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testTypicalPlatformProcessorParseOK() {
+	void testTypicalPlatformProcessorParseOK() {
 		TypicalPlatformProcessor typicalPlatformProcessor = new TypicalPlatformProcessor();
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
@@ -759,7 +759,7 @@ public class ConnectorSimplePropertyParserTest {
 	// ReliesOn tests
 	
 	@Test
-	public void testReliesOnProcessorDetectKeyNull() {
+	void testReliesOnProcessorDetectKeyNull() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = null;
 		String value = RELIES_ON_VALUE;
@@ -768,7 +768,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectKeyEmpty() {
+	void testReliesOnProcessorDetectKeyEmpty() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = "";
 		String value = RELIES_ON_VALUE;
@@ -777,7 +777,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectValueNull() {
+	void testReliesOnProcessorDetectValueNull() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = null;
@@ -786,7 +786,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectValueEmpty() {
+	void testReliesOnProcessorDetectValueEmpty() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = "";
@@ -795,7 +795,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectConnectorNull() {
+	void testReliesOnProcessorDetectConnectorNull() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
@@ -804,7 +804,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectUppercaseOK() {
+	void testReliesOnProcessorDetectUppercaseOK() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY.toUpperCase();
 		String value = RELIES_ON_VALUE;
@@ -813,7 +813,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectLowercaseOK() {
+	void testReliesOnProcessorDetectLowercaseOK() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY.toLowerCase();
 		String value = RELIES_ON_VALUE;
@@ -822,7 +822,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testReliesOnProcessorDetectOK() {
+	void testReliesOnProcessorDetectOK() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
@@ -831,7 +831,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testReliesOnProcessorParseConnectorNull() {
+	void testReliesOnProcessorParseConnectorNull() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
@@ -841,7 +841,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testReliesOnProcessorParseValueNull() {
+	void testReliesOnProcessorParseValueNull() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = null;
@@ -851,7 +851,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testReliesOnProcessorParseTrimOK() {
+	void testReliesOnProcessorParseTrimOK() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = SPACE.concat(RELIES_ON_VALUE).concat(SPACE);
@@ -861,7 +861,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testReliesOnProcessorParseOK() {
+	void testReliesOnProcessorParseOK() {
 		ReliesOnProcessor reliesOnProcessor = new ReliesOnProcessor();
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
@@ -873,7 +873,7 @@ public class ConnectorSimplePropertyParserTest {
 	// Version tests
 	
 	@Test
-	public void testVersionProcessorDetectKeyNull() {
+	void testVersionProcessorDetectKeyNull() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = null;
 		String value = VERSION_VALUE;
@@ -882,7 +882,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectKeyEmpty() {
+	void testVersionProcessorDetectKeyEmpty() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = "";
 		String value = VERSION_VALUE;
@@ -891,7 +891,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectValueNull() {
+	void testVersionProcessorDetectValueNull() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = null;
@@ -900,7 +900,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectValueEmpty() {
+	void testVersionProcessorDetectValueEmpty() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = "";
@@ -909,7 +909,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectConnectorNull() {
+	void testVersionProcessorDetectConnectorNull() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
@@ -918,7 +918,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectUppercaseOK() {
+	void testVersionProcessorDetectUppercaseOK() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY.toUpperCase();
 		String value = VERSION_VALUE;
@@ -927,7 +927,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectLowercaseOK() {
+	void testVersionProcessorDetectLowercaseOK() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY.toLowerCase();
 		String value = VERSION_VALUE;
@@ -936,7 +936,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 
 	@Test
-	public void testVersionProcessorDetectOK() {
+	void testVersionProcessorDetectOK() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
@@ -945,7 +945,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testVersionProcessorParseConnectorNull() {
+	void testVersionProcessorParseConnectorNull() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
@@ -955,7 +955,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testVersionProcessorParseValueNull() {
+	void testVersionProcessorParseValueNull() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = null;
@@ -965,7 +965,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testVersionProcessorParseTrimOK() {
+	void testVersionProcessorParseTrimOK() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = SPACE.concat(VERSION_VALUE).concat(SPACE);
@@ -975,7 +975,7 @@ public class ConnectorSimplePropertyParserTest {
 	}
 	
 	@Test
-	public void testVersionProcessorParseOK() {
+	void testVersionProcessorParseOK() {
 		VersionProcessor versionProcessor = new VersionProcessor();
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
