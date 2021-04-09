@@ -81,7 +81,6 @@ public class ConnectorCompileMojo extends AbstractMojo {
 	 * @param logger
 	 * @param connectorDirectory
 	 * @param outputDirectory
-	 * @param count
 	 * @return number of compiled .hdfs files
 	 */
 	private int compileHdfsFiles(final Log logger, final File connectorDirectory, final File outputDirectory) {
