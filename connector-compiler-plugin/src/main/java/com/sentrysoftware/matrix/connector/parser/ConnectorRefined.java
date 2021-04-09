@@ -479,13 +479,13 @@ public class ConnectorRefined {
 
 		// Sanity check (we're supposed to be provided with an .hdfs filename
 		if (hdfFilename == null) {
-			return "null.hdf";
+			return "null.connector";
 		}
 
 		if (hdfFilename.length() < 5) {
-			return "invalid.hdf";
+			return "invalid.connector";
 		}
 
-		return hdfFilename.substring(0, hdfFilename.length() - 5) + ".hdf";
+		return hdfFilename.substring(0, hdfFilename.length() - 5) + ".connector";
 	}
 }
