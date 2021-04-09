@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class ConnectorRefined {
 
 	private String compiledFilename;
 	private Map<String, String> codeMap = new LinkedHashMap<>();
-	private List<EmbeddedFile> embeddedFiles = new ArrayList<>();
+	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 	private Map<String, TranslationTable> translationTables = new HashMap<>(); 
 	private ArrayList<String> problemList = new ArrayList<>();
 
@@ -262,8 +261,8 @@ public class ConnectorRefined {
 		while (embeddedFileMatcher.find()) {
 			String embeddedFileContent = embeddedFileMatcher.group(2);
 			Integer embeddedFileIndex = Integer.valueOf(embeddedFileMatcher.group(1).trim());
-			// EmbeddedFiles start at index 1
-			embeddedFiles.add(embeddedFileIndex - 1 , EmbeddedFile.builder().content(embeddedFileContent).build());
+			// EmbeddedFiles index is the key
+			embeddedFiles.put(embeddedFileIndex , EmbeddedFile.builder().content(embeddedFileContent).build());
 			embeddedFileMatcher.appendReplacement(tempRawCode, "");
 		}
 		embeddedFileMatcher.appendTail(tempRawCode);

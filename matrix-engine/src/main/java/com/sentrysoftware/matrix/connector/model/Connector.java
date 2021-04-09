@@ -54,5 +54,5 @@ public class Connector implements Serializable {
 	private Map<String, TranslationTable> translationTables = new HashMap<>();
 
 	@Default
-	private List<EmbeddedFile> embeddedFiles = new ArrayList<>();
+	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 }
