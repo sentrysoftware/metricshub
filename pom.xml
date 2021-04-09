@@ -32,6 +32,7 @@
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
 		<jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
+		<hardware-connectors.version>24-SNAPSHOT</hardware-connectors.version>
 	</properties>
 
 	<modules>
@@ -83,6 +84,12 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.shared</groupId>
+				<artifactId>hardware-connectors</artifactId>
+				<version>${hardware-connectors.version}</version>
+				<classifier>matrix</classifier>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
