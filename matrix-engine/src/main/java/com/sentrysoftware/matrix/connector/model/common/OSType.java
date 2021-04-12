@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
-
 public enum OSType {
 
 	NT,
