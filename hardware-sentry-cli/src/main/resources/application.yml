@@ -1,0 +1,9 @@
+spring:
+  shell:
+    command:
+      help:
+        enabled: false
+
+logging:
+  pattern:
+    console: ''

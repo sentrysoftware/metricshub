@@ -39,6 +39,7 @@
 	<modules>
 		<module>matrix-engine</module>
 		<module>connector-compiler-plugin</module>
+		<module>hardware-sentry-cli</module>
 	</modules>
 
 	<dependencyManagement>
