@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.connector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.eq;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,66 +13,79 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.connector.helper.PluginHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.serialize.ConnectorSerializer;
 import com.sentrysoftware.matrix.connector.utils.TestHelper;
-
-import junit.framework.Assert;
 
 class ConnectorCompileMojoTest {
 
+	private static final String CHECK_OPTIONAL_CONNECTOR = "checkOptionalConnector";
+	private static final String MY_CONNECTOR_CONNECTOR = "MyConnector.connector";
+	private static final String EXPECTED_EXCEPTION = "Expected exception";
+	private static final String SERIALIZE = "serialize";
+	private static final String MY_CONNECTOR_HDFS = "/MyConnector.hdfs";
+	private static final String PROJECT_DESCRIPTION = "Hardware Connector Library";
+	private static final String PROJECT_VERSION = "1.0";
 	private static final String MS_HW_DELL_OPEN_MANAGE_CONNECTOR = "MS_HW_DellOpenManage.connector";
+	private static final String MS_HW_DELL_STORAGE_MANAGER_CONNECTOR = "MS_HW_DellStorageManager.connector";
 	private static final String MS_HW_DELL_OPEN_MANAGE_HDFS_PATH = "/hdf/MS_HW_DellOpenManage.hdfs";
 	private static final String MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH = "/hdf/MS_HW_DellStorageManager.hdfs";
 	private static final String MS_HW_DELL_STORAGE_MANAGER_HDFS = "MS_HW_DellStorageManager.hdfs";
 	private static final String MS_HW_DELL_OPEN_MANAGE_HDFS = "MS_HW_DellOpenManage.hdfs";
 	private static final String COMPILE_HDFS_FILES = "compileHdfsFiles";
 
-	private static Log logger;
-	private static ConnectorCompileMojo connectorCompileMojo;
+	private static Log logger = new SystemStreamLog();
+
+	private static ConnectorCompileMojo connectorCompileMojo = new ConnectorCompileMojo();
 
 	@TempDir
 	File testDirectory;
 
-	@BeforeAll
-	public static void setUp() {
-		logger = new SystemStreamLog();
-		connectorCompileMojo = new ConnectorCompileMojo();
-	}
-
 	@Test
-	void testCreateOutputDirectoryIfNeeded()
-			throws IllegalAccessException, InvocationTargetException {
-
+	void testCheckOptionalConnector() throws Exception {
+		
 		try {
-			TestHelper.invokeMethod(ConnectorCompileMojo.class, "createOutputDirectoryIfNeeded",
-					Arrays.asList(Log.class, File.class), Arrays.asList(logger, testDirectory), connectorCompileMojo);
-
+			TestHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.empty()));
+			fail(EXPECTED_EXCEPTION);
 		} catch (Exception e) {
-			Assert.fail("Unexpected Exception");
+			assertTrue(e.getCause() instanceof MojoExecutionException);
 		}
+		
+		try {
+			TestHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.of(Connector.builder().build())));
+		} catch (Exception e) {
+			fail("Unexpected exception");
+		}
+		
 	}
 
 	@Test
-	void testSerialize() throws IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
+	void testSerialize() throws Exception {
 
-		final String expectedFilename = "MyConnector.connector";
+		final String expectedFilename = MY_CONNECTOR_CONNECTOR;
 
 		Connector expected = Connector.builder().compiledFilename(expectedFilename).build();
-		TestHelper.invokeMethod(ConnectorCompileMojo.class, "serialize",
-				Arrays.asList(Log.class, File.class, Connector.class), Arrays.asList(logger, testDirectory, expected),
-				connectorCompileMojo);
+		TestHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
+				Arrays.asList(Log.class, File.class, String.class, Connector.class),
+				Arrays.asList(logger, testDirectory, testDirectory.getPath() + MY_CONNECTOR_HDFS, expected));
 
 		final String[] fileNames = testDirectory.list();
 
@@ -88,25 +103,27 @@ class ConnectorCompileMojoTest {
 	}
 
 	@Test
-	void testParse() throws Exception {
+	void testSerializeMojoExecutionException() throws Exception {
 
-		// Create a temporary file.
-		// This is guaranteed to be deleted after the test finishes.
-		final Path tempFile = Files.createFile(testDirectory.toPath().resolve(MS_HW_DELL_OPEN_MANAGE_HDFS));
+		final String expectedFilename = MY_CONNECTOR_CONNECTOR;
 
-		// Write HDFs content to it.
-		Files.writeString(tempFile,
-				ResourceHelper.getResourceAsString(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH, this.getClass()));
+		final Connector connector = Connector.builder().compiledFilename(expectedFilename).build();
+		final String connectorPath = testDirectory.getPath() + MY_CONNECTOR_HDFS;
+		try (MockedStatic<ConnectorSerializer> connectorSerializer = Mockito.mockStatic(ConnectorSerializer.class)) {
+			connectorSerializer.when(() -> ConnectorSerializer.serialize(eq(testDirectory.getAbsolutePath()), eq(connector))).thenThrow(new IOException("exception from test"));
+			
+			try {
+				TestHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
+						Arrays.asList(Log.class, File.class, String.class, Connector.class),
+						Arrays.asList(logger, testDirectory, connectorPath, connector));
+				fail(EXPECTED_EXCEPTION);
+			} catch (Exception e) {
+				assertTrue(e.getCause() instanceof MojoExecutionException);
+			}
 
-		final Optional<Connector> connectorOptional = TestHelper.invokeMethod(ConnectorCompileMojo.class, "parse",
-				Collections.singletonList(File.class), Collections.singletonList(new File(tempFile.toString())),
-				connectorCompileMojo);
-
-		assertTrue(connectorOptional.isPresent());
-		assertEquals(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, connectorOptional.get().getCompiledFilename());
-
+		}
 	}
-
+	
 	@Test
 	void testCompileHdfsFilesIllegalStateException() throws Exception {
 
@@ -116,11 +133,16 @@ class ConnectorCompileMojoTest {
 		final Path tempFile = Files.createFile(testDirectory.toPath().resolve("NotDirectory.text"));
 
 		{
+			MavenProject project = new MavenProject();
+			project.setVersion(PROJECT_VERSION);
+			project.setDescription(PROJECT_DESCRIPTION);
+			project.setFile(testDirectory);
 
 			try {
-				TestHelper.invokeMethod(ConnectorCompileMojo.class, COMPILE_HDFS_FILES,
-						Arrays.asList(Log.class, File.class, File.class),
-						Arrays.asList(logger, directory, new File(tempFile.toString())), connectorCompileMojo);
+				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
+						Arrays.asList(logger, directory, new File(tempFile.toString()), project));
+				fail(EXPECTED_EXCEPTION);
 			} catch (InvocationTargetException e) {
 				assertTrue(e.getCause() instanceof IllegalStateException);
 			}
@@ -129,10 +151,16 @@ class ConnectorCompileMojoTest {
 
 		{
 
+			final MavenProject project = new MavenProject();
+			project.setVersion(PROJECT_VERSION);
+			project.setDescription(PROJECT_DESCRIPTION);
+			project.setFile(testDirectory);
+
 			try {
-				TestHelper.invokeMethod(ConnectorCompileMojo.class, COMPILE_HDFS_FILES,
-						Arrays.asList(Log.class, File.class, File.class),
-						Arrays.asList(logger, new File(tempFile.toString()), directory), connectorCompileMojo);
+				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
+						Arrays.asList(logger, new File(tempFile.toString()), directory, project));
+				fail(EXPECTED_EXCEPTION);
 			} catch (InvocationTargetException e) {
 				assertTrue(e.getCause() instanceof IllegalStateException);
 			}
@@ -141,7 +169,40 @@ class ConnectorCompileMojoTest {
 	}
 
 	@Test
+	void testCompileHdfsFilesNoHdfs() throws Exception {
+	
+		final MavenProject project = new MavenProject();
+		project.setVersion(PROJECT_VERSION);
+		project.setDescription(PROJECT_DESCRIPTION);
+		project.setFile(testDirectory);
+
+		final File outputDirectory = new File(testDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
+		outputDirectory.mkdir();
+
+		final Path tempFile = Files.createFile(testDirectory.toPath().resolve(MS_HW_DELL_OPEN_MANAGE_HDFS));
+
+		Files.writeString(tempFile,
+				ResourceHelper.getResourceAsString(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH, this.getClass()));
+
+		try (MockedStatic<PluginHelper> pluginHelper = Mockito.mockStatic(PluginHelper.class)) {
+			pluginHelper.when(() -> PluginHelper.getFileList(eq(testDirectory), eq(Arrays.asList("*.hdfs")), eq(null))).thenReturn(null);
+			try {
+				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
+						Arrays.asList(logger, testDirectory, outputDirectory, project));
+				fail(EXPECTED_EXCEPTION);
+			} catch (InvocationTargetException e) {
+				assertTrue(e.getCause() instanceof IllegalStateException);
+			}
+		  }
+	}
+	@Test
 	void testCompileHdfsFiles() throws Exception {
+
+		final MavenProject project = new MavenProject();
+		project.setVersion(PROJECT_VERSION);
+		project.setDescription(PROJECT_DESCRIPTION);
+		project.setFile(testDirectory);
 
 		final File outputDirectory = new File(testDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
 		outputDirectory.mkdir();
@@ -156,9 +217,9 @@ class ConnectorCompileMojoTest {
 		Files.writeString(tempFile2,
 				ResourceHelper.getResourceAsString(MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH, this.getClass()));
 
-		final int count = TestHelper.invokeMethod(ConnectorCompileMojo.class, COMPILE_HDFS_FILES,
-				Arrays.asList(Log.class, File.class, File.class), Arrays.asList(logger, testDirectory, outputDirectory),
-				connectorCompileMojo);
+		final int count = TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+				Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
+				Arrays.asList(logger, testDirectory, outputDirectory, project));
 
 		assertEquals(2, count);
 
@@ -167,6 +228,11 @@ class ConnectorCompileMojoTest {
 	@Test
 	void testExecute() throws Exception {
 
+		final MavenProject project = new MavenProject();
+		project.setVersion(PROJECT_VERSION);
+		project.setDescription(PROJECT_DESCRIPTION);
+		project.setFile(testDirectory);
+		
 		final File outputDirectory = new File(testDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
 		outputDirectory.mkdir();
 
@@ -179,10 +245,6 @@ class ConnectorCompileMojoTest {
 
 		Files.writeString(tempFile2,
 				ResourceHelper.getResourceAsString(MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH, this.getClass()));
-
-		final MavenProject project = new MavenProject();
-		project.setVersion("1.0");
-		project.setDescription("Hardware Connector Library");
 
 		TestHelper.setField(connectorCompileMojo, "logger", logger);
 		TestHelper.setField(connectorCompileMojo, "connectorDirectory", testDirectory);
@@ -194,5 +256,7 @@ class ConnectorCompileMojoTest {
 		final String[] fileNames = outputDirectory.list();
 
 		assertEquals(2, fileNames.length);
+		assertEquals(Stream.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, MS_HW_DELL_STORAGE_MANAGER_CONNECTOR)
+				.collect(Collectors.toSet()), Arrays.stream(fileNames).collect(Collectors.toSet()));
 	}
 }

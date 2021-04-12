@@ -16,34 +16,32 @@ import org.junit.platform.commons.util.ReflectionUtils;
 public class TestHelper {
 
 	/**
-	 * Invoke the given methodName located in clazz using the given object
+	 * Invoke the given methodName of the given object
 	 * @param <T>
 	 * 
-	 * @param clazz
+	 * @param object
 	 * @param methodName
 	 * @param parameterTypes
 	 * @param parameters
-	 * @param object
 	 * @return {@link Object} instance
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T invokeMethod(final Class<?> clazz, final String methodName, final List<Class<?>> parameterTypes,
-			final List<Object> parameters, final Object object)
+	public static <T> T invokeMethod(final Object object, final String methodName, final List<Class<?>> parameterTypes,
+			final List<Object> parameters)
 			throws IllegalAccessException, InvocationTargetException {
 
-		assertNotNull(clazz);
 		assertNotNull(methodName);
 		assertNotNull(parameterTypes);
 		assertNotNull(parameters);
 		assertEquals(parameterTypes.size(), parameters.size());
 
-		final Optional<Method> serialize = ReflectionUtils.findMethod(clazz, methodName,
+		final Optional<Method> methodOptional = ReflectionUtils.findMethod(object.getClass(), methodName,
 				parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
-		assertTrue(serialize.isPresent());
+		assertTrue(methodOptional.isPresent());
 
-		final Method method = serialize.get();
+		final Method method = methodOptional.get();
 		method.setAccessible(true);
 
 		return (T) method.invoke(object, parameters.toArray(new Object[parameters.size()]));
