@@ -31,7 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-### Storage Intelligence ###
-*.si
-data/
