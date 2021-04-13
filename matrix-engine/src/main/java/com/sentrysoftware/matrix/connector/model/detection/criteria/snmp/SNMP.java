@@ -16,9 +16,9 @@ public abstract class SNMP extends Criterion {
 	private String oid;
 	private String expectedResult;
 
-	protected SNMP(boolean forceSerialization, String oid, String expectedResult) {
+	protected SNMP(boolean forceSerialization, String oid, String expectedResult, int index) {
 
-		super(forceSerialization);
+		super(forceSerialization, index);
 		this.oid = oid;
 		this.expectedResult = expectedResult;
 	}

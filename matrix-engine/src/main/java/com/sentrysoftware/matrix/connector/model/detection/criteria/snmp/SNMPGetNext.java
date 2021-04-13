@@ -13,8 +13,8 @@ public class SNMPGetNext extends SNMP {
 	private static final long serialVersionUID = -3577780284142096293L;
 
 	@Builder
-	public SNMPGetNext(boolean forceSerialization, String oid, String expectedResult) {
+	public SNMPGetNext(boolean forceSerialization, String oid, String expectedResult, int index) {
 
-		super(forceSerialization, oid, expectedResult);
+		super(forceSerialization, oid, expectedResult, index);
 	}
 }
