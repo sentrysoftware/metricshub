@@ -26,9 +26,9 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.shell</groupId>
-			<artifactId>spring-shell-starter</artifactId>
-			<version>2.0.0.RELEASE</version>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli-spring-boot-starter</artifactId>
+			<version>4.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -66,7 +66,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <mainClass>com.sentrysoftware.hardware.cli.HardwareSentryCLI</mainClass>
+                            <mainClass>com.sentrysoftware.hardware.cli.HardwareSentryCLIApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>
