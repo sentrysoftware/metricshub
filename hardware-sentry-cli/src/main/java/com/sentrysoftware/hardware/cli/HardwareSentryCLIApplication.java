@@ -9,19 +9,21 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StringUtils;
 
 @SpringBootApplication
-public class HardwareSentryCLI {
+public class HardwareSentryCLIApplication {
 
 	public static void main(String[] args) {
-
+		
 		final List<String> disabledCommands = new ArrayList<>();
 
-		if (Arrays.asList(args).contains("monitor-hardware")) {
+		List<String> argList = Arrays.asList(args);
+		if (!argList.contains("--help") && !argList.contains("-h")) {
 			disabledCommands.add("--spring.main.banner-mode=off");
 		}
 
 		final String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands.toArray(String[]::new));
 
-		SpringApplication.run(HardwareSentryCLI.class, fullArgs);
+		
+		System.exit(SpringApplication.exit(SpringApplication.run(HardwareSentryCLIApplication.class, fullArgs)));
 	}
 
 }
