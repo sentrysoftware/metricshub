@@ -9,10 +9,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class SNMPGetTableSource extends SNMPSource {
 
 	private static final long serialVersionUID = -8516718446207060520L;

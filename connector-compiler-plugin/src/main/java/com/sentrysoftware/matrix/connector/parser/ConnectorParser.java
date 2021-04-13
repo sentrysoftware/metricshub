@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.connector.parser;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorState;
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.util.Assert;
 import lombok.Data;
 
 import java.util.Optional;

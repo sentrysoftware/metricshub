@@ -8,8 +8,7 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
-
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.util.Assert;
 
 /**
  * Class with various utilities that will help developing this Maven plugin

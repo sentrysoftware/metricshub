@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.sentrysoftware.matrix.utils.Assert.isTrue;
-import static com.sentrysoftware.matrix.utils.Assert.notNull;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 
 public abstract class SnmpProcessor implements IConnectorStateParser {
 

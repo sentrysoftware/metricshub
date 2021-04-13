@@ -28,4 +28,7 @@ public class Monitor {
 	@Default
 	private Map<String, IParameterValue> parameters = new HashMap<>();
 
+	public void addParameter(IParameterValue parameter) {
+		parameters.put(parameter.getName(), parameter);
+	}
 }

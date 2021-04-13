@@ -2,14 +2,15 @@ package com.sentrysoftware.matrix.connector.model.common;
 
 public enum OSType {
 
-	NT,
-	LINUX,
-	OOB,
-	SOLARIS,
-	OSF1,
 	VMS,
+	OSF1,
 	HP,
 	RS6000,
+	LINUX,
+	OOB,
+	NT,
+	NETWORK,
 	STORAGE,
-	NETWORK;
+	SOLARIS;
+
 }

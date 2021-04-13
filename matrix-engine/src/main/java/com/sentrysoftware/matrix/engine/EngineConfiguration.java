@@ -29,5 +29,5 @@ public class EngineConfiguration {
 	private long operationTimeout = DEFAULT_JOB_TIMEOUT;
 
 	@Default
-	private Set<String> selectedHDFs = new HashSet<>();
+	private Set<String> selectedConnectors = new HashSet<>();
 }

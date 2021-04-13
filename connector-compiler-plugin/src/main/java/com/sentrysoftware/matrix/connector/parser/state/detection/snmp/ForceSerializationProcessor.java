@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 import com.sentrysoftware.matrix.connector.model.Connector;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.ONE;
-import static com.sentrysoftware.matrix.utils.Assert.notNull;
+import static org.springframework.util.Assert.notNull;
 
 public class ForceSerializationProcessor extends SnmpProcessor {
 

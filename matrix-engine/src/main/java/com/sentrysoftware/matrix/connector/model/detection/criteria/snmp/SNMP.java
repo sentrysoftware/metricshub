@@ -5,10 +5,12 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public abstract class SNMP extends Criterion {
 
 	private static final long serialVersionUID = -7948517909514524108L;

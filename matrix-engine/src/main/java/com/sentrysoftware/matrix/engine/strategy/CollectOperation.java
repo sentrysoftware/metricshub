@@ -3,8 +3,8 @@ package com.sentrysoftware.matrix.engine.strategy;
 public class CollectOperation extends AbstractStrategy {
 
 	@Override
-	public void prepare(StrategyConfig strategyConfig) {
-		super.prepare(strategyConfig);
+	public void prepare() {
+		super.prepare();
 	}
 
 	@Override

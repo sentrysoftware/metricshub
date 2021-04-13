@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -27,11 +26,11 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import com.sentrysoftware.matrix.common.helpers.ReflectionHelper;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.helper.PluginHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.serialize.ConnectorSerializer;
-import com.sentrysoftware.matrix.connector.utils.TestHelper;
 
 class ConnectorCompileMojoTest {
 
@@ -61,7 +60,7 @@ class ConnectorCompileMojoTest {
 	void testCheckOptionalConnector() throws Exception {
 		
 		try {
-			TestHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
 					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.empty()));
 			fail(EXPECTED_EXCEPTION);
 		} catch (Exception e) {
@@ -69,7 +68,7 @@ class ConnectorCompileMojoTest {
 		}
 		
 		try {
-			TestHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
 					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.of(Connector.builder().build())));
 		} catch (Exception e) {
 			fail("Unexpected exception");
@@ -83,7 +82,7 @@ class ConnectorCompileMojoTest {
 		final String expectedFilename = MY_CONNECTOR_CONNECTOR;
 
 		Connector expected = Connector.builder().compiledFilename(expectedFilename).build();
-		TestHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
+		ReflectionHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
 				Arrays.asList(Log.class, File.class, String.class, Connector.class),
 				Arrays.asList(logger, testDirectory, testDirectory.getPath() + MY_CONNECTOR_HDFS, expected));
 
@@ -113,7 +112,7 @@ class ConnectorCompileMojoTest {
 			connectorSerializer.when(() -> ConnectorSerializer.serialize(eq(testDirectory.getAbsolutePath()), eq(connector))).thenThrow(new IOException("exception from test"));
 			
 			try {
-				TestHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
+				ReflectionHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
 						Arrays.asList(Log.class, File.class, String.class, Connector.class),
 						Arrays.asList(logger, testDirectory, connectorPath, connector));
 				fail(EXPECTED_EXCEPTION);
@@ -139,12 +138,12 @@ class ConnectorCompileMojoTest {
 			project.setFile(testDirectory);
 
 			try {
-				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+				ReflectionHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
 						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
 						Arrays.asList(logger, directory, new File(tempFile.toString()), project));
 				fail(EXPECTED_EXCEPTION);
-			} catch (InvocationTargetException e) {
-				assertTrue(e.getCause() instanceof IllegalStateException);
+			} catch (Exception e) {
+				assertTrue(e instanceof IllegalStateException);
 			}
 
 		}
@@ -157,12 +156,12 @@ class ConnectorCompileMojoTest {
 			project.setFile(testDirectory);
 
 			try {
-				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+				ReflectionHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
 						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
 						Arrays.asList(logger, new File(tempFile.toString()), directory, project));
 				fail(EXPECTED_EXCEPTION);
-			} catch (InvocationTargetException e) {
-				assertTrue(e.getCause() instanceof IllegalStateException);
+			} catch (Exception e) {
+				assertTrue(e instanceof IllegalStateException);
 			}
 
 		}
@@ -187,12 +186,12 @@ class ConnectorCompileMojoTest {
 		try (MockedStatic<PluginHelper> pluginHelper = Mockito.mockStatic(PluginHelper.class)) {
 			pluginHelper.when(() -> PluginHelper.getFileList(eq(testDirectory), eq(Arrays.asList("*.hdfs")), eq(null))).thenReturn(null);
 			try {
-				TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+				ReflectionHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
 						Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
 						Arrays.asList(logger, testDirectory, outputDirectory, project));
 				fail(EXPECTED_EXCEPTION);
-			} catch (InvocationTargetException e) {
-				assertTrue(e.getCause() instanceof IllegalStateException);
+			} catch (Exception e) {
+				assertTrue(e instanceof IllegalStateException);
 			}
 		  }
 	}
@@ -217,7 +216,7 @@ class ConnectorCompileMojoTest {
 		Files.writeString(tempFile2,
 				ResourceHelper.getResourceAsString(MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH, this.getClass()));
 
-		final int count = TestHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
+		final int count = ReflectionHelper.invokeMethod(connectorCompileMojo, COMPILE_HDFS_FILES,
 				Arrays.asList(Log.class, File.class, File.class, MavenProject.class),
 				Arrays.asList(logger, testDirectory, outputDirectory, project));
 
@@ -246,10 +245,10 @@ class ConnectorCompileMojoTest {
 		Files.writeString(tempFile2,
 				ResourceHelper.getResourceAsString(MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH, this.getClass()));
 
-		TestHelper.setField(connectorCompileMojo, "logger", logger);
-		TestHelper.setField(connectorCompileMojo, "connectorDirectory", testDirectory);
-		TestHelper.setField(connectorCompileMojo, "outputDirectory", outputDirectory);
-		TestHelper.setField(connectorCompileMojo, "project", project);
+		ReflectionHelper.setField(connectorCompileMojo, "logger", logger);
+		ReflectionHelper.setField(connectorCompileMojo, "connectorDirectory", testDirectory);
+		ReflectionHelper.setField(connectorCompileMojo, "outputDirectory", outputDirectory);
+		ReflectionHelper.setField(connectorCompileMojo, "project", project);
 
 		connectorCompileMojo.execute();
 

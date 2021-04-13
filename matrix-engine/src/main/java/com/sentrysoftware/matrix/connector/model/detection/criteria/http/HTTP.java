@@ -4,15 +4,19 @@ import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class HTTP extends Criterion {
 
 	private static final long serialVersionUID = -2862351783201204668L;
@@ -38,6 +42,11 @@ public class HTTP extends Criterion {
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
 		this.resultContent = resultContent;
+	}
+
+	@Override
+	public CriterionTestResult accept(final ICriterionVisitor criterionVisitor) {
+		return criterionVisitor.visit(this);
 	}
 
 }

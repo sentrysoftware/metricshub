@@ -1,12 +1,16 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import static org.springframework.util.Assert.isTrue;
 
 import java.io.Serializable;
 
-import static com.sentrysoftware.matrix.utils.Assert.isTrue;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +28,5 @@ public abstract class Criterion implements Serializable {
 		isTrue(index > 0, "Invalid index: " + index);
 		this.index = index;
 	}
+	public abstract CriterionTestResult accept(final ICriterionVisitor criterionVisitor);
 }

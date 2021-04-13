@@ -485,7 +485,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.isLocalSupport());
+		Assert.assertNull(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -495,7 +495,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(LOCAL_SUPPORT_VALUE_TRUE).concat(SPACE);
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.isLocalSupport());
+		Assert.assertTrue(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -505,7 +505,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.isLocalSupport());
+		Assert.assertTrue(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -515,7 +515,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = LOCAL_SUPPORT_VALUE_FALSE;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.isLocalSupport());
+		Assert.assertFalse(connector.getLocalSupport());
 	}
 	
 	// RemoteSupport tests
@@ -609,7 +609,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.isRemoteSupport());
+		Assert.assertNull(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -619,7 +619,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(REMOTE_SUPPORT_VALUE_TRUE).concat(SPACE);
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.isRemoteSupport());
+		Assert.assertTrue(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -629,7 +629,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.isRemoteSupport());
+		Assert.assertTrue(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -639,7 +639,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = REMOTE_SUPPORT_VALUE_FALSE;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.isRemoteSupport());
+		Assert.assertFalse(connector.getRemoteSupport());
 	}
 	
 	// TypicalPlatform tests
