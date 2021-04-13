@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criteria;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OSCommand extends Criteria {
+public class OSCommand extends Criterion {
 
 	private static final long serialVersionUID = -2984562425705831946L;
 

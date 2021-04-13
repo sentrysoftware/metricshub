@@ -1,25 +1,29 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorState;
 import com.sentrysoftware.matrix.utils.Assert;
-
 import lombok.Data;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class ConnectorParser {
 
 	/**
-	 * Process Connector file 
+	 * Process Connector file
+	 *
+	 * @param connectorFilePath	The path of the {@link Connector} file
 	 * @return {@link Optional} of {@link Connector} instance
 	 */
 	public Optional<Connector> parse(final String connectorFilePath) {
 
-		Assert.isTrue(connectorFilePath != null && !connectorFilePath.trim().isEmpty(), "connectorFilePath cannot be null or empty");
+		Assert.isTrue(
+				connectorFilePath != null && !connectorFilePath.trim().isEmpty(),
+				"connectorFilePath cannot be null or empty"
+		);
 
 		try {
 
@@ -28,17 +32,23 @@ public class ConnectorParser {
 			connectorRefined.load(connectorFilePath);
 
 			return Optional.of(parseContent(connectorRefined));
-		} catch (Exception e) {
-			Assert.state(false, () -> String.format("Cannot load Connector file %s. Message: %s",
-					connectorFilePath, e.getMessage()));
-		}
 
-		return Optional.empty();
+		} catch (Exception e) {
+
+			throw new IllegalStateException(
+
+					String.format(
+							"Cannot load Connector file %s. Message: %s",
+							connectorFilePath,
+							e.getMessage()
+					)
+			);
+		}
 	}
 
 	/**
 	 * From the given {@link ConnectorRefined} object parse the whole Connector content
-	 * @param connectorRefined
+	 * @param connectorRefined	The refined connector
 	 * @return {@link Connector} instance.
 	 */
 	private static Connector parseContent(final ConnectorRefined connectorRefined) {
@@ -52,7 +62,6 @@ public class ConnectorParser {
 		connectorRefined.getCodeMap().forEach((key, value) -> parseKeyValue(key, value, connector));
 
 		return connector;
-
 	}
 
 	/**
@@ -64,14 +73,15 @@ public class ConnectorParser {
 	private static void parseKeyValue(final String key, final String value, final Connector connector) {
 
 		// Get the detected state
-		final Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates().stream().filter(state -> state.detect(key, value, connector))
+		final Set<ConnectorState> connectorStates = ConnectorState
+				.getConnectorStates()
+				.stream()
+				.filter(state -> state.detect(key, value, connector))
 				.collect(Collectors.toSet());
 
-		 Optional<ConnectorState> stateOpt = connectorStates.stream().findFirst();
-		 if (stateOpt.isPresent()) {
-			 stateOpt.get().parse(key, value, connector);
-		 }
+		Optional<ConnectorState> firstConnectorState = connectorStates.stream().findFirst();
+		firstConnectorState.ifPresent(connectorState -> connectorState.parse(key, value, connector));
+
 		// TODO if the Connector defines an IPMI source then add "ipmitool" to the list of sudoCommands in the Connector bean.
 	}
-
 }

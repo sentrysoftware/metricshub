@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class Criteria implements Serializable {
-
+public abstract class Criterion implements Serializable {
 
 	private static final long serialVersionUID = -3677479724786317941L;
 

@@ -17,7 +17,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 	@Override
 	public boolean detect(final String key, final String value, final Connector connector) {
 
-		return key.trim().startsWith("hdf.");
+		return key != null && key.trim().startsWith("hdf.");
 	}
 
 	@Override

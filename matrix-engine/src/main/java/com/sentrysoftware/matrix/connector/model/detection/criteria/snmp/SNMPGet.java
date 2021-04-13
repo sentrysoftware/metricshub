@@ -17,5 +17,4 @@ public class SNMPGet extends SNMP {
 
 		super(forceSerialization, oid, expectedResult);
 	}
-
 }

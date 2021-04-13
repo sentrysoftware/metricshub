@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria.ucs;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criteria;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class UCS extends Criteria {
+public class UCS extends Criterion {
 
 	private static final long serialVersionUID = 3035383624414379693L;
 
