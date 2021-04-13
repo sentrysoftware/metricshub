@@ -59,16 +59,11 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
 
     private Detection getDetection(Connector connector) {
 
-        notNull(connector, "Connector cannot be null.");
-
-        Detection detection = connector.getDetection();
-        if (detection == null) {
-
-            detection = new Detection();
-            connector.setDetection(detection);
+        if (connector.getDetection() == null) {
+            connector.setDetection(new Detection());
         }
 
-        return detection;
+        return connector.getDetection();
     }
 
     @SuppressWarnings("all")
@@ -102,7 +97,7 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
                 criterion instanceof SNMP,
                 "Detection.Criteria("
                         + criterionIndex
-                        + ") was expected to be an SMP, but is a(n) "
+                        + ") was expected to be an SNMP, but is a(n) "
                         + criterion.getClass()
                         + "."
         );
