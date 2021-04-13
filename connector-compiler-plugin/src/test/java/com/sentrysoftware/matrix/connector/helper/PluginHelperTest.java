@@ -39,17 +39,7 @@ class PluginHelperTest {
 
 		assertThrows(IllegalArgumentException.class, () -> PluginHelper.validateOutputDirectory(null));
 
-		// Directory does not exist and cannot be created
-		testDirectory.setWritable(false);
-		File testSubDirectory = new File(testDirectory, "foo");
-		assertThrows(MojoExecutionException.class, () -> PluginHelper.validateOutputDirectory(testSubDirectory));
-
 		try {
-
-			testDirectory.setWritable(true);
-
-			// Directory does not exist and can be created
-			PluginHelper.validateOutputDirectory(testSubDirectory);
 
 			// Directory exists
 			PluginHelper.validateOutputDirectory(testDirectory);
