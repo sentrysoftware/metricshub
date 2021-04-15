@@ -30,7 +30,7 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	private String hostname;
 
 	@Option(names = { "--device-type",
-			"-dt" }, required = true, description = "Enter indicate the Device Type to monitor.")
+			"-dt" }, required = true, description = "Enter the Device Type to monitor.")
 	private TargetType deviceType;
 
 	@ArgGroup(validate = false)
@@ -41,7 +41,7 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	private Set<String> hdfs;
 	
 	@Option(names = { "-hdfsExcluded",
-	"--connectorsExcluded" }, split = ",", required = false, description = "Enter the hdfs to exlcude.")
+	"--connectorsExcluded" }, split = ",", required = false, description = "Enter the hdfs to exclude.")
 	private Set<String> hdfsExclusion;
 
 	@Override
