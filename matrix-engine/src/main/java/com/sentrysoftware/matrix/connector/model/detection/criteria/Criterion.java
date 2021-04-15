@@ -19,12 +19,6 @@ public abstract class Criterion implements Serializable {
 
 	private Integer index;
 
-	protected Criterion(boolean forceSerialization) {
-
-		this.forceSerialization = forceSerialization;
-		this.index = null;
-	}
-
 	public void setIndex(int index) {
 
 		isTrue(index > 0, "Invalid index: " + index);

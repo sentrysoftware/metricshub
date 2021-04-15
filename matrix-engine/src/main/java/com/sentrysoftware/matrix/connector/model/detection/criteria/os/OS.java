@@ -23,7 +23,7 @@ public class OS extends Criterion {
 
 	@Builder
 	public OS(boolean forceSerialization, Set<OSType> keepOnly, Set<OSType> exclude) {
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.keepOnly = keepOnly;
 		this.exclude = exclude;
 

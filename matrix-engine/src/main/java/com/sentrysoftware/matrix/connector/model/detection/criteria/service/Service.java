@@ -19,7 +19,7 @@ public class Service extends Criterion {
 	@Builder
 	public Service(boolean forceSerialization, String serviceName) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.serviceName = serviceName;
 	}
 

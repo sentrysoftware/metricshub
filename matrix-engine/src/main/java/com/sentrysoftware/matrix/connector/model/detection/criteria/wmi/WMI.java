@@ -20,7 +20,7 @@ public class WMI extends Criterion {
 	@Builder
 	public WMI(boolean forceSerialization, String wbemQuery, String wbemNamespace, String expectedResult) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.wbemQuery = wbemQuery;
 		this.wbemNamespace = wbemNamespace;
 		this.expectedResult = expectedResult;

@@ -24,7 +24,7 @@ public class OSCommand extends Criterion {
 	public OSCommand(boolean forceSerialization, String commandLine, String errorMessage, String expectedResult,
 			boolean executeLocally, Long timeout) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.commandLine = commandLine;
 		this.errorMessage = errorMessage;
 		this.expectedResult = expectedResult;

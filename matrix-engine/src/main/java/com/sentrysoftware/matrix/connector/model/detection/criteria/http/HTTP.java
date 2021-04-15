@@ -30,7 +30,7 @@ public class HTTP extends Criterion {
 	public HTTP(boolean forceSerialization, String method, String url, Header header, Body body,
 			String expectedResult, String errorMessage, ResultContent resultContent) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.method = method;
 		this.url = url;
 		this.header = header;

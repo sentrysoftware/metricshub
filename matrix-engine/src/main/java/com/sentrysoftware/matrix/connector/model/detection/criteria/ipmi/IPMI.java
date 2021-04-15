@@ -13,7 +13,7 @@ public class IPMI extends Criterion {
 	@Builder
 	public IPMI(boolean forceSerialization) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 	}
 
 }

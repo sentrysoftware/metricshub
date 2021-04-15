@@ -25,7 +25,7 @@ public class TelnetInteractive extends Criterion {
 	@Builder
 	public TelnetInteractive(boolean forceSerialization, Integer port, String expectedResult, List<Step> steps) {
 
-		super(forceSerialization);
+		super(forceSerialization, null);
 		this.port = port;
 		this.expectedResult = expectedResult;
 		this.steps = steps;

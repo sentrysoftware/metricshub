@@ -72,7 +72,7 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
             isTrue(criterionIndexFromHdfsFile != 0, key + "'s index is invalid.");
 
             // By default, we add an SNMPGetNext type criterion.
-            // If necessary, the OidProcessor instance will change it to an SNMPGet type,
+            // If necessary, the OidProcessor instance will change it to an SNMPGet type.
             knownCriterion = new SNMPGetNext();
             knownCriterion.setIndex(criterionIndexFromHdfsFile);
 
