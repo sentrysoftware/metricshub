@@ -19,9 +19,9 @@ public class UCS extends Criterion {
 	private String expectedResult;
 
 	@Builder
-	public UCS(boolean forceSerialization, String query, String errorMessage, String expectedResult) {
+	public UCS(boolean forceSerialization, String query, String errorMessage, String expectedResult, int index) {
 
-		super(forceSerialization, null);
+		super(forceSerialization, index);
 		this.query = query;
 		this.errorMessage = errorMessage;
 		this.expectedResult = expectedResult;

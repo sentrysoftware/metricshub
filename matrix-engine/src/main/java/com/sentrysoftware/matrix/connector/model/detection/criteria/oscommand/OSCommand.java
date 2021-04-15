@@ -22,9 +22,9 @@ public class OSCommand extends Criterion {
 
 	@Builder
 	public OSCommand(boolean forceSerialization, String commandLine, String errorMessage, String expectedResult,
-			boolean executeLocally, Long timeout) {
+			boolean executeLocally, Long timeout, int index) {
 
-		super(forceSerialization, null);
+		super(forceSerialization, index);
 		this.commandLine = commandLine;
 		this.errorMessage = errorMessage;
 		this.expectedResult = expectedResult;

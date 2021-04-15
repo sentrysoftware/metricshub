@@ -28,9 +28,9 @@ public class HTTP extends Criterion {
 
 	@Builder
 	public HTTP(boolean forceSerialization, String method, String url, Header header, Body body,
-			String expectedResult, String errorMessage, ResultContent resultContent) {
+			String expectedResult, String errorMessage, ResultContent resultContent, int index) {
 
-		super(forceSerialization, null);
+		super(forceSerialization, index);
 		this.method = method;
 		this.url = url;
 		this.header = header;

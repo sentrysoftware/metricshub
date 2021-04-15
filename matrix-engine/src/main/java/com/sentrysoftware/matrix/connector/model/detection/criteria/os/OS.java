@@ -22,8 +22,8 @@ public class OS extends Criterion {
 	private Set<OSType> exclude = new HashSet<>();
 
 	@Builder
-	public OS(boolean forceSerialization, Set<OSType> keepOnly, Set<OSType> exclude) {
-		super(forceSerialization, null);
+	public OS(boolean forceSerialization, Set<OSType> keepOnly, Set<OSType> exclude, int index) {
+		super(forceSerialization, index);
 		this.keepOnly = keepOnly;
 		this.exclude = exclude;
 

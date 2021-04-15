@@ -17,9 +17,9 @@ public class Process extends Criterion {
 	private String processCommandLine;
 
 	@Builder
-	public Process(boolean forceSerialization, String processCommandLine) {
+	public Process(boolean forceSerialization, String processCommandLine, int index) {
 
-		super(forceSerialization, null);
+		super(forceSerialization, index);
 		this.processCommandLine = processCommandLine;
 	}
 

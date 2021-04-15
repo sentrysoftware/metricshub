@@ -23,9 +23,9 @@ public class TelnetInteractive extends Criterion {
 	private List<Step> steps = new ArrayList<>();
 
 	@Builder
-	public TelnetInteractive(boolean forceSerialization, Integer port, String expectedResult, List<Step> steps) {
+	public TelnetInteractive(boolean forceSerialization, Integer port, String expectedResult, List<Step> steps, int index) {
 
-		super(forceSerialization, null);
+		super(forceSerialization, index);
 		this.port = port;
 		this.expectedResult = expectedResult;
 		this.steps = steps;

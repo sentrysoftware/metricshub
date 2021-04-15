@@ -17,8 +17,8 @@ public class KMVersion extends Criterion {
 	private String version;
 
 	@Builder
-	public KMVersion(boolean forceSerialization, String version) {
-		super(forceSerialization, null);
+	public KMVersion(boolean forceSerialization, String version, int index) {
+		super(forceSerialization, index);
 		this.version = version;
 	}
 }
