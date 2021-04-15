@@ -16,7 +16,9 @@ import static com.sentrysoftware.matrix.utils.Assert.notNull;
 
 public abstract class SnmpProcessor implements IConnectorStateParser {
 
-    protected int criterionIndex;
+    protected int criterionIndexFromHdfsFile;
+    protected int criterionIndexInDetection;
+    protected Criterion knownCriterion;
 
     protected static final String INDEX_REGEX = "\\((\\d+)\\)";
     protected static final Pattern CRITERION_INDEX_PATTERN = Pattern.compile(INDEX_REGEX);
@@ -28,7 +30,28 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
 
         return value != null
                 && key != null
-                && key.matches(getKeyRegex());
+                && key.matches(getKeyRegex())
+                && isSnmpContext(key, connector);
+    }
+
+    /**
+     * @param key       The current line's key.
+     * @param connector The {@link Connector} whose detection criteria we wish to check.
+     *
+     * @return          Whether the given {@link Connector}
+     *                  has a detection SNMP {@link Criterion} with the same index as the key, or not.
+     *                  Always returns <i>true</i> for OID keys
+     *                  (e.g. <i>Detection.Criteria(1).SnmpGetNext</i> or <i>Detection.Criteria(1).SnmpGet</i>)
+     */
+    private boolean isSnmpContext(String key, Connector connector) {
+
+        if (this instanceof OidProcessor) {
+            return true;
+        }
+
+        setKnownCriterion(key, connector);
+
+        return knownCriterion instanceof SNMP;
     }
 
     @Override
@@ -41,22 +64,31 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
         );
         notNull(value, "value cannot be null.");
         notNull(connector, "Connector cannot be null.");
-        notNull(getKeyRegex(), "getKeyRegex() should never return null.");
 
-        setCriterionIndex(key);
-        isTrue(criterionIndex > 0, key + " is an invalid key.");
+        // For OID keys, let us try to add directly a new SNMP criterion
+        if (this instanceof OidProcessor) {
 
-        List<Criterion> criteria = getDetection(connector).getCriteria();
+            setCriterionIndexFromHdfsFile(key);
+            isTrue(criterionIndexFromHdfsFile != 0, key + "'s index is invalid.");
 
-        // Checking if a new criterion declaration has been encountered
-        if (criteria.size() < criterionIndex) {
+            // By default, we add an SNMPGetNext type criterion.
+            // If necessary, the OidProcessor instance will change it to an SNMPGet type.
+            knownCriterion = new SNMPGetNext();
+            knownCriterion.setIndex(criterionIndexFromHdfsFile);
 
-            // Let us create a SNMPGetNext criterion by default.
-            // OidProcessor will change it to SNMPGet if necessary.
-            criteria.add(new SNMPGetNext());
+            List<Criterion> criteria = getDetection(connector).getCriteria();
+
+            criteria.add(knownCriterion);
+            criterionIndexInDetection = criteria.size() - 1;
         }
     }
 
+    /**
+     * @param connector The {@link Connector} whose {@link Detection} we wish to get.
+     *
+     * @return          The given {@link Connector}'s {@link Detection}.
+     *                  If the {@link Connector} does not have any {@link Detection}, creates one.
+     */
     private Detection getDetection(Connector connector) {
 
         if (connector.getDetection() == null) {
@@ -66,8 +98,44 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
         return connector.getDetection();
     }
 
+    /**
+     * Tries to find in the given {@link Connector}
+     * the {@link SNMP} type {@link Criterion} having the same index as the given key.
+     *
+     * @param key       The current line's key.
+     * @param connector The {@link Connector} whose matching {@link Criterion} we wish to set.
+     */
+    private void setKnownCriterion(String key, Connector connector) {
+
+        notNull(connector, "Connector cannot be null.");
+
+        setCriterionIndexFromHdfsFile(key);
+        isTrue(criterionIndexFromHdfsFile != 0, key + "'s index is invalid.");
+
+        knownCriterion = null;
+        criterionIndexInDetection = -1;
+
+        List<Criterion> criteria = getDetection(connector).getCriteria();
+        for (int i = 0; i < criteria.size(); i++) {
+
+            if (criteria.get(i).getIndex() == criterionIndexFromHdfsFile) {
+
+                knownCriterion = criteria.get(i);
+                isSnmp();
+                criterionIndexInDetection = i;
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * Extracts the given key's index.
+     *
+     * @param key   The key whose index we wish to extract.
+     */
     @SuppressWarnings("all")
-    private void setCriterionIndex(String key) {
+    private void setCriterionIndexFromHdfsFile(String key) {
 
         notNull(key, "key cannot be null.");
         notNull(getKeyRegex(), "getKeyRegex() should never return null.");
@@ -88,17 +156,20 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
 
         // group(1) exists, because of "(\\d+)" in "\\((\\d+)\\)".
         // group(1) will extract <integer> in "detection.criteria(<integer>)"
-        criterionIndex = Integer.parseInt(matcher.group(1));
+        criterionIndexFromHdfsFile = Integer.parseInt(matcher.group(1));
     }
 
-    protected void isSnmp(Criterion criterion) {
+    /**
+     * Checks the current known {@link Criterion} is an {@link SNMP} type {@link Criterion}.
+     */
+    protected void isSnmp() {
 
         isTrue(
-                criterion instanceof SNMP,
+                knownCriterion instanceof SNMP,
                 "Detection.Criteria("
-                        + criterionIndex
+                        + criterionIndexFromHdfsFile
                         + ") was expected to be an SNMP, but is a(n) "
-                        + criterion.getClass()
+                        + knownCriterion.getClass()
                         + "."
         );
     }

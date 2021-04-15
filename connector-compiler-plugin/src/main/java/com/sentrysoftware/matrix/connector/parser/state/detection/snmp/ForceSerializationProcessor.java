@@ -1,9 +1,9 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.ONE;
+import static com.sentrysoftware.matrix.utils.Assert.notNull;
 
 public class ForceSerializationProcessor extends SnmpProcessor {
 
@@ -19,13 +19,8 @@ public class ForceSerializationProcessor extends SnmpProcessor {
 
         super.parse(key, value, connector);
 
-        // connector, connector.getDetection() and criteria are never null here,
-        // and criterionIndex is always in [0; criteria.size()[
-        Criterion criterion = connector.getDetection().getCriteria().get(criterionIndex - 1);
-
-        isSnmp(criterion);
-
         // Setting the expected result
-        criterion.setForceSerialization(value.trim().equals(ONE));
+        notNull(knownCriterion, "knownCriterion should not be null.");
+        knownCriterion.setForceSerialization(value.trim().equals(ONE));
     }
 }

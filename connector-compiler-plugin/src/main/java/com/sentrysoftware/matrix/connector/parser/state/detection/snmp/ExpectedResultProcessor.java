@@ -1,11 +1,11 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
+import static com.sentrysoftware.matrix.utils.Assert.notNull;
 
 public class ExpectedResultProcessor extends SnmpProcessor {
 
@@ -21,13 +21,8 @@ public class ExpectedResultProcessor extends SnmpProcessor {
 
         super.parse(key, value, connector);
 
-        // connector, connector.getDetection() and criteria are never null here,
-        // and criterionIndex is always in [0; criteria.size()[
-        Criterion criterion = connector.getDetection().getCriteria().get(criterionIndex - 1);
-
-        isSnmp(criterion);
-
         // Setting the expected result
-        ((SNMP) criterion).setExpectedResult(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
+        notNull(knownCriterion, "knownCriterion should not be null.");
+        ((SNMP) knownCriterion).setExpectedResult(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
     }
 }

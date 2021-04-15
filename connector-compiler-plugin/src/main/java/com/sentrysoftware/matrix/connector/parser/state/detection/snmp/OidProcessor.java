@@ -1,15 +1,13 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 
-import java.util.List;
-
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
+import static com.sentrysoftware.matrix.utils.Assert.notNull;
 
 public class OidProcessor extends SnmpProcessor {
 
@@ -26,28 +24,26 @@ public class OidProcessor extends SnmpProcessor {
 
         super.parse(key, value, connector);
 
-        // connector and connector.getDetection() are never null here
-        List<Criterion> criteria = connector.getDetection().getCriteria();
-
-        // criteria is never null here
-        // and criterionIndex is always in [0; criteria.size()[
-        Criterion criterion = criteria.get(criterionIndex - 1);
-
-        isSnmp(criterion);
-
         // Changing the criterion to SNMPGet if necessary
         // Note: key is never null here
         if (key.trim().endsWith(SNMP_GET_OID_KEY)) {
 
-            SNMPGet snmpGetCriterion = new SNMPGet();
-            snmpGetCriterion.setForceSerialization(criterion.isForceSerialization());
-            snmpGetCriterion.setExpectedResult(((SNMPGetNext) criterion).getExpectedResult());
+            notNull(knownCriterion, "knownCriterion should not be null.");
 
-            criterion = snmpGetCriterion;
-            criteria.set(criterionIndex - 1, criterion);
+            knownCriterion = SNMPGet
+                    .builder()
+                    .index(knownCriterion.getIndex())
+                    .forceSerialization(knownCriterion.isForceSerialization())
+                    .expectedResult(((SNMPGetNext) knownCriterion).getExpectedResult())
+                    .build();
+
+            connector
+                    .getDetection()
+                    .getCriteria()
+                    .set(criterionIndexInDetection, knownCriterion);
         }
 
         // Setting the OID
-        ((SNMP) criterion).setOid(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
+        ((SNMP) knownCriterion).setOid(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
     }
 }

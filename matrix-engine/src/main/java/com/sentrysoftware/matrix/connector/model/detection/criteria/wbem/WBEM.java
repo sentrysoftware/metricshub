@@ -19,9 +19,9 @@ public class WBEM extends Criterion {
 	private String expectedResult;
 
 	@Builder
-	public WBEM(boolean forceSerialization, String wbemQuery, String wbemNamespace, String expectedResult) {
+	public WBEM(boolean forceSerialization, String wbemQuery, String wbemNamespace, String expectedResult, int index) {
 
-		super(forceSerialization);
+		super(forceSerialization, index);
 		this.wbemQuery = wbemQuery;
 		this.wbemNamespace = wbemNamespace;
 		this.expectedResult = expectedResult;
