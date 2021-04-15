@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
@@ -52,8 +53,10 @@ public class JobResultFormatterServiceTest {
 		Map<String, Monitor> map = new HashMap<>();
 
 		Monitor connector1 = new Monitor();
+		connector1.setDeviceId("id1");
 		connector1.setName("MS_HW_DellOpenManage");
 		connector1.setParentId("parentId");
+		connector1.setMonitorType(MonitorType.CONNECTOR);
 
 		Map<String, IParameterValue> parameters = new HashMap<>();
 		parameters.put("status", StatusParam.builder().collectTime(1618319092125L).name("status")
@@ -61,17 +64,31 @@ public class JobResultFormatterServiceTest {
 		connector1.setParameters(parameters);
 		map.put("id1", connector1);
 
+		Monitor connector2 = new Monitor();
+		connector2.setDeviceId("id2");
+		connector2.setName("MS_HW_DellCMC");
+		connector2.setParentId("parentId");
+		connector2.setMonitorType(MonitorType.CONNECTOR);
+
+		Map<String, IParameterValue> parameters2 = new HashMap<>();
+		parameters2.put("status", StatusParam.builder().collectTime(1618319092125L).name("status")
+				.status(ParameterState.WARN).statusInformation("WARNING").build());
+		connector2.setParameters(parameters2);
+		map.put("id2", connector2);
+
 		monitoring.put(MonitorType.CONNECTOR, map);
 
 		Map<String, Monitor> map2 = new HashMap<>();
 
 		Monitor device1 = new Monitor();
+		device1.setDeviceId("id3");
 		device1.setName("MS_HW_DellOpenManage_Device");
 		device1.setParentId("id1");
+		device1.setMonitorType(MonitorType.DEVICE);
 
 		device1.setParameters(parameters);
 
-		map2.put("id2", device1);
+		map2.put("id3", device1);
 
 		monitoring.put(MonitorType.DEVICE, map2);
 
@@ -79,44 +96,9 @@ public class JobResultFormatterServiceTest {
 
 		String formattedMonitoring = jobFormatter.format(hostMonitoring);
 
-		String expected = "{\r\n" + 
-				"  \"connector\" : [ {\r\n" + 
-				"    \"deviceId\" : \"id1\",\r\n" + 
-				"    \"name\" : \"MS_HW_DellOpenManage\",\r\n" + 
-				"    \"monitorType\" : \"CONNECTOR\",\r\n" + 
-				"    \"parentId\" : \"parentId\",\r\n" + 
-				"    \"targetId\" : null,\r\n" + 
-				"    \"parameters\" : {\r\n" + 
-				"      \"status\" : {\r\n" + 
-				"        \"name\" : \"status\",\r\n" + 
-				"        \"collectTime\" : 1618319092125,\r\n" + 
-				"        \"threshold\" : null,\r\n" + 
-				"        \"state\" : \"OK\",\r\n" + 
-				"        \"status\" : \"OK\",\r\n" + 
-				"        \"statusInformation\" : \"OK\"\r\n" + 
-				"      }\r\n" + 
-				"    }\r\n" + 
-				"  } ],\r\n" + 
-				"  \"device\" : [ {\r\n" + 
-				"    \"deviceId\" : \"id2\",\r\n" + 
-				"    \"name\" : \"MS_HW_DellOpenManage_Device\",\r\n" + 
-				"    \"monitorType\" : \"DEVICE\",\r\n" + 
-				"    \"parentId\" : \"id1\",\r\n" + 
-				"    \"targetId\" : null,\r\n" + 
-				"    \"parameters\" : {\r\n" + 
-				"      \"status\" : {\r\n" + 
-				"        \"name\" : \"status\",\r\n" + 
-				"        \"collectTime\" : 1618319092125,\r\n" + 
-				"        \"threshold\" : null,\r\n" + 
-				"        \"state\" : \"OK\",\r\n" + 
-				"        \"status\" : \"OK\",\r\n" + 
-				"        \"statusInformation\" : \"OK\"\r\n" + 
-				"      }\r\n" + 
-				"    }\r\n" + 
-				"  } ]\r\n" + 
-				"}";
+		String expected = ResourceHelper.getResourceAsString("/json/formatTestResource.json", this.getClass());
 
-		Assert.assertEquals(expected, formattedMonitoring);
+		Assert.assertEquals(expected.replace("\r", ""), formattedMonitoring.replace("\r", ""));
 	}
 
 }

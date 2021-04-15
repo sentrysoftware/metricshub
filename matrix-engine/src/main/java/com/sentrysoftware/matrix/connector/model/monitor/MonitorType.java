@@ -31,4 +31,19 @@ public enum MonitorType {
 	VOLTAGE("Voltage");
 
 	private String name;
+
+	/**
+	 * Return the JSON key associated to a monitor type.
+	 * @return The JSON key associated to the monitor type.
+	 */
+	public String jsonKey() {
+		switch(this) {
+			case BATTERY:
+			case MEMORY:
+			case POWER_SUPPLY:
+				return name.replace("y", "ies");
+			default:
+				return name.concat("s");
+		}
+	}
 }

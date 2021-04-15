@@ -12,4 +12,5 @@ public class StringHelper {
 	public static final String CLOSING_BRACKET = "]";
 	public static final String SPACE = " ";
 	public static final String DOUBLE_SPACE = "  ";
+	public static final String EMPTY = "";
 }

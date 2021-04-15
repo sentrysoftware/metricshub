@@ -1,6 +1,9 @@
 package com.sentrysoftware.hardware.cli.service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,12 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.hardware.cli.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitorsVO;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class JobResultFormatterService {
 
 	/**
@@ -30,83 +32,44 @@ public class JobResultFormatterService {
 			return null;
 		}
 
-		boolean needsComa = false;
-		String result = StringHelper.OPENING_CURLY_BRACKET;
+		Map<MonitorType, Map<String, Monitor>> allMonitors = hostMonitoring.getMonitors();
 
-		for (MonitorType monitorType : MonitorType.values()) {
-			String monitorsStr = "";
+		HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
 
-			try {
-				monitorsStr = parseMonitorMap(hostMonitoring, monitorType);
-			} catch (JsonProcessingException e) {
-				final String message = String.format("Matrix - Cannot parse %s", monitorType.name());
-				log.error(message);
-			}
+		List<MonitorType> monitorTypes = new ArrayList<>(allMonitors.keySet());
+		Collections.sort(monitorTypes, new MonitorTypeComparator());
 
-			if (monitorsStr != null && !monitorsStr.isEmpty()) {
-				if (needsComa) {
-					result = result.concat(StringHelper.COMA);
-				}
-				result = result.concat(monitorsStr);
-				needsComa = true;
-			}
+		for (MonitorType monitorType : monitorTypes) {
+			List<Monitor> monitorList = new ArrayList<>(allMonitors.get(monitorType).values());
+			Collections.sort(monitorList, new MonitorComparator());
+			HostMonitorsVO hostMonitorsVO = new HostMonitorsVO(monitorList.size(), Collections.singletonMap(monitorType.jsonKey(), monitorList));
+			hostMonitoringVO.addHostMonitor(hostMonitorsVO);
 		}
 
-		result = result.concat(StringHelper.NEW_LINE)
-				.concat(StringHelper.CLOSING_CURLY_BRACKET);
-
-		return result;
+		try {
+			return new ObjectMapper()
+					.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(hostMonitoringVO);
+		} catch (JsonProcessingException e) {
+			return StringHelper.EMPTY;
+		}
 	}
 
-	/**
-	 * Parse and write the monitors of a specific type from a hostmonitoring into a JSON format.
-	 * @param hostMonitoring The hostMonitoring to parse.
-	 * @param monitorType The type of monitors to parse.
-	 * @return The data from the monitors parsed into a JSON format.
-	 * @throws JsonProcessingException When encountering an error during the JSON formating.
+	/*
+	 *  These two classes are used to sort monitors and monitorTypes before adding them to a HostMonitoringVO
+	 *  so that the parsing always returns the same value, and not with monitor types and monitors displayed randomly
 	 */
-	private String parseMonitorMap (IHostMonitoring hostMonitoring, MonitorType monitorType)  throws JsonProcessingException {
-
-		if (hostMonitoring == null || hostMonitoring.getMonitors() == null || hostMonitoring.getMonitors().isEmpty()) {
-			return null;
+	class MonitorComparator implements Comparator<Monitor> {
+		@Override
+		public int compare(Monitor a, Monitor b) {
+			return a.getDeviceId().compareTo(b.getDeviceId());
 		}
-
-		Map<String, Monitor> monitorsMap = hostMonitoring.getMonitors().get(monitorType);
-		Set<Monitor> monitors = new HashSet<>();
-
-		if (monitorsMap != null && !monitorsMap.isEmpty() && monitorType != null) {
-			for(String key : monitorsMap.keySet()) {
-				Monitor monitor = monitorsMap.get(key);
-				monitor.setDeviceId(key);
-				monitor.setMonitorType(monitorType);
-				monitors.add(monitor);
-			}
-		}
-
-		return formatMonitorMap(monitors, monitorType);
 	}
 
-	/**
-	 * Format a set of monitors into an array preceeded by the  type of monitors, in the JSON format.
-	 * @param monitors The monitors to parse.
-	 * @param monitorType The type of monitors.
-	 * @return An array containing the monitors data in the JSON format.
-	 * @throws JsonProcessingException When encountering an error during the JSON formating.
-	 */
-	private String formatMonitorMap(Set<Monitor> monitors, MonitorType monitorType) throws JsonProcessingException {
-		String result = "";
-		if (monitors != null && !monitors.isEmpty() && monitorType != null) {
-			result = StringHelper.NEW_LINE
-					.concat(StringHelper.DOUBLE_SPACE)
-					.concat(StringHelper.DOUBLE_QUOTE)
-					.concat(monitorType.name().toLowerCase())
-					.concat(StringHelper.DOUBLE_QUOTE)
-					.concat(StringHelper.SPACE)
-					.concat(StringHelper.COLON)
-					.concat(StringHelper.SPACE)
-					.concat(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(monitors).replaceAll(StringHelper.NEW_LINE, StringHelper.NEW_LINE.concat(StringHelper.DOUBLE_SPACE)));
+	class MonitorTypeComparator implements Comparator<MonitorType> {
+		@Override
+		public int compare(MonitorType a, MonitorType b) {
+			return a.name().compareTo(b.name());
 		}
-
-		return result;
 	}
 }
