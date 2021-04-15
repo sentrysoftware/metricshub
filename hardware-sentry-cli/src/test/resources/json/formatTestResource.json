@@ -1,0 +1,62 @@
+{
+  "total" : 3,
+  "hostMonitors" : [ {
+    "numberOfMonitors" : 2,
+    "monitors" : {
+      "Connectors" : [ {
+        "deviceId" : "id1",
+        "name" : "MS_HW_DellOpenManage",
+        "monitorType" : "CONNECTOR",
+        "parentId" : "parentId",
+        "targetId" : null,
+        "parameters" : {
+          "status" : {
+            "name" : "status",
+            "collectTime" : 1618319092125,
+            "threshold" : null,
+            "state" : "OK",
+            "status" : "OK",
+            "statusInformation" : "OK"
+          }
+        }
+      }, {
+        "deviceId" : "id2",
+        "name" : "MS_HW_DellCMC",
+        "monitorType" : "CONNECTOR",
+        "parentId" : "parentId",
+        "targetId" : null,
+        "parameters" : {
+          "status" : {
+            "name" : "status",
+            "collectTime" : 1618319092125,
+            "threshold" : null,
+            "state" : "WARN",
+            "status" : "WARN",
+            "statusInformation" : "WARNING"
+          }
+        }
+      } ]
+    }
+  }, {
+    "numberOfMonitors" : 1,
+    "monitors" : {
+      "Devices" : [ {
+        "deviceId" : "id3",
+        "name" : "MS_HW_DellOpenManage_Device",
+        "monitorType" : "DEVICE",
+        "parentId" : "id1",
+        "targetId" : null,
+        "parameters" : {
+          "status" : {
+            "name" : "status",
+            "collectTime" : 1618319092125,
+            "threshold" : null,
+            "state" : "OK",
+            "status" : "OK",
+            "statusInformation" : "OK"
+          }
+        }
+      } ]
+    }
+  } ]
+}
