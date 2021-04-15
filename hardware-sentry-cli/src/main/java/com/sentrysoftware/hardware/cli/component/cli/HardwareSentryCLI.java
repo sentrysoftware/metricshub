@@ -1,11 +1,14 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.service.EngineService;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import lombok.Data;
 import picocli.CommandLine.ArgGroup;
@@ -13,35 +16,38 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Component
-@Command(name = "hardware-sentry-cli", mixinStandardHelpOptions = true)
+@Command(
+		name = "hardware-sentry-cli", 
+		mixinStandardHelpOptions = true)
+@Data
 public class HardwareSentryCLI implements Callable<Boolean> {
-	
+
 	@Autowired
 	private EngineService engineService;
+	
+	@Option(names = { "--hostname",
+			"-host" }, required = true, description = "Enter a hostname or an  IP Address.")
+	private String hostname;
 
-    @Option(names = "--hostname", required = true, description = "Update me")
-    private String hostname;
+	@Option(names = { "--device-type",
+			"-dt" }, required = true, description = "Enter the Device Type to monitor.")
+	private TargetType deviceType;
 
-    @ArgGroup(validate = false)
-    private SNMPCredentials snmpCredentials;
+	@ArgGroup(validate = false)
+	private SNMPCredentials snmpCredentials;
 
-    @Override
-    public Boolean call() {
-        System.out.printf("monitor-hardware was called with -h=%s%n", hostname);
-        System.out.println(snmpCredentials);
-        System.out.println(engineService.call(hostname));
-        return true;
-    }
+	@Option(names = { "-hdfs",
+	"--connectors" }, split = ",", required = false, description = "Enter the hdfs to run.")
+	private Set<String> hdfs;
+	
+	@Option(names = { "-hdfsExcluded",
+	"--connectorsExcluded" }, split = ",", required = false, description = "Enter the hdfs to exclude.")
+	private Set<String> hdfsExclusion;
 
-    @Data
-    static class SNMPCredentials {
-    	@Option(names = "--snmp-version", defaultValue = "V1", description = "Update me") SNMPVersion snmpVersion;
-        @Option(names = "--snmp-port", description = "Update me") int port = 161;
-        @Option(names = "--snmp-community", description = "Update me") String community;
-        @Option(names = "--snmp-timeout", description = "Update me") int timeout;
-    }
+	@Override
+	public Boolean call() {
+		System.out.println(engineService.call(this));
+		return true;
+	}
 
-    enum SNMPVersion {
-    	V1, V2C, V3, V3_MD5, V3_SHA, V3_NO_AUTH
-    }
 }
