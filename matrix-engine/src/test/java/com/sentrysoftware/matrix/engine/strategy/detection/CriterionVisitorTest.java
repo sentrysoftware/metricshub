@@ -41,6 +41,8 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
 
+	private static final String UCS_EXPECTED = "UCS";
+	private static final String UCS_SYSTEM_CISCO_RESULT = "UCS System Cisco";
 	private static final String RESULT_4 = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
 	private static final String RESULT_3 = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6";
 	private static final String RESULT_2 = "1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1";
@@ -109,8 +111,84 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGet() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new SNMPGet()));
+	void testVisitSNMPGetException() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doThrow(new TimeoutException("SNMPGet timeout")).when(matsyaClientsExecutor).executeSNMPGet(any(),
+				any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an exception. Message: SNMPGet timeout.")
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetNullResult() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to a null result.")
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetEmptyResult() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an empty result.")
+				.result(EMPTY).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetSuccessWithNoExpectedResult() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
+				.result(UCS_SYSTEM_CISCO_RESULT)
+				.success(true).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetExpectedResultNotMatches() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(VERSION).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value UCS System Cisco.")
+				.result(UCS_SYSTEM_CISCO_RESULT)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetExpectedResultMatches() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(UCS_EXPECTED).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
+				.result(UCS_SYSTEM_CISCO_RESULT)
+				.success(true)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testVisitSNMPGetReturnsEmptyResult() {
+		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit((SNMPGet) null));
+		assertEquals(CriterionTestResult.empty(),
+				new CriterionVisitor().visit(SNMPGet.builder().oid(null).build()));
+		doReturn(new EngineConfiguration()).when(strategyConfig).getEngineConfiguration();
+		assertEquals(CriterionTestResult.empty(),
+				criterionVisitor.visit(SNMPGet.builder().oid(OID).build()));
 	}
 
 	@Test

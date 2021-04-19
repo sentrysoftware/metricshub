@@ -85,10 +85,124 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final SNMPGet snmpGet) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+		if (null == snmpGet || snmpGet.getOid() == null) {
+			return CriterionTestResult.empty();
+		}
+
+		final Optional<IProtocolConfiguration> snmpProtocolOpt = getSnmpProtocol();
+
+		if (!snmpProtocolOpt.isPresent()) {
+			return CriterionTestResult.empty();
+		}
+
+		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+
+			final String result = matsyaClientsExecutor.executeSNMPGet(
+					snmpGet.getOid(),
+					protocol,
+					hostname,
+					false);
+
+			final TestResult testResult = checkSNMPGetResult(
+					hostname,
+					snmpGet.getOid(),
+					snmpGet.getExpectedResult(),
+					result);
+
+			return CriterionTestResult
+					.builder()
+					.result(result)
+					.success(testResult.isSuccess())
+					.message(testResult.getMessage())
+					.build();
+
+		} catch (Exception e) {
+			final String message = String.format(
+					"SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an exception. Message: %s.",
+					snmpGet.getOid(), hostname, e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().message(message).build();
+		}
 	}
 
+	/**
+	 * Verify the value returned by SNMP Get query. Check the value consistency when
+	 * the expected output is not defined. Otherwise check if the value matches the
+	 * expected regex.
+	 * 
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the success status and the message
+	 */
+	private TestResult checkSNMPGetResult(final String hostname, String oid, String expected, String result) {
+		if (expected == null) {
+			return checkSNMPGetValue(hostname, oid, result);
+		}
+		return checkSNMPGetExpectedValue(hostname, oid, expected, result);
+	}
+
+	/**
+	 * Check if the result matches the expected value
+	 * 
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetExpectedValue(final String hostname, final String oid, final String expected,
+			final String result) {
+		String message;
+		boolean success = false;
+		final Pattern pattern = Pattern.compile(expected);
+		if (!pattern.matcher(result).find()) {
+			message = String.format(
+					"SNMP Test Failed - SNMP Get of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
+					oid, hostname);
+			message += String.format("Expected value: %s - returned value %s.", expected, result);
+		} else {
+			message = String.format("Successful SNMP Get of %s on %s. Returned Result: %s.", oid, hostname, result);
+			success = true;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+
+	/**
+	 * Simply check the value consistency and verify whether the returned value is
+	 * not null or empty
+	 * 
+	 * @param hostname
+	 * @param oid
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
+		String message;
+		boolean success = false;
+		if (result == null) {
+			message = String.format("SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to a null result.",
+					oid, hostname);
+		} else if (result.trim().isEmpty()) {
+			message = String.format("SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an empty result.",
+					oid, hostname);
+		} else {
+			message = String.format("Successful SNMP Get of %s on %s. Returned Result: %s.", oid, hostname, result);
+			success = true;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+	
 	@Override
 	public CriterionTestResult visit(final TelnetInteractive telnetInteractive) {
 		// Not implemented yet
@@ -120,8 +234,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().stream().filter(SNMPProtocol.class::isInstance).findFirst();
+		final Optional<IProtocolConfiguration> snmpProtocolOpt = getSnmpProtocol();
 
 		if (!snmpProtocolOpt.isPresent()) {
 			return CriterionTestResult.empty();
@@ -157,6 +270,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
+	}
+
+	/**
+	 * 
+	 * @return The {@link SNMPProtocol} if any
+	 */
+	private Optional<IProtocolConfiguration> getSnmpProtocol() {
+		return strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().stream().filter(SNMPProtocol.class::isInstance).findFirst();
 	}
 
 	@Data
@@ -202,7 +324,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final Matcher matcher = SNMP_GETNEXT_RESULT_REGEX.matcher(result);
 		if (matcher.find()) {
 			final String value = matcher.group(1);
-			if (!value.matches(expected)) {
+			final Pattern pattern = Pattern.compile(expected);
+			if (!pattern.matcher(value).find()) {
 				message = String.format(
 						"SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
 						oid, hostname);
