@@ -59,7 +59,7 @@ public class MatsyaClientsExecutor {
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
 		Assert.notNull(oid, "oid cannot be null");
 		Assert.notNull(protocol, "protocol cannot be null");
-		Assert.notNull(hostname, "strategyConfig cannot be null");
+		Assert.notNull(hostname, "hostname cannot be null");
 
 		return executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, logMode);
 
