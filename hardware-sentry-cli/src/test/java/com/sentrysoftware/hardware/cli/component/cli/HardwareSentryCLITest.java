@@ -9,7 +9,7 @@ import java.util.HashSet;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import picocli.CommandLine;
@@ -31,7 +31,7 @@ class HardwareSentryCLITest {
 
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
+		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpCredentials().getPort());
 		assertEquals("private", sentryCli.getSnmpCredentials().getCommunity());
 		assertEquals(60, sentryCli.getSnmpCredentials().getTimeout());
@@ -51,7 +51,7 @@ class HardwareSentryCLITest {
 		new CommandLine(sentryCli).parseArgs(args_exclud_hdfs);
 		assertEquals("hosta", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
+		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpCredentials().getPort());
 		assertEquals("private", sentryCli.getSnmpCredentials().getCommunity());
 		assertEquals(60, sentryCli.getSnmpCredentials().getTimeout());
@@ -67,7 +67,7 @@ class HardwareSentryCLITest {
 		new CommandLine(sentryCli).parseArgs(args_default_snmp);
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPVersion.V1, sentryCli.getSnmpCredentials().getSnmpVersion());
+		assertEquals(SNMPProtocol.SNMPVersion.V1, sentryCli.getSnmpCredentials().getSnmpVersion());
 		assertEquals(161, sentryCli.getSnmpCredentials().getPort());
 		assertEquals("public", sentryCli.getSnmpCredentials().getCommunity());
 		assertEquals(120, sentryCli.getSnmpCredentials().getTimeout());
