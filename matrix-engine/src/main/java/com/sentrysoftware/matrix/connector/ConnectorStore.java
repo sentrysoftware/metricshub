@@ -7,9 +7,12 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import com.sentrysoftware.matrix.common.exception.DeserializationException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 
 import lombok.Getter;
@@ -44,22 +47,25 @@ public class ConnectorStore {
 	private Map<String, Connector> deserializeConnectors() throws IOException, URISyntaxException {
 		final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
 				this.getClass().getClassLoader());
-		final Map<String, Connector> result = new HashMap<>();
-		Arrays.stream(resolver.getResources(
-				ConnectorStore.class.getResource(CONNECTORS_RELATIVE_PATH).toURI().toString() + "/*.connector"))
-				.forEach(resource -> {
+
+		return Arrays
+				.stream(resolver.getResources(
+						ConnectorStore.class.getResource(CONNECTORS_RELATIVE_PATH).toURI().toString() + "/*.connector"))
+				.map(resource -> {
 					try (InputStream inputStream = resource.getInputStream();
 							ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
 
-						Connector connector = (Connector) objectInputStream.readObject();
-						result.put(connector.getCompiledFilename(), connector);
+						return (Connector) objectInputStream.readObject();
 
 					} catch (ClassNotFoundException | IOException e) {
-						log.error("Error while deserializing connector {}", resource.getFilename());
+						String message = String.format("Error while deserializing connector %s",
+								resource.getFilename());
+						log.error(message);
 						log.error("Exception: ", e);
+						throw new DeserializationException(message, e);
 					}
-				});
-		return result;
+				}).collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()));
+
 	}
 
 }

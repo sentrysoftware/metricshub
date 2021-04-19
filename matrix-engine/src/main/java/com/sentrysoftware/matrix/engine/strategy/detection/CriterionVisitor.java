@@ -132,12 +132,24 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		try {
 
-			final String result = matsyaClientsExecutor.executeSNMPGetNext(snmpGetNext.getOid(), protocol, hostname,
+			final String result = matsyaClientsExecutor.executeSNMPGetNext(
+					snmpGetNext.getOid(),
+					protocol,
+					hostname,
 					false);
-			final TestResult testResult = checkSNMPGetNextResult(hostname, snmpGetNext.getOid(),
-					snmpGetNext.getExpectedResult(), result);
-			return CriterionTestResult.builder().result(result).success(testResult.isSuccess())
-					.message(testResult.getMessage()).build();
+
+			final TestResult testResult = checkSNMPGetNextResult(
+					hostname,
+					snmpGetNext.getOid(),
+					snmpGetNext.getExpectedResult(),
+					result);
+
+			return CriterionTestResult.builder()
+					.result(result)
+					.success(testResult.isSuccess())
+					.message(testResult.getMessage())
+					.build();
+
 		} catch (Exception e) {
 			final String message = String.format(
 					"SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to an exception. Message: %s.",
