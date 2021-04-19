@@ -15,7 +15,7 @@ public class SNMPCredentials {
 	@Option(names = "--snmp-community", defaultValue = "public", description = "SNMP Community, default : public.")
 	String community;
 	@Option(names = "--snmp-timeout", defaultValue = "120", description = "SNMP Timeout, unit: seconds, default: 120.")
-	int timeout;
+	long timeout;
 	
 	// in case of v3-SHA
 	@Option(names = "--snmp-username", description = "Username.")

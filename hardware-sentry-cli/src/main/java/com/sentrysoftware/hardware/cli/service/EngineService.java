@@ -25,6 +25,9 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class EngineService {
 
@@ -35,7 +38,7 @@ public class EngineService {
 
 	public String call(final HardwareSentryCLI data) {
 
-		System.out.println("EngineService called with data " + data.toString());
+		log.info("EngineService called with data {}", data);
 		EngineConfiguration engineConf = new EngineConfiguration();
 
 		engineConf.setTarget(new HardwareTarget(data.getHostname(), data.getHostname(), data.getDeviceType()));
@@ -81,7 +84,7 @@ public class EngineService {
 		snmpInstance.setVersion(cliSNMPCredentials.getSnmpVersion());
 		snmpInstance.setCommunity(cliSNMPCredentials.getCommunity());
 		snmpInstance.setPort(cliSNMPCredentials.getPort());
-		snmpInstance.setTimeout(cliSNMPCredentials.getTimeout() * 60 * 1000L); // to be converted into millisec?
+		snmpInstance.setTimeout(cliSNMPCredentials.getTimeout());
 		snmpInstance.setPort(cliSNMPCredentials.getPort());
 
 		snmpInstance.setUsername(cliSNMPCredentials.getUsername());
@@ -94,7 +97,7 @@ public class EngineService {
 
 	/**
 	 * Return selected connectors, this can be : 1- automatic : this method will
-	 * return null, the engine will then proceed to the automatic selection based on
+	 * return an empty set, the engine will then proceed to the automatic selection based on
 	 * the 2- userSelection : replace .hdfs by .connector 3- userExclusion : based
 	 * on the ConnectorStore, filter
 	 * 
@@ -107,7 +110,7 @@ public class EngineService {
 
 		Set<String> selectedConnectors = new HashSet<>();
 		if (null == allConnectors) {
-			// TODO print that you are unable to get connectors
+			log.info("Cannot get connectors from the Connector Store, we trigger the automatic selection.");
 			return selectedConnectors;
 		}
 		// In connector Store, the filename extension = .connector
