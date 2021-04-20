@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,9 +27,9 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.common.helpers.ReflectionHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
@@ -52,12 +51,6 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
 
-	private static final String FILTER_CONNECTORS_BY_TARGET_TYPE = "filterConnectorsByTargetType";
-	private static final String FILTER_CONNECTORS_BY_LOCAL_AND_REMOTE_SUPPORT = "filterConnectorsByLocalAndRemoteSupport";
-	private static final String PROCESS_DETECTION = "processDetection";
-	private static final String UPDATE_SUPERSEDES = "updateSupersedes";
-	private static final String CREATE_DEVICE = "createDevice";
-	private static final String IS_SUCCESS_CRITERION = "isSuccessCriterion";
 	private static final String DEVICE_NAME = "device";
 	private static final String DEVICE_ID = "deviceId";
 	private static final String COMMUNITY = "public";
@@ -246,8 +239,7 @@ class DetectionOperationTest {
 
 		hostMonitoring.addMonitor(device);
 
-		ReflectionHelper.invokeMethod(detectionOperation, CREATE_DEVICE, Collections.emptyList(),
-				Collections.emptyList());
+		detectionOperation.createDevice();
 
 		final Map<String, Monitor> devices = hostMonitoring.selectFromType(MonitorType.DEVICE);
 		final Monitor actual = hostMonitoring.selectFromType(MonitorType.DEVICE).get(ECS1_01);
@@ -263,18 +255,14 @@ class DetectionOperationTest {
 		{
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Collections.emptyList()).build();
-			assertFalse((boolean) ReflectionHelper.invokeMethod(detectionOperation, IS_SUCCESS_CRITERION,
-					Stream.of(TestedConnector.class, String.class).collect(Collectors.toList()),
-					Stream.of(testedConnector, ECS1_01).collect(Collectors.toList())));
+			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
 			final CriterionTestResult ctr = CriterionTestResult.builder().success(true).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr, ctr).collect(Collectors.toList())).build();
-			assertTrue((boolean) ReflectionHelper.invokeMethod(detectionOperation, IS_SUCCESS_CRITERION,
-					Stream.of(TestedConnector.class, String.class).collect(Collectors.toList()),
-					Stream.of(testedConnector, ECS1_01).collect(Collectors.toList())));
+			assertTrue((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
@@ -282,9 +270,7 @@ class DetectionOperationTest {
 			final CriterionTestResult ctr2 = CriterionTestResult.builder().success(false).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr1, ctr2).collect(Collectors.toList())).build();
-			assertFalse((boolean) ReflectionHelper.invokeMethod(detectionOperation, IS_SUCCESS_CRITERION,
-					Stream.of(TestedConnector.class, String.class).collect(Collectors.toList()),
-					Stream.of(testedConnector, ECS1_01).collect(Collectors.toList())));
+			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 	}
 
@@ -294,8 +280,7 @@ class DetectionOperationTest {
 			final Set<String> supersedes = new HashSet<>();
 			final TestedConnector testedConnector = TestedConnector.builder()
 					.connector(Connector.builder().supersedes(null).build()).build();
-			ReflectionHelper.invokeMethod(detectionOperation, UPDATE_SUPERSEDES,
-					Arrays.asList(Set.class, TestedConnector.class), Arrays.asList(supersedes, testedConnector));
+			detectionOperation.updateSupersedes(supersedes, testedConnector);
 			assertTrue(supersedes.isEmpty());
 
 		}
@@ -304,8 +289,7 @@ class DetectionOperationTest {
 			final Set<String> supersedes = new HashSet<>();
 			final TestedConnector testedConnector = TestedConnector.builder()
 					.connector(Connector.builder().supersedes(Collections.emptySet()).build()).build();
-			ReflectionHelper.invokeMethod(detectionOperation, UPDATE_SUPERSEDES,
-					Arrays.asList(Set.class, TestedConnector.class), Arrays.asList(supersedes, testedConnector));
+			detectionOperation.updateSupersedes(supersedes, testedConnector);
 			assertTrue(supersedes.isEmpty());
 
 		}
@@ -315,8 +299,7 @@ class DetectionOperationTest {
 			final Set<String> expected = Stream.of("connector1.hdf", "connector2.hdf").collect(Collectors.toSet());
 			final TestedConnector testedConnector = TestedConnector.builder()
 					.connector(Connector.builder().supersedes(expected).build()).build();
-			ReflectionHelper.invokeMethod(detectionOperation, UPDATE_SUPERSEDES,
-					Arrays.asList(Set.class, TestedConnector.class), Arrays.asList(supersedes, testedConnector));
+			detectionOperation.updateSupersedes(supersedes, testedConnector);
 			assertEquals(expected.stream().map(s -> s.replace(".hdf", ".connector")).collect(Collectors.toSet()),
 					supersedes);
 
@@ -327,42 +310,36 @@ class DetectionOperationTest {
 	void testProcessDetectionNoDetectionNoCriteria() {
 		{
 			final Connector connector = Connector.builder().detection(null).build();
-			final TestedConnector actual = ReflectionHelper.invokeMethod(detectionOperation, PROCESS_DETECTION,
-					Stream.of(Connector.class, String.class).collect(Collectors.toList()),
-					Stream.of(connector, ECS1_01).collect(Collectors.toList()));
+			final TestedConnector actual = detectionOperation.processDetection(connector, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector).build(), actual);
 		}
 
 		{
 			final Connector connector1 = Connector.builder()
 					.detection(Detection.builder().criteria(Collections.emptyList()).build()).build();
-			final TestedConnector actual1 = ReflectionHelper.invokeMethod(detectionOperation, PROCESS_DETECTION,
-					Stream.of(Connector.class, String.class).collect(Collectors.toList()),
-					Stream.of(connector1, ECS1_01).collect(Collectors.toList()));
+			final TestedConnector actual1 = detectionOperation.processDetection(connector1, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector1).build(), actual1);
 
 			final Connector connector2 = Connector.builder().detection(Detection.builder().criteria(null).build())
 					.build();
-			final TestedConnector actual2 = ReflectionHelper.invokeMethod(detectionOperation, PROCESS_DETECTION,
-					Stream.of(Connector.class, String.class).collect(Collectors.toList()),
-					Stream.of(connector2, ECS1_01).collect(Collectors.toList()));
+			final TestedConnector actual2 = detectionOperation.processDetection(connector2, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector2).build(), actual2);
 		}
 	}
 
 	@Test
-	void testFilterConnectorsByLocalAndRemoteSupport() {
+	void testFilterConnectorsByLocalAndRemoteSupport() throws LocalhostCheckException {
 
 		{
 			Connector connector = Connector.builder().localSupport(false).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 			try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 				networkHelper.when(() -> NetworkHelper.isLocalhost(eq(ECS1_01))).thenReturn(true);
-				final Stream<Connector> result  = ReflectionHelper.invokeMethod(detectionOperation, FILTER_CONNECTORS_BY_LOCAL_AND_REMOTE_SUPPORT,
-						Stream.of(Stream.class, String.class).collect(Collectors.toList()),
-						Stream.of(stream, ECS1_01).collect(Collectors.toList()));
-				assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()), result.collect(Collectors.toSet()));
-				
+				final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream,
+						ECS1_01);
+				assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
+						result.collect(Collectors.toSet()));
+
 			}
 		}
 
@@ -370,11 +347,11 @@ class DetectionOperationTest {
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4);
 			try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 				networkHelper.when(() -> NetworkHelper.isLocalhost(eq(ECS1_01))).thenReturn(false);
-				final Stream<Connector> result  = ReflectionHelper.invokeMethod(detectionOperation, FILTER_CONNECTORS_BY_LOCAL_AND_REMOTE_SUPPORT,
-						Stream.of(Stream.class, String.class).collect(Collectors.toList()),
-						Stream.of(stream, ECS1_01).collect(Collectors.toList()));
-				assertEquals(Stream.of(connector1, connector2).collect(Collectors.toSet()), result.collect(Collectors.toSet()));
-				
+				final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream,
+						ECS1_01);
+				assertEquals(Stream.of(connector1, connector2).collect(Collectors.toSet()),
+						result.collect(Collectors.toSet()));
+
 			}
 		}
 	}
@@ -385,21 +362,19 @@ class DetectionOperationTest {
 			Connector connector = Connector.builder().appliesToOS(null).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
-			final Stream<Connector> result  = ReflectionHelper.invokeMethod(detectionOperation, FILTER_CONNECTORS_BY_TARGET_TYPE,
-					Stream.of(Stream.class, TargetType.class).collect(Collectors.toList()),
-					Stream.of(stream, TargetType.LINUX).collect(Collectors.toList()));
-			assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()), result.collect(Collectors.toSet()));
+			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream, TargetType.LINUX);
+			assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
+					result.collect(Collectors.toSet()));
 		}
 
 		{
 			Connector connector = Connector.builder().appliesToOS(null).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
-			final Stream<Connector> result  = ReflectionHelper.invokeMethod(detectionOperation, FILTER_CONNECTORS_BY_TARGET_TYPE,
-					Stream.of(Stream.class, TargetType.class).collect(Collectors.toList()),
-					Stream.of(stream, TargetType.STORAGE).collect(Collectors.toList()));
+			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream,
+					TargetType.STORAGE);
 			assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 		}
-		
+
 	}
 }

@@ -4,11 +4,17 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Optional;
+
+import org.springframework.util.Assert;
+
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Class helper to get network information
  */
+@Slf4j
 public class NetworkHelper {
 
 	private NetworkHelper() {
@@ -19,45 +25,53 @@ public class NetworkHelper {
 	 * 
 	 * @param hostname
 	 * @return <code>true</code> if the passed hostname is a localhost
+	 * @throws LocalhostCheckException 
 	 */
-	public static boolean isLocalhost(final String hostname) {
+	public static boolean isLocalhost(final String hostname) throws LocalhostCheckException {
+		Assert.notNull(hostname, "hostname cannot be null.");
+		Assert.isTrue(!hostname.trim().isEmpty(), "hostname cannot be empty.");
 
-		final Optional<InetAddress> inetAddressOpt = getInetAddress(hostname);
+		InetAddress inetAddress = getInetAddress(hostname);
 
-		if (inetAddressOpt.isPresent()) {
-			final InetAddress inetAddress = inetAddressOpt.get();
-		    // Check if the address is a valid local or loop back
-		    if (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress())
-		        return true;
+		if (inetAddress != null) {
+			// Check if the address is a valid local or loop back
+			if (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress())
+				return true;
 
-		    // Check if the address is defined on any interface
-		    try {
-		        return NetworkInterface.getByInetAddress(inetAddress) != null;
-		    } catch (SocketException e) {
-		        return false;
-		    }
+			// Check if the address is defined on any interface
+			try {
+				return NetworkInterface.getByInetAddress(inetAddress) != null;
+			} catch (SocketException e) {
+				final String message = String.format(
+						"Error detected on NetworkInterface.getByInetAddress(%s) for hostname: %s",
+						inetAddress.toString(), hostname);
+				log.error(message, e);
+				throw new LocalhostCheckException(message, e);
+			}
 		}
 
-		return false;
+		final String message = String.format("Cannot check if %s is localhost or not", hostname);
+		log.error(message);
+		throw new LocalhostCheckException(message);
 	}
+
 
 	/**
 	 * Get the InetAddress of the given hostname
 	 * 
 	 * @param hostname
 	 * @return {@link InetAddress} of the given hostname
+	 * @throws LocalhostCheckException when we encounter the {@link UnknownHostException}
 	 */
-	private static Optional<InetAddress> getInetAddress(final String hostname) {
-
-		if (hostname == null || hostname.trim().isEmpty()) {
-			return Optional.empty();
-		}
+	private static InetAddress getInetAddress(final String hostname) throws LocalhostCheckException {
 
 		try {
-			return Optional.of(InetAddress.getByName(hostname));
-
-		} catch (UnknownHostException ex) {
-			return Optional.empty();
+			return InetAddress.getByName(hostname);
+		} catch (UnknownHostException e) {
+			final String message = String.format("Error detected on InetAddress.getByName(%s)", hostname);
+			log.error(message, e);
+			throw new LocalhostCheckException(message, e);
 		}
 	}
+
 }

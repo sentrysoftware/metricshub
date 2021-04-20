@@ -38,7 +38,7 @@ public class JobResultFormatterService {
 		Collections.sort(monitorTypes, new MonitorTypeComparator());
 
 		for (MonitorType monitorType : monitorTypes) {
-			if (null == allMonitors.get(monitorType) || null == allMonitors.get(monitorType).values()) {
+			if (allMonitors.get(monitorType) == null  || allMonitors.get(monitorType).values() == null) {
 				continue;
 			}
 			List<Monitor> monitorList = new ArrayList<>(allMonitors.get(monitorType).values());

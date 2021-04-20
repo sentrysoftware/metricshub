@@ -8,6 +8,9 @@ import java.util.List;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
+/**
+ * Use this class only when strictly necessary.
+ */
 public class ReflectionHelper {
 
 	private ReflectionHelper() {

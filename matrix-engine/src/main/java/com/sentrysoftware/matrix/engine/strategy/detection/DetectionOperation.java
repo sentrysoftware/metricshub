@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -63,7 +64,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param selectedConnectorKeys
 	 * @return list of {@link TestedConnector}, successful or not
 	 */
-	private List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
+	protected List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Process selected connectors for system {}: {}",
 				hostname, selectedConnectorKeys);
@@ -76,10 +77,15 @@ public class DetectionOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Perform auto detection 
+	 * Perform auto detection
+	 * 
 	 * @return the list of successful {@link TestedConnector}
+	 * @throws LocalhostCheckException could be thrown by
+	 *                                 filterConnectorsByLocalAndRemoteSupport if
+	 *                                 {@link NetworkHelper#isLocalhost(String)}
+	 *                                 fails
 	 */
-	private List<TestedConnector> performAutoDetection() {
+	protected List<TestedConnector> performAutoDetection() throws LocalhostCheckException {
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Start DETECTION for system {}", hostname);
 
@@ -117,7 +123,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param device
 	 * @param testedConnectorList
 	 */
-	private void createConnectors(final Monitor device, final List<TestedConnector> testedConnectorList) {
+	protected void createConnectors(final Monitor device, final List<TestedConnector> testedConnectorList) {
 		// Loop over the testedConnecotrs and create them in the HostMonitoring instance
 		testedConnectorList.forEach(testedConnector -> createConnector(device, testedConnector));
 		
@@ -128,7 +134,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param device
 	 * @param testedConnector
 	 */
-	private void createConnector(final Monitor device, final TestedConnector testedConnector) {
+	protected void createConnector(final Monitor device, final TestedConnector testedConnector) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
@@ -154,7 +160,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnector
 	 * @return {@link StatusParam} instance
 	 */
-	private StatusParam buildStatusParam(final TestedConnector testedConnector) {
+	protected StatusParam buildStatusParam(final TestedConnector testedConnector) {
 		boolean success = testedConnector.isSuccess();
 		return StatusParam.builder().collectTime(new Date().getTime()).name(HardwareConstants.STATUS_PARAMETER_NAME)
 				.state(success ? ParameterState.OK : ParameterState.ALARM)
@@ -167,7 +173,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnector
 	 * @return {@link TextParam} instance
 	 */
-	private TextParam buildTestReportParameter(final Monitor device, final TestedConnector testedConnector) {
+	protected TextParam buildTestReportParameter(final Monitor device, final TestedConnector testedConnector) {
 		final TextParam testReport = TextParam.builder().collectTime(new Date().getTime()).name(HardwareConstants.TEST_REPORT_PARAMETER_NAME).parameterState(ParameterState.OK).build();
 
 		final StringBuilder value = new StringBuilder();
@@ -191,7 +197,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Create the Device
 	 */
-	private Monitor createDevice() {
+	protected Monitor createDevice() {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
@@ -224,7 +230,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param hostname
 	 * @return Updated {@link Stream}
 	 */
-	private Stream<TestedConnector> keepOnlySuccessConnectors(final Stream<TestedConnector> testedConnectors, final String hostname) {
+	protected Stream<TestedConnector> keepOnlySuccessConnectors(final Stream<TestedConnector> testedConnectors, final String hostname) {
 		return testedConnectors.filter(tc -> isSuccessCriterion(tc, hostname));
 	}
 
@@ -236,7 +242,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @return <code>true</code> if all the {@link Criterion} have been tested
 	 *         successfully.
 	 */
-	private boolean isSuccessCriterion(final TestedConnector testedConnector, final String hostname) {
+	protected boolean isSuccessCriterion(final TestedConnector testedConnector, final String hostname) {
 
 		boolean success = false;
 		final List<CriterionTestResult> criterionTestResults = testedConnector.getCriterionTestResults();
@@ -258,7 +264,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * 
 	 * @param testedConnectorList
 	 */
-	private void handleSupersedes(final List<TestedConnector> testedConnectorList) {
+	protected void handleSupersedes(final List<TestedConnector> testedConnectorList) {
 		final Set<String> supersedes = new HashSet<>();
 		testedConnectorList.forEach(testedConnector -> updateSupersedes(supersedes, testedConnector));
 
@@ -271,7 +277,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param supersedes
 	 * @param testedConnector
 	 */
-	private void updateSupersedes(final Set<String> supersedes, final TestedConnector testedConnector) {
+	protected void updateSupersedes(final Set<String> supersedes, final TestedConnector testedConnector) {
 		if (testedConnector.getConnector().getSupersedes() == null
 				|| testedConnector.getConnector().getSupersedes().isEmpty()) {
 			return;
@@ -289,7 +295,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param hostname
 	 * @return {@link Stream} of {@link Connector} instances
 	 */
-	private Stream<TestedConnector> detectConnectors(final Stream<Connector> stream, final String hostname) {
+	protected Stream<TestedConnector> detectConnectors(final Stream<Connector> stream, final String hostname) {
 		return stream.parallel().map(c -> processDetection(c, hostname));
 	}
 
@@ -301,7 +307,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param hostname
 	 * @return <code>true</code> if the connector matches the platform
 	 */
-	private TestedConnector processDetection(final Connector connector, final String hostname) {
+	protected TestedConnector processDetection(final Connector connector, final String hostname) {
 
 		log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
 		final Detection detection = connector.getDetection();
@@ -340,7 +346,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param criterion
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
-	private CriterionTestResult processCriterion(final Criterion criterion) {
+	protected CriterionTestResult processCriterion(final Criterion criterion) {
 
 		return criterion.accept(criterionVisitor);
 	}
@@ -352,8 +358,9 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param connectorStream
 	 * @param hostname
 	 * @return {@link Stream} of {@link Connector} instances
+	 * @throws LocalhostCheckException when {@link NetworkHelper#isLocalhost(String)} fails
 	 */
-	private Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final String hostname) {
+	protected Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final String hostname) throws LocalhostCheckException  {
 		if (NetworkHelper.isLocalhost(hostname)) {
 			return connectorStream.filter(connector -> !Boolean.FALSE.equals(connector.getLocalSupport()));
 		} else {
@@ -369,7 +376,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * 
 	 * @return {@link Stream} of {@link Connector} instances
 	 */
-	private Stream<Connector> filterConnectorsByTargetType(final Stream<Connector> connectorStream, final TargetType targetType) {
+	protected Stream<Connector> filterConnectorsByTargetType(final Stream<Connector> connectorStream, final TargetType targetType) {
 
 		return connectorStream.filter(connector -> Objects.nonNull(connector.getAppliesToOS())
 				&& connector.getAppliesToOS().contains(targetType.getOsType()));
