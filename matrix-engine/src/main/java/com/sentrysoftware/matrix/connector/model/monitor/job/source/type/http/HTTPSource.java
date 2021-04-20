@@ -37,9 +37,9 @@ public class HTTPSource extends Source {
 	@Builder
 	public HTTPSource(List<Compute> computes, boolean forceSerialization, String method, String url, Header header,
 			Body body, Source authenticationToken, Source executeForEachEntryOf, ResultContent resultContent,
-			EntryConcatMethod entryConcatMethod, String entryConcatStart, String entryConcatEnd) {
+			EntryConcatMethod entryConcatMethod, String entryConcatStart, String entryConcatEnd, int index) {
 
-		super(computes, forceSerialization);
+		super(computes, forceSerialization, index);
 		this.method = method;
 		this.url = url;
 		this.header = header;

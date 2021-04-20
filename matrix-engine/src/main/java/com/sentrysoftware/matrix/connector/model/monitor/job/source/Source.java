@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source;
 
+import static org.springframework.util.Assert.isTrue;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,4 +22,12 @@ public abstract class Source implements Serializable {
 	private List<Compute> computes = new ArrayList<>();
 
 	private boolean forceSerialization;
+
+	private Integer index;
+
+	protected void setIndex(int index) {
+
+		isTrue(index > 0, "Invalid index: " + index);
+		this.index = index;
+	}
 }

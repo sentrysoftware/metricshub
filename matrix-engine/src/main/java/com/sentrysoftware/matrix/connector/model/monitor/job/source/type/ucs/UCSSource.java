@@ -27,9 +27,9 @@ public class UCSSource extends Source {
 
 	@Builder
 	public UCSSource(List<Compute> computes, boolean forceSerialization, List<String> queries,
-			String excludeRegExp, String keepOnlyRegExp, List<String> selectColumns) {
+			String excludeRegExp, String keepOnlyRegExp, List<String> selectColumns, int index) {
 
-		super(computes, forceSerialization);
+		super(computes, forceSerialization, index);
 		this.queries = queries;
 		this.excludeRegExp = excludeRegExp;
 		this.keepOnlyRegExp = keepOnlyRegExp;
