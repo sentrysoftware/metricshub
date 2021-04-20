@@ -26,16 +26,16 @@ public class MatsyaClientsExecutor {
 	 * 
 	 * @param callable
 	 * @param timeout
-	 * @return {@link String} result returned by the callable.
+	 * @return {@link IMatsyaQueryResult} result returned by the callable.
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	private String execute(final Callable<String> callable, final long timeout)
+	private IMatsyaQueryResult execute(final Callable<IMatsyaQueryResult> callable, final long timeout)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
 		try {
-			final Future<String> handler = executorService.submit(callable);
+			final Future<IMatsyaQueryResult> handler = executorService.submit(callable);
 
 			return handler.get(timeout, TimeUnit.SECONDS);
 		} finally {
@@ -50,18 +50,18 @@ public class MatsyaClientsExecutor {
 	 * @param protocol
 	 * @param hostname
 	 * @param logMode
-	 * @return {@link String} value
+	 * @return {@link IMatsyaQueryResult} value
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	public String executeSNMPGetNext(final String oid, final SNMPProtocol protocol, final String hostname,
+	public IMatsyaQueryResult executeSNMPGetNext(final String oid, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
 		Assert.notNull(oid, "oid cannot be null");
 		Assert.notNull(protocol, "protocol cannot be null");
 		Assert.notNull(hostname, "hostname cannot be null");
 
-		return executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, logMode);
+		return executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
 
 	}
 
@@ -72,23 +72,35 @@ public class MatsyaClientsExecutor {
 	 * @param protocol
 	 * @param hostname
 	 * @param logMode
-	 * @return {@link String} value
+	 * @return {@link IMatsyaQueryResult} value
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	public String executeSNMPGet(final String oid, final SNMPProtocol protocol, final String hostname,
+	public IMatsyaQueryResult executeSNMPGet(final String oid, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
 		Assert.notNull(oid, "oid cannot be null");
 		Assert.notNull(protocol, "protocol cannot be null");
 		Assert.notNull(hostname, "hostname cannot be null");
 
-		return executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, logMode);
+		return executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, null, logMode);
+
+	}
+	
+	public IMatsyaQueryResult executeSNMPTable(final String oid, String[] selectColumnArray, final SNMPProtocol protocol, final String hostname,
+			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
+		Assert.notNull(oid, "oid cannot be null");
+		Assert.notNull(protocol, "protocol cannot be null");
+		Assert.notNull(hostname, "hostname cannot be null");
+		Assert.notNull(selectColumnArray, "selectedColumn cannot be null");
+
+		System.out.println("ihjofgj");
+		return executeSNMPGetRequest(SNMPGetRequest.TABLE, oid, protocol, hostname, selectColumnArray, logMode);
 
 	}
 
-	private String executeSNMPGetRequest(final SNMPGetRequest request, final String oid, final SNMPProtocol protocol,
-			final String hostname, final boolean logMode)
+	private IMatsyaQueryResult executeSNMPGetRequest(final SNMPGetRequest request, final String oid, final SNMPProtocol protocol,
+			final String hostname, final String[] selectColumnArray, final boolean logMode)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		final int port = protocol.getPort();
 		final int version = protocol.getVersion().getIntVersion();
@@ -114,10 +126,13 @@ public class MatsyaClientsExecutor {
 			try {
 				switch (request) {
 				case GET:
-					return snmpClient.get(oid);
-				default:
+					return MatsyaStringResult.builder().data(snmpClient.get(oid)).build();
 				case GETNEXT:
-					return snmpClient.getNext(oid);
+					return MatsyaStringResult.builder().data(snmpClient.getNext(oid)).build();
+				case TABLE : 
+					return MatsyaListResult.builder().data(snmpClient.table(oid, selectColumnArray)).build();
+				default : 
+					throw new IllegalArgumentException("Not implemented.");
 				}
 			} catch (Exception e) {
 				if (logMode) {
@@ -131,6 +146,6 @@ public class MatsyaClientsExecutor {
 	}
 
 	public enum SNMPGetRequest {
-		GET, GETNEXT
+		GET, GETNEXT, TABLE
 	}
 }

@@ -24,6 +24,7 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.strategy.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.MatsyaStringResult;
 
 import lombok.Builder;
 import lombok.Data;
@@ -100,11 +101,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		try {
 
-			final String result = matsyaClientsExecutor.executeSNMPGet(
+			MatsyaStringResult matsyaStringResult = (MatsyaStringResult) matsyaClientsExecutor.executeSNMPGet(
 					snmpGet.getOid(),
 					protocol,
 					hostname,
 					false);
+			final String result = matsyaStringResult==null ? null : matsyaStringResult.getData();
 
 			final TestResult testResult = checkSNMPGetResult(
 					hostname,
@@ -245,11 +247,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		try {
 
-			final String result = matsyaClientsExecutor.executeSNMPGetNext(
+			final MatsyaStringResult matsyaStringResult = (MatsyaStringResult) matsyaClientsExecutor.executeSNMPGetNext(
 					snmpGetNext.getOid(),
 					protocol,
 					hostname,
 					false);
+			final String result = matsyaStringResult == null ? null : matsyaStringResult.getData();
 
 			final TestResult testResult = checkSNMPGetNextResult(
 					hostname,
