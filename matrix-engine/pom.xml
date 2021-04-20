@@ -28,6 +28,19 @@
 			<classifier>matrix</classifier>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-snmpclient</artifactId>
+			<version>3.12.00</version>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<scope>test</scope>
@@ -40,6 +53,11 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -90,7 +108,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.01</minimum>
+											<minimum>0.41</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -111,6 +129,15 @@
 						<exclude>com/sentrysoftware/matrix/engine/target/*HardwareTargetBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/target/TargetType.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/protocol/**</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/TestedConnector.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestedConnectorBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestResult.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestResultBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/model/monitoring/HostMonitoringVO.*</exclude>
+						<exclude>com/sentrysoftware/matrix/model/monitoring/*HostMonitoringVOBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/common/exception/**</exclude>
+						<exclude>com/sentrysoftware/matrix/common/helpers/ReflectionHelper.*</exclude>
+						
 					</excludes>
 				</configuration>
 			</plugin>

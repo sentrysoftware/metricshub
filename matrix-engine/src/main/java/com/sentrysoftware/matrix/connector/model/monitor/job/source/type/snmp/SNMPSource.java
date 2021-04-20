@@ -8,10 +8,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Comp
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public abstract class SNMPSource extends Source {
 
 	private static final long serialVersionUID = 4987906836798379805L;

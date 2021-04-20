@@ -20,7 +20,7 @@ import com.sentrysoftware.matrix.connector.helper.PluginHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.connector.serialize.ConnectorSerializer;
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.util.Assert;
 
 @Mojo(name = "connector-compile", aggregator = false, executionStrategy = "always", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDirectInvocation = false, requiresOnline = false, requiresProject = true, threadSafe = true)
 public class ConnectorCompileMojo extends AbstractMojo {

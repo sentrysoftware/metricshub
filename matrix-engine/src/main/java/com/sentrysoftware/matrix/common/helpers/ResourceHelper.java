@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.util.Assert;
 
 public class ResourceHelper {
 

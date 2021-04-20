@@ -23,7 +23,7 @@ public interface IHostMonitoring {
 	void addMonitor(Monitor monitor);
 
 	void removeMonitor(Monitor monitor);
-
+	
 	Map<String, Monitor> selectFromType(MonitorType monitorType);
 
 	Map<MonitorType, Map<String, Monitor>> selectFromTypes(MonitorType... monitorTypes);

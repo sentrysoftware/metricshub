@@ -35,8 +35,8 @@ public class Connector implements Serializable {
 	private String reliesOn;
 	private String version;
 	private String comments;
-	private boolean remoteSupport;
-	private boolean localSupport;
+	private Boolean remoteSupport;
+	private Boolean localSupport;
 	@Default
 	private Set<OSType> appliesToOS = new HashSet<>();
 	@Default

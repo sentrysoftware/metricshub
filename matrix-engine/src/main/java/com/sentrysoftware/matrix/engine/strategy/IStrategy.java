@@ -7,7 +7,7 @@ public interface IStrategy extends Callable<Boolean> {
 
 	void release();
 
-	void prepare(StrategyConfig strategyContext);
+	void prepare();
 
 	void post();
 }

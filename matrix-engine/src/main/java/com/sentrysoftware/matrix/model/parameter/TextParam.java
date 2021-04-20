@@ -13,14 +13,12 @@ import lombok.NoArgsConstructor;
 public class TextParam extends AbstractParam {
 
 	private String value;
-	private String previousValue;
 
 	@Builder
-	public TextParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, String value, String previousValue) {
+	public TextParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, String value) {
 
 		super(name, collectTime, threshold, parameterState);
 		this.value = value;
-		this.previousValue = value;
 	}
 
 	

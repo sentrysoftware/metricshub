@@ -7,22 +7,26 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Context {
 
+	@Autowired
 	private IStrategy strategy;
+
+	@Autowired
 	private StrategyConfig strategyConfig;
 
-	public Context(IStrategy strategy, StrategyConfig strategyConfig) {
-
-		Assert.notNull(strategy, "strategy cannot be null");
-		Assert.notNull(strategyConfig, "strategyConfig cannot be null");
-
-		this.strategy = strategy;
-		this.strategyConfig = strategyConfig;
-	}
-
+	/**
+	 * Executes the current context strategy
+	 * 
+	 * @return <code>true</code> if the execution succeeds
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
 	public boolean executeStrategy() throws InterruptedException, ExecutionException, TimeoutException {
 
 		Boolean result = false;
@@ -32,7 +36,7 @@ public class Context {
 
 		try {
 
-			strategy.prepare(strategyConfig);
+			strategy.prepare();
 
 			final Future<Boolean> handler = executorService.submit(strategy);
 

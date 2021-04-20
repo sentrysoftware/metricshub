@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
-import static com.sentrysoftware.matrix.utils.Assert.notNull;
+import static org.springframework.util.Assert.notNull;
 
 public class ExpectedResultProcessor extends SnmpProcessor {
 

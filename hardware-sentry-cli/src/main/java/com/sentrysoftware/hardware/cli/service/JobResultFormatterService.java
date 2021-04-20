@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,6 @@ import com.sentrysoftware.hardware.cli.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitorsVO;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 @Service
@@ -40,10 +38,12 @@ public class JobResultFormatterService {
 		Collections.sort(monitorTypes, new MonitorTypeComparator());
 
 		for (MonitorType monitorType : monitorTypes) {
+			if (allMonitors.get(monitorType) == null  || allMonitors.get(monitorType).values() == null) {
+				continue;
+			}
 			List<Monitor> monitorList = new ArrayList<>(allMonitors.get(monitorType).values());
 			Collections.sort(monitorList, new MonitorComparator());
-			HostMonitorsVO hostMonitorsVO = new HostMonitorsVO(monitorList.size(), Collections.singletonMap(monitorType.jsonKey(), monitorList));
-			hostMonitoringVO.addHostMonitor(hostMonitorsVO);
+			hostMonitoringVO.addAll(monitorList);
 		}
 
 		try {

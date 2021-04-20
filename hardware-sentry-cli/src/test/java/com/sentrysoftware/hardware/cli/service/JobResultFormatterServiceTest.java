@@ -15,7 +15,7 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-public class JobResultFormatterServiceTest {
+class JobResultFormatterServiceTest {
 
 	@Test
 	void formatTestNullMonitoring() {
@@ -60,7 +60,7 @@ public class JobResultFormatterServiceTest {
 
 		Map<String, IParameterValue> parameters = new HashMap<>();
 		parameters.put("status", StatusParam.builder().collectTime(1618319092125L).name("status")
-				.status(ParameterState.OK).statusInformation("OK").build());
+				.state(ParameterState.OK).statusInformation("OK").build());
 		connector1.setParameters(parameters);
 		map.put("id1", connector1);
 
@@ -72,7 +72,7 @@ public class JobResultFormatterServiceTest {
 
 		Map<String, IParameterValue> parameters2 = new HashMap<>();
 		parameters2.put("status", StatusParam.builder().collectTime(1618319092125L).name("status")
-				.status(ParameterState.WARN).statusInformation("WARNING").build());
+				.state(ParameterState.WARN).statusInformation("WARNING").build());
 		connector2.setParameters(parameters2);
 		map.put("id2", connector2);
 

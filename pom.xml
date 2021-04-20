@@ -34,6 +34,7 @@
 		<jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
 		<hardware-connectors.version>24-SNAPSHOT</hardware-connectors.version>
 		<maven-filtering.version>3.1.1</maven-filtering.version>
+		<spring.version>5.3.5</spring.version>
 	</properties>
 
 	<modules>
@@ -121,6 +122,16 @@
 				<artifactId>mockito-inline</artifactId>
 				<version>${mockito.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

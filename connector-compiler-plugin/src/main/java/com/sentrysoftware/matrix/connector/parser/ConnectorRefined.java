@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
-import com.sentrysoftware.matrix.utils.Assert;
+import org.springframework.util.Assert;
 
 import lombok.Data;
 
