@@ -64,7 +64,7 @@ public class EngineServiceTest {
 		assertEquals(Privacy.AES, snmpProtocol.getPrivacy());
 		assertEquals("privPwd", snmpProtocol.getPrivacyPassword());
 		assertEquals(SNMPVersion.V1, snmpProtocol.getVersion());
-		assertEquals(600000, snmpProtocol.getTimeout());
+		assertEquals(10, snmpProtocol.getTimeout());
 		assertEquals("user", snmpProtocol.getUsername());
 	}
 }
