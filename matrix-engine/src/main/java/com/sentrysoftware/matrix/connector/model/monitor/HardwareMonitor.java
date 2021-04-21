@@ -2,8 +2,8 @@ package com.sentrysoftware.matrix.connector.model.monitor;
 
 import java.io.Serializable;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
