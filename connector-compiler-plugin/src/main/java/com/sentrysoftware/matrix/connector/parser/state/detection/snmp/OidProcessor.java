@@ -1,23 +1,27 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.regex.Pattern;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
-import static org.springframework.util.Assert.notNull;
 
 public class OidProcessor extends SnmpProcessor {
 
     private static final String OID_KEY_REGEX = "^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$";
     private static final String SNMP_GET_OID_KEY = ".snmpget";
 
-    @Override
-    protected String getKeyRegex() {
-        return OID_KEY_REGEX;
-    }
+	protected static final Pattern OID_KEY_PATTERN = Pattern.compile(OID_KEY_REGEX, Pattern.CASE_INSENSITIVE);
+
+	@Override
+	protected Pattern getKeyRegex() {
+		return OID_KEY_PATTERN;
+	}
 
     @Override
     public void parse(final String key, final String value, final Connector connector) {

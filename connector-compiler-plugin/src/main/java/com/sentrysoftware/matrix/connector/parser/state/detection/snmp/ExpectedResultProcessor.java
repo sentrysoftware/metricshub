@@ -1,21 +1,25 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
-
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
 import static org.springframework.util.Assert.notNull;
+
+import java.util.regex.Pattern;
+
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 
 public class ExpectedResultProcessor extends SnmpProcessor {
 
     private static final String EXPECTED_RESULT_KEY_REGEX = "^\\s*detection\\.criteria\\((\\d+)\\)\\.expectedresult\\s*$";
 
+	protected static final Pattern EXPECTED_RESULT_KEY_PATTERN = Pattern.compile(EXPECTED_RESULT_KEY_REGEX, Pattern.CASE_INSENSITIVE);
+	
     @Override
-    protected String getKeyRegex() {
-        return EXPECTED_RESULT_KEY_REGEX;
+    protected Pattern getKeyRegex() {
+        return EXPECTED_RESULT_KEY_PATTERN;
     }
-
+	
     @Override
     public void parse(final String key, final String value, final Connector connector) {
 
