@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
