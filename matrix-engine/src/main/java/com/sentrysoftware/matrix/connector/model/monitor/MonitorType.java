@@ -44,7 +44,7 @@ public enum MonitorType {
 	public static MonitorType getByName(final String name) {
 		Assert.notNull(name, "name cannot be null.");
 		return Arrays.stream(MonitorType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Undefined montior name: " + name));
+				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
 	}
 
 	/**
