@@ -13,17 +13,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public abstract class Source implements Serializable {
 
 	private static final long serialVersionUID = 4765209445308968001L;
 
-	private List<Compute> computes = new ArrayList<>();
+	private List<Compute> computes;
 
 	private boolean forceSerialization;
 
 	private Integer index;
+
+	protected Source(List<Compute> computes, boolean forceSerialization, Integer index) {
+		this.computes = computes == null ? new ArrayList<>() : computes;
+		this.forceSerialization = forceSerialization;
+		this.index = index;
+	}
 
 	protected void setIndex(int index) {
 
