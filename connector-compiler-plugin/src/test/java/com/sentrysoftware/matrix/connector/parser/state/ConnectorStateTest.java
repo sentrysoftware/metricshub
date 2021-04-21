@@ -11,6 +11,7 @@ import java.util.Set;
 
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SIMPLE_PROPERTY;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SNMP_DETECTION;
+import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_INSTANCE_TABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,8 +65,9 @@ class ConnectorStateTest {
         Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates();
 
         assertNotNull(connectorStates);
-        assertEquals(2, connectorStates.size());
+        assertEquals(3, connectorStates.size());
         assertTrue(connectorStates.contains(CONNECTOR_SIMPLE_PROPERTY));
         assertTrue(connectorStates.contains(CONNECTOR_SNMP_DETECTION));
+        assertTrue(connectorStates.contains(CONNECTOR_INSTANCE_TABLE));
     }
 }

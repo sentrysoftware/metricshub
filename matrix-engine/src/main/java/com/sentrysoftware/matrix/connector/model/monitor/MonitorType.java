@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.connector.model.monitor;
 
+import java.util.Arrays;
+
+import org.springframework.util.Assert;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -31,6 +35,17 @@ public enum MonitorType {
 	VOLTAGE("Voltage");
 
 	private String name;
+
+	/**
+	 * Get {@link MonitorType} by name, the name defined in the hardware connector code
+	 * @param name
+	 * @return {@link MonitorType} instance
+	 */
+	public static MonitorType getByName(final String name) {
+		Assert.notNull(name, "name cannot be null.");
+		return Arrays.stream(MonitorType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
+	}
 
 	/**
 	 * Return the JSON key associated to a monitor type.

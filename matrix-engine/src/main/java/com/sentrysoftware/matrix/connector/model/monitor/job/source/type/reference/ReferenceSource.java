@@ -22,9 +22,9 @@ public class ReferenceSource extends Source {
 	private Source reference;
 
 	@Builder
-	public ReferenceSource(List<Compute> computes, boolean forceSerialization, Source reference) {
+	public ReferenceSource(List<Compute> computes, boolean forceSerialization, Source reference, int index) {
 
-		super(computes, forceSerialization);
+		super(computes, forceSerialization, index);
 		this.reference = reference;
 	}
 

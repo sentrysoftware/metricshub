@@ -1,8 +1,9 @@
-package com.sentrysoftware.matrix.connector.model.monitor.job;
+package com.sentrysoftware.matrix.connector.model.monitor.job.discovery;
 
 import java.util.List;
 import java.util.Map;
 
+import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 
 import lombok.AllArgsConstructor;
@@ -17,19 +18,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Collect extends MonitorJob {
+public class Discovery extends MonitorJob {
 
-	private static final long serialVersionUID = 2147452391194801554L;
+	private static final long serialVersionUID = -6681722012874951001L;
 
-	private CollectType type;
-	private Source valueTable;
+	private InstanceTable instanceTable;
 
 	@Builder
-	public Collect(List<Source> sources, Map<String, String> parameters, CollectType type, Source valueTable) {
+	public Discovery(List<Source> sources, InstanceTable instanceTable, Map<String, String> parameters) {
 
 		super(sources, parameters);
-		this.type = type;
-		this.valueTable = valueTable;
+		this.instanceTable = instanceTable;
 	}
 
 }

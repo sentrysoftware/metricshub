@@ -20,9 +20,9 @@ public abstract class SNMPSource extends Source {
 
 	private String oid;
 
-	public SNMPSource(List<Compute> computes, boolean forceSerialization, String oid) {
+	protected SNMPSource(List<Compute> computes, boolean forceSerialization, String oid, int index) {
 
-		super(computes, forceSerialization);
+		super(computes, forceSerialization, index);
 		this.oid = oid;
 	}
 }

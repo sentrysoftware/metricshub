@@ -23,9 +23,9 @@ public class SNMPGetTableSource extends SNMPSource {
 
 	@Builder
 	public SNMPGetTableSource(List<Compute> computes, boolean forceSerialization, String oid,
-			List<String> snmpTableSelectColumns) {
+			List<String> snmpTableSelectColumns, int index) {
 
-		super(computes, forceSerialization, oid);
+		super(computes, forceSerialization, oid, index);
 		this.snmpTableSelectColumns = snmpTableSelectColumns;
 	}
 
