@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
+package com.sentrysoftware.matrix.connector.parser.state.source.snmp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,7 +18,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 
 public class SnmpTableProcessorTest {
 
@@ -52,24 +51,6 @@ public class SnmpTableProcessorTest {
 	private static final List<String> SNMP_TABLE_SELECT_COLUMNS_LIST_2 = new ArrayList<>(Arrays.asList("ID","6","8"));
 	private static final List<String> SNMP_TABLE_SELECT_COLUMNS_LIST_3 = new ArrayList<>(Arrays.asList("ID","3","5","7","11","13","17"));
 
-	private static final String ENCLOSURE_CRITERION_3_TYPE = "enclosure.discovery.source(3).type";
-	private static final String ENCLOSURE_CRITERION_3_LEFT_TABLE = "enclosure.discovery.source(3).lefttable";
-	private static final String ENCLOSURE_CRITERION_3_RIGHT_TABLE = "enclosure.discovery.source(3).righttable";
-	private static final String ENCLOSURE_CRITERION_3_LEFT_KEY_COLUMN = "enclosure.discovery.source(3).leftkeycolumn";
-	private static final String ENCLOSURE_CRITERION_3_RIGHT_KEY_COLUMN = "enclosure.discovery.source(3).rightkeycolumn";
-	private static final String ENCLOSURE_CRITERION_3_DEFAULT_RIGHT_LINE = "enclosure.discovery.source(3).defaultrightline";
-
-	private static final String TYPE_TABLE_JOINT = "tablejoint";
-	private static final String LEFT_TABLE = "%Enclosure.Discovery.Source(1)%";
-	private static final String RIGHT_TABLE = "%Enclosure.Discovery.Source(2)%";
-	private static final String LEFT_KEY_COLUMN = "1";
-	private static final String RIGHT_KEY_COLUMN = "1";
-	private static final String DEFAULT_RIGHT_LINE = ";;";
-
-	private static final int LEFT_KEY_COLUMN_RESULT = 1;
-	private static final int RIGHT_KEY_COLUMN_RESULT = 1;
-	private static final List<String> DEFAULT_RIGHT_LINE_RESULT = new ArrayList<>(Arrays.asList("","",""));
-
 	@BeforeEach
 	void setUp() {
 		snmpTableProcessor = new SnmpTableProcessor();
@@ -94,13 +75,6 @@ public class SnmpTableProcessorTest {
 		assertTrue(snmpTableProcessor.detect(FAN_CRITERION_1_TYPE, TYPE_SNMP_TABLE, connector));
 		assertTrue(snmpTableProcessor.detect(FAN_CRITERION_1_OID, SNMP_TABLE_OID_3, connector));
 		assertTrue(snmpTableProcessor.detect(FAN_CRITERION_1_COLUMNS, SNMP_TABLE_SELECT_COLUMNS_3, connector));
-
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_TYPE, TYPE_TABLE_JOINT, connector));
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_LEFT_TABLE, LEFT_TABLE, connector));
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_RIGHT_TABLE, RIGHT_TABLE, connector));
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector));
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_RIGHT_KEY_COLUMN, RIGHT_KEY_COLUMN, connector));
-		assertTrue(snmpTableProcessor.detect(ENCLOSURE_CRITERION_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector));
 	}
 
 	@Test
@@ -210,46 +184,6 @@ public class SnmpTableProcessorTest {
 		assertEquals(SNMP_TABLE_OID_2, ((SNMPSource) source).getOid());
 		assertEquals(2, source.getIndex());
 		assertEquals(SNMP_TABLE_SELECT_COLUMNS_LIST_2, ((SNMPGetTableSource) source).getSnmpTableSelectColumns());
-
-		/* 
-		 * Parsing of :
-		 * Enclosure.Discovery.Source(3).Type="TableJoint"
-		 * Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
-		 * Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
-		 * Enclosure.Discovery.Source(3).LeftKeyColumn=1
-		 * Enclosure.Discovery.Source(3).RightKeyColumn=1
-		 * Enclosure.Discovery.Source(3).DefaultRightLine=";;"
-		 */
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_TYPE, TYPE_TABLE_JOINT, connector);
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_LEFT_TABLE, LEFT_TABLE, connector);
-
-		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(3, sources.size());
-
-		sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		source = sourceOpt.get();
-		assertEquals(LEFT_TABLE, ((TableJoinSource) source).getLeftTable());
-		assertEquals(3, source.getIndex());
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_RIGHT_TABLE, RIGHT_TABLE, connector);
-		assertEquals(RIGHT_TABLE, ((TableJoinSource) source).getRightTable());
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector);
-		assertEquals(LEFT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getLeftKeyColumn());
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_RIGHT_KEY_COLUMN, RIGHT_KEY_COLUMN, connector);
-		assertEquals(RIGHT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getRightKeyColumn());
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector);
-		assertEquals(DEFAULT_RIGHT_LINE_RESULT, ((TableJoinSource) source).getDefaultRightLine());
 	}
 
 	@Test
@@ -287,99 +221,5 @@ public class SnmpTableProcessorTest {
 		assertEquals(1, source.getIndex());
 
 		assertEquals(SNMP_TABLE_SELECT_COLUMNS_LIST_1, ((SNMPGetTableSource) source).getSnmpTableSelectColumns());
-	}
-
-	@Test
-	void testParseTableJoinEmptyConnector() {
-		//We need to parse this first so the left table exist in the connector
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_1_TYPE, TYPE_SNMP_TABLE, connector);
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_LEFT_TABLE, LEFT_TABLE, connector);
-
-		Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		List<Source> sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(2, sources.size());
-
-		Optional<Source> sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		Source source = sourceOpt.get();
-		assertEquals(LEFT_TABLE, ((TableJoinSource) source).getLeftTable());
-		assertEquals(3, source.getIndex());
-
-		connector = new Connector();
-		//We need to parse this first so the right table exist in the connector
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_2_TYPE, TYPE_SNMP_TABLE, connector);
-
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_RIGHT_TABLE, RIGHT_TABLE, connector);
-
-		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(2, sources.size());
-
-		sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		source = sourceOpt.get();
-		assertEquals(RIGHT_TABLE, ((TableJoinSource) source).getRightTable());
-
-		connector = new Connector();
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector);
-
-		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(1, sources.size());
-
-		sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		source = sourceOpt.get();
-		assertEquals(LEFT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getLeftKeyColumn());
-
-		connector = new Connector();
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_RIGHT_KEY_COLUMN, RIGHT_KEY_COLUMN, connector);
-
-		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(1, sources.size());
-
-		sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		source = sourceOpt.get();
-		assertEquals(RIGHT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getRightKeyColumn());
-
-		connector = new Connector();
-		snmpTableProcessor.parse(ENCLOSURE_CRITERION_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector);
-
-		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
-
-		assertTrue(hardwareMonitorOpt.isPresent());
-
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
-		assertEquals(1, sources.size());
-
-		sourceOpt = sources.stream()
-				.filter(src -> 3 == src.getIndex()).findFirst();
-
-		source = sourceOpt.get();
-		assertEquals(DEFAULT_RIGHT_LINE_RESULT, ((TableJoinSource) source).getDefaultRightLine());
 	}
 }

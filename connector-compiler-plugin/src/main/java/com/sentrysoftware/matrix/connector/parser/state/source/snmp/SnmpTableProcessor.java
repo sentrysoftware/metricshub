@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
+package com.sentrysoftware.matrix.connector.parser.state.source.snmp;
 
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
@@ -13,7 +13,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class SnmpTableProcessor implements IConnectorStateParser {
@@ -24,13 +23,6 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	protected static final String SNMP_TABLE_SELECT_KEY = "snmptableselectcolumns";
 	protected static final String SNMP_TABLE_KEY = "snmptable";
 
-	protected static final String TABLE_JOINT_KEY = "tablejoint";
-	protected static final String LEFT_TABLE_KEY = "lefttable";
-	protected static final String RIGHT_TABLE_KEY = "righttable";
-	protected static final String LEFT_KEY_COLUMN_KEY = "leftkeycolumn";
-	protected static final String RIGHT_KEY_COLUMN_KEY = "rightkeycolumn";
-	protected static final String DEFAULT_RIGHT_LINE_KEY = "defaultrightline";
-	
 	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(SNMP_TABLE_KEY_REGEX, Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
@@ -39,7 +31,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 
 	@Override
 	public boolean detect(String key, String value, Connector connector) {
-		
+
 		return value != null
 				&& key != null
 				&& getKeyRegex().matcher(key).matches();
@@ -55,7 +47,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 				);
 		notNull(value, "value cannot be null.");
 		notNull(connector, "Connector cannot be null.");
-		
+
 		final int index = getIndex(key);
 
 		if (key.trim().toLowerCase().endsWith(SNMP_TABLE_TYPE_KEY)) {
@@ -64,22 +56,9 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 				HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
 				final Optional<Source> sourceOpt = hardwareMonitor.getDiscovery().getSources().stream()
 						.filter(src -> index == src.getIndex()).findFirst();
-				
+
 				if (sourceOpt.isEmpty()) {
 					Source source = new SNMPGetTableSource();
-					source.setIndex(index);
-					hardwareMonitor.getDiscovery().getSources().add(source);
-				}
-			}
-			
-			else if (TABLE_JOINT_KEY.equals(value.trim().toLowerCase())) {
-				// We make sure that the source now exists in the connector for this key
-				HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
-				final Optional<Source> sourceOpt = hardwareMonitor.getDiscovery().getSources().stream()
-						.filter(src -> index == src.getIndex()).findFirst();
-				
-				if (sourceOpt.isEmpty()) {
-					Source source = new TableJoinSource();
 					source.setIndex(index);
 					hardwareMonitor.getDiscovery().getSources().add(source);
 				}
@@ -106,70 +85,6 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 				Source source = new SNMPGetTableSource();
 				source.setIndex(index);
 				((SNMPGetTableSource) source).setSnmpTableSelectColumns(Arrays.asList(value.split(",")));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
-			}
-		}
-		
-		else if (key.trim().toLowerCase().endsWith(LEFT_TABLE_KEY)) {
-			if (getExistingSource(value, connector).isPresent()) {
-				Optional<Source> sourceOpt = getSource(key, connector);
-				if (sourceOpt.isPresent()) {
-					((TableJoinSource) sourceOpt.get()).setLeftTable(value);
-				} else {
-					Source source = new TableJoinSource();
-					source.setIndex(index);
-					((TableJoinSource) source).setLeftTable(value);
-					getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
-				}
-			}
-		}
-
-		else if (key.trim().toLowerCase().endsWith(RIGHT_TABLE_KEY)) {
-			if (getExistingSource(value, connector).isPresent()) {
-				Optional<Source> sourceOpt = getSource(key, connector);
-				if (sourceOpt.isPresent()) {
-					((TableJoinSource) sourceOpt.get()).setRightTable(value);
-				} else {
-					Source source = new TableJoinSource();
-					source.setIndex(index);
-					((TableJoinSource) source).setRightTable(value);
-					getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
-				}
-			}
-		}
-
-		else if (key.trim().toLowerCase().endsWith(LEFT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setLeftKeyColumn(Integer.parseInt(value));
-			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
-				((TableJoinSource) source).setLeftKeyColumn(Integer.parseInt(value));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
-			}
-		}
-
-		else if (key.trim().toLowerCase().endsWith(RIGHT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setRightKeyColumn(Integer.parseInt(value));
-			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
-				((TableJoinSource) source).setRightKeyColumn(Integer.parseInt(value));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
-			}
-		}
-
-		else if (key.trim().toLowerCase().endsWith(DEFAULT_RIGHT_LINE_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
-			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
-				((TableJoinSource) source).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
 				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
 			}
 		}
@@ -224,24 +139,6 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		} else {
 			return Optional.empty();
 		}
-	}
-	
-	/**
-	 * Return the source corresponding to the value from the connector, if it already exists.
-	 * @param value
-	 * @param connector
-	 * @return
-	 */
-	private Optional<Source> getExistingSource(final String value, final Connector connector) {
-		
-		final String monitorName = value.trim().substring(value.indexOf("%") + 1, value.indexOf('.'));
-		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
-		
-		return hardwareMonitorOpt.isPresent() ? 
-			hardwareMonitorOpt.get().getDiscovery().getSources().stream()
-					.filter(src -> src.getIndex().equals(getIndex(value))).findFirst()
-					: Optional.empty();
 	}
 
 	/**
