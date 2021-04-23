@@ -17,8 +17,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
-import com.sentrysoftware.matrix.connector.parser.state.source.SnmpTableProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.source.TableJoinProcessor;
 
 public class TableJoinProcessorTest {
 	private SnmpTableProcessor snmpTableProcessor;
@@ -61,7 +59,7 @@ public class TableJoinProcessorTest {
 
 	private static final int LEFT_KEY_COLUMN_RESULT = 1;
 	private static final int RIGHT_KEY_COLUMN_RESULT = 1;
-	private static final List<String> DEFAULT_RIGHT_LINE_RESULT = new ArrayList<>(Arrays.asList("","",""));
+	private static final List<String> DEFAULT_RIGHT_LINE_RESULT = new ArrayList<>(Arrays.asList("",""));
 
 	@BeforeEach
 	void setUp() {

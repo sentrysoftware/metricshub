@@ -15,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class SnmpTableProcessor implements IConnectorStateParser {
@@ -57,7 +58,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		final String lowerCaseKey = key.trim().toLowerCase();
 
 		final int index = getIndex(lowerCaseKey);
-		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(')') + 1);
+		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS) + 1);
 
 		if (lowerCaseKey.endsWith(SNMP_TABLE_TYPE_KEY)) {
 			if (SNMP_TABLE_KEY.equals(value.trim().toLowerCase())) {
@@ -88,17 +89,17 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		else if (lowerCaseKey.endsWith(SNMP_TABLE_SELECT_KEY)) {
 			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
-				((SNMPGetTableSource) sourceOpt.get()).setSnmpTableSelectColumns(Arrays.asList(value.split(",")));
+				((SNMPGetTableSource) sourceOpt.get()).setSnmpTableSelectColumns(Arrays.asList(value.split(ConnectorParserConstants.COMA)));
 			} else {
 				Source source = createSource(index, sourceKey);
-				((SNMPGetTableSource) source).setSnmpTableSelectColumns(Arrays.asList(value.split(",")));
+				((SNMPGetTableSource) source).setSnmpTableSelectColumns(Arrays.asList(value.split(ConnectorParserConstants.COMA)));
 				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 
 		else if (lowerCaseKey.endsWith(SNMP_TABLE_FORCE_SERIALIZATION_KEY)) {
 			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			boolean forceSerialization = value.equals("1");
+			boolean forceSerialization = value.equals(ConnectorParserConstants.ONE);
 			if (sourceOpt.isPresent()) {
 				((SNMPGetTableSource) sourceOpt.get()).setForceSerialization(forceSerialization);
 			} else {
@@ -115,7 +116,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @return {@link index}
 	 */
 	protected int getIndex(final String key) {
-		return Integer.parseInt(key.substring(key.indexOf('(') + 1, key.indexOf(')')));
+		return Integer.parseInt(key.substring(key.indexOf(ConnectorParserConstants.OPENING_PARENTHESIS) + 1, key.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS)));
 	}
 
 	/**
@@ -127,7 +128,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 */
 	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
-		final String monitorName = key.substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
@@ -145,7 +146,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 */
 	private Optional<Source> getSource(final String key, final Connector connector) {
 
-		final String monitorName = key.substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
 		final Integer index = getIndex(key);
 
@@ -191,7 +192,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @return
 	 */
 	private MonitorJob getMonitorJob(final String key, final HardwareMonitor hardwareMonitor) {
-		return key.substring(key.indexOf('.') + 1).startsWith(COLLECT) ? 
+		return key.substring(key.indexOf(ConnectorParserConstants.DOT) + 1).startsWith(COLLECT) ? 
 				hardwareMonitor.getCollect() : hardwareMonitor.getDiscovery();
 	}
 

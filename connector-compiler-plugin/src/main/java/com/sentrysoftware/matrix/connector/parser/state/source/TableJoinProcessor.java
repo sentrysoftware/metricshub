@@ -3,9 +3,10 @@ package com.sentrysoftware.matrix.connector.parser.state.source;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -14,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class TableJoinProcessor implements IConnectorStateParser {
@@ -58,7 +60,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 		final String lowerCaseKey = key.trim().toLowerCase();
 
 		final int index = getIndex(key);
-		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(')') + 1);
+		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS) + 1);
 
 		if (lowerCaseKey.endsWith(SNMP_TABLE_TYPE_KEY)) {
 			if (TABLE_JOINT_KEY.equals(value.trim().toLowerCase())) {
@@ -124,11 +126,16 @@ public class TableJoinProcessor implements IConnectorStateParser {
 
 		else if (lowerCaseKey.endsWith(DEFAULT_RIGHT_LINE_KEY)) {
 			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+			String[] split = value.split(ConnectorParserConstants.SEMICOLON, -1);
 			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
+				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Stream.of(split)
+						.limit(split.length - 1L)
+						.collect(Collectors.toList()));
 			} else {
 				Source source = createSource(index, sourceKey);
-				((TableJoinSource) source).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
+				((TableJoinSource) source).setDefaultRightLine(Stream.of(split)
+						.limit(split.length - 1L)
+						.collect(Collectors.toList()));
 				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
@@ -140,7 +147,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 * @return {@link index}
 	 */
 	protected int getIndex(final String key) {
-		return Integer.parseInt(key.substring(key.indexOf('(') + 1, key.indexOf(')')));
+		return Integer.parseInt(key.substring(key.indexOf(ConnectorParserConstants.OPENING_PARENTHESIS) + 1, key.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS)));
 	}
 
 	/**
@@ -152,7 +159,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 */
 	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
-		final String monitorName = key.substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
@@ -170,7 +177,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 */
 	private Optional<Source> getSource(final String key, final Connector connector) {
 
-		final String monitorName = key.substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
 		final Integer index = getIndex(key);
 
@@ -194,7 +201,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 */
 	private Optional<Source> getExistingSource(final String value, final String key, final Connector connector) {
 
-		final String monitorName = value.trim().substring(value.indexOf("%") + 1, value.indexOf('.'));
+		final String monitorName = value.trim().substring(value.indexOf(ConnectorParserConstants.PERCENT) + 1, value.indexOf(ConnectorParserConstants.DOT));
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
 
@@ -234,7 +241,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 * @return
 	 */
 	private MonitorJob getMonitorJob(final String key, final HardwareMonitor hardwareMonitor) {
-		return key.substring(key.indexOf('.') + 1).startsWith(COLLECT) ? 
+		return key.substring(key.indexOf(ConnectorParserConstants.DOT) + 1).startsWith(COLLECT) ? 
 				hardwareMonitor.getCollect() : hardwareMonitor.getDiscovery();
 	}
 
