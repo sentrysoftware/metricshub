@@ -19,9 +19,9 @@ public class SNMPGetSource extends SNMPSource {
 	private static final long serialVersionUID = 9174253450745863940L;
 
 	@Builder
-	public SNMPGetSource(List<Compute> computes, boolean forceSerialization, String oid, int index) {
+	public SNMPGetSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key) {
 
-		super(computes, forceSerialization, oid, index);
+		super(computes, forceSerialization, oid, index, key);
 	}
 
 }

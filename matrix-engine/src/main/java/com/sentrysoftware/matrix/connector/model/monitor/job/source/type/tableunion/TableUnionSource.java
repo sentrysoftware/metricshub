@@ -23,9 +23,9 @@ public class TableUnionSource extends Source {
 	private List<String> tables = new ArrayList<>();
 
 	@Builder
-	public TableUnionSource(List<Compute> computes, boolean forceSerialization, List<String> tables, int index) {
+	public TableUnionSource(List<Compute> computes, boolean forceSerialization, List<String> tables, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.tables = tables;
 	}
 

@@ -33,9 +33,9 @@ public class TelnetInteractiveSource extends Source {
 	@Builder
 	public TelnetInteractiveSource(List<Compute> computes, boolean forceSerialization, Integer port,
 			String excludeRegExp, String keepOnlyRegExp, Integer removeHeader, Integer removeFooter,
-			String separators, List<String> selectColumns, List<Step> steps, int index) {
+			String separators, List<String> selectColumns, List<Step> steps, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.port = port;
 		this.excludeRegExp = excludeRegExp;
 		this.keepOnlyRegExp = keepOnlyRegExp;

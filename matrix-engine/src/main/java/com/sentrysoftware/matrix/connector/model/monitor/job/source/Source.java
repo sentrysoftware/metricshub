@@ -23,10 +23,13 @@ public abstract class Source implements Serializable {
 
 	private Integer index;
 
-	protected Source(List<Compute> computes, boolean forceSerialization, Integer index) {
+	private String key;
+
+	protected Source(List<Compute> computes, boolean forceSerialization, Integer index, String key) {
 		this.computes = computes == null ? new ArrayList<>() : computes;
 		this.forceSerialization = forceSerialization;
 		this.index = index;
+		this.key = key;
 	}
 
 	protected void setIndex(int index) {

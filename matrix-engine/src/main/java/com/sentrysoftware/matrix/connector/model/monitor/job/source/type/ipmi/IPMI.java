@@ -20,9 +20,9 @@ public class IPMI extends Source {
 	private static final long serialVersionUID = 2314585274202787684L;
 
 	@Builder
-	public IPMI(List<Compute> computes, boolean forceSerialization, int index) {
+	public IPMI(List<Compute> computes, boolean forceSerialization, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 	}
 
 	

@@ -34,9 +34,9 @@ public class OSCommandSource extends Source {
 	public OSCommandSource(List<Compute> computes, boolean forceSerialization, String commandLine,
 			Long timeout, boolean executeLocally,
 			String excludeRegExp, String keepOnlyRegExp, Integer removeHeader, Integer removeFooter,
-			String separators, List<String> selectColumns, int index) {
+			String separators, List<String> selectColumns, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.commandLine = commandLine;
 		this.timeout = timeout;
 		this.executeLocally = executeLocally;

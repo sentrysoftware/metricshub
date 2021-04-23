@@ -29,9 +29,9 @@ public class TableJoinSource extends Source {
 	@Builder
 	public TableJoinSource(List<Compute> computes, boolean forceSerialization, String leftTable,
 			String rightTable, Integer leftKeyColumn, Integer rightKeyColumn, List<String> defaultRightLine,
-			String keyType, int index) {
+			String keyType, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.leftTable = leftTable;
 		this.rightTable = rightTable;
 		this.leftKeyColumn = leftKeyColumn;

@@ -24,9 +24,9 @@ public class WMISource extends Source {
 
 	@Builder
 	public WMISource(List<Compute> computes, boolean forceSerialization, String wbemQuery,
-			String wbemNameSpace, int index) {
+			String wbemNameSpace, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.wbemQuery = wbemQuery;
 		this.wbemNameSpace = wbemNameSpace;
 	}
