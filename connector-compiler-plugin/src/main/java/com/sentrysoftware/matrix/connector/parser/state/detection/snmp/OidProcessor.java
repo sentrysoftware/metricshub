@@ -13,11 +13,12 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet
 
 public class OidProcessor extends SnmpProcessor {
 
-    private static final String OID_KEY_REGEX = "^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$";
     private static final String SNMP_GET_OID_KEY = ".snmpget";
 
-	protected static final Pattern OID_KEY_PATTERN = Pattern.compile(OID_KEY_REGEX, Pattern.CASE_INSENSITIVE);
-
+    protected static final Pattern OID_KEY_PATTERN = Pattern.compile(
+			"^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$", 
+			Pattern.CASE_INSENSITIVE);
+    
 	@Override
 	protected Pattern getKeyRegex() {
 		return OID_KEY_PATTERN;

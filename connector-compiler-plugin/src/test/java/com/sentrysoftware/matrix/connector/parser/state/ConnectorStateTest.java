@@ -1,22 +1,24 @@
 package com.sentrysoftware.matrix.connector.parser.state;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Set;
-
+import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_INSTANCE_TABLE;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SIMPLE_PROPERTY;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SNMP_DETECTION;
-import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_INSTANCE_TABLE;
+import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SOURCE_TABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 
 class ConnectorStateTest {
 
@@ -65,9 +67,10 @@ class ConnectorStateTest {
         Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates();
 
         assertNotNull(connectorStates);
-        assertEquals(3, connectorStates.size());
+        assertEquals(4, connectorStates.size());
         assertTrue(connectorStates.contains(CONNECTOR_SIMPLE_PROPERTY));
         assertTrue(connectorStates.contains(CONNECTOR_SNMP_DETECTION));
         assertTrue(connectorStates.contains(CONNECTOR_INSTANCE_TABLE));
+        assertTrue(connectorStates.contains(CONNECTOR_SOURCE_TABLE));
     }
 }

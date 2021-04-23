@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpDetectionParser;
 import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceParser;
+import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceParser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +18,8 @@ public enum ConnectorState {
 
 	CONNECTOR_SIMPLE_PROPERTY(new ConnectorSimplePropertyParser()),
 	CONNECTOR_SNMP_DETECTION(new ConnectorSnmpDetectionParser()),
-	CONNECTOR_INSTANCE_TABLE(new ConnectorInstanceParser());
+	CONNECTOR_INSTANCE_TABLE(new ConnectorInstanceParser()),
+	CONNECTOR_SOURCE_TABLE(new ConnectorSourceParser());
 
 	private final IConnectorStateParser connectorStateProcessor;
 

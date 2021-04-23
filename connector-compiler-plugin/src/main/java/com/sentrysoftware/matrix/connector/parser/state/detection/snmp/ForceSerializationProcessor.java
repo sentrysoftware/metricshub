@@ -9,15 +9,16 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 
 public class ForceSerializationProcessor extends SnmpProcessor {
 
-    private static final String FORCE_SERIALIZATION_KEY_REGEX = "^\\s*detection\\.criteria\\((\\d+)\\)\\.forceserialization\\s*$";
 
-	protected static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile(FORCE_SERIALIZATION_KEY_REGEX, Pattern.CASE_INSENSITIVE);
-	
+	protected static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile(
+			"^\\s*detection\\.criteria\\((\\d+)\\)\\.forceserialization\\s*$", 
+			Pattern.CASE_INSENSITIVE);
+
 	@Override
 	protected Pattern getKeyRegex() {
 		return FORCE_SERIALIZATION_KEY_PATTERN;
 	}
-	
+
     @Override
     public void parse(final String key, final String value, final Connector connector) {
 

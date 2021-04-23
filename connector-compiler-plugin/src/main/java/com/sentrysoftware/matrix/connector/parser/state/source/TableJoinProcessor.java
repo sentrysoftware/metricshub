@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.snmp;
+package com.sentrysoftware.matrix.connector.parser.state.source;
 
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
@@ -17,7 +18,6 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class TableJoinProcessor implements IConnectorStateParser {
 
-	protected static final String SNMP_TABLE_KEY_REGEX = "^\\s*(([a-z]+)\\.discovery\\.source\\((\\d+)\\)\\.([a-z]+))\\s*$";
 
 	protected static final String SNMP_TABLE_TYPE_KEY = "type";
 	protected static final String TABLE_JOINT_KEY = "tablejoint";
@@ -27,7 +27,11 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	protected static final String RIGHT_KEY_COLUMN_KEY = "rightkeycolumn";
 	protected static final String DEFAULT_RIGHT_LINE_KEY = "defaultrightline";
 
-	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(SNMP_TABLE_KEY_REGEX, Pattern.CASE_INSENSITIVE);
+	protected static final String COLLECT = "collect";
+
+	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
+			"^\\s*(([a-z]+)\\.(discovery|collect)\\.source\\((\\d+)\\)\\.(type|tablejoint|lefttable|righttable|leftkeycolumn|rightkeycolumn|defaultrightline))\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
 		return SNMP_TABLE_KEY_PATTERN;
@@ -51,84 +55,81 @@ public class TableJoinProcessor implements IConnectorStateParser {
 		notNull(value, "value cannot be null.");
 		notNull(connector, "Connector cannot be null.");
 
-		final int index = getIndex(key);
+		final String lowerCaseKey = key.trim().toLowerCase();
 
-		if (key.trim().toLowerCase().endsWith(SNMP_TABLE_TYPE_KEY)) {
+		final int index = getIndex(key);
+		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(')') + 1);
+
+		if (lowerCaseKey.endsWith(SNMP_TABLE_TYPE_KEY)) {
 			if (TABLE_JOINT_KEY.equals(value.trim().toLowerCase())) {
 				// We make sure that the source now exists in the connector for this key
-				HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
-				final Optional<Source> sourceOpt = hardwareMonitor.getDiscovery().getSources().stream()
+				HardwareMonitor hardwareMonitor = getHardwareMonitor(lowerCaseKey, connector);
+				MonitorJob monitorJob = getMonitorJob(lowerCaseKey, hardwareMonitor);
+				final Optional<Source> sourceOpt = monitorJob.getSources().stream()
 						.filter(src -> index == src.getIndex()).findFirst();
 
 				if (sourceOpt.isEmpty()) {
-					Source source = new TableJoinSource();
-					source.setIndex(index);
-					hardwareMonitor.getDiscovery().getSources().add(source);
+					monitorJob.getSources().add(createSource(index, sourceKey));
 				}
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(LEFT_TABLE_KEY)) {
-			if (getExistingSource(value, connector).isPresent()) {
-				Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(LEFT_TABLE_KEY)) {
+			if (getExistingSource(value, lowerCaseKey, connector).isPresent()) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 				if (sourceOpt.isPresent()) {
 					((TableJoinSource) sourceOpt.get()).setLeftTable(value);
 				} else {
-					Source source = new TableJoinSource();
-					source.setIndex(index);
+					Source source = createSource(index, sourceKey);
 					((TableJoinSource) source).setLeftTable(value);
-					getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 				}
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(RIGHT_TABLE_KEY)) {
-			if (getExistingSource(value, connector).isPresent()) {
-				Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(RIGHT_TABLE_KEY)) {
+			if (getExistingSource(value, lowerCaseKey, connector).isPresent()) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 				if (sourceOpt.isPresent()) {
 					((TableJoinSource) sourceOpt.get()).setRightTable(value);
 				} else {
-					Source source = new TableJoinSource();
-					source.setIndex(index);
+					Source source =createSource(index, sourceKey);
 					((TableJoinSource) source).setRightTable(value);
-					getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 				}
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(LEFT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(LEFT_KEY_COLUMN_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
 				((TableJoinSource) sourceOpt.get()).setLeftKeyColumn(Integer.parseInt(value));
 			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
+				Source source = createSource(index, sourceKey);
 				((TableJoinSource) source).setLeftKeyColumn(Integer.parseInt(value));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(RIGHT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(RIGHT_KEY_COLUMN_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
 				((TableJoinSource) sourceOpt.get()).setRightKeyColumn(Integer.parseInt(value));
 			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
+				Source source = createSource(index, sourceKey);
 				((TableJoinSource) source).setRightKeyColumn(Integer.parseInt(value));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(DEFAULT_RIGHT_LINE_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(DEFAULT_RIGHT_LINE_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
 				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
 			} else {
-				Source source = new TableJoinSource();
-				source.setIndex(index);
+				Source source = createSource(index, sourceKey);
 				((TableJoinSource) source).setDefaultRightLine(Arrays.asList(value.split(";", -1)));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 	}
@@ -151,7 +152,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 */
 	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
-		final String monitorName = key.trim().substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf('.'));
 
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
@@ -169,7 +170,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 */
 	private Optional<Source> getSource(final String key, final Connector connector) {
 
-		final String monitorName = key.trim().substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf('.'));
 
 		final Integer index = getIndex(key);
 
@@ -177,7 +178,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
 
 		if (hardwareMonitorOpt.isPresent()) {
-			return hardwareMonitorOpt.get().getDiscovery().getSources().stream()
+			return getMonitorJob(key, hardwareMonitorOpt.get()).getSources().stream()
 					.filter(src -> index.equals(src.getIndex())).findFirst();
 		} else {
 			return Optional.empty();
@@ -187,17 +188,18 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	/**
 	 * Return the source corresponding to the value from the connector, if it already exists.
 	 * @param value
+	 * @param key
 	 * @param connector
 	 * @return
 	 */
-	private Optional<Source> getExistingSource(final String value, final Connector connector) {
+	private Optional<Source> getExistingSource(final String value, final String key, final Connector connector) {
 
 		final String monitorName = value.trim().substring(value.indexOf("%") + 1, value.indexOf('.'));
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
 
 		return hardwareMonitorOpt.isPresent() ? 
-				hardwareMonitorOpt.get().getDiscovery().getSources().stream()
+				getMonitorJob(key, hardwareMonitorOpt.get()).getSources().stream()
 				.filter(src -> src.getIndex().equals(getIndex(value))).findFirst()
 				: Optional.empty();
 	}
@@ -222,5 +224,30 @@ public class TableJoinProcessor implements IConnectorStateParser {
 		connector.getHardwareMonitors().add(hardwareMonitor);
 
 		return hardwareMonitor;
+	}
+
+	/**
+	 * Return the hardwareMonitor's discovery or collect job depending on the key.
+	 * Since the key has been parsed with the regex, we know it begins with "monitorType.monitorJob".
+	 * @param key
+	 * @param hardwareMonitor
+	 * @return
+	 */
+	private MonitorJob getMonitorJob(final String key, final HardwareMonitor hardwareMonitor) {
+		return key.substring(key.indexOf('.') + 1).startsWith(COLLECT) ? 
+				hardwareMonitor.getCollect() : hardwareMonitor.getDiscovery();
+	}
+
+	/**
+	 * Create a TableJoinSource and gives it the index and key in parameters.
+	 * @param index
+	 * @param sourceKey
+	 * @return The created source.
+	 */
+	private Source createSource(final int index, final String sourceKey) {
+		Source source = new TableJoinSource();
+		source.setIndex(index);
+		source.setKey(sourceKey);
+		return source;
 	}
 }

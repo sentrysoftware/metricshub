@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.snmp;
+package com.sentrysoftware.matrix.connector.parser.state.source;
 
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
@@ -17,13 +19,17 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class SnmpTableProcessor implements IConnectorStateParser {
 
-	protected static final String SNMP_TABLE_KEY_REGEX = "^\\s*(([a-z]+)\\.discovery\\.source\\((\\d+)\\)\\.([a-z]+))\\s*$";
 	protected static final String SNMP_TABLE_TYPE_KEY = "type";
 	protected static final String SNMP_TABLE_OID_KEY = "snmptableoid";
 	protected static final String SNMP_TABLE_SELECT_KEY = "snmptableselectcolumns";
+	protected static final String SNMP_TABLE_FORCE_SERIALIZATION_KEY = "forceserialization";
 	protected static final String SNMP_TABLE_KEY = "snmptable";
 
-	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(SNMP_TABLE_KEY_REGEX, Pattern.CASE_INSENSITIVE);
+	protected static final String COLLECT = "collect";
+
+	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
+			"^\\s*(([a-z]+)\\.(discovery|collect)\\.source\\((\\d+)\\)\\.(type|snmptableoid|snmptableselectcolumns|forceserialization))\\s*$", 
+			Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
 		return SNMP_TABLE_KEY_PATTERN;
@@ -48,44 +54,57 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		notNull(value, "value cannot be null.");
 		notNull(connector, "Connector cannot be null.");
 
-		final int index = getIndex(key);
+		final String lowerCaseKey = key.trim().toLowerCase();
 
-		if (key.trim().toLowerCase().endsWith(SNMP_TABLE_TYPE_KEY)) {
+		final int index = getIndex(lowerCaseKey);
+		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(')') + 1);
+
+		if (lowerCaseKey.endsWith(SNMP_TABLE_TYPE_KEY)) {
 			if (SNMP_TABLE_KEY.equals(value.trim().toLowerCase())) {
 				// We make sure that the source now exists in the connector for this key
-				HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
-				final Optional<Source> sourceOpt = hardwareMonitor.getDiscovery().getSources().stream()
+				HardwareMonitor hardwareMonitor = getHardwareMonitor(lowerCaseKey, connector);
+				MonitorJob monitorJob = getMonitorJob(lowerCaseKey, hardwareMonitor);
+
+				final Optional<Source> sourceOpt = monitorJob.getSources().stream()
 						.filter(src -> index == src.getIndex()).findFirst();
 
 				if (sourceOpt.isEmpty()) {
-					Source source = new SNMPGetTableSource();
-					source.setIndex(index);
-					hardwareMonitor.getDiscovery().getSources().add(source);
+					monitorJob.getSources().add(createSource(index, sourceKey));
 				}
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(SNMP_TABLE_OID_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(SNMP_TABLE_OID_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
 				((SNMPGetTableSource) sourceOpt.get()).setOid(value);
 			} else {
-				Source source = new SNMPGetTableSource();
-				source.setIndex(index);
+				Source source = createSource(index, sourceKey);
 				((SNMPGetTableSource) source).setOid(value);
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 
-		else if (key.trim().toLowerCase().endsWith(SNMP_TABLE_SELECT_KEY)) {
-			Optional<Source> sourceOpt = getSource(key, connector);
+		else if (lowerCaseKey.endsWith(SNMP_TABLE_SELECT_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 			if (sourceOpt.isPresent()) {
 				((SNMPGetTableSource) sourceOpt.get()).setSnmpTableSelectColumns(Arrays.asList(value.split(",")));
 			} else {
-				Source source = new SNMPGetTableSource();
-				source.setIndex(index);
+				Source source = createSource(index, sourceKey);
 				((SNMPGetTableSource) source).setSnmpTableSelectColumns(Arrays.asList(value.split(",")));
-				getHardwareMonitor(key, connector).getDiscovery().getSources().add(source);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+			}
+		}
+
+		else if (lowerCaseKey.endsWith(SNMP_TABLE_FORCE_SERIALIZATION_KEY)) {
+			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+			boolean forceSerialization = value.equals("1");
+			if (sourceOpt.isPresent()) {
+				((SNMPGetTableSource) sourceOpt.get()).setForceSerialization(forceSerialization);
+			} else {
+				Source source = createSource(index, sourceKey);
+				((SNMPGetTableSource) source).setForceSerialization(forceSerialization);
+				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
 			}
 		}
 	}
@@ -108,7 +127,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 */
 	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
-		final String monitorName = key.trim().substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf('.'));
 
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
@@ -126,7 +145,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 */
 	private Optional<Source> getSource(final String key, final Connector connector) {
 
-		final String monitorName = key.trim().substring(0, key.indexOf('.'));
+		final String monitorName = key.substring(0, key.indexOf('.'));
 
 		final Integer index = getIndex(key);
 
@@ -134,7 +153,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
 
 		if (hardwareMonitorOpt.isPresent()) {
-			return hardwareMonitorOpt.get().getDiscovery().getSources().stream()
+			return getMonitorJob(key, hardwareMonitorOpt.get()).getSources().stream()
 					.filter(src -> index.equals(src.getIndex())).findFirst();
 		} else {
 			return Optional.empty();
@@ -154,6 +173,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
 				.discovery(Discovery.builder().build())
+				.collect(Collect.builder().build())
 				.type(monitorType)
 				.build();
 
@@ -161,5 +181,30 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		connector.getHardwareMonitors().add(hardwareMonitor);
 
 		return hardwareMonitor;
+	}
+
+	/**
+	 * Return the hardwareMonitor's discovery or collect job depending on the key.
+	 * Since the key has been parsed with the regex, we know it begins with "monitorType.monitorJob".
+	 * @param key
+	 * @param hardwareMonitor
+	 * @return
+	 */
+	private MonitorJob getMonitorJob(final String key, final HardwareMonitor hardwareMonitor) {
+		return key.substring(key.indexOf('.') + 1).startsWith(COLLECT) ? 
+				hardwareMonitor.getCollect() : hardwareMonitor.getDiscovery();
+	}
+
+	/**
+	 * Create a SNMPGetTableSource and gives it the index and key in parameters.
+	 * @param index
+	 * @param sourceKey
+	 * @return The created source.
+	 */
+	private Source createSource(final int index, final String sourceKey) {
+		Source source = new SNMPGetTableSource();
+		source.setIndex(index);
+		source.setKey(sourceKey);
+		return source;
 	}
 }
