@@ -33,9 +33,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.strategy.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.MatsyaListResult;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaListResult;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 

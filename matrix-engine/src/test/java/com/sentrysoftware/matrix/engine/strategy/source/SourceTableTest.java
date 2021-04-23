@@ -1,39 +1,79 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-public class SourceTableTest {
+
+class SourceTableTest {
 
 	@Test
-	public static void stringToSourceTest() {
-		String csvString = "a,b,c\nd,e,f\ng,h,i";
-		List<List<String>> excpectedData = new ArrayList<>();
-		excpectedData.add(Arrays.asList("a","b","c"));
-		excpectedData.add(Arrays.asList("d","e","f"));
-		excpectedData.add(Arrays.asList("g", "h", "i"));
-		
-		List<List<String>> fromStringSourceResult = SourceTable.stringToSource(csvString);
-		assertTrue(excpectedData.size() == fromStringSourceResult.size() 
-				&& excpectedData.containsAll(fromStringSourceResult) 
-				&& excpectedData.containsAll(fromStringSourceResult));
+	void testStringToTable() {
+		final String csvTable = "\n1;A;i;\n\n2;B;ii;\n\n\n3;C;iii;\n\n";
+		assertEquals(
+				Stream.of(Arrays.asList("1", "A", "i"), Arrays.asList("2", "B", "ii"), Arrays.asList("3", "C", "iii"))
+						.collect(Collectors.toList()),
+						SourceTable.csvToTable(csvTable, ";"));
+
+		assertNull(SourceTable.csvToTable(null, ";"));
+
+		assertEquals(Collections.emptyList(), SourceTable.csvToTable("\n\n\n", ";"));
+
+		final List<String> emptyCells = Arrays.asList("", "");
+		assertEquals(Stream
+				.of(emptyCells, emptyCells, emptyCells)
+				.collect(Collectors.toList()),
+				SourceTable.csvToTable("\n;;\n;;\n;;", ";"));
+
+		assertEquals(Stream
+				.of(Arrays.asList("", "a"),
+						emptyCells,
+						emptyCells)
+				.collect(Collectors.toList()),
+				SourceTable.csvToTable("\n;a;\n;;\n;;", ";"));
 	}
-	
+
 	@Test
-	public static void sourceToStringTest() {
-		String expected = "a,b,c\nd,e,f\ng,h,i";
-		List<List<String>> source = new ArrayList<>();
-		source.add(Arrays.asList("a","b","c"));
-		source.add(Arrays.asList("d","e","f"));
-		source.add(Arrays.asList("g", "h", "i"));
-		
-		String sourceToStringResult = SourceTable.sourceToString(source);
-		assertEquals(expected, sourceToStringResult);
+	void testLineToList() {
+		assertEquals(Collections.emptyList(), SourceTable.lineToList(null, ";"));
+		assertEquals(Collections.emptyList(), SourceTable.lineToList("", ";"));
+		assertEquals(Arrays.asList(""), SourceTable.lineToList(";", ";"));
+		assertEquals(Arrays.asList("", "", "", "", "", ""), SourceTable.lineToList(";;;;;;", ";"));
+		assertEquals(Arrays.asList("","","a", "", "", ""), SourceTable.lineToList(";;a;;;;", ";"));
+		assertEquals(Collections.emptyList(), SourceTable.lineToList("", ";"));
+
+		// Test for line that ends without the ";" separator
+		final List<String> list = Arrays.asList("a","b","c");
+		assertEquals(list, SourceTable.lineToList("a;b;c", ";"));
+		assertEquals(list, SourceTable.lineToList("a;b;c;", ";"));
+	}
+
+	@Test
+	void testTableToCsv() {
+		assertEquals(null, SourceTable.tableToCsv(null, ";"));
+		assertEquals("", SourceTable.tableToCsv(Collections.emptyList(), ";"));
+		assertEquals(";;;;;;",
+				SourceTable.tableToCsv(Collections.singletonList(Arrays.asList("", "", "", "", "", "")), ";"));
+		assertEquals(";;;;;;\n;;;;;;",
+				SourceTable.tableToCsv(
+						Stream.of(
+								Arrays.asList("", "", "", "", "", ""),
+								Arrays.asList("", "", "", "", "", ""))
+						.collect(Collectors.toList()),
+						";"));
+		assertEquals(";;a;;;;\n;;;a;;;",
+				SourceTable.tableToCsv(
+						Stream.of(
+								Arrays.asList("", "", "a", "", "", ""),
+								Arrays.asList("", "", "", "a", "", ""))
+						.collect(Collectors.toList()),
+						";"));
 	}
 }

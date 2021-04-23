@@ -20,9 +20,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.strategy.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.MatsyaListResult;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaListResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,14 +64,15 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(SNMPGetTableSource snmpGetTableSource) {
-		if( null == snmpGetTableSource || null == snmpGetTableSource.getOid()) {
+		if (snmpGetTableSource == null || snmpGetTableSource.getOid() == null) {
 			return SourceTable.empty();
 		}
 		// run Matsya in order to execute the snmpTable
 		// receives a CSV structure to be transformed into a List. Delimiters are "\n" and ","
 		SourceTable sourceTable = new SourceTable();
 		List<String> selectedColumns = snmpGetTableSource.getSnmpTableSelectColumns();
-		if(null == selectedColumns) {
+
+		if(selectedColumns == null) {
 			return SourceTable.empty();
 		}
 		String[] selectColumnArray = new String[selectedColumns.size()];

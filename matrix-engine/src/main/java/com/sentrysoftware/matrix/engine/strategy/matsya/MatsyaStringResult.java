@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.strategy;
-
-import java.util.List;
+package com.sentrysoftware.matrix.engine.strategy.matsya;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MatsyaListResult implements IMatsyaQueryResult {
+public class MatsyaStringResult implements IMatsyaQueryResult {
 
-	List<List<String>> data;
-	
-
+	private String data;
 }
