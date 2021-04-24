@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.connector.parser.state.instance;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -36,9 +35,6 @@ class InstanceTableProcessorTest {
 	private static final String FAN_DISCOVERY_INSTANCE_DEVICEID = "fan.discovery.instance.deviceid";
 	private static final String ENCLOSURE = "enclosure";
 	private static final String ENCLOSURE_DISCOVERY_INSTANCETABLE = "enclosure.discovery.instancetable";
-	private static final String ENCLOSURE_COLLECT_SOURCE_4 = "%enclosure.collect.Source(4)%";
-	private static final String ENCLOSURE_DISCOVERY_SOURCE_4 = "%enclosure.discovery.Source(4)%";
-	private static final String FAN_DISCOVERY_SOURCE_1 = "%Fan.Discovery.Source(1)%";
 	private static final String ENCLOSURE_COLLECT_SOURCE_1 = "%Enclosure.collect.Source(1)%";
 	private static final String ENCLOSURE_DISCOVERY_SOURCE_1 = "%Enclosure.Discovery.Source(1)%";
 	private static final String ENCLOSURE_DISCOVERY_SOURCE_2 = "%Enclosure.Discovery.Source(2)%";
@@ -72,7 +68,7 @@ class InstanceTableProcessorTest {
 
 		processor.parse(ENCLOSURE_DISCOVERY_INSTANCE_TABLE, ENCLOSURE_DISCOVERY_SOURCE_2, connector);
 
-		assertEquals(SourceInstanceTable.builder().source(sourceDiscovery2).build(),
+		assertEquals(SourceInstanceTable.builder().sourceKey("Enclosure.Discovery.Source(2)".toLowerCase()).build(),
 				connector.getHardwareMonitors().get(0).getDiscovery().getInstanceTable());
 
 	}
@@ -91,19 +87,13 @@ class InstanceTableProcessorTest {
 			connector.setHardwareMonitors(Collections.singletonList(
 					HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(discovery).collect(collect).build()));
 
-			assertEquals(SourceInstanceTable.builder().source(sourceDiscovery1).build(), processor.getInstanceTableFromValue(ENCLOSURE_DISCOVERY_SOURCE_1, connector));
-			assertEquals(SourceInstanceTable.builder().source(sourceCollect1).build(), processor.getInstanceTableFromValue(ENCLOSURE_COLLECT_SOURCE_1, connector));
-			assertNull(((SourceInstanceTable) processor.getInstanceTableFromValue(FAN_DISCOVERY_SOURCE_1, connector)).getSource());
-			assertNull(((SourceInstanceTable) processor.getInstanceTableFromValue(ENCLOSURE_DISCOVERY_SOURCE_4, connector)).getSource());
-			assertNull(((SourceInstanceTable) processor.getInstanceTableFromValue(ENCLOSURE_COLLECT_SOURCE_4, connector)).getSource());
+			assertEquals(SourceInstanceTable.builder().sourceKey("Enclosure.Discovery.Source(1)".toLowerCase()).build(), processor.getInstanceTableFromValue(ENCLOSURE_DISCOVERY_SOURCE_1));
+			assertEquals(SourceInstanceTable.builder().sourceKey("Enclosure.collect.Source(1)".toLowerCase()).build(), processor.getInstanceTableFromValue(ENCLOSURE_COLLECT_SOURCE_1));
 
-			connector.setHardwareMonitors(
-					Collections.singletonList(HardwareMonitor.builder().type(MonitorType.FAN).collect(collect).build()));
-			assertNull(((SourceInstanceTable) processor.getInstanceTableFromValue(FAN_DISCOVERY_SOURCE_1, connector)).getSource());
 		}
 
 		{
-			assertEquals(TextInstanceTable.builder().text(NO_DOUBLE_QUOTES).build(), processor.getInstanceTableFromValue(START_END_WITH_DOUBLE_QUOTES, new Connector()));
+			assertEquals(TextInstanceTable.builder().text(NO_DOUBLE_QUOTES).build(), processor.getInstanceTableFromValue(START_END_WITH_DOUBLE_QUOTES));
 		}
 
 	}

@@ -68,7 +68,7 @@ class ConnectorInstanceParserTest {
 
 			parser.parse(ENCLOSURE_DISCOVERY_INSTANCE_TABLE, ENCLOSURE_DISCOVERY_SOURCE_2, connector);
 
-			assertEquals(SourceInstanceTable.builder().source(sourceDiscovery2).build(), connector.getHardwareMonitors().get(0).getDiscovery().getInstanceTable());
+			assertEquals(SourceInstanceTable.builder().sourceKey("Enclosure.Discovery.Source(2)".toLowerCase()).build(), connector.getHardwareMonitors().get(0).getDiscovery().getInstanceTable());
 		}
 	}
 }

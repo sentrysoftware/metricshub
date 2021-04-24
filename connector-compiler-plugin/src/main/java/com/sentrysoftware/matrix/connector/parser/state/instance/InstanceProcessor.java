@@ -12,7 +12,7 @@ public class InstanceProcessor extends AbstractInstanceProcessor {
 	 * Pattern to detect discovery instance parameters
 	 */
 	private static final Pattern INSTANCE_PATTERN = Pattern
-			.compile("^([a-z]+)\\.discovery\\.instance\\.([a-z0-9]+)$", Pattern.CASE_INSENSITIVE);
+			.compile("^\\s*([a-z]+)\\.discovery\\.instance\\.([a-z0-9]+)\\s*$", Pattern.CASE_INSENSITIVE);
 
 	
 	@Override
