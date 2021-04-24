@@ -25,7 +25,7 @@ public class WBEMSource extends Source {
 	private String wbemNameSpace;
 
 	@Builder
-	public WBEMSource(List<Compute> computes, Source reference, boolean forceSerialization, String wbemQuery,
+	public WBEMSource(List<Compute> computes, boolean forceSerialization, String wbemQuery,
 			String wbemNameSpace, int index, String key) {
 
 		super(computes, forceSerialization, index, key);

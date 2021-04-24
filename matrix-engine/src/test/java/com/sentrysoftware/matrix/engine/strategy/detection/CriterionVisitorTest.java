@@ -35,7 +35,6 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaStringResult;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -137,7 +136,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetEmptyResult() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(EMPTY).build()).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an empty result.")
@@ -148,7 +147,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetSuccessWithNoExpectedResult() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(UCS_SYSTEM_CISCO_RESULT).build()).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
@@ -160,7 +159,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetExpectedResultNotMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(UCS_SYSTEM_CISCO_RESULT).build()).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value UCS System Cisco.")
@@ -172,7 +171,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetExpectedResultMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(UCS_SYSTEM_CISCO_RESULT).build()).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(UCS_EXPECTED).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
@@ -238,7 +237,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextEmptyResult() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(EMPTY).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an empty result.")
@@ -249,7 +248,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextNotSameSubTreeOID() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(RESULT_1).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(RESULT_1).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the returned OID is not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.")
@@ -260,7 +259,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(RESULT_2).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.")
@@ -272,7 +271,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextExpectedResultNotMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(RESULT_2).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.")
@@ -284,7 +283,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextExpectedResultMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(RESULT_3).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(RESULT_3).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.")
@@ -297,7 +296,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitSNMPGetNextExpectedResultCannotExtract() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaStringResult.builder().data(RESULT_4).build()).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(RESULT_4).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
 				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value cannot be extracted. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.")

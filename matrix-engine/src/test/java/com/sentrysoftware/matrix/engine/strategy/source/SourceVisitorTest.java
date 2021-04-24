@@ -35,7 +35,6 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaListResult;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -104,7 +103,7 @@ public class SourceVisitorTest {
 	@Test
 	void testVisitSNMPGetTableExpectedResultNotMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaListResult.builder().data(new ArrayList<>()).build()).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
+		doReturn(new ArrayList<>()).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_WRONG_COLUMNS).build());
 		final SourceTable expected = SourceTable.builder().table(new ArrayList<>()
 				).headers(SNMP_WRONG_COLUMNS).build();
@@ -114,7 +113,7 @@ public class SourceVisitorTest {
 	@Test
 	void testVisitSNMPGetTableExpectedResultMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(MatsyaListResult.builder().data(EXPECTED_SNMP_TABLE_DATA).build()).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor
 				.visit(SNMPGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build());
 		final SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA)

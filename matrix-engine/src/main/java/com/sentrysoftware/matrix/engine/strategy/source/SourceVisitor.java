@@ -22,7 +22,6 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaListResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,7 +67,7 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 		// run Matsya in order to execute the snmpTable
-		// receives a CSV structure to be transformed into a List. Delimiters are "\n" and ","
+		// receives a List structure
 		SourceTable sourceTable = new SourceTable();
 		List<String> selectedColumns = snmpGetTableSource.getSnmpTableSelectColumns();
 
@@ -90,13 +89,12 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			MatsyaListResult matsyaListResult = (MatsyaListResult) matsyaClientsExecutor.executeSNMPTable(
+			final List<List<String>> result = matsyaClientsExecutor.executeSNMPTable(
 					snmpGetTableSource.getOid(),
 					selectColumnArray,
 					protocol,
 					hostname,
 					true);
-			final List<List<String>> result = matsyaListResult == null ? null : matsyaListResult.getData();
 
 			sourceTable.setHeaders(selectedColumns);
 			sourceTable.setTable(result);
