@@ -126,7 +126,9 @@ public class TableJoinProcessor implements IConnectorStateParser {
 
 		else if (lowerCaseKey.endsWith(DEFAULT_RIGHT_LINE_KEY)) {
 			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			String[] split = value.split(ConnectorParserConstants.SEMICOLON, -1);
+
+			String[] split = (!value.endsWith(ConnectorParserConstants.SEMICOLON) ? value + ConnectorParserConstants.SEMICOLON : value)
+					.split(ConnectorParserConstants.SEMICOLON, -1);
 			if (sourceOpt.isPresent()) {
 				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Stream.of(split)
 						.limit(split.length - 1L)

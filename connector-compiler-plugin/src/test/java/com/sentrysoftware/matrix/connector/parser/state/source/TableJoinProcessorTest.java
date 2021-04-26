@@ -55,11 +55,15 @@ public class TableJoinProcessorTest {
 	private static final String RIGHT_TABLE = "%Enclosure.Discovery.Source(2)%";
 	private static final String LEFT_KEY_COLUMN = "1";
 	private static final String RIGHT_KEY_COLUMN = "1";
-	private static final String DEFAULT_RIGHT_LINE = ";;";
+	private static final String DEFAULT_RIGHT_LINE_1 = ";;";
+	private static final String DEFAULT_RIGHT_LINE_2 = "value1;value2;value3;value4;";
+	private static final String DEFAULT_RIGHT_LINE_3 = "Something to test lines without semilicon";
 
 	private static final int LEFT_KEY_COLUMN_RESULT = 1;
 	private static final int RIGHT_KEY_COLUMN_RESULT = 1;
-	private static final List<String> DEFAULT_RIGHT_LINE_RESULT = new ArrayList<>(Arrays.asList("",""));
+	private static final List<String> DEFAULT_RIGHT_LINE_RESULT_1 = new ArrayList<>(Arrays.asList("",""));
+	private static final List<String> DEFAULT_RIGHT_LINE_RESULT_2 = new ArrayList<>(Arrays.asList("value1","value2","value3","value4"));
+	private static final List<String> DEFAULT_RIGHT_LINE_RESULT_3 = new ArrayList<>(Arrays.asList("Something to test lines without semilicon"));
 
 	@BeforeEach
 	void setUp() {
@@ -80,7 +84,7 @@ public class TableJoinProcessorTest {
 		assertTrue(tableJoinProcessor.detect(ENCLOSURE_3_RIGHT_TABLE, RIGHT_TABLE, connector));
 		assertTrue(tableJoinProcessor.detect(ENCLOSURE_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector));
 		assertTrue(tableJoinProcessor.detect(ENCLOSURE_3_RIGHT_KEY_COLUMN, RIGHT_KEY_COLUMN, connector));
-		assertTrue(tableJoinProcessor.detect(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector));
+		assertTrue(tableJoinProcessor.detect(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE_1, connector));
 	}
 
 	@Test
@@ -143,8 +147,14 @@ public class TableJoinProcessorTest {
 		tableJoinProcessor.parse(ENCLOSURE_3_RIGHT_KEY_COLUMN, RIGHT_KEY_COLUMN, connector);
 		assertEquals(RIGHT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getRightKeyColumn());
 
-		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector);
-		assertEquals(DEFAULT_RIGHT_LINE_RESULT, ((TableJoinSource) source).getDefaultRightLine());
+		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE_1, connector);
+		assertEquals(DEFAULT_RIGHT_LINE_RESULT_1, ((TableJoinSource) source).getDefaultRightLine());
+
+		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE_2, connector);
+		assertEquals(DEFAULT_RIGHT_LINE_RESULT_2, ((TableJoinSource) source).getDefaultRightLine());
+
+		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE_3, connector);
+		assertEquals(DEFAULT_RIGHT_LINE_RESULT_3, ((TableJoinSource) source).getDefaultRightLine());
 	}
 
 	@Test
@@ -236,7 +246,7 @@ public class TableJoinProcessorTest {
 		assertEquals(RIGHT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getRightKeyColumn());
 
 		connector = new Connector();
-		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE, connector);
+		tableJoinProcessor.parse(ENCLOSURE_3_DEFAULT_RIGHT_LINE, DEFAULT_RIGHT_LINE_1, connector);
 
 		hardwareMonitorOpt = connector.getHardwareMonitors().stream()
 				.filter(hm -> hm.getType().equals(MonitorType.ENCLOSURE)).findFirst();
@@ -250,7 +260,7 @@ public class TableJoinProcessorTest {
 				.filter(src -> 3 == src.getIndex()).findFirst();
 
 		source = sourceOpt.get();
-		assertEquals(DEFAULT_RIGHT_LINE_RESULT, ((TableJoinSource) source).getDefaultRightLine());
+		assertEquals(DEFAULT_RIGHT_LINE_RESULT_1, ((TableJoinSource) source).getDefaultRightLine());
 	}
 }
 
