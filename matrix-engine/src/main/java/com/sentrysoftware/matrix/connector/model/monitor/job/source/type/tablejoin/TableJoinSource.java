@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -29,15 +31,20 @@ public class TableJoinSource extends Source {
 	@Builder
 	public TableJoinSource(List<Compute> computes, boolean forceSerialization, String leftTable,
 			String rightTable, Integer leftKeyColumn, Integer rightKeyColumn, List<String> defaultRightLine,
-			String keyType, int index) {
+			String keyType, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.leftTable = leftTable;
 		this.rightTable = rightTable;
 		this.leftKeyColumn = leftKeyColumn;
 		this.rightKeyColumn = rightKeyColumn;
 		this.defaultRightLine = defaultRightLine;
 		this.keyType = keyType;
+	}
+
+	@Override
+	public SourceTable accept(ISourceVisitor sourceVisitor) {
+		return sourceVisitor.visit(this);
 	}
 
 }

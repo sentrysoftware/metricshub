@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +29,18 @@ public class UCSSource extends Source {
 
 	@Builder
 	public UCSSource(List<Compute> computes, boolean forceSerialization, List<String> queries,
-			String excludeRegExp, String keepOnlyRegExp, List<String> selectColumns, int index) {
+			String excludeRegExp, String keepOnlyRegExp, List<String> selectColumns, int index, String key) {
 
-		super(computes, forceSerialization, index);
+		super(computes, forceSerialization, index, key);
 		this.queries = queries;
 		this.excludeRegExp = excludeRegExp;
 		this.keepOnlyRegExp = keepOnlyRegExp;
 		this.selectColumns = selectColumns;
+	}
+
+	@Override
+	public SourceTable accept(ISourceVisitor sourceVisitor) {
+		return sourceVisitor.visit(this);
 	}
 
 }
