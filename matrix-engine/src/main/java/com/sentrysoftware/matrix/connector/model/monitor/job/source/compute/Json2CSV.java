@@ -5,27 +5,34 @@ import java.util.List;
 
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Json2CSV extends Compute {
 
 	private static final long serialVersionUID = -4481018666787412274L;
 
 	private String entryKey;
-	@Default
 	private List<String> properties = new ArrayList<>();
 	private String separator;
 
+	@Builder
+	public Json2CSV(Integer index, String entryKey, List<String> properties, String separator) {
+		super(index);
+		this.entryKey = entryKey;
+		this.properties = properties == null ? new ArrayList<>() : properties;
+		this.separator = separator;
+	}
 	@Override
 	public void accept(final IComputeVisitor computeVisitor) {
 		computeVisitor.visit(this);
 	}
+
 }

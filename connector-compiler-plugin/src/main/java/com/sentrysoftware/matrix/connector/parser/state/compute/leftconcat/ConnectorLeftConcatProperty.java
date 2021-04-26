@@ -13,24 +13,24 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum ConnectorLeftConcatProperty implements IConnectorStateParser {
 
-    TYPE(new TypeProcessor()),
-    COLUMN(new ColumnProcessor()),
-    STRING(new StringProcessor());
+	TYPE(new TypeProcessor()),
+	COLUMN(new ColumnProcessor()),
+	STRING(new StringProcessor());
 
-    private final IConnectorStateParser connectorStateProcessor;
+	private final IConnectorStateParser connectorStateProcessor;
 
-    public boolean detect(final String key, final String value, final Connector connector) {
+	public boolean detect(final String key, final String value, final Connector connector) {
 
-        return connectorStateProcessor.detect(key, value, connector);
-    }
+		return connectorStateProcessor.detect(key, value, connector);
+	}
 
-    public void parse(final String key, final String value, final Connector connector) {
+	public void parse(final String key, final String value, final Connector connector) {
 
-        connectorStateProcessor.parse(key, value, connector);
-    }
+		connectorStateProcessor.parse(key, value, connector);
+	}
 
-    public static Set<ConnectorLeftConcatProperty> getConnectorProperties() {
+	public static Set<ConnectorLeftConcatProperty> getConnectorProperties() {
 
-        return Arrays.stream(ConnectorLeftConcatProperty.values()).collect(Collectors.toSet());
-    }
+		return Arrays.stream(ConnectorLeftConcatProperty.values()).collect(Collectors.toSet());
+	}
 }

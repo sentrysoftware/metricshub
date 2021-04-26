@@ -39,4 +39,6 @@ public interface IHostMonitoring {
 
 	SourceTable getSourceTableByKey(String key);
 
+	void addMonitor(Monitor monitor, String id, String connectorName, MonitorType monitorType,
+			String attachedToDeviceId, String attachedToDeviceType);
 }

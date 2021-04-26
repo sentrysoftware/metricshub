@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DEVICE;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -51,8 +51,8 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
 
-	private static final String DEVICE_NAME = "device";
-	private static final String DEVICE_ID = "deviceId";
+	private static final String target_NAME = "target";
+	private static final String target_ID = "targetId";
 	private static final String COMMUNITY = "public";
 	private static final String BAD_RESULT = "1";
 	private static final String FAILED = "Failed";
@@ -163,16 +163,16 @@ class DetectionOperationTest {
 
 			detectionOperation.call();
 
-			final Monitor device = hostMonitoring.selectFromType(MonitorType.DEVICE).get(ECS1_01);
-			assertEquals(ECS1_01, device.getName());
-			assertEquals(ECS1_01, device.getDeviceId());
-			assertEquals(ECS1_01, device.getTargetId());
+			final Monitor target = hostMonitoring.selectFromType(TARGET).get(ECS1_01);
+			assertEquals(ECS1_01, target.getName());
+			assertEquals(ECS1_01, target.getId());
+			assertEquals(ECS1_01, target.getTargetId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 			assertEquals(1, connectors.size());
 			Monitor connector = connectors.get(ECS1_01 + "@" + CONNECTOR1_ID);
 			assertEquals(ECS1_01, connector.getParentId());
-			assertEquals(ECS1_01 + "@" + CONNECTOR1_ID, connector.getDeviceId());
+			assertEquals(ECS1_01 + "@" + CONNECTOR1_ID, connector.getId());
 			assertEquals(CONNECTOR1_ID, connector.getName());
 			assertEquals(ECS1_01, connector.getTargetId());
 		}
@@ -198,55 +198,55 @@ class DetectionOperationTest {
 
 		detectionOperation.call();
 
-		final Monitor device = hostMonitoring.selectFromType(MonitorType.DEVICE).get(ECS1_01);
-		assertEquals(ECS1_01, device.getName());
-		assertEquals(ECS1_01, device.getDeviceId());
-		assertEquals(ECS1_01, device.getTargetId());
+		final Monitor target = hostMonitoring.selectFromType(MonitorType.TARGET).get(ECS1_01);
+		assertEquals(ECS1_01, target.getName());
+		assertEquals(ECS1_01, target.getId());
+		assertEquals(ECS1_01, target.getTargetId());
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 		assertEquals(2, monitors.size());
 		Monitor connector1Mo = monitors.get(ECS1_01 + "@" + CONNECTOR1_ID);
 		assertEquals(ECS1_01, connector1Mo.getParentId());
-		assertEquals(ECS1_01 + "@" + CONNECTOR1_ID, connector1Mo.getDeviceId());
+		assertEquals(ECS1_01 + "@" + CONNECTOR1_ID, connector1Mo.getId());
 		assertEquals(CONNECTOR1_ID, connector1Mo.getName());
 		assertEquals(ECS1_01, connector1Mo.getTargetId());
 
-		assertNotNull(connector1Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER_NAME));
+		assertNotNull(connector1Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER));
 		assertEquals(ParameterState.OK,
-				((StatusParam) connector1Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER_NAME)).getState());
+				((StatusParam) connector1Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER)).getState());
 
 		Monitor connector2Mo = monitors.get(ECS1_01 + "@" + CONNECTOR2_ID);
 		assertEquals(ECS1_01, connector2Mo.getParentId());
-		assertEquals(ECS1_01 + "@" + CONNECTOR2_ID, connector2Mo.getDeviceId());
+		assertEquals(ECS1_01 + "@" + CONNECTOR2_ID, connector2Mo.getId());
 		assertEquals(CONNECTOR2_ID, connector2Mo.getName());
 		assertEquals(ECS1_01, connector2Mo.getTargetId());
 
-		assertNotNull(connector2Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER_NAME));
+		assertNotNull(connector2Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER));
 		assertEquals(ParameterState.ALARM,
-				((StatusParam) connector2Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER_NAME)).getState());
+				((StatusParam) connector2Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER)).getState());
 	}
 
 	@Test
-	void testCreateDeviceOnExistingDevice() {
+	void testCreatetargetOnExistingtarget() {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 
-		final Monitor device = Monitor.builder().deviceId(DEVICE_ID).targetId(DEVICE_ID).name(DEVICE_NAME)
-				.monitorType(DEVICE).build();
+		final Monitor target = Monitor.builder().id(target_ID).targetId(target_ID).name(target_NAME)
+				.monitorType(MonitorType.TARGET).build();
 
-		hostMonitoring.addMonitor(device);
+		hostMonitoring.addMonitor(target);
 
-		detectionOperation.createDevice();
+		detectionOperation.createTarget(false);
 
-		final Map<String, Monitor> devices = hostMonitoring.selectFromType(MonitorType.DEVICE);
-		final Monitor actual = hostMonitoring.selectFromType(MonitorType.DEVICE).get(ECS1_01);
-		assertNotNull(devices);
-		assertNotEquals(device, actual);
+		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
+		final Monitor actual = hostMonitoring.selectFromType(MonitorType.TARGET).get(ECS1_01);
+		assertNotNull(targets);
+		assertNotEquals(target, actual);
 		assertEquals(ECS1_01, actual.getName());
-		assertEquals(ECS1_01, actual.getDeviceId());
+		assertEquals(ECS1_01, actual.getId());
 		assertEquals(ECS1_01, actual.getTargetId());
 	}
 
@@ -333,26 +333,18 @@ class DetectionOperationTest {
 		{
 			Connector connector = Connector.builder().localSupport(false).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
-			try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
-				networkHelper.when(() -> NetworkHelper.isLocalhost(eq(ECS1_01))).thenReturn(true);
-				final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream,
-						ECS1_01);
-				assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
-						result.collect(Collectors.toSet()));
 
-			}
+			final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream, true);
+			assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
+					result.collect(Collectors.toSet()));
 		}
 
 		{
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4);
-			try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
-				networkHelper.when(() -> NetworkHelper.isLocalhost(eq(ECS1_01))).thenReturn(false);
-				final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream,
-						ECS1_01);
-				assertEquals(Stream.of(connector1, connector2).collect(Collectors.toSet()),
-						result.collect(Collectors.toSet()));
 
-			}
+			final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream, false);
+			assertEquals(Stream.of(connector1, connector2).collect(Collectors.toSet()),
+						result.collect(Collectors.toSet()));
 		}
 	}
 

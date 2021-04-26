@@ -18,7 +18,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 
-public class TableJoinProcessorTest {
+class TableJoinProcessorTest {
 	private SnmpTableProcessor snmpTableProcessor;
 	private TableJoinProcessor tableJoinProcessor;
 
@@ -52,7 +52,9 @@ public class TableJoinProcessorTest {
 
 	private static final String TYPE_TABLE_JOINT = "tablejoint";
 	private static final String LEFT_TABLE = "%Enclosure.Collect.Source(1)%";
+	private static final String LEFT_TABLE_KEY = "Enclosure.Collect.Source(1)";
 	private static final String RIGHT_TABLE = "%Enclosure.Collect.Source(2)%";
+	private static final String RIGHT_TABLE_KEY = "Enclosure.Collect.Source(2)";
 	private static final String LEFT_KEY_COLUMN = "1";
 	private static final String RIGHT_KEY_COLUMN = "1";
 	private static final String DEFAULT_RIGHT_LINE_1 = ";;";
@@ -135,11 +137,11 @@ public class TableJoinProcessorTest {
 
 		tableJoinProcessor.parse(ENCLOSURE_3_LEFT_TABLE, LEFT_TABLE, connector);
 
-		assertEquals(LEFT_TABLE, ((TableJoinSource) source).getLeftTable());
+		assertEquals(LEFT_TABLE_KEY, ((TableJoinSource) source).getLeftTable());
 		assertEquals(3, source.getIndex());
 
 		tableJoinProcessor.parse(ENCLOSURE_3_RIGHT_TABLE, RIGHT_TABLE, connector);
-		assertEquals(RIGHT_TABLE, ((TableJoinSource) source).getRightTable());
+		assertEquals(RIGHT_TABLE_KEY, ((TableJoinSource) source).getRightTable());
 
 		tableJoinProcessor.parse(ENCLOSURE_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector);
 		assertEquals(LEFT_KEY_COLUMN_RESULT, ((TableJoinSource) source).getLeftKeyColumn());
@@ -179,7 +181,7 @@ public class TableJoinProcessorTest {
 				.filter(src -> 3 == src.getIndex()).findFirst();
 
 		Source source = sourceOpt.get();
-		assertEquals(LEFT_TABLE, ((TableJoinSource) source).getLeftTable());
+		assertEquals(LEFT_TABLE_KEY, ((TableJoinSource) source).getLeftTable());
 		assertEquals(3, source.getIndex());
 
 		connector = new Connector();
@@ -201,7 +203,7 @@ public class TableJoinProcessorTest {
 				.filter(src -> 3 == src.getIndex()).findFirst();
 
 		source = sourceOpt.get();
-		assertEquals(RIGHT_TABLE, ((TableJoinSource) source).getRightTable());
+		assertEquals(RIGHT_TABLE_KEY, ((TableJoinSource) source).getRightTable());
 
 		connector = new Connector();
 		tableJoinProcessor.parse(ENCLOSURE_3_LEFT_KEY_COLUMN, LEFT_KEY_COLUMN, connector);

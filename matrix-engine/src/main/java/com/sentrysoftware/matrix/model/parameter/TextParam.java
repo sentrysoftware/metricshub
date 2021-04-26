@@ -6,10 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class TextParam extends AbstractParam {
 
 	private String value;
@@ -21,5 +23,8 @@ public class TextParam extends AbstractParam {
 		this.value = value;
 	}
 
-	
+	public String getValueOrElse(final String other) {
+		return value != null && !value.trim().isEmpty() ? value : other;
+	}
+
 }

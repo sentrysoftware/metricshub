@@ -53,7 +53,7 @@ class JobResultFormatterServiceTest {
 		Map<String, Monitor> map = new HashMap<>();
 
 		Monitor connector1 = new Monitor();
-		connector1.setDeviceId("id1");
+		connector1.setId("id1");
 		connector1.setName("MS_HW_DellOpenManage");
 		connector1.setParentId("parentId");
 		connector1.setMonitorType(MonitorType.CONNECTOR);
@@ -65,7 +65,7 @@ class JobResultFormatterServiceTest {
 		map.put("id1", connector1);
 
 		Monitor connector2 = new Monitor();
-		connector2.setDeviceId("id2");
+		connector2.setId("id2");
 		connector2.setName("MS_HW_DellCMC");
 		connector2.setParentId("parentId");
 		connector2.setMonitorType(MonitorType.CONNECTOR);
@@ -81,16 +81,16 @@ class JobResultFormatterServiceTest {
 		Map<String, Monitor> map2 = new HashMap<>();
 
 		Monitor device1 = new Monitor();
-		device1.setDeviceId("id3");
+		device1.setId("id3");
 		device1.setName("MS_HW_DellOpenManage_Device");
 		device1.setParentId("id1");
-		device1.setMonitorType(MonitorType.DEVICE);
+		device1.setMonitorType(MonitorType.TARGET);
 
 		device1.setParameters(parameters);
 
 		map2.put("id3", device1);
 
-		monitoring.put(MonitorType.DEVICE, map2);
+		monitoring.put(MonitorType.TARGET, map2);
 
 		hostMonitoring.setMonitors(monitoring);
 

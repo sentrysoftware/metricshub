@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine;
 
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Engine {
 
+	private static final String STRATEGY_TIME = "strategyTime";
 	private static final String STRATEGY_BEAN_NAME = "strategy";
 	private static final String STRATEGY_CONFIG_BEAN_NAME = "strategyConfig";
 
@@ -86,7 +88,7 @@ public class Engine {
 		configContext.getBeanFactory().destroySingletons();
 		configContext.getBeanFactory().registerSingleton(STRATEGY_CONFIG_BEAN_NAME, strategyConfig);
 		configContext.getBeanFactory().registerSingleton(STRATEGY_BEAN_NAME, strategy);
-
+		configContext.getBeanFactory().registerSingleton(STRATEGY_TIME, new Date().getTime());
 		// Register the configuration and components scan after singleton registrations
 		// so that we can avoid the UnsatisfiedDependencyException
 		configContext.register(ApplicationBeans.class);

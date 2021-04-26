@@ -1,18 +1,23 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import java.io.Serializable;
+
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public abstract class Compute implements Serializable {
 
+	private static final long serialVersionUID = -7887124289220448847L;
+
 	protected Integer index;
+
+	protected Compute(Integer index) {
+		this.index = index;
+	}
 
 	public abstract void accept(final IComputeVisitor computeVisitor);
 }

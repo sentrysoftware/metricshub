@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class AbstractParam implements IParameterValue{
+public abstract class AbstractParam implements IParameterValue {
 
 	private String name;
 	private Long collectTime;

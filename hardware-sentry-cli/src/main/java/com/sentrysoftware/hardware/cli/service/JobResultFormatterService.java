@@ -62,7 +62,7 @@ public class JobResultFormatterService {
 	class MonitorComparator implements Comparator<Monitor> {
 		@Override
 		public int compare(Monitor a, Monitor b) {
-			return a.getDeviceId().compareTo(b.getDeviceId());
+			return a.getId().compareTo(b.getId());
 		}
 	}
 

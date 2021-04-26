@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
 
-public class SnmpTableProcessorTest {
+class SnmpTableProcessorTest {
 
 	private SnmpTableProcessor snmpTableProcessor;
 

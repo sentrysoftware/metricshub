@@ -13,25 +13,25 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum ConnectorKeepOnlyMatchingLinesProperty implements IConnectorStateParser {
 
-    TYPE(new TypeProcessor()),
-    COLUMN(new ColumnProcessor()),
-    VALUE_LIST(new ValueListProcessor()),
-    REGEXP(new RegexpProcessor());
+	TYPE(new TypeProcessor()),
+	COLUMN(new ColumnProcessor()),
+	VALUE_LIST(new ValueListProcessor()),
+	REGEXP(new RegexpProcessor());
 
-    private final IConnectorStateParser connectorStateProcessor;
+	private final IConnectorStateParser connectorStateProcessor;
 
-    public boolean detect(final String key, final String value, final Connector connector) {
+	public boolean detect(final String key, final String value, final Connector connector) {
 
-        return connectorStateProcessor.detect(key, value, connector);
-    }
+		return connectorStateProcessor.detect(key, value, connector);
+	}
 
-    public void parse(final String key, final String value, final Connector connector) {
+	public void parse(final String key, final String value, final Connector connector) {
 
-        connectorStateProcessor.parse(key, value, connector);
-    }
+		connectorStateProcessor.parse(key, value, connector);
+	}
 
-    public static Set<ConnectorKeepOnlyMatchingLinesProperty> getConnectorProperties() {
+	public static Set<ConnectorKeepOnlyMatchingLinesProperty> getConnectorProperties() {
 
-        return Arrays.stream(ConnectorKeepOnlyMatchingLinesProperty.values()).collect(Collectors.toSet());
-    }
+		return Arrays.stream(ConnectorKeepOnlyMatchingLinesProperty.values()).collect(Collectors.toSet());
+	}
 }

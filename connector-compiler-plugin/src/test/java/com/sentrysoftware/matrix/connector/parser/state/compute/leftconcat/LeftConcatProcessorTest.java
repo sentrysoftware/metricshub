@@ -15,70 +15,70 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LeftConcatProcessorTest {
 
-    private LeftConcatProcessor typeProcessor;
+	private LeftConcatProcessor typeProcessor;
 
-    private Connector connector;
+	private Connector connector;
 
-    private static final String FOO = "FOO";
-    private static final String LEFT_CONCAT_TYPE_KEY = "enclosure.discovery.source(1).compute(1).type";
-    private static final String LEFT_CONCAT_TYPE_VALUE = "LeftConcat";
+	private static final String FOO = "FOO";
+	private static final String LEFT_CONCAT_TYPE_KEY = "enclosure.discovery.source(1).compute(1).type";
+	private static final String LEFT_CONCAT_TYPE_VALUE = "LeftConcat";
 
 
-    @BeforeEach
-    void setUp() {
+	@BeforeEach
+	void setUp() {
 
-        typeProcessor = new TypeProcessor();
-        connector = new Connector();
-    }
+		typeProcessor = new TypeProcessor();
+		connector = new Connector();
+	}
 
-    @Test
-    void testDetect() {
+	@Test
+	void testDetect() {
 
-        assertFalse(typeProcessor.detect(null, null, null));
-        assertFalse(typeProcessor.detect(null, FOO, null));
-        assertFalse(typeProcessor.detect(FOO, FOO, null));
-        assertFalse(typeProcessor.detect(LEFT_CONCAT_TYPE_KEY, FOO, null));
-        assertTrue(typeProcessor.detect(LEFT_CONCAT_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, null));
-    }
+		assertFalse(typeProcessor.detect(null, null, null));
+		assertFalse(typeProcessor.detect(null, FOO, null));
+		assertFalse(typeProcessor.detect(FOO, FOO, null));
+		assertFalse(typeProcessor.detect(LEFT_CONCAT_TYPE_KEY, FOO, null));
+		assertTrue(typeProcessor.detect(LEFT_CONCAT_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, null));
+	}
 
-    @Test
-    void testParse() {
+	@Test
+	void testParse() {
 
-        assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, null, null));
-        assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, FOO, null));
-        assertDoesNotThrow(() -> typeProcessor.parse(LEFT_CONCAT_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, connector));
-    }
+		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(null, null, null));
+		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, null, null));
+		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, FOO, null));
+		assertDoesNotThrow(() -> typeProcessor.parse(LEFT_CONCAT_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, connector));
+	}
 
-    @Test
-    void testLeftConcat() {
+	@Test
+	void testLeftConcat() {
 
-        // No Source found
-        Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_TYPE_KEY);
-        assertTrue(matcher.matches());
-        assertNull(typeProcessor.getLeftConcat(matcher, connector));
+		// No Source found
+		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_TYPE_KEY);
+		assertTrue(matcher.matches());
+		assertNull(typeProcessor.getLeftConcat(matcher, connector));
 
-        // Source found
-        connector
-                .getHardwareMonitors()
-                .add(
-                        HardwareMonitor
-                                .builder()
-                                .type(MonitorType.ENCLOSURE)
-                                .discovery(
-                                        Discovery
-                                                .builder()
-                                                .sources(
-                                                        Collections.singletonList(
-                                                                SNMPGetTableSource
-                                                                        .builder()
-                                                                        .index(1)
-                                                                        .build())
-                                                )
-                                                .build()
-                                )
-                                .build()
-                );
-        assertNull(typeProcessor.getLeftConcat(matcher, connector));
-    }
+		// Source found
+		connector
+				.getHardwareMonitors()
+				.add(
+						HardwareMonitor
+								.builder()
+								.type(MonitorType.ENCLOSURE)
+								.discovery(
+										Discovery
+												.builder()
+												.sources(
+														Collections.singletonList(
+																SNMPGetTableSource
+																		.builder()
+																		.index(1)
+																		.build())
+												)
+												.build()
+								)
+								.build()
+				);
+		assertNull(typeProcessor.getLeftConcat(matcher, connector));
+	}
 }

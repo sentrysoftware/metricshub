@@ -14,64 +14,64 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ColumnProcessorTest {
 
-    private final ColumnProcessor columnProcessor = new ColumnProcessor();
+	private final ColumnProcessor columnProcessor = new ColumnProcessor();
 
-    private final Connector connector = new Connector();
+	private final Connector connector = new Connector();
 
-    private static final String LEFT_CONCAT_COLUMN_KEY = "enclosure.discovery.source(1).compute(1).column";
-    private static final String FOO = "FOO";
-    private static final String NINE = "9";
+	private static final String LEFT_CONCAT_COLUMN_KEY = "enclosure.discovery.source(1).compute(1).column";
+	private static final String FOO = "FOO";
+	private static final String NINE = "9";
 
-    @Test
-    void testParse() {
+	@Test
+	void testParse() {
 
-        // Key does not match
-        assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
+		// Key does not match
+		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
 
-        // Key matches, no LeftConcat found
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
-        );
+		// Key matches, no LeftConcat found
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
+		);
 
-        // Key matches, LeftConcat found, invalid value
-        LeftConcat leftConcat = new LeftConcat();
-        leftConcat.setIndex(1);
+		// Key matches, LeftConcat found, invalid value
+		LeftConcat leftConcat = new LeftConcat();
+		leftConcat.setIndex(1);
 
-        connector
-                .getHardwareMonitors()
-                .add(
-                        HardwareMonitor
-                                .builder()
-                                .type(MonitorType.ENCLOSURE)
-                                .discovery(
-                                        Discovery
-                                                .builder()
-                                                .sources(
-                                                        Collections.singletonList(
-                                                                SNMPGetTableSource
-                                                                        .builder()
-                                                                        .index(1)
-                                                                        .computes(
-                                                                                Collections.singletonList(
-                                                                                        leftConcat
-                                                                                )
-                                                                        )
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build()
-                                )
-                                .build()
-                );
+		connector
+				.getHardwareMonitors()
+				.add(
+						HardwareMonitor
+								.builder()
+								.type(MonitorType.ENCLOSURE)
+								.discovery(
+										Discovery
+												.builder()
+												.sources(
+														Collections.singletonList(
+																SNMPGetTableSource
+																		.builder()
+																		.index(1)
+																		.computes(
+																				Collections.singletonList(
+																						leftConcat
+																				)
+																		)
+																		.build()
+														)
+												)
+												.build()
+								)
+								.build()
+				);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
-        );
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
+		);
 
-        // Key matches, LeftConcat found, value is valid
-        columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, NINE, connector);
-        assertEquals(9, leftConcat.getColumn());
-    }
+		// Key matches, LeftConcat found, value is valid
+		columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, NINE, connector);
+		assertEquals(9, leftConcat.getColumn());
+	}
 }

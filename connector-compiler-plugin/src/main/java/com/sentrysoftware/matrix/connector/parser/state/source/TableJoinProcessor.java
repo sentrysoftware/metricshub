@@ -62,7 +62,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS) + 1);
 
 		if (lowerCaseKey.endsWith(TYPE_KEY)) {
-			if (TABLE_JOINT_KEY.equals(value.trim().toLowerCase())) {
+			if (TABLE_JOINT_KEY.equalsIgnoreCase(value.trim())) {
 				// We make sure that the source now exists in the connector for this key
 				HardwareMonitor hardwareMonitor = getHardwareMonitor(lowerCaseKey, connector);
 				MonitorJob monitorJob = getMonitorJob(lowerCaseKey, hardwareMonitor);
@@ -73,67 +73,70 @@ public class TableJoinProcessor implements IConnectorStateParser {
 					monitorJob.getSources().add(createSource(index, sourceKey));
 				}
 			}
-		}
+		} else {
 
-		else if (lowerCaseKey.endsWith(LEFT_TABLE_KEY)) {
-			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setLeftTable(value);
-			} else {
-				Source source = createSource(index, sourceKey);
-				((TableJoinSource) source).setLeftTable(value);
-				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+			final String exactKey = value.replaceAll(ConnectorParserConstants.SOURCE_REFERENCE_REGEX_REPLACEMENT, "$1");
+
+			if (lowerCaseKey.endsWith(LEFT_TABLE_KEY)) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+				if (sourceOpt.isPresent()) {
+					((TableJoinSource) sourceOpt.get()).setLeftTable(exactKey);
+				} else {
+					Source source = createSource(index, sourceKey);
+					((TableJoinSource) source).setLeftTable(exactKey);
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				}
 			}
-		}
 
-		else if (lowerCaseKey.endsWith(RIGHT_TABLE_KEY)) {
-			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setRightTable(value);
-			} else {
-				Source source =createSource(index, sourceKey);
-				((TableJoinSource) source).setRightTable(value);
-				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+			else if (lowerCaseKey.endsWith(RIGHT_TABLE_KEY)) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+				if (sourceOpt.isPresent()) {
+					((TableJoinSource) sourceOpt.get()).setRightTable(exactKey);
+				} else {
+					Source source =createSource(index, sourceKey);
+					((TableJoinSource) source).setRightTable(exactKey);
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				}
 			}
-		}
 
-		else if (lowerCaseKey.endsWith(LEFT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setLeftKeyColumn(Integer.parseInt(value));
-			} else {
-				Source source = createSource(index, sourceKey);
-				((TableJoinSource) source).setLeftKeyColumn(Integer.parseInt(value));
-				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+			else if (lowerCaseKey.endsWith(LEFT_KEY_COLUMN_KEY)) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+				if (sourceOpt.isPresent()) {
+					((TableJoinSource) sourceOpt.get()).setLeftKeyColumn(Integer.parseInt(value));
+				} else {
+					Source source = createSource(index, sourceKey);
+					((TableJoinSource) source).setLeftKeyColumn(Integer.parseInt(value));
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				}
 			}
-		}
 
-		else if (lowerCaseKey.endsWith(RIGHT_KEY_COLUMN_KEY)) {
-			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setRightKeyColumn(Integer.parseInt(value));
-			} else {
-				Source source = createSource(index, sourceKey);
-				((TableJoinSource) source).setRightKeyColumn(Integer.parseInt(value));
-				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+			else if (lowerCaseKey.endsWith(RIGHT_KEY_COLUMN_KEY)) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+				if (sourceOpt.isPresent()) {
+					((TableJoinSource) sourceOpt.get()).setRightKeyColumn(Integer.parseInt(value));
+				} else {
+					Source source = createSource(index, sourceKey);
+					((TableJoinSource) source).setRightKeyColumn(Integer.parseInt(value));
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				}
 			}
-		}
 
-		else if (lowerCaseKey.endsWith(DEFAULT_RIGHT_LINE_KEY)) {
-			Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
+			else if (lowerCaseKey.endsWith(DEFAULT_RIGHT_LINE_KEY)) {
+				Optional<Source> sourceOpt = getSource(lowerCaseKey, connector);
 
-			String[] split = (!value.endsWith(ConnectorParserConstants.SEMICOLON) ? value + ConnectorParserConstants.SEMICOLON : value)
-					.split(ConnectorParserConstants.SEMICOLON, -1);
-			if (sourceOpt.isPresent()) {
-				((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Stream.of(split)
-						.limit(split.length - 1L)
-						.collect(Collectors.toList()));
-			} else {
-				Source source = createSource(index, sourceKey);
-				((TableJoinSource) source).setDefaultRightLine(Stream.of(split)
-						.limit(split.length - 1L)
-						.collect(Collectors.toList()));
-				getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				String[] split = (!value.endsWith(ConnectorParserConstants.SEMICOLON) ? value + ConnectorParserConstants.SEMICOLON : value)
+						.split(ConnectorParserConstants.SEMICOLON, -1);
+				if (sourceOpt.isPresent()) {
+					((TableJoinSource) sourceOpt.get()).setDefaultRightLine(Stream.of(split)
+							.limit(split.length - 1L)
+							.collect(Collectors.toList()));
+				} else {
+					Source source = createSource(index, sourceKey);
+					((TableJoinSource) source).setDefaultRightLine(Stream.of(split)
+							.limit(split.length - 1L)
+							.collect(Collectors.toList()));
+					getMonitorJob(lowerCaseKey, getHardwareMonitor(lowerCaseKey, connector)).getSources().add(source);
+				}
 			}
 		}
 	}
