@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class SourceVisitor implements ISourceVisitor {
-	
 
 	@Autowired
 	private StrategyConfig strategyConfig;
@@ -37,32 +36,32 @@ public class SourceVisitor implements ISourceVisitor {
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@Override
-	public SourceTable visit(HTTPSource httpSource) {
+	public SourceTable visit(final HTTPSource httpSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(IPMI ipmi) {
+	public SourceTable visit(final IPMI ipmi) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(OSCommandSource osCommandSource) {
+	public SourceTable visit(final OSCommandSource osCommandSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(ReferenceSource referenceSource) {
+	public SourceTable visit(final ReferenceSource referenceSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(SNMPGetSource snmpGetSource) {
+	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(SNMPGetTableSource snmpGetTableSource) {
+	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
 		if (snmpGetTableSource == null || snmpGetTableSource.getOid() == null) {
 			return SourceTable.empty();
 		}
@@ -111,32 +110,32 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(TableJoinSource tableJoinSource) {
+	public SourceTable visit(final TableJoinSource tableJoinSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(TableUnionSource tableUnionSource) {
+	public SourceTable visit(final TableUnionSource tableUnionSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(TelnetInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final TelnetInteractiveSource telnetInteractiveSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(UCSSource ucsSource) {
+	public SourceTable visit(final UCSSource ucsSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(WBEMSource wbemSource) {
+	public SourceTable visit(final WBEMSource wbemSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(WMISource wmiSource) {
+	public SourceTable visit(final WMISource wmiSource) {
 		return SourceTable.empty();
 	}
 

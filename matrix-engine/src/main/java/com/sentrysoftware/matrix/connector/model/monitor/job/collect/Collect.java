@@ -23,10 +23,10 @@ public class Collect extends MonitorJob {
 	private static final long serialVersionUID = 2147452391194801554L;
 
 	private CollectType type;
-	private Source valueTable;
+	private String valueTable;
 
 	@Builder
-	public Collect(List<Source> sources, Map<String, String> parameters, CollectType type, Source valueTable) {
+	public Collect(List<Source> sources, Map<String, String> parameters, CollectType type, String valueTable) {
 
 		super(sources, parameters);
 		this.type = type;

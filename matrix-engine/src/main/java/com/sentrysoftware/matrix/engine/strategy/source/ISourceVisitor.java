@@ -15,28 +15,28 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 
 public interface ISourceVisitor {
 
-	SourceTable visit(HTTPSource httpSource);
+	SourceTable visit(final HTTPSource httpSource);
 
-	SourceTable visit(IPMI ipmi);
+	SourceTable visit(final IPMI ipmi);
 
-	SourceTable visit(OSCommandSource osCommandSource);
+	SourceTable visit(final OSCommandSource osCommandSource);
 
-	SourceTable visit(ReferenceSource referenceSource);
+	SourceTable visit(final ReferenceSource referenceSource);
 
-	SourceTable visit(SNMPGetSource snmpGetSource);
+	SourceTable visit(final SNMPGetSource snmpGetSource);
 
-	SourceTable visit(SNMPGetTableSource snmpGetTableSource);
+	SourceTable visit(final SNMPGetTableSource snmpGetTableSource);
 
-	SourceTable visit(TableJoinSource tableJoinSource);
+	SourceTable visit(final TableJoinSource tableJoinSource);
 
-	SourceTable visit(TableUnionSource tableUnionSource);
+	SourceTable visit(final TableUnionSource tableUnionSource);
 
-	SourceTable visit(TelnetInteractiveSource telnetInteractiveSource);
+	SourceTable visit(final TelnetInteractiveSource telnetInteractiveSource);
 
-	SourceTable visit(UCSSource ucsSource);
+	SourceTable visit(final UCSSource ucsSource);
 
-	SourceTable visit(WBEMSource wbemSource);
+	SourceTable visit(final WBEMSource wbemSource);
 
-	SourceTable visit(WMISource wmiSource);
+	SourceTable visit(final WMISource wmiSource);
 
 }

@@ -27,7 +27,7 @@ public class SNMPGetSource extends SNMPSource {
 	}
 
 	@Override
-	public SourceTable accept(ISourceVisitor sourceVisitor) {
+	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
 	}
 

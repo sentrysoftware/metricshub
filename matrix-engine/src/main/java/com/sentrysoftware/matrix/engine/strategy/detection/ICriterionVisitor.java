@@ -16,30 +16,30 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 
 public interface ICriterionVisitor {
 
-	public CriterionTestResult visit(HTTP criterion);
+	public CriterionTestResult visit(final HTTP criterion);
 
-	public CriterionTestResult visit(IPMI ipmi);
+	public CriterionTestResult visit(final IPMI ipmi);
 
-	public CriterionTestResult visit(KMVersion kmVersion);
+	public CriterionTestResult visit(final KMVersion kmVersion);
 
-	public CriterionTestResult visit(OS os);
+	public CriterionTestResult visit(final OS os);
 
-	public CriterionTestResult visit(OSCommand osCommand);
+	public CriterionTestResult visit(final OSCommand osCommand);
 
-	public CriterionTestResult visit(Process process);
+	public CriterionTestResult visit(final Process process);
 
-	public CriterionTestResult visit(Service service);
+	public CriterionTestResult visit(final Service service);
 
-	public CriterionTestResult visit(SNMPGet snmpGet);
+	public CriterionTestResult visit(final SNMPGet snmpGet);
 
-	public CriterionTestResult visit(SNMPGetNext snmpGetNext);
+	public CriterionTestResult visit(final SNMPGetNext snmpGetNext);
 
-	public CriterionTestResult visit(TelnetInteractive telnetInteractive);
+	public CriterionTestResult visit(final TelnetInteractive telnetInteractive);
 
-	public CriterionTestResult visit(UCS ucs);
+	public CriterionTestResult visit(final UCS ucs);
 
-	public CriterionTestResult visit(WBEM wbem);
+	public CriterionTestResult visit(final WBEM wbem);
 
-	public CriterionTestResult visit(WMI wmi);
+	public CriterionTestResult visit(final WMI wmi);
 
 }

@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.discovery;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +13,5 @@ public class SourceInstanceTable implements InstanceTable {
 
 	private static final long serialVersionUID = 5807018761726958231L;
 
-	private Source source;
+	private String sourceKey;
 }

@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +20,9 @@ public class ArrayTranslate implements Compute {
 	private TranslationTable translationTable;
 	private String arraySeparator;
 	private String resultSeparator;
+
+	@Override
+	public void accept(final IComputeVisitor computeVisitor) {
+		computeVisitor.visit(this);
+	}
 }

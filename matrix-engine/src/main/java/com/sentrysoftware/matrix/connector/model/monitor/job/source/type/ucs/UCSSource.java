@@ -39,7 +39,7 @@ public class UCSSource extends Source {
 	}
 
 	@Override
-	public SourceTable accept(ISourceVisitor sourceVisitor) {
+	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
 	}
 
