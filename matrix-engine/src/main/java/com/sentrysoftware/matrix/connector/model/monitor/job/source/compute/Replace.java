@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Replace implements Compute {
+public class Replace extends Compute {
 
 	private static final long serialVersionUID = -1177932638215228955L;
 

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExtractPropertyFromWbemPath implements Compute {
+public class ExtractPropertyFromWbemPath extends Compute {
 
 	private static final long serialVersionUID = -1223955587166569350L;
 

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Awk implements Compute {
+public class Awk extends Compute {
 
 	private static final long serialVersionUID = -60202574277309621L;
 

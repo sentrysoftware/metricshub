@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Divide implements Compute {
+public class Divide extends Compute {
 
 	private static final long serialVersionUID = 3909226699144193542L;
 	private Integer column;

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class KeepColumns implements Compute {
+public class KeepColumns extends Compute {
 
 	private static final long serialVersionUID = 8346789196215087296L;
 

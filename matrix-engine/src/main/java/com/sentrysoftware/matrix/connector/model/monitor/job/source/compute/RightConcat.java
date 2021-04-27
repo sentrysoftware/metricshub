@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RightConcat implements Compute {
+public class RightConcat extends Compute {
 
 	private static final long serialVersionUID = -9081852556216941894L;
 
