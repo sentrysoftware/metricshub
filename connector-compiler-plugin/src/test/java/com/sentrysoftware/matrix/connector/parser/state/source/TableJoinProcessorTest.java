@@ -24,14 +24,14 @@ public class TableJoinProcessorTest {
 
 	private Connector connector;
 
-	private static final String ENCLOSURE_1_TYPE = "Enclosure.Discovery.Source(1).Type";
-	private static final String ENCLOSURE_2_TYPE = "Enclosure.Discovery.Source(2).Type";
+	private static final String ENCLOSURE_1_TYPE = "Enclosure.Collect.Source(1).Type";
+	private static final String ENCLOSURE_2_TYPE = "Enclosure.Collect.Source(2).Type";
 
-	private static final String ENCLOSURE_1_OID = "Enclosure.Discovery.Source(1).SnmpTableOid";
-	private static final String ENCLOSURE_2_OID = "Enclosure.Discovery.Source(2).SnmpTableOid";
+	private static final String ENCLOSURE_1_OID = "Enclosure.Collect.Source(1).SnmpTableOid";
+	private static final String ENCLOSURE_2_OID = "Enclosure.Collect.Source(2).SnmpTableOid";
 
-	private static final String ENCLOSURE_1_COLUMNS = "Enclosure.Discovery.Source(1).SnmpTableSelectColumns";
-	private static final String ENCLOSURE_2_COLUMNS = "Enclosure.Discovery.Source(2).SnmpTableSelectColumns";
+	private static final String ENCLOSURE_1_COLUMNS = "Enclosure.Collect.Source(1).SnmpTableSelectColumns";
+	private static final String ENCLOSURE_2_COLUMNS = "Enclosure.Collect.Source(2).SnmpTableSelectColumns";
 
 	private static final String TYPE_SNMP_TABLE = "SnmpTable";
 
@@ -41,18 +41,18 @@ public class TableJoinProcessorTest {
 	private static final String SNMP_TABLE_SELECT_COLUMNS_1 = "ID,9,11,49";
 	private static final String SNMP_TABLE_SELECT_COLUMNS_2 = "ID,6,8";
 
-	private static final String ENCLOSURE_3_TYPE = "enclosure.discovery.source(3).type";
-	private static final String ENCLOSURE_3_LEFT_TABLE = "enclosure.discovery.source(3).lefttable";
-	private static final String ENCLOSURE_3_RIGHT_TABLE = "enclosure.discovery.source(3).righttable";
-	private static final String ENCLOSURE_3_LEFT_KEY_COLUMN = "enclosure.discovery.source(3).leftkeycolumn";
-	private static final String ENCLOSURE_3_RIGHT_KEY_COLUMN = "enclosure.discovery.source(3).rightkeycolumn";
-	private static final String ENCLOSURE_3_DEFAULT_RIGHT_LINE = "enclosure.discovery.source(3).defaultrightline";
+	private static final String ENCLOSURE_3_TYPE = "Enclosure.Collect.Source(3).Type";
+	private static final String ENCLOSURE_3_LEFT_TABLE = "Enclosure.Collect.Source(3).LeftTable";
+	private static final String ENCLOSURE_3_RIGHT_TABLE = "Enclosure.Collect.Source(3).RightTable";
+	private static final String ENCLOSURE_3_LEFT_KEY_COLUMN = "Enclosure.Collect.Source(3).LeftKeyColumn";
+	private static final String ENCLOSURE_3_RIGHT_KEY_COLUMN = "Enclosure.Collect.Source(3).RightKeyColumn";
+	private static final String ENCLOSURE_3_DEFAULT_RIGHT_LINE = "Enclosure.Collect.Source(3).DefaultRightLine";
 
-	private static final String ENCLOSURE_3_SOURCE_KEY = "enclosure.discovery.source(3)";
+	private static final String ENCLOSURE_3_SOURCE_KEY = "enclosure.collect.source(3)";
 
 	private static final String TYPE_TABLE_JOINT = "tablejoint";
-	private static final String LEFT_TABLE = "%Enclosure.Discovery.Source(1)%";
-	private static final String RIGHT_TABLE = "%Enclosure.Discovery.Source(2)%";
+	private static final String LEFT_TABLE = "%Enclosure.Collect.Source(1)%";
+	private static final String RIGHT_TABLE = "%Enclosure.Collect.Source(2)%";
 	private static final String LEFT_KEY_COLUMN = "1";
 	private static final String RIGHT_KEY_COLUMN = "1";
 	private static final String DEFAULT_RIGHT_LINE_1 = ";;";
@@ -91,9 +91,9 @@ public class TableJoinProcessorTest {
 	void testParse() {
 		/* 
 		 * Parsing of :
-		 * Enclosure.Discovery.Source(1).Type="SnmpTable"
-		 * Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10892.1.300.10.1"
-		 * Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,9,11,49"
+		 * Enclosure.Collect.Source(1).Type="SnmpTable"
+		 * Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10892.1.300.10.1"
+		 * Enclosure.Collect.Source(1).SnmpTableSelectColumns="ID,9,11,49"
 		 */
 		snmpTableProcessor.parse(ENCLOSURE_1_TYPE, TYPE_SNMP_TABLE, connector);
 		snmpTableProcessor.parse(ENCLOSURE_1_OID, SNMP_TABLE_OID_1, connector);
@@ -101,9 +101,9 @@ public class TableJoinProcessorTest {
 
 		/* 
 		 * Parsing of :
-		 * Enclosure.Discovery.Source(2).Type="SnmpTable"
-		 * Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1100.32.1"
-		 * Enclosure.Discovery.Source(2).SnmpTableSelectColumns="ID,6,8"
+		 * Enclosure.Collect.Source(2).Type="SnmpTable"
+		 * Enclosure.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1100.32.1"
+		 * Enclosure.Collect.Source(2).SnmpTableSelectColumns="ID,6,8"
 		 */
 		snmpTableProcessor.parse(ENCLOSURE_2_TYPE, TYPE_SNMP_TABLE, connector);
 		snmpTableProcessor.parse(ENCLOSURE_2_OID, SNMP_TABLE_OID_2, connector);
@@ -111,12 +111,12 @@ public class TableJoinProcessorTest {
 
 		/* 
 		 * Parsing of :
-		 * Enclosure.Discovery.Source(3).Type="TableJoint"
-		 * Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
-		 * Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
-		 * Enclosure.Discovery.Source(3).LeftKeyColumn=1
-		 * Enclosure.Discovery.Source(3).RightKeyColumn=1
-		 * Enclosure.Discovery.Source(3).DefaultRightLine=";;"
+		 * Enclosure.Collect.Source(3).Type="TableJoint"
+		 * Enclosure.Collect.Source(3).LeftTable=%Enclosure.Collect.Source(1)%
+		 * Enclosure.Collect.Source(3).RightTable=%Enclosure.Collect.Source(2)%
+		 * Enclosure.Collect.Source(3).LeftKeyColumn=1
+		 * Enclosure.Collect.Source(3).RightKeyColumn=1
+		 * Enclosure.Collect.Source(3).DefaultRightLine=";;"
 		 */
 		tableJoinProcessor.parse(ENCLOSURE_3_TYPE, TYPE_TABLE_JOINT, connector);
 		Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
@@ -124,7 +124,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		List<Source> sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		List<Source> sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(3, sources.size());
 
 		Optional<Source> sourceOpt = sources.stream()
@@ -160,9 +160,6 @@ public class TableJoinProcessorTest {
 	@Test
 	void testParseTableJoinEmptyConnector() {
 
-		tableJoinProcessor.parse(ENCLOSURE_3_LEFT_TABLE, LEFT_TABLE, connector);
-		assertEquals(0, connector.getHardwareMonitors().size());
-
 		connector = new Connector();
 
 		//We need to parse this first so the left table exist in the connector
@@ -175,7 +172,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		List<Source> sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		List<Source> sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(2, sources.size());
 
 		Optional<Source> sourceOpt = sources.stream()
@@ -184,11 +181,6 @@ public class TableJoinProcessorTest {
 		Source source = sourceOpt.get();
 		assertEquals(LEFT_TABLE, ((TableJoinSource) source).getLeftTable());
 		assertEquals(3, source.getIndex());
-
-		connector = new Connector();
-
-		tableJoinProcessor.parse(ENCLOSURE_3_RIGHT_TABLE, RIGHT_TABLE, connector);
-		assertEquals(0, connector.getHardwareMonitors().size());
 
 		connector = new Connector();
 
@@ -202,7 +194,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(2, sources.size());
 
 		sourceOpt = sources.stream()
@@ -219,7 +211,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(1, sources.size());
 
 		sourceOpt = sources.stream()
@@ -236,7 +228,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(1, sources.size());
 
 		sourceOpt = sources.stream()
@@ -253,7 +245,7 @@ public class TableJoinProcessorTest {
 
 		assertTrue(hardwareMonitorOpt.isPresent());
 
-		sources = hardwareMonitorOpt.get().getDiscovery().getSources();
+		sources = hardwareMonitorOpt.get().getCollect().getSources();
 		assertEquals(1, sources.size());
 
 		sourceOpt = sources.stream()
@@ -263,4 +255,3 @@ public class TableJoinProcessorTest {
 		assertEquals(DEFAULT_RIGHT_LINE_RESULT_1, ((TableJoinSource) source).getDefaultRightLine());
 	}
 }
-

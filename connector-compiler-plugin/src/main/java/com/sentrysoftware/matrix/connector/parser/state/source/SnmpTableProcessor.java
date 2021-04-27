@@ -26,8 +26,6 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	protected static final String SNMP_TABLE_FORCE_SERIALIZATION_KEY = "forceserialization";
 	protected static final String SNMP_TABLE_KEY = "snmptable";
 
-	protected static final String COLLECT = "collect";
-
 	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
 			"^\\s*(([a-z]+)\\.(discovery|collect)\\.source\\((\\d+)\\)\\.(type|snmptableoid|snmptableselectcolumns|forceserialization))\\s*$", 
 			Pattern.CASE_INSENSITIVE);
@@ -192,8 +190,22 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @return
 	 */
 	private MonitorJob getMonitorJob(final String key, final HardwareMonitor hardwareMonitor) {
-		return key.substring(key.indexOf(ConnectorParserConstants.DOT) + 1).startsWith(COLLECT) ? 
-				hardwareMonitor.getCollect() : hardwareMonitor.getDiscovery();
+		boolean isCollect = key.substring(key.indexOf(ConnectorParserConstants.DOT) + 1).startsWith(ConnectorParserConstants.COLLECT);
+		if (isCollect) {
+			Collect collect = hardwareMonitor.getCollect();
+			if (collect == null) {
+				collect = Collect.builder().build();
+				hardwareMonitor.setCollect(collect);
+			}
+			return collect;
+		} else {
+			Discovery discovery = hardwareMonitor.getDiscovery();
+			if (discovery == null) {
+				discovery = Discovery.builder().build();
+				hardwareMonitor.setDiscovery(discovery);
+			}
+			return discovery;
+		}
 	}
 
 	/**
