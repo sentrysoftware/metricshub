@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +25,17 @@ public class WBEMSource extends Source {
 	private String wbemNameSpace;
 
 	@Builder
-	public WBEMSource(List<Compute> computes, Source reference, boolean forceSerialization, String wbemQuery,
+	public WBEMSource(List<Compute> computes, boolean forceSerialization, String wbemQuery,
 			String wbemNameSpace, int index, String key) {
 
 		super(computes, forceSerialization, index, key);
 		this.wbemQuery = wbemQuery;
 		this.wbemNameSpace = wbemNameSpace;
+	}
+
+	@Override
+	public SourceTable accept(final ISourceVisitor sourceVisitor) {
+		return sourceVisitor.visit(this);
 	}
 
 }

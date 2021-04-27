@@ -28,5 +28,7 @@ public abstract class Criterion implements Serializable {
 		isTrue(index > 0, "Invalid index: " + index);
 		this.index = index;
 	}
+
 	public abstract CriterionTestResult accept(final ICriterionVisitor criterionVisitor);
+
 }

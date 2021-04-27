@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,9 @@ public class Awk implements Compute {
 	private String separators;
 	@Default
 	private List<String> selectColumns = new ArrayList<>();
+
+	@Override
+	public void accept(final IComputeVisitor computeVisitor) {
+		computeVisitor.visit(this);
+	}
 }

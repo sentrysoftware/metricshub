@@ -7,6 +7,8 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -52,5 +54,9 @@ public class HTTPSource extends Source {
 		this.entryConcatEnd = entryConcatEnd;
 	}
 
-	
+	@Override
+	public SourceTable accept(final ISourceVisitor sourceVisitor) {
+		return sourceVisitor.visit(this);
+	}
+
 }

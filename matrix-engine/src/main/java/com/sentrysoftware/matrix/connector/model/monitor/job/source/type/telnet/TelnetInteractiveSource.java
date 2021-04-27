@@ -6,6 +6,8 @@ import java.util.List;
 import com.sentrysoftware.matrix.connector.model.common.telnet.step.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -46,5 +48,9 @@ public class TelnetInteractiveSource extends Source {
 		this.steps = steps;
 	}
 
-	
+	@Override
+	public SourceTable accept(final ISourceVisitor sourceVisitor) {
+		return sourceVisitor.visit(this);
+	}
+
 }

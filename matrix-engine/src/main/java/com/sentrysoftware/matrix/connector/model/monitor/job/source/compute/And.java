@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,4 +17,9 @@ public class And implements Compute {
 
 	private Integer column;
 	private Integer and;
+
+	@Override
+	public void accept(final IComputeVisitor computeVisitor) {
+		computeVisitor.visit(this);
+	}
 }
