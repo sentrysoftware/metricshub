@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
@@ -103,7 +105,14 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final LeftConcat leftConcat) {
-		// Not implemented yet
+		if (leftConcat != null && leftConcat.getString() != null && leftConcat.getColumn() != null && leftConcat.getColumn() > 0
+				&& sourceTable != null && sourceTable.getTable() != null && !sourceTable.getTable().isEmpty()
+				&& leftConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
+			int columnIndex = leftConcat.getColumn() - 1;
+			sourceTable.getTable()
+					.stream()
+					.forEach(column -> column.set(columnIndex, leftConcat.getString().concat(column.get(columnIndex))));
+		}
 	}
 
 	@Override
