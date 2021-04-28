@@ -1,18 +1,18 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 
 public abstract class SnmpProcessor implements IConnectorStateParser {
 
@@ -23,14 +23,14 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
     protected static final String INDEX_REGEX = "\\((\\d+)\\)";
     protected static final Pattern CRITERION_INDEX_PATTERN = Pattern.compile(INDEX_REGEX);
 
-    protected abstract String getKeyRegex();
+    protected abstract Pattern getKeyRegex();
 
     @Override
     public boolean detect(final String key, final String value, final Connector connector) {
 
         return value != null
                 && key != null
-                && key.matches(getKeyRegex())
+                && getKeyRegex().matcher(key).matches()
                 && isSnmpContext(key, connector);
     }
 
@@ -56,10 +56,10 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
 
     @Override
     public void parse(final String key, final String value, final Connector connector) {
-
+    	
         notNull(key, "key cannot be null.");
         isTrue(
-                key.matches(getKeyRegex()),
+        		getKeyRegex().matcher(key).matches(),
                 "The key (" + key + ") does not match the following regex: " + getKeyRegex()
         );
         notNull(value, "value cannot be null.");
@@ -140,11 +140,11 @@ public abstract class SnmpProcessor implements IConnectorStateParser {
         notNull(key, "key cannot be null.");
         notNull(getKeyRegex(), "getKeyRegex() should never return null.");
         isTrue(
-                key.matches(getKeyRegex()),
+        		getKeyRegex().matcher(key).matches(),
                 "The key (" + key + ") does not match the following regex: " + getKeyRegex()
         );
         isTrue(
-                getKeyRegex().contains(INDEX_REGEX),
+                getKeyRegex().toString().contains(INDEX_REGEX),
                 "getKeyRegex() [" + getKeyRegex() + "] does not contain " + INDEX_REGEX + "."
         );
 

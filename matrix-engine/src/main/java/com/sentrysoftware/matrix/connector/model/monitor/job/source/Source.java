@@ -34,7 +34,7 @@ public abstract class Source implements Serializable {
 		this.key = key;
 	}
 
-	protected void setIndex(int index) {
+	public void setIndex(int index) {
 
 		isTrue(index > 0, "Invalid index: " + index);
 		this.index = index;
