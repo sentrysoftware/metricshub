@@ -119,21 +119,21 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
-		if(sources == null ) {
-			log.debug("SourceTable Map cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+		if (sources == null ) {
+			log.debug("SourceTable Map cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
-		if(tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
-			log.debug("LeftTable cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+		if (tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
+			log.debug("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
-		if(tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
-			log.debug("RightTable cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+		if (tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
+			log.debug("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
-		if(tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
+		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
 			log.debug("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
 			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")");
 			return SourceTable.empty();
@@ -145,11 +145,11 @@ public class SourceVisitor implements ISourceVisitor {
 				tableJoinSource.getLeftKeyColumn(), 
 				tableJoinSource.getRightKeyColumn(), 
 				tableJoinSource.getDefaultRightLine(), 
-				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()) ? true : false, 
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()), 
 				false);
 
 		SourceTable sourceTable = new SourceTable();
-		if(executeTableJoin != null) {
+		if (executeTableJoin != null) {
 			sourceTable.setTable(executeTableJoin);
 		}
 

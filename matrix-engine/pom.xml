@@ -38,12 +38,10 @@
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-tablejoin</artifactId>
-			<version>${matsya.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-snmpclient</artifactId>
-			<version>${matsya.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
