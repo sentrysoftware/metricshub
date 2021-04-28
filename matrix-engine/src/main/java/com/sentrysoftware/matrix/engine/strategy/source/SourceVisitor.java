@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class SourceVisitor implements ISourceVisitor {
+
+	private static final String WBEM = "wbem";
 
 	@Autowired
 	private StrategyConfig strategyConfig;
@@ -111,7 +114,46 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
-		return SourceTable.empty();
+		if (tableJoinSource == null || strategyConfig.getHostMonitoring() == null) {
+			return SourceTable.empty();
+		}
+
+		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
+		if(sources == null ) {
+			log.debug("SourceTable Map cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		if(tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
+			log.debug("LeftTable cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		if(tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
+			log.debug("RightTable cannot be null, the Join {} will retrun an emtpy result.", tableJoinSource);
+			return SourceTable.empty();
+		}
+		if(tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
+			log.debug("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
+			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")");
+			return SourceTable.empty();
+		}
+
+		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
+				sources.get(tableJoinSource.getLeftTable()).getTable(), 
+				sources.get(tableJoinSource.getRightTable()).getTable(), 
+				tableJoinSource.getLeftKeyColumn(), 
+				tableJoinSource.getRightKeyColumn(), 
+				tableJoinSource.getDefaultRightLine(), 
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()) ? true : false, 
+				false);
+
+		SourceTable sourceTable = new SourceTable();
+		if(executeTableJoin != null) {
+			sourceTable.setTable(executeTableJoin);
+		}
+
+		return sourceTable;
 	}
 
 	@Override
