@@ -1,9 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import java.util.List;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -109,9 +110,28 @@ public class ComputeVisitor implements IComputeVisitor {
 				&& sourceTable != null && sourceTable.getTable() != null && !sourceTable.getTable().isEmpty()
 				&& leftConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
 			int columnIndex = leftConcat.getColumn() - 1;
-			sourceTable.getTable()
-					.stream()
-					.forEach(column -> column.set(columnIndex, leftConcat.getString().concat(column.get(columnIndex))));
+			String concatString = leftConcat.getString();
+
+			// If leftConcat.getString() is like "Concat(n)", we concat the column n instead of leftConcat.getString() 
+			if (Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(concatString).matches()) {
+				int leftColumnIndex = Integer.parseInt(concatString.substring(concatString.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
+						concatString.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
+
+				if (leftColumnIndex < sourceTable.getTable().get(0).size()) {
+					sourceTable.getTable()
+							.stream()
+							.forEach(column -> column.set(columnIndex, column.get(leftColumnIndex).concat(column.get(columnIndex))));
+				}
+			} else {
+				sourceTable.getTable()
+						.stream()
+						.forEach(column -> column.set(columnIndex, leftConcat.getString().concat(column.get(columnIndex))));
+
+				// Serialize and deserialize in case the String to concat contains a ';' so that a new column is created.
+				if (concatString.contains(HardwareConstants.SEMICOLON)) {
+					sourceTable.setTable(SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON), HardwareConstants.SEMICOLON));
+				}
+			}
 		}
 	}
 
