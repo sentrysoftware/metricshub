@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
@@ -25,6 +29,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -98,7 +103,42 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// Not implemented yet
+		if (keepOnlyMatchingLines != null && keepOnlyMatchingLines.getColumn() != null && keepOnlyMatchingLines.getColumn() > 0
+				&& sourceTable != null && sourceTable.getTable() != null && !sourceTable.getTable().isEmpty()
+				&& keepOnlyMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()) {
+
+			int columnIndex = keepOnlyMatchingLines.getColumn() - 1;
+			List<List<String>> sourceTableTmp = new ArrayList<>();
+
+			String regexpPsl = keepOnlyMatchingLines.getRegExp();
+			List<String> valueList = keepOnlyMatchingLines.getValueList();
+
+			List<List<String>> table = sourceTable.getTable();
+
+			if (regexpPsl != null && !regexpPsl.isEmpty()) {
+				Pattern regexpPattern = Pattern.compile(PslUtils.psl2JavaRegex(regexpPsl));
+				for(List<String> line : table) {
+					if (regexpPattern.matcher(line.get(columnIndex)).matches()) {
+						sourceTableTmp.add(line);
+					}
+				}
+				table = sourceTableTmp;
+
+				// We clear the table in case there is a valueList to check as well. 
+				sourceTableTmp.clear();
+			}
+
+			if (valueList != null && !valueList.isEmpty()) {
+				for(List<String> line : table) {
+					if (valueList.contains(line.get(columnIndex))) {
+						sourceTableTmp.add(line);
+					}
+				}
+				table = sourceTableTmp;
+			}
+
+			sourceTable.setTable(table);
+		}
 	}
 
 	@Override
