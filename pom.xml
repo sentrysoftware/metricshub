@@ -7,7 +7,7 @@
 		<artifactId>java-parent</artifactId>
 		<version>9</version>
 	</parent>
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sentrysoftware</groupId>
 	<artifactId>matrix</artifactId>
@@ -35,6 +35,7 @@
 		<hardware-connectors.version>24-SNAPSHOT</hardware-connectors.version>
 		<maven-filtering.version>3.1.1</maven-filtering.version>
 		<spring.version>5.3.5</spring.version>
+		<matsya.version>3.13.00-SNAPSHOT</matsya.version>
 	</properties>
 
 	<modules>
@@ -133,9 +134,19 @@
 				<artifactId>spring-context</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-tablejoin</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-snmpclient</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
