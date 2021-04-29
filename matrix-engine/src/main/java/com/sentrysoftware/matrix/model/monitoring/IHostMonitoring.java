@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 public interface IHostMonitoring {
@@ -11,6 +12,8 @@ public interface IHostMonitoring {
 	Map<MonitorType, Map<String, Monitor>> getMonitors();
 
 	Map<MonitorType, Map<String, Monitor>> getPreviousMonitors();
+
+	Map<String, SourceTable> getSourceTables();
 
 	void setMonitors(Map<MonitorType, Map<String, Monitor>> monitors);
 
@@ -31,4 +34,9 @@ public interface IHostMonitoring {
 	Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType);
 
 	String toJsonString();
+
+	void addSourceTable(String key, SourceTable sourceTable);
+
+	SourceTable getSourceTableByKey(String key);
+
 }

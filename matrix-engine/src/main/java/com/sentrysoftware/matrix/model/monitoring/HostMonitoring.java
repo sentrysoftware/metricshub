@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.model.monitoring;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import lombok.Data;
@@ -23,6 +25,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private Map<MonitorType, Map<String, Monitor>> monitors = new EnumMap<>(MonitorType.class);
 	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new EnumMap<>(MonitorType.class);
+
+	private Map<String, SourceTable> sourceTables = new LinkedHashMap<>();
 
 	@Override
 	public void clear() {
@@ -117,5 +121,19 @@ public class HostMonitoring implements IHostMonitoring {
 	public Map<MonitorType, Map<String, Monitor>> selectFromTypes(MonitorType... monitorTypes) {
 
 		return Collections.emptyMap();
+	}
+
+	@Override
+	public void addSourceTable(String key, SourceTable sourceTable) {
+		Assert.notNull(key, "The key cannot be null");
+		Assert.notNull(sourceTable, "The sourceTable cannot be null");
+
+		sourceTables.put(key, sourceTable);
+	}
+
+	@Override
+	public SourceTable getSourceTableByKey(String key) {
+		Assert.notNull(key, "The key cannot be null");
+		return sourceTables.get(key);
 	}
 }

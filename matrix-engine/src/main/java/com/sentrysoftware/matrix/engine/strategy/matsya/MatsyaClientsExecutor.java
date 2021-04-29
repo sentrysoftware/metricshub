@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
+import com.sentrysoftware.matsya.tablejoin.TableJoin;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,11 +31,10 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
 	 * @param <T>
-	 * @param <T>
 	 * 
 	 * @param callable
 	 * @param timeout
-	 * @return {@link IMatsyaQueryResult} result returned by the callable.
+	 * @return {@link T} result returned by the callable.
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
@@ -58,7 +58,7 @@ public class MatsyaClientsExecutor {
 	 * @param protocol
 	 * @param hostname
 	 * @param logMode
-	 * @return {@link IMatsyaQueryResult} value
+	 * @return {@link String} value
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
@@ -80,7 +80,7 @@ public class MatsyaClientsExecutor {
 	 * @param protocol
 	 * @param hostname
 	 * @param logMode
-	 * @return {@link IMatsyaQueryResult} value
+	 * @return {@link String} value
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @throws TimeoutException
@@ -95,6 +95,18 @@ public class MatsyaClientsExecutor {
 
 	}
 
+	/**
+	 * Execute SNMP Table through matsya
+	 * @param oid
+	 * @param selectColumnArray
+	 * @param protocol
+	 * @param hostname
+	 * @param logMode
+	 * @return {@link List} of rows where each row is a {@link List} of {@link String} cells
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
 	public List<List<String>> executeSNMPTable(final String oid, String[] selectColumnArray, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
 		Assert.notNull(oid, OID_CANNOT_BE_NULL);
@@ -155,5 +167,27 @@ public class MatsyaClientsExecutor {
 
 	public enum SNMPGetRequest {
 		GET, GETNEXT, TABLE
+	}
+	
+	/**
+	 * Execute TableJoin Using Matsya
+	 * @param leftTable
+	 * @param rightTable
+	 * @param leftKeyColumnNumber
+	 * @param rightKeyColumnNumber
+	 * @param defaultRightLine
+	 * @param wbemKeyType {@link true} if WBEM 
+	 * @param caseInsensitive
+	 * @return
+	 */
+	public List<List<String>> executeTableJoin(final List<List<String>> leftTable,
+			final List<List<String>> rightTable,
+			final int leftKeyColumnNumber, 
+			final int rightKeyColumnNumber, 
+			final List<String> defaultRightLine,
+			final boolean wbemKeyType, 
+			boolean caseInsensitive){
+		return TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber, defaultRightLine, false, false);
+		
 	}
 }

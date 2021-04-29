@@ -1,13 +1,16 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +40,7 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
 public class SourceVisitorTest {
@@ -54,6 +58,9 @@ public class SourceVisitorTest {
 
 	@InjectMocks
 	private SourceVisitor sourceVisitor;
+	
+	@Mock
+	private HostMonitoring hostMonitoring;
 
 	private static EngineConfiguration engineConfiguration;
 
@@ -123,7 +130,93 @@ public class SourceVisitorTest {
 
 	@Test
 	public void visitTableJoinSourceTest () {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new TableJoinSource()));
+		final Map<String, SourceTable> mapSources = new HashMap<>();
+		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"))).build();
+		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"))).build();
+		mapSources.put("tab1", tabl1 );
+		mapSources.put("tab2", tabl2 );
+
+		// standard
+		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
+		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
+		
+		List<List<String>> matsyaReturn = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, false);
+		
+		TableJoinSource tableJoinExample = TableJoinSource.builder()
+																	.keyType("notWbem")
+																	.leftTable("tab1")
+																	.rightTable("tab2")
+																	.leftKeyColumn(1)
+																	.rightKeyColumn(1)
+																	.defaultRightLine(Arrays.asList("a1","b1", "c1")).build();
+		assertEquals(expectedJoin, sourceVisitor.visit(tableJoinExample).getTable());
+		assertTrue(expectedJoin.size() == sourceVisitor.visit(tableJoinExample).getTable().size() && expectedJoin.containsAll(sourceVisitor.visit(tableJoinExample).getTable()) && sourceVisitor.visit(tableJoinExample).getTable().containsAll(expectedJoin));
+		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getHeaders());
+		assertEquals(expectedResult.getHeaders(), sourceVisitor.visit(tableJoinExample).getHeaders());
+
+		// no default right line
+		expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"));
+		expectedResult = SourceTable.builder().table(expectedJoin).build();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, false);
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("tab2")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
+		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getHeaders());
+		assertEquals(expectedResult.getHeaders(), sourceVisitor.visit(tableJoinExample).getHeaders());
+
+		// no matches
+		SourceTable tabl3 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a","b", "c"), Arrays.asList("v10","v20", "v30"))).build();
+		mapSources.put("tab3", tabl3 );
+		expectedJoin = Arrays.asList(Arrays.asList("a", "b", "c"));
+		expectedResult = SourceTable.builder().table(expectedJoin).build();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, false);
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("tab3")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
+		
+		// null args
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable(null)
+											.rightTable("tab3")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getTable());
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable(null)
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		// table not in sources
+		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getTable());
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("blabla")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getTable());
 	}
 
 	@Test
@@ -150,4 +243,5 @@ public class SourceVisitorTest {
 	public void visitWMISourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WMISource()));
 	}
+
 }
