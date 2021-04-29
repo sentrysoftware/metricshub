@@ -103,12 +103,18 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		if (keepOnlyMatchingLines != null && keepOnlyMatchingLines.getColumn() != null && keepOnlyMatchingLines.getColumn() > 0
-				&& sourceTable != null && sourceTable.getTable() != null && !sourceTable.getTable().isEmpty()
-				&& keepOnlyMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()) {
+
+		if (
+				keepOnlyMatchingLines != null
+						&& keepOnlyMatchingLines.getColumn() != null
+						&& keepOnlyMatchingLines.getColumn() > 0
+						&& sourceTable != null
+						&& sourceTable.getTable() != null
+						&& !sourceTable.getTable().isEmpty()
+						&& keepOnlyMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()
+		) {
 
 			int columnIndex = keepOnlyMatchingLines.getColumn() - 1;
-			List<List<String>> sourceTableTmp = new ArrayList<>();
 
 			String regexpPsl = keepOnlyMatchingLines.getRegExp();
 			List<String> valueList = keepOnlyMatchingLines.getValueList();
@@ -116,29 +122,41 @@ public class ComputeVisitor implements IComputeVisitor {
 			List<List<String>> table = sourceTable.getTable();
 
 			if (regexpPsl != null && !regexpPsl.isEmpty()) {
-				Pattern regexpPattern = Pattern.compile(PslUtils.psl2JavaRegex(regexpPsl));
-				for(List<String> line : table) {
-					if (regexpPattern.matcher(line.get(columnIndex)).matches()) {
-						sourceTableTmp.add(line);
-					}
-				}
-				table = sourceTableTmp;
-
-				// We clear the table in case there is a valueList to check as well. 
-				sourceTableTmp.clear();
+				table = processRegexp(regexpPsl, table, columnIndex);
 			}
-
-			if (valueList != null && !valueList.isEmpty()) {
-				for(List<String> line : table) {
-					if (valueList.contains(line.get(columnIndex))) {
-						sourceTableTmp.add(line);
-					}
-				}
-				table = sourceTableTmp;
+			else if (valueList != null && !valueList.isEmpty()) {
+				table = processValueList(valueList, table, columnIndex);
 			}
 
 			sourceTable.setTable(table);
 		}
+	}
+
+	private List<List<String>> processRegexp(String regexpPsl, List<List<String>> table, int columnIndex) {
+
+		List<List<String>> sourceTableTmp = new ArrayList<>();
+		Pattern regexpPattern = Pattern.compile(PslUtils.psl2JavaRegex(regexpPsl));
+		for (List<String> line : table) {
+
+			if (regexpPattern.matcher(line.get(columnIndex)).matches()) {
+				sourceTableTmp.add(line);
+			}
+		}
+
+		return sourceTableTmp;
+	}
+
+	private List<List<String>> processValueList(List<String> valueList, List<List<String>> table, int columnIndex) {
+
+		List<List<String>> sourceTableTmp = new ArrayList<>();
+		for(List<String> line : table) {
+
+			if (valueList.contains(line.get(columnIndex))) {
+				sourceTableTmp.add(line);
+			}
+		}
+
+		return sourceTableTmp;
 	}
 
 	@Override
@@ -185,5 +203,4 @@ public class ComputeVisitor implements IComputeVisitor {
 	public void visit(final XML2CSV xml2csv) {
 		// Not implemented yet
 	}
-
 }
