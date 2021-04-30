@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesComputeParser;
+import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatComputeParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpDetectionParser;
 import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceParser;
@@ -19,7 +21,9 @@ public enum ConnectorState {
 	CONNECTOR_SIMPLE_PROPERTY(new ConnectorSimplePropertyParser()),
 	CONNECTOR_SNMP_DETECTION(new ConnectorSnmpDetectionParser()),
 	CONNECTOR_INSTANCE_TABLE(new ConnectorInstanceParser()),
-	CONNECTOR_SOURCE_TABLE(new ConnectorSourceParser());
+	CONNECTOR_SOURCE_TABLE(new ConnectorSourceParser()),
+	CONNECTOR_KEEP_ONLY_MATCHING_LINES(new ConnectorKeepOnlyMatchingLinesComputeParser()),
+	CONNECTOR_LEFT_CONCAT(new ConnectorLeftConcatComputeParser());
 
 	private final IConnectorStateParser connectorStateProcessor;
 

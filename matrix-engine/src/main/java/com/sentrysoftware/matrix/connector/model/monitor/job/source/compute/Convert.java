@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Convert implements Compute {
+public class Convert extends Compute {
 
 	private static final long serialVersionUID = -4813127390503515508L;
 

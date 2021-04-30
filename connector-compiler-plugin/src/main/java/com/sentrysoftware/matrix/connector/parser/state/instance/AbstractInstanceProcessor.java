@@ -47,8 +47,7 @@ public abstract class AbstractInstanceProcessor implements IConnectorStateParser
 		// If the hardwareMonitor exists then that's good! we just return the instance directly
 		// otherwise it means it is not created yet, in that case we create the HardwareMonitor
 		// instance in the connector the we return the object
-		return hardwareMonitorOpt.isPresent() ? hardwareMonitorOpt.get()
-				: createHardwareMonitor(monitorName, connector);
+		return hardwareMonitorOpt.orElseGet(() -> createHardwareMonitor(monitorName, connector));
 	}
 
 	/**

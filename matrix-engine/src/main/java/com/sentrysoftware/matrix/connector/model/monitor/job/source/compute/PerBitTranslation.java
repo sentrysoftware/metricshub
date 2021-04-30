@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PerBitTranslation implements Compute {
+public class PerBitTranslation extends Compute {
 
 	private static final long serialVersionUID = -7456243256660647476L;
 

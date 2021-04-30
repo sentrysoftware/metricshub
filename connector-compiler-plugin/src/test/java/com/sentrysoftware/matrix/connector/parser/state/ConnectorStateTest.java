@@ -67,7 +67,7 @@ class ConnectorStateTest {
         Set<ConnectorState> connectorStates = ConnectorState.getConnectorStates();
 
         assertNotNull(connectorStates);
-        assertEquals(4, connectorStates.size());
+        assertEquals(6, connectorStates.size());
         assertTrue(connectorStates.contains(CONNECTOR_SIMPLE_PROPERTY));
         assertTrue(connectorStates.contains(CONNECTOR_SNMP_DETECTION));
         assertTrue(connectorStates.contains(CONNECTOR_INSTANCE_TABLE));

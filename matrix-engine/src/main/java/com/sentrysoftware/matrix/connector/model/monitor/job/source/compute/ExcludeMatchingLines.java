@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExcludeMatchingLines implements Compute {
+public class ExcludeMatchingLines extends Compute {
 
 	private static final long serialVersionUID = -3662198961800729320L;
 

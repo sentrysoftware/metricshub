@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DuplicateColumn implements Compute {
+public class DuplicateColumn extends Compute {
 
 	private static final long serialVersionUID = 3840380919958960723L;
 

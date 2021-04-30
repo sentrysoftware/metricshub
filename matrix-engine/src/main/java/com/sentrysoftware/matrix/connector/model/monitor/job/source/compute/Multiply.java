@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Multiply implements Compute {
+public class Multiply extends Compute {
 
 	private static final long serialVersionUID = -2587218670274401808L;
 

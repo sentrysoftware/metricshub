@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class XML2CSV implements Compute {
+public class XML2CSV extends Compute {
 
 	private static final long serialVersionUID = 6561437878414249082L;
 
