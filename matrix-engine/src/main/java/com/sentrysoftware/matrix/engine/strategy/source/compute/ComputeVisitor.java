@@ -121,10 +121,12 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			List<List<String>> table = sourceTable.getTable();
 
+			// If there are both a regex and a valueList, both are applied, one after the other.
 			if (regexpPsl != null && !regexpPsl.isEmpty()) {
 				table = processRegexp(regexpPsl, table, columnIndex);
 			}
-			else if (valueList != null && !valueList.isEmpty()) {
+
+			if (valueList != null && !valueList.isEmpty()) {
 				table = processValueList(valueList, table, columnIndex);
 			}
 

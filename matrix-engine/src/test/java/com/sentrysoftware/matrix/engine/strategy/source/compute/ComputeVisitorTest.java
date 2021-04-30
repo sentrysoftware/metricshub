@@ -144,5 +144,18 @@ class ComputeVisitorTest {
         assertEquals(2, resultTable.size());
         assertEquals(line1, resultTable.get(0));
         assertEquals(line3, resultTable.get(1));
+
+        // regex is not null, not empty
+        // valueList is not null, not empty
+        computeVisitor.getSourceTable().setTable(table);
+        keepOnlyMatchingLines.setColumn(1);
+        keepOnlyMatchingLines.setRegExp("^B.*"); // Applying only the regex would match line2 and line3
+        keepOnlyMatchingLines.setValueList(Arrays.asList("FOO", "BAR", "BAB")); // Applying only the valueList would match line1 and line2
+        computeVisitor.visit(keepOnlyMatchingLines);
+        assertNotEquals(table, computeVisitor.getSourceTable().getTable());
+        resultTable = computeVisitor.getSourceTable().getTable();
+        assertNotNull(resultTable);
+        assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
+        assertEquals(line2, resultTable.get(0));
     }
 }
