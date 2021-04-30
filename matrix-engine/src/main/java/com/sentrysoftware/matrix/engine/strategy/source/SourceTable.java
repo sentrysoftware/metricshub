@@ -43,9 +43,7 @@ public class SourceTable {
 			return table
 					.stream()
 					.filter(Objects::nonNull)
-					.map(line -> line
-							.stream()
-							.collect(Collectors.joining(separator)) + separator)
+					.map(line -> String.join(separator, line) + separator)
 					.collect(Collectors.joining("\n"));
 		}
 		return null;
