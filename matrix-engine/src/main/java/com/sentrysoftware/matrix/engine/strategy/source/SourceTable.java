@@ -38,7 +38,7 @@ public class SourceTable {
 	 * @param separator The cells separator on each line
 	 * @return {@link String} value
 	 */
-	protected static String tableToCsv(final List<List<String>> table, final String separator) {
+	public static String tableToCsv(final List<List<String>> table, final String separator) {
 		if (table != null) {
 			return table
 					.stream()
@@ -62,7 +62,7 @@ public class SourceTable {
 	 *             The cells separator
 	 * @return {@link List} of {@link List} table
 	 */
-	protected static List<List<String>> csvToTable(final String csvTable, final String separator) {
+	public static List<List<String>> csvToTable(final String csvTable, final String separator) {
 		if (csvTable != null) {
 			return Stream
 					.of(csvTable.split("\n"))
