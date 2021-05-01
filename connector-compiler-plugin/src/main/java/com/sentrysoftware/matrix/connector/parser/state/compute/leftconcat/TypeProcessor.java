@@ -13,49 +13,49 @@ import static org.springframework.util.Assert.isTrue;
 
 public class TypeProcessor extends LeftConcatProcessor {
 
-    private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-            "^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
-            Pattern.CASE_INSENSITIVE
-    );
+	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
+			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
+			Pattern.CASE_INSENSITIVE
+	);
 
-    @Override
-    protected Matcher getMatcher(String key) {
-        return TYPE_KEY_PATTERN.matcher(key);
-    }
+	@Override
+	protected Matcher getMatcher(String key) {
+		return TYPE_KEY_PATTERN.matcher(key);
+	}
 
-    @Override
-    public void parse(final String key, final String value, final Connector connector) {
+	@Override
+	public void parse(final String key, final String value, final Connector connector) {
 
-        super.parse(key, value, connector);
+		super.parse(key, value, connector);
 
-        isTrue(
-                LEFT_CONCAT_TYPE_VALUE.equalsIgnoreCase(
-                        value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-                ),
-                "Invalid Compute type: " + value
-        );
+		isTrue(
+				LEFT_CONCAT_TYPE_VALUE.equalsIgnoreCase(
+						value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
+				),
+				"Invalid Compute type: " + value
+		);
 
-        Matcher matcher = getMatcher(key);
-        isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		Matcher matcher = getMatcher(key);
+		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-        Source source = getSource(matcher, connector);
+		Source source = getSource(matcher, connector);
 
-        // TODO: When all source types have been implemented,
-        // remove this if statement and uncomment the notNull check
-        if (source == null) {
-            return;
-        }
-        //notNull(source, "Could not find any source for the following key: " + key + ConnectorParserConstants.DOT);
+		// TODO: When all source types have been implemented,
+		// remove this if statement and uncomment the notNull check
+		if (source == null) {
+			return;
+		}
+		//notNull(source, "Could not find any source for the following key: " + key + ConnectorParserConstants.DOT);
 
-        if (source.getComputes() == null) {
-            source.setComputes(new ArrayList<>());
-        }
+		if (source.getComputes() == null) {
+			source.setComputes(new ArrayList<>());
+		}
 
-        LeftConcat leftConcat = new LeftConcat();
-        leftConcat.setIndex(getComputeIndex(matcher));
+		LeftConcat leftConcat = new LeftConcat();
+		leftConcat.setIndex(getComputeIndex(matcher));
 
-        source
-                .getComputes()
-                .add(leftConcat);
-    }
+		source
+				.getComputes()
+				.add(leftConcat);
+	}
 }

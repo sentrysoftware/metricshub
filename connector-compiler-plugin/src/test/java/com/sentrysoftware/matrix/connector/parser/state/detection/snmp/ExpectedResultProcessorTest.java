@@ -9,26 +9,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ExpectedResultProcessorTest {
 
-    private final ExpectedResultProcessor expectedResultProcessor = new ExpectedResultProcessor();
+	private final ExpectedResultProcessor expectedResultProcessor = new ExpectedResultProcessor();
 
-    private final Connector connector = new Connector();
+	private final Connector connector = new Connector();
 
-    private static final String CRITERION_EXPECTED_RESULT_KEY = "detection.criteria(1).expectedresult";
-    private static final String FOO = "FOO";
+	private static final String CRITERION_EXPECTED_RESULT_KEY = "detection.criteria(1).expectedresult";
+	private static final String FOO = "FOO";
 
-    @Test
-    void testParse() {
+	@Test
+	void testParse() {
 
-        // knownCriterion is null
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> expectedResultProcessor.parse(CRITERION_EXPECTED_RESULT_KEY, FOO, connector)
-        );
+		// knownCriterion is null
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> expectedResultProcessor.parse(CRITERION_EXPECTED_RESULT_KEY, FOO, connector)
+		);
 
-        // knownCriterion is not null
-        expectedResultProcessor.knownCriterion = new SNMPGetNext();
+		// knownCriterion is not null
+		expectedResultProcessor.knownCriterion = new SNMPGetNext();
 
-        expectedResultProcessor.parse(CRITERION_EXPECTED_RESULT_KEY, FOO, connector);
-        assertEquals(FOO, ((SNMPGetNext) expectedResultProcessor.knownCriterion).getExpectedResult());
-    }
+		expectedResultProcessor.parse(CRITERION_EXPECTED_RESULT_KEY, FOO, connector);
+		assertEquals(FOO, ((SNMPGetNext) expectedResultProcessor.knownCriterion).getExpectedResult());
+	}
 }

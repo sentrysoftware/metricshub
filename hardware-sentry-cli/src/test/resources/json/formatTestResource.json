@@ -1,11 +1,12 @@
 {
   "total" : 3,
   "monitors" : [ {
-    "deviceId" : "id1",
+    "id" : "id1",
     "name" : "MS_HW_DellOpenManage",
     "monitorType" : "CONNECTOR",
     "parentId" : "parentId",
     "targetId" : null,
+    "extendedType" : null,
     "parameters" : {
       "status" : {
         "name" : "status",
@@ -17,11 +18,12 @@
       }
     }
   }, {
-    "deviceId" : "id2",
+    "id" : "id2",
     "name" : "MS_HW_DellCMC",
     "monitorType" : "CONNECTOR",
     "parentId" : "parentId",
     "targetId" : null,
+    "extendedType" : null,
     "parameters" : {
       "status" : {
         "name" : "status",
@@ -33,11 +35,12 @@
       }
     }
   }, {
-    "deviceId" : "id3",
+    "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
-    "monitorType" : "DEVICE",
+    "monitorType" : "TARGET",
     "parentId" : "id1",
     "targetId" : null,
+    "extendedType" : null,
     "parameters" : {
       "status" : {
         "name" : "status",

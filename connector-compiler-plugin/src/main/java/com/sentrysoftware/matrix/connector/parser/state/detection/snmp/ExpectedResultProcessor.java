@@ -15,18 +15,18 @@ public class ExpectedResultProcessor extends SnmpProcessor {
 			"^\\s*detection\\.criteria\\((\\d+)\\)\\.expectedresult\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 	
-    @Override
-    protected Pattern getKeyRegex() {
-        return EXPECTED_RESULT_KEY_PATTERN;
-    }
+	@Override
+	protected Pattern getKeyRegex() {
+		return EXPECTED_RESULT_KEY_PATTERN;
+	}
 	
-    @Override
-    public void parse(final String key, final String value, final Connector connector) {
+	@Override
+	public void parse(final String key, final String value, final Connector connector) {
 
-        super.parse(key, value, connector);
+		super.parse(key, value, connector);
 
-        // Setting the expected result
-        notNull(knownCriterion, "knownCriterion should not be null.");
-        ((SNMP) knownCriterion).setExpectedResult(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
-    }
+		// Setting the expected result
+		notNull(knownCriterion, "knownCriterion should not be null.");
+		((SNMP) knownCriterion).setExpectedResult(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
+	}
 }

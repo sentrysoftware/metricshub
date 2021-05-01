@@ -187,7 +187,7 @@ public class MatsyaClientsExecutor {
 			final List<String> defaultRightLine,
 			final boolean wbemKeyType, 
 			boolean caseInsensitive){
-		return TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber, defaultRightLine, false, false);
+		return TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber, defaultRightLine, false, caseInsensitive);
 		
 	}
 }

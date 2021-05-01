@@ -1,15 +1,19 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -21,12 +25,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class HostMonitoring implements IHostMonitoring {
 
+	private static final String MONITOR_ID_CANNOT_BE_NULL = "monitor id cannot be null.";
+	private static final String PARENT_ID_CANNOT_BE_NULL = "Parent Id cannot be null.";
+	private static final String TARGET_ID_CANNOT_BE_NULL = "Target Id cannot be null.";
+	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitor type cannot be null.";
+	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
+	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
+
 	public static final HostMonitoring HOST_MONITORING = new HostMonitoring();
 
-	private Map<MonitorType, Map<String, Monitor>> monitors = new EnumMap<>(MonitorType.class);
-	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new EnumMap<>(MonitorType.class);
-
-	private Map<String, SourceTable> sourceTables = new LinkedHashMap<>();
+	private Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();
+	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new LinkedHashMap<>();
+	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Override
 	public void clear() {
@@ -39,28 +49,121 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public void addMonitor(Monitor monitor) {
-		Assert.notNull(monitor, "monitor cannot be null.");
+	public synchronized void addMonitor(Monitor monitor) {
+		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 
-		final String deviceId = monitor.getDeviceId();
-		Assert.notNull(deviceId, "monitor id cannot be null.");
+		final String id = monitor.getId();
+		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
 
 		final MonitorType monitorType = monitor.getMonitorType();
-		Assert.notNull(monitorType, "monitor type cannot be null.");
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		Assert.isTrue(MonitorType.DEVICE.equals(monitorType) || Objects.nonNull(monitor.getParentId()), "Parent Id cannot be null");
-		Assert.isTrue(Objects.nonNull(monitor.getTargetId()), "Target Id cannot be null");
+		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()), PARENT_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
 	
 		if (monitors.containsKey(monitorType)) {
 			Map<String, Monitor> collection = monitors.get(monitorType);
-			collection.put(deviceId, monitor);
+			collection.put(id, monitor);
 		} else {
-			monitors.put(monitorType, createHashMap(deviceId, monitor));
+			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
 	}
 
-	private <K, V> Map<K, V> createHashMap(K key, V value) {
-		Map<K, V> map = new HashMap<>();
+	@Override
+	public synchronized void addMonitor(final Monitor monitor, final String id, final String connectorName, final MonitorType monitorType,
+			final String attachedToDeviceId, final String attachedToDeviceType) {
+		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
+		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
+
+		monitor.setMonitorType(monitorType);
+
+		if (monitor.getId() == null) {
+			monitor.setId(buildMonitorId(connectorName, monitorType, monitor.getTargetId(), id));
+		}
+
+		if (monitor.getParentId() == null) {
+			monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId, attachedToDeviceType));
+		}
+
+		addMonitor(monitor);
+	}
+
+	/**
+	 * Build the parent id based on the given arguments
+	 * <ol>
+	 * 	<li>If the <code>attachedToDeviceId</code> is present then for sure the parent is going to be the enclosure or another
+	 *  monitor identified with <code>attachedToDeviceType</code>. In that case we deduce the parent key without reading instances from the memory.</li>
+	 *  <li>If the <code>attachedToDeviceId </code> is not present then we will try to get the latest Enclosure monitor with the extended type 'Computer'</li>
+	 *  <li>If the previous conditions fail then the monitor will be attached to the target (main monitor)</li>
+	 * </ol>
+	 * @param targetId             The identifier of the main monitor. Called target in the matrix-engine library
+	 * @param connectorName        The connector compiled file name.
+	 * @param attachedToDeviceId   The identifier of the monitor we wish to deduce its key
+	 * @param attachedToDeviceType The type of the monitor we wish to deduce its key
+	 * @return {@link String} value containing the key of the parent monitor 
+	 */
+	protected String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
+		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
+
+		// We have a parent defined by the connector
+		if (attachedToDeviceId != null) {
+
+			// Get the monitorType parent by default get the Enclosure
+			final MonitorType monitorType = MonitorType.getByNameOptional(attachedToDeviceType)
+					.orElse(MonitorType.ENCLOSURE);
+			return buildMonitorId(connectorName, monitorType, targetId, attachedToDeviceId);
+		} else {
+			// The parent is the enclosure monitor with the extended type 'Computer'
+			final Map<String, Monitor> enclosures = this.selectFromType(MonitorType.ENCLOSURE);
+			Optional<Monitor> computerEnclosure = Optional.empty();
+			// No enclosures ?
+			if (enclosures != null) {
+				computerEnclosure = StreamUtils
+						.reverse(enclosures.values().stream())
+						.filter(monitor -> COMPUTER.equalsIgnoreCase(monitor.getExtendedType())).findFirst();
+			}
+
+			// We've found the enclosure then 
+			if (computerEnclosure.isPresent()) {
+				return computerEnclosure.get().getId();
+			}
+		}
+
+		// If we have no parent, attach object to the main device (target)
+		return targetId;
+	}
+
+	/**
+	 * Build the monitor unique identifier [connectorName]_[monitorType]_[targetId]_[id]
+	 * @param connectorName  The connector compiled file name
+	 * @param monitorType    The type of the monitor. See {@link MonitorType}
+	 * @param targetId       The unique identifier of the main monitor called target
+	 * @param id             The id of the monitor we wish to build its identifier
+	 * @return {@link String} value containing the key of the monitor
+	 */
+	public static String buildMonitorId(final String connectorName, final MonitorType monitorType, final String targetId, final String id) {
+
+		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
+		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+
+		return new StringBuilder()
+				.append(connectorName)
+				.append(HardwareConstants.ID_SEPARATOR)
+				.append(monitorType.getName().toLowerCase())
+				.append(HardwareConstants.ID_SEPARATOR)
+				.append(targetId)
+				.append(HardwareConstants.ID_SEPARATOR)
+				.append(id.replaceAll("\\s*", ""))
+				.toString();
+	}
+
+	private <K, V> Map<K, V> createLinkedHashMap(K key, V value) {
+		Map<K, V> map = new LinkedHashMap<>();
 		map.put(key, value);
 		return map;
 	}
@@ -71,33 +174,40 @@ public class HostMonitoring implements IHostMonitoring {
 			return;
 		}
 
-		final String deviceId = monitor.getDeviceId();
-		Assert.notNull(deviceId, "monitor id cannot be null.");
+		final String id = monitor.getId();
+		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
 
 		final MonitorType monitorType = monitor.getMonitorType();
-		Assert.notNull(monitorType, "monitor type cannot be null.");
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		removeRelatedChildren(deviceId);
+		removeRelatedChildren(id);
 
 		if (monitors.containsKey(monitorType)) {
 			Map<String, Monitor> instances = monitors.get(monitorType);
 
 			if (null != instances) {
-				instances.remove(deviceId);
+				instances.remove(id);
 			}
 		}
 
 	}
 
+	/**
+	 * Remove the children of the monitor identified by the given
+	 * <code>monitorId</code> recursively
+	 * 
+	 * @param monitorId
+	 */
 	private void removeRelatedChildren(String monitorId) {
-		monitors.values().stream().filter(Objects::nonNull).forEach(instances -> instances.entrySet().removeIf(entry -> {
-			final Monitor monitor = entry.getValue();
-			boolean remove = monitorId.equals(monitor.getParentId());
-			if (remove) {
-				removeRelatedChildren(monitor.getDeviceId());
-			}
-			return remove;
-		}));
+		monitors.values().stream().filter(Objects::nonNull).forEach(instances -> instances.entrySet().removeIf(entry ->
+			{
+				final Monitor monitor = entry.getValue();
+				boolean remove = monitorId.equals(monitor.getParentId());
+				if (remove) {
+					removeRelatedChildren(monitor.getId());
+				}
+				return remove;
+			}));
 	}
 
 	@Override
@@ -125,15 +235,16 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public void addSourceTable(String key, SourceTable sourceTable) {
-		Assert.notNull(key, "The key cannot be null");
-		Assert.notNull(sourceTable, "The sourceTable cannot be null");
+		Assert.notNull(key, "The key cannot be null.");
+		Assert.notNull(sourceTable, "The sourceTable cannot be null.");
 
 		sourceTables.put(key, sourceTable);
 	}
 
 	@Override
 	public SourceTable getSourceTableByKey(String key) {
-		Assert.notNull(key, "The key cannot be null");
+		Assert.notNull(key, "The key cannot be null.");
+
 		return sourceTables.get(key);
 	}
 }

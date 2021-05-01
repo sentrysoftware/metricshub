@@ -5,8 +5,6 @@ import java.util.List;
 
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
@@ -33,14 +31,17 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Component
+@AllArgsConstructor
+@NoArgsConstructor
 public class ComputeVisitor implements IComputeVisitor {
 
-	@Setter
 	@Getter
+	@Setter
 	private SourceTable sourceTable;
 
 	@Override

@@ -1,18 +1,25 @@
 package com.sentrysoftware.matrix.connector.model.monitor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class MonitorTypeTest {
+class MonitorTypeTest {
+
+	private static final String BATTERY_LOWER = "battery";
+	private static final String BATTERY_PASCAL = "Battery";
+	private static final String BATTERY = "BATTERY";
+	private static final String UNKNOWN_MONITOR_TEST = "unknownMonitorTest";
 
 	@Test
 	void MonitorTypejsonKeytest() {
 		MonitorType monitor = MonitorType.CONNECTOR;
 		assertEquals("Connectors", monitor.jsonKey());
 
-		monitor = MonitorType.DEVICE;
-		assertEquals("Devices", monitor.jsonKey());
+		monitor = MonitorType.TARGET;
+		assertEquals("Targets", monitor.jsonKey());
 
 		monitor = MonitorType.BATTERY;
 		assertEquals("Batteries", monitor.jsonKey());
@@ -73,5 +80,23 @@ public class MonitorTypeTest {
 
 		monitor = MonitorType.VOLTAGE;
 		assertEquals("Voltages", monitor.jsonKey());
+	}
+
+	@Test
+	void testGetByName() {
+		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY_LOWER));
+		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY_PASCAL));
+		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY));
+		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByName(null));
+		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByName(UNKNOWN_MONITOR_TEST));
+	}
+
+	@Test
+	void testGetByNameOptional() {
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY_LOWER).get());
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY_PASCAL).get());
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY).get());
+		assertTrue(MonitorType.getByNameOptional(null).isEmpty());
+		assertTrue(MonitorType.getByNameOptional(UNKNOWN_MONITOR_TEST).isEmpty());
 	}
 }

@@ -9,29 +9,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ForceSerializationProcessorTest {
 
-    private final ForceSerializationProcessor forceSerializationProcessor = new ForceSerializationProcessor();
+	private final ForceSerializationProcessor forceSerializationProcessor = new ForceSerializationProcessor();
 
-    private final Connector connector = new Connector();
+	private final Connector connector = new Connector();
 
-    private static final String CRITERION_FORCE_SERIALIZATION_KEY = "detection.criteria(1).forceserialization";
-    private static final String FOO = "FOO";
+	private static final String CRITERION_FORCE_SERIALIZATION_KEY = "detection.criteria(1).forceserialization";
+	private static final String FOO = "FOO";
 
-    @Test
-    void testParse() {
+	@Test
+	void testParse() {
 
-        // knownCriterion is null
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, FOO, connector)
-        );
+		// knownCriterion is null
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, FOO, connector)
+		);
 
-        // knownCriterion is not null
-        forceSerializationProcessor.knownCriterion = new SNMPGetNext();
+		// knownCriterion is not null
+		forceSerializationProcessor.knownCriterion = new SNMPGetNext();
 
-        forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, FOO, connector);
-        assertFalse(forceSerializationProcessor.knownCriterion.isForceSerialization());
+		forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, FOO, connector);
+		assertFalse(forceSerializationProcessor.knownCriterion.isForceSerialization());
 
-        forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, ONE, connector);
-        assertTrue(forceSerializationProcessor.knownCriterion.isForceSerialization());
-    }
+		forceSerializationProcessor.parse(CRITERION_FORCE_SERIALIZATION_KEY, ONE, connector);
+		assertTrue(forceSerializationProcessor.knownCriterion.isForceSerialization());
+	}
 }

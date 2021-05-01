@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.BooleanParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
@@ -41,20 +41,24 @@ public class DetectionOperation extends AbstractStrategy {
 
 		// The configuration is wrapped in the strategyConfig bean
 		final Set<String> selectedConnectors = strategyConfig.getEngineConfiguration().getSelectedConnectors();
+
+		// Localhost check 
+		final boolean isLocalhost = NetworkHelper.isLocalhost(strategyConfig.getEngineConfiguration().getTarget().getHostname());
+
 		final List<TestedConnector> testedConnectorList;
 		// No selectedConnectors then perform auto detection
 		if (selectedConnectors.isEmpty()) {
-			testedConnectorList = performAutoDetection();
+			testedConnectorList = performAutoDetection(isLocalhost);
 		} else {
 			testedConnectorList = processSelectedConnectors(selectedConnectors);
 		}
 
-		// Create the device
-		log.debug("Create the Device");
-		final Monitor device = createDevice();
+		// Create the target
+		log.debug("Create the Target");
+		final Monitor target = createTarget(isLocalhost);
 
 		// Create the connector instances
-		createConnectors(device, testedConnectorList);
+		createConnectors(target, testedConnectorList);
 
 		return true;
 	}
@@ -79,23 +83,24 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Perform auto detection
 	 * 
+	 * @param isLocalhost whether the monitored system is local host or not
 	 * @return the list of successful {@link TestedConnector}
 	 * @throws LocalhostCheckException could be thrown by
 	 *                                 filterConnectorsByLocalAndRemoteSupport if
 	 *                                 {@link NetworkHelper#isLocalhost(String)}
 	 *                                 fails
 	 */
-	protected List<TestedConnector> performAutoDetection() throws LocalhostCheckException {
+	protected List<TestedConnector> performAutoDetection(final boolean isLocalhost) throws LocalhostCheckException {
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Start DETECTION for system {}", hostname);
 
-		// Filter Connectors by the TargetType (device type: NT, LINUX, ESX, ...etc)
+		// Filter Connectors by the TargetType (target type: NT, LINUX, ESX, ...etc)
 		Stream<Connector> connectorStream = filterConnectorsByTargetType(store.getConnectors().values().stream(),
 				strategyConfig.getEngineConfiguration().getTarget().getType());
 
 		// Now based on the target location (Local or Remote) filter connectors by
 		// localSupport or remoteSupport
-		connectorStream = filterConnectorsByLocalAndRemoteSupport(connectorStream, hostname);
+		connectorStream = filterConnectorsByLocalAndRemoteSupport(connectorStream, isLocalhost);
 
 		// Now detect the connectors, try to run the detection criteria for each
 		// connector and select only the connectors
@@ -120,33 +125,33 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Create connector instances
-	 * @param device
+	 * @param target
 	 * @param testedConnectorList
 	 */
-	protected void createConnectors(final Monitor device, final List<TestedConnector> testedConnectorList) {
+	protected void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) {
 		// Loop over the testedConnecotrs and create them in the HostMonitoring instance
-		testedConnectorList.forEach(testedConnector -> createConnector(device, testedConnector));
+		testedConnectorList.forEach(testedConnector -> createConnector(target, testedConnector));
 		
 	}
 
 	/**
-	 * Create the given tested connector attached to the passed {@link Monitor} device
-	 * @param device
+	 * Create the given tested connector attached to the passed {@link Monitor} target
+	 * @param target
 	 * @param testedConnector
 	 */
-	protected void createConnector(final Monitor device, final TestedConnector testedConnector) {
+	protected void createConnector(final Monitor target, final TestedConnector testedConnector) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
 		final Connector connector = testedConnector.getConnector();
 
-		final Monitor monitor = Monitor.builder().deviceId(device.getDeviceId() + "@" + connector.getCompiledFilename())
+		final Monitor monitor = Monitor.builder().id(target.getId() + "@" + connector.getCompiledFilename())
 				.name(connector.getCompiledFilename())
-				.targetId(device.getDeviceId())
-				.parentId(device.getDeviceId())
+				.targetId(target.getId())
+				.parentId(target.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
 
-		final TextParam testReport = buildTestReportParameter(device, testedConnector);
+		final TextParam testReport = buildTestReportParameter(target, testedConnector);
 		final StatusParam statusParam = buildStatusParam(testedConnector);
 
 		monitor.addParameter(testReport);
@@ -162,19 +167,19 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	protected StatusParam buildStatusParam(final TestedConnector testedConnector) {
 		boolean success = testedConnector.isSuccess();
-		return StatusParam.builder().collectTime(new Date().getTime()).name(HardwareConstants.STATUS_PARAMETER_NAME)
+		return StatusParam.builder().collectTime(strategyTime).name(HardwareConstants.STATUS_PARAMETER)
 				.state(success ? ParameterState.OK : ParameterState.ALARM)
 				.statusInformation(success ? "Connector test succeeded" : "Connector test failed").build();
 	}
 
 	/**
 	 * Build test report parameter for the given {@link TestedConnector}
-	 * @param device
+	 * @param target
 	 * @param testedConnector
 	 * @return {@link TextParam} instance
 	 */
-	protected TextParam buildTestReportParameter(final Monitor device, final TestedConnector testedConnector) {
-		final TextParam testReport = TextParam.builder().collectTime(new Date().getTime()).name(HardwareConstants.TEST_REPORT_PARAMETER_NAME).parameterState(ParameterState.OK).build();
+	protected TextParam buildTestReportParameter(final Monitor target, final TestedConnector testedConnector) {
+		final TextParam testReport = TextParam.builder().collectTime(strategyTime).name(HardwareConstants.TEST_REPORT_PARAMETER).parameterState(ParameterState.OK).build();
 
 		final StringBuilder value = new StringBuilder();
 
@@ -185,7 +190,7 @@ public class DetectionOperation extends AbstractStrategy {
 		value.append(builtTestResult)
 				.append("\nConclusion: ")
 				.append("TEST on ")
-				.append(device.getName())
+				.append(target.getName())
 				.append(" ")
 				.append(testedConnector.isSuccess() ? "SUCCEEDED" : "FAILED");
 
@@ -195,31 +200,50 @@ public class DetectionOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Create the Device
+	 * Create the Target
+	 * @param isLocalhost
 	 */
-	protected Monitor createDevice() {
+	protected Monitor createTarget(final boolean isLocalhost) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		// Do we have an existing device ? remove it
-		final Map<String, Monitor> devices = hostMonitoring.selectFromType(MonitorType.DEVICE);
-		if (null != devices) {
-			for (Monitor dev : devices.values()) {
+		// Do we have an existing target ? remove it
+		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
+		if (null != targets) {
+			for (Monitor dev : targets.values()) {
 				hostMonitoring.removeMonitor(dev);
 			}
 		}
 
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 
-		// Create the device
-		final Monitor device = Monitor.builder().deviceId(target.getId()).targetId(target.getId()).name(target.getHostname())
-				.monitorType(MonitorType.DEVICE).build();
+		// Create the target
+		final Monitor targetMonitor = Monitor.builder().id(target.getId()).targetId(target.getId()).name(target.getHostname())
+				.monitorType(MonitorType.TARGET).build();
 
-		hostMonitoring.addMonitor(device);
+		// Create the isLocalhost parameter
+		final BooleanParam isLocalhostParam = BooleanParam
+				.builder()
+				.collectTime(strategyTime)
+				.name(HardwareConstants.IS_LOCALHOST_PARAMETER)
+				.value(isLocalhost)
+				.build();
+		targetMonitor.addParameter(isLocalhostParam);
 
-		log.debug("Created Device: {} ID: {} ", target.getHostname(), target.getId());
+		// Create the operating system type parameter
+		final TextParam operatingSystemType = TextParam
+				.builder()
+				.collectTime(strategyTime)
+				.name(HardwareConstants.OPERATING_SYSTEM_TYPE_PARAMETER)
+				.value(target.getType().name())
+				.build();
+		targetMonitor.addParameter(operatingSystemType);
 
-		return device;
+		hostMonitoring.addMonitor(targetMonitor);
+
+		log.debug("Created Target: {} ID: {} ", target.getHostname(), target.getId());
+
+		return targetMonitor;
 	}
 
 	/**
@@ -356,12 +380,12 @@ public class DetectionOperation extends AbstractStrategy {
 	 * connectors if not local host and hdf.RemoteSupport is not true
 	 * 
 	 * @param connectorStream
-	 * @param hostname
+	 * @param isLocalhost
 	 * @return {@link Stream} of {@link Connector} instances
 	 * @throws LocalhostCheckException when {@link NetworkHelper#isLocalhost(String)} fails
 	 */
-	protected Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final String hostname) throws LocalhostCheckException  {
-		if (NetworkHelper.isLocalhost(hostname)) {
+	protected Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final boolean isLocalhost) throws LocalhostCheckException  {
+		if (isLocalhost) {
 			return connectorStream.filter(connector -> !Boolean.FALSE.equals(connector.getLocalSupport()));
 		} else {
 			return connectorStream.filter(connector -> Boolean.TRUE.equals(connector.getRemoteSupport()));

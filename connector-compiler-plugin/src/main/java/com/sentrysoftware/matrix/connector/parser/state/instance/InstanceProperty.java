@@ -17,20 +17,20 @@ public enum InstanceProperty {
 	INSTANCE_TABLE(new InstanceTableProcessor()),
 	INSTANCE(new InstanceProcessor());
 
-    private final IConnectorStateParser connectorStateProcessor;
+	private final IConnectorStateParser connectorStateProcessor;
 
-    public boolean detect(final String key, final String value, final Connector connector) {
+	public boolean detect(final String key, final String value, final Connector connector) {
 
-        return connectorStateProcessor.detect(key, value, connector);
-    }
+		return connectorStateProcessor.detect(key, value, connector);
+	}
 
-    public void parse(final String key, final String value, final Connector connector) {
+	public void parse(final String key, final String value, final Connector connector) {
 
-        connectorStateProcessor.parse(key, value, connector);
-    }
+		connectorStateProcessor.parse(key, value, connector);
+	}
 
-    public static Set<InstanceProperty> getConnectorProperties() {
+	public static Set<InstanceProperty> getConnectorProperties() {
 
-        return Arrays.stream(InstanceProperty.values()).collect(Collectors.toSet());
-    }
+		return Arrays.stream(InstanceProperty.values()).collect(Collectors.toSet());
+	}
 }

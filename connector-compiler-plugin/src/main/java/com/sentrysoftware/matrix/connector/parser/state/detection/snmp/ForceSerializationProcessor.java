@@ -19,13 +19,13 @@ public class ForceSerializationProcessor extends SnmpProcessor {
 		return FORCE_SERIALIZATION_KEY_PATTERN;
 	}
 
-    @Override
-    public void parse(final String key, final String value, final Connector connector) {
+	@Override
+	public void parse(final String key, final String value, final Connector connector) {
 
-        super.parse(key, value, connector);
+		super.parse(key, value, connector);
 
-        // Setting the expected result
-        notNull(knownCriterion, "knownCriterion should not be null.");
-        knownCriterion.setForceSerialization(value.trim().equals(ONE));
-    }
+		// Setting the expected result
+		notNull(knownCriterion, "knownCriterion should not be null.");
+		knownCriterion.setForceSerialization(value.trim().equals(ONE));
+	}
 }

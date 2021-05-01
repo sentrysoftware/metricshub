@@ -43,7 +43,7 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
-public class SourceVisitorTest {
+class SourceVisitorTest {
 	private static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102"));
 	private static final String ECS1_01 = "ecs1-01";
 	private static final List<String> SNMP_SELECTED_COLUMNS = Arrays.asList("ID","9","11","49");
@@ -76,27 +76,27 @@ public class SourceVisitorTest {
 	}
 
 	@Test
-	public void visitHTTPSourceTest () {
+	void visitHTTPSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new HTTPSource()));
 	}
 
 	@Test
-	public void visitIPMISourceTest () {
+	void visitIPMISourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new IPMI()));
 	}
 
 	@Test
-	public void visitOSCommandSourceTest () {
+	void visitOSCommandSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new OSCommandSource()));
 	}
 
 	@Test
-	public void visitReferenceSourceTest () {
+	void visitReferenceSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new ReferenceSource()));
 	}
 
 	@Test
-	public void visitSNMPGetSourceTest () {
+	void visitSNMPGetSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new SNMPGetSource()));
 	}
 
@@ -129,7 +129,7 @@ public class SourceVisitorTest {
 	}
 
 	@Test
-	public void visitTableJoinSourceTest () {
+	void visitTableJoinSourceTest () {
 		final Map<String, SourceTable> mapSources = new HashMap<>();
 		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"))).build();
 		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"))).build();
@@ -220,27 +220,27 @@ public class SourceVisitorTest {
 	}
 
 	@Test
-	public void visitTableUnionSourceTest () {
+	void visitTableUnionSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new TableUnionSource()));
 	}
 
 	@Test
-	public void visitTelnetInteractiveSourceTest () {
+	void visitTelnetInteractiveSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new TelnetInteractiveSource()));
 	}
 
 	@Test
-	public void visitUCSSourceTest () {
+	void visitUCSSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new UCSSource()));
 	}
 
 	@Test
-	public void visitWBEMSourceTest () {
+	void visitWBEMSourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WBEMSource()));
 	}
 
 	@Test
-	public void visitWMISourceTest () {
+	void visitWMISourceTest () {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WMISource()));
 	}
 
