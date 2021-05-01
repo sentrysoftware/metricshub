@@ -23,7 +23,6 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.BooleanParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
@@ -221,23 +220,12 @@ public class DetectionOperation extends AbstractStrategy {
 		final Monitor targetMonitor = Monitor.builder().id(target.getId()).targetId(target.getId()).name(target.getHostname())
 				.monitorType(MonitorType.TARGET).build();
 
-		// Create the isLocalhost parameter
-		final BooleanParam isLocalhostParam = BooleanParam
-				.builder()
-				.collectTime(strategyTime)
-				.name(HardwareConstants.IS_LOCALHOST_PARAMETER)
-				.value(isLocalhost)
-				.build();
-		targetMonitor.addParameter(isLocalhostParam);
+		// Create the location metadata
+		targetMonitor.addMetadata(HardwareConstants.LOCATION,
+				isLocalhost ? HardwareConstants.LOCALHOST: HardwareConstants.REMOTE );
 
-		// Create the operating system type parameter
-		final TextParam operatingSystemType = TextParam
-				.builder()
-				.collectTime(strategyTime)
-				.name(HardwareConstants.OPERATING_SYSTEM_TYPE_PARAMETER)
-				.value(target.getType().name())
-				.build();
-		targetMonitor.addParameter(operatingSystemType);
+		// Create the operating system type metadata
+		targetMonitor.addMetadata(HardwareConstants.OPERATING_SYSTEM_TYPE, target.getType().name());
 
 		hostMonitoring.addMonitor(targetMonitor);
 
