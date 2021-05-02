@@ -51,7 +51,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
 
-	private static final String _0 = "0";
+	private static final String ID_COUNT_0 = "0";
 	private static final String FAN_NAME = "Fan: 1";
 	private static final String FAN_ID = "myConnecctor1.connector_fan_ecs1-01_1.1";
 	private static final String SPEED = "speed";
@@ -307,7 +307,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		enclosureMetadata.put(VENDOR, DELL);
 		enclosureMetadata.put(MODEL, MODEL_VALUE);
-		enclosureMetadata.put(HardwareConstants.ID_COUNT, _0);
+		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -325,7 +325,7 @@ class DiscoveryOperationTest {
 		fanMetadata.put(DEVICE_ID, ID);
 		fanMetadata.put(DISPLAY_ID, FAN_1);
 		fanMetadata.put(SPEED, SPEED_VALUE);
-		fanMetadata.put(HardwareConstants.ID_COUNT, _0);
+		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
@@ -411,7 +411,7 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -461,7 +461,7 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -693,7 +693,7 @@ class DiscoveryOperationTest {
 		Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		metadata.put(DEVICE_ID, DELL_ENCLOSURE);
 		metadata.put(VENDOR, DELL);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
@@ -755,7 +755,7 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -806,7 +806,7 @@ class DiscoveryOperationTest {
 		assertEquals(POWER_EDGE_54DSF, metadata.get(DISPLAY_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
 		assertEquals(MODEL_VALUE, metadata.get(MODEL_PASCAL));
-		assertEquals(_0, metadata.get(HardwareConstants.ID_COUNT));
+		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
 		assertNull(metadata.get(OUT_OF_RANGE));
 	}
 
