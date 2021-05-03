@@ -362,7 +362,7 @@ class ComputeVisitorTest {
 		DuplicateColumn dupColumnNull = null;
 		computeVisitor.visit(dupColumnNull);
 		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		// test out of bounds
 		DuplicateColumn dupColumn = new DuplicateColumn(1, 0);
 		computeVisitor.visit(dupColumn);
@@ -399,7 +399,31 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
+
+		dupColumn = new DuplicateColumn(13, 7);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
 		
 
+		dupColumn = new DuplicateColumn(13, null);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+
+		dupColumn = new DuplicateColumn(13, 0);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
 	}
 }

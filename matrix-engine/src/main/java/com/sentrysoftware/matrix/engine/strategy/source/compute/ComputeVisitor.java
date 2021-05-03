@@ -82,24 +82,26 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final DuplicateColumn duplicateColumn) {
-		if(duplicateColumn == null) {
+
+		if (duplicateColumn == null) {
 			log.debug("DuplicateColumn object is null, the table remains unchanged.");
 			return;
 		}
-		if(duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
+
+		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
 			log.debug("The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.");
 			return;
 		}
 
 		// for each list in the list, duplicate the column of the given index  
-		Integer columnIndex = duplicateColumn.getColumn();
+		Integer columnIndex = duplicateColumn.getColumn() -1;
 
 		for (List<String> elementList : sourceTable.getTable()) {
-			if (columnIndex >= 1 && columnIndex <= elementList.size()) {
-				elementList.add(columnIndex - 1, elementList.get(columnIndex - 1));
+			if (columnIndex >= 0 && columnIndex < elementList.size()) {
+				elementList.add(columnIndex, elementList.get(columnIndex));
 			}
 		}
-		
+
 	}
 
 	@Override
