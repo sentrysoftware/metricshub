@@ -45,7 +45,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Setter
 	private SourceTable sourceTable;
 
-	@Getter
 	@Setter
 	private Connector connector;
 
