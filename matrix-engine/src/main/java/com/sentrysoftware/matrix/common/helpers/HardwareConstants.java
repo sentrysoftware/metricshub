@@ -5,6 +5,8 @@ public class HardwareConstants {
 	private HardwareConstants() {
 	}
 
+	public static final String NEW_LINE = "\n";
+	public static final String WHITE_SPACE = " ";
 	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
 	public static final String ENCLOSURE = "Enclosure";
@@ -17,9 +19,15 @@ public class HardwareConstants {
 	public static final String COLUMN_REGEXP = "^\\s*(column\\((\\d+)\\))\\s*$";
 	public static final String LOCALHOST = "localhost";
 	public static final String REMOTE = "remote";
+	public static final String COMA = ",";
+	public static final String COLON = ":";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
+	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
+	public static final String INTRUSION_STATUS_PARAMETER = "intrusionStatus";
+	public static final String ENERGY_USAGE_PARAMETER = "energyUsage";
+	
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -31,5 +39,9 @@ public class HardwareConstants {
 	public static final String OPERATING_SYSTEM_TYPE = "operatingSystemType";
 	public static final String ATTACHED_TO_DEVICE_ID = "attachedToDeviceId";
 	public static final String ATTACHED_TO_DEVICE_TYPE = "attachedToDeviceType";
+
+	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
+	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
+	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
 
 }

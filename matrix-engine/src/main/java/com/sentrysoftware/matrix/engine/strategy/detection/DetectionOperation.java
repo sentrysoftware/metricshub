@@ -23,6 +23,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.AbstractParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
@@ -150,7 +151,7 @@ public class DetectionOperation extends AbstractStrategy {
 				.parentId(target.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
 
-		final TextParam testReport = buildTestReportParameter(target, testedConnector);
+		final AbstractParam testReport = buildTestReportParameter(target, testedConnector);
 		final StatusParam statusParam = buildStatusParam(testedConnector);
 
 		monitor.addParameter(testReport);
@@ -177,7 +178,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnector
 	 * @return {@link TextParam} instance
 	 */
-	protected TextParam buildTestReportParameter(final Monitor target, final TestedConnector testedConnector) {
+	protected AbstractParam buildTestReportParameter(final Monitor target, final TestedConnector testedConnector) {
 		final TextParam testReport = TextParam.builder().collectTime(strategyTime).name(HardwareConstants.TEST_REPORT_PARAMETER).parameterState(ParameterState.OK).build();
 
 		final StringBuilder value = new StringBuilder();
@@ -405,4 +406,8 @@ public class DetectionOperation extends AbstractStrategy {
 		// Not implemented yet
 	}
 
+	@Override
+	public void prepare() {
+		// Not implemented yet
+	}
 }

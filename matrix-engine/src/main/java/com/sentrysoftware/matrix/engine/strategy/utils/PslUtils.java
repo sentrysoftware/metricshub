@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
 public class PslUtils {
-	
+
+	private PslUtils() { }
+
 	/**
 	 * Converts a PSL regex into its Java equivalent.
 	 * Method shamelessly taken from somewhere else.
