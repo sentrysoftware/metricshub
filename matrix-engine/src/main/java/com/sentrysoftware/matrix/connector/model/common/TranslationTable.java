@@ -20,5 +20,5 @@ public class TranslationTable implements Serializable {
 
 	private String name;
 	@Default
-	private Map<String, String> tanslations = new HashMap<>();
+	private Map<String, String> translations = new HashMap<>();
 }

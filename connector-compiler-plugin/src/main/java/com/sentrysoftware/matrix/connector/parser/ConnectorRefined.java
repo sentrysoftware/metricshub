@@ -293,7 +293,7 @@ public class ConnectorRefined {
 			final TranslationTable translationTable = TranslationTable.builder().name(translationTableName).build();
 
 			while (translationTableMatcher.find()) {
-				translationTable.getTanslations().put(translationTableMatcher.group(1).replace("\"", "").trim(),
+				translationTable.getTranslations().put(translationTableMatcher.group(1).replace("\"", "").trim(),
 						translationTableMatcher.group(2).replace("\"", "").trim());
 				translationTableMatcher.appendReplacement(tempRawCode, "");
 			}

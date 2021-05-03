@@ -2,11 +2,12 @@ package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -252,7 +253,42 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Translate translate) {
-		// Not implemented yet
+
+		if (translate == null) {
+			log.debug("The Source (Translate) to visit is null, the translate computation cannont be performed.");
+			return;
+		}
+
+		TranslationTable translationTable = translate.getTranslationTable();
+		if (translationTable == null) {
+			log.debug("TranslationTable is null, the translate computation cannont be performed.");
+			return;
+		}
+
+		Map<String, String> translations = translationTable.getTranslations();
+		if (translations == null) {
+			log.debug("The Translation Map {} is null, the translate computation cannont be performed.",
+					translationTable.getName());
+			return;
+		}
+
+		Integer columnIndex = translate.getColumn() - 1;
+		if (columnIndex >= 0) {
+
+			for (List<String> line : sourceTable.getTable()) {
+
+				if (columnIndex < line.size()) {
+					String valueToBeReplaced = line.get(columnIndex);
+
+					if (translations.containsKey(valueToBeReplaced)) {
+						line.set(columnIndex, translations.get(valueToBeReplaced));
+					} else {
+						log.debug("The Translation Map {} does not contain the following value {}.",
+								translationTable.getName(), valueToBeReplaced);
+					}
+				}
+			}
+		}
 	}
 
 	@Override

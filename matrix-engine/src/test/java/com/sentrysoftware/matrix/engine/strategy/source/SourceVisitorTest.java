@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,6 +107,17 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SNMPGetTableSource.builder().oid(null).snmpTableSelectColumns(null).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).build()));
+		// no snmp protocol
+		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
+		
+		// test when Matsya throws an exception
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		when(matsyaClientsExecutor.executeSNMPTable(any(), any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
 	}
 
 	@Test
@@ -190,6 +203,20 @@ class SourceVisitorTest {
 											.rightKeyColumn(1)
 											.defaultRightLine(null).build();
 		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
+
+		// wrong column key
+		tabl3 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a","b", "c"), Arrays.asList("v10","v20", "v30"))).build();
+		mapSources.put("tab3", tabl3 );
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("tab3")
+											.leftKeyColumn(0)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
 		
 		// null args
 		tableJoinExample = TableJoinSource.builder()
@@ -217,6 +244,27 @@ class SourceVisitorTest {
 											.rightKeyColumn(1)
 											.defaultRightLine(null).build();
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getTable());
+
+		doReturn(null).when(hostMonitoring).getSourceTables();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("tab2")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
+
+		doReturn(null).when(strategyConfig).getHostMonitoring();
+		tableJoinExample = TableJoinSource.builder()
+											.keyType("notWbem")
+											.leftTable("tab1")
+											.rightTable("tab2")
+											.leftKeyColumn(1)
+											.rightKeyColumn(1)
+											.defaultRightLine(null).build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
 	}
 
 	@Test

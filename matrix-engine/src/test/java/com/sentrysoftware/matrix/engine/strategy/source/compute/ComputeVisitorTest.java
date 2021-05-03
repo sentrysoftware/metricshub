@@ -10,14 +10,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 class ComputeVisitorTest {
@@ -209,9 +214,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisit() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		// Test with empty LeftConcat
 		LeftConcat leftConcat = new LeftConcat();
@@ -272,9 +275,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisitColumn() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		LeftConcat leftConcat = new LeftConcat(1, 3, "Column(1)");
 
@@ -289,9 +290,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisitNotColumn1() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		LeftConcat leftConcat = new LeftConcat(1, 3, "Column(1)_");
 
@@ -306,9 +305,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisitNotColumn2() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		LeftConcat leftConcat = new LeftConcat(1, 3, "_Column(1)");
 
@@ -323,9 +320,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisitNewColumn() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		LeftConcat leftConcat = new LeftConcat(1, 3, "new,Column;prefix_");
 
@@ -340,9 +335,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testLeftConcatVisitTwoNewColumns() {
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 
 		LeftConcat leftConcat = new LeftConcat(1, 1, "new,Column(4);AnotherNew.Column;prefix_");
 
@@ -386,10 +379,7 @@ class ComputeVisitorTest {
 		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		// test multiple lines
-		sourceTable.getTable().clear();
-		sourceTable.getTable().add(new ArrayList<>(LINE_1));
-		sourceTable.getTable().add(new ArrayList<>(LINE_2));
-		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		initializeSourceTable();
 		
 
 		dupColumn = new DuplicateColumn(13, 3);
@@ -426,4 +416,117 @@ class ComputeVisitorTest {
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
 	}
+
+	private void initializeSourceTable() {
+		sourceTable.getTable().clear();
+		sourceTable.getTable().add(new ArrayList<>(LINE_1));
+		sourceTable.getTable().add(new ArrayList<>(LINE_2));
+		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+	}
+
+
+
+	@Test
+	void testTranslation() {
+		
+		final Map<String, String> translationMap = Stream.of(new String[][] { 
+			{ "NAME1", "NAME1_resolved" }, { "NAME2", "NAME2_resolved" }, { "NAME3", "NAME3_resolved" }, 
+			{ "ID1", "ID1_resolved" }, { "ID2", "ID2_resolved" }, { "ID3", "ID3_resolved" }, 
+			{ "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1_resolved" }, { "NUMBER_OF_DISKS2", "NUMBER_OF_DISKS2_resolved" }, { "NUMBER_OF_DISKS3", "NUMBER_OF_DISKS3_resolved" }, 
+			})
+				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+		// test null source to visit
+		initializeSourceTable();
+		Translate translateNull = null;
+		computeVisitor.visit(translateNull);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		// test TranslationTable is null
+		initializeSourceTable();
+		Translate translate = Translate.builder().column(0).index(0).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		initializeSourceTable();
+		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		// test index out of bounds
+		initializeSourceTable();
+		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		initializeSourceTable();
+		translate = Translate.builder().column(10).index(10).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		// test 1st index
+		initializeSourceTable();
+		translate = Translate.builder().column(1).index(1).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		// test intermediate index
+		initializeSourceTable();
+		translate = Translate.builder().column(2).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2_resolved", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3_resolved", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		// test last index
+		initializeSourceTable();
+		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved")),
+				sourceTable.getTable());
+
+		// test unknown value
+		initializeSourceTable();
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")));
+		translate = Translate.builder().column(1).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
+				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")),
+				sourceTable.getTable());
+		
+	}
+	
+
 }
