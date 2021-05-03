@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -352,5 +353,77 @@ class ComputeVisitorTest {
 		assertEquals(LINE_1_RESULT_TWO_NEW_COLUMNS, table.get(0));
 		assertEquals(LINE_2_RESULT_TWO_NEW_COLUMNS, table.get(1));
 		assertEquals(LINE_3_RESULT_TWO_NEW_COLUMNS, table.get(2));
+	}
+
+	@Test
+	void testDuplicateColumn() {
+		sourceTable.getTable().add(new ArrayList<>(LINE_1));
+		// test null arg
+		DuplicateColumn dupColumnNull = null;
+		computeVisitor.visit(dupColumnNull);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+
+		// test out of bounds
+		DuplicateColumn dupColumn = new DuplicateColumn(1, 0);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		
+		dupColumn = new DuplicateColumn(10, 10);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		
+		// test actual index
+		dupColumn = new DuplicateColumn(1, 1);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		
+		dupColumn = new DuplicateColumn(2, 2);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1",  "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		
+		dupColumn = new DuplicateColumn(3, 6);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		
+		// test multiple lines
+		sourceTable.getTable().clear();
+		sourceTable.getTable().add(new ArrayList<>(LINE_1));
+		sourceTable.getTable().add(new ArrayList<>(LINE_2));
+		sourceTable.getTable().add(new ArrayList<>(LINE_3));
+		
+
+		dupColumn = new DuplicateColumn(13, 3);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+		dupColumn = new DuplicateColumn(13, 7);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+		
+
+		dupColumn = new DuplicateColumn(13, null);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
+
+
+		dupColumn = new DuplicateColumn(13, 0);
+		computeVisitor.visit(dupColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
+				sourceTable.getTable());
 	}
 }

@@ -36,9 +36,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class ComputeVisitor implements IComputeVisitor {
 
 	@Getter
@@ -80,7 +82,26 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final DuplicateColumn duplicateColumn) {
-		// Not implemented yet
+
+		if (duplicateColumn == null) {
+			log.debug("DuplicateColumn object is null, the table remains unchanged.");
+			return;
+		}
+
+		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
+			log.debug("The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.");
+			return;
+		}
+
+		// for each list in the list, duplicate the column of the given index  
+		Integer columnIndex = duplicateColumn.getColumn() -1;
+
+		for (List<String> elementList : sourceTable.getTable()) {
+			if (columnIndex >= 0 && columnIndex < elementList.size()) {
+				elementList.add(columnIndex, elementList.get(columnIndex));
+			}
+		}
+
 	}
 
 	@Override
