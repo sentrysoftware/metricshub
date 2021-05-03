@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -68,6 +69,7 @@ class ComputeVisitorTest {
 		computeVisitor = new ComputeVisitor();
 		sourceTable = new SourceTable();
 		computeVisitor.setSourceTable(sourceTable);
+		computeVisitor.setConnector(Connector.builder().build());
 	}
 
 	@Test

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -43,6 +44,9 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Getter
 	@Setter
 	private SourceTable sourceTable;
+
+	@Setter
+	private Connector connector;
 
 	@Override
 	public void visit(final Add add) {
