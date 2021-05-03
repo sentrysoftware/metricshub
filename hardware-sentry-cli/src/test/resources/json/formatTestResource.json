@@ -16,7 +16,8 @@
         "status" : 0,
         "statusInformation" : "OK"
       }
-    }
+    },
+    "metadata" : { }
   }, {
     "id" : "id2",
     "name" : "MS_HW_DellCMC",
@@ -33,7 +34,8 @@
         "status" : 1,
         "statusInformation" : "WARNING"
       }
-    }
+    },
+    "metadata" : { }
   }, {
     "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
@@ -50,6 +52,7 @@
         "status" : 0,
         "statusInformation" : "OK"
       }
-    }
+    },
+    "metadata" : { }
   } ]
 }

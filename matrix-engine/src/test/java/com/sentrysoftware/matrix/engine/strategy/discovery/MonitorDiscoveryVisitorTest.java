@@ -37,12 +37,10 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.BooleanParam;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class MonitorDiscoveryVisitorTest {
 
+	private static final String _0 = "0";
 	private static final String ROBOTIC_MONITOR_X = "Robotic: Monitor x";
 	private static final String FAN_ID = "myConnecctor.connector_fan_ecs1-01_1.1";
 	private static final String ROBOTIC_ID = "myConnecctor.connector_robotic_ecs1-01_1.1";
@@ -112,66 +110,24 @@ class MonitorDiscoveryVisitorTest {
 	private static final String LUN_MONITOR_X = "Lun: Monitor x";
 	private static final String ENCLOSURE_ID = "myConnecctor.connector_enclosure_ecs1-01_1.1";
 
-	private static TextParam deviceIdParam = TextParam
-			.builder()
-			.name(DEVICE_ID)
-			.value(ID)
-			.build();
-
-	private static TextParam enclosureDisplayIdParam = TextParam
-			.builder()
-			.name(DISPLAY_ID)
-			.value(POWER_EDGE_54DSF)
-			.build();
-
-	private static TextParam monitorDisplayIdParam = TextParam
-			.builder()
-			.name(DISPLAY_ID)
-			.value(MONITOR_NAME)
-			.build();
-
-	private static TextParam vendorParam = TextParam
-			.builder()
-			.name(VENDOR)
-			.value(DELL)
-			.build();
-
-	private static TextParam modelParam = TextParam
-			.builder()
-			.name(MODEL)
-			.value(MODEL_VALUE)
-			.build();
-
-	private static TextParam idCountParam = TextParam
-			.builder()
-			.name(HardwareConstants.ID_COUNT_PARAMETER)
-			.value("0")
-			.build();
-
-	private static TextParam enclosureTypeParam = TextParam
-			.builder()
-			.name(HardwareConstants.TYPE_PARAMETER)
-			.value(HardwareConstants.COMPUTER)
-			.build();
-
 	@Test
 	void testVisitBattery() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.BATTERY);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Battery) MonitorType.BATTERY.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BATTERY_ID)
 				.name(BATTERY_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.BATTERY)
 				.extendedType(MonitorType.BATTERY.getName())
 				.build();
@@ -188,18 +144,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.BLADE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Blade) MonitorType.BLADE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BLADE_ID)
 				.name(BLADE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.BLADE)
 				.extendedType(MonitorType.BLADE.getName())
 				.build();
@@ -216,18 +172,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.CPU);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Cpu) MonitorType.CPU.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_ID)
 				.name(CPU_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.CPU)
 				.extendedType(MonitorType.CPU.getName())
 				.build();
@@ -244,18 +200,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.CPU_CORE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((CpuCore) MonitorType.CPU_CORE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_CORE_ID)
 				.name(CPU_CORE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.CPU_CORE)
 				.extendedType(MonitorType.CPU_CORE.getName())
 				.build();
@@ -272,18 +228,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.DISK_CONTROLLER);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskController) MonitorType.DISK_CONTROLLER.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(DISK_CONTROLLER_ID)
 				.name(DISK_CONTROLLER_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.DISK_CONTROLLER)
 				.extendedType(MonitorType.DISK_CONTROLLER.getName())
 				.build();
@@ -300,18 +256,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.DISK_ENCLOSURE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskEnclosure) MonitorType.DISK_ENCLOSURE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(DISK_ENCLOSURE_ID)
 				.name(DISK_ENCLOSURE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.DISK_ENCLOSURE)
 				.extendedType(MonitorType.DISK_ENCLOSURE.getName())
 				.build();
@@ -326,18 +282,19 @@ class MonitorDiscoveryVisitorTest {
 	void testVisitEnclosure() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(vendorParam.getName(), vendorParam);
-		parameters.put(modelParam.getName(), modelParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
 				.monitorType(MonitorType.ENCLOSURE)
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final Monitor targetMonitor = Monitor
@@ -367,7 +324,7 @@ class MonitorDiscoveryVisitorTest {
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(parameters)
+				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
@@ -383,18 +340,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.FAN);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Fan) MonitorType.FAN.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.build();
@@ -411,18 +368,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LED);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Led) MonitorType.LED.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LED_ID)
 				.name(LED_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.LED)
 				.extendedType(MonitorType.LED.getName())
 				.build();
@@ -439,18 +396,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LOGICAL_DISK);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((LogicalDisk) MonitorType.LOGICAL_DISK.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LOGICAL_DISK_ID)
 				.name(LOGICAL_DISK_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.LOGICAL_DISK)
 				.extendedType(MonitorType.LOGICAL_DISK.getName())
 				.build();
@@ -467,18 +424,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LUN);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Lun) MonitorType.LUN.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LUN_ID)
 				.name(LUN_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.LUN)
 				.extendedType(MonitorType.LUN.getName())
 				.build();
@@ -495,18 +452,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.MEMORY);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Memory) MonitorType.MEMORY.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(MEMORY_ID)
 				.name(MEMORY_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.MEMORY)
 				.extendedType(MonitorType.MEMORY.getName())
 				.build();
@@ -523,18 +480,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.NETWORK_CARD);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((NetworkCard) MonitorType.NETWORK_CARD.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
 				.name(NETWORK_CARD_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.NETWORK_CARD)
 				.extendedType(MonitorType.NETWORK_CARD.getName())
 				.build();
@@ -551,18 +508,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.OTHER_DEVICE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((OtherDevice) MonitorType.OTHER_DEVICE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(OTHER_DEVICE_ID)
 				.name(OTHER_DEVICE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.OTHER_DEVICE)
 				.extendedType(MonitorType.OTHER_DEVICE.getName())
 				.build();
@@ -579,18 +536,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.PHYSICAL_DISK);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((PhysicalDisk) MonitorType.PHYSICAL_DISK.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(PHYSICAL_DISK_ID)
 				.name(PHYSICAL_DISK_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.extendedType(MonitorType.PHYSICAL_DISK.getName())
 				.build();
@@ -607,18 +564,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.POWER_SUPPLY);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((PowerSupply) MonitorType.POWER_SUPPLY.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(POWER_SUPPLY_ID)
 				.name(POWER_SUPPLY_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.POWER_SUPPLY)
 				.extendedType(MonitorType.POWER_SUPPLY.getName())
 				.build();
@@ -635,18 +592,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.TAPE_DRIVE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((TapeDrive) MonitorType.TAPE_DRIVE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TAPE_DRIVE_ID)
 				.name(TAPE_DRIVE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.TAPE_DRIVE)
 				.extendedType(MonitorType.TAPE_DRIVE.getName())
 				.build();
@@ -663,18 +620,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.TEMPERATURE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Temperature) MonitorType.TEMPERATURE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TEMPERATURE_ID)
 				.name(TEMPERATURE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.TEMPERATURE)
 				.extendedType(MonitorType.TEMPERATURE.getName())
 				.build();
@@ -691,18 +648,18 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.VOLTAGE);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Voltage) MonitorType.VOLTAGE.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(VOLTAGE_ID)
 				.name(VOLTAGE_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.VOLTAGE)
 				.extendedType(MonitorType.VOLTAGE.getName())
 				.build();
@@ -719,18 +676,19 @@ class MonitorDiscoveryVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTIC);
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotic) MonitorType.ROBOTIC.getConcreteType());
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
+
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(ROBOTIC_ID)
 				.name(ROBOTIC_MONITOR_X)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.ROBOTIC)
 				.extendedType(MonitorType.ROBOTIC.getName())
 				.build();
@@ -745,12 +703,12 @@ class MonitorDiscoveryVisitorTest {
 	void testCreateMonitorNoName() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		final Monitor monitor = Monitor
 				.builder()
 				.monitorType(MonitorType.FAN)
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final Monitor targetMonitor = Monitor
@@ -783,12 +741,12 @@ class MonitorDiscoveryVisitorTest {
 	void testCreateMonitorNoDeviceId() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		final Monitor monitor = Monitor
 				.builder()
 				.monitorType(MonitorType.FAN)
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final Monitor targetMonitor = Monitor
@@ -825,18 +783,18 @@ class MonitorDiscoveryVisitorTest {
 
 		new MonitorDiscoveryVisitor(buildingInfo).createMonitor(MONITOR_NAME, null);
 
-		final Map<String, IParameterValue> monitorParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		monitorParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		monitorParameterValues.put(idCountParam.getName(), idCountParam);
-		monitorParameterValues.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(monitorParameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.build();
@@ -849,15 +807,15 @@ class MonitorDiscoveryVisitorTest {
 
 	private MonitorBuildingInfo createBuildingInfo(final IHostMonitoring hostMonitoring, final MonitorType monitorType) {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor monitor = Monitor
 				.builder()
 				.monitorType(monitorType)
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final Monitor targetMonitor = Monitor
@@ -885,21 +843,16 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureStorageWithDisplayId() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		final TextParam enclosureTypeParam = TextParam
-				.builder()
-				.name(HardwareConstants.TYPE_PARAMETER)
-				.value(HardwareConstants.STORAGE)
-				.build();
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
-
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
+		
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -920,20 +873,15 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureOther() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		final TextParam enclosureTypeParam = TextParam
-				.builder()
-				.name(HardwareConstants.TYPE_PARAMETER)
-				.value("Other")
-				.build();
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, "Other");
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -954,20 +902,15 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureNameNoModelNoVendorStorage() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		final TextParam enclosureTypeParam = TextParam
-				.builder()
-				.name(HardwareConstants.TYPE_PARAMETER)
-				.value(HardwareConstants.STORAGE)
-				.build();
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -988,16 +931,16 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureNameNoModelNoVendor() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1018,17 +961,17 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureNameNoModel() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(vendorParam.getName(), vendorParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1049,17 +992,17 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureNameNoVendor() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(modelParam.getName(), modelParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1080,23 +1023,18 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureNameModelContainsVendor() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(vendorParam.getName(), vendorParam);
-		TextParam modelParam = TextParam
-				.builder()
-				.name(MODEL)
-				.value(MODEL_WITH_VENDOR)
-				.build();
-		parameters.put(modelParam.getName(), modelParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_WITH_VENDOR);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1117,18 +1055,18 @@ class MonitorDiscoveryVisitorTest {
 	@Test
 	void testBuildEnclosureName() {
 
-		final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameters.put(deviceIdParam.getName(), deviceIdParam);
-		parameters.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameters.put(vendorParam.getName(), vendorParam);
-		parameters.put(modelParam.getName(), modelParam);
-		parameters.put(idCountParam.getName(), idCountParam);
-		parameters.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
-				.parameters(parameters)
+				.metadata(metadata)
 				.build();
 
 		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1150,14 +1088,14 @@ class MonitorDiscoveryVisitorTest {
 	void testBuildGenericName() {
 
 		{
-			final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			parameters.put(idCountParam.getName(), idCountParam);
-			parameters.put(deviceIdParam.getName(), deviceIdParam);
-			parameters.put(monitorDisplayIdParam.getName(), monitorDisplayIdParam);
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, _0);
+			metadata.put(DEVICE_ID, ID);
+			metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 			final Monitor monitor = Monitor
 					.builder()
-					.parameters(parameters)
+					.metadata(metadata)
 					.build();
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1174,13 +1112,13 @@ class MonitorDiscoveryVisitorTest {
 		}
 
 		{
-			final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			parameters.put(idCountParam.getName(), idCountParam);
-			parameters.put(deviceIdParam.getName(), deviceIdParam);
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, _0);
+			metadata.put(DEVICE_ID, ID);
 
 			final Monitor monitor = Monitor
 					.builder()
-					.parameters(parameters)
+					.metadata(metadata)
 					.build();
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1198,12 +1136,12 @@ class MonitorDiscoveryVisitorTest {
 		}
 
 		{
-			final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			parameters.put(idCountParam.getName(), idCountParam);
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, _0);
 
 			final Monitor monitor = Monitor
 					.builder()
-					.parameters(parameters)
+					.metadata(metadata)
 					.build();
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1220,17 +1158,12 @@ class MonitorDiscoveryVisitorTest {
 		}
 
 		{
-			final Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			final TextParam idCountParam = TextParam
-					.builder()
-					.name(HardwareConstants.ID_COUNT_PARAMETER)
-					.value(null)
-					.build();
-			parameters.put(idCountParam.getName(), idCountParam);
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, " ");
 
 			final Monitor monitor = Monitor
 					.builder()
-					.parameters(parameters)
+					.metadata(metadata)
 					.build();
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
@@ -1243,9 +1176,7 @@ class MonitorDiscoveryVisitorTest {
 					.targetMonitor(new Monitor())
 					.hostname(ECS1_01)
 					.build();
-			assertNull(new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
 
-			idCountParam.setValue("");
 			assertNull(new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
 		}
 
@@ -1257,8 +1188,7 @@ class MonitorDiscoveryVisitorTest {
 		{
 			final Monitor target = Monitor
 					.builder()
-					.parameters(Map.of(
-							HardwareConstants.IS_LOCALHOST_PARAMETER, BooleanParam.builder().value(false).build()))
+					.metadata(Map.of(HardwareConstants.LOCATION, HardwareConstants.REMOTE))
 					.build();
 
 			assertEquals(WINDOWS_COMPUTER, MonitorDiscoveryVisitor.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
@@ -1272,8 +1202,7 @@ class MonitorDiscoveryVisitorTest {
 		{
 			final Monitor target = Monitor
 					.builder()
-					.parameters(Map.of(
-							HardwareConstants.IS_LOCALHOST_PARAMETER, BooleanParam.builder().value(true).build()))
+					.metadata(Map.of(HardwareConstants.LOCATION, HardwareConstants.LOCALHOST))
 					.build();
 
 			assertEquals(LOCALHOST_ENCLOSURE, MonitorDiscoveryVisitor.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
@@ -1291,8 +1220,8 @@ class MonitorDiscoveryVisitorTest {
 
 		assertFalse(MonitorDiscoveryVisitor.isLocalhost(null));
 		assertFalse(MonitorDiscoveryVisitor.isLocalhost(Collections.emptyMap()));
-		assertFalse(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.IS_LOCALHOST_PARAMETER, BooleanParam.builder().value(false).build())));
-		assertTrue(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.IS_LOCALHOST_PARAMETER, BooleanParam.builder().value(true).build())));
+		assertFalse(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.LOCATION, HardwareConstants.REMOTE)));
+		assertTrue(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.LOCATION,  HardwareConstants.LOCALHOST)));
 
 	}
 

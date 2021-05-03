@@ -46,13 +46,12 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
 
+	private static final String ID_COUNT_0 = "0";
 	private static final String FAN_NAME = "Fan: 1";
 	private static final String FAN_ID = "myConnecctor1.connector_fan_ecs1-01_1.1";
 	private static final String SPEED = "speed";
@@ -106,62 +105,6 @@ class DiscoveryOperationTest {
 	private DiscoveryOperation discoveryOperation;
 
 	private static EngineConfiguration engineConfiguration;
-
-	private static TextParam deviceIdParam = TextParam
-			.builder()
-			.name(DEVICE_ID)
-			.collectTime(strategyTime)
-			.value(ID)
-			.build();
-
-	private static TextParam enclosureDisplayIdParam = TextParam
-			.builder()
-			.name(DISPLAY_ID)
-			.collectTime(strategyTime)
-			.value(POWER_EDGE_54DSF)
-			.build();
-
-	private static TextParam fanDisplayIdParam = TextParam
-			.builder()
-			.name(DISPLAY_ID)
-			.collectTime(strategyTime)
-			.value(FAN_1)
-			.build();
-
-	private static TextParam fanSpeedParam = TextParam
-			.builder()
-			.name(SPEED)
-			.collectTime(strategyTime)
-			.value(SPEED_VALUE)
-			.build();
-
-	private static TextParam vendorParam = TextParam
-			.builder()
-			.name(VENDOR)
-			.collectTime(strategyTime)
-			.value(DELL)
-			.build();
-
-	private static TextParam modelParam = TextParam
-			.builder()
-			.name(MODEL)
-			.collectTime(strategyTime)
-			.value(MODEL_VALUE)
-			.build();
-
-	private static TextParam idCountParam = TextParam
-			.builder()
-			.name(HardwareConstants.ID_COUNT_PARAMETER)
-			.collectTime(strategyTime)
-			.value("0")
-			.build();
-
-	private static TextParam enclosureTypeParam = TextParam
-			.builder()
-			.name(HardwareConstants.TYPE_PARAMETER)
-			.collectTime(strategyTime)
-			.value(HardwareConstants.COMPUTER)
-			.build();
 
 	@BeforeAll
 	public static void setUp() {
@@ -358,38 +301,38 @@ class DiscoveryOperationTest {
 		doReturn(enclosureSourceTable).when(sourceVisitor).visit((SNMPGetTableSource) enclosureMonitor.getDiscovery().getSources().get(0));
 		doReturn(fanSourceTable).when(sourceVisitor).visit((SNMPGetTableSource) fanMonitor.getDiscovery().getSources().get(0));
 
-		final Map<String, IParameterValue> enclosureParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		enclosureParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		enclosureParameterValues.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		enclosureParameterValues.put(vendorParam.getName(), vendorParam);
-		enclosureParameterValues.put(modelParam.getName(), modelParam);
-		enclosureParameterValues.put(idCountParam.getName(), idCountParam);
-		enclosureParameterValues.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		enclosureMetadata.put(DEVICE_ID, ID);
+		enclosureMetadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		enclosureMetadata.put(VENDOR, DELL);
+		enclosureMetadata.put(MODEL, MODEL_VALUE);
+		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(enclosureParameterValues)
+				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
 
-		final Map<String, IParameterValue> fanParameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> fanMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		fanParameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		fanParameterValues.put(fanDisplayIdParam.getName(), fanDisplayIdParam);
-		fanParameterValues.put(fanSpeedParam.getName(), fanSpeedParam);
-		fanParameterValues.put(idCountParam.getName(), idCountParam);
-
+		fanMetadata.put(DEVICE_ID, ID);
+		fanMetadata.put(DISPLAY_ID, FAN_1);
+		fanMetadata.put(SPEED, SPEED_VALUE);
+		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_NAME)
 				.parentId(ENCLOSURE_ID)
 				.targetId(ECS1_01)
-				.parameters(fanParameterValues)
+				.metadata(fanMetadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.build();
@@ -462,21 +405,21 @@ class DiscoveryOperationTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(sourceTable).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
 
-		final Map<String, IParameterValue> parameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		parameterValues.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameterValues.put(vendorParam.getName(), vendorParam);
-		parameterValues.put(modelParam.getName(), modelParam);
-		parameterValues.put(idCountParam.getName(), idCountParam);
-		parameterValues.put(enclosureTypeParam.getName(), enclosureTypeParam);
-
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(parameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
@@ -512,21 +455,21 @@ class DiscoveryOperationTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(sourceTable).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
 
-		final Map<String, IParameterValue> parameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		parameterValues.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameterValues.put(vendorParam.getName(), vendorParam);
-		parameterValues.put(modelParam.getName(), modelParam);
-		parameterValues.put(idCountParam.getName(), idCountParam);
-		parameterValues.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(parameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
@@ -747,22 +690,17 @@ class DiscoveryOperationTest {
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		assertEquals(1, enclosures.size());
 
-		Map<String, IParameterValue> parameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		parameterValues.put(DEVICE_ID, TextParam.
-				builder()
-				.name(DEVICE_ID)
-				.collectTime(strategyTime)
-				.value(DELL_ENCLOSURE)
-				.build());
-		parameterValues.put(vendorParam.getName(), vendorParam);
-		parameterValues.put(idCountParam.getName(), idCountParam);
+		Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		metadata.put(DEVICE_ID, DELL_ENCLOSURE);
+		metadata.put(VENDOR, DELL);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
 				.name(ENCLOSURE_DELL)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(parameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.ENCLOSURE)
 				.build();
@@ -811,21 +749,21 @@ class DiscoveryOperationTest {
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		assertEquals(1, enclosures.size());
 
-		final Map<String, IParameterValue> parameterValues = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		parameterValues.put(deviceIdParam.getName(), deviceIdParam);
-		parameterValues.put(enclosureDisplayIdParam.getName(), enclosureDisplayIdParam);
-		parameterValues.put(vendorParam.getName(), vendorParam);
-		parameterValues.put(modelParam.getName(), modelParam);
-		parameterValues.put(idCountParam.getName(), idCountParam);
-		parameterValues.put(enclosureTypeParam.getName(), enclosureTypeParam);
+		metadata.put(DEVICE_ID, ID);
+		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		metadata.put(VENDOR, DELL);
+		metadata.put(MODEL, MODEL_VALUE);
+		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.parameters(parameterValues)
+				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
@@ -842,25 +780,11 @@ class DiscoveryOperationTest {
 				VENDOR, DELL);
 		
 		discoveryOperation.processTextParameters(parameters, monitor);
-
-		final TextParam deviceIdParam = TextParam
-				.builder()
-				.name(DEVICE_ID)
-				.collectTime(strategyTime)
-				.value(DELL_ENCLOSURE)
-				.build();
-
-		final TextParam vendorParam = TextParam
-				.builder()
-				.name(VENDOR)
-				.collectTime(strategyTime)
-				.value(DELL)
-				.build();
 	
-		final Map<String, IParameterValue> parameterValues = monitor.getParameters();
+		final Map<String, String> metadata = monitor.getMetadata();
 
-		assertEquals(deviceIdParam, parameterValues.get(DEVICE_ID_PASCAL));
-		assertEquals(vendorParam, parameterValues.get(VENDOR_PASCAL));
+		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
+		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
 	}
 
 	@Test
@@ -876,14 +800,14 @@ class DiscoveryOperationTest {
 		final Monitor monitor = Monitor.builder().build();
 		discoveryOperation.processSourceTableParameters(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
-		final Map<String, IParameterValue> parameterValues = monitor.getParameters();
+		final Map<String, String> metadata = monitor.getMetadata();
 		
-		assertEquals(deviceIdParam, parameterValues.get(DEVICE_ID_PASCAL));
-		assertEquals(enclosureDisplayIdParam, parameterValues.get(DISPLAY_ID_PASCAL));
-		assertEquals(vendorParam, parameterValues.get(VENDOR_PASCAL));
-		assertEquals(modelParam, parameterValues.get(MODEL_PASCAL));
-		assertEquals(idCountParam, parameterValues.get(HardwareConstants.ID_COUNT_PARAMETER));
-		assertNull(parameterValues.get(OUT_OF_RANGE));
+		assertEquals(ID, metadata.get(DEVICE_ID_PASCAL));
+		assertEquals(POWER_EDGE_54DSF, metadata.get(DISPLAY_ID_PASCAL));
+		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
+		assertEquals(MODEL_VALUE, metadata.get(MODEL_PASCAL));
+		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
+		assertNull(metadata.get(OUT_OF_RANGE));
 	}
 
 	

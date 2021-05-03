@@ -1,13 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_PARENTHESIS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PARENTHESIS_EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.springframework.util.Assert;
@@ -19,7 +28,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Blade;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ConcreteConnector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Cpu;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CpuCore;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Target;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskController;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskEnclosure;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Enclosure;
@@ -34,6 +42,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PhysicalDis
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PowerSupply;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Robotic;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TapeDrive;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Target;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Temperature;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Voltage;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
@@ -41,9 +50,6 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.BooleanParam;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +64,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
 	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Cannot create monitor {} with null name. Connector {}. System {}.";
 	private static final String NAME_SEPARATOR = ": ";
-	private static final String ID_COUNT_PARAM_CANNOT_BE_NULL = "idCountParam cannot be null.";
+	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null.";
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -67,9 +73,33 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null.";
-	private static final String PARAMETERS_CANNOT_BE_NULL = "parameters cannot be null.";
+	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 	private static final String MONITOR_BUILDING_INFO_CANNOT_BE_NULL = "monitorBuildingInfo cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
+
+	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES = new EnumMap<>(TargetType.class);
+	static {
+		for (TargetType targetType : TargetType.values()) {
+			final String value;
+			switch (targetType) {
+			case MS_WINDOWS:
+				value = WINDOWS_COMPUTER;
+				break;
+			case HP_OPEN_VMS:
+				value = HP_OPEN_VMS_COMPUTER;
+				break;
+			case LINUX:
+				value = LINUX_COMPUTER;
+				break;
+			case HP_TRU64_UNIX:
+				value = HP_TRU64_COMPUTER;
+				break;
+			default:
+				value = UNKNOWN_COMPUTER;
+			}
+			COMPUTE_DISPLAY_NAMES.put(targetType, value);
+		}
+	}
 
 	private MonitorBuildingInfo monitorBuildingInfo;
 
@@ -215,8 +245,8 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final MonitorType monitorType = monitorBuildingInfo.getMonitorType();
 		final String hostname = monitorBuildingInfo.getHostname();
 
-		final Map<String, IParameterValue> parameters = monitor.getParameters();
-		Assert.notNull(parameters, PARAMETERS_CANNOT_BE_NULL);
+		final Map<String, String> metadata = monitor.getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		if (monitorName == null) {
 			log.error(CANNOT_CREATE_MONITOR_NULL_NAME_MSG,
@@ -226,21 +256,21 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 			return;
 		}
 
-		// Get the id parameter value which is going to be used to create the
+		// Get the id metadata value which is going to be used to create the
 		// enclosure monitor
-		final TextParam idParam = (TextParam) parameters.get(DEVICE_ID_PARAMETER);
-		if (!checkNotBlankParameterValue(idParam)) {
+		final String id = metadata.get(DEVICE_ID);
+		if (!checkNotBlankDataValue(id)) {
 			log.error(CANNOT_CREATE_MONITOR_ERROR_MSG,
 					monitorType.getName(),
-					idParam,
+					id,
 					connectorName,
 					hostname);
 			return;
 		}
 
-		final String extendedType = getTextParamValueOrElse((TextParam) parameters.get(TYPE_PARAMETER), monitorType.getName());
-		final String attachedToDeviceId = getTextParamValueOrElse((TextParam) parameters.get(ATTACHED_TO_DEVICE_ID_PARAMETER), null);
-		final String attachedToDeviceType = getTextParamValueOrElse((TextParam) parameters.get(ATTACHED_TO_DEVICE_ID_PARAMETER), null);
+		final String extendedType = getTextDataValueOrElse(metadata.get(TYPE), monitorType.getName());
+		final String attachedToDeviceId = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
+		final String attachedToDeviceType = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
 
 		monitor.setName(monitorName);
 		monitor.setParentId(parentId);
@@ -249,19 +279,19 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		// Finally we can add the monitor
 		hostMonitoring.addMonitor(monitor,
-				idParam.getValue(),
+				id,
 				connectorName,
 				monitorType,
 				attachedToDeviceId,
 				attachedToDeviceType);
 	}
 
-	public static String getTextParamValueOrElse(final TextParam textParam, final String other) {
-		return (textParam != null) ? textParam.getValueOrElse(other) : other;
+	public static String getTextDataValueOrElse(final String data, final String other) {
+		return checkNotBlankDataValue(data) ? data : other;
 	}
 
-	protected static boolean checkNotBlankParameterValue(final TextParam textParam) {
-		return textParam != null && textParam.getValue() != null && !textParam.getValue().trim().isEmpty();
+	protected static boolean checkNotBlankDataValue(final String data) {
+		return data != null && !data.trim().isEmpty();
 	}
 
 	/**
@@ -277,14 +307,14 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
 		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
 
-		final Map<String, IParameterValue> parameters = monitorBuildingInfo.getMonitor().getParameters();
-		Assert.notNull(parameters, PARAMETERS_CANNOT_BE_NULL);
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
-		final String type = getTextParamValueOrElse((TextParam) parameters.get(TYPE_PARAMETER), ENCLOSURE);
-		final String vendor = getTextParamValueOrElse((TextParam) parameters.get(VENDOR_PARAMETER), null);
-		final String model = getTextParamValueOrElse((TextParam) parameters.get(MODEL_PARAMETER), null);
-		final String enclosureDisplayId = getTextParamValueOrElse((TextParam) parameters.get(DISPLAY_ID_PARAMETER), null);
-		final String enclosureIdCount = getTextParamValueOrElse((TextParam) parameters.get(ID_COUNT_PARAMETER), null);
+		final String type = getTextDataValueOrElse(metadata.get(TYPE), ENCLOSURE);
+		final String vendor = getTextDataValueOrElse(metadata.get(VENDOR), null);
+		final String model = getTextDataValueOrElse(metadata.get(MODEL), null);
+		final String enclosureDisplayId = getTextDataValueOrElse(metadata.get(DISPLAY_ID), null);
+		final String enclosureIdCount = getTextDataValueOrElse(metadata.get(ID_COUNT), null);
 
 		final StringBuilder nameBuilder = new StringBuilder(type).append(NAME_SEPARATOR);
 
@@ -321,28 +351,29 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	/**
 	 * Build a Generic name to be set in the {@link Monitor} name
-	 * <br>Try to get the display id otherwise check the DeviceID parameter or the idCount parameter
+	 * <br>Try to get the displayId otherwise check the DeviceID or the idCount metadata
 	 * <br>Refine the result before returning the final generic name result
 	 * @return {@link String} value
 	 */
 	protected String buildGenericName() {
-		final Map<String, IParameterValue> parameters = monitorBuildingInfo.getMonitor().getParameters();
-		Assert.notNull(parameters, PARAMETERS_CANNOT_BE_NULL);
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		final MonitorType monitorType = monitorBuildingInfo.getMonitorType();
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		final TextParam idParam = (TextParam) parameters.get(DEVICE_ID_PARAMETER);
-		final TextParam displayIdParam = (TextParam) parameters.get(DISPLAY_ID_PARAMETER);
-		final TextParam idCountParam = (TextParam) parameters.get(ID_COUNT_PARAMETER);
-		Assert.notNull(idCountParam, ID_COUNT_PARAM_CANNOT_BE_NULL);
+		final String id = metadata.get(DEVICE_ID);
+		final String displayId = metadata.get(DISPLAY_ID);
+		final String idCount = metadata.get(ID_COUNT);
+		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
+
 		String name = null;
-		if (checkNotBlankParameterValue(displayIdParam)) {
-			name = displayIdParam.getValue();
-		} else if (checkNotBlankParameterValue(idParam)) {
-			name = idParam.getValue();
-		} else if (checkNotBlankParameterValue(idCountParam)){
-			name = idCountParam.getValue();
+		if (checkNotBlankDataValue(displayId)) {
+			name = displayId;
+		} else if (checkNotBlankDataValue(id)) {
+			name = id;
+		} else if (checkNotBlankDataValue(idCount)){
+			name = idCount;
 		}
 
 		if (name != null && name.toLowerCase().indexOf(monitorType.getName().toLowerCase()) != -1) {
@@ -366,36 +397,25 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
 
-		if (isLocalhost(targetMonitor.getParameters())) {
+		if (isLocalhost(targetMonitor.getMetadata())) {
 			// TODO Handle localhost machine type, processor architecture detection
 			return LOCALHOST_ENCLOSURE;
 		} else {
-			switch (targetType) {
-			case MS_WINDOWS:
-				return WINDOWS_COMPUTER;
-			case HP_OPEN_VMS:
-				return HP_OPEN_VMS_COMPUTER;
-			case LINUX:
-				return LINUX_COMPUTER;
-			case HP_TRU64_UNIX:
-				return HP_TRU64_COMPUTER;
-			default:
-				return UNKNOWN_COMPUTER;
-			}
+			return COMPUTE_DISPLAY_NAMES.get(targetType);
 		}
 	}
 
 	/**
-	 * Try to get the {@value HardwareConstants#IS_LOCALHOST_PARAMETER} parameter and return its boolean value
-	 * Note: {@value HardwareConstants#IS_LOCALHOST_PARAMETER} is computed on {@link MonitorType#TARGET} in the detection operation
-	 * @param parameters
+	 * Try to get the {@value HardwareConstants#LOCATION} metadata and return <code>true</code> for localhost value
+	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
+	 * @param metadata
 	 * @return {@link boolean} value
 	 */
-	protected static boolean isLocalhost(final Map<String, IParameterValue> parameters) {
-		if (parameters != null) {
-			final BooleanParam isLocalhostParam = (BooleanParam) parameters.get(IS_LOCALHOST_PARAMETER);
-			if (isLocalhostParam != null) {
-				return isLocalhostParam.isValue();
+	protected static boolean isLocalhost(final Map<String, String> metadata) {
+		if (metadata != null) {
+			final String location = metadata.get(LOCATION);
+			if (location != null) {
+				return location.equalsIgnoreCase(LOCALHOST);
 			}
 		}
 		return false;

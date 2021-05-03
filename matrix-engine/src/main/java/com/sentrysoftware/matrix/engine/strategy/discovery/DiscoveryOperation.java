@@ -26,7 +26,6 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,7 +141,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * the discovery stage then creates the required monitors
 	 * 
 	 * @param hardwareMonitor Defines the discovery {@link InstanceTable}, the {@link Source}
-	 *                        to process and all the parameters to create
+	 *                        to process and all the metadata
 	 * @param connectorName   The unique name of the connector
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping
 	 *                        {@link Monitor} and {@link SourceTable} instances
@@ -173,7 +172,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return;
 		}
 
-		// Get the discovery parameters, so we can create the  monitor using the defined parameters
+		// Get the discovery parameters, so we can create the monitor with the metadata
 		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
@@ -202,12 +201,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 	/**
 	 * Create monitors from the same type, most of time this method is called with a {@link SourceInstanceTable},
 	 * In that case we loop over all the rows referenced in the {@link InstanceTable}, for each row we create a new
-	 * {@link Monitor} instance then we set the discovery parameters on each created monitor
+	 * {@link Monitor} instance then we set the discovery metadata on each created monitor
 	 * 
 	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
 	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
 	 * @param instanceTable  Defines the source key or the hard coded key
-	 * @param parameters     The discovery parameters to process
+	 * @param parameters     The discovery parameters to process (from the connector)
 	 * @param targetMonitor  The main monitor with {@link MonitorType#TARGET} type
 	 * @param monitorType    The current type of the monitor, {@link MonitorType}
 	 * @param hostname       The user's configured hostname used for debug purpose
@@ -289,83 +288,60 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * Process the parameters defined in a {@link TextInstanceTable}. I.e. Hard
 	 * coded instance table
 	 * 
-	 * @param parameters The parameters we which to process
-	 * @param monitor    The monitor on which we want to set the parameter values
+	 * @param parameters Key-value map from the connector discovery instance used to create hard coded metadata
+	 * @param monitor    The monitor on which we want to set the parameter values as metadata
 	 */
 	protected void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
-			monitor.addParameter(buildTextParam(parameter.getKey(), parameter.getValue()));
-
-			monitor.addParameter(buildTextParam(HardwareConstants.ID_COUNT_PARAMETER, String.valueOf(0)));
-
+			monitor.addMetadata(parameter.getKey(), parameter.getValue());
+			monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
 		}
 	}
 
 	/**
-	 * Process the given row to create discovery parameters on the {@link Monitor} instance
+	 * Process the given row to create discovery metadata on the {@link Monitor} instance
 	 * 
 	 * @param connectorName The connector unique name used for logging purpose
-	 * @param parameters    Lookup of parameter name to value used to create {@link TextParam}
+	 * @param parameters    Key-value map from the connector discovery instance used to create metadata
 	 * @param sourceKey     The unique identifier of the source used for logging purpose
 	 * @param row           The row from the {@link SourceTable} so that we can extract the value when
 	 * 						we encounter the pattern `InstanceTable.Column($number)`
-	 * @param monitor       The monitor on which we are going to set the parameters
+	 * @param monitor       The monitor on which we are going to set the metadata
 	 * @param idCount		The id used to identify the monitor by its position in {@link SourceTable} lines
 	 */
 	protected void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
 			final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
-		// Loop over all the parameters defined in the connector's Instance and create TextParam for each parameter
+		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
-			final String parameterName = parameter.getKey();
+			final String key = parameter.getKey();
 			final String value = parameter.getValue();
 			final Matcher matcher = INSTANCE_TABLE_PATTERN.matcher(value);
-
-			final TextParam textParam;
 
 			// Means we have a column number so we can extract the value from the row
 			if (matcher.find()) {
 				final Integer columnIndex = Integer.parseInt(matcher.group(1));
 
 				if (columnIndex <= row.size()) {
-					textParam = buildTextParam(parameterName, row.get(columnIndex - 1));
+					// Get the real value from the source table row
+					monitor.addMetadata(key, row.get(columnIndex - 1));
 
 				} else {
 					log.warn("column {} doesn't match the instance table source {} for connector {}", columnIndex - 1,
 							sourceKey, connectorName);
-					continue;
 				}
 			} else {
 				// Hard coded value
-				textParam = buildTextParam(parameterName, value);
+				monitor.addMetadata(key, value);
 			}
 
-			monitor.addParameter(textParam);
 		}
 
-		// Add the idCount parameter
-		monitor.addParameter(buildTextParam(HardwareConstants.ID_COUNT_PARAMETER, String.valueOf(idCount)));
+		// Add the idCount metadata
+		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(idCount));
 
-	}
-
-	/**
-	 * Build a {@link TextParam} instance
-	 * 
-	 * @param parameterName The name of the parameter we wish to build
-	 * @param value         The value of the parameter we wish set in the {@link TextParam} instance
-	 * @return {@link TextParam} instance
-	 */
-	private TextParam buildTextParam(final String parameterName, final String value) {
-		final TextParam textParam;
-		textParam = TextParam
-				.builder()
-				.name(parameterName)
-				.collectTime(strategyTime)
-				.value(value)
-				.build();
-		return textParam;
 	}
 
 	/**
