@@ -118,7 +118,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor) && HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
 				hardwareMonitor,
-				connector.getCompiledFilename(),
+				connector,
 				hostMonitoring,
 				targetMonitor,
 				hostname));
@@ -130,7 +130,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor) && !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
 				hardwareMonitor,
-				connector.getCompiledFilename(),
+				connector,
 				hostMonitoring,
 				targetMonitor,
 				hostname));
@@ -142,25 +142,25 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * 
 	 * @param hardwareMonitor Defines the discovery {@link InstanceTable}, the {@link Source}
 	 *                        to process and all the metadata
-	 * @param connectorName   The unique name of the connector
+	 * @param connector   	  The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping
 	 *                        {@link Monitor} and {@link SourceTable} instances
 	 * @param targetMonitor   The target monitor (main)
 	 * @param hostname        The user's configured hostname
 	 */
-	protected void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final String connectorName,
+	protected void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
 
 		// Is there any discovery job here ?
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("No type specified for hardware monitor job with connector {} on system {}", connectorName, hostname);
+			log.warn("No type specified for hardware monitor job with connector {} on system {}", connector.getCompiledFilename(), hostname);
 			return;
 		}
 
 		if (hardwareMonitor.getDiscovery() == null) {
 			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getName(), connector.getCompiledFilename(), hostname);
 			return;
 		}
 
@@ -168,7 +168,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final InstanceTable instanceTable = hardwareMonitor.getDiscovery().getInstanceTable();
 		if (instanceTable == null) {
 			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getName(), connector.getCompiledFilename(), hostname);
 			return;
 		}
 
@@ -176,7 +176,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getName(), connector.getCompiledFilename(), hostname);
 			return;
 		}
 
@@ -184,11 +184,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final List<Source> sources = hardwareMonitor.getDiscovery().getSources();
 
 		// Process all the sources with theirs computes
-		processSourcesAndComputes(sources, hostMonitoring, connectorName, monitorType, hostname);
+		processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname);
 
 		// Create the monitors
 		createSameTypeMonitors(
-				connectorName,
+				connector.getCompiledFilename(),
 				hostMonitoring,
 				instanceTable,
 				parameters,
@@ -350,18 +350,18 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * 
 	 * @param sources        The {@link List} of {@link Source} instances we wish to execute
 	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
-	 * @param connectorName  The unique name of the connector only used for logging
+	 * @param connector      The connector we currently process
 	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
 	 * @param hostname       The hostname of the target only used for logging
 	 */
 	protected void processSourcesAndComputes(final List<Source> sources,
 			final IHostMonitoring hostMonitoring,
-			final String connectorName,
+			final Connector connector,
 			final MonitorType monitorType,
 			final String hostname) {
 
 		if (null == sources || sources.isEmpty()) {
-			log.debug("No source found from connector {} with monitor {}. System {}", connectorName, monitorType, hostname);
+			log.debug("No source found from connector {} with monitor {}. System {}", connector.getCompiledFilename(), monitorType, hostname);
 			return;
 		}
 
@@ -377,7 +377,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			if (computes != null) {
 
-				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable);
+				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable, connector);
 
 				for (final Compute compute : computes) {
 					compute.accept(computeVisitor);

@@ -106,6 +106,8 @@ class DiscoveryOperationTest {
 
 	private static EngineConfiguration engineConfiguration;
 
+	private static Connector connector;
+
 	@BeforeAll
 	public static void setUp() {
 		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
@@ -114,6 +116,7 @@ class DiscoveryOperationTest {
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
 				.protocolConfigurations(Stream.of(protocol).collect(Collectors.toSet())).build();
 
+		connector = Connector.builder().compiledFilename(MY_CONNECTOR_1_NAME).build();
 	}
 
 	@BeforeEach
@@ -475,7 +478,7 @@ class DiscoveryOperationTest {
 				.build();
 
 
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 
@@ -539,12 +542,12 @@ class DiscoveryOperationTest {
 				.discovery(discovery)
 				.build();
 
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 
 		discovery.setParameters(null);
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -561,7 +564,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.TARGET)
 				.build();
 		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(Discovery.builder().instanceTable(null).build()).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -584,7 +587,7 @@ class DiscoveryOperationTest {
 				.type(MonitorType.ENCLOSURE)
 				.discovery(null)
 				.build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -603,7 +606,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.TARGET)
 				.build();
 		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().discovery(null).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, MY_CONNECTOR_1_NAME, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -816,10 +819,10 @@ class DiscoveryOperationTest {
 
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
 
-		discoveryOperation.processSourcesAndComputes(Collections.emptyList(), hostMonitoring, MY_CONNECTOR_1_NAME, MonitorType.ENCLOSURE, ECS1_01);
+		discoveryOperation.processSourcesAndComputes(Collections.emptyList(), hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
 		assertTrue(hostMonitoring.getSourceTables().isEmpty());
 
-		discoveryOperation.processSourcesAndComputes(null, hostMonitoring, MY_CONNECTOR_1_NAME, MonitorType.ENCLOSURE, ECS1_01);
+		discoveryOperation.processSourcesAndComputes(null, hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
 		assertTrue(hostMonitoring.getSourceTables().isEmpty());
 
 		SNMPGetTableSource source = SNMPGetTableSource
@@ -834,7 +837,7 @@ class DiscoveryOperationTest {
 		discoveryOperation.processSourcesAndComputes(
 				Collections.singletonList(source),
 				hostMonitoring,
-				MY_CONNECTOR_1_NAME,
+				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
 		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
@@ -845,7 +848,7 @@ class DiscoveryOperationTest {
 		discoveryOperation.processSourcesAndComputes(
 				Collections.singletonList(source),
 				hostMonitoring,
-				MY_CONNECTOR_1_NAME,
+				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
 		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
