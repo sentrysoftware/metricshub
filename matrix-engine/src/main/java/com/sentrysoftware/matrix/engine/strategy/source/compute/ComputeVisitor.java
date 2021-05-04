@@ -78,7 +78,68 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Divide divide) {
-		// Not implemented yet
+		if (divide == null) {
+			log.warn("Divide object is null, the table remains unchanged.");
+			return;
+		}
+
+		if(divide.getColumn() == null || divide.getDivideBy() == null ) {
+			log.warn("Arguments in Divide : {} are wrong, the table remains unchanged.", divide);
+			return;
+		}
+
+		Integer columnIndex = divide.getColumn() - 1;
+		String divideBy = divide.getDivideBy();
+		int divideByIndex = -1;
+		int divideByValue = -1;
+		
+		if (Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(divideBy).matches()) {
+			try {
+				divideByIndex = Integer
+						.parseInt(divideBy.substring(divideBy.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1,
+								divideBy.indexOf(HardwareConstants.CLOSING_PARENTHESIS)))
+						- 1;
+			} catch (NumberFormatException e) {
+				log.warn("NumberFormatException : {} is not a correct divisor, the table remains unchanged.", divideBy, divide);
+				return;
+			}
+
+		} else {
+
+			try {
+				divideByValue = Integer.parseInt(divideBy);
+			} catch (NumberFormatException e) {
+				log.warn("NumberFormatException : {} is not a correct divisor, the table remains unchanged.", divideBy, divide);
+				return;
+			}
+
+		}
+
+		for (List<String> line : sourceTable.getTable()) {
+
+			if (columnIndex >= 0 && columnIndex < line.size()) {
+				String dividend = line.get(columnIndex);
+
+				if (divideByIndex >= 0 && divideByIndex < line.size()) {
+					String divisor = line.get(divideByIndex);
+
+					try {
+						line.set(columnIndex, Integer.toString(Integer.parseInt(dividend) / Integer.parseInt(divisor)));
+					} catch (NumberFormatException e) {
+						log.warn("There is a NumberFormatException on dividend : {} or the divisor {}", dividend,
+								divisor);
+					}
+
+				} else if (divideByValue != 0) {
+
+					try {
+						line.set(columnIndex, Integer.toString(Integer.parseInt(dividend) / divideByValue));
+					} catch (NumberFormatException e) {
+						log.warn("There is a NumberFormatException on dividend : {}.", dividend);
+					}
+				}
+			}
+		}
 	}
 
 	@Override

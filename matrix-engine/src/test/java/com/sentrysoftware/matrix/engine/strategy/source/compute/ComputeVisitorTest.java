@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -210,6 +211,94 @@ class ComputeVisitorTest {
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
 		assertEquals(line2, resultTable.get(0));
+	}
+
+	@Test
+	void testDivide() {
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "500", "2", "val1")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "1500", "5", "val2")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "200", "2", "val3")));
+		
+		Divide divide = Divide.builder().build();
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+
+		divide = null;
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+
+		divide = Divide.builder().column(2).build();
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+		
+		divide = Divide.builder().divideBy("column(3)").build();
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+		
+		divide = Divide.builder().divideBy("column(13)").build();
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+		
+		divide = Divide.builder().divideBy("0").build();
+		computeVisitor.visit(divide);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "500", "2", "val1"), 
+				Arrays.asList("ID2", "1500", "5", "val2"),
+				Arrays.asList("ID1", "200", "2", "val3")),
+				sourceTable.getTable());
+		
+		Divide divideByColumn = Divide.builder().column(2).divideBy("column(3)").build();
+		computeVisitor.visit(divideByColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "250", "2", "val1"), 
+				Arrays.asList("ID2", "300", "5", "val2"),
+				Arrays.asList("ID1", "100", "2", "val3")),
+				sourceTable.getTable());
+		
+		divideByColumn = Divide.builder().column(2).divideBy("column(1)").build();
+		computeVisitor.visit(divideByColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "250", "2", "val1"), 
+				Arrays.asList("ID2", "300", "5", "val2"),
+				Arrays.asList("ID1", "100", "2", "val3")),
+				sourceTable.getTable());
+		
+		divideByColumn = Divide.builder().column(2).divideBy("id1").build();
+		computeVisitor.visit(divideByColumn);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "250", "2", "val1"), 
+				Arrays.asList("ID2", "300", "5", "val2"),
+				Arrays.asList("ID1", "100", "2", "val3")),
+				sourceTable.getTable());
+
+		Divide divideByValue = Divide.builder().column(2).divideBy("10").build();
+		computeVisitor.visit(divideByValue);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "25", "2", "val1"), 
+				Arrays.asList("ID2", "30", "5", "val2"),
+				Arrays.asList("ID1", "10", "2", "val3")),
+				sourceTable.getTable());
+
 	}
 
 	@Test
