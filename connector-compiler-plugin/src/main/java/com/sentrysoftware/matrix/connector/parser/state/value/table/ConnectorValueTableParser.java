@@ -13,7 +13,7 @@ public class ConnectorValueTableParser implements IConnectorStateParser {
 
 	@Override
 	public void parse(String key, String value, Connector connector) {
-		if(valueTableProcessor.detect(key, value, connector)) {
+		if (valueTableProcessor.detect(key, value, connector)) {
 			valueTableProcessor.parse(key, value, connector);
 		}
 	}
