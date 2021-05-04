@@ -17,11 +17,13 @@ public class Translate extends Compute {
 
 	private static final long serialVersionUID = -8078271095301494969L;
 
+	private Integer column;
 	private TranslationTable translationTable;
 
 	@Builder
-	public Translate(Integer index, TranslationTable translationTable) {
+	public Translate(Integer index, Integer column, TranslationTable translationTable) {
 		super(index);
+		this.column = column;
 		this.translationTable = translationTable;
 	}
 
