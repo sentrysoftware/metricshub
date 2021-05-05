@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
@@ -24,22 +23,15 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 	@Override
 	public boolean detect(final String key, final String value, final Connector connector) {
 
+		Matcher matcher;
+
 		return value != null
 				&& key != null
-				&& getMatcher(key).matches()
-				&& isLeftConcatContext(key, value, connector);
+				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+				&& isLeftConcatContext(value, matcher, connector);
 	}
 
-	/**
-	 * @param key	   The current line's key.
-	 * @param connector The {@link Connector} whose detection criteria we wish to check.
-	 *
-	 * @return		  Whether the given {@link Connector}
-	 *				  has a detection SNMP {@link Criterion} with the same index as the key, or not.
-	 *				  Always returns <i>true</i> for OID keys
-	 *				  (e.g. <i>Detection.Criteria(1).SnmpGetNext</i> or <i>Detection.Criteria(1).SnmpGet</i>)
-	 */
-	private boolean isLeftConcatContext(String key, String value, Connector connector) {
+	private boolean isLeftConcatContext(String value, Matcher matcher, Connector connector) {
 
 		if (this instanceof TypeProcessor) {
 
@@ -48,7 +40,7 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 			);
 		}
 
-		return getLeftConcat(key, connector) != null;
+		return getLeftConcat(matcher, connector) != null;
 	}
 
 	@Override
@@ -59,47 +51,30 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		notNull(connector, "Connector cannot be null.");
 	}
 
-	/**
-	 * Get the {@link HardwareMonitor} instance for the given hdf key, the
-	 * HardwareMonitor is mandatory as it is the object that we are going to update
-	 * in this processor. It wraps the discovery, collect, sources / computes and the instanceTable
-	 *
-	 * @param key
-	 * @param connector
-	 * @return {@link HardwareMonitor}
-	 */
-	private LeftConcat getLeftConcat(final String key, final Connector connector) {
+	private LeftConcat getLeftConcat(Matcher matcher, Connector connector) {
 
-		Matcher matcher = getMatcher(key);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(
+				connector,
+				getMonitorName(matcher)
+		);
 
-		if (!matcher.matches()) {
-			return null;
-		}
-
-		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
-
-		return getLeftConcat(
+		Source source = getSource(
 				hardwareMonitor,
 				getMonitorJobName(matcher),
-				getSourceIndex(matcher),
+				getSourceIndex(matcher)
+		);
+
+		return getLeftConcat(
+				source,
 				getComputeIndex(matcher)
 		);
 	}
 
-	private LeftConcat getLeftConcat(
-			HardwareMonitor hardwareMonitor,
-			String monitorJobName,
-			int sourceIndex,
-			int computeIndex
-	) {
+	protected LeftConcat getLeftConcat(Source source, int computeIndex) {
 
-		Source source = getSource(hardwareMonitor, monitorJobName, sourceIndex);
-		if (source == null) {
-			return null;
-		}
-
-		return getLeftConcat(source.getComputes(), computeIndex);
+		return source == null
+				? null
+				: getLeftConcat(source.getComputes(), computeIndex);
 	}
 
 	private LeftConcat getLeftConcat(List<Compute> computes, int computeIndex) {
@@ -118,14 +93,16 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 				.orElse(null);
 	}
 
-	protected LeftConcat getLeftConcat(Matcher matcher, Connector connector) {
+	protected Source getSource(Matcher matcher, Connector connector) {
 
-		Source source = getSource(matcher, connector);
-		if (source == null) {
-			return null;
-		}
+		String monitorName = getMonitorName(matcher);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getLeftConcat(source.getComputes(), getComputeIndex(matcher));
+		return getSource(
+				hardwareMonitor,
+				getMonitorJobName(matcher),
+				getSourceIndex(matcher)
+		);
 	}
 
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
@@ -154,19 +131,9 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 				.orElse(null);
 	}
 
-	protected Source getSource(Matcher matcher, Connector connector) {
-
-		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
-
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
-	}
-
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
+
+		notNull(connector, "Connector cannot be null.");
 
 		return connector
 				.getHardwareMonitors()

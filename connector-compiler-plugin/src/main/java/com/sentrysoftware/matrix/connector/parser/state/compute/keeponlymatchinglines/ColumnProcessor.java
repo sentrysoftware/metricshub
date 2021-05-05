@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import java.util.regex.Matcher;
@@ -30,7 +32,9 @@ public class ColumnProcessor extends KeepOnlyMatchingLinesProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		KeepOnlyMatchingLines keepOnlyMatchingLines = getKeepOnlyMatchingLines(matcher, connector);
+		Source source = getSource(matcher, connector);
+
+		KeepOnlyMatchingLines keepOnlyMatchingLines = getKeepOnlyMatchingLines(source, getComputeIndex(matcher));
 		notNull(
 				keepOnlyMatchingLines,
 				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT

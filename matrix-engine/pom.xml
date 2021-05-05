@@ -23,6 +23,10 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.sentrysoftware.shared</groupId>
 			<artifactId>hardware-connectors</artifactId>
 			<classifier>matrix</classifier>

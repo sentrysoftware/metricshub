@@ -1,11 +1,11 @@
-package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
+package com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
@@ -14,9 +14,9 @@ import java.util.regex.Matcher;
 
 import static org.springframework.util.Assert.notNull;
 
-public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateParser {
+public abstract class DuplicateColumnProcessor implements IConnectorStateParser {
 
-	protected static final String KEEP_ONLY_MATCHING_LINES_TYPE_VALUE = "KeepOnlyMatchingLines";
+	protected static final String DUPLICATE_COLUMN_TYPE_VALUE = "DuplicateColumn";
 
 	protected abstract Matcher getMatcher(String key);
 
@@ -28,19 +28,19 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		return value != null
 				&& key != null
 				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isKeepOnlyMatchingLinesContext(value, matcher, connector);
+				&& isDuplicateColumnContext(value, matcher, connector);
 	}
 
-	private boolean isKeepOnlyMatchingLinesContext(String value, Matcher matcher, Connector connector) {
+	private boolean isDuplicateColumnContext(String value, Matcher matcher, Connector connector) {
 
 		if (this instanceof TypeProcessor) {
 
-			return KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
+			return DUPLICATE_COLUMN_TYPE_VALUE.equalsIgnoreCase(
 					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
 			);
 		}
 
-		return getKeepOnlyMatchingLines(matcher, connector) != null;
+		return getDuplicateColumn(matcher, connector) != null;
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		notNull(connector, "Connector cannot be null.");
 	}
 
-	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(Matcher matcher, Connector connector) {
+	private DuplicateColumn getDuplicateColumn(Matcher matcher, Connector connector) {
 
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(
 				connector,
@@ -64,29 +64,29 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 				getSourceIndex(matcher)
 		);
 
-		return getKeepOnlyMatchingLines(
+		return getDuplicateColumn(
 				source,
 				getComputeIndex(matcher)
 		);
 	}
 
-	protected KeepOnlyMatchingLines getKeepOnlyMatchingLines(Source source, int computeIndex) {
+	protected DuplicateColumn getDuplicateColumn(Source source, int computeIndex) {
 
 		return source == null
 				? null
-				: getKeepOnlyMatchingLines(source.getComputes(), computeIndex);
+				: getDuplicateColumn(source.getComputes(), computeIndex);
 	}
 
-	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(List<Compute> computes, int computeIndex) {
+	private DuplicateColumn getDuplicateColumn(List<Compute> computes, int computeIndex) {
 
 		if (computes == null) {
 			return null;
 		}
 
-		return (KeepOnlyMatchingLines) computes
+		return (DuplicateColumn) computes
 				.stream()
 				.filter(
-						compute -> compute instanceof KeepOnlyMatchingLines
+						compute -> compute instanceof DuplicateColumn
 								&& compute.getIndex() == computeIndex
 				)
 				.findFirst()

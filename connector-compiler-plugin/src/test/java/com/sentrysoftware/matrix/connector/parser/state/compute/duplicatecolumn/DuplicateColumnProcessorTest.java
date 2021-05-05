@@ -1,14 +1,13 @@
-package com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat;
+package com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,18 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LeftConcatProcessorTest {
+class DuplicateColumnProcessorTest {
 
-	private LeftConcatProcessor typeProcessor;
-	private LeftConcatProcessor columnProcessor;
+	private DuplicateColumnProcessor typeProcessor;
+	private DuplicateColumnProcessor columnProcessor;
 
 	private Connector connector;
 
 	private static final String FOO = "FOO";
-	private static final String LEFT_CONCAT_DISCOVERY_TYPE_KEY = "enclosure.discovery.source(1).compute(1).type";
-	private static final String LEFT_CONCAT_COLLECT_TYPE_KEY = "enclosure.collect.source(1).compute(1).type";
-	private static final String LEFT_CONCAT_TYPE_VALUE = "LeftConcat";
-	private static final String LEFT_CONCAT_COLUMN_KEY = "enclosure.collect.source(1).compute(1).column";
+	private static final String DUPLICATE_COLUMN_COLLECT_TYPE_KEY = "enclosure.collect.source(1).compute(1).type";
+	private static final String DUPLICATE_COLUMN_DISCOVERY_TYPE_KEY = "enclosure.discovery.source(1).compute(1).type";
+	private static final String DUPLICATE_COLUMN_TYPE_VALUE = "DuplicateColumn";
+	private static final String DUPLICATE_COLUMN_KEY = "enclosure.collect.source(1).compute(1).column";
 
 
 	@BeforeEach
@@ -50,11 +49,11 @@ class LeftConcatProcessorTest {
 		assertFalse(typeProcessor.detect(null, null, null));
 		assertFalse(typeProcessor.detect(null, FOO, null));
 		assertFalse(typeProcessor.detect(FOO, FOO, null));
-		assertFalse(typeProcessor.detect(LEFT_CONCAT_DISCOVERY_TYPE_KEY, FOO, null));
-		assertTrue(typeProcessor.detect(LEFT_CONCAT_DISCOVERY_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, null));
+		assertFalse(typeProcessor.detect(DUPLICATE_COLUMN_COLLECT_TYPE_KEY, FOO, null));
+		assertTrue(typeProcessor.detect(DUPLICATE_COLUMN_COLLECT_TYPE_KEY, DUPLICATE_COLUMN_TYPE_VALUE, null));
 
-		assertThrows(IllegalArgumentException.class, () -> columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, null));
-		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
+		assertThrows(IllegalArgumentException.class, () -> columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, null));
+		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 
 		// Source not null
 		Source source = SNMPGetTableSource
@@ -76,25 +75,25 @@ class LeftConcatProcessorTest {
 								)
 								.build()
 				);
-		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
+		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 
 		// Source not null, source.getComputes() null
 		source.setComputes(null);
-		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
+		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 
-		// Source not null, source.getComputes() not null, LeftConcat not found, wrong Compute index
-		Compute duplicateColumn = DuplicateColumn.builder().index(2).build();
+		// Source not null, source.getComputes() not null, Divide not found, wrong Compute index
+		Compute divide = Divide.builder().index(2).build();
+		source.setComputes(Collections.singletonList(divide));
+		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
+
+		// Source not null, source.getComputes() not null, Divide found, wrong Compute index
+		DuplicateColumn duplicateColumn = DuplicateColumn.builder().index(2).build();
 		source.setComputes(Collections.singletonList(duplicateColumn));
-		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
+		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 
-		// Source not null, source.getComputes() not null, LeftConcat found, wrong Compute index
-		LeftConcat leftConcat = LeftConcat.builder().index(2).build();
-		source.setComputes(Collections.singletonList(leftConcat));
-		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
-
-		// Source not null, source.getComputes() not null, LeftConcat found, correct Compute index
-		leftConcat.setIndex(1);
-		assertTrue(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
+		// Source not null, source.getComputes() not null, Divide found, correct Compute index
+		duplicateColumn.setIndex(1);
+		assertTrue(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 	}
 
 	@Test
@@ -103,17 +102,17 @@ class LeftConcatProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(null, null, null));
 		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, null, null));
 		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, FOO, null));
-		assertDoesNotThrow(() -> typeProcessor.parse(LEFT_CONCAT_DISCOVERY_TYPE_KEY, LEFT_CONCAT_TYPE_VALUE, connector));
+		assertDoesNotThrow(() -> typeProcessor.parse(DUPLICATE_COLUMN_COLLECT_TYPE_KEY, DUPLICATE_COLUMN_TYPE_VALUE, connector));
 	}
 
 	@Test
-	void testGetLeftConcat() {
+	void testGetDuplicateColumn() {
 
 		// No Source found
-		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_DISCOVERY_TYPE_KEY);
+		Matcher matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
 		assertNull(
-				typeProcessor.getLeftConcat(
+				typeProcessor.getDuplicateColumn(
 						typeProcessor.getSource(matcher, connector),
 						typeProcessor.getComputeIndex(matcher)
 				)
@@ -126,8 +125,8 @@ class LeftConcatProcessorTest {
 						HardwareMonitor
 								.builder()
 								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
+								.collect(
+										Collect
 												.builder()
 												.sources(
 														Collections.singletonList(
@@ -140,8 +139,9 @@ class LeftConcatProcessorTest {
 								)
 								.build()
 				);
+
 		assertNull(
-				typeProcessor.getLeftConcat(
+				typeProcessor.getDuplicateColumn(
 						typeProcessor.getSource(matcher, connector),
 						typeProcessor.getComputeIndex(matcher)
 				)
@@ -151,10 +151,10 @@ class LeftConcatProcessorTest {
 	@Test
 	void testGetSource() {
 
-		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_COLLECT_TYPE_KEY);
+		Matcher matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_DISCOVERY_TYPE_KEY);
 		assertTrue(matcher.matches());
 
-		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is null
+		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is null
 		connector
 				.getHardwareMonitors()
 				.add(
@@ -165,23 +165,23 @@ class LeftConcatProcessorTest {
 				);
 		assertNull(typeProcessor.getSource(matcher, connector));
 
-		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
-		// HardwareMonitor.getDiscovery().getSources() is null
-		matcher = typeProcessor.getMatcher(LEFT_CONCAT_DISCOVERY_TYPE_KEY);
+		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is not null,
+		// HardwareMonitor.getCollect().getSources() is null
+		matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
 
-		Discovery discovery = Discovery.builder().build();
-		discovery.setSources(null);
+		Collect collect = Collect.builder().build();
+		collect.setSources(null);
 
 		connector
 				.getHardwareMonitors()
 				.get(0)
-				.setDiscovery(discovery);
+				.setCollect(collect);
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 
-		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
-		// HardwareMonitor.getDiscovery().getSources() is not null, wrong source index
+		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is not null,
+		// HardwareMonitor.getCollect().getSources() is not null, wrong source index
 		SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
 				.index(2)
@@ -190,7 +190,7 @@ class LeftConcatProcessorTest {
 		connector
 				.getHardwareMonitors()
 				.get(0)
-				.getDiscovery()
+				.getCollect()
 				.setSources(Collections.singletonList(source));
 
 		assertNull(typeProcessor.getSource(matcher, connector));

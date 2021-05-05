@@ -1,11 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser.state;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.AppliesToOSProcessor;
@@ -16,8 +10,14 @@ import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyP
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.SupersedesProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.TypicalPlatformProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.VersionProcessor;
-
 import junit.framework.Assert;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConnectorSimplePropertyParserTest {
 	
@@ -982,5 +982,11 @@ class ConnectorSimplePropertyParserTest {
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
 		Assert.assertEquals(connector.getVersion(), VERSION_VALUE);
+	}
+
+	@Test
+	void testGetConnectorStateProcessor() {
+
+		assertTrue(ConnectorSimplePropertyParser.ConnectorSimpleProperty.DISPLAY_NAME.getConnectorStateProcessor() instanceof DisplayNameProcessor);
 	}
 }

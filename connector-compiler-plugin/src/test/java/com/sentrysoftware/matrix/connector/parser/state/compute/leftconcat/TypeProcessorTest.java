@@ -41,6 +41,7 @@ class TypeProcessorTest {
 				.builder()
 				.index(1)
 				.build();
+		source.setComputes(null);
 
 		connector
 				.getHardwareMonitors()
