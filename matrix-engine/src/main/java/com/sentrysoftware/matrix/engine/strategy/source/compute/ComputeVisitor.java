@@ -277,19 +277,17 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("The index of the column to translate cannot be < 1, the translate computation cannot be performed.");
 			return;
 		}
-		else {
 
-			for (List<String> line : sourceTable.getTable()) {
+		for (List<String> line : sourceTable.getTable()) {
 
-				if (columnIndex < line.size()) {
-					String valueToBeReplaced = line.get(columnIndex);
+			if (columnIndex < line.size()) {
+				String valueToBeReplaced = line.get(columnIndex);
 
-					if (translations.containsKey(valueToBeReplaced)) {
-						line.set(columnIndex, translations.get(valueToBeReplaced));
-					} else {
-						log.warn("The Translation Map {} does not contain the following value {}.",
-								translationTable.getName(), valueToBeReplaced);
-					}
+				if (translations.containsKey(valueToBeReplaced)) {
+					line.set(columnIndex, translations.get(valueToBeReplaced));
+				} else {
+					log.warn("The Translation Map {} does not contain the following value {}.",
+							translationTable.getName(), valueToBeReplaced);
 				}
 			}
 		}
