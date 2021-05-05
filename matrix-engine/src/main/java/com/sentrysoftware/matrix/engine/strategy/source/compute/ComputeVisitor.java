@@ -367,7 +367,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathematicalOperation(final Compute computeOperation, Integer column, String operand2) {
 		
-		if ( ! MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass()))  {
+		if (! MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass()))  {
 			log.warn("The compute operation must be one of : Add, Multiply, Divide.");
 			return;
 		}
