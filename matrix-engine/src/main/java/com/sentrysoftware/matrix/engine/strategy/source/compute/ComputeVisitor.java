@@ -2,11 +2,12 @@ package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -252,7 +253,44 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Translate translate) {
-		// Not implemented yet
+
+		if (translate == null) {
+			log.warn("The Source (Translate) to visit is null, the translate computation cannot be performed.");
+			return;
+		}
+
+		TranslationTable translationTable = translate.getTranslationTable();
+		if (translationTable == null) {
+			log.warn("TranslationTable is null, the translate computation cannont be performed.");
+			return;
+		}
+
+		Map<String, String> translations = translationTable.getTranslations();
+		if (translations == null) {
+			log.warn("The Translation Map {} is null, the translate computation cannot be performed.",
+					translationTable.getName());
+			return;
+		}
+
+		Integer columnIndex = translate.getColumn() - 1;
+		if (columnIndex < 0) {
+			log.warn("The index of the column to translate cannot be < 1, the translate computation cannot be performed.");
+			return;
+		}
+
+		for (List<String> line : sourceTable.getTable()) {
+
+			if (columnIndex < line.size()) {
+				String valueToBeReplaced = line.get(columnIndex);
+
+				if (translations.containsKey(valueToBeReplaced)) {
+					line.set(columnIndex, translations.get(valueToBeReplaced));
+				} else {
+					log.warn("The Translation Map {} does not contain the following value {}.",
+							translationTable.getName(), valueToBeReplaced);
+				}
+			}
+		}
 	}
 
 	@Override
