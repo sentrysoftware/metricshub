@@ -22,4 +22,10 @@ public class ConnectorParserConstants {
 
 	public static final String DISCOVERY = "discovery";
 	public static final String COLLECT = "collect";
+
+	public static final String MONO_INSTANCE = "monoinstance";
+	public static final String MULTI_INSTANCE = "multiinstance";
+
+	public static final String TYPE = "type";
+	public static final String VALUE_TABLE = "valuetable";
 }

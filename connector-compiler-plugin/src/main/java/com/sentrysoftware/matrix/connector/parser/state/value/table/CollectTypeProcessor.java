@@ -4,24 +4,24 @@ import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
-public class ValueTableProcessor implements IConnectorStateParser {
+public class CollectTypeProcessor implements IConnectorStateParser {
 
-	protected static final Pattern VALUE_TABLE_KEY_PATTERN = Pattern.compile(
-			"^\\s*(([a-z]+)\\.(collect)\\.(valuetable))\\s*$",
+	protected static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
+			"^\\s*(([a-z]+)\\.(collect)\\.(type))\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
-		return VALUE_TABLE_KEY_PATTERN;
+		return TYPE_KEY_PATTERN;
 	}
 
 	@Override
@@ -41,6 +41,22 @@ public class ValueTableProcessor implements IConnectorStateParser {
 		notNull(value, "value cannot be null.");
 		notNull(connector, "Connector cannot be null.");
 
+		if (ConnectorParserConstants.MONO_INSTANCE.equalsIgnoreCase(value)) {
+			setCollectType(key, connector, CollectType.MONO_INSTANCE);
+		} else if (ConnectorParserConstants.MULTI_INSTANCE.equalsIgnoreCase(value)) {
+			setCollectType(key, connector, CollectType.MULTI_INSTANCE);
+		}
+	}
+
+	/**
+	 * Retrieve the hardwareMonitor from the connector and then its collect.
+	 * If the hw or the collect doesn't exists, create it.
+	 * Then set the type of the collect (MONO_INSTANCE or MULTI_INSTANCE).
+	 * @param key
+	 * @param connector
+	 * @param collectType
+	 */
+	protected void setCollectType(String key, Connector connector, CollectType collectType) {
 		final HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
 
 		Collect collect = hardwareMonitor.getCollect();
@@ -49,7 +65,7 @@ public class ValueTableProcessor implements IConnectorStateParser {
 			hardwareMonitor.setCollect(collect);
 		}
 
-		collect.getParameters().put(getParameter(key), value.replace(ConnectorParserConstants.PERCENT, ConnectorParserConstants.EMPTY_STRING));
+		collect.setType(collectType);
 	}
 
 	/**
@@ -89,16 +105,5 @@ public class ValueTableProcessor implements IConnectorStateParser {
 		connector.getHardwareMonitors().add(hardwareMonitor);
 
 		return hardwareMonitor;
-	}
-
-	/**
-	 * Return the parameter associated to a given key
-	 * @param key
-	 * @return
-	 */
-	protected String getParameter(final String key) {
-		final Matcher matcher = getKeyRegex().matcher(key);
-		matcher.find();
-		return matcher.group(4);
 	}
 }

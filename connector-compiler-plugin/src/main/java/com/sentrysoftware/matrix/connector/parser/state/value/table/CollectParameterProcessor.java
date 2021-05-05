@@ -14,21 +14,26 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
-public class ValueTableProcessor implements IConnectorStateParser {
+public class CollectParameterProcessor implements IConnectorStateParser {
 
-	protected static final Pattern VALUE_TABLE_KEY_PATTERN = Pattern.compile(
-			"^\\s*(([a-z]+)\\.(collect)\\.(valuetable))\\s*$",
+	protected static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile(
+			"^\\s*(([a-z]+)\\.(collect)\\.([a-z]+))\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
-		return VALUE_TABLE_KEY_PATTERN;
+		return COLLECT_PARAMETER_KEY_PATTERN;
 	}
 
 	@Override
 	public boolean detect(String key, String value, Connector connector) {
-		return value != null
-				&& key != null
-				&& getKeyRegex().matcher(key).matches();
+		if (value == null || key == null) {
+			return false;
+		}
+
+		Matcher matcher = getKeyRegex().matcher(key);
+		return matcher.matches()
+				&& !ConnectorParserConstants.TYPE.equalsIgnoreCase(matcher.group(4))
+				&& !ConnectorParserConstants.VALUE_TABLE.equalsIgnoreCase(matcher.group(4));
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public class ValueTableProcessor implements IConnectorStateParser {
 			hardwareMonitor.setCollect(collect);
 		}
 
-		collect.getParameters().put(getParameter(key), value.replace(ConnectorParserConstants.PERCENT, ConnectorParserConstants.EMPTY_STRING));
+		collect.getParameters().put(getParameter(key), value);
 	}
 
 	/**
