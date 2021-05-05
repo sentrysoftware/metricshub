@@ -255,25 +255,29 @@ public class ComputeVisitor implements IComputeVisitor {
 	public void visit(final Translate translate) {
 
 		if (translate == null) {
-			log.debug("The Source (Translate) to visit is null, the translate computation cannont be performed.");
+			log.warn("The Source (Translate) to visit is null, the translate computation cannot be performed.");
 			return;
 		}
 
 		TranslationTable translationTable = translate.getTranslationTable();
 		if (translationTable == null) {
-			log.debug("TranslationTable is null, the translate computation cannont be performed.");
+			log.warn("TranslationTable is null, the translate computation cannont be performed.");
 			return;
 		}
 
 		Map<String, String> translations = translationTable.getTranslations();
 		if (translations == null) {
-			log.debug("The Translation Map {} is null, the translate computation cannont be performed.",
+			log.warn("The Translation Map {} is null, the translate computation cannot be performed.",
 					translationTable.getName());
 			return;
 		}
 
 		Integer columnIndex = translate.getColumn() - 1;
-		if (columnIndex >= 0) {
+		if (columnIndex < 0) {
+			log.warn("The index of the column to translate cannot be < 1, the translate computation cannot be performed.");
+			return;
+		}
+		else {
 
 			for (List<String> line : sourceTable.getTable()) {
 
@@ -283,7 +287,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					if (translations.containsKey(valueToBeReplaced)) {
 						line.set(columnIndex, translations.get(valueToBeReplaced));
 					} else {
-						log.debug("The Translation Map {} does not contain the following value {}.",
+						log.warn("The Translation Map {} does not contain the following value {}.",
 								translationTable.getName(), valueToBeReplaced);
 					}
 				}
