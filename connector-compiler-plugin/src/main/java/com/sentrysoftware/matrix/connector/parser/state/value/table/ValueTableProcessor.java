@@ -49,7 +49,7 @@ public class ValueTableProcessor implements IConnectorStateParser {
 			hardwareMonitor.setCollect(collect);
 		}
 
-		collect.getParameters().put(getParameter(key), value.replace(ConnectorParserConstants.PERCENT, ConnectorParserConstants.EMPTY_STRING));
+		collect.getParameters().put(getParameter(key), value.replaceAll(ConnectorParserConstants.SOURCE_REFERENCE_REGEX_REPLACEMENT, "$1"));
 	}
 
 	/**

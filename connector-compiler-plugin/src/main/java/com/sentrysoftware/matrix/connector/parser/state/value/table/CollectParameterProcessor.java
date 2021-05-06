@@ -17,7 +17,7 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 public class CollectParameterProcessor implements IConnectorStateParser {
 
 	protected static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile(
-			"^\\s*(([a-z]+)\\.(collect)\\.([a-z]+))\\s*$", 
+			"^\\s*(([a-z]+)\\.(collect)\\.(?!(type|valuetable))([a-z]+))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
 	protected Pattern getKeyRegex() {
@@ -26,14 +26,9 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 
 	@Override
 	public boolean detect(String key, String value, Connector connector) {
-		if (value == null || key == null) {
-			return false;
-		}
-
-		Matcher matcher = getKeyRegex().matcher(key);
-		return matcher.matches()
-				&& !ConnectorParserConstants.TYPE.equalsIgnoreCase(matcher.group(4))
-				&& !ConnectorParserConstants.VALUE_TABLE.equalsIgnoreCase(matcher.group(4));
+		return value != null
+				&& key != null
+				&& getKeyRegex().matcher(key).matches();
 	}
 
 	@Override
@@ -104,6 +99,6 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 	protected String getParameter(final String key) {
 		final Matcher matcher = getKeyRegex().matcher(key);
 		matcher.find();
-		return matcher.group(4);
+		return matcher.group(5);
 	}
 }
