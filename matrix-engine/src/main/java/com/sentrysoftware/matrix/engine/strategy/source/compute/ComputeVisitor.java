@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,26 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Setter
 	private Connector connector;
 
+	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
+
+	static {
+		final Map<Class<? extends Compute>, BiFunction<String, String, String>> map = new HashMap<>();
+		map.put(Add.class,
+				(op1, op2) -> Integer.toString(Integer.parseInt(op1) + Integer.parseInt(op2)));
+		map.put(Multiply.class,
+				(op1, op2) -> Integer.toString(Integer.parseInt(op1) * Integer.parseInt(op2)));
+		map.put(Divide.class,
+				(op1, op2) -> {
+					int op2Value = Integer.parseInt(op2);
+					if(op2Value != 0) {
+						return Integer.toString(Integer.parseInt(op1) / op2Value);
+					}
+					return null;
+				});
+		MATH_FUNCTIONS_MAP = Collections.unmodifiableMap(map);
+
+	}
+
 	@Override
 	public void visit(final Add add) {
 		if (add == null) {
@@ -71,7 +92,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		if (columnIndex < 1 ) {
-			log.warn("The index of the column to add cannot be < 1, the Addition computation cannot be performed.");
+			log.warn("The index of the column to add cannot be < 1, the addition computation cannot be performed.");
 			return;
 		}
 
@@ -115,7 +136,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		String divideBy = divide.getDivideBy();
 
 		if (columnIndex < 1) {
-			log.warn("The index of the column to divide cannot be < 1, the divide computation cannot be performed.");
+			log.warn("The index of the column to divide cannot be < 1, the division computation cannot be performed.");
 			return;
 		}
 
@@ -266,7 +287,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Multiply multiply) {
 		if (multiply == null) {
-			log.warn("Compute Operation (Add) is null, the table remains unchanged.");
+			log.warn("Compute Operation (Multiply) is null, the table remains unchanged.");
 			return;
 		}
 
@@ -279,7 +300,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		if (columnIndex < 1 ) {
-			log.warn("The index of the column to multiply cannot be < 1, the Multiplication computation cannot be performed.");
+			log.warn("The index of the column to multiply cannot be < 1, the multiplication computation cannot be performed.");
 			return;
 		}
 
@@ -360,18 +381,19 @@ public class ComputeVisitor implements IComputeVisitor {
 
 
 	/**
-	 * 
+	 * Perform a mathematical computation (add, multiply or divide) on a given column in the sourcTable
+	 * Check if the operand2 is a reference to a column or a raw value 
 	 * @param computeOperation The compute operation must be one of : Add, Multiply, Divide.
 	 * @param column column to be changed
 	 * @param operand2 can be a reference to another column or a raw value
 	 */
 	private void performMathematicalOperation(final Compute computeOperation, Integer column, String operand2) {
 		
-		if (! MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass()))  {
+		if (!MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass())) {
 			log.warn("The compute operation must be one of : Add, Multiply, Divide.");
 			return;
 		}
-		
+
 		Integer columnIndex = column - 1;
 		int operandByIndex = -1;
 
@@ -385,6 +407,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			} catch (NumberFormatException e) {
 				log.warn("NumberFormatException : {} is not a correct operand2, the table remains unchanged.", operand2, computeOperation);
+				log.warn("Exception : ", e);
 				return;
 			}
 
@@ -397,6 +420,13 @@ public class ComputeVisitor implements IComputeVisitor {
 		performMathComputeOnTable(computeOperation, columnIndex, operand2, operandByIndex);
 	}
 
+	/**
+	 * Execute the computational operation (Divide, Add or Multiply) on each row of the tableSource
+	 * @param computeOperation 
+	 * @param columnIndex
+	 * @param op2
+	 * @param op2Index
+	 */
 	private void performMathComputeOnTable(final Compute computeOperation, Integer columnIndex, String op2, int op2Index) {
 		for (List<String> line : sourceTable.getTable()) {
 
@@ -415,7 +445,15 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 	}
-	
+
+	/**
+	 * Given two operands, perform an addition, multiplication or division and modify the given line on the given columnIndex
+	 * @param computeOperation
+	 * @param columnIndex
+	 * @param line
+	 * @param op1
+	 * @param op2
+	 */
 	private void performMathComputeOnLine(final Class<? extends Compute> computeOperation, final Integer columnIndex,
 			final List<String> line, final String op1, final String op2) {
 		try {
@@ -427,25 +465,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		} catch (NumberFormatException e) {
 			log.warn("There is a NumberFormatException on operand 1 : {} or the operand 2 {}", op1, op2);
+			log.warn("Exception : ", e);
 		} 
 	}
 
-
-	private static Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP = new HashMap<>();
-
-	static {
-		MATH_FUNCTIONS_MAP.put(Add.class,
-				(op1, op2) -> Integer.toString(Integer.parseInt(op1) + Integer.parseInt(op2)));
-		MATH_FUNCTIONS_MAP.put(Multiply.class,
-				(op1, op2) -> Integer.toString(Integer.parseInt(op1) * Integer.parseInt(op2)));
-		MATH_FUNCTIONS_MAP.put(Divide.class,
-				(op1, op2) -> {
-					int op2Value = Integer.parseInt(op2);
-					if(op2Value != 0) {
-						return Integer.toString(Integer.parseInt(op1) / op2Value);
-					}
-					return null;
-				});
-
-	}
 }
