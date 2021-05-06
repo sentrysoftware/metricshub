@@ -13,6 +13,7 @@
         "collectTime" : 1618319092125,
         "threshold" : null,
         "state" : "OK",
+        "unit" : null,
         "status" : 0,
         "statusInformation" : "OK"
       }
@@ -31,6 +32,7 @@
         "collectTime" : 1618319092125,
         "threshold" : null,
         "state" : "WARN",
+        "unit" : null,
         "status" : 1,
         "statusInformation" : "WARNING"
       }
@@ -49,6 +51,7 @@
         "collectTime" : 1618319092125,
         "threshold" : null,
         "state" : "OK",
+        "unit" : null,
         "status" : 0,
         "statusInformation" : "OK"
       }

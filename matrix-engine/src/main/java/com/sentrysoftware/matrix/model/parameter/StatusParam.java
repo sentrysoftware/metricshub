@@ -35,7 +35,7 @@ public class StatusParam extends AbstractParam {
 	}
 
 	@Override
-	public String getValueAsString() {
+	public String formatValueAsString() {
 		return statusInformation;
 	}
 }

@@ -36,7 +36,7 @@ public class NumberParam extends AbstractParam {
 	}
 
 	@Override
-	public String getValueAsString() {
+	public String formatValueAsString() {
 		return getValueAsString(value);
 	}
 }

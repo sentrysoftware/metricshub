@@ -13,5 +13,5 @@ public interface IParameterValue {
 	/**
 	 * Get the value as String
 	 */
-	public String getValueAsString();
+	public String formatValueAsString();
 }

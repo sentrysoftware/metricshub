@@ -327,7 +327,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		final StringBuilder builder = new StringBuilder(existingStatusInformation)
-				.append(parameter.getValueAsString());
+				.append(parameter.formatValueAsString());
 
 		statusParam.setStatusInformation(builder.toString());
 	}
