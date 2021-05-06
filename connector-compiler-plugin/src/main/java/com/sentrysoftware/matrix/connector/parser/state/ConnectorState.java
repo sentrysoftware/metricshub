@@ -13,6 +13,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.translate.Connec
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpDetectionParser;
 import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceParser;
+import com.sentrysoftware.matrix.connector.parser.state.value.table.ConnectorValueTableParametersParser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public enum ConnectorState {
 	CONNECTOR_SOURCE_TABLE(new ConnectorSourceParser()),
 	CONNECTOR_KEEP_ONLY_MATCHING_LINES(new ConnectorKeepOnlyMatchingLinesComputeParser()),
 	CONNECTOR_LEFT_CONCAT(new ConnectorLeftConcatComputeParser()),
+	CONNECTOR_VALUE_TABLE(new ConnectorValueTableParametersParser()),
 	CONNECTOR_DUPLICATE_COLUMN(new ConnectorDuplicateColumnComputeParser()),
 	CONNECTOR_TRANSLATE(new ConnectorTranslateComputeParser()),
 	CONNECTOR_DIVIDE(new ConnectorDivideComputeParser());

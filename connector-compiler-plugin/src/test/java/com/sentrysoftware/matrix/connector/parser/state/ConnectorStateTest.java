@@ -18,6 +18,7 @@ import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CO
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SNMP_DETECTION;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SOURCE_TABLE;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_TRANSLATE;
+import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_VALUE_TABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -77,6 +78,7 @@ class ConnectorStateTest {
 		assertTrue(connectorStates.contains(CONNECTOR_SOURCE_TABLE));
 		assertTrue(connectorStates.contains(CONNECTOR_KEEP_ONLY_MATCHING_LINES));
 		assertTrue(connectorStates.contains(CONNECTOR_LEFT_CONCAT));
+		assertTrue(connectorStates.contains(CONNECTOR_VALUE_TABLE));
 		assertTrue(connectorStates.contains(CONNECTOR_DUPLICATE_COLUMN));
 		assertTrue(connectorStates.contains(CONNECTOR_TRANSLATE));
 		assertTrue(connectorStates.contains(CONNECTOR_DIVIDE));
