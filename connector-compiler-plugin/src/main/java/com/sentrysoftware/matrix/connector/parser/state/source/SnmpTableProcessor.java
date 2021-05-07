@@ -59,7 +59,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 		final String sourceKey = lowerCaseKey.substring(0, lowerCaseKey.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS) + 1);
 
 		if (lowerCaseKey.endsWith(SNMP_TABLE_TYPE_KEY)) {
-			if (SNMP_TABLE_KEY.equals(value.trim().toLowerCase())) {
+			if (SNMP_TABLE_KEY.equalsIgnoreCase(value.trim())) {
 				// We make sure that the source now exists in the connector for this key
 				HardwareMonitor hardwareMonitor = getHardwareMonitor(lowerCaseKey, connector);
 				MonitorJob monitorJob = getMonitorJob(lowerCaseKey, hardwareMonitor);

@@ -1,36 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.divide;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Getter
-@AllArgsConstructor
-public enum ConnectorDivideProperty implements IConnectorStateParser {
+import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
-	TYPE(new TypeProcessor()),
-	COLUMN(new ColumnProcessor()),
-	DIVIDE_BY(new DivideByProcessor());
+public class ConnectorDivideProperty {
 
-	private final IConnectorStateParser connectorStateProcessor;
+	private ConnectorDivideProperty() {}
 
-	public boolean detect(final String key, final String value, final Connector connector) {
+	public static Set<IConnectorStateParser> getConnectorProperties() {
 
-		return connectorStateProcessor.detect(key, value, connector);
-	}
-
-	public void parse(final String key, final String value, final Connector connector) {
-
-		connectorStateProcessor.parse(key, value, connector);
-	}
-
-	public static Set<ConnectorDivideProperty> getConnectorProperties() {
-
-		return Arrays.stream(ConnectorDivideProperty.values()).collect(Collectors.toSet());
+		return Stream
+				.of(new TypeProcessor(), new ColumnProcessor(), new DivideByProcessor())
+				.collect(Collectors.toSet());
 	}
 }

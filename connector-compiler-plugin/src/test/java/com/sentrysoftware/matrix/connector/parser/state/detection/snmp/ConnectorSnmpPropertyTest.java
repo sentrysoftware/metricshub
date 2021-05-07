@@ -1,14 +1,18 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 class ConnectorSnmpPropertyTest {
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorSnmpProperty.OID.getConnectorStateProcessor() instanceof OidProcessor);
+		assertEquals(Stream.of(OidProcessor.class, ExpectedResultProcessor.class, ForceSerializationProcessor.class).collect(Collectors.toSet()),
+				ConnectorSnmpProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
 	}
 }

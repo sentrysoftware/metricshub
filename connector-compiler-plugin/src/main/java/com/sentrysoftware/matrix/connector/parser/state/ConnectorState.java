@@ -4,16 +4,17 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.connector.parser.state.compute.divide.ConnectorDivideProperty;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.parser.state.compute.divide.ConnectorDivideComputeParser;
-import com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn.ConnectorDuplicateColumnComputeParser;
-import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesComputeParser;
-import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatComputeParser;
-import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateComputeParser;
-import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpDetectionParser;
-import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceParser;
-import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceParser;
-import com.sentrysoftware.matrix.connector.parser.state.value.table.ConnectorValueTableParametersParser;
+import com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn.ConnectorDuplicateColumnProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateProperty;
+import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpProperty;
+import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceProperty;
+import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceProperty;
+import com.sentrysoftware.matrix.connector.parser.state.value.table.ConnectorValueTableProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,16 +23,16 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ConnectorState {
 
-	CONNECTOR_SIMPLE_PROPERTY(new ConnectorSimplePropertyParser()),
-	CONNECTOR_SNMP_DETECTION(new ConnectorSnmpDetectionParser()),
-	CONNECTOR_INSTANCE_TABLE(new ConnectorInstanceParser()),
-	CONNECTOR_SOURCE_TABLE(new ConnectorSourceParser()),
-	CONNECTOR_KEEP_ONLY_MATCHING_LINES(new ConnectorKeepOnlyMatchingLinesComputeParser()),
-	CONNECTOR_LEFT_CONCAT(new ConnectorLeftConcatComputeParser()),
-	CONNECTOR_VALUE_TABLE(new ConnectorValueTableParametersParser()),
-	CONNECTOR_DUPLICATE_COLUMN(new ConnectorDuplicateColumnComputeParser()),
-	CONNECTOR_TRANSLATE(new ConnectorTranslateComputeParser()),
-	CONNECTOR_DIVIDE(new ConnectorDivideComputeParser());
+	CONNECTOR_SIMPLE_PROPERTY(new StateParsersParent(ConnectorSimpleProperty.getConnectorProperties())),
+	CONNECTOR_SNMP_DETECTION(new StateParsersParent(ConnectorSnmpProperty.getConnectorProperties())),
+	CONNECTOR_INSTANCE_TABLE(new StateParsersParent(ConnectorInstanceProperty.getConnectorProperties())),
+	CONNECTOR_SOURCE_TABLE(new StateParsersParent(ConnectorSourceProperty.getConnectorProperties())),
+	CONNECTOR_KEEP_ONLY_MATCHING_LINES(new StateParsersParent(ConnectorKeepOnlyMatchingLinesProperty.getConnectorProperties())),
+	CONNECTOR_LEFT_CONCAT(new StateParsersParent(ConnectorLeftConcatProperty.getConnectorProperties())),
+	CONNECTOR_VALUE_TABLE(new StateParsersParent(ConnectorValueTableProperty.getConnectorProperties())),
+	CONNECTOR_DUPLICATE_COLUMN(new StateParsersParent(ConnectorDuplicateColumnProperty.getConnectorProperties())),
+	CONNECTOR_TRANSLATE(new StateParsersParent(ConnectorTranslateProperty.getConnectorProperties())),
+	CONNECTOR_DIVIDE(new StateParsersParent(ConnectorDivideProperty.getConnectorProperties()));
 
 	private final IConnectorStateParser connectorStateProcessor;
 

@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.compute.translate;
+package com.sentrysoftware.matrix.connector.parser.state.source;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -6,14 +6,14 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
-public class ConnectorTranslateProperty {
+public class ConnectorSourceProperty {
 
-	private ConnectorTranslateProperty() {}
+	private ConnectorSourceProperty() {}
 
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
 		return Stream
-				.of(new TypeProcessor(), new ColumnProcessor(), new TranslationTableProcessor())
+				.of(new SnmpTableProcessor(), new TableJoinProcessor())
 				.collect(Collectors.toSet());
 	}
 }

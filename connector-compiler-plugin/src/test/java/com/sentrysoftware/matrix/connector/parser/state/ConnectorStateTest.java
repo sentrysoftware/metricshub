@@ -37,7 +37,8 @@ class ConnectorStateTest {
 	void testDetect() {
 
 		assertFalse(CONNECTOR_SIMPLE_PROPERTY.detect(null, null, null));
-		assertTrue(CONNECTOR_SIMPLE_PROPERTY.detect(DISPLAY_NAME_KEY, null, null));
+		// null value
+		assertFalse(CONNECTOR_SIMPLE_PROPERTY.detect(DISPLAY_NAME_KEY, null, null));
 
 		assertFalse(CONNECTOR_SNMP_DETECTION.detect(null, null, null));
 		assertTrue(CONNECTOR_SNMP_DETECTION.detect(OID_KEY, FOO, null));
@@ -87,6 +88,6 @@ class ConnectorStateTest {
 	@Test
 	void testGetConnectorStateProcessor() {
 
-		assertTrue(CONNECTOR_SIMPLE_PROPERTY.getConnectorStateProcessor() instanceof ConnectorSimplePropertyParser);
+		assertTrue(CONNECTOR_SIMPLE_PROPERTY.getConnectorStateProcessor() instanceof StateParsersParent);
 	}
 }

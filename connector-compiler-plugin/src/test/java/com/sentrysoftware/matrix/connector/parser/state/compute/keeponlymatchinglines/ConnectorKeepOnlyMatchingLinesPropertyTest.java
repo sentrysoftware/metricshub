@@ -1,14 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 class ConnectorKeepOnlyMatchingLinesPropertyTest {
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorKeepOnlyMatchingLinesProperty.TYPE.getConnectorStateProcessor() instanceof TypeProcessor);
+		assertEquals(
+				Stream.of(TypeProcessor.class, ColumnProcessor.class, ValueListProcessor.class, RegexpProcessor.class).collect(Collectors.toSet()),
+				ConnectorKeepOnlyMatchingLinesProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
 	}
 }

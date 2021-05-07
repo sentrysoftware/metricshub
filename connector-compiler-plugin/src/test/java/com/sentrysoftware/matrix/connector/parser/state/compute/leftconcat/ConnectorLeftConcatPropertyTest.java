@@ -1,14 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 class ConnectorLeftConcatPropertyTest {
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorLeftConcatProperty.TYPE.getConnectorStateProcessor() instanceof TypeProcessor);
+		assertEquals(Stream.of(TypeProcessor.class, ColumnProcessor.class, StringProcessor.class).collect(Collectors.toSet()),
+				ConnectorLeftConcatProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
+
 	}
 }
