@@ -308,9 +308,7 @@ public class CollectOperation extends AbstractStrategy {
 				deviceIdValueTableColumn);
 
 		if (id != null) {
-			return monitors.
-					values()
-					.stream()
+			return monitors.values().stream()
 					.filter(mo -> Objects.nonNull(mo.getMetadata()) &&
 							id.equals(mo.getMetadata().get(HardwareConstants.DEVICE_ID)))
 					.findFirst();

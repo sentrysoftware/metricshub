@@ -19,7 +19,7 @@ public class HardwareConstants {
 	public static final String COLUMN_REGEXP = "^\\s*column\\((\\d+)\\)\\s*$";
 	public static final String LOCALHOST = "localhost";
 	public static final String REMOTE = "remote";
-	public static final String COMA = ",";
+	public static final String COMMA = ",";
 	public static final String COLON = ":";
 
 	public static final String STATUS_PARAMETER = "status";

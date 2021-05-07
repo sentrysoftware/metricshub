@@ -377,7 +377,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final String valueTable = monitorCollectInfo.getValueTable();
 		final Long collectTime = monitorCollectInfo.getCollectTime();
 
-		// Get the energy usage mapping
+		// Get the number value as string from the current row
 		final String stringValue = CollectHelper.getValueTableColumnValue(valueTable,
 				parameterName,
 				monitorType,
@@ -386,7 +386,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 
 		if (stringValue == null) {
-			log.debug("No {} to compute for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
+			log.debug("No {} to collect for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
 			return;
 		}
 
@@ -394,7 +394,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		try {
 			value = Double.parseDouble(stringValue);
 		} catch(NumberFormatException e) {
-			log.error("Cannot parse the {} value {} for monitor id {}. EnergyUsage parameter not collect", parameterName, stringValue, monitor.getId());
+			log.error("Cannot parse the {} value {} for monitor id {}. {} won't be collected",
+					parameterName, stringValue, monitor.getId(), parameterName);
 			log.error("Parsing Error", e);
 			return;
 		}
