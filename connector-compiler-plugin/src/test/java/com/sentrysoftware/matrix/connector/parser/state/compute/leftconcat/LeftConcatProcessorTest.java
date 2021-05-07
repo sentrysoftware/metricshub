@@ -109,7 +109,7 @@ class LeftConcatProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_DISCOVERY_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(typeProcessor.getLeftConcat(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
@@ -127,7 +127,7 @@ class LeftConcatProcessorTest {
 					.build())
 				.build());
 
-		assertNull(typeProcessor.getLeftConcat(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 	}
 

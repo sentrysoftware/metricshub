@@ -109,7 +109,7 @@ class KeepOnlyMatchingLinesProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(KEEP_ONLY_MATCHING_LINES_DISCOVERY_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(typeProcessor.getKeepOnlyMatchingLines(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
@@ -128,7 +128,7 @@ class KeepOnlyMatchingLinesProcessorTest {
 					.build())
 				.build());
 
-		assertNull(typeProcessor.getKeepOnlyMatchingLines(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 	}
 

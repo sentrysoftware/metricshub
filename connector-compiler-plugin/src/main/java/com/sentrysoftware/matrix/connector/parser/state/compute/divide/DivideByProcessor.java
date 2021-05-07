@@ -18,7 +18,7 @@ public class DivideByProcessor extends DivideProcessor {
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return DIVIDE_BY_KEY_PATTERN.matcher(key);
 	}
 
@@ -32,10 +32,11 @@ public class DivideByProcessor extends DivideProcessor {
 
 		Source source = getSource(matcher, connector);
 
-		Divide divide = getDivide(source, getComputeIndex(matcher));
+		Divide divide = getCompute(source, getComputeIndex(matcher));
 		notNull(divide,
 			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		divide.setDivideBy(value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 	}
+
 }

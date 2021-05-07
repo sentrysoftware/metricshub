@@ -18,7 +18,7 @@ public class RegexpProcessor extends KeepOnlyMatchingLinesProcessor {
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return REGEXP_KEY_PATTERN.matcher(key);
 	}
 
@@ -32,7 +32,7 @@ public class RegexpProcessor extends KeepOnlyMatchingLinesProcessor {
 
 		Source source = getSource(matcher, connector);
 
-		KeepOnlyMatchingLines keepOnlyMatchingLines = getKeepOnlyMatchingLines(source, getComputeIndex(matcher));
+		KeepOnlyMatchingLines keepOnlyMatchingLines = getCompute(source, getComputeIndex(matcher));
 		notNull(keepOnlyMatchingLines,
 			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 

@@ -1,15 +1,15 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.divide;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class ColumnProcessor extends DivideProcessor {
 
@@ -18,7 +18,7 @@ public class ColumnProcessor extends DivideProcessor {
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return COLUMN_KEY_PATTERN.matcher(key);
 	}
 
@@ -32,7 +32,7 @@ public class ColumnProcessor extends DivideProcessor {
 
 		Source source = getSource(matcher, connector);
 
-		Divide divide = getDivide(source, getComputeIndex(matcher));
+		Divide divide = getCompute(source, getComputeIndex(matcher));
 		notNull(divide,
 			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
@@ -41,4 +41,5 @@ public class ColumnProcessor extends DivideProcessor {
 
 		divide.setColumn(Integer.parseInt(strippedValue));
 	}
+
 }

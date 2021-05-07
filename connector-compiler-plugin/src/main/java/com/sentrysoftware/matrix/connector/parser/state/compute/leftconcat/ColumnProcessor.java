@@ -19,7 +19,7 @@ public class ColumnProcessor extends LeftConcatProcessor {
 	);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return COLUMN_KEY_PATTERN.matcher(key);
 	}
 
@@ -33,7 +33,7 @@ public class ColumnProcessor extends LeftConcatProcessor {
 
 		Source source = getSource(matcher, connector);
 
-		LeftConcat leftConcat = getLeftConcat(source, getComputeIndex(matcher));
+		LeftConcat leftConcat = getCompute(source, getComputeIndex(matcher));
 		notNull(leftConcat,
 				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 

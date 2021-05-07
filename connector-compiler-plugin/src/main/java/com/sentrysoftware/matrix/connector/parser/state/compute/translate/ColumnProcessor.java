@@ -18,7 +18,7 @@ public class ColumnProcessor extends TranslateProcessor {
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return COLUMN_KEY_PATTERN.matcher(key);
 	}
 
@@ -32,7 +32,7 @@ public class ColumnProcessor extends TranslateProcessor {
 
 		Source source = getSource(matcher, connector);
 
-		Translate translate = getTranslate(source, getComputeIndex(matcher));
+		Translate translate = getCompute(source, getComputeIndex(matcher));
 		notNull(translate,
 				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 

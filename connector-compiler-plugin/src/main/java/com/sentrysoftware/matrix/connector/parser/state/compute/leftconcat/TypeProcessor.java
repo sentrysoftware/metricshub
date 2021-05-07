@@ -18,7 +18,7 @@ public class TypeProcessor extends LeftConcatProcessor {
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return TYPE_KEY_PATTERN.matcher(key);
 	}
 
