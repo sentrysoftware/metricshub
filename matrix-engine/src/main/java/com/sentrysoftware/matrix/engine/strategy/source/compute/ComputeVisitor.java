@@ -314,7 +314,30 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Replace replace) {
-		// Not implemented yet
+		if (replace == null) {
+			log.warn("Compute Operation (Replace) is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer columnToReplace = replace.getColumn();
+		String strToReplace = replace.getReplace();
+		String replacement = replace.getReplaceBy();
+
+		if (columnToReplace == null || strToReplace == null || replacement == null) {
+			log.warn("Arguments in Compute Operation (Replace) : {} are wrong, the table remains unchanged.", replace);
+			return;
+		}
+
+		if (columnToReplace < 1) {
+			log.warn("The index of the column to replace cannot be < 1, the replacement computation cannot be performed.");
+			return;
+		}
+
+		int columnIndex = columnToReplace - 1;
+
+		sourceTable.getTable()
+		.stream()
+		.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
 	}
 
 	@Override

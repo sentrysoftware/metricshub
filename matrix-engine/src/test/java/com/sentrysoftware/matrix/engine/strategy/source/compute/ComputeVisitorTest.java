@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Dupl
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
@@ -807,6 +808,72 @@ class ComputeVisitorTest {
 				Arrays.asList("ID1", "0", "2", "val1"), 
 				Arrays.asList("ID2", "0", "5", "val2"),
 				Arrays.asList("ID1", "0", "2", "val3")),
+				sourceTable.getTable());
+	}
+	
+	@Test
+	void testReplace() {
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "val1", "1value1")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "val2", "1value11")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "val3", "va1lue12")));
+
+		Replace replace = null;
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace = Replace.builder().build();
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace.setColumn(2);
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace.setReplace("al");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace.setReplace(null);
+		replace.setReplaceBy("");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace.setReplace("al");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "1value1"),
+				Arrays.asList("ID2", "v2", "1value11"),
+				Arrays.asList("ID3", "v3", "va1lue12")),
+				sourceTable.getTable());
+
+		replace.setColumn(3);
+		replace.setReplace("1");
+		replace.setReplaceBy("f");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaluef"),
+				Arrays.asList("ID2", "v2", "fvalueff"),
+				Arrays.asList("ID3", "v3", "vafluef2")),
 				sourceTable.getTable());
 	}
 }
