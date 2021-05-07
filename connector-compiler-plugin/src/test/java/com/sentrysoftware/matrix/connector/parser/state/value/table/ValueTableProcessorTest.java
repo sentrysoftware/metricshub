@@ -13,14 +13,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
 
-public class ValueTableProcessorTest {
+class ValueTableProcessorTest {
 
 	private CollectTypeProcessor collectTypeProcessor;
 	private ValueTableProcessor valueTableProcessor;
 	private CollectParameterProcessor collectParameterProcessor;
 	private Connector connector;
 
-	private static final String VALUE_TABLE = "ValueTable";
 	private static final String DEVICE_ID = "DeviceId";
 	private static final String STATUS = "Status";
 	private static final String STATUS_INFORMATION = "StatusInformation";
@@ -116,7 +115,7 @@ public class ValueTableProcessorTest {
 		Collect collect = hardwareMonitor.getCollect();
 
 		assertEquals(CollectType.MONO_INSTANCE, collect.getType());
-		assertEquals(VALUE_TABLE_RESULT, collect.getParameters().get(VALUE_TABLE));
+		assertEquals(VALUE_TABLE_RESULT, collect.getValueTable());
 		assertEquals(DEVICE_ID_EXAMPLE, collect.getParameters().get(DEVICE_ID));
 		assertEquals(STATUS_EXAMPLE, collect.getParameters().get(STATUS));
 		assertEquals(STATUS_INFORMATION_EXAMPLE, collect.getParameters().get(STATUS_INFORMATION));

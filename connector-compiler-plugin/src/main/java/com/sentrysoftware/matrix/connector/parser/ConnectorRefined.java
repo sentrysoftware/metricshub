@@ -23,7 +23,7 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import org.springframework.util.Assert;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * Based on HDV Maven Plugin HardwareConnector Bertrand's implementation.
@@ -32,12 +32,15 @@ import lombok.Data;
  * @author Nassim BOUTEKEDJIRET
  *
  */
-@Data
 public class ConnectorRefined {
 
+	@Getter
 	private String compiledFilename;
+	@Getter
 	private Map<String, String> codeMap = new LinkedHashMap<>();
+	@Getter
 	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+	@Getter
 	private Map<String, TranslationTable> translationTables = new HashMap<>(); 
 	private ArrayList<String> problemList = new ArrayList<>();
 
@@ -246,7 +249,7 @@ public class ConnectorRefined {
 
 		Map<String, Pattern> translationTablePatterns = translationTableNames.stream()
 				.collect(Collectors.toMap(Function.identity(), translationTableName -> Pattern.compile(
-						"^\\s*" + translationTableName + "(.*?)\\s*=\\s*(.*?)\\s*$",
+						"^\\s*" + translationTableName + "\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
 						Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)));
 
 		for (Entry<String, Pattern> entry : translationTablePatterns.entrySet()) {
