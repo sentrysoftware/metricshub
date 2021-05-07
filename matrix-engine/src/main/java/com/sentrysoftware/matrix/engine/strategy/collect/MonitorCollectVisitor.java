@@ -262,8 +262,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Otherwise simply set the state name OK, WARN or ALARM
 		if (statusInformation == null
-				|| statusInformation.trim().isEmpty()
-				|| "\"\"".equals(statusInformation.trim())) {
+				|| statusInformation.trim().isEmpty()) {
 			// Is there any specific implementation for the status information field
 			if (STATUS_INFORMATION_MAP.containsKey(parameterName)) {
 				statusInformation = STATUS_INFORMATION_MAP.get(parameterName).apply(state);
