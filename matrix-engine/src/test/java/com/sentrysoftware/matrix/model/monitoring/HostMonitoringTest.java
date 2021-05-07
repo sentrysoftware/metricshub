@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -20,9 +21,19 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.BooleanParam;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class HostMonitoringTest {
 
+	private static final String STATUS = "Status";
+	private static final String TEST_REPORT = "TestReport";
+	private static final String PRESENT = "Present";
+	private static final String POWER_CONSUMPTION = "PowerConsumption";
 	private static final String SOURCE_KEY_LOWER = "enclosure.discovery.source(1)";
 	private static final String SOURCE_KEY_PASCAL = "Enclosure.discovery.Source(1)";
 	private static final String FULL_FAN_ID = "myConnector.connector_fan_targetId_fanId";
@@ -298,5 +309,150 @@ class HostMonitoringTest {
 		assertEquals(1, hostMonitoring.getSourceTables().size());
 		assertEquals(sourceTable, hostMonitoring.getSourceTables().get(SOURCE_KEY_LOWER));
 		assertEquals(sourceTable, hostMonitoring.getSourceTableByKey(SOURCE_KEY_PASCAL));
+	}
+
+	@Test
+	void testClear() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.clear();
+
+		assertTrue(hostMonitoring.getMonitors().isEmpty());
+	}
+
+	@Test
+	void testBackup() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.backup();
+
+		assertFalse(hostMonitoring.getPreviousMonitors().isEmpty());
+		assertEquals(enclosure, hostMonitoring.getPreviousMonitors().get(ENCLOSURE).get(ENCLOSURE_ID));
+	}
+
+	@Test
+	void testResetParametersNumber() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		final long now = new Date().getTime();
+		final IParameterValue parameter = NumberParam.builder().name(POWER_CONSUMPTION)
+				.collectTime(now).value(100.0).build();
+		enclosure.addParameter(parameter);
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.resetParameters();
+
+		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
+
+		assertNotNull(result);
+
+		final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
+
+		assertNull(parameterAfterReset.getCollectTime());
+		assertEquals(now, parameterAfterReset.getLastCollectTime());
+		assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
+		assertEquals(ParameterState.OK, parameterAfterReset.getState());
+		assertNull(parameterAfterReset.getThreshold());
+		assertNull(parameterAfterReset.getValue());
+		assertEquals(100.0, parameterAfterReset.getLastValue());
+	}
+
+	@Test
+	void testResetParametersBoolean() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		final IParameterValue parameter = BooleanParam.builder().name(PRESENT).collectTime(new Date().getTime())
+				.value(true).build();
+		enclosure.addParameter(parameter);
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.resetParameters();
+
+		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
+
+		assertNotNull(result);
+
+		final BooleanParam parameterAfterReset = (BooleanParam) result.getParameters().get(PRESENT);
+
+		assertNull(parameterAfterReset.getCollectTime());
+		assertEquals(PRESENT, parameterAfterReset.getName());
+		assertEquals(ParameterState.OK, parameterAfterReset.getState());
+		assertNull(parameterAfterReset.getThreshold());
+		assertFalse(parameterAfterReset.isValue());
+	}
+
+	@Test
+	void testResetParametersText() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		final IParameterValue parameter = TextParam.builder().name(TEST_REPORT).collectTime(new Date().getTime())
+				.value("test").build();
+		enclosure.addParameter(parameter);
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.resetParameters();
+
+		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
+
+		assertNotNull(result);
+
+		final TextParam parameterAfterReset = (TextParam) result.getParameters().get(TEST_REPORT);
+
+		assertNull(parameterAfterReset.getCollectTime());
+		assertEquals(TEST_REPORT, parameterAfterReset.getName());
+		assertEquals(ParameterState.OK, parameterAfterReset.getState());
+		assertNull(parameterAfterReset.getThreshold());
+		assertNull(parameterAfterReset.getValue());
+	}
+
+	@Test
+	void testResetParametersStatus() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		final IParameterValue parameter = StatusParam.builder().name(STATUS).collectTime(new Date().getTime())
+				.state(ParameterState.WARN).build();
+		enclosure.addParameter(parameter);
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.resetParameters();
+
+		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
+
+		assertNotNull(result);
+
+		final StatusParam parameterAfterReset = (StatusParam) result.getParameters().get(STATUS);
+
+		assertNull(parameterAfterReset.getCollectTime());
+		assertEquals(STATUS, parameterAfterReset.getName());
+		assertEquals(ParameterState.OK, parameterAfterReset.getState());
+		assertNull(parameterAfterReset.getThreshold());
+		assertNull(parameterAfterReset.getStatus());
+		assertNull(parameterAfterReset.getStatusInformation());
 	}
 }

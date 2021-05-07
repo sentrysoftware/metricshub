@@ -16,6 +16,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -77,8 +78,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String MONITOR_BUILDING_INFO_CANNOT_BE_NULL = "monitorBuildingInfo cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
 
-	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES = new EnumMap<>(TargetType.class);
+	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES;
 	static {
+		final Map<TargetType, String> map = new EnumMap<>(TargetType.class);
 		for (TargetType targetType : TargetType.values()) {
 			final String value;
 			switch (targetType) {
@@ -97,8 +99,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 			default:
 				value = UNKNOWN_COMPUTER;
 			}
-			COMPUTE_DISPLAY_NAMES.put(targetType, value);
+			map.put(targetType, value);
 		}
+
+		COMPUTE_DISPLAY_NAMES = Collections.unmodifiableMap(map);
 	}
 
 	private MonitorBuildingInfo monitorBuildingInfo;

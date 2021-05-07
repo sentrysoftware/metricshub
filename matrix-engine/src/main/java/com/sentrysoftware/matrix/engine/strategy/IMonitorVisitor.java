@@ -63,11 +63,11 @@ public interface IMonitorVisitor {
 
 	void visit(TapeDrive tapeDrive);
 
-	void visit(Temperature concreteTemperature);
+	void visit(Temperature temperature);
 
-	void visit(Voltage concreteVoltage);
+	void visit(Voltage voltage);
 
-	void visit(Robotic concreteRobotic);
+	void visit(Robotic robotic);
 
 	
 }

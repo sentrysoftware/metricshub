@@ -15,15 +15,28 @@ import lombok.ToString;
 public class NumberParam extends AbstractParam {
 
 	private Double value;
-	private Double previousValue;
+	private Double lastValue;
+	private Long lastCollectTime;
 
 	@Builder
-	public NumberParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, Double value,
-			Double previousValue) {
+	public NumberParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, Double value, String unit) {
 
-		super(name, collectTime, threshold, parameterState);
+		super(name, collectTime, threshold, parameterState, unit);
 		this.value = value;
-		this.previousValue = value;
 	}
 
+	@Override
+	public void reset() {
+
+		this.lastValue = value;
+		this.lastCollectTime = getCollectTime();
+		this.value = null;
+
+		super.reset();
+	}
+
+	@Override
+	public String formatValueAsString() {
+		return getValueAsString(value);
+	}
 }

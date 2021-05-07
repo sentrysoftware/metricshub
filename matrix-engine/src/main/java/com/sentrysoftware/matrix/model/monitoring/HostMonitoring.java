@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,12 +41,13 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public void clear() {
-
+		monitors.clear();
 	}
 
 	@Override
 	public void backup() {
-
+		previousMonitors.clear();
+		previousMonitors.putAll(monitors);
 	}
 
 	@Override
@@ -246,5 +248,13 @@ public class HostMonitoring implements IHostMonitoring {
 		Assert.notNull(key, "The key cannot be null.");
 
 		return sourceTables.get(key);
+	}
+
+	@Override
+	public void resetParameters() {
+		monitors.values().forEach(
+				sameTypeMonitors -> sameTypeMonitors.values().forEach(
+						mo -> mo.getParameters().values().forEach(
+								IParameterValue::reset)));
 	}
 }
