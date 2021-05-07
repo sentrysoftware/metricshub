@@ -29,46 +29,30 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no Translate found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(TRANSLATE_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(TRANSLATE_COLUMN_KEY, FOO, connector));
 
 		// Key matches, Translate found, invalid value
 		Translate translate = new Translate();
 		translate.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						translate
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(translate))
+						.build()))
+					.build())
+				.build());
 
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(TRANSLATE_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(TRANSLATE_COLUMN_KEY, FOO, connector));
 
 		// Key matches, Translate found, value is valid
 		columnProcessor.parse(TRANSLATE_COLUMN_KEY, NINE, connector);

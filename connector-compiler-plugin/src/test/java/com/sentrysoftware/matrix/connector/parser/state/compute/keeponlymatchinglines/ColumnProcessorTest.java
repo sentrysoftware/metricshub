@@ -30,46 +30,30 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no KeepOnlyMatchingLines found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, FOO, connector));
 
 		// Key matches, KeepOnlyMatchingLines found, invalid value
 		KeepOnlyMatchingLines keepOnlyMatchingLines = new KeepOnlyMatchingLines();
 		keepOnlyMatchingLines.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						keepOnlyMatchingLines
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(keepOnlyMatchingLines))
+						.build()))
+					.build())
+				.build());
 
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, FOO, connector));
 
 		// Key matches, KeepOnlyMatchingLines found, value is valid
 		columnProcessor.parse(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, NINE, connector);

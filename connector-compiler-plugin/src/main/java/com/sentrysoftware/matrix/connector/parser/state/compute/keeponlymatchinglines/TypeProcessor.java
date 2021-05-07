@@ -14,9 +14,8 @@ import static org.springframework.util.Assert.isTrue;
 public class TypeProcessor extends KeepOnlyMatchingLinesProcessor {
 
 	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
-			Pattern.CASE_INSENSITIVE
-	);
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
+		Pattern.CASE_INSENSITIVE);
 
 	@Override
 	protected Matcher getMatcher(String key) {
@@ -28,12 +27,9 @@ public class TypeProcessor extends KeepOnlyMatchingLinesProcessor {
 
 		super.parse(key, value, connector);
 
-		isTrue(
-				KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
-						value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-				),
-				"Invalid Compute type: " + value
-		);
+		isTrue(KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
+			value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")),
+			"Invalid Compute type: " + value);
 
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
@@ -54,8 +50,6 @@ public class TypeProcessor extends KeepOnlyMatchingLinesProcessor {
 		KeepOnlyMatchingLines keepOnlyMatchingLines = new KeepOnlyMatchingLines();
 		keepOnlyMatchingLines.setIndex(getComputeIndex(matcher));
 
-		source
-				.getComputes()
-				.add(keepOnlyMatchingLines);
+		source.getComputes().add(keepOnlyMatchingLines);
 	}
 }

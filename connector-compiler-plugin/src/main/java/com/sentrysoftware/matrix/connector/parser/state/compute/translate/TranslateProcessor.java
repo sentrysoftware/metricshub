@@ -26,9 +26,9 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		Matcher matcher;
 
 		return value != null
-				&& key != null
-				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isTranslateContext(value, matcher, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isTranslateContext(value, matcher, connector);
 	}
 
 	private boolean isTranslateContext(String value, Matcher matcher, Connector connector) {
@@ -36,8 +36,7 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		if (this instanceof TypeProcessor) {
 
 			return TRANSLATE_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
 		return getTranslate(matcher, connector) != null;
@@ -53,21 +52,11 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 
 	private Translate getTranslate(Matcher matcher, Connector connector) {
 
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(
-				connector,
-				getMonitorName(matcher)
-		);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		Source source = getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		return getTranslate(
-				source,
-				getComputeIndex(matcher)
-		);
+		return getTranslate(source, getComputeIndex(matcher));
 	}
 
 	protected Translate getTranslate(Source source, int computeIndex) {
@@ -84,13 +73,10 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		}
 
 		return (Translate) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof Translate
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof Translate && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	protected Source getSource(Matcher matcher, Connector connector) {
@@ -98,11 +84,7 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		String monitorName = getMonitorName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 	}
 
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
@@ -112,8 +94,8 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -125,10 +107,10 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
@@ -136,16 +118,14 @@ public abstract class TranslateProcessor implements IConnectorStateParser {
 		notNull(connector, "Connector cannot be null.");
 
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
-				.findFirst()
-				.orElse(null);
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+				.getType()
+				.getName()
+				.equalsIgnoreCase(monitorName))
+			.findFirst()
+			.orElse(null);
 	}
 
 	private String getMonitorName(Matcher matcher) {

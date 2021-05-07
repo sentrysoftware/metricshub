@@ -17,8 +17,8 @@ import static org.springframework.util.Assert.state;
 public class TranslationTableProcessor extends TranslateProcessor {
 
 	private static final Pattern TRANSLATION_TABLE_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.translationtable\\s*$",
-			Pattern.CASE_INSENSITIVE
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.translationtable\\s*$",
+		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
@@ -37,20 +37,16 @@ public class TranslationTableProcessor extends TranslateProcessor {
 		Source source = getSource(matcher, connector);
 
 		Translate translate = getTranslate(source, getComputeIndex(matcher));
-		notNull(
-				translate,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT
-		);
+		notNull(translate,
+				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		Map<String, TranslationTable> translationTables = connector.getTranslationTables();
 		state(translationTables != null, "No translation tables found in " + connector.getCompiledFilename());
 
 		String strippedValue = value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1");
 		TranslationTable translationTable = translationTables.get(strippedValue);
-		state(
-				translationTable != null,
-				"Could not find translation table " + strippedValue + " in " + connector.getCompiledFilename()
-		);
+		state(translationTable != null,
+				"Could not find translation table " + strippedValue + " in " + connector.getCompiledFilename());
 
 		translate.setTranslationTable(translationTable);
 	}

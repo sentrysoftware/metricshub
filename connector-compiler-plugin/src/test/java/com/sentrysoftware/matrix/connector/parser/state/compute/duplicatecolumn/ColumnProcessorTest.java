@@ -29,46 +29,30 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no DuplicateColumn found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(DUPLICATE_COLUMN_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(DUPLICATE_COLUMN_COLUMN_KEY, FOO, connector));
 
 		// Key matches, DuplicateColumn found, invalid value
 		DuplicateColumn duplicateColumn = new DuplicateColumn();
 		duplicateColumn.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						duplicateColumn
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(duplicateColumn))
+						.build()))
+					.build())
+				.build());
 
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(DUPLICATE_COLUMN_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(DUPLICATE_COLUMN_COLUMN_KEY, FOO, connector));
 
 		// Key matches, DuplicateColumn found, value is valid
 		columnProcessor.parse(DUPLICATE_COLUMN_COLUMN_KEY, NINE, connector);

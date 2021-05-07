@@ -58,24 +58,21 @@ class KeepOnlyMatchingLinesProcessorTest {
 
 		// Source not null
 		Source source = SNMPGetTableSource
-				.builder()
-				.index(1)
-				.build();
+			.builder()
+			.index(1)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(Collections.singletonList(source))
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(source))
+					.build())
+				.build());
+
 		assertFalse(columnProcessor.detect(KEEP_ONLY_MATCHING_LINES_COLUMN_KEY, FOO, connector));
 
 		// Source not null, source.getComputes() null
@@ -112,41 +109,27 @@ class KeepOnlyMatchingLinesProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(KEEP_ONLY_MATCHING_LINES_DISCOVERY_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(
-				typeProcessor.getKeepOnlyMatchingLines(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+		assertNull(typeProcessor.getKeepOnlyMatchingLines(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																.builder()
-																.index(1)
-																.build())
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(
+						SNMPGetTableSource
+						.builder()
+						.index(1)
+						.build()))
+					.build())
+				.build());
 
-		assertNull(
-				typeProcessor.getKeepOnlyMatchingLines(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+		assertNull(typeProcessor.getKeepOnlyMatchingLines(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 	}
 
 	@Test
@@ -157,13 +140,11 @@ class KeepOnlyMatchingLinesProcessorTest {
 
 		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is null
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.build());
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
@@ -175,24 +156,24 @@ class KeepOnlyMatchingLinesProcessorTest {
 		discovery.setSources(null);
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.setDiscovery(discovery);
+			.getHardwareMonitors()
+			.get(0)
+			.setDiscovery(discovery);
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
 		// HardwareMonitor.getDiscovery().getSources() is not null, wrong source index
 		SNMPGetTableSource source = SNMPGetTableSource
-				.builder()
-				.index(2)
-				.build();
+			.builder()
+			.index(2)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.getDiscovery()
-				.setSources(Collections.singletonList(source));
+			.getHardwareMonitors()
+			.get(0)
+			.getDiscovery()
+			.setSources(Collections.singletonList(source));
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 	}

@@ -14,8 +14,8 @@ import static org.springframework.util.Assert.isTrue;
 public class TypeProcessor extends TranslateProcessor {
 
 	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
-			Pattern.CASE_INSENSITIVE
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
+		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
@@ -28,12 +28,9 @@ public class TypeProcessor extends TranslateProcessor {
 
 		super.parse(key, value, connector);
 
-		isTrue(
-				TRANSLATE_TYPE_VALUE.equalsIgnoreCase(
-						value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-				),
-				"Invalid Compute type: " + value
-		);
+		isTrue(TRANSLATE_TYPE_VALUE.equalsIgnoreCase(
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")),
+			"Invalid Compute type: " + value);
 
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
@@ -54,8 +51,6 @@ public class TypeProcessor extends TranslateProcessor {
 		Translate translate = new Translate();
 		translate.setIndex(getComputeIndex(matcher));
 
-		source
-				.getComputes()
-				.add(translate);
+		source.getComputes().add(translate);
 	}
 }

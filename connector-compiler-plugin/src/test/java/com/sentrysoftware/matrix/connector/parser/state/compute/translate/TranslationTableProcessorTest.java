@@ -31,10 +31,8 @@ class TranslationTableProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> translationTableProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no Translate found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector));
 
 		// Key matches, Translate found, no TranslationTables found
 		Translate translate = new Translate();
@@ -43,44 +41,28 @@ class TranslationTableProcessorTest {
 		connector.setTranslationTables(null);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						translate
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(translate))
+						.build()))
+					.build())
+				.build());
 
-		assertThrows(
-				IllegalStateException.class,
-				() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector)
-		);
+		assertThrows(IllegalStateException.class,
+			() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector));
 
 		// Key matches, Translate found, TranslationTables found, no TranslationTable named FOO
 		Map<String, TranslationTable> translationTables = new HashMap<>();
 		connector.setTranslationTables(translationTables);
-		assertThrows(
-				IllegalStateException.class,
-				() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector)
-		);
+		assertThrows(IllegalStateException.class,
+			() -> translationTableProcessor.parse(TRANSLATE_TRANSLATION_TABLE_KEY, FOO, connector));
 
 		// Key matches, Translate found, TranslationTables found, TranslationTable named FOO found
 		TranslationTable translationTable = new TranslationTable();

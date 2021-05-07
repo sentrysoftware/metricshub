@@ -26,9 +26,9 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		Matcher matcher;
 
 		return value != null
-				&& key != null
-				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isDuplicateColumnContext(value, matcher, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isDuplicateColumnContext(value, matcher, connector);
 	}
 
 	private boolean isDuplicateColumnContext(String value, Matcher matcher, Connector connector) {
@@ -36,8 +36,7 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		if (this instanceof TypeProcessor) {
 
 			return DUPLICATE_COLUMN_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
 		return getDuplicateColumn(matcher, connector) != null;
@@ -53,28 +52,18 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 
 	private DuplicateColumn getDuplicateColumn(Matcher matcher, Connector connector) {
 
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(
-				connector,
-				getMonitorName(matcher)
-		);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		Source source = getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		return getDuplicateColumn(
-				source,
-				getComputeIndex(matcher)
-		);
+		return getDuplicateColumn(source, getComputeIndex(matcher));
 	}
 
 	protected DuplicateColumn getDuplicateColumn(Source source, int computeIndex) {
 
 		return source == null
-				? null
-				: getDuplicateColumn(source.getComputes(), computeIndex);
+			? null
+			: getDuplicateColumn(source.getComputes(), computeIndex);
 	}
 
 	private DuplicateColumn getDuplicateColumn(List<Compute> computes, int computeIndex) {
@@ -84,13 +73,10 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		}
 
 		return (DuplicateColumn) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof DuplicateColumn
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof DuplicateColumn && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	protected Source getSource(Matcher matcher, Connector connector) {
@@ -98,11 +84,7 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		String monitorName = getMonitorName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 	}
 
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
@@ -112,8 +94,8 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -125,10 +107,10 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
@@ -136,16 +118,14 @@ public abstract class DuplicateColumnProcessor implements IConnectorStateParser 
 		notNull(connector, "Connector cannot be null.");
 
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
-				.findFirst()
-				.orElse(null);
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+				.getType()
+				.getName()
+				.equalsIgnoreCase(monitorName))
+			.findFirst()
+			.orElse(null);
 	}
 
 	private String getMonitorName(Matcher matcher) {

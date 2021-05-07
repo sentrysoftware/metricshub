@@ -57,24 +57,21 @@ class DuplicateColumnProcessorTest {
 
 		// Source not null
 		Source source = SNMPGetTableSource
-				.builder()
-				.index(1)
-				.build();
+			.builder()
+			.index(1)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(Collections.singletonList(source))
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(source))
+					.build())
+				.build());
+
 		assertFalse(columnProcessor.detect(DUPLICATE_COLUMN_KEY, FOO, connector));
 
 		// Source not null, source.getComputes() null
@@ -111,41 +108,27 @@ class DuplicateColumnProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(
-				typeProcessor.getDuplicateColumn(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+		assertNull(typeProcessor.getDuplicateColumn(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.build())
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(
+						SNMPGetTableSource
+							.builder()
+							.index(1)
+							.build()))
+					.build())
+				.build());
 
-		assertNull(
-				typeProcessor.getDuplicateColumn(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+		assertNull(typeProcessor.getDuplicateColumn(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 	}
 
 	@Test
@@ -156,13 +139,12 @@ class DuplicateColumnProcessorTest {
 
 		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is null
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.build());
+
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is not null,
@@ -174,24 +156,24 @@ class DuplicateColumnProcessorTest {
 		collect.setSources(null);
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.setCollect(collect);
+			.getHardwareMonitors()
+			.get(0)
+			.setCollect(collect);
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is not null,
 		// HardwareMonitor.getCollect().getSources() is not null, wrong source index
 		SNMPGetTableSource source = SNMPGetTableSource
-				.builder()
-				.index(2)
-				.build();
+			.builder()
+			.index(2)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.getCollect()
-				.setSources(Collections.singletonList(source));
+			.getHardwareMonitors()
+			.get(0)
+			.getCollect()
+			.setSources(Collections.singletonList(source));
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 	}

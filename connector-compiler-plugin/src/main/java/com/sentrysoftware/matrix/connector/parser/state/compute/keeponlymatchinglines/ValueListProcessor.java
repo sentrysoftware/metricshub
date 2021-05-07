@@ -16,9 +16,8 @@ import static org.springframework.util.Assert.notNull;
 public class ValueListProcessor extends KeepOnlyMatchingLinesProcessor {
 
 	private static final Pattern VALUE_LIST_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.valuelist\\s*$",
-			Pattern.CASE_INSENSITIVE
-	);
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.valuelist\\s*$",
+		Pattern.CASE_INSENSITIVE);
 
 	@Override
 	protected Matcher getMatcher(String key) {
@@ -36,18 +35,12 @@ public class ValueListProcessor extends KeepOnlyMatchingLinesProcessor {
 		Source source = getSource(matcher, connector);
 
 		KeepOnlyMatchingLines keepOnlyMatchingLines = getKeepOnlyMatchingLines(source, getComputeIndex(matcher));
-		notNull(
-				keepOnlyMatchingLines,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT
-		);
+		notNull(keepOnlyMatchingLines,
+			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		keepOnlyMatchingLines
-				.setValueList(
-						Arrays.asList(
-								value
-										.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-										.split(COMA)
-						)
-				);
+		keepOnlyMatchingLines.setValueList(
+			Arrays.asList(value
+							.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
+							.split(COMA)));
 	}
 }

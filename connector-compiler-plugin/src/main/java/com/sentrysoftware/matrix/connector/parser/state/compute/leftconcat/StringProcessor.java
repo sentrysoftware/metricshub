@@ -14,9 +14,8 @@ import static org.springframework.util.Assert.notNull;
 public class StringProcessor extends LeftConcatProcessor {
 
 	private static final Pattern REGEXP_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.string\\s*$",
-			Pattern.CASE_INSENSITIVE
-	);
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.string\\s*$",
+		Pattern.CASE_INSENSITIVE);
 
 	@Override
 	protected Matcher getMatcher(String key) {
@@ -34,14 +33,10 @@ public class StringProcessor extends LeftConcatProcessor {
 		Source source = getSource(matcher, connector);
 
 		LeftConcat leftConcat = getLeftConcat(source, getComputeIndex(matcher));
-		notNull(
-				leftConcat,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT
-		);
+		notNull(leftConcat,
+			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		leftConcat
-				.setString(
-						value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-				);
+		leftConcat.setString(
+			value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 	}
 }

@@ -9,18 +9,18 @@ public class ConnectorTranslateComputeParser implements IConnectorStateParser {
 	public boolean detect(String key, String value, Connector connector) {
 
 		return ConnectorTranslateProperty
-				.getConnectorProperties()
-				.stream()
-				.anyMatch(connectorTranslateProperty -> connectorTranslateProperty.detect(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.anyMatch(connectorTranslateProperty -> connectorTranslateProperty.detect(key, value, connector));
 	}
 
 	@Override
 	public void parse(String key, String value, Connector connector) {
 
 		ConnectorTranslateProperty
-				.getConnectorProperties()
-				.stream()
-				.filter(connectorTranslateProperty -> connectorTranslateProperty.detect(key, value, connector))
-				.forEach(connectorTranslateProperty -> connectorTranslateProperty.parse(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.filter(connectorTranslateProperty -> connectorTranslateProperty.detect(key, value, connector))
+			.forEach(connectorTranslateProperty -> connectorTranslateProperty.parse(key, value, connector));
 	}
 }

@@ -38,27 +38,22 @@ class TypeProcessorTest {
 
 		// Key matches, value is valid, Source found, source.getComputes() == null
 		SNMPGetTableSource source = SNMPGetTableSource
-				.builder()
-				.index(1)
-				.build();
+			.builder()
+			.index(1)
+			.build();
 		source.setComputes(null);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(
-														Collections.singletonList(source)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(source))
+					.build())
+				.build());
+
 		typeProcessor.parse(DUPLICATE_COLUMN_TYPE_KEY_1, DUPLICATE_COLUMN_TYPE_VALUE, connector);
 		assertNotNull(source.getComputes());
 		assertEquals(1, source.getComputes().size());

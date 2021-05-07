@@ -26,13 +26,12 @@ class ConnectorKeepOnlyMatchingLinesComputeParserTest {
 	void testParse() {
 
 		ConnectorKeepOnlyMatchingLinesComputeParser connectorKeepOnlyMatchingLinesComputeParser =
-				new ConnectorKeepOnlyMatchingLinesComputeParser();
+			new ConnectorKeepOnlyMatchingLinesComputeParser();
 
 		connectorKeepOnlyMatchingLinesComputeParser.parse(
-				KEEP_ONLY_MATCHING_LINES_DISCOVERY_TYPE_KEY,
-				KEEP_ONLY_MATCHING_LINES_TYPE_VALUE,
-				connector
-		);
+			KEEP_ONLY_MATCHING_LINES_DISCOVERY_TYPE_KEY,
+			KEEP_ONLY_MATCHING_LINES_TYPE_VALUE,
+			connector);
 
 		assertNotNull(connector.getHardwareMonitors());
 		assertTrue(connector.getHardwareMonitors().isEmpty());

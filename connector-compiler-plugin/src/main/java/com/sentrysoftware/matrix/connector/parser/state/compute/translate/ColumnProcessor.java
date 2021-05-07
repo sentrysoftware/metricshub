@@ -14,9 +14,8 @@ import static org.springframework.util.Assert.notNull;
 public class ColumnProcessor extends TranslateProcessor {
 
 	private static final Pattern COLUMN_KEY_PATTERN = Pattern.compile(
-			"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.column\\s*$",
-			Pattern.CASE_INSENSITIVE
-	);
+		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.column\\s*$",
+		Pattern.CASE_INSENSITIVE);
 
 	@Override
 	protected Matcher getMatcher(String key) {
@@ -34,17 +33,12 @@ public class ColumnProcessor extends TranslateProcessor {
 		Source source = getSource(matcher, connector);
 
 		Translate translate = getTranslate(source, getComputeIndex(matcher));
-		notNull(
-				translate,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT
-		);
+		notNull(translate,
+				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		String strippedValue = value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1");
 		isTrue(strippedValue.matches("\\d+"), "Column number is invalid: " + value);
 
-		translate
-				.setColumn(
-						Integer.parseInt(strippedValue)
-				);
+		translate.setColumn(Integer.parseInt(strippedValue));
 	}
 }

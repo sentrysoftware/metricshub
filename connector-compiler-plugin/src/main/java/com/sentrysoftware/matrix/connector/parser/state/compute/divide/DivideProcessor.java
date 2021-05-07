@@ -26,18 +26,24 @@ public abstract class DivideProcessor implements IConnectorStateParser {
 		Matcher matcher;
 
 		return value != null
-				&& key != null
-				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isDivideContext(value, matcher, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isDivideContext(value, matcher, connector);
 	}
 
+	/**
+	 * @param value
+	 * @param matcher
+	 * @param connector	The {@link Connector}
+	 *
+	 * @return
+	 */
 	private boolean isDivideContext(String value, Matcher matcher, Connector connector) {
 
 		if (this instanceof TypeProcessor) {
 
 			return DIVIDE_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
 		return getDivide(matcher, connector) != null;
@@ -53,30 +59,32 @@ public abstract class DivideProcessor implements IConnectorStateParser {
 
 	private Divide getDivide(Matcher matcher, Connector connector) {
 
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(
-				connector,
-				getMonitorName(matcher)
-		);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		Source source = getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		return getDivide(
-				source,
-				getComputeIndex(matcher)
-		);
+		return getDivide(source, getComputeIndex(matcher));
 	}
 
+	/**
+	 *
+	 * @param source
+	 * @param computeIndex
+	 * @return
+	 */
 	protected Divide getDivide(Source source, int computeIndex) {
 
 		return source == null
-				? null
-				: getDivide(source.getComputes(), computeIndex);
+			? null
+			: getDivide(source.getComputes(), computeIndex);
 	}
 
+	/**
+	 *
+	 * @param computes
+	 * @param computeIndex
+	 * @return
+	 */
 	private Divide getDivide(List<Compute> computes, int computeIndex) {
 
 		if (computes == null) {
@@ -84,27 +92,33 @@ public abstract class DivideProcessor implements IConnectorStateParser {
 		}
 
 		return (Divide) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof Divide
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof Divide && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
+	/**
+	 *
+	 * @param matcher
+	 * @param connector
+	 * @return
+	 */
 	protected Source getSource(Matcher matcher, Connector connector) {
 
 		String monitorName = getMonitorName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 	}
 
+	/**
+	 *
+	 * @param hardwareMonitor
+	 * @param monitorJobName
+	 * @param sourceIndex
+	 * @return
+	 */
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
 
 		if (hardwareMonitor == null) {
@@ -112,8 +126,8 @@ public abstract class DivideProcessor implements IConnectorStateParser {
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -125,44 +139,68 @@ public abstract class DivideProcessor implements IConnectorStateParser {
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
+	/**
+	 *
+	 * @param connector
+	 * @param monitorName
+	 * @return
+	 */
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
 
 		notNull(connector, "Connector cannot be null.");
 
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
-				.findFirst()
-				.orElse(null);
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+				.getType()
+				.getName()
+				.equalsIgnoreCase(monitorName))
+			.findFirst()
+			.orElse(null);
 	}
 
+	/**
+	 *
+	 * @param matcher
+	 * @return
+	 */
 	private String getMonitorName(Matcher matcher) {
 
 		return matcher.group(1);
 	}
 
+	/**
+	 *
+	 * @param matcher
+	 * @return
+	 */
 	private String getMonitorJobName(Matcher matcher) {
 
 		return matcher.group(2);
 	}
 
+	/**
+	 *
+	 * @param matcher
+	 * @return
+	 */
 	private Integer getSourceIndex(Matcher matcher) {
 
 		return Integer.parseInt(matcher.group(3));
 	}
 
+	/**
+	 *
+	 * @param matcher
+	 * @return
+	 */
 	protected Integer getComputeIndex(Matcher matcher) {
 
 		return Integer.parseInt(matcher.group(4));

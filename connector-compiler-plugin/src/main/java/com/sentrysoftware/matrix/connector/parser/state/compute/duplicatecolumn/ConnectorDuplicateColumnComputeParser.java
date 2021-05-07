@@ -9,18 +9,18 @@ public class ConnectorDuplicateColumnComputeParser implements IConnectorStatePar
 	public boolean detect(String key, String value, Connector connector) {
 
 		return ConnectorDuplicateColumnProperty
-				.getConnectorProperties()
-				.stream()
-				.anyMatch(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.detect(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.anyMatch(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.detect(key, value, connector));
 	}
 
 	@Override
 	public void parse(String key, String value, Connector connector) {
 
 		ConnectorDuplicateColumnProperty
-				.getConnectorProperties()
-				.stream()
-				.filter(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.detect(key, value, connector))
-				.forEach(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.parse(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.filter(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.detect(key, value, connector))
+			.forEach(connectorDuplicateColumnProperty -> connectorDuplicateColumnProperty.parse(key, value, connector));
 	}
 }

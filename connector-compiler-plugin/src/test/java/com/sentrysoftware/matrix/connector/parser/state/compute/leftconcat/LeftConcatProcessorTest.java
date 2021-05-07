@@ -58,24 +58,21 @@ class LeftConcatProcessorTest {
 
 		// Source not null
 		Source source = SNMPGetTableSource
-				.builder()
-				.index(1)
-				.build();
+			.builder()
+			.index(1)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.collect(
-										Collect
-												.builder()
-												.sources(Collections.singletonList(source))
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.collect(Collect
+					.builder()
+					.sources(Collections.singletonList(source))
+					.build())
+				.build());
+
 		assertFalse(columnProcessor.detect(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
 
 		// Source not null, source.getComputes() null
@@ -112,40 +109,26 @@ class LeftConcatProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_DISCOVERY_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(
-				typeProcessor.getLeftConcat(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+		assertNull(typeProcessor.getLeftConcat(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.build())
-												)
-												.build()
-								)
-								.build()
-				);
-		assertNull(
-				typeProcessor.getLeftConcat(
-						typeProcessor.getSource(matcher, connector),
-						typeProcessor.getComputeIndex(matcher)
-				)
-		);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.build()))
+					.build())
+				.build());
+
+		assertNull(typeProcessor.getLeftConcat(typeProcessor.getSource(matcher, connector),
+			typeProcessor.getComputeIndex(matcher)));
 	}
 
 	@Test
@@ -156,13 +139,12 @@ class LeftConcatProcessorTest {
 
 		// HardwareMonitor found, job is collect, HardwareMonitor.getCollect() is null
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.build());
+
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
@@ -174,24 +156,24 @@ class LeftConcatProcessorTest {
 		discovery.setSources(null);
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.setDiscovery(discovery);
+			.getHardwareMonitors()
+			.get(0)
+			.setDiscovery(discovery);
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 
 		// HardwareMonitor found, job is discovery, HardwareMonitor.getDiscovery() is not null,
 		// HardwareMonitor.getDiscovery().getSources() is not null, wrong source index
 		SNMPGetTableSource source = SNMPGetTableSource
-				.builder()
-				.index(2)
-				.build();
+			.builder()
+			.index(2)
+			.build();
 
 		connector
-				.getHardwareMonitors()
-				.get(0)
-				.getDiscovery()
-				.setSources(Collections.singletonList(source));
+			.getHardwareMonitors()
+			.get(0)
+			.getDiscovery()
+			.setSources(Collections.singletonList(source));
 
 		assertNull(typeProcessor.getSource(matcher, connector));
 	}

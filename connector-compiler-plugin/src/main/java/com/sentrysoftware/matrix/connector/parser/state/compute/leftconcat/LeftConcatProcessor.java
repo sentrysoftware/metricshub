@@ -26,9 +26,9 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		Matcher matcher;
 
 		return value != null
-				&& key != null
-				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isLeftConcatContext(value, matcher, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isLeftConcatContext(value, matcher, connector);
 	}
 
 	private boolean isLeftConcatContext(String value, Matcher matcher, Connector connector) {
@@ -36,8 +36,7 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		if (this instanceof TypeProcessor) {
 
 			return LEFT_CONCAT_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
 		return getLeftConcat(matcher, connector) != null;
@@ -53,28 +52,18 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 
 	private LeftConcat getLeftConcat(Matcher matcher, Connector connector) {
 
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(
-				connector,
-				getMonitorName(matcher)
-		);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		Source source = getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		return getLeftConcat(
-				source,
-				getComputeIndex(matcher)
-		);
+		return getLeftConcat(source, getComputeIndex(matcher));
 	}
 
 	protected LeftConcat getLeftConcat(Source source, int computeIndex) {
 
 		return source == null
-				? null
-				: getLeftConcat(source.getComputes(), computeIndex);
+			? null
+			: getLeftConcat(source.getComputes(), computeIndex);
 	}
 
 	private LeftConcat getLeftConcat(List<Compute> computes, int computeIndex) {
@@ -84,13 +73,10 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		}
 
 		return (LeftConcat) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof LeftConcat
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof LeftConcat && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	protected Source getSource(Matcher matcher, Connector connector) {
@@ -99,9 +85,9 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
 		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
+			hardwareMonitor,
+			getMonitorJobName(matcher),
+			getSourceIndex(matcher)
 		);
 	}
 
@@ -112,8 +98,8 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -125,10 +111,10 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
@@ -136,16 +122,14 @@ public abstract class LeftConcatProcessor implements IConnectorStateParser {
 		notNull(connector, "Connector cannot be null.");
 
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
-				.findFirst()
-				.orElse(null);
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+					.getType()
+					.getName()
+					.equalsIgnoreCase(monitorName))
+			.findFirst()
+			.orElse(null);
 	}
 
 	private String getMonitorName(Matcher matcher) {

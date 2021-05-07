@@ -26,9 +26,9 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		Matcher matcher;
 
 		return value != null
-				&& key != null
-				&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
-				&& isKeepOnlyMatchingLinesContext(value, matcher, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isKeepOnlyMatchingLinesContext(value, matcher, connector);
 	}
 
 	private boolean isKeepOnlyMatchingLinesContext(String value, Matcher matcher, Connector connector) {
@@ -36,8 +36,7 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		if (this instanceof TypeProcessor) {
 
 			return KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
 		return getKeepOnlyMatchingLines(matcher, connector) != null;
@@ -53,28 +52,18 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 
 	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(Matcher matcher, Connector connector) {
 
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(
-				connector,
-				getMonitorName(matcher)
-		);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		Source source = getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		return getKeepOnlyMatchingLines(
-				source,
-				getComputeIndex(matcher)
-		);
+		return getKeepOnlyMatchingLines(source, getComputeIndex(matcher));
 	}
 
 	protected KeepOnlyMatchingLines getKeepOnlyMatchingLines(Source source, int computeIndex) {
 
 		return source == null
-				? null
-				: getKeepOnlyMatchingLines(source.getComputes(), computeIndex);
+			? null
+			: getKeepOnlyMatchingLines(source.getComputes(), computeIndex);
 	}
 
 	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(List<Compute> computes, int computeIndex) {
@@ -84,13 +73,10 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		return (KeepOnlyMatchingLines) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof KeepOnlyMatchingLines
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof KeepOnlyMatchingLines && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	protected Source getSource(Matcher matcher, Connector connector) {
@@ -98,11 +84,7 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		String monitorName = getMonitorName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 	}
 
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
@@ -112,8 +94,8 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -125,10 +107,10 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
@@ -136,14 +118,12 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		notNull(connector, "Connector cannot be null.");
 
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+						.getType()
+						.getName()
+						.equalsIgnoreCase(monitorName))
 				.findFirst()
 				.orElse(null);
 	}
