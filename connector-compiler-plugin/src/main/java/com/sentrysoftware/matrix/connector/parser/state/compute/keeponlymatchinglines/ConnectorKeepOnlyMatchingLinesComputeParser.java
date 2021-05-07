@@ -9,18 +9,18 @@ public class ConnectorKeepOnlyMatchingLinesComputeParser implements IConnectorSt
 	public boolean detect(String key, String value, Connector connector) {
 
 		return ConnectorKeepOnlyMatchingLinesProperty
-				.getConnectorProperties()
-				.stream()
-				.anyMatch(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.detect(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.anyMatch(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.detect(key, value, connector));
 	}
 
 	@Override
 	public void parse(String key, String value, Connector connector) {
 
 		ConnectorKeepOnlyMatchingLinesProperty
-				.getConnectorProperties()
-				.stream()
-				.filter(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.detect(key, value, connector))
-				.forEach(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.parse(key, value, connector));
+			.getConnectorProperties()
+			.stream()
+			.filter(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.detect(key, value, connector))
+			.forEach(connectorKeepOnlyMatchingLinesProperty -> connectorKeepOnlyMatchingLinesProperty.parse(key, value, connector));
 	}
 }

@@ -25,8 +25,8 @@ class ValueListProcessorTest {
 
 	private static final String VALUE_LIST = "0,1,2";
 	private static final String DOUBLE_QUOTED_VALUE_LIST = ConnectorParserConstants.DOUBLE_QUOTE
-			+ VALUE_LIST
-			+ ConnectorParserConstants.DOUBLE_QUOTE;
+		+ VALUE_LIST
+		+ ConnectorParserConstants.DOUBLE_QUOTE;
 
 	@Test
 	void testParse() {
@@ -35,41 +35,27 @@ class ValueListProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> valueListProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no KeepOnlyMatchingLines found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, FOO, connector));
 
 		// Key matches, KeepOnlyMatchingLines found
 		KeepOnlyMatchingLines keepOnlyMatchingLines = new KeepOnlyMatchingLines();
 		keepOnlyMatchingLines.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						keepOnlyMatchingLines
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(keepOnlyMatchingLines))
+						.build()))
+					.build())
+				.build());
 
 		valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, DOUBLE_QUOTED_VALUE_LIST, connector);
 		assertEquals(Arrays.asList("0", "1", "2"), keepOnlyMatchingLines.getValueList());

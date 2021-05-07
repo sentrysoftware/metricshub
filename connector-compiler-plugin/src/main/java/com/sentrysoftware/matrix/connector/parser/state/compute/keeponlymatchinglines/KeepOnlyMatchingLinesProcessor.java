@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
@@ -24,31 +23,23 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 	@Override
 	public boolean detect(final String key, final String value, final Connector connector) {
 
+		Matcher matcher;
+
 		return value != null
-				&& key != null
-				&& getMatcher(key).matches()
-				&& isKeepOnlyMatchingLinesContext(key, value, connector);
+			&& key != null
+			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
+			&& isKeepOnlyMatchingLinesContext(value, matcher, connector);
 	}
 
-	/**
-	 * @param key	   The current line's key.
-	 * @param connector The {@link Connector} whose detection criteria we wish to check.
-	 *
-	 * @return		  Whether the given {@link Connector}
-	 *				  has a detection SNMP {@link Criterion} with the same index as the key, or not.
-	 *				  Always returns <i>true</i> for OID keys
-	 *				  (e.g. <i>Detection.Criteria(1).SnmpGetNext</i> or <i>Detection.Criteria(1).SnmpGet</i>)
-	 */
-	private boolean isKeepOnlyMatchingLinesContext(String key, String value, Connector connector) {
+	private boolean isKeepOnlyMatchingLinesContext(String value, Matcher matcher, Connector connector) {
 
 		if (this instanceof TypeProcessor) {
 
 			return KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
-					value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-			);
+				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
 		}
 
-		return getKeepOnlyMatchingLines(key, connector) != null;
+		return getKeepOnlyMatchingLines(matcher, connector) != null;
 	}
 
 	@Override
@@ -59,38 +50,20 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		notNull(connector, "Connector cannot be null.");
 	}
 
-	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(final String key, final Connector connector) {
+	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(Matcher matcher, Connector connector) {
 
-		Matcher matcher = getMatcher(key);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher));
 
-		if (!matcher.matches()) {
-			return null;
-		}
+		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 
-		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
-
-		return getKeepOnlyMatchingLines(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher),
-				getComputeIndex(matcher)
-		);
+		return getKeepOnlyMatchingLines(source, getComputeIndex(matcher));
 	}
 
-	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(
-			HardwareMonitor hardwareMonitor,
-			String monitorJobName,
-			int sourceIndex,
-			int computeIndex
-	) {
+	protected KeepOnlyMatchingLines getKeepOnlyMatchingLines(Source source, int computeIndex) {
 
-		Source source = getSource(hardwareMonitor, monitorJobName, sourceIndex);
-		if (source == null) {
-			return null;
-		}
-
-		return getKeepOnlyMatchingLines(source.getComputes(), computeIndex);
+		return source == null
+			? null
+			: getKeepOnlyMatchingLines(source.getComputes(), computeIndex);
 	}
 
 	private KeepOnlyMatchingLines getKeepOnlyMatchingLines(List<Compute> computes, int computeIndex) {
@@ -100,23 +73,18 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		return (KeepOnlyMatchingLines) computes
-				.stream()
-				.filter(
-						compute -> compute instanceof KeepOnlyMatchingLines
-								&& compute.getIndex() == computeIndex
-				)
-				.findFirst()
-				.orElse(null);
+			.stream()
+			.filter(compute -> compute instanceof KeepOnlyMatchingLines && compute.getIndex() == computeIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
-	protected KeepOnlyMatchingLines getKeepOnlyMatchingLines(Matcher matcher, Connector connector) {
+	protected Source getSource(Matcher matcher, Connector connector) {
 
-		Source source = getSource(matcher, connector);
-		if (source == null) {
-			return null;
-		}
+		String monitorName = getMonitorName(matcher);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
 
-		return getKeepOnlyMatchingLines(source.getComputes(), getComputeIndex(matcher));
+		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
 	}
 
 	private Source getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
@@ -126,8 +94,8 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
-				? hardwareMonitor.getDiscovery()
-				: hardwareMonitor.getCollect();
+			? hardwareMonitor.getDiscovery()
+			: hardwareMonitor.getCollect();
 
 		if (monitorJob == null) {
 			return null;
@@ -139,35 +107,23 @@ public abstract class KeepOnlyMatchingLinesProcessor implements IConnectorStateP
 		}
 
 		return sources
-				.stream()
-				.filter(source -> source.getIndex() == sourceIndex)
-				.findFirst()
-				.orElse(null);
-	}
-
-	protected Source getSource(Matcher matcher, Connector connector) {
-
-		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName);
-
-		return getSource(
-				hardwareMonitor,
-				getMonitorJobName(matcher),
-				getSourceIndex(matcher)
-		);
+			.stream()
+			.filter(source -> source.getIndex() == sourceIndex)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName) {
 
+		notNull(connector, "Connector cannot be null.");
+
 		return connector
-				.getHardwareMonitors()
-				.stream()
-				.filter(
-						hardwareMonitor -> hardwareMonitor
-								.getType()
-								.getName()
-								.equalsIgnoreCase(monitorName)
-				)
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor -> hardwareMonitor
+						.getType()
+						.getName()
+						.equalsIgnoreCase(monitorName))
 				.findFirst()
 				.orElse(null);
 	}

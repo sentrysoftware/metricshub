@@ -29,41 +29,28 @@ class RegexpProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> regexpProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no KeepOnlyMatchingLines found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> regexpProcessor.parse(KEEP_ONLY_MATCHING_LINES_REGEXP_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> regexpProcessor.parse(KEEP_ONLY_MATCHING_LINES_REGEXP_KEY, FOO, connector));
 
 		// Key matches, KeepOnlyMatchingLines found
 		KeepOnlyMatchingLines keepOnlyMatchingLines = new KeepOnlyMatchingLines();
 		keepOnlyMatchingLines.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						keepOnlyMatchingLines
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(keepOnlyMatchingLines))
+						.build()))
+					.build())
+				.build()
+			);
 
 		regexpProcessor.parse(KEEP_ONLY_MATCHING_LINES_REGEXP_KEY, REGEXP, connector);
 		assertEquals(REGEXP, keepOnlyMatchingLines.getRegExp());

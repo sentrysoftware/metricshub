@@ -28,41 +28,27 @@ class StringProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> stringProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no LeftConcat found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> stringProcessor.parse(LEFT_CONCAT_STRING_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> stringProcessor.parse(LEFT_CONCAT_STRING_KEY, FOO, connector));
 
 		// Key matches, LeftConcat found
 		LeftConcat leftConcat = new LeftConcat();
 		leftConcat.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						leftConcat
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(leftConcat))
+						.build()))
+					.build())
+				.build());
 
 		stringProcessor.parse(LEFT_CONCAT_STRING_KEY, FOO, connector);
 		assertEquals(FOO, leftConcat.getString());

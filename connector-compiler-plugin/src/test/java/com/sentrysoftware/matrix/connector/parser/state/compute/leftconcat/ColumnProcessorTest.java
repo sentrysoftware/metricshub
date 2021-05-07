@@ -29,46 +29,30 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, no LeftConcat found
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
 
 		// Key matches, LeftConcat found, invalid value
 		LeftConcat leftConcat = new LeftConcat();
 		leftConcat.setIndex(1);
 
 		connector
-				.getHardwareMonitors()
-				.add(
-						HardwareMonitor
-								.builder()
-								.type(MonitorType.ENCLOSURE)
-								.discovery(
-										Discovery
-												.builder()
-												.sources(
-														Collections.singletonList(
-																SNMPGetTableSource
-																		.builder()
-																		.index(1)
-																		.computes(
-																				Collections.singletonList(
-																						leftConcat
-																				)
-																		)
-																		.build()
-														)
-												)
-												.build()
-								)
-								.build()
-				);
+			.getHardwareMonitors()
+			.add(HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery
+					.builder()
+					.sources(Collections.singletonList(SNMPGetTableSource
+						.builder()
+						.index(1)
+						.computes(Collections.singletonList(leftConcat))
+						.build()))
+					.build())
+				.build());
 
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector)
-		);
+		assertThrows(IllegalArgumentException.class,
+			() -> columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, FOO, connector));
 
 		// Key matches, LeftConcat found, value is valid
 		columnProcessor.parse(LEFT_CONCAT_COLUMN_KEY, NINE, connector);
