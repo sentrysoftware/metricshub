@@ -83,7 +83,7 @@ public class SourceTable {
 	 *             The cells serparator
 	 * @return {@link List} of {@link String}
 	 */
-	protected static List<String> lineToList(String line, final String separator) {
+	 public static List<String> lineToList(String line, final String separator) {
 		if (line != null && !line.isEmpty()) {
 			// Make sure the line ends with the separator
 			line = !line.endsWith(separator) ? line + separator : line;

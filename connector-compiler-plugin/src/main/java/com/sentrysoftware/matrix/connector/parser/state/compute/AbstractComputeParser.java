@@ -144,7 +144,7 @@ public abstract class AbstractComputeParser implements IConnectorStateParser {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> T getCompute(List<Compute> computes, int computeIndex) {
+	private <T> T getCompute(List<Compute> computes, int computeIndex) {
 	
 		if (computes == null) {
 			return null;
@@ -187,7 +187,7 @@ public abstract class AbstractComputeParser implements IConnectorStateParser {
 	 *
 	 * @return
 	 */
-	protected boolean isComputeContext(String value, Matcher matcher, Connector connector) {
+	private boolean isComputeContext(String value, Matcher matcher, Connector connector) {
 	
 		if (getTypeProcessor().isInstance(this)) {
 	

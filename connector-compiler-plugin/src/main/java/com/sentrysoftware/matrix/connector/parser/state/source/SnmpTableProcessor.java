@@ -20,17 +20,17 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class SnmpTableProcessor implements IConnectorStateParser {
 
-	protected static final String SNMP_TABLE_TYPE_KEY = "type";
-	protected static final String SNMP_TABLE_OID_KEY = "snmptableoid";
-	protected static final String SNMP_TABLE_SELECT_KEY = "snmptableselectcolumns";
-	protected static final String SNMP_TABLE_FORCE_SERIALIZATION_KEY = "forceserialization";
-	protected static final String SNMP_TABLE_KEY = "snmptable";
+	private static final String SNMP_TABLE_TYPE_KEY = "type";
+	private static final String SNMP_TABLE_OID_KEY = "snmptableoid";
+	private static final String SNMP_TABLE_SELECT_KEY = "snmptableselectcolumns";
+	private static final String SNMP_TABLE_FORCE_SERIALIZATION_KEY = "forceserialization";
+	private static final String SNMP_TABLE_KEY = "snmptable";
 
-	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
+	private static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
 			"^\\s*(([a-z]+)\\.(discovery|collect)\\.source\\((\\d+)\\)\\.(type|snmptableoid|snmptableselectcolumns|forceserialization))\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 
-	protected Pattern getKeyRegex() {
+	private Pattern getKeyRegex() {
 		return SNMP_TABLE_KEY_PATTERN;
 	}
 
@@ -113,7 +113,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @param key The to parse to find the index.
 	 * @return {@link index}
 	 */
-	protected int getIndex(final String key) {
+	int getIndex(final String key) {
 		return Integer.parseInt(key.substring(key.indexOf(ConnectorParserConstants.OPENING_PARENTHESIS) + 1, key.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS)));
 	}
 
@@ -124,7 +124,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link hardwareMonitor}
 	 */
-	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
+	HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
 		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
@@ -165,7 +165,7 @@ public class SnmpTableProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link HardwareMonitor} instance
 	 */
-	protected HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
+	HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
 
 		final MonitorType monitorType = MonitorType.getByName(monitorName);
 

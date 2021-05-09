@@ -47,7 +47,7 @@ public class InstanceTableProcessor extends AbstractInstanceProcessor {
 	 * @param value
 	 * @return {@link InstanceTable}
 	 */
-	protected InstanceTable getInstanceTableFromValue(final String value) {
+	InstanceTable getInstanceTableFromValue(final String value) {
 		final Matcher matcher = SOURCE_PATTERN.matcher(value);
 
 		return matcher.find() ? getSourceInstanceTable(value) : getTextInstanceTable(value);
@@ -59,7 +59,7 @@ public class InstanceTableProcessor extends AbstractInstanceProcessor {
 	 * @param value
 	 * @return {@link TextInstanceTable}
 	 */
-	protected TextInstanceTable getTextInstanceTable(final String value) {
+	TextInstanceTable getTextInstanceTable(final String value) {
 		// remove first and last double quote
 		return TextInstanceTable.builder().text(value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")).build();
 	}
@@ -69,7 +69,7 @@ public class InstanceTableProcessor extends AbstractInstanceProcessor {
 	 * @param value
 	 * @return  {@link SourceInstanceTable}
 	 */
-	protected SourceInstanceTable getSourceInstanceTable(final String value) {
+	SourceInstanceTable getSourceInstanceTable(final String value) {
 
 		return SourceInstanceTable.builder().sourceKey(value.replaceAll(ConnectorParserConstants.SOURCE_REFERENCE_REGEX_REPLACEMENT, "$1").toLowerCase()).build();
 	}

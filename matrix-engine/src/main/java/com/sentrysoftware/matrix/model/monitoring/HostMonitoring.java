@@ -106,7 +106,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 * @param attachedToDeviceType The type of the monitor we wish to deduce its key
 	 * @return {@link String} value containing the key of the parent monitor 
 	 */
-	protected String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
+	String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
 

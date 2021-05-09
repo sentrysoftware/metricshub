@@ -79,7 +79,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname       The system hostname
 	 */
-	protected void collect(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname) {
+	void collect(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname) {
 		log.debug("Collect - Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
 
 		if (connector.getHardwareMonitors() == null) {
@@ -103,7 +103,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping {@link Monitor} and {@link SourceTable} instances
 	 * @param hostname        The user's configured hostname
 	 */
-	protected void collectSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
+	void collectSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final String hostname) {
 
 		// Is there any collect job here ?
@@ -195,7 +195,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param monitorType    The current type of the monitor, {@link MonitorType}
 	 * @param hostname       The user's configured hostname used for debug purpose
 	 */
-	protected void processValueTable(final String valueTable, final String connectorName,
+	void processValueTable(final String valueTable, final String connectorName,
 			final IHostMonitoring hostMonitoring, final Map<String, String> parameters,
 			final MonitorType monitorType, final String hostname) {
 
@@ -287,7 +287,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param deviceIdValueTableColumn The column index formatted as `ValueTable.Column($number)`
 	 * @return {@link Optional} {@link Monitor} instance
 	 */
-	protected Optional<Monitor> getMonitor(final String valueTable, final MonitorType monitorType,
+	Optional<Monitor> getMonitor(final String valueTable, final MonitorType monitorType,
 			final IHostMonitoring hostMonitoring, final List<String> row,
 			final String deviceIdValueTableColumn) {
 
@@ -317,7 +317,7 @@ public class CollectOperation extends AbstractStrategy {
 		return Optional.empty();
 	}
 
-	protected void collectMonoInstance(final List<Source> sources, final IHostMonitoring hostMonitoring,
+	void collectMonoInstance(final List<Source> sources, final IHostMonitoring hostMonitoring,
 			final Connector connector, final MonitorType monitorType,
 			Map<String, String> parameters, String hostname) {
 		// Not implemented yet
