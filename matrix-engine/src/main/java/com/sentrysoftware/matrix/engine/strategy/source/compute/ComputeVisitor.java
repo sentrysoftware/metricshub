@@ -263,7 +263,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			int columnIndex = leftConcat.getColumn() - 1;
 			String concatString = leftConcat.getString();
 
-			// If leftConcat.getString() is like "Concat(n)", we concat the column n instead of leftConcat.getString() 
+			// If leftConcat.getString() is like "Column(n)", we concat the column n instead of leftConcat.getString() 
 			if (COLUMN_PATTERN.matcher(concatString).matches()) {
 				int leftColumnIndex = Integer.parseInt(concatString.substring(concatString.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
 						concatString.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
@@ -337,9 +337,27 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		int columnIndex = columnToReplace - 1;
 
-		sourceTable.getTable()
-		.stream()
-		.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
+		if (COLUMN_PATTERN.matcher(replacement).matches()) {
+			int replacementColumnIndex = Integer.parseInt(replacement.substring(
+					replacement.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
+					replacement.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
+
+			if (replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+				sourceTable.getTable()
+				.stream()
+				.forEach(column -> column.set(
+						columnIndex, 
+						column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
+						);
+			}
+		} else {
+			sourceTable.getTable()
+			.stream()
+			.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+		}
+
+		sourceTable.setTable(SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON), HardwareConstants.SEMICOLON));
 	}
 
 	@Override
