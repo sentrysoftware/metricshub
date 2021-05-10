@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
@@ -89,5 +90,22 @@ public abstract class AbstractStrategy implements IStrategy {
 				hostMonitoring.addSourceTable(source.getKey(), computeVisitor.getSourceTable());
 			}
 		}
+	}
+
+	/**
+	 * Return <code>true</code> if the {@link List} of the {@link HardwareMonitor} instances is not null and not empty in the given
+	 * {@link Connector}
+	 * 
+	 * @param connector The connector we wish to check
+	 * @param hostname  The system hostname used for debug purpose
+	 * @return boolean value
+	 */
+	public boolean validateHardwareMonitors(final Connector connector, final String hostname, final String logMessageTemplate) {
+		if (connector.getHardwareMonitors() == null || connector.getHardwareMonitors().isEmpty()) {
+			log.warn(logMessageTemplate, hostname, connector.getCompiledFilename());
+			return false;
+		}
+	
+		return true;
 	}
 }

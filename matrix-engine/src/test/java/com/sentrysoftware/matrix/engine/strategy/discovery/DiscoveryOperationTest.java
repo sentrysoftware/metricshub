@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -255,23 +256,6 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverNoHardwareMonitors() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final Connector connector = Connector.builder().compiledFilename(MY_CONNECTOR_1_NAME).hardwareMonitors(null).build();
-		discoveryOperation.discover(connector , hostMonitoring, ECS1_01, targetMonitor);
-
-		assertTrue(hostMonitoring.getMonitors().isEmpty());
-	}
-
-	@Test
 	void testDiscoverMultiJobs() {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
 
@@ -518,16 +502,8 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNoParameters() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+	void testValidateHardwareMonitorFieldsNoParameters() {
+
 		final SourceInstanceTable sourceTable = SourceInstanceTable
 				.builder()
 				.sourceKey(ENCLOSURE_SOURCE_KEY)
@@ -542,73 +518,44 @@ class DiscoveryOperationTest {
 				.discovery(discovery)
 				.build();
 
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
-
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
-
 		discovery.setParameters(null);
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
+
+		discovery.setParameters(Collections.emptyMap());
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullInstanceTable() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(Discovery.builder().instanceTable(null).build()).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
+	void testValidateHardwareMonitorFieldsNullInstanceTable() {
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		final HardwareMonitor hardwareMonitor = HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery.builder().instanceTable(null).build()).build();
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullDiscovery() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory
-				.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+	void testValidateHardwareMonitorFieldsNullDiscovery() {
+
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
 				.type(MonitorType.ENCLOSURE)
 				.discovery(null)
 				.build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullType() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory
-				.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().discovery(null).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
+	void testValidateHardwareMonitorFieldsNullType() {
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().discovery(null).build();
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
