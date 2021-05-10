@@ -1,25 +1,30 @@
 package com.sentrysoftware.matrix.connector.parser.state;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.AppliesToOSProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.DisplayNameProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.LocalSupportProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.ReliesOnProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.RemoteSupportProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.SupersedesProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.TypicalPlatformProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimplePropertyParser.VersionProcessor;
-import junit.framework.Assert;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-class ConnectorSimplePropertyParserTest {
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOSProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.DisplayNameProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.LocalSupportProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.ReliesOnProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.RemoteSupportProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.SupersedesProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.TypicalPlatformProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.VersionProcessor;
+
+class ConnectorSimplePropertyTest {
 	
 	private static final String DISPLAY_NAME_KEY = "hdf.DisplayName";
 	private static final String SUPERSEDES_KEY = "hdf.Supersedes";
@@ -60,7 +65,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(displayNameProcessor.detect(key, value, connector));
+		assertFalse(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -69,7 +74,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(displayNameProcessor.detect(key, value, connector));
+		assertFalse(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -78,7 +83,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(displayNameProcessor.detect(key, value, connector));
+		assertFalse(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -87,7 +92,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(displayNameProcessor.detect(key, value, connector));
+		assertTrue(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -96,7 +101,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(displayNameProcessor.detect(key, value, connector));
+		assertTrue(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -105,7 +110,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY.toUpperCase();
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(displayNameProcessor.detect(key, value, connector));
+		assertTrue(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -114,7 +119,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY.toLowerCase();
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(displayNameProcessor.detect(key, value, connector));
+		assertTrue(displayNameProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -123,7 +128,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = DISPLAY_NAME_KEY;
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(displayNameProcessor.detect(key, value, connector));
+		assertTrue(displayNameProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -133,7 +138,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = null;
 		displayNameProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -143,7 +148,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		displayNameProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getDisplayName());
+		assertNull(connector.getDisplayName());
 	}
 	
 	@Test
@@ -153,7 +158,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(DISPLAY_NAME_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		displayNameProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
+		assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
 	}
 	
 	@Test
@@ -163,7 +168,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
 		displayNameProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
+		assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
 	}
 	
 	// Supersedes tests
@@ -174,7 +179,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(supersedesProcessor.detect(key, value, connector));
+		assertFalse(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -183,7 +188,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(supersedesProcessor.detect(key, value, connector));
+		assertFalse(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -192,7 +197,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(supersedesProcessor.detect(key, value, connector));
+		assertFalse(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -201,7 +206,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(supersedesProcessor.detect(key, value, connector));
+		assertTrue(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -210,7 +215,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(supersedesProcessor.detect(key, value, connector));
+		assertTrue(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -219,7 +224,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY.toUpperCase();
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(supersedesProcessor.detect(key, value, connector));
+		assertTrue(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -228,7 +233,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY.toLowerCase();
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(supersedesProcessor.detect(key, value, connector));
+		assertTrue(supersedesProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -237,7 +242,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = SUPERSEDES_KEY;
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(supersedesProcessor.detect(key, value, connector));
+		assertTrue(supersedesProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -247,7 +252,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SUPERSEDES_VALUE;
 		Connector connector = null;
 		supersedesProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -257,7 +262,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		supersedesProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getSupersedes(), new HashSet<>());
+		assertEquals(connector.getSupersedes(), new HashSet<>());
 	}
 	
 	@Test
@@ -267,7 +272,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SUPERSEDES_VALUE_SPACED;
 		Connector connector = new Connector();
 		supersedesProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
+		assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
 	}
 	
 	@Test
@@ -277,7 +282,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
 		supersedesProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
+		assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
 	}
 	
 	// AppliesToOS tests
@@ -288,7 +293,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(appliesToOSProcessor.detect(key, value, connector));
+		assertFalse(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -297,7 +302,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value =APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(appliesToOSProcessor.detect(key, value, connector));
+		assertFalse(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -306,7 +311,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(appliesToOSProcessor.detect(key, value, connector));
+		assertFalse(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -315,7 +320,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(appliesToOSProcessor.detect(key, value, connector));
+		assertTrue(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -324,7 +329,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(appliesToOSProcessor.detect(key, value, connector));
+		assertTrue(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -333,7 +338,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY.toUpperCase();
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(appliesToOSProcessor.detect(key, value, connector));
+		assertTrue(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -342,7 +347,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY.toLowerCase();
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(appliesToOSProcessor.detect(key, value, connector));
+		assertTrue(appliesToOSProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -351,7 +356,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(appliesToOSProcessor.detect(key, value, connector));
+		assertTrue(appliesToOSProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -361,7 +366,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = null;
 		appliesToOSProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -371,7 +376,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		appliesToOSProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getAppliesToOS(), new HashSet<>());
+		assertEquals(connector.getAppliesToOS(), new HashSet<>());
 	}
 	
 	@Test
@@ -381,7 +386,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = APPLIES_TO_OS_VALUE_SPACED;
 		Connector connector = new Connector();
 		appliesToOSProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
+		assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
 	}
 	
 	@Test
@@ -391,7 +396,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
 		appliesToOSProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
+		assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
 	}
 	
 	// LocalSupport tests
@@ -402,7 +407,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(localSupportProcessor.detect(key, value, connector));
+		assertFalse(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -411,7 +416,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(localSupportProcessor.detect(key, value, connector));
+		assertFalse(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -420,7 +425,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(localSupportProcessor.detect(key, value, connector));
+		assertFalse(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -429,7 +434,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(localSupportProcessor.detect(key, value, connector));
+		assertTrue(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -438,7 +443,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = null;
-		Assert.assertTrue(localSupportProcessor.detect(key, value, connector));
+		assertTrue(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -447,7 +452,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY.toUpperCase();
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(localSupportProcessor.detect(key, value, connector));
+		assertTrue(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -456,7 +461,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY.toLowerCase();
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(localSupportProcessor.detect(key, value, connector));
+		assertTrue(localSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -465,7 +470,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = LOCAL_SUPPORT_KEY;
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(localSupportProcessor.detect(key, value, connector));
+		assertTrue(localSupportProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -475,7 +480,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = null;
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -485,7 +490,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getLocalSupport());
+		assertNull(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -495,7 +500,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(LOCAL_SUPPORT_VALUE_TRUE).concat(SPACE);
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.getLocalSupport());
+		assertTrue(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -505,7 +510,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = LOCAL_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.getLocalSupport());
+		assertTrue(connector.getLocalSupport());
 	}
 	
 	@Test
@@ -515,7 +520,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = LOCAL_SUPPORT_VALUE_FALSE;
 		Connector connector = new Connector();
 		localSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.getLocalSupport());
+		assertFalse(connector.getLocalSupport());
 	}
 	
 	// RemoteSupport tests
@@ -526,7 +531,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(remoteSupportProcessor.detect(key, value, connector));
+		assertFalse(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -535,7 +540,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(remoteSupportProcessor.detect(key, value, connector));
+		assertFalse(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -544,7 +549,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(remoteSupportProcessor.detect(key, value, connector));
+		assertFalse(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -553,7 +558,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(remoteSupportProcessor.detect(key, value, connector));
+		assertTrue(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -562,7 +567,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = null;
-		Assert.assertTrue(remoteSupportProcessor.detect(key, value, connector));
+		assertTrue(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -571,7 +576,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY.toUpperCase();
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(remoteSupportProcessor.detect(key, value, connector));
+		assertTrue(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -580,7 +585,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY.toLowerCase();
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(remoteSupportProcessor.detect(key, value, connector));
+		assertTrue(remoteSupportProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -589,7 +594,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = REMOTE_SUPPORT_KEY;
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(remoteSupportProcessor.detect(key, value, connector));
+		assertTrue(remoteSupportProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -599,7 +604,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = null;
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -609,7 +614,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getRemoteSupport());
+		assertNull(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -619,7 +624,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(REMOTE_SUPPORT_VALUE_TRUE).concat(SPACE);
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.getRemoteSupport());
+		assertTrue(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -629,7 +634,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = REMOTE_SUPPORT_VALUE_TRUE;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertTrue(connector.getRemoteSupport());
+		assertTrue(connector.getRemoteSupport());
 	}
 	
 	@Test
@@ -639,7 +644,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = REMOTE_SUPPORT_VALUE_FALSE;
 		Connector connector = new Connector();
 		remoteSupportProcessor.parse(key, value, connector);
-		Assert.assertFalse(connector.getRemoteSupport());
+		assertFalse(connector.getRemoteSupport());
 	}
 	
 	// TypicalPlatform tests
@@ -650,7 +655,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(typicalPlatformProcessor.detect(key, value, connector));
+		assertFalse(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -659,7 +664,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(typicalPlatformProcessor.detect(key, value, connector));
+		assertFalse(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -668,7 +673,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(typicalPlatformProcessor.detect(key, value, connector));
+		assertFalse(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -677,7 +682,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(typicalPlatformProcessor.detect(key, value, connector));
+		assertTrue(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -686,7 +691,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(typicalPlatformProcessor.detect(key, value, connector));
+		assertTrue(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -695,7 +700,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY.toUpperCase();
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(typicalPlatformProcessor.detect(key, value, connector));
+		assertTrue(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -704,7 +709,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY.toLowerCase();
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(typicalPlatformProcessor.detect(key, value, connector));
+		assertTrue(typicalPlatformProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -713,7 +718,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = TYPICAL_PLATFORM_KEY;
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(typicalPlatformProcessor.detect(key, value, connector));
+		assertTrue(typicalPlatformProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -723,7 +728,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = null;
 		typicalPlatformProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -733,7 +738,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		typicalPlatformProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getTypicalPlatform());
+		assertNull(connector.getTypicalPlatform());
 	}
 	
 	@Test
@@ -743,7 +748,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(TYPICAL_PLATFORM_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		typicalPlatformProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
+		assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
 	}
 	
 	@Test
@@ -753,7 +758,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
 		typicalPlatformProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
+		assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
 	}
 	
 	// ReliesOn tests
@@ -764,7 +769,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(reliesOnProcessor.detect(key, value, connector));
+		assertFalse(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -773,7 +778,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(reliesOnProcessor.detect(key, value, connector));
+		assertFalse(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -782,7 +787,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(reliesOnProcessor.detect(key, value, connector));
+		assertFalse(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -791,7 +796,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(reliesOnProcessor.detect(key, value, connector));
+		assertTrue(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -800,7 +805,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(reliesOnProcessor.detect(key, value, connector));
+		assertTrue(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -809,7 +814,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY.toUpperCase();
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(reliesOnProcessor.detect(key, value, connector));
+		assertTrue(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -818,7 +823,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY.toLowerCase();
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(reliesOnProcessor.detect(key, value, connector));
+		assertTrue(reliesOnProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -827,7 +832,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = RELIES_ON_KEY;
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(reliesOnProcessor.detect(key, value, connector));
+		assertTrue(reliesOnProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -837,7 +842,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = RELIES_ON_VALUE;
 		Connector connector = null;
 		reliesOnProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -847,7 +852,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		reliesOnProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getReliesOn());
+		assertNull(connector.getReliesOn());
 	}
 	
 	@Test
@@ -857,7 +862,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(RELIES_ON_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		reliesOnProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
+		assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
 	}
 	
 	@Test
@@ -867,7 +872,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
 		reliesOnProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
+		assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
 	}
 	
 	// Version tests
@@ -878,7 +883,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = null;
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(versionProcessor.detect(key, value, connector));
+		assertFalse(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -887,7 +892,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = "";
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
-		Assert.assertFalse(versionProcessor.detect(key, value, connector));
+		assertFalse(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -896,7 +901,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY;
 		String value = null;
 		Connector connector = new Connector();
-		Assert.assertFalse(versionProcessor.detect(key, value, connector));
+		assertFalse(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -905,7 +910,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY;
 		String value = "";
 		Connector connector = new Connector();
-		Assert.assertTrue(versionProcessor.detect(key, value, connector));
+		assertTrue(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -914,7 +919,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
 		Connector connector = null;
-		Assert.assertTrue(versionProcessor.detect(key, value, connector));
+		assertTrue(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -923,7 +928,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY.toUpperCase();
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(versionProcessor.detect(key, value, connector));
+		assertTrue(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -932,7 +937,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY.toLowerCase();
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(versionProcessor.detect(key, value, connector));
+		assertTrue(versionProcessor.detect(key, value, connector));
 	}
 
 	@Test
@@ -941,7 +946,7 @@ class ConnectorSimplePropertyParserTest {
 		String key = VERSION_KEY;
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
-		Assert.assertTrue(versionProcessor.detect(key, value, connector));
+		assertTrue(versionProcessor.detect(key, value, connector));
 	}
 	
 	@Test
@@ -951,7 +956,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = VERSION_VALUE;
 		Connector connector = null;
 		versionProcessor.parse(key, value, connector);
-		Assert.assertNull(connector);
+		assertNull(connector);
 	}
 	
 	@Test
@@ -961,7 +966,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = null;
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
-		Assert.assertNull(connector.getVersion());
+		assertNull(connector.getVersion());
 	}
 	
 	@Test
@@ -971,7 +976,7 @@ class ConnectorSimplePropertyParserTest {
 		String value = SPACE.concat(VERSION_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getVersion(), VERSION_VALUE);
+		assertEquals(connector.getVersion(), VERSION_VALUE);
 	}
 	
 	@Test
@@ -981,12 +986,16 @@ class ConnectorSimplePropertyParserTest {
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
-		Assert.assertEquals(connector.getVersion(), VERSION_VALUE);
+		assertEquals(connector.getVersion(), VERSION_VALUE);
 	}
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorSimplePropertyParser.ConnectorSimpleProperty.DISPLAY_NAME.getConnectorStateProcessor() instanceof DisplayNameProcessor);
+		assertEquals(
+				Stream.of(DisplayNameProcessor.class, TypicalPlatformProcessor.class, ReliesOnProcessor.class, VersionProcessor.class,
+						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class)
+						.collect(Collectors.toSet()),
+				ConnectorSimpleProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
 	}
 }

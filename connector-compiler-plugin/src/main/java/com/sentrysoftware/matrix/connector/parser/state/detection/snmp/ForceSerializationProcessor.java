@@ -9,9 +9,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 
 public class ForceSerializationProcessor extends SnmpProcessor {
 
-
-	protected static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile(
-			"^\\s*detection\\.criteria\\((\\d+)\\)\\.forceserialization\\s*$", 
+	private static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile("^\\s*detection\\.criteria\\((\\d+)\\)\\.forceserialization\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 
 	@Override

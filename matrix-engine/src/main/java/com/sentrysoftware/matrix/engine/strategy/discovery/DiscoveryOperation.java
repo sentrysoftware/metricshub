@@ -17,14 +17,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceT
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeVisitor;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +92,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param hostname       The system hostname
 	 * @param targetMonitor  The main {@link MonitorType#TARGET} monitor detected in the {@link DetectionOperation} strategy.
 	 */
-	protected void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
+	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
 			final Monitor targetMonitor) {
 
 		log.debug("Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
@@ -124,6 +121,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				hostname));
 
 		// Now discover the rest of the monitors in parallel mode
+		// This might depend on a user configuration
 		connector
 		.getHardwareMonitors()
 		.parallelStream()
@@ -148,7 +146,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param targetMonitor   The target monitor (main)
 	 * @param hostname        The user's configured hostname
 	 */
-	protected void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
+	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
 
 		// Is there any discovery job here ?
@@ -164,7 +162,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return;
 		}
 
-		// Get the instanceTable, so that, we can create the enclosure monitor
+		// Get the instanceTable, so that, we can create the monitor
 		final InstanceTable instanceTable = hardwareMonitor.getDiscovery().getInstanceTable();
 		if (instanceTable == null) {
 			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
@@ -211,7 +209,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param monitorType    The current type of the monitor, {@link MonitorType}
 	 * @param hostname       The user's configured hostname used for debug purpose
 	 */
-	protected void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
+	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
 			final InstanceTable instanceTable, final Map<String, String> parameters, final Monitor targetMonitor,
 			final MonitorType monitorType, final String hostname) {
 
@@ -291,7 +289,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param parameters Key-value map from the connector discovery instance used to create hard coded metadata
 	 * @param monitor    The monitor on which we want to set the parameter values as metadata
 	 */
-	protected void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
+	void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
 			monitor.addMetadata(parameter.getKey(), parameter.getValue());
@@ -310,7 +308,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param monitor       The monitor on which we are going to set the metadata
 	 * @param idCount		The id used to identify the monitor by its position in {@link SourceTable} lines
 	 */
-	protected void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
+	void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
 			final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
@@ -322,14 +320,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			// Means we have a column number so we can extract the value from the row
 			if (matcher.find()) {
-				final Integer columnIndex = Integer.parseInt(matcher.group(1));
+				final Integer columnIndex = Integer.parseInt(matcher.group(1)) - 1;
 
-				if (columnIndex <= row.size()) {
+				if (columnIndex >= 0 && columnIndex < row.size()) {
 					// Get the real value from the source table row
-					monitor.addMetadata(key, row.get(columnIndex - 1));
+					monitor.addMetadata(key, row.get(columnIndex));
 
 				} else {
-					log.warn("column {} doesn't match the instance table source {} for connector {}", columnIndex - 1,
+					log.warn("Column {} doesn't match the instance table source {} for connector {}", columnIndex,
 							sourceKey, connectorName);
 				}
 			} else {
@@ -344,53 +342,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	}
 
-	/**
-	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
-	 * When the {@link SourceTable} is ready it is added to {@link HostMonitoring}
-	 * 
-	 * @param sources        The {@link List} of {@link Source} instances we wish to execute
-	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
-	 * @param connector      The connector we currently process
-	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
-	 * @param hostname       The hostname of the target only used for logging
-	 */
-	protected void processSourcesAndComputes(final List<Source> sources,
-			final IHostMonitoring hostMonitoring,
-			final Connector connector,
-			final MonitorType monitorType,
-			final String hostname) {
-
-		if (null == sources || sources.isEmpty()) {
-			log.debug("No source found from connector {} with monitor {}. System {}", connector.getCompiledFilename(), monitorType, hostname);
-			return;
-		}
-
-		// Loop over all the sources and accept the SourceVisitor which is going to
-		// visit and process the source
-		for (final Source source : sources) {
-
-			final SourceTable sourceTable = source.accept(sourceVisitor);
-
-			hostMonitoring.addSourceTable(source.getKey(), sourceTable);
-
-			final List<Compute> computes = source.getComputes();
-
-			if (computes != null) {
-
-				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable, connector);
-
-				for (final Compute compute : computes) {
-					compute.accept(computeVisitor);
-				}
-
-				hostMonitoring.addSourceTable(source.getKey(), computeVisitor.getSourceTable());
-			}
-		}
-	}
-
 	@Override
 	public void release() {
-		// Not implemented yet
+		// TODO Copy parameter values from the last collect
 	}
 
 	@Override

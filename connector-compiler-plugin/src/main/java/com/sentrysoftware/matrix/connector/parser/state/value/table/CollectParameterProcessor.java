@@ -16,11 +16,9 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class CollectParameterProcessor implements IConnectorStateParser {
 
-	protected static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile(
-			"^\\s*(([a-z]+)\\.(collect)\\.(?!(type|valuetable))([a-z]+))\\s*$",
-			Pattern.CASE_INSENSITIVE);
+	private static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile("^\\s*(([a-z]+)\\.(collect)\\.(?!(type|valuetable))([a-z]+))\\s*$", Pattern.CASE_INSENSITIVE);
 
-	protected Pattern getKeyRegex() {
+	private Pattern getKeyRegex() {
 		return COLLECT_PARAMETER_KEY_PATTERN;
 	}
 
@@ -59,7 +57,7 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link hardwareMonitor}
 	 */
-	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
+	HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
 		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
@@ -75,7 +73,7 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link HardwareMonitor} instance
 	 */
-	protected HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
+	HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
 
 		final MonitorType monitorType = MonitorType.getByName(monitorName);
 
@@ -96,7 +94,7 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 	 * @param key
 	 * @return
 	 */
-	protected String getParameter(final String key) {
+	String getParameter(final String key) {
 		final Matcher matcher = getKeyRegex().matcher(key);
 		matcher.find();
 		return matcher.group(5);

@@ -1,21 +1,23 @@
-package com.sentrysoftware.matrix.connector.parser.state.source;
-
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
+package com.sentrysoftware.matrix.connector.parser.state;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ConnectorSourceParserTest {
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceProperty;
+
+class StateParsersParentTest {
 
 	private Connector connector;
 
@@ -34,30 +36,36 @@ class ConnectorSourceParserTest {
 	}
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testDetect() {
 
-		assertTrue(ConnectorSourceParser.SourceSnmpProperty.SNMP_TABLE.getConnectorStateProcessor() instanceof SnmpTableProcessor);
+		final StateParsersParent parent = new StateParsersParent(ConnectorSourceProperty.getConnectorProperties());
+		assertTrue(parent.detect(CONNECTOR_SOURCE_PARSER_DISCOVERY_TYPE_KEY, CONNECTOR_SOURCE_PARSER_TYPE_VALUE, connector));
 	}
 
 	@Test
 	void testParse() {
 
-		ConnectorSourceParser connectorSourceParser = new ConnectorSourceParser();
-		connectorSourceParser.parse(CONNECTOR_SOURCE_PARSER_DISCOVERY_TYPE_KEY, CONNECTOR_SOURCE_PARSER_TYPE_VALUE, connector);
+		final StateParsersParent parent = new StateParsersParent(ConnectorSourceProperty.getConnectorProperties());
+		parent.parse(CONNECTOR_SOURCE_PARSER_DISCOVERY_TYPE_KEY, CONNECTOR_SOURCE_PARSER_TYPE_VALUE, connector);
 
-		List<HardwareMonitor> hardwareMonitors = connector.getHardwareMonitors();
+		final List<HardwareMonitor> hardwareMonitors = connector.getHardwareMonitors();
 		assertNotNull(hardwareMonitors);
 		assertEquals(1, hardwareMonitors.size());
-		HardwareMonitor hardwareMonitor = hardwareMonitors.get(0);
+
+		final HardwareMonitor hardwareMonitor = hardwareMonitors.get(0);
 		assertNotNull(hardwareMonitor);
-		Discovery discovery = hardwareMonitor.getDiscovery();
+
+		final Discovery discovery = hardwareMonitor.getDiscovery();
 		assertNotNull(discovery);
-		List<Source> sources = discovery.getSources();
+
+		final List<Source> sources = discovery.getSources();
 		assertNotNull(sources);
 		assertEquals(1, sources.size());
-		Source source = sources.get(0);
+
+		final Source source = sources.get(0);
 		assertTrue(source instanceof SNMPGetTableSource);
-		SNMPGetTableSource snmpGetTableSource = (SNMPGetTableSource) source;
+
+		final SNMPGetTableSource snmpGetTableSource = (SNMPGetTableSource) source;
 		assertEquals(1, snmpGetTableSource.getIndex());
 		assertNull(snmpGetTableSource.getComputes());
 		assertNotNull(snmpGetTableSource.getSnmpTableSelectColumns());
@@ -66,4 +74,5 @@ class ConnectorSourceParserTest {
 		assertEquals(CONNECTOR_SOURCE_PARSER_DISCOVERY_SOURCE_KEY, snmpGetTableSource.getKey());
 		assertNull(snmpGetTableSource.getOid());
 	}
+
 }

@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,12 +41,13 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public void clear() {
-
+		monitors.clear();
 	}
 
 	@Override
 	public void backup() {
-
+		previousMonitors.clear();
+		previousMonitors.putAll(monitors);
 	}
 
 	@Override
@@ -104,7 +106,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 * @param attachedToDeviceType The type of the monitor we wish to deduce its key
 	 * @return {@link String} value containing the key of the parent monitor 
 	 */
-	protected String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
+	String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
 
@@ -246,5 +248,13 @@ public class HostMonitoring implements IHostMonitoring {
 		Assert.notNull(key, "The key cannot be null.");
 
 		return sourceTables.get(key);
+	}
+
+	@Override
+	public void resetParameters() {
+		monitors.values().forEach(
+				sameTypeMonitors -> sameTypeMonitors.values().forEach(
+						mo -> mo.getParameters().values().forEach(
+								IParameterValue::reset)));
 	}
 }

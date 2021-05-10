@@ -19,7 +19,7 @@ public class TypeProcessor extends TranslateProcessor {
 	);
 
 	@Override
-	protected Matcher getMatcher(String key) {
+	public Matcher getMatcher(String key) {
 		return TYPE_KEY_PATTERN.matcher(key);
 	}
 

@@ -19,11 +19,23 @@ public class StatusParam extends AbstractParam {
 
 	@Builder
 	public StatusParam(String name, Long collectTime, Threshold threshold, ParameterState state,
-			String statusInformation) {
+			String unit, String statusInformation) {
 
-		super(name, collectTime, threshold, state);
+		super(name, collectTime, threshold, state, unit);
 		this.status = state.ordinal();
 		this.statusInformation = statusInformation;
 	}
 
+	@Override
+	public void reset() {
+		super.reset();
+
+		this.status = null;
+		this.statusInformation = null;
+	}
+
+	@Override
+	public String formatValueAsString() {
+		return statusInformation;
+	}
 }

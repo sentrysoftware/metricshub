@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
 import com.sentrysoftware.matrix.engine.strategy.Context;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;	
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;

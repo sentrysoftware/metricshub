@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -61,11 +62,50 @@ class EnclosureFirstComparatorTest {
 			hdfTapeDrive, hdfTemperature, hdfVoltage, hdfDiskEnclosure);
 
 	final HardwareMonitor hdfEmptyEnclosure = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).build();
-	final HardwareMonitor hdfEnclosureDiscoveryOnly = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(new Discovery()).build();
-	final HardwareMonitor hdfEnclosureDiscoverySource = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(Discovery.builder().sources(Arrays.asList(source1, source2)).build()).build();
-	final HardwareMonitor hdfEnclosureDiscoveryEmptySource = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(Discovery.builder().sources(Collections.emptyList()).build()).build();
-	final HardwareMonitor hdfFanDiscoverySource = HardwareMonitor.builder().type(MonitorType.FAN).discovery(Discovery.builder().sources(Arrays.asList(source1, source2)).build()).build();
-	
+	final HardwareMonitor hdfEnclosureDiscoveryOnly = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.discovery(new Discovery())
+			.build();
+	final HardwareMonitor hdfEnclosureDiscoverySource = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.discovery(Discovery
+					.builder()
+					.sources(Arrays.asList(source1, source2))
+					.build())
+			.build();
+	final HardwareMonitor hdfEnclosureDiscoveryEmptySource = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.discovery(Discovery
+					.builder()
+					.sources(Collections.emptyList())
+					.build())
+			.build();
+	final HardwareMonitor hdfFanDiscoverySource = HardwareMonitor
+			.builder()
+			.type(MonitorType.FAN)
+			.discovery(Discovery
+					.builder()
+					.sources(Arrays.asList(source1, source2)).build())
+			.build();
+	final HardwareMonitor hdfEnclosureComputer = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.discovery(Discovery
+					.builder()
+					.parameters(Map.of("type", "computer"))
+					.sources(Collections.emptyList()).build())
+			.build();
+	final HardwareMonitor hdfEnclosureStorage = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.discovery(Discovery
+					.builder()
+					.parameters(Map.of("type", "storage"))
+					.sources(Collections.emptyList()).build())
+			.build();
 	final Connector connectorWithoutMonitor = Connector.builder().compiledFilename("hdf1").build();
 	final Connector connectorWithAllDevicesEmpty  = Connector.builder().compiledFilename("hdf2")
 			.hardwareMonitors(allPossibleConnectorsType)
@@ -161,5 +201,33 @@ class EnclosureFirstComparatorTest {
 		assertEquals(1, new EnclosureFirstComparator().compare(connector, null));
 		assertEquals(1, new EnclosureFirstComparator().compare(null, connector));
 		assertEquals(1, new EnclosureFirstComparator().compare(null, null));
+	}
+
+	@Test
+	void testCompareComputerEnclosures() {
+
+		final Connector connectorWithEnclosure = Connector.builder().compiledFilename("hdf1")
+				.hardwareMonitors(Arrays.asList(hdfEnclosureDiscoverySource)).build();
+
+		final Connector connectorWithEnclosureComputer = Connector.builder().compiledFilename("hdf2")
+				.hardwareMonitors(Arrays.asList(hdfEnclosureComputer)).build();
+
+		final Connector connectorWithEnclosureStorage = Connector.builder().compiledFilename("hdf3")
+				.hardwareMonitors(Arrays.asList(hdfEnclosureStorage)).build();
+
+		// connectorWithFanOnly is named hdf6
+		final List<Connector> connectorList = Arrays.asList(connectorWithEnclosure,
+				connectorWithEnclosureComputer, 
+				connectorWithEnclosureStorage,
+				connectorWithFanOnly);
+		
+		final List<String> actual = connectorList.stream()
+		.sorted(new EnclosureFirstComparator())
+		.map(Connector::getCompiledFilename)
+		.collect(Collectors.toList());
+
+		final List<String> expected = Arrays.asList("hdf2", "hdf1", "hdf3", "hdf6");
+
+		assertEquals(expected, actual);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,4 +31,7 @@ public class EngineConfiguration {
 
 	@Default
 	private Set<String> selectedConnectors = new HashSet<>();
+
+	@Default
+	private ParameterState unknownStatus = ParameterState.WARN;
 }

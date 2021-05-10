@@ -1,14 +1,18 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 class ConnectorDuplicateColumnPropertyTest {
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorDuplicateColumnProperty.TYPE.getConnectorStateProcessor() instanceof TypeProcessor);
+		assertEquals(Stream.of(TypeProcessor.class, ColumnProcessor.class).collect(Collectors.toSet()),
+				ConnectorDuplicateColumnProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
 	}
 }

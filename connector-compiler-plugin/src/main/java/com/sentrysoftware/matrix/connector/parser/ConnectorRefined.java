@@ -23,7 +23,7 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import org.springframework.util.Assert;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * Based on HDV Maven Plugin HardwareConnector Bertrand's implementation.
@@ -32,12 +32,15 @@ import lombok.Data;
  * @author Nassim BOUTEKEDJIRET
  *
  */
-@Data
 public class ConnectorRefined {
 
+	@Getter
 	private String compiledFilename;
+	@Getter
 	private Map<String, String> codeMap = new LinkedHashMap<>();
+	@Getter
 	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+	@Getter
 	private Map<String, TranslationTable> translationTables = new HashMap<>(); 
 	private ArrayList<String> problemList = new ArrayList<>();
 
@@ -87,42 +90,6 @@ public class ConnectorRefined {
 	 * Pattern to detect translation table names
 	 */
 	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile(".*\\.(translationtable|bittranslationtable)=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
-	/**
-	 * Pattern to detect source types
-	 */
-	private static final Pattern SOURCE_PATTERN = Pattern.compile(".*\\.source\\([0-9]+\\)\\.type$");
-
-	/**
-	 * Pattern to detect commands that require sudo
-	 */
-	private static final Pattern SUDO_PATTERN = Pattern.compile("sudo\\([0-9]+\\)\\.command");
-
-	/**
-	 * Pattern to detect discovered objects
-	 */
-	private static final Pattern DISCOVERY_PATTERN = Pattern.compile("^[a-z]+\\.discovery\\.instancetable$");
-
-	/**
-	 * Pattern to detect discovered properties
-	 */
-	private static final Pattern PROPERTY_PATTERN = Pattern.compile("^[a-z]+\\.discovery\\.instance\\.[a-z0-9]+$");
-
-	/**
-	 * Pattern to detect collected parameters
-	 */
-	private static final Pattern PARAMETER_PATTERN = Pattern.compile("^[a-z]+\\.collect\\.[a-z]+$");
-
-	/**
-	 * Pattern to detect parameters that are activated dynamically (programmatically)
-	 */
-	private static final Pattern DYNAMIC_PARAMETER_PATTERN = Pattern.compile("^[a-z]+\\.discovery.instance.parameteractivation.[a-z]+$");
-
-	/**
-	 * Pattern to detect DetectionOperation.Criteria(n).Type
-	 * group(1): detection.criteria(n)
-	 */
-	private static final  Pattern DETECTIONCRITERIA_PATTERN = Pattern.compile("^(detection\\.criteria\\([0-9]+\\))\\.type$");
 
 
 	/**
@@ -282,7 +249,7 @@ public class ConnectorRefined {
 
 		Map<String, Pattern> translationTablePatterns = translationTableNames.stream()
 				.collect(Collectors.toMap(Function.identity(), translationTableName -> Pattern.compile(
-						"^\\s*" + translationTableName + "(.*?)\\s*=\\s*(.*?)\\s*$",
+						"^\\s*" + translationTableName + "\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
 						Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)));
 
 		for (Entry<String, Pattern> entry : translationTablePatterns.entrySet()) {
@@ -293,8 +260,8 @@ public class ConnectorRefined {
 			final TranslationTable translationTable = TranslationTable.builder().name(translationTableName).build();
 
 			while (translationTableMatcher.find()) {
-				translationTable.getTranslations().put(translationTableMatcher.group(1).replace("\"", "").trim(),
-						translationTableMatcher.group(2).replace("\"", "").trim());
+				translationTable.getTranslations().put(translationTableMatcher.group(1).replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1").trim(),
+						translationTableMatcher.group(2).replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1").trim());
 				translationTableMatcher.appendReplacement(tempRawCode, "");
 			}
 			translationTables.put(translationTableName, translationTable);

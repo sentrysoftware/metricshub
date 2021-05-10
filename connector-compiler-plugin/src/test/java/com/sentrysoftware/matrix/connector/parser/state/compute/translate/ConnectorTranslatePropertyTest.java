@@ -1,14 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.translate;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 class ConnectorTranslatePropertyTest {
 
 	@Test
-	void testGetConnectorStateProcessor() {
+	void testGetConnectorProperties() {
 
-		assertTrue(ConnectorTranslateProperty.TYPE.getConnectorStateProcessor() instanceof TypeProcessor);
+		assertEquals(Stream.of(TypeProcessor.class, ColumnProcessor.class, TranslationTableProcessor.class).collect(Collectors.toSet()),
+				ConnectorTranslateProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
+
 	}
 }

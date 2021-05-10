@@ -11,15 +11,14 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 
 public class ExpectedResultProcessor extends SnmpProcessor {
 
-	protected static final Pattern EXPECTED_RESULT_KEY_PATTERN = Pattern.compile(
-			"^\\s*detection\\.criteria\\((\\d+)\\)\\.expectedresult\\s*$", 
+	private static final Pattern EXPECTED_RESULT_KEY_PATTERN = Pattern.compile("^\\s*detection\\.criteria\\((\\d+)\\)\\.expectedresult\\s*$", 
 			Pattern.CASE_INSENSITIVE);
 	
 	@Override
 	protected Pattern getKeyRegex() {
 		return EXPECTED_RESULT_KEY_PATTERN;
 	}
-	
+
 	@Override
 	public void parse(final String key, final String value, final Connector connector) {
 

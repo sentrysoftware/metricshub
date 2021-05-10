@@ -4,69 +4,39 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public class ConnectorSimpleProperty {
 
-public class ConnectorSimplePropertyParser implements IConnectorStateParser {
+	private ConnectorSimpleProperty() {}
 
-	@Override
-	public boolean detect(final String key, final String value, final Connector connector) {
+	public static Set<IConnectorStateParser> getConnectorProperties() {
 
-		return key != null && key.trim().startsWith("hdf.");
+		return Stream
+				.of(new DisplayNameProcessor(),
+					new TypicalPlatformProcessor(),
+					new ReliesOnProcessor(),
+					new VersionProcessor(),
+					new RemoteSupportProcessor(),
+					new LocalSupportProcessor(),
+					new AppliesToOSProcessor(),
+					new SupersedesProcessor())
+				.collect(Collectors.toSet());
 	}
 
-	@Override
-	public void parse(final String key, final String value, final Connector connector) {
-
-		ConnectorSimpleProperty.getConnectorSimpleProperties().stream().filter(state -> state.detect(key, value, connector))
-				.forEach(sp -> sp.parse(key, value, connector));
-	}
-
-	private static boolean detect(final String key, final String value, final Connector connector, final String property) {
+	private static boolean detect(final String key, final String value, final String property) {
 		return value != null && key != null && key.toLowerCase().startsWith(property.toLowerCase());
-	}
-
-	@Getter
-	@AllArgsConstructor
-	public enum ConnectorSimpleProperty {
-
-		DISPLAY_NAME(new DisplayNameProcessor()),
-		TYPICAL_PLATFORM(new TypicalPlatformProcessor()),
-		RELIES_ON(new ReliesOnProcessor()),
-		VERSION(new VersionProcessor()),
-		REMOTE_SUPPORT(new RemoteSupportProcessor()),
-		LOCAL_SUPPORT(new LocalSupportProcessor()),
-		APPLIES_TO_OS(new AppliesToOSProcessor()),
-		SUPERSEDES(new SupersedesProcessor());
-
-		private IConnectorStateParser connectorStateProcessor;
-
-		public boolean detect(final String key, final String value, final Connector connector) {
-
-			return connectorStateProcessor.detect(key, value, connector);
-		}
-
-		public void parse(final String key, final String value, final Connector connector) {
-
-			connectorStateProcessor.parse(key, value, connector);
-		}
-
-		public static Set<ConnectorSimpleProperty> getConnectorSimpleProperties() {
-
-			return Arrays.stream(ConnectorSimpleProperty.values()).collect(Collectors.toSet());
-		}
 	}
 
 	public static class DisplayNameProcessor implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.displayname");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.displayname");
 		}
 
 		@Override
@@ -81,7 +51,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.supersedes");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.supersedes");
 		}
 
 		@Override
@@ -101,7 +71,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.appliestoos");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.appliestoos");
 		}
 
 		@Override
@@ -121,7 +91,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.localsupport");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.localsupport");
 		}
 
 		@Override
@@ -136,7 +106,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.remotesupport");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.remotesupport");
 		}
 
 		@Override
@@ -151,7 +121,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.typicalplatform");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.typicalplatform");
 		}
 
 		@Override
@@ -166,7 +136,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.relieson");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.relieson");
 		}
 
 		@Override
@@ -181,7 +151,7 @@ public class ConnectorSimplePropertyParser implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
-			return ConnectorSimplePropertyParser.detect(key, value, connector, "hdf.version");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.version");
 		}
 
 		@Override

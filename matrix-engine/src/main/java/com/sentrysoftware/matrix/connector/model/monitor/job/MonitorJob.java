@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.model.monitor.job;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 
@@ -23,6 +23,6 @@ public abstract class MonitorJob implements Serializable {
 
 	protected MonitorJob(List<Source> sources, Map<String, String> parameters)  {
 		this.sources = sources == null ? new ArrayList<>() : sources;
-		this.parameters = parameters == null ?  new HashMap<>() : parameters;
+		this.parameters = parameters == null ?  new TreeMap<>(String.CASE_INSENSITIVE_ORDER) : parameters;
 	}
 }
