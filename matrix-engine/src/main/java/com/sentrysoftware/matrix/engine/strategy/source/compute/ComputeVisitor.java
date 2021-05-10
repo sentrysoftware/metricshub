@@ -49,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComputeVisitor implements IComputeVisitor {
 
+	private static final Pattern COLUMN_PATTERN =  Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
+
 	@Getter
 	@Setter
 	private SourceTable sourceTable;
@@ -262,7 +264,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			String concatString = leftConcat.getString();
 
 			// If leftConcat.getString() is like "Concat(n)", we concat the column n instead of leftConcat.getString() 
-			if (Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(concatString).matches()) {
+			if (COLUMN_PATTERN.matcher(concatString).matches()) {
 				int leftColumnIndex = Integer.parseInt(concatString.substring(concatString.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
 						concatString.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
 
@@ -420,7 +422,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		Integer columnIndex = column - 1;
 		int operandByIndex = -1;
 
-		Matcher matcher = Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(operand2);
+		Matcher matcher = COLUMN_PATTERN.matcher(operand2);
 		if (matcher.matches()) {
 			try {
 				operandByIndex = Integer.parseInt(matcher.group(1)) - 1;
