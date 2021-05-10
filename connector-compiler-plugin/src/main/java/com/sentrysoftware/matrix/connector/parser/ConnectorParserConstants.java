@@ -7,7 +7,6 @@ public class ConnectorParserConstants {
 	}
 
 	public static final String EMPTY_STRING = "";
-	public static final String DOUBLE_QUOTE = "\"";
 	public static final String COMA = ",";
 	public static final String SEMICOLON = ";";
 	public static final String DOT = ".";

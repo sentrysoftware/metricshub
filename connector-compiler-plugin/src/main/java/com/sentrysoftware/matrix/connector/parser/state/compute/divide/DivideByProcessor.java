@@ -28,15 +28,14 @@ public class DivideByProcessor extends DivideProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		Divide divide = getCompute(source, getComputeIndex(matcher));
-		notNull(divide,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(divide, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		divide.setDivideBy(value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
+		divide.setDivideBy(value);
 	}
 
 }

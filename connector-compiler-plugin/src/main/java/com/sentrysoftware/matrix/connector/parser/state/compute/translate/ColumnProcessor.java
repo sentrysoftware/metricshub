@@ -28,17 +28,15 @@ public class ColumnProcessor extends TranslateProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		Translate translate = getCompute(source, getComputeIndex(matcher));
-		notNull(translate,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(translate, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		String strippedValue = value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1");
-		isTrue(strippedValue.matches("\\d+"), "Column number is invalid: " + value);
+		isTrue(value.matches("\\d+"), () -> "Column number is invalid: " + value);
 
-		translate.setColumn(Integer.parseInt(strippedValue));
+		translate.setColumn(Integer.parseInt(value));
 	}
 }

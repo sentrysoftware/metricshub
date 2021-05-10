@@ -191,8 +191,7 @@ public abstract class AbstractComputeParser implements IConnectorStateParser {
 	
 		if (getTypeProcessor().isInstance(this)) {
 	
-			return getTypeValue().equalsIgnoreCase(
-				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
+			return getTypeValue().equalsIgnoreCase(value);
 		}
 	
 		return getCompute(matcher, connector) != null;

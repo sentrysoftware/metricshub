@@ -30,17 +30,13 @@ public class ValueListProcessor extends KeepOnlyMatchingLinesProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		KeepOnlyMatchingLines keepOnlyMatchingLines = getCompute(source, getComputeIndex(matcher));
-		notNull(keepOnlyMatchingLines,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(keepOnlyMatchingLines, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		keepOnlyMatchingLines.setValueList(
-			Arrays.asList(value
-							.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-							.split(COMA)));
+		keepOnlyMatchingLines.setValueList(Arrays.asList(value.split(COMA)));
 	}
 }

@@ -1,19 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.junit.jupiter.api.Test;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ValueListProcessorTest {
 
@@ -24,9 +24,6 @@ class ValueListProcessorTest {
 	private static final String FOO = "FOO";
 
 	private static final String VALUE_LIST = "0,1,2";
-	private static final String DOUBLE_QUOTED_VALUE_LIST = ConnectorParserConstants.DOUBLE_QUOTE
-		+ VALUE_LIST
-		+ ConnectorParserConstants.DOUBLE_QUOTE;
 
 	@Test
 	void testParse() {
@@ -57,7 +54,7 @@ class ValueListProcessorTest {
 					.build())
 				.build());
 
-		valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, DOUBLE_QUOTED_VALUE_LIST, connector);
+		valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, VALUE_LIST, connector);
 		assertEquals(Arrays.asList("0", "1", "2"), keepOnlyMatchingLines.getValueList());
 	}
 }

@@ -29,15 +29,13 @@ public class ColumnProcessor extends LeftConcatProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		LeftConcat leftConcat = getCompute(source, getComputeIndex(matcher));
-		notNull(leftConcat,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(leftConcat, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		leftConcat.setColumn(
-			Integer.parseInt(value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")));
+		leftConcat.setColumn(Integer.parseInt(value));
 	}
 }

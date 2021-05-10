@@ -32,21 +32,18 @@ public class TranslationTableProcessor extends TranslateProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		Translate translate = getCompute(source, getComputeIndex(matcher));
-		notNull(translate,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(translate, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		Map<String, TranslationTable> translationTables = connector.getTranslationTables();
-		state(translationTables != null, "No translation tables found in " + connector.getCompiledFilename());
+		state(translationTables != null, () -> "No translation tables found in " + connector.getCompiledFilename());
 
-		String strippedValue = value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1");
-		TranslationTable translationTable = translationTables.get(strippedValue);
-		state(translationTable != null,
-				"Could not find translation table " + strippedValue + " in " + connector.getCompiledFilename());
+		TranslationTable translationTable = translationTables.get(value);
+		state(translationTable != null, () -> "Could not find translation table " + value + " in " + connector.getCompiledFilename());
 
 		translate.setTranslationTable(translationTable);
 	}
