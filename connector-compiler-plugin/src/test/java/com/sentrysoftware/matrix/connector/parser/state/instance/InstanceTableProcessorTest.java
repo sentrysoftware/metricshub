@@ -14,7 +14,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;	
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
@@ -90,6 +91,9 @@ class InstanceTableProcessorTest {
 
 		}
 
+		{
+			assertEquals(TextInstanceTable.builder().text(NO_DOUBLE_QUOTES).build(), processor.getInstanceTableFromValue(NO_DOUBLE_QUOTES));
+		}
 	}
 
 	@Test
