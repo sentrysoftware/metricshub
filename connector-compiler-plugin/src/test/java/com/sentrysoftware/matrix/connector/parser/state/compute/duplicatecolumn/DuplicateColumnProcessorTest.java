@@ -108,7 +108,7 @@ class DuplicateColumnProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(typeProcessor.getDuplicateColumn(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
@@ -127,7 +127,7 @@ class DuplicateColumnProcessorTest {
 					.build())
 				.build());
 
-		assertNull(typeProcessor.getDuplicateColumn(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 	}
 

@@ -92,7 +92,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param hostname       The system hostname
 	 * @param targetMonitor  The main {@link MonitorType#TARGET} monitor detected in the {@link DetectionOperation} strategy.
 	 */
-	protected void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
+	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
 			final Monitor targetMonitor) {
 
 		log.debug("Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
@@ -146,7 +146,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param targetMonitor   The target monitor (main)
 	 * @param hostname        The user's configured hostname
 	 */
-	protected void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
+	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
 
 		// Is there any discovery job here ?
@@ -209,7 +209,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param monitorType    The current type of the monitor, {@link MonitorType}
 	 * @param hostname       The user's configured hostname used for debug purpose
 	 */
-	protected void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
+	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
 			final InstanceTable instanceTable, final Map<String, String> parameters, final Monitor targetMonitor,
 			final MonitorType monitorType, final String hostname) {
 
@@ -289,7 +289,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param parameters Key-value map from the connector discovery instance used to create hard coded metadata
 	 * @param monitor    The monitor on which we want to set the parameter values as metadata
 	 */
-	protected void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
+	void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
 			monitor.addMetadata(parameter.getKey(), parameter.getValue());
@@ -308,7 +308,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param monitor       The monitor on which we are going to set the metadata
 	 * @param idCount		The id used to identify the monitor by its position in {@link SourceTable} lines
 	 */
-	protected void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
+	void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
 			final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry

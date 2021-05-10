@@ -9,6 +9,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Comp
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.parser.state.compute.AbstractComputeParser;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DivideProcessorTest {
 
-	private DivideProcessor typeProcessor;
-	private DivideProcessor columnProcessor;
+	private AbstractComputeParser typeProcessor;
+	private AbstractComputeParser columnProcessor;
 
 	private Connector connector;
 
@@ -107,7 +109,7 @@ class DivideProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(DIVIDE_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(typeProcessor.getDivide(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
@@ -125,7 +127,7 @@ class DivideProcessorTest {
 					.build())
 				.build());
 
-		assertNull(typeProcessor.getDivide(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 	}
 

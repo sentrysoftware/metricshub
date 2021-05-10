@@ -1,37 +1,19 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Getter
-@AllArgsConstructor
-public enum ConnectorKeepOnlyMatchingLinesProperty implements IConnectorStateParser {
+import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
-	TYPE(new TypeProcessor()),
-	COLUMN(new ColumnProcessor()),
-	VALUE_LIST(new ValueListProcessor()),
-	REGEXP(new RegexpProcessor());
+public class ConnectorKeepOnlyMatchingLinesProperty {
 
-	private final IConnectorStateParser connectorStateProcessor;
+	private ConnectorKeepOnlyMatchingLinesProperty() {}
 
-	public boolean detect(final String key, final String value, final Connector connector) {
+	public static Set<IConnectorStateParser> getConnectorProperties() {
 
-		return connectorStateProcessor.detect(key, value, connector);
-	}
-
-	public void parse(final String key, final String value, final Connector connector) {
-
-		connectorStateProcessor.parse(key, value, connector);
-	}
-
-	public static Set<ConnectorKeepOnlyMatchingLinesProperty> getConnectorProperties() {
-
-		return Arrays.stream(ConnectorKeepOnlyMatchingLinesProperty.values()).collect(Collectors.toSet());
+		return Stream
+				.of(new TypeProcessor(), new ColumnProcessor(), new ValueListProcessor(), new RegexpProcessor())
+				.collect(Collectors.toSet());
 	}
 }

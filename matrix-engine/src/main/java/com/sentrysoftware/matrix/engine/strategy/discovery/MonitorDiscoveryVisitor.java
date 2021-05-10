@@ -238,7 +238,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * @param parentId    The parent identifier of the current monitor. If <code>null</code> then {@link HostMonitoring}
 	 *                    will try to detect and build the parent id.
 	 */
-	protected void createMonitor(final String monitorName, final String parentId) {
+	void createMonitor(final String monitorName, final String parentId) {
 
 		checkBuildingInfo(monitorBuildingInfo);
 
@@ -290,11 +290,11 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 				attachedToDeviceType);
 	}
 
-	public static String getTextDataValueOrElse(final String data, final String other) {
+	private static String getTextDataValueOrElse(final String data, final String other) {
 		return checkNotBlankDataValue(data) ? data : other;
 	}
 
-	protected static boolean checkNotBlankDataValue(final String data) {
+	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
 	}
 
@@ -303,7 +303,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * 
 	 * @return {@link String} value
 	 */
-	protected String buildEnclosureName() {
+	String buildEnclosureName() {
 
 		final TargetType targetType = monitorBuildingInfo.getTargetType();
 		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
@@ -359,7 +359,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * <br>Refine the result before returning the final generic name result
 	 * @return {@link String} value
 	 */
-	protected String buildGenericName() {
+	String buildGenericName() {
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
@@ -397,7 +397,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * @param targetType    The type of the target monitor
 	 * @return {@link String} value to append with the full monitor name
 	 */
-	protected static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
+	static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
 		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
 
@@ -415,7 +415,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * @param metadata
 	 * @return {@link boolean} value
 	 */
-	protected static boolean isLocalhost(final Map<String, String> metadata) {
+	static boolean isLocalhost(final Map<String, String> metadata) {
 		if (metadata != null) {
 			final String location = metadata.get(LOCATION);
 			if (location != null) {

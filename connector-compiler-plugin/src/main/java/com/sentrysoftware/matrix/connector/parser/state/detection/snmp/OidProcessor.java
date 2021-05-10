@@ -15,10 +15,8 @@ public class OidProcessor extends SnmpProcessor {
 
 	private static final String SNMP_GET_OID_KEY = ".snmpget";
 
-	protected static final Pattern OID_KEY_PATTERN = Pattern.compile(
-			"^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$", 
-			Pattern.CASE_INSENSITIVE);
-	
+	private static final Pattern OID_KEY_PATTERN = Pattern.compile("^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$", Pattern.CASE_INSENSITIVE);
+
 	@Override
 	protected Pattern getKeyRegex() {
 		return OID_KEY_PATTERN;

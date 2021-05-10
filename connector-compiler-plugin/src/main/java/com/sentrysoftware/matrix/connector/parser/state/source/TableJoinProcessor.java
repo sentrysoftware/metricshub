@@ -21,20 +21,19 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
 public class TableJoinProcessor implements IConnectorStateParser {
 
+	private static final String TYPE_KEY = "type";
+	private static final String TABLE_JOINT_KEY = "tablejoint";
+	private static final String LEFT_TABLE_KEY = "lefttable";
+	private static final String RIGHT_TABLE_KEY = "righttable";
+	private static final String LEFT_KEY_COLUMN_KEY = "leftkeycolumn";
+	private static final String RIGHT_KEY_COLUMN_KEY = "rightkeycolumn";
+	private static final String DEFAULT_RIGHT_LINE_KEY = "defaultrightline";
 
-	protected static final String TYPE_KEY = "type";
-	protected static final String TABLE_JOINT_KEY = "tablejoint";
-	protected static final String LEFT_TABLE_KEY = "lefttable";
-	protected static final String RIGHT_TABLE_KEY = "righttable";
-	protected static final String LEFT_KEY_COLUMN_KEY = "leftkeycolumn";
-	protected static final String RIGHT_KEY_COLUMN_KEY = "rightkeycolumn";
-	protected static final String DEFAULT_RIGHT_LINE_KEY = "defaultrightline";
-
-	protected static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
+	private static final Pattern SNMP_TABLE_KEY_PATTERN = Pattern.compile(
 			"^\\s*(([a-z]+)\\.(discovery|collect)\\.source\\((\\d+)\\)\\.(type|tablejoint|lefttable|righttable|leftkeycolumn|rightkeycolumn|defaultrightline))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
-	protected Pattern getKeyRegex() {
+	private Pattern getKeyRegex() {
 		return SNMP_TABLE_KEY_PATTERN;
 	}
 
@@ -146,7 +145,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 * @param key The to parse to find the index.
 	 * @return {@link index}
 	 */
-	protected int getIndex(final String key) {
+	int getIndex(final String key) {
 		return Integer.parseInt(key.substring(key.indexOf(ConnectorParserConstants.OPENING_PARENTHESIS) + 1, key.indexOf(ConnectorParserConstants.CLOSING_PARENTHESIS)));
 	}
 
@@ -157,7 +156,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link hardwareMonitor}
 	 */
-	protected HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
+	HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
 
 		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
@@ -198,7 +197,7 @@ public class TableJoinProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link HardwareMonitor} instance
 	 */
-	protected HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
+	HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
 
 		final MonitorType monitorType = MonitorType.getByName(monitorName);
 

@@ -11,8 +11,7 @@ public class InstanceProcessor extends AbstractInstanceProcessor {
 	/**
 	 * Pattern to detect discovery instance parameters
 	 */
-	private static final Pattern INSTANCE_PATTERN = Pattern
-			.compile("^\\s*([a-z]+)\\.discovery\\.instance\\.([a-z0-9]+)\\s*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern INSTANCE_PATTERN = Pattern.compile("^\\s*([a-z]+)\\.discovery\\.instance\\.([a-z0-9]+)\\s*$", Pattern.CASE_INSENSITIVE);
 
 	
 	@Override
@@ -28,7 +27,7 @@ public class InstanceProcessor extends AbstractInstanceProcessor {
 	 * @param key
 	 * @return {@link String} value
 	 */
-	protected String getParameter(final String key) {
+	String getParameter(final String key) {
 		final Matcher matcher = getMatcher(key);
 		matcher.find();
 		return matcher.group(2);

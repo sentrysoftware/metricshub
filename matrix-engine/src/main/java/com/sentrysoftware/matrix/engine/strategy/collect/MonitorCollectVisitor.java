@@ -216,7 +216,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
 	 */
-	protected void collectStatusParameter(final MonitorType monitorType, final String parameterName, final String unit) {
+	void collectStatusParameter(final MonitorType monitorType, final String parameterName, final String unit) {
 
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
@@ -294,7 +294,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param value         The text value of the status information
 	 * @return {@link String} value
 	 */
-	protected String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
+	String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
 		return new StringBuilder()
 				.append(parameterName)
 				.append(HardwareConstants.COLON)
@@ -313,7 +313,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param statusParam The {@link StatusParam} we wish to update its statusInformation field value
 	 * @param parameter   The parameter we wish to append its value
 	 */
-	protected static void appendToStatusInformation(final StatusParam statusParam, final IParameterValue parameter) {
+	static void appendToStatusInformation(final StatusParam statusParam, final IParameterValue parameter) {
 		if (statusParam == null || parameter == null) {
 			return;
 		}
@@ -338,7 +338,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * 
 	 * @param parameterNames The name of the parameters we wish to append in the StatusInformation of the Status parameter
 	 */
-	protected void appendValuesToStatusParameter(final String... parameterNames) {
+	void appendValuesToStatusParameter(final String... parameterNames) {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
@@ -364,7 +364,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
 	 */
-	protected void collectNumberParameter(final MonitorType monitorType, final String parameterName, final String unit) {
+	void collectNumberParameter(final MonitorType monitorType, final String parameterName, final String unit) {
 
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
@@ -416,7 +416,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param paramerState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
 	 */
-	protected static String getIntrusionStatusInformation(final ParameterState paramerState) {
+	static String getIntrusionStatusInformation(final ParameterState paramerState) {
 		switch (paramerState) {
 		case OK:
 			return "No Intrusion Detected";

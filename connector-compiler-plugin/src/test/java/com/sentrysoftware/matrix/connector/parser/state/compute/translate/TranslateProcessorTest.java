@@ -107,7 +107,7 @@ class TranslateProcessorTest {
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(TRANSLATE_COLLECT_TYPE_KEY);
 		assertTrue(matcher.matches());
-		assertNull(typeProcessor.getTranslate(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 
 		// Source found
@@ -125,7 +125,7 @@ class TranslateProcessorTest {
 					.build())
 				.build());
 
-		assertNull(typeProcessor.getTranslate(typeProcessor.getSource(matcher, connector),
+		assertNull(typeProcessor.getCompute(typeProcessor.getSource(matcher, connector),
 			typeProcessor.getComputeIndex(matcher)));
 	}
 
