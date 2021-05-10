@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -31,10 +30,9 @@ public class ColumnProcessor extends LeftConcatProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		Source source = getSource(matcher, connector);
-
-		LeftConcat leftConcat = getCompute(source, getComputeIndex(matcher));
-		notNull(leftConcat, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		LeftConcat leftConcat = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
+		notNull(leftConcat,
+				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		leftConcat.setColumn(Integer.parseInt(value));
 	}

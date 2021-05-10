@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.divide;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -30,12 +29,10 @@ public class DivideByProcessor extends DivideProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		Source source = getSource(matcher, connector);
-
-		Divide divide = getCompute(source, getComputeIndex(matcher));
-		notNull(divide, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		Divide divide = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
+		notNull(divide,
+			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		divide.setDivideBy(value);
 	}
-
 }

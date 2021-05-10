@@ -26,17 +26,17 @@ class TypeProcessorTest {
 	@Test
 	void testParse() {
 
-		// Key does not match
+		// Value is invalid
 		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, FOO, connector));
 
-		// Key matches, value is invalid
-		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(LEFT_CONCAT_TYPE_KEY_1, FOO, connector));
+		// Value is valid, key does not match
+		assertThrows(IllegalArgumentException.class, () -> typeProcessor.parse(FOO, LEFT_CONCAT_TYPE_VALUE, connector));
 
-		// Key matches, value is valid, no Source found
+		// Value is valid, key matches, no Source found
 		typeProcessor.parse(LEFT_CONCAT_TYPE_KEY_1, LEFT_CONCAT_TYPE_VALUE, connector);
 		assertTrue(connector.getHardwareMonitors().isEmpty());
 
-		// Key matches, value is valid, Source found, source.getComputes() == null
+		// Value is valid, key matches, Source found, source.getComputes() == null
 		SNMPGetTableSource source = SNMPGetTableSource
 			.builder()
 			.index(1)
@@ -61,7 +61,7 @@ class TypeProcessorTest {
 		assertTrue(compute instanceof LeftConcat);
 		assertEquals(1, compute.getIndex());
 
-		// Key matches, value is valid, Source found, source.getComputes() != null
+		// Value is valid, key matches, Source found, source.getComputes() != null
 		typeProcessor.parse(LEFT_CONCAT_TYPE_KEY_2, LEFT_CONCAT_TYPE_VALUE, connector);
 		assertNotNull(source.getComputes());
 		assertEquals(2, source.getComputes().size());
