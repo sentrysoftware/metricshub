@@ -28,7 +28,7 @@ public class HardwareConstants {
 	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
 	public static final String INTRUSION_STATUS_PARAMETER = "intrusionStatus";
 	public static final String ENERGY_USAGE_PARAMETER = "energyUsage";
-	
+
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -36,7 +36,8 @@ public class HardwareConstants {
 	public static final String DEVICE_ID = "deviceId";
 	public static final String ID_COUNT = "idCount";
 	public static final String DISPLAY_ID = "displayId";
-	public static final String LOCATION = "Location";
+	public static final String LOCATION = "location";
+	public static final String CONNECTOR = "connector";
 	public static final String OPERATING_SYSTEM_TYPE = "operatingSystemType";
 	public static final String ATTACHED_TO_DEVICE_ID = "attachedToDeviceId";
 	public static final String ATTACHED_TO_DEVICE_TYPE = "attachedToDeviceType";

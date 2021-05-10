@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -54,6 +55,24 @@ public abstract class AbstractStrategy implements IStrategy {
 	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
 			final Connector connector, final MonitorType monitorType,
 			final String hostname) {
+
+		processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname, null);
+	}
+
+	/**
+	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
+	 * When the {@link SourceTable} is ready it is added to {@link HostMonitoring}
+	 * 
+	 * @param sources        The {@link List} of {@link Source} instances we wish to execute
+	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
+	 * @param connector      The connector we currently process
+	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
+	 * @param hostname       The hostname of the target only used for logging
+	 * @param monitor        The monitor used in the mono instance processing
+	 */
+	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
+			final Connector connector, final MonitorType monitorType,
+			final String hostname, final Monitor monitor) {
 	
 		if (sources == null || sources.isEmpty()) {
 			log.debug("No source found from connector {} with monitor {}. System {}", connector.getCompiledFilename(), monitorType, hostname);
@@ -64,7 +83,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		// visit and process the source
 		for (final Source source : sources) {
 	
-			final SourceTable sourceTable = source.accept(sourceVisitor);
+			final SourceTable sourceTable = source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor));
 	
 			if (sourceTable == null) {
 				log.warn("Received null source table for source key {}. Connector {}. Monitor {}. System {}",

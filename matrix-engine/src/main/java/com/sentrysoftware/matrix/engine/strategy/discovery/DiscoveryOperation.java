@@ -236,7 +236,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		} else {
 			final Monitor monitor = Monitor.builder().build();
 
-			processTextParameters(parameters, monitor);
+			processTextParameters(parameters, monitor, connectorName);
 
 			final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 					.builder()
@@ -257,15 +257,20 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * Process the parameters defined in a {@link TextInstanceTable}. I.e. Hard
 	 * coded instance table
 	 * 
-	 * @param parameters Key-value map from the connector discovery instance used to create hard coded metadata
-	 * @param monitor    The monitor on which we want to set the parameter values as metadata
+	 * @param parameters    Key-value map from the connector discovery instance used to create hard coded metadata
+	 * @param monitor       The monitor on which we want to set the parameter values as metadata
+	 * @param connectorName The name of the connector to be set as metadata
 	 */
-	void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
+	void processTextParameters(final Map<String, String> parameters, final Monitor monitor, final String connectorName) {
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
-
 			monitor.addMetadata(parameter.getKey(), parameter.getValue());
-			monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
 		}
+
+		// Add the id count parameter
+		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
+
+		// Add the connector name to the metadata
+		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
 	}
 
 	/**
@@ -310,6 +315,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Add the idCount metadata
 		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(idCount));
+
+		// Add the connector name to the metadata
+		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
 
 	}
 

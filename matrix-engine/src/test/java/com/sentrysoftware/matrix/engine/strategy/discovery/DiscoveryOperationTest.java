@@ -296,6 +296,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(MODEL, MODEL_VALUE);
 		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		enclosureMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -313,7 +314,8 @@ class DiscoveryOperationTest {
 		fanMetadata.put(DISPLAY_ID, FAN_1);
 		fanMetadata.put(SPEED, SPEED_VALUE);
 		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		
+		fanMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_NAME)
@@ -400,6 +402,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 		
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -450,6 +453,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -644,6 +648,7 @@ class DiscoveryOperationTest {
 		metadata.put(DEVICE_ID, DELL_ENCLOSURE);
 		metadata.put(VENDOR, DELL);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
@@ -707,6 +712,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -729,12 +735,14 @@ class DiscoveryOperationTest {
 				DEVICE_ID, DELL_ENCLOSURE,
 				VENDOR, DELL);
 		
-		discoveryOperation.processTextParameters(parameters, monitor);
+		discoveryOperation.processTextParameters(parameters, monitor, MY_CONNECTOR_1_NAME);
 	
 		final Map<String, String> metadata = monitor.getMetadata();
 
 		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
+		assertEquals(MY_CONNECTOR_1_NAME, metadata.get(HardwareConstants.CONNECTOR));
+		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
 	}
 
 	@Test
