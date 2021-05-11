@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -61,6 +60,14 @@ public class ComputeVisitor implements IComputeVisitor {
 	private Connector connector;
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
+
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
+			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ONE + HardwareConstants.CLOSING_PARENTHESIS);
+
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
+			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ZERO +  HardwareConstants.CLOSING_PARENTHESIS);
+
+	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION = (str, translations) -> translations.get(str);
 
 	static {
 		final Map<Class<? extends Compute>, BiFunction<String, String, String>> map = new HashMap<>();
@@ -313,58 +320,40 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final PerBitTranslation perBitTranslation) {
-		if (perBitTranslation == null) {
-			log.warn("The Source (PerBitTranslation) to visit is null, the PerBitTranslation computation cannot be performed.");
+
+		if (!perBitTtranslationCheck(perBitTranslation)) {
 			return;
 		}
 
-		TranslationTable bitTranslationTable = perBitTranslation.getBitTranslationTable();
-		if (bitTranslationTable == null) {
-			log.warn("TranslationTable is null, the PerBitTranslation computation cannont be performed.");
-			return;
-		}
-
-		Map<String, String> translations = bitTranslationTable.getTranslations();
-		if (translations == null) {
-			log.warn("The Translation Map {} is null, the PerBitTranslation computation cannot be performed.",
-					bitTranslationTable.getName());
-			return;
-		}
-
+		Map<String, String> translations = perBitTranslation.getBitTranslationTable().getTranslations();
 		Integer columnIndex = perBitTranslation.getColumn() - 1;
-		if (columnIndex < 0) {
-			log.warn("The index of the column to translate cannot be < 1, the PerBitTranslation computation cannot be performed.");
-			return;
-		}
-
 		List<Integer> bitList = perBitTranslation.getBitList();
-		if (bitList == null) {
-			log.warn("BitList is null, the PerBitTranslation computation cannont be performed.");
-			return;
-		}
 
 		String newValue;
 
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
-				String valueToBeReplaced = line.get(columnIndex);
+
+				Integer valueToBeReplacedInt;
+
+				try {
+					valueToBeReplacedInt = Integer.parseInt(line.get(columnIndex));
+				} catch (NumberFormatException e) {
+					log.warn("Data is not correctly formatted.");
+					return;
+				}
+
 				List<String> columnResult = new ArrayList<>();
 
 				for (Integer bit : bitList) {
-					if (((int) Math.pow(2, bit) & Integer.parseInt(valueToBeReplaced)) != 0) {
-						newValue = translate(bit.toString(),
-								(str -> translations.get(HardwareConstants.OPENING_PARENTHESIS + 
-										str + HardwareConstants.COMMA + HardwareConstants.ONE + 
-										HardwareConstants.CLOSING_PARENTHESIS)));
+					if (((int) Math.pow(2, bit) & valueToBeReplacedInt) != 0) {
+						newValue = translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION);
 						if (newValue != null) {
 							columnResult.add(newValue);
 						}
 					} else {
-						newValue = translate(bit.toString(),
-								(str -> translations.get(HardwareConstants.OPENING_PARENTHESIS + 
-										str + HardwareConstants.COMMA + HardwareConstants.ZERO + 
-										HardwareConstants.CLOSING_PARENTHESIS)));
+						newValue = translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION);
 						if (newValue != null) {
 							columnResult.add(newValue);
 						}
@@ -383,8 +372,54 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 	}
 
-	private String translate(final String valueTotranslate, final Function<String, String> translationFunction) {
-		return translationFunction.apply(valueTotranslate);
+	/**
+	 * PerBitTtranslation visit check.
+	 * @param perBitTranslation
+	 * @return
+	 */
+	private boolean perBitTtranslationCheck(final PerBitTranslation perBitTranslation) {
+		if (perBitTranslation == null) {
+			log.warn("The Source (PerBitTranslation) to visit is null, the PerBitTranslation computation cannot be performed.");
+			return false;
+		}
+
+		TranslationTable bitTranslationTable = perBitTranslation.getBitTranslationTable();
+		if (bitTranslationTable == null) {
+			log.warn("TranslationTable is null, the PerBitTranslation computation cannont be performed.");
+			return false;
+		}
+
+		Map<String, String> translations = bitTranslationTable.getTranslations();
+		if (translations == null) {
+			log.warn("The Translation Map {} is null, the PerBitTranslation computation cannot be performed.",
+					bitTranslationTable.getName());
+			return false;
+		}
+
+		Integer columnIndex = perBitTranslation.getColumn() - 1;
+		if (columnIndex < 0) {
+			log.warn("The index of the column to translate cannot be < 1, the PerBitTranslation computation cannot be performed.");
+			return false;
+		}
+
+		List<Integer> bitList = perBitTranslation.getBitList();
+		if (bitList == null) {
+			log.warn("BitList is null, the PerBitTranslation computation cannont be performed.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Translates the valueTotranslate using the translationMap in the translationFunction.
+	 * @param valueTotranslate
+	 * @param translationMap
+	 * @param translationFunction
+	 * @return
+	 */
+	private String translate(final String valueTotranslate, final Map<String, String> translationMap, final BiFunction<String, Map<String, String>, String> translationFunction) {
+		return translationFunction.apply(valueTotranslate, translationMap);
 	}
 
 	@Override
@@ -479,8 +514,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (columnIndex < line.size()) {
 				String valueToBeReplaced = line.get(columnIndex);
-				String newValue = translate(valueToBeReplaced, (str -> translations.get(str)));
-				
+				String newValue = translate(valueToBeReplaced, translations, TRANSLATION_FUNCTION);
+
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
 				} else {
