@@ -42,7 +42,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setDisplayName(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
+				connector.setDisplayName(value.trim());
 			}
 		}
 	}
@@ -59,7 +59,7 @@ public class ConnectorSimpleProperty {
 			if (connector != null && value != null) {
 				Set<String> supersedes = new HashSet<>();
 
-				Arrays.stream(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).split(ConnectorParserConstants.COMA))
+				Arrays.stream(value.split(ConnectorParserConstants.COMA))
 					.forEach(supersedesStr -> supersedes.add(supersedesStr.trim()));
 
 				connector.setSupersedes(supersedes);
@@ -79,7 +79,7 @@ public class ConnectorSimpleProperty {
 			if (connector != null && value != null) {
 				Set<OSType> osTypes = new HashSet<>();
 
-				Arrays.stream(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).split(ConnectorParserConstants.COMA))
+				Arrays.stream(value.split(ConnectorParserConstants.COMA))
 					.forEach(osTypeStr -> osTypes.add(OSType.valueOf(osTypeStr.trim().toUpperCase())));
 
 				connector.setAppliesToOS(osTypes);
@@ -97,7 +97,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setLocalSupport(Boolean.parseBoolean(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim().toLowerCase()));
+				connector.setLocalSupport(Boolean.parseBoolean(value.trim().toLowerCase()));
 			}
 		}
 	}
@@ -112,7 +112,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setRemoteSupport(Boolean.parseBoolean(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim().toLowerCase()));
+				connector.setRemoteSupport(Boolean.parseBoolean(value.trim().toLowerCase()));
 			}
 		}
 	}
@@ -127,7 +127,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setTypicalPlatform(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
+				connector.setTypicalPlatform(value.trim());
 			}
 		}
 	}
@@ -142,7 +142,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setReliesOn(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
+				connector.setReliesOn(value.trim());
 			}
 		}
 	}
@@ -157,7 +157,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				connector.setVersion(value.replace(ConnectorParserConstants.DOUBLE_QUOTE, ConnectorParserConstants.EMPTY_STRING).trim());
+				connector.setVersion(value.trim());
 			}
 		}
 	}

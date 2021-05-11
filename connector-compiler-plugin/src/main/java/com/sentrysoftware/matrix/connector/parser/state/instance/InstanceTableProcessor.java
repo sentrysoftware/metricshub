@@ -61,7 +61,7 @@ public class InstanceTableProcessor extends AbstractInstanceProcessor {
 	 */
 	TextInstanceTable getTextInstanceTable(final String value) {
 		// remove first and last double quote
-		return TextInstanceTable.builder().text(value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")).build();
+		return TextInstanceTable.builder().text(value).build();
 	}
 
 	/**

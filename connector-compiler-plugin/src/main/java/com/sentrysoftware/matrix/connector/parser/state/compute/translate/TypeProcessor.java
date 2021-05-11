@@ -28,12 +28,10 @@ public class TypeProcessor extends TranslateProcessor {
 
 		super.parse(key, value, connector);
 
-		isTrue(TRANSLATE_TYPE_VALUE.equalsIgnoreCase(
-				value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")),
-			"Invalid Compute type: " + value);
+		isTrue(TRANSLATE_TYPE_VALUE.equalsIgnoreCase(value), () -> "Invalid Compute type: " + value);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 

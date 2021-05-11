@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOUBLE_QUOTE;
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.EMPTY_STRING;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.regex.Pattern;
@@ -26,6 +24,6 @@ public class ExpectedResultProcessor extends SnmpProcessor {
 
 		// Setting the expected result
 		notNull(knownCriterion, "knownCriterion should not be null.");
-		((SNMP) knownCriterion).setExpectedResult(value.trim().replace(DOUBLE_QUOTE, EMPTY_STRING));
+		((SNMP) knownCriterion).setExpectedResult(value.trim());
 	}
 }

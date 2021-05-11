@@ -27,12 +27,10 @@ public class TypeProcessor extends KeepOnlyMatchingLinesProcessor {
 
 		super.parse(key, value, connector);
 
-		isTrue(KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(
-			value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")),
-			"Invalid Compute type: " + value);
+		isTrue(KEEP_ONLY_MATCHING_LINES_TYPE_VALUE.equalsIgnoreCase(value), () -> "Invalid Compute type: " + value);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 

@@ -27,7 +27,6 @@ class InstanceTableProcessorTest {
 	private static final String EMPTY = "";
 	private static final String START_WITH_DOUBLE_QUOTES_ONLY = "\"Text";
 	private static final String CONTAINS_DOUBLE_QUOTES_BUT_NOT_START_END = "Text (\"Text\") Text";
-	private static final String START_END_WITH_DOUBLE_QUOTES = "\"Text\"";
 	private static final String NO_DOUBLE_QUOTES = "Text";
 	private static final String ENCLOSURE_DISCOVERY_INSTANCE_DEVICEID = "enclosure.discovery.instance.deviceid";
 	private static final String ENCLOSURE_DISCOVERY_INSTANCE_TABLE = "Enclosure.Discovery.InstanceTable";
@@ -93,9 +92,8 @@ class InstanceTableProcessorTest {
 		}
 
 		{
-			assertEquals(TextInstanceTable.builder().text(NO_DOUBLE_QUOTES).build(), processor.getInstanceTableFromValue(START_END_WITH_DOUBLE_QUOTES));
+			assertEquals(TextInstanceTable.builder().text(NO_DOUBLE_QUOTES).build(), processor.getInstanceTableFromValue(NO_DOUBLE_QUOTES));
 		}
-
 	}
 
 	@Test
@@ -135,7 +133,6 @@ class InstanceTableProcessorTest {
 
 	@Test
 	void testGetTextInstanceTable() {
-		assertEquals(NO_DOUBLE_QUOTES, processor.getTextInstanceTable(START_END_WITH_DOUBLE_QUOTES).getText());
 		assertEquals(CONTAINS_DOUBLE_QUOTES_BUT_NOT_START_END, processor.getTextInstanceTable(CONTAINS_DOUBLE_QUOTES_BUT_NOT_START_END).getText());
 		assertEquals(NO_DOUBLE_QUOTES, processor.getTextInstanceTable(NO_DOUBLE_QUOTES).getText());
 		assertEquals(START_WITH_DOUBLE_QUOTES_ONLY, processor.getTextInstanceTable(START_WITH_DOUBLE_QUOTES_ONLY).getText());

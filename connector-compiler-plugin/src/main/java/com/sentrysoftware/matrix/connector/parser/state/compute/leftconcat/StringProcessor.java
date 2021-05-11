@@ -36,7 +36,6 @@ public class StringProcessor extends LeftConcatProcessor {
 		notNull(leftConcat,
 			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		leftConcat.setString(
-			value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1"));
+		leftConcat.setString(value);
 	}
 }

@@ -28,18 +28,16 @@ public class ColumnProcessor extends DivideProcessor {
 		super.parse(key, value, connector);
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
 		Source source = getSource(matcher, connector);
 
 		Divide divide = getCompute(source, getComputeIndex(matcher));
-		notNull(divide,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		notNull(divide, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		String strippedValue = value.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1");
-		isTrue(strippedValue.matches("\\d+"), "Column number is invalid: " + value);
+		isTrue(value.matches("\\d+"), () -> "Column number is invalid: " + value);
 
-		divide.setColumn(Integer.parseInt(strippedValue));
+		divide.setColumn(Integer.parseInt(value));
 	}
 
 }
