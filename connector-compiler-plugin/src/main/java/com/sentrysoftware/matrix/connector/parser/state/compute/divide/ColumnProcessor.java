@@ -1,15 +1,14 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.divide;
 
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 
 public class ColumnProcessor extends DivideProcessor {
 
@@ -30,14 +29,12 @@ public class ColumnProcessor extends DivideProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		Source source = getSource(matcher, connector);
-
-		Divide divide = getCompute(source, getComputeIndex(matcher));
-		notNull(divide, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		Divide divide = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
+		notNull(divide,
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		isTrue(value.matches("\\d+"), () -> "Column number is invalid: " + value);
 
 		divide.setColumn(Integer.parseInt(value));
 	}
-
 }

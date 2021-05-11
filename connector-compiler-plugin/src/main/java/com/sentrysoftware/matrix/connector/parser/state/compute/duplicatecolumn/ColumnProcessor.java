@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -30,10 +29,9 @@ public class ColumnProcessor extends DuplicateColumnProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		Source source = getSource(matcher, connector);
-
-		DuplicateColumn duplicateColumn = getCompute(source, getComputeIndex(matcher));
-		notNull(duplicateColumn, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		DuplicateColumn duplicateColumn = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
+		notNull(duplicateColumn,
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		isTrue(value.matches("\\d+"), () -> "Column number is invalid: " + value);
 

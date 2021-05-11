@@ -35,7 +35,7 @@ public class TypeProcessor extends DuplicateColumnProcessor {
 		Source source = getSource(matcher, connector);
 
 		// TODO: When all source types have been implemented,
-		// remove this if statement and uncomment the notNull check
+		// TODO: remove this if statement and uncomment the notNull check
 		if (source == null) {
 			return;
 		}

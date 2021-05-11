@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.translate;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -34,10 +33,9 @@ public class TranslationTableProcessor extends TranslateProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		Source source = getSource(matcher, connector);
-
-		Translate translate = getCompute(source, getComputeIndex(matcher));
-		notNull(translate, () -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+		Translate translate = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
+		notNull(translate,
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		Map<String, TranslationTable> translationTables = connector.getTranslationTables();
 		state(translationTables != null, () -> "No translation tables found in " + connector.getCompiledFilename());
