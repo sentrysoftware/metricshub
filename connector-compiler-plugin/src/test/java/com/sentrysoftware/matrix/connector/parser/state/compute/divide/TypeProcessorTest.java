@@ -21,7 +21,7 @@ class TypeProcessorTest {
 	private static final String DIVIDE_TYPE_KEY_1 = "enclosure.collect.source(1).compute(1).type";
 	private static final String DIVIDE_TYPE_KEY_2 = "enclosure.collect.source(1).compute(2).type";
 	private static final String FOO = "FOO";
-	private static final String DIVIDE_TYPE_VALUE = "divide";
+	private static final String DIVIDE_TYPE_VALUE = "Divide";
 
 	@Test
 	void testParse() {

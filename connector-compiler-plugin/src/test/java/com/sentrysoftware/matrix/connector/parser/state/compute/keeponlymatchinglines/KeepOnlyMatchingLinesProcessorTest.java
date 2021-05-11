@@ -104,7 +104,7 @@ class KeepOnlyMatchingLinesProcessorTest {
 	}
 
 	@Test
-	void testGetKeepOnlyMatchingLines() {
+	void testGetCompute() {
 
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(KEEP_ONLY_MATCHING_LINES_DISCOVERY_TYPE_KEY);

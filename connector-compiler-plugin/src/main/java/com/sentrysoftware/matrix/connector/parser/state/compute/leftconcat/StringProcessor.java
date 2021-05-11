@@ -31,7 +31,7 @@ public class StringProcessor extends LeftConcatProcessor {
 
 		LeftConcat leftConcat = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
 		notNull(leftConcat,
-				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+			() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		leftConcat.setString(value);
 	}

@@ -104,7 +104,7 @@ class DivideProcessorTest {
 	}
 
 	@Test
-	void testGetDivide() {
+	void testGetCompute() {
 
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(DIVIDE_COLLECT_TYPE_KEY);

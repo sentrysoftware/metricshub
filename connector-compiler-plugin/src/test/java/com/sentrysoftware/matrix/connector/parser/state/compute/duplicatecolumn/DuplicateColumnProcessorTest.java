@@ -103,7 +103,7 @@ class DuplicateColumnProcessorTest {
 	}
 
 	@Test
-	void testGetDuplicateColumn() {
+	void testGetCompute() {
 
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(DUPLICATE_COLUMN_COLLECT_TYPE_KEY);
