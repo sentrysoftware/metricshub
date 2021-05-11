@@ -1,18 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -38,12 +29,22 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -169,7 +170,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		// for each list in the list, duplicate the column of the given index  
-		Integer columnIndex = duplicateColumn.getColumn() -1;
+		int columnIndex = duplicateColumn.getColumn() -1;
 
 		for (List<String> elementList : sourceTable.getTable()) {
 			if (columnIndex >= 0 && columnIndex < elementList.size()) {
@@ -181,7 +182,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final ExcludeMatchingLines excludeMatchingLines) {
-		// Not implemented yet
+
+		processAbstractMatchingLines(excludeMatchingLines);
 	}
 
 	@Override
@@ -207,56 +209,106 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
 
-		if (
-				keepOnlyMatchingLines != null
-						&& keepOnlyMatchingLines.getColumn() != null
-						&& keepOnlyMatchingLines.getColumn() > 0
-						&& sourceTable != null
-						&& sourceTable.getTable() != null
-						&& !sourceTable.getTable().isEmpty()
-						&& keepOnlyMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()
-		) {
+		processAbstractMatchingLines(keepOnlyMatchingLines);
+	}
 
-			int columnIndex = keepOnlyMatchingLines.getColumn() - 1;
+	/**
+	 * Updates the {@link SourceTable}
+	 * by keeping or removing lines
+	 * according to the definition of the given {@link AbstractMatchingLines}.
+	 *
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 */
+	private void processAbstractMatchingLines(AbstractMatchingLines abstractMatchingLines) {
 
-			String regexpPsl = keepOnlyMatchingLines.getRegExp();
-			List<String> valueList = keepOnlyMatchingLines.getValueList();
+		if (abstractMatchingLines != null
+				&& abstractMatchingLines.getColumn() != null
+				&& abstractMatchingLines.getColumn() > 0
+				&& sourceTable != null
+				&& sourceTable.getTable() != null
+				&& !sourceTable.getTable().isEmpty()
+				&& abstractMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()) {
+
+			int columnIndex = abstractMatchingLines.getColumn() - 1;
+
+			String pslRegexp = abstractMatchingLines.getRegExp();
+			List<String> valueList = abstractMatchingLines.getValueList();
 
 			List<List<String>> table = sourceTable.getTable();
 
 			// If there are both a regex and a valueList, both are applied, one after the other.
-			if (regexpPsl != null && !regexpPsl.isEmpty()) {
-				table = processRegexp(regexpPsl, table, columnIndex);
+			if (pslRegexp != null && !pslRegexp.isEmpty()) {
+
+				table = filterTable(table, columnIndex, getPredicate(pslRegexp, abstractMatchingLines));
 			}
 
 			if (valueList != null && !valueList.isEmpty()) {
-				table = processValueList(valueList, table, columnIndex);
+
+				table = filterTable(table, columnIndex, getPredicate(valueList, abstractMatchingLines));
 			}
 
 			sourceTable.setTable(table);
 		}
 	}
 
-	private List<List<String>> processRegexp(String regexpPsl, List<List<String>> table, int columnIndex) {
+	/**
+	 * @param pslRegexp				The PSL regular expression used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given regular expression
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
 
-		List<List<String>> sourceTableTmp = new ArrayList<>();
-		Pattern regexpPattern = Pattern.compile(PslUtils.psl2JavaRegex(regexpPsl));
-		for (List<String> line : table) {
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp));
 
-			if (regexpPattern.matcher(line.get(columnIndex)).matches()) {
-				sourceTableTmp.add(line);
-			}
-		}
-
-		return sourceTableTmp;
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> pattern.matcher(value).matches()
+			: value -> !pattern.matcher(value).matches();
 	}
 
-	private List<List<String>> processValueList(List<String> valueList, List<List<String>> table, int columnIndex) {
+	/**
+	 * @param valueList				The list of values used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given list of values
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(List<String> valueList, AbstractMatchingLines abstractMatchingLines) {
+
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? valueList::contains
+			: value -> !valueList.contains(value);
+	}
+
+	/**
+	 * @param table			The table that is being filtered.
+	 * @param columnIndex	The index of the column
+	 *                      whose values should evaluate to true against the given {@link Predicate}.
+	 * @param predicate		The {@link Predicate} against which
+	 *                      each value at the given column in the resulting table
+	 *                      must evaluate to true.
+	 *
+	 * @return				A new table
+	 * 						having just the rows of the given table
+	 * 						for which values at the given column evaluate to true against the given {@link Predicate}.
+	 */
+	private List<List<String>> filterTable(List<List<String>> table, int columnIndex, Predicate<String> predicate) {
 
 		List<List<String>> sourceTableTmp = new ArrayList<>();
-		for(List<String> line : table) {
+		for (List<String> line : table) {
 
-			if (valueList.contains(line.get(columnIndex))) {
+			if (predicate.test(line.get(columnIndex))) {
 				sourceTableTmp.add(line);
 			}
 		}
@@ -279,12 +331,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				if (leftColumnIndex < sourceTable.getTable().get(0).size()) {
 					sourceTable.getTable()
-							.stream()
 							.forEach(column -> column.set(columnIndex, column.get(leftColumnIndex).concat(column.get(columnIndex))));
 				}
 			} else {
 				sourceTable.getTable()
-						.stream()
 						.forEach(column -> column.set(columnIndex, leftConcat.getString().concat(column.get(columnIndex))));
 
 				// Serialize and deserialize in case the String to concat contains a ';' so that a new column is created.
@@ -453,7 +503,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (replacementColumnIndex < sourceTable.getTable().get(0).size()) {
 				sourceTable.getTable()
-				.stream()
 				.forEach(column -> column.set(
 						columnIndex, 
 						column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
@@ -461,7 +510,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		} else {
 			sourceTable.getTable()
-			.stream()
 			.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
 		}
 
@@ -504,7 +552,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		Integer columnIndex = translate.getColumn() - 1;
+		int columnIndex = translate.getColumn() - 1;
 		if (columnIndex < 0) {
 			log.warn("The index of the column to translate cannot be < 1, the translate computation cannot be performed.");
 			return;
