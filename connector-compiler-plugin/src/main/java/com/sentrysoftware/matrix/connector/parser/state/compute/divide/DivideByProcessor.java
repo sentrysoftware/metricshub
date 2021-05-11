@@ -31,7 +31,7 @@ public class DivideByProcessor extends DivideProcessor {
 
 		Divide divide = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
 		notNull(divide,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		divide.setDivideBy(value);
 	}

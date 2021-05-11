@@ -31,7 +31,7 @@ public class ColumnProcessor extends DuplicateColumnProcessor {
 
 		DuplicateColumn duplicateColumn = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
 		notNull(duplicateColumn,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		isTrue(value.matches("\\d+"), () -> "Column number is invalid: " + value);
 

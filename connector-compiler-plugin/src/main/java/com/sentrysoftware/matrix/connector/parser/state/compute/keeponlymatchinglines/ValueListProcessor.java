@@ -33,7 +33,7 @@ public class ValueListProcessor extends KeepOnlyMatchingLinesProcessor {
 
 		KeepOnlyMatchingLines keepOnlyMatchingLines = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
 		notNull(keepOnlyMatchingLines,
-			"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		keepOnlyMatchingLines.setValueList(Arrays.asList(value.split(COMA)));
 	}

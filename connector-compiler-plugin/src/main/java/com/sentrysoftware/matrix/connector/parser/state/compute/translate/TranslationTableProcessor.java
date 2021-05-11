@@ -35,7 +35,7 @@ public class TranslationTableProcessor extends TranslateProcessor {
 
 		Translate translate = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
 		notNull(translate,
-				"Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
 		Map<String, TranslationTable> translationTables = connector.getTranslationTables();
 		state(translationTables != null, () -> "No translation tables found in " + connector.getCompiledFilename());
