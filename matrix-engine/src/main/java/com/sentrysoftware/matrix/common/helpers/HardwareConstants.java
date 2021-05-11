@@ -7,6 +7,7 @@ public class HardwareConstants {
 
 	public static final String NEW_LINE = "\n";
 	public static final String WHITE_SPACE = " ";
+	public static final String DASH = "-";
 	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
 	public static final String ENCLOSURE = "Enclosure";
@@ -44,4 +45,6 @@ public class HardwareConstants {
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
 	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
 
+	public static final String ONE = "1";
+	public static final String ZERO = "0";
 }

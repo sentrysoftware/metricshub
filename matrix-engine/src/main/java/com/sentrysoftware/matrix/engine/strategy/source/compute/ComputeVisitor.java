@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -311,7 +313,78 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final PerBitTranslation perBitTranslation) {
-		// Not implemented yet
+		if (perBitTranslation == null) {
+			log.warn("The Source (PerBitTranslation) to visit is null, the PerBitTranslation computation cannot be performed.");
+			return;
+		}
+
+		TranslationTable bitTranslationTable = perBitTranslation.getBitTranslationTable();
+		if (bitTranslationTable == null) {
+			log.warn("TranslationTable is null, the PerBitTranslation computation cannont be performed.");
+			return;
+		}
+
+		Map<String, String> translations = bitTranslationTable.getTranslations();
+		if (translations == null) {
+			log.warn("The Translation Map {} is null, the PerBitTranslation computation cannot be performed.",
+					bitTranslationTable.getName());
+			return;
+		}
+
+		Integer columnIndex = perBitTranslation.getColumn() - 1;
+		if (columnIndex < 0) {
+			log.warn("The index of the column to translate cannot be < 1, the PerBitTranslation computation cannot be performed.");
+			return;
+		}
+
+		List<Integer> bitList = perBitTranslation.getBitList();
+		if (bitList == null) {
+			log.warn("BitList is null, the PerBitTranslation computation cannont be performed.");
+			return;
+		}
+
+		String newValue;
+
+		for (List<String> line : sourceTable.getTable()) {
+
+			if (columnIndex < line.size()) {
+				String valueToBeReplaced = line.get(columnIndex);
+				List<String> columnResult = new ArrayList<>();
+
+				for (Integer bit : bitList) {
+					if (((int) Math.pow(2, bit) & Integer.parseInt(valueToBeReplaced)) != 0) {
+						newValue = translate(bit.toString(),
+								(str -> translations.get(HardwareConstants.OPENING_PARENTHESIS + 
+										str + HardwareConstants.COMMA + HardwareConstants.ONE + 
+										HardwareConstants.CLOSING_PARENTHESIS)));
+						if (newValue != null) {
+							columnResult.add(newValue);
+						}
+					} else {
+						newValue = translate(bit.toString(),
+								(str -> translations.get(HardwareConstants.OPENING_PARENTHESIS + 
+										str + HardwareConstants.COMMA + HardwareConstants.ZERO + 
+										HardwareConstants.CLOSING_PARENTHESIS)));
+						if (newValue != null) {
+							columnResult.add(newValue);
+						}
+					}
+				}
+
+				if (!columnResult.isEmpty()) {
+					String separator = HardwareConstants.WHITE_SPACE + HardwareConstants.DASH + HardwareConstants.WHITE_SPACE;
+
+					line.set(columnIndex, columnResult
+							.stream()
+							.map(value -> String.join(separator, value))
+							.collect(Collectors.joining(separator)));
+				}
+			}
+		}
+	}
+
+	private String translate(final String valueTotranslate, final Function<String, String> translationFunction) {
+		return translationFunction.apply(valueTotranslate);
 	}
 
 	@Override
@@ -406,9 +479,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (columnIndex < line.size()) {
 				String valueToBeReplaced = line.get(columnIndex);
-
-				if (translations.containsKey(valueToBeReplaced)) {
-					line.set(columnIndex, translations.get(valueToBeReplaced));
+				String newValue = translate(valueToBeReplaced, (str -> translations.get(str)));
+				
+				if (newValue != null) {
+					line.set(columnIndex, newValue);
 				} else {
 					log.warn("The Translation Map {} does not contain the following value {}.",
 							translationTable.getName(), valueToBeReplaced);
@@ -511,5 +585,4 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Exception : ", e);
 		} 
 	}
-
 }
