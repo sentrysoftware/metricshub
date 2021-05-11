@@ -102,7 +102,7 @@ class TranslateProcessorTest {
 	}
 
 	@Test
-	void testGetTranslate() {
+	void testGetCompute() {
 
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(TRANSLATE_COLLECT_TYPE_KEY);

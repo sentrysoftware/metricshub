@@ -4,12 +4,16 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.connector.parser.state.compute.add.ConnectorAddProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.divide.ConnectorDivideProperty;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn.ConnectorDuplicateColumnProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.multiply.ConnectorMultiplyProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.perbittranslation.ConnectorPerBitTranslationProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.replace.ConnectorReplaceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpProperty;
 import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceProperty;
@@ -32,7 +36,11 @@ public enum ConnectorState {
 	CONNECTOR_VALUE_TABLE(new StateParsersParent(ConnectorValueTableProperty.getConnectorProperties())),
 	CONNECTOR_DUPLICATE_COLUMN(new StateParsersParent(ConnectorDuplicateColumnProperty.getConnectorProperties())),
 	CONNECTOR_TRANSLATE(new StateParsersParent(ConnectorTranslateProperty.getConnectorProperties())),
-	CONNECTOR_DIVIDE(new StateParsersParent(ConnectorDivideProperty.getConnectorProperties()));
+	CONNECTOR_DIVIDE(new StateParsersParent(ConnectorDivideProperty.getConnectorProperties())),
+	CONNECTOR_ADD(new StateParsersParent(ConnectorAddProperty.getConnectorProperties())),
+	CONNECTOR_MULTIPLY(new StateParsersParent(ConnectorMultiplyProperty.getConnectorProperties())),
+	CONNECTOR_PER_BIT_TRANSLATION(new StateParsersParent(ConnectorPerBitTranslationProperty.getConnectorProperties())),
+	CONNECTOR_REPLACE(new StateParsersParent(ConnectorReplaceProperty.getConnectorProperties()));
 
 	private final IConnectorStateParser connectorStateProcessor;
 

@@ -104,7 +104,7 @@ class LeftConcatProcessorTest {
 	}
 
 	@Test
-	void testGetLeftConcat() {
+	void testGetCompute() {
 
 		// No Source found
 		Matcher matcher = typeProcessor.getMatcher(LEFT_CONCAT_DISCOVERY_TYPE_KEY);

@@ -24,7 +24,7 @@ class TypeProcessorTest {
 	private static final String TRANSLATE_TYPE_KEY_1 = "enclosure.collect.source(1).compute(1).type";
 	private static final String TRANSLATE_TYPE_KEY_2 = "enclosure.collect.source(1).compute(2).type";
 	private static final String FOO = "FOO";
-	private static final String TRANSLATE_TYPE_VALUE = "translate";
+	private static final String TRANSLATE_TYPE_VALUE = "Translate";
 
 	@Test
 	void testParse() {
