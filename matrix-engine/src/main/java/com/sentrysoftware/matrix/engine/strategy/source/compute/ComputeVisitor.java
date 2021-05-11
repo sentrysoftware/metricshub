@@ -49,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComputeVisitor implements IComputeVisitor {
 
+	private static final Pattern COLUMN_PATTERN =  Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
+
 	@Getter
 	@Setter
 	private SourceTable sourceTable;
@@ -261,8 +263,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			int columnIndex = leftConcat.getColumn() - 1;
 			String concatString = leftConcat.getString();
 
-			// If leftConcat.getString() is like "Concat(n)", we concat the column n instead of leftConcat.getString() 
-			if (Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(concatString).matches()) {
+			// If leftConcat.getString() is like "Column(n)", we concat the column n instead of leftConcat.getString() 
+			if (COLUMN_PATTERN.matcher(concatString).matches()) {
 				int leftColumnIndex = Integer.parseInt(concatString.substring(concatString.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
 						concatString.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
 
@@ -314,7 +316,48 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Replace replace) {
-		// Not implemented yet
+		if (replace == null) {
+			log.warn("Compute Operation (Replace) is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer columnToReplace = replace.getColumn();
+		String strToReplace = replace.getReplace();
+		String replacement = replace.getReplaceBy();
+
+		if (columnToReplace == null || strToReplace == null || replacement == null) {
+			log.warn("Arguments in Compute Operation (Replace) : {} are wrong, the table remains unchanged.", replace);
+			return;
+		}
+
+		if (columnToReplace < 1) {
+			log.warn("The index of the column to replace cannot be < 1, the replacement computation cannot be performed.");
+			return;
+		}
+
+		int columnIndex = columnToReplace - 1;
+
+		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
+		if (COLUMN_PATTERN.matcher(replacement).matches()) {
+			int replacementColumnIndex = Integer.parseInt(replacement.substring(
+					replacement.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
+					replacement.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
+
+			if (replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+				sourceTable.getTable()
+				.stream()
+				.forEach(column -> column.set(
+						columnIndex, 
+						column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
+						);
+			}
+		} else {
+			sourceTable.getTable()
+			.stream()
+			.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+		}
+
+		sourceTable.setTable(SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON), HardwareConstants.SEMICOLON));
 	}
 
 	@Override
@@ -397,7 +440,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		Integer columnIndex = column - 1;
 		int operandByIndex = -1;
 
-		Matcher matcher = Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE).matcher(operand2);
+		Matcher matcher = COLUMN_PATTERN.matcher(operand2);
 		if (matcher.matches()) {
 			try {
 				operandByIndex = Integer.parseInt(matcher.group(1)) - 1;
