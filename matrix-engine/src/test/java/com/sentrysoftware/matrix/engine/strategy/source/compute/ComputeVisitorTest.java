@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Dupl
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.PerBitTranslation;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -894,4 +895,85 @@ class ComputeVisitorTest {
 				Arrays.asList("ID3", "v3", "vafval1", "val23f2")),
 				sourceTable.getTable());
 	}
+
+	@Test
+	void testPerBitTranslation() {
+		final Map<String, String> translationMap = Stream.of(new String[][] {
+			{"(0,1)","No Network"},
+			{"(1,0)","Authentication Failure"},
+			{"(1,1)","Not Ready"},
+			{"(2,1)","Fan Failure"},
+			{"(3,1)","AC Switch On"},
+			{"(4,1)","AC Power On"},
+			{"(5,1)","Ready"},
+			{"(6,1)","Failed"},
+			{"(7,1)","Predicted Failure"}
+		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+		List<Integer> bitList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7);
+
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")));
+
+		// test null source to visit
+		PerBitTranslation translateNull = null;
+		computeVisitor.visit(translateNull);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		// test TranslationTable is null
+		PerBitTranslation translate = PerBitTranslation.builder().column(0).index(0).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		translate = PerBitTranslation.builder().column(0).index(0).bitTranslationTable(TranslationTable.builder().name("TR1").build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		// test index out of bounds
+		translate = PerBitTranslation.builder().column(0).index(0).bitTranslationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		translate = PerBitTranslation.builder().column(10).index(10).bitTranslationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		translate = PerBitTranslation.builder().column(4).index(1).bitTranslationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")),
+				sourceTable.getTable());
+
+		translate.setBitList(bitList);
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "No Network - Authentication Failure"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "Not Ready"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "No Network - Not Ready - Fan Failure - AC Switch On - AC Power On - Ready - Failed - Predicted Failure")),
+				sourceTable.getTable());
+	}
+
 }
