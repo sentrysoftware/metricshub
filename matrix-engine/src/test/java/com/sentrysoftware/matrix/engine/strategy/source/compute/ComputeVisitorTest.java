@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.RightConcat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,37 +45,61 @@ class ComputeVisitorTest {
 	private static final List<String> LINE_2 = Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2");
 	private static final List<String> LINE_3 = Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3");
 
-	private static final List<String> LINE_1_RESULT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "prefix_MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "prefix_MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "prefix_MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_RESULT_LEFT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "prefix_MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_LEFT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "prefix_MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_LEFT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "prefix_MANUFACTURER3", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_RIGHT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "MANUFACTURER1_suffix", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_RIGHT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "MANUFACTURER2_suffix", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_RIGHT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3_suffix", "NUMBER_OF_DISKS3"));
 
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID1"));
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID2"));
 	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID3"));
 
-	private static final List<String> LINE_1_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID1"));
-	private static final List<String> LINE_2_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID2"));
-	private static final List<String> LINE_3_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID3"));
+	private static final List<String> LINE_1_ONE_COLUMN_RESULT_LEFT = new ArrayList<>(Collections.singletonList("prefix_ID1"));
+	private static final List<String> LINE_2_ONE_COLUMN_RESULT_LEFT = new ArrayList<>(Collections.singletonList("prefix_ID2"));
+	private static final List<String> LINE_3_ONE_COLUMN_RESULT_LEFT = new ArrayList<>(Collections.singletonList("prefix_ID3"));
 
-	private static final List<String> LINE_1_RESULT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID1", "NAME1", "ID1MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID2", "NAME2", "ID2MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID3", "NAME3", "ID3MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_ONE_COLUMN_RESULT_RIGHT = new ArrayList<>(Collections.singletonList("ID1_suffix"));
+	private static final List<String> LINE_2_ONE_COLUMN_RESULT_RIGHT = new ArrayList<>(Collections.singletonList("ID2_suffix"));
+	private static final List<String> LINE_3_ONE_COLUMN_RESULT_RIGHT = new ArrayList<>(Collections.singletonList("ID3_suffix"));
 
-	private static final List<String> LINE_1_RESULT_NOT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID1", "NAME1", "Column(1)_MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT_NOT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID2", "NAME2", "Column(1)_MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT_NOT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID3", "NAME3", "Column(1)_MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_RESULT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "ID1MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "ID2MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "ID3MANUFACTURER3", "NUMBER_OF_DISKS3"));
 
-	private static final List<String> LINE_1_RESULT_NOT_COLUMN_2 = new ArrayList<>(Arrays.asList("ID1", "NAME1", "_Column(1)MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT_NOT_COLUMN_2 = new ArrayList<>(Arrays.asList("ID2", "NAME2", "_Column(1)MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT_NOT_COLUMN_2 = new ArrayList<>(Arrays.asList("ID3", "NAME3", "_Column(1)MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_RESULT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "MANUFACTURER1ID1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "MANUFACTURER2ID2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3ID3", "NUMBER_OF_DISKS3"));
 
-	private static final List<String> LINE_1_RESULT_NEW_COLUMN = new ArrayList<>(Arrays.asList("ID1", "NAME1", "new,Column", "prefix_MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT_NEW_COLUMN = new ArrayList<>(Arrays.asList("ID2", "NAME2", "new,Column", "prefix_MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT_NEW_COLUMN = new ArrayList<>(Arrays.asList("ID3", "NAME3", "new,Column", "prefix_MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_RESULT_NOT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "Column(1)_MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_NOT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "Column(1)_MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_NOT_COLUMN_1_LEFT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "Column(1)_MANUFACTURER3", "NUMBER_OF_DISKS3"));
 
-	private static final List<String> LINE_1_RESULT_TWO_NEW_COLUMNS = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"));
-	private static final List<String> LINE_2_RESULT_TWO_NEW_COLUMNS = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"));
-	private static final List<String> LINE_3_RESULT_TWO_NEW_COLUMNS = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"));
+	private static final List<String> LINE_1_RESULT_NOT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "MANUFACTURER1_Column(1)", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_NOT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "MANUFACTURER2_Column(1)", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_NOT_COLUMN_1_RIGHT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3_Column(1)", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_NOT_COLUMN_2_LEFT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "_Column(1)MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_NOT_COLUMN_2_LEFT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "_Column(1)MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_NOT_COLUMN_2_LEFT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "_Column(1)MANUFACTURER3", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_NEW_COLUMN_LEFT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "new,Column", "prefix_MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_NEW_COLUMN_LEFT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "new,Column", "prefix_MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_NEW_COLUMN_LEFT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "new,Column", "prefix_MANUFACTURER3", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_NEW_COLUMN_RIGHT = new ArrayList<>(Arrays.asList("ID1", "NAME1", "MANUFACTURER1_suffix", "new,Column", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_NEW_COLUMN_RIGHT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "MANUFACTURER2_suffix", "new,Column", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_NEW_COLUMN_RIGHT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3_suffix", "new,Column", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_TWO_NEW_COLUMNS_LEFT = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_TWO_NEW_COLUMNS_LEFT = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_TWO_NEW_COLUMNS_LEFT = new ArrayList<>(Arrays.asList("new,Column(4)", "AnotherNew.Column", "prefix_ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_1_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID1_suffix", "new,Column(4)", "AnotherNew.Column", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"));
+	private static final List<String> LINE_2_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID2_suffix", "new,Column(4)", "AnotherNew.Column", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"));
+	private static final List<String> LINE_3_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID3_suffix", "new,Column(4)", "AnotherNew.Column", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"));
 
 	@BeforeEach
 	void setUp() {
@@ -389,9 +414,9 @@ class ComputeVisitorTest {
 
 		computeVisitor.visit(leftConcat);
 
-		assertEquals(LINE_1_RESULT, table.get(0));
-		assertEquals(LINE_2_RESULT, table.get(1));
-		assertEquals(LINE_3_RESULT, table.get(2));
+		assertEquals(LINE_1_RESULT_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_LEFT, table.get(2));
 	}
 
 	@Test
@@ -406,9 +431,9 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_ONE_COLUMN_RESULT, table.get(0));
-		assertEquals(LINE_2_ONE_COLUMN_RESULT, table.get(1));
-		assertEquals(LINE_3_ONE_COLUMN_RESULT, table.get(2));
+		assertEquals(LINE_1_ONE_COLUMN_RESULT_LEFT, table.get(0));
+		assertEquals(LINE_2_ONE_COLUMN_RESULT_LEFT, table.get(1));
+		assertEquals(LINE_3_ONE_COLUMN_RESULT_LEFT, table.get(2));
 	}
 
 	@Test
@@ -421,9 +446,9 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_RESULT_COLUMN_1, table.get(0));
-		assertEquals(LINE_2_RESULT_COLUMN_1, table.get(1));
-		assertEquals(LINE_3_RESULT_COLUMN_1, table.get(2));
+		assertEquals(LINE_1_RESULT_COLUMN_1_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_COLUMN_1_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_COLUMN_1_LEFT, table.get(2));
 	}
 
 	@Test
@@ -436,9 +461,9 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_RESULT_NOT_COLUMN_1, table.get(0));
-		assertEquals(LINE_2_RESULT_NOT_COLUMN_1, table.get(1));
-		assertEquals(LINE_3_RESULT_NOT_COLUMN_1, table.get(2));
+		assertEquals(LINE_1_RESULT_NOT_COLUMN_1_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_NOT_COLUMN_1_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_NOT_COLUMN_1_LEFT, table.get(2));
 	}
 
 	@Test
@@ -451,9 +476,9 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_RESULT_NOT_COLUMN_2, table.get(0));
-		assertEquals(LINE_2_RESULT_NOT_COLUMN_2, table.get(1));
-		assertEquals(LINE_3_RESULT_NOT_COLUMN_2, table.get(2));
+		assertEquals(LINE_1_RESULT_NOT_COLUMN_2_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_NOT_COLUMN_2_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_NOT_COLUMN_2_LEFT, table.get(2));
 	}
 
 	@Test
@@ -466,9 +491,9 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_RESULT_NEW_COLUMN, table.get(0));
-		assertEquals(LINE_2_RESULT_NEW_COLUMN, table.get(1));
-		assertEquals(LINE_3_RESULT_NEW_COLUMN, table.get(2));
+		assertEquals(LINE_1_RESULT_NEW_COLUMN_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_NEW_COLUMN_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_NEW_COLUMN_LEFT, table.get(2));
 	}
 
 	@Test
@@ -481,9 +506,130 @@ class ComputeVisitorTest {
 
 		List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(LINE_1_RESULT_TWO_NEW_COLUMNS, table.get(0));
-		assertEquals(LINE_2_RESULT_TWO_NEW_COLUMNS, table.get(1));
-		assertEquals(LINE_3_RESULT_TWO_NEW_COLUMNS, table.get(2));
+		assertEquals(LINE_1_RESULT_TWO_NEW_COLUMNS_LEFT, table.get(0));
+		assertEquals(LINE_2_RESULT_TWO_NEW_COLUMNS_LEFT, table.get(1));
+		assertEquals(LINE_3_RESULT_TWO_NEW_COLUMNS_LEFT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisit() {
+		initializeSourceTable();
+
+		// Test with empty RightConcat
+		RightConcat rightConcat = new RightConcat();
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1, table.get(0));
+		assertEquals(LINE_2, table.get(1));
+		assertEquals(LINE_3, table.get(2));
+
+		// Test with RightConcat without String
+		rightConcat.setColumn(3);
+
+		computeVisitor.visit(rightConcat);
+
+		assertEquals(LINE_1, table.get(0));
+		assertEquals(LINE_2, table.get(1));
+		assertEquals(LINE_3, table.get(2));
+
+		// Test with RightConcat without Column
+		rightConcat.setColumn(null);
+		rightConcat.setString("_suffix");
+
+		computeVisitor.visit(rightConcat);
+
+		assertEquals(LINE_1, table.get(0));
+		assertEquals(LINE_2, table.get(1));
+		assertEquals(LINE_3, table.get(2));
+
+		// Test with correct RightConcat
+		rightConcat.setColumn(3);
+
+		computeVisitor.visit(rightConcat);
+
+		assertEquals(LINE_1_RESULT_RIGHT, table.get(0));
+		assertEquals(LINE_2_RESULT_RIGHT, table.get(1));
+		assertEquals(LINE_3_RESULT_RIGHT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisitOneColumn() {
+		sourceTable.getTable().add(new ArrayList<>(LINE_1_ONE_COLUMN));
+		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
+		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
+
+		RightConcat rightConcat = new RightConcat(1, 1, "_suffix");
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1_ONE_COLUMN_RESULT_RIGHT, table.get(0));
+		assertEquals(LINE_2_ONE_COLUMN_RESULT_RIGHT, table.get(1));
+		assertEquals(LINE_3_ONE_COLUMN_RESULT_RIGHT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisitColumn() {
+		initializeSourceTable();
+
+		RightConcat rightConcat = new RightConcat(1, 3, "Column(1)");
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1_RESULT_COLUMN_1_RIGHT, table.get(0));
+		assertEquals(LINE_2_RESULT_COLUMN_1_RIGHT, table.get(1));
+		assertEquals(LINE_3_RESULT_COLUMN_1_RIGHT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisitNotColumn1() {
+		initializeSourceTable();
+
+		RightConcat rightConcat = new RightConcat(1, 3, "_Column(1)");
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1_RESULT_NOT_COLUMN_1_RIGHT, table.get(0));
+		assertEquals(LINE_2_RESULT_NOT_COLUMN_1_RIGHT, table.get(1));
+		assertEquals(LINE_3_RESULT_NOT_COLUMN_1_RIGHT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisitNewColumn() {
+		initializeSourceTable();
+
+		RightConcat rightConcat = new RightConcat(1, 3, "_suffix;new,Column");
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1_RESULT_NEW_COLUMN_RIGHT, table.get(0));
+		assertEquals(LINE_2_RESULT_NEW_COLUMN_RIGHT, table.get(1));
+		assertEquals(LINE_3_RESULT_NEW_COLUMN_RIGHT, table.get(2));
+	}
+
+	@Test
+	void testRightConcatVisitTwoNewColumns() {
+		initializeSourceTable();
+
+		RightConcat rightConcat = new RightConcat(1, 1, "_suffix;new,Column(4);AnotherNew.Column");
+
+		computeVisitor.visit(rightConcat);
+
+		List<List<String>> table = sourceTable.getTable();
+
+		assertEquals(LINE_1_RESULT_TWO_NEW_COLUMNS_RIGHT, table.get(0));
+		assertEquals(LINE_2_RESULT_TWO_NEW_COLUMNS_RIGHT, table.get(1));
+		assertEquals(LINE_3_RESULT_TWO_NEW_COLUMNS_RIGHT, table.get(2));
 	}
 
 	@Test

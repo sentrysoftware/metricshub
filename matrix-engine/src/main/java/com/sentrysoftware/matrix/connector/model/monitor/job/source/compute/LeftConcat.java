@@ -12,23 +12,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class LeftConcat extends Compute {
+public class LeftConcat extends AbstractConcat {
 
 	private static final long serialVersionUID = -7237305051553135699L;
 
-	private Integer column;
-	private String string;
-
 	@Builder
 	public LeftConcat(Integer index, Integer column, String string) {
-		super(index);
-		this.column = column;
-		this.string = string;
+		super(index, column, string);
 	}
 
 	@Override
 	public void accept(final IComputeVisitor computeVisitor) {
 		computeVisitor.visit(this);
 	}
-
 }
