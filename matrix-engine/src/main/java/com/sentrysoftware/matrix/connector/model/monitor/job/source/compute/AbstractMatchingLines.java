@@ -18,9 +18,9 @@ public abstract class AbstractMatchingLines extends Compute {
 
 	private static final long serialVersionUID = 3125914016586965365L;
 
-	protected Integer column;
-	protected String regExp;
-	protected List<String> valueList = new ArrayList<>();
+	private Integer column;
+	private String regExp;
+	private List<String> valueList = new ArrayList<>();
 
 	protected AbstractMatchingLines(Integer index, Integer column, String regExp, List<String> valueList) {
 
