@@ -15,8 +15,8 @@ public abstract class AbstractConcat extends Compute {
 
 	private static final long serialVersionUID = -4171343812982964238L;
 
-	protected Integer column;
-	protected String string;
+	private Integer column;
+	private String string;
 
 	protected AbstractConcat(Integer index, Integer column, String string) {
 

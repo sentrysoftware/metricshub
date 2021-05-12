@@ -513,6 +513,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisit() {
+
 		initializeSourceTable();
 
 		// Test with empty RightConcat
@@ -557,6 +558,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisitOneColumn() {
+
 		sourceTable.getTable().add(new ArrayList<>(LINE_1_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
@@ -574,6 +576,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisitColumn() {
+
 		initializeSourceTable();
 
 		RightConcat rightConcat = new RightConcat(1, 3, "Column(1)");
@@ -589,6 +592,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisitNotColumn1() {
+
 		initializeSourceTable();
 
 		RightConcat rightConcat = new RightConcat(1, 3, "_Column(1)");
@@ -604,6 +608,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisitNewColumn() {
+
 		initializeSourceTable();
 
 		RightConcat rightConcat = new RightConcat(1, 3, "_suffix;new,Column");
@@ -619,6 +624,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testRightConcatVisitTwoNewColumns() {
+
 		initializeSourceTable();
 
 		RightConcat rightConcat = new RightConcat(1, 1, "_suffix;new,Column(4);AnotherNew.Column");
@@ -633,11 +639,88 @@ class ComputeVisitorTest {
 	}
 
 	@Test
+	void testRightConcatVisitNoOperation() {
+
+		// RightConcat is null
+		computeVisitor.setSourceTable(SourceTable.empty());
+		computeVisitor.visit((RightConcat) null);
+		assertNotNull(computeVisitor.getSourceTable().getTable());
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// RightConcat is not null, RightConcat.getString() is null
+		RightConcat rightConcat = RightConcat.builder().build();
+		computeVisitor.visit(rightConcat);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is null
+		rightConcat.setString("_suffix");
+		computeVisitor.visit(rightConcat);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() <= 0
+		rightConcat.setColumn(0);
+		computeVisitor.visit(rightConcat);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() > 0,
+		// computeVisitor.getSourceTable() is null
+		rightConcat.setColumn(1);
+		computeVisitor.setSourceTable(null);
+		computeVisitor.visit(rightConcat);
+		assertNull(computeVisitor.getSourceTable());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is null
+		computeVisitor.setSourceTable(SourceTable.builder().table(null).build());
+		computeVisitor.visit(rightConcat);
+		assertNull(computeVisitor.getSourceTable().getTable());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable().isEmpty()
+		computeVisitor.setSourceTable(SourceTable.empty());
+		computeVisitor.visit(rightConcat);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable() is not empty,
+		// RightConcat.getColumn() > sourceTable.getTable().get(0).size()
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(
+								Collections.singletonList(
+										Collections.singletonList(FOO)
+								)
+						)
+						.build());
+		rightConcat.setColumn(2);
+		computeVisitor.visit(rightConcat);
+		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
+
+		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getColumn() is not null,
+		// RightConcat.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable() is not empty,
+		// RightConcat.getColumn() <= sourceTable.getTable().get(0).size(),
+		// matcher.matches, concatColumnIndex < sourceTable.getTable().get(0).size()
+		rightConcat.setColumn(1);
+		rightConcat.setString("column(2)");
+		computeVisitor.visit(rightConcat);
+		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
+	}
+
+	@Test
 	void testDuplicateColumn() {
 		sourceTable.getTable().add(new ArrayList<>(LINE_1));
 		// test null arg
-		DuplicateColumn dupColumnNull = null;
-		computeVisitor.visit(dupColumnNull);
+		computeVisitor.visit((DuplicateColumn) null);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 
 		// test out of bounds
@@ -722,8 +805,7 @@ class ComputeVisitorTest {
 
 		// test null source to visit
 		initializeSourceTable();
-		Translate translateNull = null;
-		computeVisitor.visit(translateNull);
+		computeVisitor.visit((Translate) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
@@ -826,8 +908,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 
-		addition = null;
-		computeVisitor.visit(addition);
+		computeVisitor.visit((Add) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
@@ -913,8 +994,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 
-		divide = null;
-		computeVisitor.visit(divide);
+		computeVisitor.visit((Divide) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
@@ -1002,48 +1082,47 @@ class ComputeVisitorTest {
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "1500", "5", "val2")));
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "200", "2", "val3")));
 		
-		Multiply multipl = Multiply.builder().build();
-		computeVisitor.visit(multipl);
+		Multiply multiply = Multiply.builder().build();
+		computeVisitor.visit(multiply);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 
-		multipl = null;
-		computeVisitor.visit(multipl);
+		computeVisitor.visit((Multiply) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 
-		multipl = Multiply.builder().column(2).build();
-		computeVisitor.visit(multipl);
+		multiply = Multiply.builder().column(2).build();
+		computeVisitor.visit(multiply);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 		
-		multipl = Multiply.builder().multiplyBy("0").build();
-		computeVisitor.visit(multipl);
+		multiply = Multiply.builder().multiplyBy("0").build();
+		computeVisitor.visit(multiply);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 		
-		multipl = Multiply.builder().multiplyBy("column(3)").build();
-		computeVisitor.visit(multipl);
+		multiply = Multiply.builder().multiplyBy("column(3)").build();
+		computeVisitor.visit(multiply);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
 				Arrays.asList("ID1", "200", "2", "val3")),
 				sourceTable.getTable());
 		
-		multipl = Multiply.builder().multiplyBy("column(13)").build();
-		computeVisitor.visit(multipl);
+		multiply = Multiply.builder().multiplyBy("column(13)").build();
+		computeVisitor.visit(multiply);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "500", "2", "val1"), 
 				Arrays.asList("ID2", "1500", "5", "val2"),
@@ -1074,16 +1153,16 @@ class ComputeVisitorTest {
 				Arrays.asList("ID1", "400", "2", "val3")),
 				sourceTable.getTable());
 
-		Multiply multByValue = Multiply.builder().column(2).multiplyBy("10").build();
-		computeVisitor.visit(multByValue);
+		Multiply multiplyByValue = Multiply.builder().column(2).multiplyBy("10").build();
+		computeVisitor.visit(multiplyByValue);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "10000", "2", "val1"), 
 				Arrays.asList("ID2", "75000", "5", "val2"),
 				Arrays.asList("ID1", "4000", "2", "val3")),
 				sourceTable.getTable());
 		
-		multByValue = Multiply.builder().column(2).multiplyBy("0").build();
-		computeVisitor.visit(multByValue);
+		multiplyByValue = Multiply.builder().column(2).multiplyBy("0").build();
+		computeVisitor.visit(multiplyByValue);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "0", "2", "val1"), 
 				Arrays.asList("ID2", "0", "5", "val2"),
@@ -1097,15 +1176,14 @@ class ComputeVisitorTest {
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "val2", "1value11")));
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "val3", "va1lue12")));
 
-		Replace replace = null;
-		computeVisitor.visit(replace);
+		computeVisitor.visit((Replace) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "val1", "1value1"),
 				Arrays.asList("ID2", "val2", "1value11"),
 				Arrays.asList("ID3", "val3", "va1lue12")),
 				sourceTable.getTable());
 
-		replace = Replace.builder().build();
+		Replace replace = Replace.builder().build();
 		computeVisitor.visit(replace);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "val1", "1value1"),
@@ -1196,8 +1274,7 @@ class ComputeVisitorTest {
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")));
 
 		// test null source to visit
-		PerBitTranslation translateNull = null;
-		computeVisitor.visit(translateNull);
+		computeVisitor.visit((PerBitTranslation) null);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
