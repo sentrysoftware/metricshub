@@ -1,33 +1,33 @@
 package com.sentrysoftware.matrix.engine.strategy;
 
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Battery;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Blade;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ConcreteConnector;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Cpu;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CpuCore;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Target;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskController;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskEnclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Enclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Led;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.LogicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Lun;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Memory;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.NetworkCard;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.OtherDevice;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PhysicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PowerSupply;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Robotic;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TapeDrive;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Temperature;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Voltage;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 public interface IMonitorVisitor {
 
-	void visit(ConcreteConnector concreteConnector);
+	void visit(MetaConnector metaConnector);
 
-	void visit(Target device);
+	void visit(Target target);
 
 	void visit(Battery battery);
 
@@ -69,5 +69,4 @@ public interface IMonitorVisitor {
 
 	void visit(Robotic robotic);
 
-	
 }

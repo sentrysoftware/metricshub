@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,29 +10,32 @@ import java.util.function.Function;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Battery;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Blade;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ConcreteConnector;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Cpu;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CpuCore;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskController;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskEnclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Enclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Led;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.LogicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Lun;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Memory;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.NetworkCard;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.OtherDevice;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PhysicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PowerSupply;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Robotic;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TapeDrive;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Target;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Temperature;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Voltage;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
@@ -88,125 +92,121 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(ConcreteConnector concreteConnector) {
+	public void visit(MetaConnector metaConnector) {
 		// Not implemented yet
 	}
 
 	@Override
-	public void visit(Target device) {
+	public void visit(Target target) {
 		// Not implemented yet
 	}
 
 	@Override
 	public void visit(Battery battery) {
-		collectStatusParameter(MonitorType.BATTERY, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(battery);
 	}
 
 	@Override
 	public void visit(Blade blade) {
-		collectStatusParameter(MonitorType.BLADE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(blade);
 	}
 
 	@Override
 	public void visit(Cpu cpu) {
-		collectStatusParameter(MonitorType.CPU, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(cpu);
 	}
 
 	@Override
 	public void visit(CpuCore cpuCore) {
-		collectStatusParameter(MonitorType.CPU_CORE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(cpuCore);
 	}
 
 	@Override
 	public void visit(DiskController diskController) {
-		collectStatusParameter(MonitorType.DISK_CONTROLLER, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(diskController);
 	}
 
 	@Override
 	public void visit(DiskEnclosure diskEnclosure) {
-		collectStatusParameter(MonitorType.DISK_ENCLOSURE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(diskEnclosure);
 	}
 
 	@Override
 	public void visit(Enclosure enclosure) {
-		// Status
-		collectStatusParameter(MonitorType.ENCLOSURE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
-
-		// IntrusionStatus
-		collectStatusParameter(MonitorType.ENCLOSURE, HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT);
-
-		// EnergyUsage in Joules, to get the power consumption in Watts we need to compute the volts / amperes
-		// Means [ Delta Joules ] / [ Delta Time in seconds ]
-		collectNumberParameter(MonitorType.ENCLOSURE, HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT);
+		collectBasicParameters(enclosure);
 
 		appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER, HardwareConstants.ENERGY_USAGE_PARAMETER);
 	}
 
 	@Override
 	public void visit(Fan fan) {
-		collectStatusParameter(MonitorType.FAN, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(fan);
+
+		appendValuesToStatusParameter(HardwareConstants.SPEED_PARAMETER, HardwareConstants.SPEED_PERCENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(Led led) {
-		collectStatusParameter(MonitorType.LED, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(led);
 	}
 
 	@Override
 	public void visit(LogicalDisk logicalDisk) {
-		collectStatusParameter(MonitorType.LOGICAL_DISK, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(logicalDisk);
 	}
 
 	@Override
 	public void visit(Lun lun) {
-		collectStatusParameter(MonitorType.LUN, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(lun);
 	}
 
 	@Override
 	public void visit(Memory memory) {
-		collectStatusParameter(MonitorType.MEMORY, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(memory);
 	}
 
 	@Override
 	public void visit(NetworkCard networkCard) {
-		collectStatusParameter(MonitorType.NETWORK_CARD, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(networkCard);
 	}
 
 	@Override
 	public void visit(OtherDevice otherDevice) {
-		collectStatusParameter(MonitorType.OTHER_DEVICE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(otherDevice);
 	}
 
 	@Override
 	public void visit(PhysicalDisk physicalDisk) {
-		collectStatusParameter(MonitorType.DISK_CONTROLLER, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(physicalDisk);
 	}
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
-		collectStatusParameter(MonitorType.POWER_SUPPLY, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(powerSupply);
 	}
 
 	@Override
 	public void visit(TapeDrive tapeDrive) {
-		collectStatusParameter(MonitorType.TAPE_DRIVE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(tapeDrive);
 	}
 
 	@Override
 	public void visit(Temperature temperature) {
-		collectStatusParameter(MonitorType.TEMPERATURE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(temperature);
+
+		appendValuesToStatusParameter(HardwareConstants.TEMPERATURE_PARAMETER);
 	}
 
 	@Override
 	public void visit(Voltage voltage) {
-		collectStatusParameter(MonitorType.VOLTAGE, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(voltage);
+
+		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
 	}
 
 	@Override
 	public void visit(Robotic robotic) {
-		collectStatusParameter(MonitorType.ROBOTIC, HardwareConstants.STATUS_PARAMETER, HardwareConstants.STATUS_PARAMETER_UNIT);
+		collectBasicParameters(robotic);
 	}
 
 	/**
@@ -426,4 +426,39 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			return "Unexpected Intrusion Status";
 		}
 	}
+
+	/**
+	 * Collect the basic parameters as defined by the given {@link IMetaMonitor}
+	 * 
+	 * @param metaMonitor Defines all the meta information of the parameters to collect (name, type, unit and basic or not)
+	 */
+	private void collectBasicParameters(final IMetaMonitor metaMonitor) {
+
+		metaMonitor.getMetaParameters()
+		.values()
+		.stream()
+		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.STATUS.equals(metaParam.getType()))
+		.sorted(new StatusParamFirstComparator())
+		.forEach(metaParam -> collectStatusParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+
+		metaMonitor.getMetaParameters()
+		.values()
+		.stream()
+		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
+		.forEach(metaParam -> collectNumberParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+	}
+
+	public static class StatusParamFirstComparator implements Comparator<MetaParameter> {
+
+		@Override
+		public int compare(final MetaParameter metaParam1, final MetaParameter metaParam2) {
+			// Status first
+			if (HardwareConstants.STATUS_PARAMETER.equalsIgnoreCase(metaParam1.getName())) {
+				return -1;
+			}
+
+			return metaParam1.getName().compareTo(metaParam2.getName());
+		}
+	}
+
 }

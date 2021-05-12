@@ -5,7 +5,29 @@ import java.util.Optional;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +36,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MonitorType {
 
-	CONNECTOR("Connector", new ConcreteConnector()),
+	CONNECTOR("Connector", new MetaConnector()),
 	TARGET("Target", new Target()),
 	BATTERY("Battery", new Battery()),
 	BLADE("Blade", new Blade()),
@@ -38,7 +60,7 @@ public enum MonitorType {
 	VOLTAGE("Voltage", new Voltage());
 
 	private String name;
-	private IMonitorConcreteType concreteType;
+	private IMetaMonitor metaMonitor;
 
 	/**
 	 * Get {@link MonitorType} by name, the name defined in the hardware connector code
@@ -76,229 +98,5 @@ public enum MonitorType {
 			default:
 				return name.concat("s");
 		}
-	}
-
-	public static interface IMonitorConcreteType {
-		public void accept(IMonitorVisitor monitorVisitor);
-	}
-
-	public static class ConcreteConnector implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Target implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Battery implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Blade implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Cpu implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class CpuCore implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class DiskController implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class DiskEnclosure implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Enclosure implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Fan implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Led implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class LogicalDisk implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Lun implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Memory implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class NetworkCard implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class OtherDevice implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class PhysicalDisk implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class PowerSupply implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Robotic implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class TapeDrive implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Temperature implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
-	}
-
-	public static class Voltage implements IMonitorConcreteType {
-
-		@Override
-		public void accept(IMonitorVisitor monitorVisitor) {
-			monitorVisitor.visit(this);
-
-		}
-
 	}
 }

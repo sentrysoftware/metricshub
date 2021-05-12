@@ -28,6 +28,11 @@ public class HardwareConstants {
 	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
 	public static final String INTRUSION_STATUS_PARAMETER = "intrusionStatus";
 	public static final String ENERGY_USAGE_PARAMETER = "energyUsage";
+	public static final String POWER_CONSUMPTION_PARAMETER = "powerConsumption";
+	public static final String SPEED_PARAMETER = "speed";
+	public static final String SPEED_PERCENT_PARAMETER = "speedPercent";
+	public static final String VOLTAGE_PARAMETER = "voltage";
+	public static final String TEMPERATURE_PARAMETER = "temperature";
 
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
@@ -45,7 +50,13 @@ public class HardwareConstants {
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
 	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
+	public static final String POWER_CONSUMPTION_PARAMETER_UNIT = "Watts";
+	public static final String SPEED_PARAMETER_UNIT = "RPM";
+	public static final String SPEED_PERCENT_PARAMETER_UNIT = "% of maximum speed";
+	public static final String VOLTAGE_PARAMETER_UNIT = "mV";
+	public static final String TEMPERATURE_PARAMETER_UNIT = "degrees Celsius";
 
 	public static final String ONE = "1";
 	public static final String ZERO = "0";
+
 }
