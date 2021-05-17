@@ -323,7 +323,7 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Get the monitors with the same type and discovered from the connector identified by the given connectoName
+	 * Get the monitors with the same type and discovered from the connector identified by the given <code>connectorName</code>
 	 * 
 	 * @param monitorType    The type of the monitor used to fetch monitors from the {@link HostMonitoring}
 	 * @param connectorName  The unique name of the {@link Connector}
