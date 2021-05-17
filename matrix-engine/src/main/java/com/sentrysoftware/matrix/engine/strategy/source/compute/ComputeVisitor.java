@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy.source.compute;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
@@ -318,31 +319,103 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final LeftConcat leftConcat) {
-		if (leftConcat != null && leftConcat.getString() != null && leftConcat.getColumn() != null && leftConcat.getColumn() > 0
-				&& sourceTable != null && sourceTable.getTable() != null && !sourceTable.getTable().isEmpty()
-				&& leftConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
-			int columnIndex = leftConcat.getColumn() - 1;
-			String concatString = leftConcat.getString();
 
-			// If leftConcat.getString() is like "Column(n)", we concat the column n instead of leftConcat.getString() 
-			if (COLUMN_PATTERN.matcher(concatString).matches()) {
-				int leftColumnIndex = Integer.parseInt(concatString.substring(concatString.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
-						concatString.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
+		processAbstractConcat(leftConcat);
+	}
 
-				if (leftColumnIndex < sourceTable.getTable().get(0).size()) {
+	private void processAbstractConcat(AbstractConcat abstractConcat) {
+
+		if (abstractConcat != null
+			&& abstractConcat.getString() != null
+			&& abstractConcat.getColumn() != null
+			&& abstractConcat.getColumn() > 0
+			&& sourceTable != null
+			&& sourceTable.getTable() != null
+			&& !sourceTable.getTable().isEmpty()
+			&& abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
+
+			int columnIndex = abstractConcat.getColumn() - 1;
+			String concatString = abstractConcat.getString();
+
+			// If abstractConcat.getString() is like "Column(n)",
+			// we concat the column n instead of abstractConcat.getString()
+			Matcher matcher = COLUMN_PATTERN.matcher(concatString);
+			if (matcher.matches()) {
+
+				int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
+				if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
+
 					sourceTable.getTable()
-							.forEach(column -> column.set(columnIndex, column.get(leftColumnIndex).concat(column.get(columnIndex))));
+						.forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
 				}
-			} else {
-				sourceTable.getTable()
-						.forEach(column -> column.set(columnIndex, leftConcat.getString().concat(column.get(columnIndex))));
 
-				// Serialize and deserialize in case the String to concat contains a ';' so that a new column is created.
+			} else {
+
+				sourceTable.getTable()
+					.forEach(line -> concatString(line, columnIndex, abstractConcat));
+
+				// Serialize and deserialize
+				// in case the String to concat contains a ';'
+				// so that a new column is created.
 				if (concatString.contains(HardwareConstants.SEMICOLON)) {
-					sourceTable.setTable(SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON), HardwareConstants.SEMICOLON));
+
+					sourceTable.setTable(
+						SourceTable.csvToTable(
+							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON),
+							HardwareConstants.SEMICOLON));
 				}
 			}
 		}
+	}
+
+	/**
+	 * Concatenates the values at <i>columnIndex</i> and <i>concatColumnIndex</i> on the given line,
+	 * and stores the result at <i>columnIndex</i>.<br>
+	 *
+	 * Whether the value at <i>concatColumnIndex</i> goes to the left or to the right of the value at <i>columnIndex</i>
+	 * depends on the type of the given {@link AbstractConcat}.
+	 *
+	 * @param line				The line on which the concatenation will be performed.
+	 * @param columnIndex		The index of the column
+	 *                          holding the value that should be concatenated to the value at <i>concatColumnIndex</i>.
+	 *                          The result will be stored at <i>columnIndex</i>.
+	 * @param concatColumnIndex	The index of the column
+	 *                          holding the value that should be concatenated to the value at <i>columnIndex</i>.
+	 * @param abstractConcat	The {@link AbstractConcat} used to determine
+	 *                          whether the concatenation should be a left concatenation or a right concatenation.
+	 */
+	private void concatColumns(List<String> line, int columnIndex, int concatColumnIndex,
+							   AbstractConcat abstractConcat) {
+
+		String result = abstractConcat instanceof LeftConcat
+			? line.get(concatColumnIndex).concat(line.get(columnIndex))
+			: line.get(columnIndex).concat(line.get(concatColumnIndex));
+
+		line.set(columnIndex, result);
+	}
+
+	/**
+	 * Concatenates the value at <i>columnIndex</i> on the given line
+	 * with the given {@link AbstractConcat}'s <i>getString()</i> value,
+	 * and stores the result at <i>columnIndex</i>.<br>
+	 *
+	 * Whether {@link AbstractConcat#getString()} goes to the left or to the right of the value at <i>columnIndex</i>
+	 * depends on the type of {@link AbstractConcat}.
+	 *
+	 * @param line				The line on which the concatenation will be performed.
+	 * @param columnIndex		The index of the column
+	 *                          holding the value that should be concatenated to {@link AbstractConcat#getString()}.
+	 *                          The result will be stored at <i>columnIndex</i>.
+	 * @param abstractConcat	The {@link AbstractConcat} used to determine
+	 *                          whether the concatenation should be a left concatenation or a right concatenation.
+	 */
+	private void concatString(List<String> line, int columnIndex, AbstractConcat abstractConcat) {
+
+		String result = abstractConcat instanceof LeftConcat
+				? abstractConcat.getString().concat(line.get(columnIndex))
+				: line.get(columnIndex).concat(abstractConcat.getString());
+
+		line.set(columnIndex, result);
 	}
 
 	@Override
@@ -371,12 +444,12 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final PerBitTranslation perBitTranslation) {
 
-		if (!perBitTtranslationCheck(perBitTranslation)) {
+		if (!perBitTranslationCheck(perBitTranslation)) {
 			return;
 		}
 
 		Map<String, String> translations = perBitTranslation.getBitTranslationTable().getTranslations();
-		Integer columnIndex = perBitTranslation.getColumn() - 1;
+		int columnIndex = perBitTranslation.getColumn() - 1;
 		List<Integer> bitList = perBitTranslation.getBitList();
 
 		String newValue;
@@ -385,7 +458,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (columnIndex < line.size()) {
 
-				Integer valueToBeReplacedInt;
+				int valueToBeReplacedInt;
 
 				try {
 					valueToBeReplacedInt = Integer.parseInt(line.get(columnIndex));
@@ -397,16 +470,15 @@ public class ComputeVisitor implements IComputeVisitor {
 				List<String> columnResult = new ArrayList<>();
 
 				for (Integer bit : bitList) {
+
 					if (((int) Math.pow(2, bit) & valueToBeReplacedInt) != 0) {
 						newValue = translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION);
-						if (newValue != null) {
-							columnResult.add(newValue);
-						}
 					} else {
 						newValue = translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION);
-						if (newValue != null) {
-							columnResult.add(newValue);
-						}
+					}
+
+					if (newValue != null) {
+						columnResult.add(newValue);
 					}
 				}
 
@@ -427,7 +499,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @param perBitTranslation
 	 * @return
 	 */
-	private boolean perBitTtranslationCheck(final PerBitTranslation perBitTranslation) {
+	private boolean perBitTranslationCheck(final PerBitTranslation perBitTranslation) {
 		if (perBitTranslation == null) {
 			log.warn("The Source (PerBitTranslation) to visit is null, the PerBitTranslation computation cannot be performed.");
 			return false;
@@ -446,7 +518,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			return false;
 		}
 
-		Integer columnIndex = perBitTranslation.getColumn() - 1;
+		int columnIndex = perBitTranslation.getColumn() - 1;
 		if (columnIndex < 0) {
 			log.warn("The index of the column to translate cannot be < 1, the PerBitTranslation computation cannot be performed.");
 			return false;
@@ -518,7 +590,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final RightConcat rightConcat) {
-		// Not implemented yet
+
+		processAbstractConcat(rightConcat);
 	}
 
 	@Override
