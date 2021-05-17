@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -158,7 +162,40 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
-		return SourceTable.empty();
+		List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null ) {
+			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		if (tableUnionSource == null || strategyConfig.getHostMonitoring() == null) {
+			return SourceTable.empty();
+		}
+
+		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
+		if (sources == null ) {
+			log.debug("SourceTable Map cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		List<String> differences = unionTables.stream()
+				.filter(element -> !sources.keySet().contains(element)).collect(Collectors.toList());
+		if (!differences.isEmpty()) {
+			log.warn("The following source tables {} cannot be found.", differences);
+		}
+
+		List<Entry<String, SourceTable>> result = sources.entrySet().stream().filter(e -> unionTables.contains(e.getKey())).collect(Collectors.toList());
+		SourceTable sourceTable = new SourceTable();
+		List<List<String>> executeTableUnion = new ArrayList<>();
+		for (Entry<String, SourceTable> source : result) {
+			SourceTable value = source.getValue();
+			executeTableUnion =  Stream.concat(
+					 executeTableUnion.stream(),
+					 value.getTable().stream()).collect(Collectors.toList());
+		}
+		sourceTable.setTable(executeTableUnion);
+
+		return sourceTable;
 	}
 
 	@Override
