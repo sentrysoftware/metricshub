@@ -452,8 +452,6 @@ public class ComputeVisitor implements IComputeVisitor {
 		int columnIndex = perBitTranslation.getColumn() - 1;
 		List<Integer> bitList = perBitTranslation.getBitList();
 
-		String newValue;
-
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
@@ -467,25 +465,13 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 
-				List<String> columnResult = new ArrayList<>();
-
-				for (Integer bit : bitList) {
-
-					if (((int) Math.pow(2, bit) & valueToBeReplacedInt) != 0) {
-						newValue = translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION);
-					} else {
-						newValue = translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION);
-					}
-
-					if (newValue != null) {
-						columnResult.add(newValue);
-					}
-				}
+				List<String> columnResult = translate(bitList, valueToBeReplacedInt, translations);
 
 				if (!columnResult.isEmpty()) {
 					String separator = HardwareConstants.WHITE_SPACE + HardwareConstants.DASH + HardwareConstants.WHITE_SPACE;
 
-					line.set(columnIndex, columnResult
+					line.set(columnIndex,
+						columnResult
 							.stream()
 							.map(value -> String.join(separator, value))
 							.collect(Collectors.joining(separator)));
@@ -495,11 +481,41 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * PerBitTtranslation visit check.
-	 * @param perBitTranslation
-	 * @return
+	 * @param bitList			The list of bits that need to be checked.
+	 * @param valueToReplace	The integer value that is being translated.
+	 * @param translations		The reference dictionary used for translations.
+	 *
+	 * @return					A {@link List} of all the available translations for the given integer value.
+	 */
+	private List<String> translate(List<Integer> bitList, int valueToReplace, Map<String, String> translations) {
+
+		List<String> result = new ArrayList<>();
+
+		String translation;
+		for (Integer bit : bitList) {
+
+			translation = ((int) Math.pow(2, bit) & valueToReplace) != 0
+						? translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION)
+						: translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION);
+
+			if (translation != null) {
+				result.add(translation);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * PerBitTranslation visit check.
+	 *
+	 * @param perBitTranslation	The {@link PerBitTranslation} being checked.
+	 *
+	 * @return					<b>true</b> if the given {@link PerBitTranslation} is well-formed.<br>
+	 * 							<b>false</b> otherwise.
 	 */
 	private boolean perBitTranslationCheck(final PerBitTranslation perBitTranslation) {
+
 		if (perBitTranslation == null) {
 			log.warn("The Source (PerBitTranslation) to visit is null, the PerBitTranslation computation cannot be performed.");
 			return false;
@@ -507,7 +523,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		TranslationTable bitTranslationTable = perBitTranslation.getBitTranslationTable();
 		if (bitTranslationTable == null) {
-			log.warn("TranslationTable is null, the PerBitTranslation computation cannont be performed.");
+			log.warn("TranslationTable is null, the PerBitTranslation computation cannot be performed.");
 			return false;
 		}
 
@@ -526,7 +542,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		List<Integer> bitList = perBitTranslation.getBitList();
 		if (bitList == null) {
-			log.warn("BitList is null, the PerBitTranslation computation cannont be performed.");
+			log.warn("BitList is null, the PerBitTranslation computation cannot be performed.");
 			return false;
 		}
 
@@ -534,14 +550,16 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Translates the valueTotranslate using the translationMap in the translationFunction.
-	 * @param valueTotranslate
-	 * @param translationMap
-	 * @param translationFunction
-	 * @return
+	 * Translates <i>valueToTranslate</i> using <i>translationMap</i> in <i>translationFunction</i>.
+	 *
+	 * @param valueToTranslate		The value being translated.
+	 * @param translationMap		The reference dictionary used for the translation.
+	 * @param translationFunction	The function used to perform the translation.
+	 *
+	 * @return						The translation of <i>valueToTranslate</i>.
 	 */
-	private String translate(final String valueTotranslate, final Map<String, String> translationMap, final BiFunction<String, Map<String, String>, String> translationFunction) {
-		return translationFunction.apply(valueTotranslate, translationMap);
+	private String translate(final String valueToTranslate, final Map<String, String> translationMap, final BiFunction<String, Map<String, String>, String> translationFunction) {
+		return translationFunction.apply(valueToTranslate, translationMap);
 	}
 
 	@Override
