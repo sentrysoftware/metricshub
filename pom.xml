@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sentrysoftware.integration</groupId>
 		<artifactId>java-parent</artifactId>
-		<version>9</version>
+		<version>10</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -36,12 +36,17 @@
 		<maven-filtering.version>3.1.1</maven-filtering.version>
 		<spring.version>5.3.5</spring.version>
 		<matsya.version>3.13.00-SNAPSHOT</matsya.version>
+		<io.springfox.version>2.9.2</io.springfox.version>
+		<picocli-spring-boot.version>4.6.1</picocli-spring-boot.version>
+		<spring-boot.version>2.4.5</spring-boot.version>
+		<prometheus-client.version>0.10.0</prometheus-client.version>
 	</properties>
 
 	<modules>
 		<module>matrix-engine</module>
 		<module>connector-compiler-plugin</module>
 		<module>hardware-sentry-cli</module>
+		<module>hardware-sentry-prometheus</module>
 	</modules>
 
 	<dependencyManagement>
@@ -143,6 +148,31 @@
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-snmpclient</artifactId>
 				<version>${matsya.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>${io.springfox.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger-ui</artifactId>
+				<version>${io.springfox.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>info.picocli</groupId>
+				<artifactId>picocli-spring-boot-starter</artifactId>
+				<version>${picocli-spring-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.prometheus</groupId>
+				<artifactId>simpleclient</artifactId>
+				<version>${prometheus-client.version}</version>
+			</dependency>
+			<dependency>
+		    	<groupId>io.prometheus</groupId>
+   				<artifactId>simpleclient_common</artifactId>
+				<version>${prometheus-client.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

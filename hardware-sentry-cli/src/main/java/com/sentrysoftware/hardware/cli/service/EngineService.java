@@ -1,5 +1,6 @@
 package com.sentrysoftware.hardware.cli.service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,16 +44,17 @@ public class EngineService {
 
 		engineConf.setTarget(new HardwareTarget(data.getHostname(), data.getHostname(), data.getDeviceType()));
 
-		Set<IProtocolConfiguration> protocols = new HashSet<>();
+		Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> protocols = new HashMap<>();
 
 		// for the moment we only manage SNMP protocol, so we will set
 		// IProtocolConfiguration in this way
 		if (null != data.getSnmpCredentials()) {
 			SNMPProtocol snmpInstance = getSNMPCredentials(data.getSnmpCredentials());
-			protocols.add(snmpInstance);
+			protocols.put(SNMPProtocol.class, snmpInstance);
 		}
 
 		engineConf.setProtocolConfigurations(protocols);
+
 		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
 		if (null != allConnectors) {
 			Set<String> allConnectorKeySet = allConnectors.keySet();
@@ -62,10 +64,13 @@ public class EngineService {
 		// run detection
 		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname());
 		EngineResult detectionResult = new Engine().run(engineConf, hostMonitoring, new DetectionOperation());
+		log.info("Detection Status {}", detectionResult.getOperationStatus());
 		// run discovery
 		EngineResult discoveryResult = new Engine().run(engineConf, hostMonitoring, new DiscoveryOperation());
+		log.info("Discovery Status {}", discoveryResult.getOperationStatus());
 		// run collect
 		EngineResult collectResult = new Engine().run(engineConf, hostMonitoring, new CollectOperation());
+		log.info("Collect Status {}", collectResult.getOperationStatus());
 
 		// Call the formatter with the HostMonitoring object
 		return jobResultFormatterService.format(hostMonitoring);
@@ -96,11 +101,14 @@ public class EngineService {
 	}
 
 	/**
-	 * Return selected connectors, this can be : 1- automatic : this method will
-	 * return an empty set, the engine will then proceed to the automatic selection based on
-	 * the 2- userSelection : replace .hdfs by .connector 3- userExclusion : based
-	 * on the ConnectorStore, filter
+	 * Return selected connectors, this can be:
+	 * <ol>
+	 *   <li><em>automatic</em>: this method will return an empty set, the engine will then proceed to the automatic detection</li>
+	 *   <li><em>userSelection</em>: replace .hdfs by .connector and return the selected connectors
+	 *   <li><em>userExclusion</em>: based on the ConnectorStore, filter the connectors to keep only connectors not in <code>cliHdfsExclusion</code>
+	 * </ol>
 	 * 
+	 * @param allConnectors
 	 * @param cliHdfs
 	 * @param cliHdfsExclusion
 	 * @return

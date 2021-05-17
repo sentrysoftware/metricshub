@@ -277,8 +277,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @return The {@link SNMPProtocol} if any
 	 */
 	private Optional<IProtocolConfiguration> getSnmpProtocol() {
-		return strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().stream().filter(SNMPProtocol.class::isInstance).findFirst();
+		return Optional.ofNullable(strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class));
 	}
 
 	@Data

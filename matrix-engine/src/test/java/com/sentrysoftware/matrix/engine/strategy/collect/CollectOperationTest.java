@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,7 +123,7 @@ class CollectOperationTest {
 						.id(ECS1_01)
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Stream.of(protocol).collect(Collectors.toSet()))
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.unknownStatus(UNKNOWN_STATUS_WARN)
 				.build();
 

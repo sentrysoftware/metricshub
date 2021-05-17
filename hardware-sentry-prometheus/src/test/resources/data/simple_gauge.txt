@@ -1,0 +1,4 @@
+# HELP my_test_gauge help
+# TYPE my_test_gauge gauge
+my_test_gauge 8.0
+

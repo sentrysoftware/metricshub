@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.cli.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -16,12 +15,12 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 
-public class EngineServiceTest {
+class EngineServiceTest {
 
 	EngineService engine = new EngineService();
 
 	@Test
-	public void getSelectedConnectorsTest() {
+	void getSelectedConnectorsTest() {
 		
 		Set<String> allHdfs = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs"));
 		Set<String> hdfs = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs"));
@@ -46,7 +45,7 @@ public class EngineServiceTest {
 	}
 	
 	@Test
-	public void getSNMPCredentialsTest() {
+	void getSNMPCredentialsTest() {
 	
 		SNMPCredentials snmpCred = new SNMPCredentials();
 		snmpCred.setCommunity("comm1");
