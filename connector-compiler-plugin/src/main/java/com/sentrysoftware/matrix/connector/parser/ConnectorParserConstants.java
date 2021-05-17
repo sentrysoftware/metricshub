@@ -19,6 +19,8 @@ public class ConnectorParserConstants {
 	public static final String DOUBLE_QUOTES_REGEX_REPLACEMENT = "^\\s*\"(.*)\"\\s*$";
 	public static final String SOURCE_REFERENCE_REGEX_REPLACEMENT = "^\\s*%(.*)%\\s*$";
 
+	public static final String INTEGER_REGEX = "^[1-9]\\d*$";
+
 	public static final String DISCOVERY = "discovery";
 	public static final String COLLECT = "collect";
 
@@ -27,4 +29,6 @@ public class ConnectorParserConstants {
 
 	public static final String TYPE = "type";
 	public static final String VALUE_TABLE = "valuetable";
+
+	public static final String COMPUTE = "compute";
 }

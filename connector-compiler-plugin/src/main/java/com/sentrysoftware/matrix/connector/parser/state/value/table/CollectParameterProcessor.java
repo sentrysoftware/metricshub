@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
@@ -79,6 +80,7 @@ public class CollectParameterProcessor implements IConnectorStateParser {
 
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
+				.discovery(Discovery.builder().build())
 				.collect(Collect.builder().build())
 				.type(monitorType)
 				.build();
