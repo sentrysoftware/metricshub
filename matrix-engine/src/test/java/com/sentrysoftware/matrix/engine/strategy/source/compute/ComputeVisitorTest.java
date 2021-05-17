@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,13 +48,13 @@ class ComputeVisitorTest {
 	private static final List<String> LINE_2_RESULT = new ArrayList<>(Arrays.asList("ID2", "NAME2", "prefix_MANUFACTURER2", "NUMBER_OF_DISKS2"));
 	private static final List<String> LINE_3_RESULT = new ArrayList<>(Arrays.asList("ID3", "NAME3", "prefix_MANUFACTURER3", "NUMBER_OF_DISKS3"));
 
-	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Arrays.asList("ID1"));
-	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Arrays.asList("ID2"));
-	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Arrays.asList("ID3"));
+	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID1"));
+	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID2"));
+	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList("ID3"));
 
-	private static final List<String> LINE_1_ONE_COLUMN_RESULT = new ArrayList<>(Arrays.asList("prefix_ID1"));
-	private static final List<String> LINE_2_ONE_COLUMN_RESULT = new ArrayList<>(Arrays.asList("prefix_ID2"));
-	private static final List<String> LINE_3_ONE_COLUMN_RESULT = new ArrayList<>(Arrays.asList("prefix_ID3"));
+	private static final List<String> LINE_1_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID1"));
+	private static final List<String> LINE_2_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID2"));
+	private static final List<String> LINE_3_ONE_COLUMN_RESULT = new ArrayList<>(Collections.singletonList("prefix_ID3"));
 
 	private static final List<String> LINE_1_RESULT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID1", "NAME1", "ID1MANUFACTURER1", "NUMBER_OF_DISKS1"));
 	private static final List<String> LINE_2_RESULT_COLUMN_1 = new ArrayList<>(Arrays.asList("ID2", "NAME2", "ID2MANUFACTURER2", "NUMBER_OF_DISKS2"));
@@ -84,7 +85,7 @@ class ComputeVisitorTest {
 	}
 
 	@Test
-	void visitKeepOnlyMatchingLinesNoOperation() {
+	void testVisitKeepOnlyMatchingLinesNoOperation() {
 
 		// KeepOnlyMatchingLines is null
 		computeVisitor.setSourceTable(SourceTable.empty());
@@ -146,7 +147,7 @@ class ComputeVisitorTest {
 	}
 
 	@Test
-	void visitKeepOnlyMatchingLines() {
+	void testVisitKeepOnlyMatchingLines() {
 
 		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
 		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
@@ -215,6 +216,138 @@ class ComputeVisitorTest {
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
 		assertEquals(line2, resultTable.get(0));
+	}
+
+	@Test
+	void testVisitExcludeMatchingLinesNoOperation() {
+
+		// ExcludeMatchingLines is null
+		computeVisitor.setSourceTable(SourceTable.empty());
+		computeVisitor.visit((ExcludeMatchingLines) null);
+		assertNotNull(computeVisitor.getSourceTable().getTable());
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// ExcludeMatchingLines is not null, ExcludeMatchingLines.getColumn() is null
+		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines.builder().build();
+		computeVisitor.visit(excludeMatchingLines);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// ExcludeMatchingLines is not null, excludeMatchingLines.getColumn() is not null,
+		// excludeMatchingLines.getColumn() <= 0
+		excludeMatchingLines.setColumn(0);
+		computeVisitor.visit(excludeMatchingLines);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// ExcludeMatchingLines is not null, excludeMatchingLines.getColumn() is not null,
+		// excludeMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is null
+		excludeMatchingLines.setColumn(1);
+		computeVisitor.setSourceTable(null);
+		computeVisitor.visit(excludeMatchingLines);
+		assertNull(computeVisitor.getSourceTable());
+
+		// ExcludeMatchingLines is not null, excludeMatchingLines.getColumn() is not null,
+		// excludeMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is null
+		computeVisitor.setSourceTable(SourceTable.builder().table(null).build());
+		computeVisitor.visit(excludeMatchingLines);
+		assertNull(computeVisitor.getSourceTable().getTable());
+
+		// ExcludeMatchingLines is not null, excludeMatchingLines.getColumn() is not null,
+		// excludeMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable().isEmpty()
+		computeVisitor.setSourceTable(SourceTable.empty());
+		computeVisitor.visit(excludeMatchingLines);
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+		// ExcludeMatchingLines is not null, excludeMatchingLines.getColumn() is not null,
+		// excludeMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable() is not empty,
+		// excludeMatchingLines.getColumn() > sourceTable.getTable().get(0).size()
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(
+								Collections.singletonList(
+										Collections.singletonList(FOO)
+								)
+						)
+						.build());
+		excludeMatchingLines.setColumn(2);
+		computeVisitor.visit(excludeMatchingLines);
+		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
+	}
+
+	@Test
+	void testExcludeMatchingLines() {
+
+		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
+		List<List<String>> table = Arrays.asList(line1, line2, line3);
+
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+
+		// regexp is null, valueList is null
+		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
+				.builder()
+				.column(1)
+				.regExp(null)
+				.valueList(null)
+				.build();
+		computeVisitor.visit(excludeMatchingLines);
+		assertEquals(table, computeVisitor.getSourceTable().getTable());
+
+		// regexp is empty, valueList is null
+		excludeMatchingLines.setRegExp("");
+		computeVisitor.visit(excludeMatchingLines);
+		assertEquals(table, computeVisitor.getSourceTable().getTable());
+
+		// regexp is empty, valueList is empty
+		excludeMatchingLines.setValueList(Collections.emptyList());
+		computeVisitor.visit(excludeMatchingLines);
+		assertEquals(table, computeVisitor.getSourceTable().getTable());
+
+		// regex is not null, not empty
+		excludeMatchingLines.setRegExp("^B.*");
+		computeVisitor.visit(excludeMatchingLines);
+		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
+		List<List<String>> resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+
+		// regex is null,
+		// valueList is not null, not empty
+		computeVisitor.getSourceTable().setTable(table);
+		excludeMatchingLines.setRegExp(null);
+		excludeMatchingLines.setValueList(Arrays.asList("3", "300"));
+		excludeMatchingLines.setColumn(4);
+		computeVisitor.visit(excludeMatchingLines);
+		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+
+		// regex is not null, not empty
+		// valueList is not null, not empty
+		computeVisitor.getSourceTable().setTable(table);
+		excludeMatchingLines.setColumn(1);
+		excludeMatchingLines.setRegExp(".*R.*"); // Applying only the regex would exclude line2
+		excludeMatchingLines.setValueList(Arrays.asList("FOO", "BAR", "BAB")); // Applying only the valueList would exclude line1 and line2
+		computeVisitor.visit(excludeMatchingLines);
+		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList leaves only line3
+		assertEquals(line3, resultTable.get(0));
 	}
 
 	@Test
@@ -359,29 +492,29 @@ class ComputeVisitorTest {
 		// test null arg
 		DuplicateColumn dupColumnNull = null;
 		computeVisitor.visit(dupColumnNull);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 
 		// test out of bounds
 		DuplicateColumn dupColumn = new DuplicateColumn(1, 0);
 		computeVisitor.visit(dupColumn);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		dupColumn = new DuplicateColumn(10, 10);
 		computeVisitor.visit(dupColumn);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		// test actual index
 		dupColumn = new DuplicateColumn(1, 1);
 		computeVisitor.visit(dupColumn);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		dupColumn = new DuplicateColumn(2, 2);
 		computeVisitor.visit(dupColumn);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1",  "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		dupColumn = new DuplicateColumn(3, 6);
 		computeVisitor.visit(dupColumn);
-		assertEquals(Arrays.asList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
+		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
 		
 		// test multiple lines
 		initializeSourceTable();
