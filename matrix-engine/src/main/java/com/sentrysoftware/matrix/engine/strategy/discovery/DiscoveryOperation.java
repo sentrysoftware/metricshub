@@ -228,7 +228,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 						.targetType(targetType)
 						.build();
 
-				monitorType.getConcreteType().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
+				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 
 				idCount++;
 			}
@@ -249,7 +249,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 					.targetType(targetType)
 					.build();
 
-			monitorType.getConcreteType().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
+			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 		}
 	}
 

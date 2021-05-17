@@ -140,6 +140,7 @@
 						<exclude>com/sentrysoftware/matrix/model/monitoring/*HostMonitoringVOBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/common/exception/**</exclude>
 						<exclude>com/sentrysoftware/matrix/common/helpers/ReflectionHelper.*</exclude>
+						<exclude>com/sentrysoftware/matrix/common/meta/**</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/discovery/MonitorBuildingInfo.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/discovery/*MonitorBuildingInfoBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/collect/MonitorCollectInfo.*</exclude>

@@ -12,27 +12,27 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Battery;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Blade;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Cpu;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CpuCore;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskController;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.DiskEnclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Enclosure;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Led;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.LogicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Lun;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Memory;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.NetworkCard;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.OtherDevice;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PhysicalDisk;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.PowerSupply;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Robotic;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TapeDrive;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Temperature;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType.Voltage;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -115,7 +115,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.BATTERY);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Battery) MonitorType.BATTERY.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Battery) MonitorType.BATTERY.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -143,7 +143,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.BLADE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Blade) MonitorType.BLADE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Blade) MonitorType.BLADE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -171,7 +171,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.CPU);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Cpu) MonitorType.CPU.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Cpu) MonitorType.CPU.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -199,7 +199,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.CPU_CORE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((CpuCore) MonitorType.CPU_CORE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((CpuCore) MonitorType.CPU_CORE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -227,7 +227,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.DISK_CONTROLLER);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskController) MonitorType.DISK_CONTROLLER.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskController) MonitorType.DISK_CONTROLLER.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -255,7 +255,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.DISK_ENCLOSURE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskEnclosure) MonitorType.DISK_ENCLOSURE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskEnclosure) MonitorType.DISK_ENCLOSURE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -317,7 +317,7 @@ class MonitorDiscoveryVisitorTest {
 				.hostname(ECS1_01)
 				.build();
 
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Enclosure) MonitorType.ENCLOSURE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Enclosure) MonitorType.ENCLOSURE.getMetaMonitor());
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -339,7 +339,7 @@ class MonitorDiscoveryVisitorTest {
 	void testVisitFan() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.FAN);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Fan) MonitorType.FAN.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Fan) MonitorType.FAN.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -367,7 +367,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LED);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Led) MonitorType.LED.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Led) MonitorType.LED.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -395,7 +395,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LOGICAL_DISK);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((LogicalDisk) MonitorType.LOGICAL_DISK.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((LogicalDisk) MonitorType.LOGICAL_DISK.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -423,7 +423,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LUN);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Lun) MonitorType.LUN.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Lun) MonitorType.LUN.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -451,7 +451,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.MEMORY);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Memory) MonitorType.MEMORY.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Memory) MonitorType.MEMORY.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -479,7 +479,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.NETWORK_CARD);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((NetworkCard) MonitorType.NETWORK_CARD.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((NetworkCard) MonitorType.NETWORK_CARD.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -507,7 +507,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.OTHER_DEVICE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((OtherDevice) MonitorType.OTHER_DEVICE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((OtherDevice) MonitorType.OTHER_DEVICE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -535,7 +535,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.PHYSICAL_DISK);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((PhysicalDisk) MonitorType.PHYSICAL_DISK.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((PhysicalDisk) MonitorType.PHYSICAL_DISK.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -563,7 +563,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.POWER_SUPPLY);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((PowerSupply) MonitorType.POWER_SUPPLY.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((PowerSupply) MonitorType.POWER_SUPPLY.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -591,7 +591,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.TAPE_DRIVE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((TapeDrive) MonitorType.TAPE_DRIVE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((TapeDrive) MonitorType.TAPE_DRIVE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -619,7 +619,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.TEMPERATURE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Temperature) MonitorType.TEMPERATURE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Temperature) MonitorType.TEMPERATURE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -647,7 +647,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.VOLTAGE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Voltage) MonitorType.VOLTAGE.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Voltage) MonitorType.VOLTAGE.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -675,7 +675,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTIC);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotic) MonitorType.ROBOTIC.getConcreteType());
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotic) MonitorType.ROBOTIC.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);

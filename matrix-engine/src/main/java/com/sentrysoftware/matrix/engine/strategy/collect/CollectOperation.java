@@ -238,7 +238,7 @@ public class CollectOperation extends AbstractStrategy {
 					.build();
 
 			// Here we go...
-			monitorType.getConcreteType().accept(new MonitorCollectVisitor(monitorCollectInfo));
+			monitorType.getMetaMonitor().accept(new MonitorCollectVisitor(monitorCollectInfo));
 
 		}
 	}
@@ -387,7 +387,7 @@ public class CollectOperation extends AbstractStrategy {
 				.build();
 
 		// Here we go...
-		monitorType.getConcreteType().accept(new MonitorCollectVisitor(monitorCollectInfo));
+		monitorType.getMetaMonitor().accept(new MonitorCollectVisitor(monitorCollectInfo));
 	}
 
 
