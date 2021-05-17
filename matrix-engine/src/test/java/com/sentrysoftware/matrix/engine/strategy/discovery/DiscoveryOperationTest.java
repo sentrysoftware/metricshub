@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -255,23 +256,6 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverNoHardwareMonitors() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final Connector connector = Connector.builder().compiledFilename(MY_CONNECTOR_1_NAME).hardwareMonitors(null).build();
-		discoveryOperation.discover(connector , hostMonitoring, ECS1_01, targetMonitor);
-
-		assertTrue(hostMonitoring.getMonitors().isEmpty());
-	}
-
-	@Test
 	void testDiscoverMultiJobs() {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
 
@@ -312,6 +296,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(MODEL, MODEL_VALUE);
 		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		enclosureMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -329,7 +314,8 @@ class DiscoveryOperationTest {
 		fanMetadata.put(DISPLAY_ID, FAN_1);
 		fanMetadata.put(SPEED, SPEED_VALUE);
 		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		
+		fanMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_NAME)
@@ -416,6 +402,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 		
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -466,6 +453,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -518,16 +506,8 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNoParameters() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+	void testValidateHardwareMonitorFieldsNoParameters() {
+
 		final SourceInstanceTable sourceTable = SourceInstanceTable
 				.builder()
 				.sourceKey(ENCLOSURE_SOURCE_KEY)
@@ -542,73 +522,44 @@ class DiscoveryOperationTest {
 				.discovery(discovery)
 				.build();
 
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
-
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
-
 		discovery.setParameters(null);
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
+
+		discovery.setParameters(Collections.emptyMap());
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullInstanceTable() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).discovery(Discovery.builder().instanceTable(null).build()).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
+	void testValidateHardwareMonitorFieldsNullInstanceTable() {
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		final HardwareMonitor hardwareMonitor = HardwareMonitor
+				.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(Discovery.builder().instanceTable(null).build()).build();
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullDiscovery() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory
-				.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+	void testValidateHardwareMonitorFieldsNullDiscovery() {
+
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
 				.type(MonitorType.ENCLOSURE)
 				.discovery(null)
 				.build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitorsNullType() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory
-				.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
-		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
-		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().discovery(null).build();
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
+	void testValidateHardwareMonitorFieldsNullType() {
 
-		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
+		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().discovery(null).build();
+
+		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
@@ -697,6 +648,7 @@ class DiscoveryOperationTest {
 		metadata.put(DEVICE_ID, DELL_ENCLOSURE);
 		metadata.put(VENDOR, DELL);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
@@ -760,6 +712,7 @@ class DiscoveryOperationTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -782,12 +735,14 @@ class DiscoveryOperationTest {
 				DEVICE_ID, DELL_ENCLOSURE,
 				VENDOR, DELL);
 		
-		discoveryOperation.processTextParameters(parameters, monitor);
+		discoveryOperation.processTextParameters(parameters, monitor, MY_CONNECTOR_1_NAME);
 	
 		final Map<String, String> metadata = monitor.getMetadata();
 
 		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
+		assertEquals(MY_CONNECTOR_1_NAME, metadata.get(HardwareConstants.CONNECTOR));
+		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
 	}
 
 	@Test

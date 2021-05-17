@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
 
+	private static final String NO_HW_MONITORS_FOUND_MSG = "Could not discover system {}. No hardware monitors found in the connector {}";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
@@ -77,9 +78,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 				.sorted(new EnclosureFirstComparator())
 				.collect(Collectors.toList());
 
-		for (Connector connector : connectors) {
-			discover(connector, hostMonitoring, hostname, targetMonitor);
-		}
+		connectors.stream()
+		.filter(connector -> super.validateHardwareMonitors(connector, hostname, NO_HW_MONITORS_FOUND_MSG))
+		.forEach(connector -> discover(connector, hostMonitoring, hostname, targetMonitor));
 
 		return true;
 	}
@@ -97,13 +98,6 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		log.debug("Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
 
-		if (connector.getHardwareMonitors() == null) {
-			log.debug("Could not discover system {}. No hardware monitors found in the connector {}", hostname,
-					connector.getCompiledFilename());
-			return;
-		}
-
-
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
 		// The order is important so that each monitor can be attached to its parent correctly
@@ -112,7 +106,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 		.getHardwareMonitors()
 		.stream()
 		.sorted(new HardwareMonitorComparator())
-		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor) && HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
+		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+				&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
 				hardwareMonitor,
 				connector,
@@ -125,7 +121,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 		connector
 		.getHardwareMonitors()
 		.parallelStream()
-		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor) && !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
+		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+				&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
 				hardwareMonitor,
 				connector,
@@ -149,49 +147,22 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
 
-		// Is there any discovery job here ?
-		final MonitorType monitorType = hardwareMonitor.getType();
-		if (monitorType == null) {
-			log.warn("No type specified for hardware monitor job with connector {} on system {}", connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		if (hardwareMonitor.getDiscovery() == null) {
-			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the instanceTable, so that, we can create the monitor
-		final InstanceTable instanceTable = hardwareMonitor.getDiscovery().getInstanceTable();
-		if (instanceTable == null) {
-			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the discovery parameters, so we can create the monitor with the metadata
-		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
-		if (parameters == null || parameters.isEmpty()) {
-			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the sources of the current discovery job
-		final List<Source> sources = hardwareMonitor.getDiscovery().getSources();
-
 		// Process all the sources with theirs computes
-		processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname);
+		processSourcesAndComputes(
+				hardwareMonitor.getDiscovery().getSources(),
+				hostMonitoring,
+				connector,
+				hardwareMonitor.getType(),
+				hostname);
 
 		// Create the monitors
 		createSameTypeMonitors(
 				connector.getCompiledFilename(),
 				hostMonitoring,
-				instanceTable,
-				parameters,
+				hardwareMonitor.getDiscovery().getInstanceTable(),
+				hardwareMonitor.getDiscovery().getParameters(),
 				targetMonitor,
-				monitorType,
+				hardwareMonitor.getType(),
 				hostname);
 
 	}
@@ -265,7 +236,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		} else {
 			final Monitor monitor = Monitor.builder().build();
 
-			processTextParameters(parameters, monitor);
+			processTextParameters(parameters, monitor, connectorName);
 
 			final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 					.builder()
@@ -286,15 +257,20 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * Process the parameters defined in a {@link TextInstanceTable}. I.e. Hard
 	 * coded instance table
 	 * 
-	 * @param parameters Key-value map from the connector discovery instance used to create hard coded metadata
-	 * @param monitor    The monitor on which we want to set the parameter values as metadata
+	 * @param parameters    Key-value map from the connector discovery instance used to create hard coded metadata
+	 * @param monitor       The monitor on which we want to set the parameter values as metadata
+	 * @param connectorName The name of the connector to be set as metadata
 	 */
-	void processTextParameters(final Map<String, String> parameters, final Monitor monitor) {
+	void processTextParameters(final Map<String, String> parameters, final Monitor monitor, final String connectorName) {
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
-
 			monitor.addMetadata(parameter.getKey(), parameter.getValue());
-			monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
 		}
+
+		// Add the id count parameter
+		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
+
+		// Add the connector name to the metadata
+		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
 	}
 
 	/**
@@ -340,6 +316,59 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Add the idCount metadata
 		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(idCount));
 
+		// Add the connector name to the metadata
+		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
+
+	}
+
+
+	/**
+	 * Return <code>true</code> if the following conditions are met
+	 * <ol>
+	 *     <li>The MonitorType of the given hardwareMonitor is not null</li>
+	 *     <li>The Discovery of the given hardwareMonitor is not null</li>
+	 *     <li>The InstanceTable of the given hardwareMonitor is not null</li>
+	 *     <li>The parameters map of the given hardwareMonitor is not null or empty</li>
+	 * </ol>
+	 * This methods outputs a warning message when one of the above conditions is not met<br>
+	 * <br>
+	 * 
+	 * @param hardwareMonitor The {@link HardwareMonitor} we wish to validate its fields
+	 * @param connectorName   The name of the connector used for debug purpose
+	 * @param hostname        The system hostname used for debug purpose
+	 * @return boolean value
+	 */
+	boolean validateHardwareMonitorFields(final HardwareMonitor hardwareMonitor, final String connectorName, final String hostname) {
+
+		// Is there any discovery job here ?
+		final MonitorType monitorType = hardwareMonitor.getType();
+		if (monitorType == null) {
+			log.warn("No type specified for hardware monitor job with connector {} on system {}", connectorName, hostname);
+			return false;
+		}
+
+		if (hardwareMonitor.getDiscovery() == null) {
+			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		// Check the instanceTable, so that, we can create the monitor later
+		if (hardwareMonitor.getDiscovery().getInstanceTable() == null) {
+			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		// Get the discovery parameters, so we can create the monitor with the metadata
+		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
+		if (parameters == null || parameters.isEmpty()) {
+			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

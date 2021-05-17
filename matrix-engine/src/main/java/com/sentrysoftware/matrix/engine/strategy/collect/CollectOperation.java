@@ -26,6 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
 
+	private static final String NO_SOURCE_TABLE_CREATE_MSG = "Collect - No source table created with source key {} for connector {} on system {}";
+	static final String NO_HW_MONITORS_FOUND_MSG = "Collect - Could not collect system {}. No hardware monitors found in the connector {}";
+
 	@Override
 	public void prepare() {
 		// Reset parameters, push current value to previous value and reset initial value
@@ -65,9 +68,9 @@ public class CollectOperation extends AbstractStrategy {
 				.collect(Collectors.toList());
 
 		// loop over each connector then run its collect jobs
-		for (Connector connector : connectors) {
-			collect(connector, hostMonitoring, hostname);
-		}
+		connectors.stream()
+		.filter(connector -> super.validateHardwareMonitors(connector, hostname, NO_HW_MONITORS_FOUND_MSG))
+		.forEach(connector -> collect(connector, hostMonitoring, hostname));
 
 		return true;
 	}
@@ -82,16 +85,11 @@ public class CollectOperation extends AbstractStrategy {
 	void collect(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname) {
 		log.debug("Collect - Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
 
-		if (connector.getHardwareMonitors() == null) {
-			log.debug("Collect - Could not collect system {}. No hardware monitors found in the connector {}", hostname,
-					connector.getCompiledFilename());
-			return;
-		}
-
 		// The parallel stream might need to be disabled, i.e. configured by the user
 		connector
 		.getHardwareMonitors()
 		.parallelStream()
+		.filter(hardwareMonitor -> validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname))
 		.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
 	}
 
@@ -106,52 +104,25 @@ public class CollectOperation extends AbstractStrategy {
 	void collectSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final String hostname) {
 
-		// Is there any collect job here ?
-		final MonitorType monitorType = hardwareMonitor.getType();
-		if (monitorType == null) {
-			log.warn("Collect - No type specified for hardware monitor job with connector {} on system {}",
-					connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		if (hardwareMonitor.getCollect() == null) {
-			log.warn("Collect - No {} monitor job specified during the collect for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the collectType, so that,
-		final CollectType collectType = hardwareMonitor.getCollect().getType();
-		if (collectType == null) {
-			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the collect parameters, so we can create the monitor with the metadata
-		final Map<String, String> parameters = hardwareMonitor.getCollect().getParameters();
-		if (parameters == null || parameters.isEmpty()) {
-			log.warn("Collect - No parameter found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connector.getCompiledFilename(), hostname);
-			return;
-		}
-
-		// Get the sources of the current collect job
-		final List<Source> sources = hardwareMonitor.getCollect().getSources();
-
 		// Process all the sources with theirs computes
-		if (CollectType.MULTI_INSTANCE.equals(collectType)) {
+		if (CollectType.MULTI_INSTANCE.equals(hardwareMonitor.getCollect().getType())) {
 
 			collectMultiInstance(hardwareMonitor,
 					connector,
 					hostMonitoring,
-					monitorType,
-					parameters,
-					sources,
+					hardwareMonitor.getType(),
+					hardwareMonitor.getCollect().getParameters(),
+					hardwareMonitor.getCollect().getSources(),
 					hostname);
 
 		} else {
-			collectMonoInstance(sources, hostMonitoring, connector, monitorType, parameters, hostname);
+			collectMonoInstance(hardwareMonitor,
+					connector,
+					hostMonitoring,
+					hardwareMonitor.getType(),
+					hardwareMonitor.getCollect().getParameters(),
+					hardwareMonitor.getCollect().getSources(),
+					hostname);
 		}
 
 	}
@@ -167,7 +138,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param sources         The connector {@link Source} beans to process
 	 * @param hostname        The system hostname used for debug purpose
 	 */
-	private void collectMultiInstance(final HardwareMonitor hardwareMonitor, final Connector connector,
+	void collectMultiInstance(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final MonitorType monitorType,
 			final Map<String, String> parameters, final List<Source> sources,
 			final String hostname) {
@@ -176,7 +147,7 @@ public class CollectOperation extends AbstractStrategy {
 		processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname);
 
 		// Process the MultiInstance value table
-		processValueTable(hardwareMonitor.getCollect().getValueTable(),
+		processMultiInstanceValueTable(hardwareMonitor.getCollect().getValueTable(),
 				connector.getCompiledFilename(),
 				hostMonitoring,
 				parameters,
@@ -195,23 +166,16 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param monitorType    The current type of the monitor, {@link MonitorType}
 	 * @param hostname       The user's configured hostname used for debug purpose
 	 */
-	void processValueTable(final String valueTable, final String connectorName,
+	void processMultiInstanceValueTable(final String valueTable, final String connectorName,
 			final IHostMonitoring hostMonitoring, final Map<String, String> parameters,
 			final MonitorType monitorType, final String hostname) {
-
-		// No sourceKey no monitor
-		if (valueTable == null) {
-			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}", 
-					monitorType.getName(), connectorName, hostname);
-			return;
-		}
 
 		// Get the source table used to collect parameters
 		final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(valueTable);
 
 		// No sourceTable no monitor
 		if (sourceTable == null) {
-			log.error("Collect - No source table created with source key {} for connector {} on system {}",
+			log.error(NO_SOURCE_TABLE_CREATE_MSG,
 					valueTable, connectorName, hostname);
 			return;
 		}
@@ -237,7 +201,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param hostname       The user's configured hostname used for debug purpose
 	 * @param sourceTable    The collected information formatted in a {@link SourceTable} object
 	 */
-	private void collectMonitors(final String valueTable, final SourceTable sourceTable,
+	void collectMonitors(final String valueTable, final SourceTable sourceTable,
 			final String connectorName, final IHostMonitoring hostMonitoring,
 			final Map<String, String> parameters, final MonitorType monitorType,
 			final String hostname) {
@@ -255,6 +219,8 @@ public class CollectOperation extends AbstractStrategy {
 						monitorType.getName(), row, connectorName);
 				continue;
 			}
+
+			log.debug("Collecting monitor id {}", monitorOpt.get().getId());
 
 			// Build the collect information as the parameters are collected by the MonitorCollectVisitor
 			// so that we avoid the tightly coupling with the current CollectOperation strategy.
@@ -317,10 +283,169 @@ public class CollectOperation extends AbstractStrategy {
 		return Optional.empty();
 	}
 
-	void collectMonoInstance(final List<Source> sources, final IHostMonitoring hostMonitoring,
-			final Connector connector, final MonitorType monitorType,
-			Map<String, String> parameters, String hostname) {
-		// Not implemented yet
+	/**
+	 * Perform a MonoInstance collect. Process sources and computes then process the value table per monitor
+	 * 
+	 * @param hardwareMonitor Defines the {@link Collect} valueTable, the {@link Source} to process and all the mapping
+	 * @param connector       The connector we currently process
+	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping {@link Monitor} and {@link SourceTable} instances
+	 * @param monitorType     The type of the monitor e.g. ENCLOSURE
+	 * @param parameters      The mapping, i.e. parameter name to column index
+	 * @param sources         The connector {@link Source} beans to process
+	 * @param hostname        The system hostname used for debug purpose
+	 */
+	void collectMonoInstance(final HardwareMonitor hardwareMonitor, final Connector connector,
+			final IHostMonitoring hostMonitoring, final MonitorType monitorType,
+			final Map<String, String> parameters, final List<Source> sources,
+			final String hostname) {
+
+		// Get the same type monitors from the hostMonitoring
+		// keep only the monitors of the current connector
+		final List<Monitor> monitors = getSameTypeSameConnectorMonitors(hardwareMonitor.getType(), connector.getCompiledFilename(), hostMonitoring);
+
+		monitors.forEach(monitor -> {
+
+			log.debug("Collecting monitor id {}", monitor.getId());
+
+			// Process sources and computes
+			processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname, monitor);
+
+			// Process value table
+			processMonoInstanceValueTable(monitor,
+					hardwareMonitor.getCollect().getValueTable(),
+					connector.getCompiledFilename(),
+					hostMonitoring,
+					parameters,
+					monitorType,
+					hostname);
+			
+		});
+	}
+
+	/**
+	 * Get the monitors with the same type and discovered from the connector identified by the given <code>connectorName</code>
+	 * 
+	 * @param monitorType    The type of the monitor used to fetch monitors from the {@link HostMonitoring}
+	 * @param connectorName  The unique name of the {@link Connector}
+	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping {@link Monitor} instances
+	 * @return {@link List} of {@link Monitor} instances
+	 */
+	List<Monitor> getSameTypeSameConnectorMonitors(final MonitorType monitorType, final String connectorName,
+			final IHostMonitoring hostMonitoring) {
+		return hostMonitoring.selectFromType(monitorType).values().stream()
+				.filter(monitor -> Objects.nonNull(monitor.getMetadata())
+						&& connectorName.equals(monitor.getMetadata().get(HardwareConstants.CONNECTOR)))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Collect the {@link Monitor} instance from the given valueTable.<br>
+	 * This method extracts the first row from the {@link SourceTable}, then collects the {@link Monitor} instance to set the parameters on
+	 * the monitor instance via the {@link MonitorCollectVisitor}
+	 * 
+	 * @param monitor        The monitor we wish to collect
+	 * @param valueTable     The unique key of the {@link Source} used to collect metrics
+	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
+	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
+	 * @param parameters     The collect parameters to process (from the connector)
+	 * @param monitorType    The current type of the monitor, {@link MonitorType}
+	 * @param hostname       The user's configured hostname used for debug purpose
+	 */
+	void processMonoInstanceValueTable(final Monitor monitor, final String valueTable, final String connectorName,
+			final IHostMonitoring hostMonitoring, final Map<String, String> parameters,
+			final MonitorType monitorType, final String hostname) {
+
+		// Get the source table used to collect parameters
+		final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(valueTable);
+
+		// No sourceTable no monitor
+		if (sourceTable == null) {
+			log.error(NO_SOURCE_TABLE_CREATE_MSG, valueTable, connectorName, hostname);
+			return;
+		}
+
+		// Make sure the table is not empty
+		if (sourceTable.getTable().isEmpty()) {
+			log.error("Collect - Empty source table created with source key {} for connector {} on system {}",
+					valueTable, connectorName, hostname);
+			return;
+		}
+
+		// Build the collect information as the parameters are collected by the MonitorCollectVisitor
+		// so that we avoid the tightly coupling with the current CollectOperation strategy.
+		final MonitorCollectInfo monitorCollectInfo = MonitorCollectInfo
+				.builder()
+				.connectorName(connectorName)
+				.hostMonitoring(hostMonitoring)
+				.hostname(hostname)
+				.row(sourceTable.getTable().get(0))
+				.mapping(parameters)
+				.monitor(monitor)
+				.valueTable(valueTable)
+				.collectTime(strategyTime)
+				.unknownStatus(strategyConfig.getEngineConfiguration().getUnknownStatus())
+				.build();
+
+		// Here we go...
+		monitorType.getConcreteType().accept(new MonitorCollectVisitor(monitorCollectInfo));
+	}
+
+
+	/**
+	 * Return <code>true</code> if the following conditions are met
+	 * <ol>
+	 *     <li>The MonitorType of the given hardwareMonitor is not null</li>
+	 *     <li>The Collect of the given hardwareMonitor is not null</li>
+	 *     <li>The CollectType of the given hardwareMonitor is not null</li>
+	 *     <li>The parameters map of the given hardwareMonitor is not null or empty</li>
+	 *     <li>The valueTable of the collect of the given hardwareMonitor is not null</li>
+	 * </ol>
+	 * This methods outputs a warning message when one of the above conditions is not met<br>
+	 * <br>
+	 * 
+	 * @param hardwareMonitor The {@link HardwareMonitor} we wish to validate its fields
+	 * @param connectorName   The name of the connector used for debug purpose
+	 * @param hostname        The system hostname used for debug purpose
+	 * @return boolean value
+	 */
+	boolean validateHardwareMonitorFields(final HardwareMonitor hardwareMonitor, final String connectorName, final String hostname) {
+
+		final MonitorType monitorType = hardwareMonitor.getType();
+		if (monitorType == null) {
+			log.warn("Collect - No type specified for hardware monitor job with connector {} on system {}",
+					connectorName, hostname);
+			return false;
+		}
+
+		if (hardwareMonitor.getCollect() == null) {
+			log.warn("Collect - No {} monitor job specified during the collect for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		// Check the collectType
+		if (hardwareMonitor.getCollect().getType() == null) {
+			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		// Check the collect parameters, so later in the code we can create the monitor with the metadata
+		final Map<String, String> parameters = hardwareMonitor.getCollect().getParameters();
+		if (parameters == null || parameters.isEmpty()) {
+			log.warn("Collect - No parameter found with {} during the collect for the connector {} on system {}",
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		// Check the valueTable key
+		if (hardwareMonitor.getCollect().getValueTable() == null) {
+			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}", 
+					monitorType.getName(), connectorName, hostname);
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

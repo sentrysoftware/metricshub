@@ -29,8 +29,8 @@ public class HTTPSource extends Source {
 	// String or EmbeddedFile reference
 	private Header header;
 	private Body body;
-	private Source authenticationToken;
-	private Source executeForEachEntryOf;
+	private String authenticationToken;
+	private String executeForEachEntryOf;
 	private ResultContent resultContent;
 	private EntryConcatMethod entryConcatMethod;
 	private String entryConcatStart;
@@ -38,7 +38,7 @@ public class HTTPSource extends Source {
 
 	@Builder
 	public HTTPSource(List<Compute> computes, boolean forceSerialization, String method, String url, Header header,
-			Body body, Source authenticationToken, Source executeForEachEntryOf, ResultContent resultContent,
+			Body body, String authenticationToken, String executeForEachEntryOf, ResultContent resultContent,
 			EntryConcatMethod entryConcatMethod, String entryConcatStart, String entryConcatEnd, int index, String key) {
 
 		super(computes, forceSerialization, index, key);
