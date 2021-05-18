@@ -268,30 +268,40 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void visitTableUnionSourceTest () {
-		final Map<String, SourceTable> mapSources = new HashMap<>();
-		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"))).build();
-		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"))).build();
-		mapSources.put("tab1", tabl1 );
-		mapSources.put("tab2", tabl2 );
+	void visitTableUnionSourceTest() {
+		SourceTable tabl1 = SourceTable.builder()
+				.table(Arrays.asList(
+						Arrays.asList("a1", "b1", "c1"), 
+						Arrays.asList("val1", "val2", "val3")))
+				.build();
+		SourceTable tabl2 = SourceTable.builder()
+				.table(Arrays.asList(
+						Arrays.asList("a1", "b2", "c2"), 
+						Arrays.asList("v1", "v2", "v3")))
+				.build();
 
 		// standard
-		List<List<String>> expectedUnion = Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"), Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"));
-		
+		List<List<String>> expectedUnion = Arrays.asList(
+				Arrays.asList("a1", "b1", "c1"),
+				Arrays.asList("val1", "val2", "val3"), 
+				Arrays.asList("a1", "b2", "c2"),
+				Arrays.asList("v1", "v2", "v3"));
+
 		TableUnionSource tableUnionExample = TableUnionSource.builder().build();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableUnionExample));
-		
+
 		tableUnionExample = TableUnionSource.builder().tables(Arrays.asList()).build();
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableUnionExample).getTable());
 
-		tableUnionExample = TableUnionSource.builder().tables(Arrays.asList("tab1", "tab2", "tab3")).build();
-		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableUnionExample));
+		tableUnionExample = TableUnionSource.builder()
+				.tables(Arrays.asList("tab1", "tab2", "tab3"))
+				.build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey("tab1");
+		doReturn(tabl2).when(hostMonitoring).getSourceTableByKey("tab2");
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
-		
-		
+
 	}
 
 	@Test

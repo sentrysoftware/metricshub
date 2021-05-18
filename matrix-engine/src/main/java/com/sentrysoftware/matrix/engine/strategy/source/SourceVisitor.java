@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -163,39 +162,47 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
 
-		if (tableUnionSource == null || strategyConfig.getHostMonitoring() == null) {
+		if (tableUnionSource == null) {
+			log.warn("Table Union cannot be null, the Union operation {} will return an empty result.",
+					tableUnionSource);
 			return SourceTable.empty();
 		}
 
-		List<String> unionTables = tableUnionSource.getTables();
-		if (unionTables == null ) {
-			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
+		final List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null) {
+			log.warn("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+					tableUnionSource);
 			return SourceTable.empty();
 		}
 
-		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
-		if (sources == null ) {
-			log.debug("SourceTable Map cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
-			return SourceTable.empty();
-		}
+		final List<SourceTable> sourceTablesToConcat = unionTables
+				.stream()
+				.map(key -> getSourceTable(key))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 
-		List<String> differences = unionTables.stream()
-				.filter(element -> !sources.keySet().contains(element)).collect(Collectors.toList());
-		if (!differences.isEmpty()) {
-			log.warn("The following source tables {} cannot be found.", differences);
-		}
+		final SourceTable sourceTable = new SourceTable();
+		final List<List<String>> executeTableUnion = sourceTablesToConcat
+				.stream()
+				.map(SourceTable::getTable)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 
-		List<Entry<String, SourceTable>> result = sources.entrySet().stream().filter(e -> unionTables.contains(e.getKey())).collect(Collectors.toList());
-		SourceTable sourceTable = new SourceTable();
-		List<List<String>> executeTableUnion = new ArrayList<>();
-		for (Entry<String, SourceTable> source : result) {
-			SourceTable value = source.getValue();
-			executeTableUnion =  Stream.concat(
-					 executeTableUnion.stream(),
-					 value.getTable().stream()).collect(Collectors.toList());
-		}
 		sourceTable.setTable(executeTableUnion);
 
+		return sourceTable;
+	}
+
+	/**
+	 * Get source table based on the key
+	 * @param key
+	 * @return
+	 */
+	private SourceTable getSourceTable(String key) {
+		SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+		if (sourceTable == null) {
+			log.warn("The following source table {} cannot be found.", key);
+		}
 		return sourceTable;
 	}
 
