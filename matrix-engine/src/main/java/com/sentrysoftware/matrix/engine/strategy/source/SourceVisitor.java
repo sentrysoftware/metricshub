@@ -162,13 +162,14 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
-		List<String> unionTables = tableUnionSource.getTables();
-		if (unionTables == null ) {
-			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
+
+		if (tableUnionSource == null || strategyConfig.getHostMonitoring() == null) {
 			return SourceTable.empty();
 		}
 
-		if (tableUnionSource == null || strategyConfig.getHostMonitoring() == null) {
+		List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null ) {
+			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.", tableUnionSource);
 			return SourceTable.empty();
 		}
 
