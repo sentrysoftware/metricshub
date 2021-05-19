@@ -1,8 +1,11 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -158,7 +161,49 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
-		return SourceTable.empty();
+
+		if (tableUnionSource == null) {
+			log.warn("Table Union cannot be null, the Union operation {} will return an empty result.",
+					tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		final List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null) {
+			log.warn("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+					tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		final List<SourceTable> sourceTablesToConcat = unionTables
+				.stream()
+				.map(key -> getSourceTable(key))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+		final SourceTable sourceTable = new SourceTable();
+		final List<List<String>> executeTableUnion = sourceTablesToConcat
+				.stream()
+				.map(SourceTable::getTable)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+
+		sourceTable.setTable(executeTableUnion);
+
+		return sourceTable;
+	}
+
+	/**
+	 * Get source table based on the key
+	 * @param key
+	 * @return
+	 */
+	private SourceTable getSourceTable(String key) {
+		SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+		if (sourceTable == null) {
+			log.warn("The following source table {} cannot be found.", key);
+		}
+		return sourceTable;
 	}
 
 	@Override
