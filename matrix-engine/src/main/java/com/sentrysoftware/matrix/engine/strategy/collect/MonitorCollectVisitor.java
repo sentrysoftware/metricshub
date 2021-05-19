@@ -114,6 +114,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Cpu cpu) {
 		collectBasicParameters(cpu);
+		
+		appendValuesToStatusParameter(HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER, 
+				HardwareConstants.CURRENT_SPEED_PARAMETER,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
@@ -163,6 +168,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Memory memory) {
 		collectBasicParameters(memory);
+		
+		appendValuesToStatusParameter(HardwareConstants.ERROR_COUNT_PARAMETER, HardwareConstants.ERROR_STATUS_PARAMETER,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER, HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
