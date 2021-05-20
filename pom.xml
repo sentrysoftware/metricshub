@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sentrysoftware.integration</groupId>
 		<artifactId>java-parent</artifactId>
-		<version>10</version>
+		<version>13</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>

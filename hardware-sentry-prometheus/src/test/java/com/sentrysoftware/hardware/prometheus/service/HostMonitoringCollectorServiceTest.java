@@ -220,7 +220,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testIsParameterFamillyAvailableOnMonitors() {
+	void testIsParameterFamilyAvailableOnMonitors() {
 		{
 			final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
 			final Monitor monitor1 = Monitor.builder()
@@ -238,7 +238,7 @@ class HostMonitoringCollectorServiceTest {
 			final Map<String, Monitor> monitors = Map.of(
 					monitor1.getId(), monitor1,
 					monitor2.getId(), monitor2);
-			assertTrue(HostMonitoringCollectorService.isParameterFamillyAvailableOnMonitors(Enclosure.STATUS, monitors));
+			assertTrue(HostMonitoringCollectorService.isParameterFamilyAvailableOnMonitors(Enclosure.STATUS, monitors));
 		}
 
 		{
@@ -257,10 +257,10 @@ class HostMonitoringCollectorServiceTest {
 			final Map<String, Monitor> monitors = Map.of(
 					monitor1.getId(), monitor1,
 					monitor2.getId(), monitor2);
-			assertFalse(HostMonitoringCollectorService.isParameterFamillyAvailableOnMonitors(Enclosure.STATUS, monitors));
+			assertFalse(HostMonitoringCollectorService.isParameterFamilyAvailableOnMonitors(Enclosure.STATUS, monitors));
 		}
-		assertFalse(HostMonitoringCollectorService.isParameterFamillyAvailableOnMonitors(Enclosure.STATUS, null));
-		assertFalse(HostMonitoringCollectorService.isParameterFamillyAvailableOnMonitors(Enclosure.STATUS, Collections.emptyMap()));
+		assertFalse(HostMonitoringCollectorService.isParameterFamilyAvailableOnMonitors(Enclosure.STATUS, null));
+		assertFalse(HostMonitoringCollectorService.isParameterFamilyAvailableOnMonitors(Enclosure.STATUS, Collections.emptyMap()));
 	}
 
 	@Test

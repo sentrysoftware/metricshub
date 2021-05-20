@@ -104,7 +104,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static void processMonitorsMetric(final MetaParameter metaParameter, final MonitorType monitorType,
 			final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
-		if (!isParameterFamillyAvailableOnMonitors(metaParameter, monitors)) {
+		if (!isParameterFamilyAvailableOnMonitors(metaParameter, monitors)) {
 			return;
 		}
 
@@ -153,7 +153,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @param monitors      The monitors we wish to check the parameter
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
 	 */
-	static boolean isParameterFamillyAvailableOnMonitors(final MetaParameter metaParameter, final Map<String, Monitor> monitors) {
+	static boolean isParameterFamilyAvailableOnMonitors(final MetaParameter metaParameter, final Map<String, Monitor> monitors) {
 
 		return monitors != null
 				&& !monitors.isEmpty()

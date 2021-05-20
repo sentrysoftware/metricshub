@@ -200,7 +200,7 @@ public class MatrixEngineService {
 	static List<String> getConnectorsWithoutExtension(final Set<String> connectors) {
 		return connectors
 				.stream()
-				.map(f -> f.split(HardwareConstants.DOT_ESCAPED)[0])
+				.map(f -> f.substring(0, f.lastIndexOf('.')))
 				.collect(Collectors.toList());
 	}
 
