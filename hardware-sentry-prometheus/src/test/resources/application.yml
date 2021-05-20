@@ -1,0 +1,3 @@
+target:
+  config:
+    file: ./data/hardware-sentry-config.yml

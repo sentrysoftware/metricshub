@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +26,7 @@ public class EngineConfiguration {
 	private HardwareTarget target;
 
 	@Default
-	private Set<IProtocolConfiguration> protocolConfigurations = new HashSet<>();
+	private Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
 
 	@Default
 	private long operationTimeout = DEFAULT_JOB_TIMEOUT;

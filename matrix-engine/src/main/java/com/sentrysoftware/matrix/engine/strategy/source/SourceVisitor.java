@@ -84,8 +84,8 @@ public class SourceVisitor implements ISourceVisitor {
 		String[] selectColumnArray = new String[selectedColumns.size()];
 		selectColumnArray = selectedColumns.toArray(selectColumnArray);
 		
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().stream().filter(SNMPProtocol.class::isInstance).findFirst();
+		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class));
 
 		if (!snmpProtocolOpt.isPresent()) {
 			return SourceTable.empty();

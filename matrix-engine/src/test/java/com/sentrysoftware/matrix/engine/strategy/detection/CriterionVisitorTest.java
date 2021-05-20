@@ -6,9 +6,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -68,9 +67,7 @@ class CriterionVisitorTest {
 		SNMPProtocol protocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1).port(161).timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Stream.of(
-						protocol)
-						.collect(Collectors.toSet())).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 		
 	}
 

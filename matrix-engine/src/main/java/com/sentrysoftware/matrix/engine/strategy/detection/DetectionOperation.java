@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -207,14 +206,6 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		// Do we have an existing target ? remove it
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
-		if (null != targets) {
-			for (Monitor dev : targets.values()) {
-				hostMonitoring.removeMonitor(dev);
-			}
-		}
-
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 
 		// Create the target
@@ -223,7 +214,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		// Create the location metadata
 		targetMonitor.addMetadata(HardwareConstants.LOCATION,
-				isLocalhost ? HardwareConstants.LOCALHOST: HardwareConstants.REMOTE );
+				isLocalhost ? HardwareConstants.LOCALHOST: HardwareConstants.REMOTE);
 
 		// Create the operating system type metadata
 		targetMonitor.addMetadata(HardwareConstants.OPERATING_SYSTEM_TYPE, target.getType().name());

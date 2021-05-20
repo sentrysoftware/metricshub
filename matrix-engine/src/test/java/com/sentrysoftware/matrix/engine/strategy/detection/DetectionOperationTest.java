@@ -101,7 +101,7 @@ class DetectionOperationTest {
 				.timeout(120L).build();
 		engineConfigurationAuto = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Stream.of(protocol).collect(Collectors.toSet())).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 
 		criterion1 = SNMPGetNext.builder().oid(OID1).build();
 		connector1 = Connector.builder().compiledFilename(CONNECTOR1_ID)
@@ -132,7 +132,7 @@ class DetectionOperationTest {
 
 		engineConfigurationSelection = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Stream.of(protocol).collect(Collectors.toSet())).selectedConnectors(Stream
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).selectedConnectors(Stream
 						.of(connector1, connector2).map(Connector::getCompiledFilename).collect(Collectors.toSet()))
 				.build();
 

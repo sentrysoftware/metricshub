@@ -22,6 +22,7 @@ public class HardwareConstants {
 	public static final String REMOTE = "remote";
 	public static final String COMMA = ",";
 	public static final String COLON = ":";
+	public static final String DOT = ".";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";

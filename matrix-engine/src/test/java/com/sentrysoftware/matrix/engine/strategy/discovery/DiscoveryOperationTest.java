@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,7 +113,7 @@ class DiscoveryOperationTest {
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Stream.of(protocol).collect(Collectors.toSet())).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 
 		connector = Connector.builder().compiledFilename(MY_CONNECTOR_1_NAME).build();
 	}
