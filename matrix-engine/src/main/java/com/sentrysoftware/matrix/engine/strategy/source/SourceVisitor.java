@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -177,7 +179,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final List<SourceTable> sourceTablesToConcat = unionTables
 				.stream()
-				.map(key -> getSourceTable(key))
+				.map(this::getSourceTable)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 
@@ -195,11 +197,20 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Get source table based on the key
+	 * 
 	 * @param key
-	 * @return
+	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
 	 */
-	private SourceTable getSourceTable(String key) {
-		SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+	SourceTable getSourceTable(final String key) {
+
+		// In case the key contains a ';' convert the CSV to table
+		if (key.indexOf(';') >= 0) {
+			return SourceTable.builder()
+					.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+					.build();
+		}
+
+		final SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
 		if (sourceTable == null) {
 			log.warn("The following source table {} cannot be found.", key);
 		}
