@@ -83,21 +83,38 @@ class TypeProcessorTest {
 	@Test
 	void testParseCollect() {
 
-		Collect collect = Collect.builder().sources(new ArrayList<>()).build();
+		// Collect job is null
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 			.builder()
 			.type(MonitorType.ENCLOSURE)
-			.collect(collect)
+			.collect(null)
 			.build();
 		connector.setHardwareMonitors(Collections.singletonList(hardwareMonitor));
 		typeProcessor.parse(TYPE_COLLECT_KEY, TYPE_VALUE, connector);
 		assertNotNull(connector.getHardwareMonitors());
 		assertEquals(1, connector.getHardwareMonitors().size());
 		assertEquals(hardwareMonitor, connector.getHardwareMonitors().get(0));
+		Collect collect = connector.getHardwareMonitors().get(0).getCollect();
+		assertNotNull(collect);
+		assertNotNull(collect.getSources());
+		assertEquals(1, collect.getSources().size());
+		Source source = collect.getSources().get(0);
+		assertNotNull(source);
+		assertTrue(source instanceof TableUnionSource);
+		assertEquals(1, source.getIndex());
+		assertEquals(SOURCE_COLLECT_KEY, source.getKey());
+
+		// Collect job is not null
+		collect = Collect.builder().sources(new ArrayList<>()).build();
+		hardwareMonitor.setCollect(collect);
+		typeProcessor.parse(TYPE_COLLECT_KEY, TYPE_VALUE, connector);
+		assertNotNull(connector.getHardwareMonitors());
+		assertEquals(1, connector.getHardwareMonitors().size());
+		assertEquals(hardwareMonitor, connector.getHardwareMonitors().get(0));
 		assertEquals(collect, connector.getHardwareMonitors().get(0).getCollect());
-		assertNotNull(connector.getHardwareMonitors().get(0).getCollect().getSources());
-		assertEquals(1, connector.getHardwareMonitors().get(0).getCollect().getSources().size());
-		Source source = connector.getHardwareMonitors().get(0).getCollect().getSources().get(0);
+		assertNotNull(collect.getSources());
+		assertEquals(1, collect.getSources().size());
+		source = collect.getSources().get(0);
 		assertNotNull(source);
 		assertTrue(source instanceof TableUnionSource);
 		assertEquals(1, source.getIndex());

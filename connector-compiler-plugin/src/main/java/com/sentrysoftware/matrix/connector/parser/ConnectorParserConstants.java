@@ -7,7 +7,7 @@ public class ConnectorParserConstants {
 	}
 
 	public static final String EMPTY_STRING = "";
-	public static final String COMA = ",";
+	public static final String COMMA = ",";
 	public static final String SEMICOLON = ";";
 	public static final String DOT = ".";
 	public static final String OPENING_PARENTHESIS = "(";

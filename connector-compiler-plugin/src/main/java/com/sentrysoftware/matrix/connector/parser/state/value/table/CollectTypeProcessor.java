@@ -1,19 +1,18 @@
 package com.sentrysoftware.matrix.connector.parser.state.value.table;
 
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
-
-import java.util.Optional;
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 
 public class CollectTypeProcessor implements IConnectorStateParser {
 
@@ -96,7 +95,6 @@ public class CollectTypeProcessor implements IConnectorStateParser {
 
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
-				.discovery(Discovery.builder().build())
 				.collect(Collect.builder().build())
 				.type(monitorType)
 				.build();

@@ -25,6 +25,6 @@ public class SnmpTableSelectColumnsProcessor extends SnmpTableProcessor {
 		super.parse(key, value, connector);
 
 		((SNMPGetTableSource) getSource(key, connector)).setSnmpTableSelectColumns(
-			Arrays.asList(value.split(ConnectorParserConstants.COMA)));
+			Arrays.asList(value.split(ConnectorParserConstants.COMMA)));
 	}
 }

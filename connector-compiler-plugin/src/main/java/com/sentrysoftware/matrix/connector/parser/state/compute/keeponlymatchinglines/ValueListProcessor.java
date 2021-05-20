@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMA;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMMA;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -35,6 +35,6 @@ public class ValueListProcessor extends KeepOnlyMatchingLinesProcessor {
 		notNull(keepOnlyMatchingLines,
 			() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		keepOnlyMatchingLines.setValueList(Arrays.asList(value.split(COMA)));
+		keepOnlyMatchingLines.setValueList(Arrays.asList(value.split(COMMA)));
 	}
 }

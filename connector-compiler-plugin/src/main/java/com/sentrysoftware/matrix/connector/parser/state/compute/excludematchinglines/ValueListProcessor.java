@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.excludematchinglines;
 
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMA;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMMA;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -35,6 +35,6 @@ public class ValueListProcessor extends ExcludeMatchingLinesProcessor {
 		notNull(excludeMatchingLines,
 				() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		excludeMatchingLines.setValueList(Arrays.asList(value.split(COMA)));
+		excludeMatchingLines.setValueList(Arrays.asList(value.split(COMMA)));
 	}
 }

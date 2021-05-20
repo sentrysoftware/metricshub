@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COLLECT;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMPUTE;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DISCOVERY;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOT;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
@@ -208,24 +210,41 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	/**
 	 * @param connector				The {@link Connector} whose {@link HardwareMonitor} is being search for.
 	 * @param monitorName			The name of the {@link HardwareMonitor} being searched for.
+	 * @param monitorJobName		The name of the current job (<i>discovery</i> or <i>collect</i>).
 	 * @param createMonitorIfNull	Indicates whether a new {@link HardwareMonitor} should be created if none was found.
 	 *
 	 * @return						The {@link HardwareMonitor} in the given {@link Connector}
 	 *								whose name matches the given monitor name, if available.
 	 */
-	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName, boolean createMonitorIfNull) {
+	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName, String monitorJobName,
+											   boolean createMonitorIfNull) {
 	
 		notNull(connector, "Connector cannot be null.");
 
-		return connector
+		HardwareMonitor hardwareMonitor = connector
 			.getHardwareMonitors()
 			.stream()
-			.filter(hardwareMonitor -> hardwareMonitor
+			.filter(instance -> instance
 				.getType()
 				.getName()
 				.equalsIgnoreCase(monitorName))
 			.findFirst()
 			.orElseGet(() -> createMonitorIfNull ? createHardwareMonitor(monitorName, connector) : null);
+
+		if (hardwareMonitor != null) {
+
+			if (hardwareMonitor.getDiscovery() == null && DISCOVERY.equalsIgnoreCase(monitorJobName)) {
+
+				hardwareMonitor.setDiscovery(Discovery.builder().build());
+			}
+
+			if (hardwareMonitor.getCollect() == null && COLLECT.equalsIgnoreCase(monitorJobName)) {
+
+				hardwareMonitor.setCollect(Collect.builder().build());
+			}
+		}
+
+		return hardwareMonitor;
 	}
 	/**
 	 * @param monitorName	The name of the monitor type.
@@ -261,11 +280,12 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected MonitorJob getMonitorJob(Matcher matcher, Connector connector) {
 
 		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName, true);
+		String monitorJobName = getMonitorJobName(matcher);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName, monitorJobName, true);
 
-		return ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(getMonitorJobName(matcher))
-			? hardwareMonitor.getDiscovery()
-			: hardwareMonitor.getCollect();
+		return DISCOVERY.equalsIgnoreCase(monitorJobName)
+			? hardwareMonitor.getDiscovery() // NOSONAR - hardwareMonitor is never null here
+			: hardwareMonitor.getCollect(); // NOSONAR - hardwareMonitor is never null here
 	}
 
 	/**
@@ -285,14 +305,11 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 			return null;
 		}
 	
-		MonitorJob monitorJob = ConnectorParserConstants.DISCOVERY.equalsIgnoreCase(monitorJobName)
+		MonitorJob monitorJob = DISCOVERY.equalsIgnoreCase(monitorJobName)
 			? hardwareMonitor.getDiscovery()
 			: hardwareMonitor.getCollect();
-	
-		if (monitorJob == null) {
-			return null;
-		}
-	
+
+		// monitorJob cannot be null here
 		List<Source> sources = monitorJob.getSources();
 		if (sources == null) {
 			return null;
@@ -319,9 +336,10 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected <T extends Source> T getSource(Matcher matcher, Connector connector) {
 	
 		String monitorName = getMonitorName(matcher);
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName, false);
+		String monitorJobName = getMonitorJobName(matcher);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName, monitorJobName, false);
 	
-		return getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
+		return getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher));
 	}
 
 	/**
@@ -391,10 +409,11 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * @return			The {@link Compute} in the given {@link Connector} matching the given {@link Matcher}.
 	 */
 	protected <T extends Compute> T getCompute(Matcher matcher, Connector connector) {
+
+		String monitorJobName = getMonitorJobName(matcher);
+		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher), monitorJobName, false);
 	
-		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher), false);
-	
-		Source source = getSource(hardwareMonitor, getMonitorJobName(matcher), getSourceIndex(matcher));
+		Source source = getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher));
 	
 		return getCompute(source, getComputeIndex(matcher));
 	}
