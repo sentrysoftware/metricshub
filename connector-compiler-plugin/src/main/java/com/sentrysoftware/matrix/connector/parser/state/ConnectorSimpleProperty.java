@@ -59,7 +59,7 @@ public class ConnectorSimpleProperty {
 			if (connector != null && value != null) {
 				Set<String> supersedes = new HashSet<>();
 
-				Arrays.stream(value.split(ConnectorParserConstants.COMA))
+				Arrays.stream(value.split(ConnectorParserConstants.COMMA))
 					.forEach(supersedesStr -> supersedes.add(supersedesStr.trim()));
 
 				connector.setSupersedes(supersedes);
@@ -79,7 +79,7 @@ public class ConnectorSimpleProperty {
 			if (connector != null && value != null) {
 				Set<OSType> osTypes = new HashSet<>();
 
-				Arrays.stream(value.split(ConnectorParserConstants.COMA))
+				Arrays.stream(value.split(ConnectorParserConstants.COMMA))
 					.forEach(osTypeStr -> osTypes.add(OSType.valueOf(osTypeStr.trim().toUpperCase())));
 
 				connector.setAppliesToOS(osTypes);

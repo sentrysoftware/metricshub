@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMA;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMMA;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -36,7 +36,7 @@ public class BitListProcessor extends PerBitTranslationProcessor {
 		notNull(perBitTranslation,
 			() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
 
-		perBitTranslation.setBitList(Arrays.stream(value.split(COMA))
+		perBitTranslation.setBitList(Arrays.stream(value.split(COMMA))
 			.map(Integer::parseInt)
 			.collect(Collectors.toList()));
 	}
