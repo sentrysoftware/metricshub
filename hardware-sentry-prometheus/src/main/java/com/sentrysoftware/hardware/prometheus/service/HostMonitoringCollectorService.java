@@ -45,6 +45,8 @@ public class HostMonitoringCollectorService extends Collector {
 
 	private static final Map<ParameterType, BiFunction<Monitor, String, Boolean>> PARAMETER_TYPE_PREDICATES;
 	private static final Map<ParameterType, TriConsumer<GaugeMetricFamily, Monitor, String>> PARAMETER_TYPE_CONSUMERS;
+	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
+
 	static {
 		final Map<ParameterType, BiFunction<Monitor, String, Boolean>> predicates = new EnumMap<>(ParameterType.class);
 
@@ -57,6 +59,21 @@ public class HostMonitoringCollectorService extends Collector {
 		consumers.put(ParameterType.STATUS, HostMonitoringCollectorService::addStatusMetric);
 		consumers.put(ParameterType.NUMBER, HostMonitoringCollectorService::addNumberMetric);
 		PARAMETER_TYPE_CONSUMERS = Collections.unmodifiableMap(consumers);
+
+		final Map<MonitorType, String> monitorTypeNames = new EnumMap<>(MonitorType.class);
+		for (MonitorType monitorType : MonitorType.values()) {
+			switch (monitorType) {
+			case CPU:
+				monitorTypeNames.put(monitorType, "cpu");
+				break;
+			case LED:
+				monitorTypeNames.put(monitorType, "led");
+				break;
+			default:
+				monitorTypeNames.put(monitorType, monitorType.getName());
+			}
+		}
+		MONITOR_TYPE_NAMES = Collections.unmodifiableMap(monitorTypeNames);
 	}
 
 	@Override
@@ -108,9 +125,13 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
+		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), metaParameter.getName());
+
+		final String help = buildHelp(monitorType.getName(), metaParameter);
+
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(
-				buildMetricName(monitorType.getName(), metaParameter.getName()),
-				buildHelp(monitorType.getName(), metaParameter),
+				metricName,
+				help,
 				Arrays.asList(ID, PARENT, LABEL));
 
 		monitors.values()
