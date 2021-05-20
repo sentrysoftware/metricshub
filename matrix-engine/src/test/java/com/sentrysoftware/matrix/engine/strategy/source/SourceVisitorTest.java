@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,27 +79,27 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void visitHTTPSourceTest () {
+	void testVisitHTTPSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new HTTPSource()));
 	}
 
 	@Test
-	void visitIPMISourceTest () {
+	void testVisitIPMISource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new IPMI()));
 	}
 
 	@Test
-	void visitOSCommandSourceTest () {
+	void testVisitOSCommandSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new OSCommandSource()));
 	}
 
 	@Test
-	void visitReferenceSourceTest () {
+	void testVisitReferenceSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new ReferenceSource()));
 	}
 
 	@Test
-	void visitSNMPGetSourceTest () {
+	void testVisitSNMPGetSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new SNMPGetSource()));
 	}
 
@@ -142,7 +143,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void visitTableJoinSourceTest () {
+	void testVisitTableJoinSource() {
 		final Map<String, SourceTable> mapSources = new HashMap<>();
 		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"))).build();
 		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"))).build();
@@ -268,7 +269,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void visitTableUnionSourceTest() {
+	void testVisitTableUnionSourceTest() {
 		SourceTable tabl1 = SourceTable.builder()
 				.table(Arrays.asList(
 						Arrays.asList("a1", "b1", "c1"), 
@@ -305,23 +306,42 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void visitTelnetInteractiveSourceTest () {
+	void testVisitTelnetInteractiveSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new TelnetInteractiveSource()));
 	}
 
 	@Test
-	void visitUCSSourceTest () {
+	void testVisitUCSSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new UCSSource()));
 	}
 
 	@Test
-	void visitWBEMSourceTest () {
+	void testVisitWBEMSource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WBEMSource()));
 	}
 
 	@Test
-	void visitWMISourceTest () {
+	void testVisitWMISource() {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WMISource()));
 	}
 
+	@Test
+	void testGetSourceTable() {
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			assertNull(sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));
+		}
+
+		{
+			final SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA).build();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(expected).when(hostMonitoring).getSourceTableByKey("Temperature.Collect.Source(1)");
+			assertEquals(expected, sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));
+		}
+
+		{
+			assertEquals(SourceTable.builder().table(Arrays.asList(Arrays.asList("val1", "val2", "val3"))).build(),
+					sourceVisitor.getSourceTable("val1;val2;val3;"));
+		}
+	}
 }
