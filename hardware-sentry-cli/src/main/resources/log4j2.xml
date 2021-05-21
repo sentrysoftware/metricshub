@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			 <!-- The console only outputs errors -->
+			<ThresholdFilter level="error" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			 <!-- Format of the output log -->
+			<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+		</Console>
+		<RollingFile name="Rolling-${ctx:targetId}"
+			fileName="logs/${date:yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli.log"
+			filePattern="logs/${date:yyyy-MM}/%d{yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli-%i.log.gz">
+			<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+			<filters>
+				<!-- Given the logs are in debugMode or not, set the minimum level of logs to write -->
+                <DynamicThresholdFilter key="debugMode" onMatch="ACCEPT" onMismatch="DENY">
+                   <KeyValuePair key="true" value="DEBUG"/>
+                   <KeyValuePair key="false" value="INFO"/>
+               </DynamicThresholdFilter>
+           </filters>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="6"
+					modulate="true" />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+		</RollingFile>
+    </Appenders>
+    <Loggers>
+		<logger name="com.sentrysoftware" level="trace">
+			<appender-ref ref="Rolling-${ctx:targetId}"/>
+		</logger>
+        <Root level="trace">
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

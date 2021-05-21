@@ -44,6 +44,10 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	"--connectorsExcluded" }, split = ",", required = false, description = "Enter the hdfs to exclude.")
 	private Set<String> hdfsExclusion;
 
+	@Option(names = { "--debug",
+	"-d"}, required = false, description = "Activate debug mode for logs.")
+	private boolean debug;
+
 	@Override
 	public Boolean call() {
 		System.out.println(engineService.call(this));
