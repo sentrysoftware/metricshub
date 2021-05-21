@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-    <Appenders>
+	<Properties>
+		<Property name="baseDir">logs</Property>
+	</Properties>
+	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			 <!-- The console only outputs errors -->
-			 <!-- Right now the console display is disabled, but it can be activated by replacing
-			  onMatch="DENY" by onMatch="ACCEPT" -->
+			<!-- The console only outputs errors -->
+			<!-- Right now the console display is disabled, but it can be activated 
+				by replacing onMatch="DENY" by onMatch="ACCEPT" -->
 			<ThresholdFilter level="error" onMatch="DENY"
 				onMismatch="DENY" />
-			 <!-- Format of the output log -->
-			<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+			<!-- Format of the output log -->
+			<PatternLayout
+				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
 		</Console>
-		<RollingFile name="Rolling-${ctx:targetId}"
-			fileName="logs/${date:yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli.log"
-			filePattern="logs/${date:yyyy-MM}/%d{yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli-%i.log.gz">
-			<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
-			<filters>
-				<!-- Given the logs are in debugMode or not, set the minimum level of logs to write -->
-                <DynamicThresholdFilter key="debugMode" onMatch="ACCEPT" onMismatch="DENY">
-                   <KeyValuePair key="true" value="DEBUG"/>
-                   <KeyValuePair key="false" value="INFO"/>
-               </DynamicThresholdFilter>
-           </filters>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="6"
-					modulate="true" />
-				<SizeBasedTriggeringPolicy size="10 MB" />
-			</Policies>
-		</RollingFile>
-    </Appenders>
-    <Loggers>
+		<Routing name="Routing">
+			<Routes pattern="$${ctx:debugMode}">
+				<!-- This route is chosen if ThreadContext has debugMode = true. -->
+				<Route key="true">
+					<RollingFile name="Rolling-${ctx:targetId}"
+						fileName="${baseDir}/${date:yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli.log"
+						filePattern="${baseDir}/${date:yyyy-MM}/%d{yyyy-MM-dd}-${ctx:targetId}-hardware-sentry-cli-%i.log.gz">
+						<PatternLayout
+							pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy />
+							<SizeBasedTriggeringPolicy size="30 MB" />
+						</Policies>
+						<DefaultRolloverStrategy>
+							<Delete basePath="${baseDir}" maxDepth="3">
+								<IfFileName glob="*/*hardware-sentry-cli*.log.gz" />
+								<IfLastModified age="2d" />
+							</Delete>
+						</DefaultRolloverStrategy>
+					</RollingFile>
+				</Route>
+			</Routes>
+		</Routing>
+	</Appenders>
+	<Loggers>
 		<logger name="com.sentrysoftware" level="trace">
-			<appender-ref ref="Rolling-${ctx:targetId}"/>
+			<appender-ref ref="Routing" />
 		</logger>
-        <Root level="error">
-            <AppenderRef ref="Console" />
-        </Root>
-    </Loggers>
+		<Root level="error">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
 </Configuration>

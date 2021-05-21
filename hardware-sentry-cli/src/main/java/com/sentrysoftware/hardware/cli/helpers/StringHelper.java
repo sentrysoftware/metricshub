@@ -13,8 +13,4 @@ public class StringHelper {
 	public static final String SPACE = " ";
 	public static final String DOUBLE_SPACE = "  ";
 	public static final String EMPTY = "";
-
-	public static final String HOST_ARG = "-host";
-	public static final String DEBUG_ARG = "--debug";
-	public static final String D_ARG = "-d";
 }
