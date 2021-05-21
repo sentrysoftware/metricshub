@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DivideByProcessorTest {
 
@@ -19,37 +19,36 @@ class DivideByProcessorTest {
 	private final Connector connector = new Connector();
 
 	private static final String DIVIDE_DIVIDE_BY_KEY = "enclosure.collect.source(1).compute(1).divideby";
-	private static final String FOO = "FOO";
 	private static final String NINE = "9";
 
 	@Test
 	void testParse() {
 
-		// Key does not match
-		assertThrows(IllegalArgumentException.class, () -> divideByProcessor.parse(FOO, FOO, connector));
+		Divide divide = Divide
+			.builder()
+			.index(1)
+			.build();
 
-		// Key matches, no Divide found
-		assertThrows(IllegalArgumentException.class,
-			() -> divideByProcessor.parse(DIVIDE_DIVIDE_BY_KEY, FOO, connector));
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+			.builder()
+			.index(1)
+			.computes(Collections.singletonList(divide))
+			.build();
 
-		// Key matches, Divide found
-		Divide divide = new Divide();
-		divide.setIndex(1);
+		Collect collect = Collect
+			.builder()
+			.sources(Collections.singletonList(snmpGetTableSource))
+			.build();
+
+		HardwareMonitor hardwareMonitor = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.collect(collect)
+			.build();
 
 		connector
 			.getHardwareMonitors()
-			.add(HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.collect(Collect
-					.builder()
-					.sources(Collections.singletonList(SNMPGetTableSource
-						.builder()
-						.index(1)
-						.computes(Collections.singletonList(divide))
-						.build()))
-					.build())
-				.build());
+			.add(hardwareMonitor);
 
 		divideByProcessor.parse(DIVIDE_DIVIDE_BY_KEY, NINE, connector);
 		assertEquals(NINE, divide.getDivideBy());

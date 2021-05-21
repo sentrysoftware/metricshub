@@ -9,6 +9,9 @@ public class ConnectorParserConstants {
 	public static final String EMPTY_STRING = "";
 	public static final String COMMA = ",";
 	public static final String SEMICOLON = ";";
+	public static final String COLON = ":";
+	public static final String SPACE = " ";
+	public static final String COLON_SPACE = COLON + SPACE;
 	public static final String DOT = ".";
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
@@ -31,4 +34,6 @@ public class ConnectorParserConstants {
 	public static final String VALUE_TABLE = "valuetable";
 
 	public static final String COMPUTE = "compute";
+
+	public static final String SET_COLUMN = "setColumn";
 }

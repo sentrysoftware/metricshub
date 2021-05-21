@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AddPropertyProcessorTest {
 
@@ -20,37 +19,36 @@ class AddPropertyProcessorTest {
 	private final Connector connector = new Connector();
 
 	private static final String ADD_ADD_KEY = "enclosure.collect.source(1).compute(1).add";
-	private static final String FOO = "FOO";
 	private static final String NINE = "9";
 
 	@Test
 	void testParse() {
 
-		// Key does not match
-		assertThrows(IllegalArgumentException.class, () -> addPropertyProcessor.parse(FOO, FOO, connector));
+		Add add = Add
+			.builder()
+			.index(1)
+			.build();
 
-		// Key matches, no Add found
-		assertThrows(IllegalArgumentException.class,
-			() -> addPropertyProcessor.parse(ADD_ADD_KEY, FOO, connector));
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+			.builder()
+			.index(1)
+			.computes(Collections.singletonList(add))
+			.build();
 
-		// Key matches, Add found
-		Add add = new Add();
-		add.setIndex(1);
+		Collect collect = Collect
+			.builder()
+			.sources(Collections.singletonList(snmpGetTableSource))
+			.build();
+
+		HardwareMonitor hardwareMonitor = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.collect(collect)
+			.build();
 
 		connector
 			.getHardwareMonitors()
-			.add(HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.collect(Collect
-					.builder()
-					.sources(Collections.singletonList(SNMPGetTableSource
-						.builder()
-						.index(1)
-						.computes(Collections.singletonList(add))
-						.build()))
-					.build())
-				.build());
+			.add(hardwareMonitor);
 
 		addPropertyProcessor.parse(ADD_ADD_KEY, NINE, connector);
 		assertEquals(NINE, add.getAdd());

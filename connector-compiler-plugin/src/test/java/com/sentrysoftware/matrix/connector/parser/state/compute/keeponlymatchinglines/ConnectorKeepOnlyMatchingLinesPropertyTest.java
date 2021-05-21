@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.compute.common.ColumnProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.compute.common.TypeProcessor;
 import org.junit.jupiter.api.Test;
 
 class ConnectorKeepOnlyMatchingLinesPropertyTest {

@@ -1,27 +1,27 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.common;
+package com.sentrysoftware.matrix.connector.parser.state.compute.common;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 import lombok.AllArgsConstructor;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
 
 @AllArgsConstructor
 public class TypeProcessor extends AbstractStateParser {
 
-	private final Class<? extends Source> type;
+	private final Class<? extends Compute> type;
 	private final String typeValue;
 
 	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.type\\s*$",
+		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.type\\s*$",
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
@@ -49,27 +49,34 @@ public class TypeProcessor extends AbstractStateParser {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		MonitorJob monitorJob = getMonitorJob(matcher, connector); // Never null
+		Source source = getSource(matcher, connector, true);
 
-		String sourceKey = getSourceKey(matcher);
-		isNull(getSource(matcher, connector, false), () -> sourceKey + " has already been defined.");
+		// TODO: When all source types have been implemented,
+		// TODO: remove this if statement and uncomment the notNull check
+		if (source == null) {
+			return;
+		}
+		//notNull(source, "Could not find any source for the following key: " + key + ConnectorParserConstants.DOT);
+
+		if (source.getComputes() == null) {
+			source.setComputes(new ArrayList<>());
+		}
 
 		try {
 
-			Source source = type.getConstructor().newInstance();
-			source.setIndex(getSourceIndex(matcher));
-			source.setKey(sourceKey);
+			Compute compute = type.getConstructor().newInstance();
+			compute.setIndex(getComputeIndex(matcher));
 
-			monitorJob.getSources().add(source);
+			source.getComputes().add(compute);
 
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 
 			throw new IllegalStateException(
 				"TypeProcessor parse: Could not instantiate "
 					+ type.getSimpleName()
-					+ " Source ("
-					+ sourceKey
-					+ "): "
+					+ " Compute for Source "
+					+ source.getKey()
+					+ ConnectorParserConstants.COLON_SPACE
 					+ e.getMessage());
 		}
 	}

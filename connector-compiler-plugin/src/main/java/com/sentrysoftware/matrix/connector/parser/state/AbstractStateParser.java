@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser.state;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
@@ -9,9 +10,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
-import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstant
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOT;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
 
 public abstract class AbstractStateParser implements IConnectorStateParser {
 
@@ -208,6 +210,25 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	}
 
 	/**
+	 * @param name		The name of the {@link TranslationTable} being searched for.
+	 * @param connector	The {@link Connector} whose {@link TranslationTable} is being searched for.
+	 *
+	 * @return			The {@link TranslationTable} having the given name in the given {@link Connector},
+	 * 					if available.
+	 */
+	protected TranslationTable getTranslationTable(String name, Connector connector) {
+
+		Map<String, TranslationTable> translationTables = connector.getTranslationTables();
+		state(translationTables != null, () -> "No translation tables found in " + connector.getCompiledFilename());
+
+		TranslationTable translationTable = translationTables.get(name);
+		state(translationTable != null,
+			() -> "Could not find translation table " + name + " in " + connector.getCompiledFilename());
+
+		return translationTable;
+	}
+
+	/**
 	 * @param connector				The {@link Connector} whose {@link HardwareMonitor} is being search for.
 	 * @param monitorName			The name of the {@link HardwareMonitor} being searched for.
 	 * @param monitorJobName		The name of the current job (<i>discovery</i> or <i>collect</i>).
@@ -234,12 +255,10 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 		if (hardwareMonitor != null) {
 
 			if (hardwareMonitor.getDiscovery() == null && DISCOVERY.equalsIgnoreCase(monitorJobName)) {
-
 				hardwareMonitor.setDiscovery(Discovery.builder().build());
 			}
 
 			if (hardwareMonitor.getCollect() == null && COLLECT.equalsIgnoreCase(monitorJobName)) {
-
 				hardwareMonitor.setCollect(Collect.builder().build());
 			}
 		}
@@ -248,7 +267,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	}
 	/**
 	 * @param monitorName	The name of the monitor type.
-	 * @param connector		The {@link Connector} to wich the newly created {@link HardwareMonitor} should be added.
+	 * @param connector		The {@link Connector} to which the newly created {@link HardwareMonitor} should be added.
 	 *
 	 * @return				The newly created {@link HardwareMonitor} instance.
 	 */
@@ -294,12 +313,14 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 *                          in the given {@link HardwareMonitor}
 	 *                          whose {@link Source} is being searched for.
 	 * @param sourceIndex		The index of the {@link Source} in the given job.
+	 * @param ignoreSourceType	Indicates whether the {@link Source} type should be ignored or not when filtering.
 	 *
 	 * @return					The {@link Source} with the given index in he given {@link HardwareMonitor} job,
 	 * 							if available.
 	 */
 	@SuppressWarnings("unchecked")
-	private <T extends Source> T getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex) {
+	private <T extends Source> T getSource(HardwareMonitor hardwareMonitor, String monitorJobName, int sourceIndex,
+										   boolean ignoreSourceType) {
 	
 		if (hardwareMonitor == null) {
 			return null;
@@ -317,29 +338,30 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	
 		return (T) sources
 			.stream()
-			.filter(source -> getType().isInstance(source) && source.getIndex() == sourceIndex)
+			.filter(source -> (ignoreSourceType || getType().isInstance(source)) && source.getIndex() == sourceIndex)
 			.findFirst()
 			.orElse(null);
 	}
 
 	/**
-	 * @param matcher	A <u>NON-NULL</u> {@link Matcher},
-	 * 					whose match operation has been called successfully,
-	 * 					and from which
-	 * 					a {@link HardwareMonitor} name, a job name
-	 * 					and a {@link Source} index can be extracted.
-	 * @param connector	The {@link Connector} whose source is being searched for.
+	 * @param matcher			A <u>NON-NULL</u> {@link Matcher},
+	 * 							whose match operation has been called successfully,
+	 * 							and from which
+	 * 							a {@link HardwareMonitor} name, a job name
+	 * 							and a {@link Source} index can be extracted.
+	 * @param connector			The {@link Connector} whose source is being searched for.
+	 * @param ignoreSourceType	Indicates whether the {@link Source} type should be ignored or not when filtering.
 	 *
-	 * @return			The {@link Source} in the given {@link Connector}
-	 * 					matching the given {@link Matcher}, if available.
+	 * @return					The {@link Source} in the given {@link Connector}
+	 * 							matching the given {@link Matcher}, if available.
 	 */
-	protected <T extends Source> T getSource(Matcher matcher, Connector connector) {
+	protected <T extends Source> T getSource(Matcher matcher, Connector connector, boolean ignoreSourceType) {
 	
 		String monitorName = getMonitorName(matcher);
 		String monitorJobName = getMonitorJobName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, monitorName, monitorJobName, false);
 	
-		return getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher));
+		return getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher), ignoreSourceType);
 	}
 
 	/**
@@ -354,7 +376,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
 
-		T source = getSource(matcher, connector);
+		T source = getSource(matcher, connector, false);
 		notNull(source,
 			() -> "Could not find any Source for the following key: " + key + ConnectorParserConstants.DOT);
 
@@ -413,9 +435,28 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 		String monitorJobName = getMonitorJobName(matcher);
 		HardwareMonitor hardwareMonitor = getHardwareMonitor(connector, getMonitorName(matcher), monitorJobName, false);
 	
-		Source source = getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher));
+		Source source = getSource(hardwareMonitor, monitorJobName, getSourceIndex(matcher), true);
 	
 		return getCompute(source, getComputeIndex(matcher));
+	}
+
+	/**
+	 * @param key		The key to parse.
+	 * @param connector	The {@link Connector} whose source is being searched for.
+	 * @param <T>		The type of {@link Compute} being searched for.
+	 *
+	 * @return			The {@link Compute} matching the given key.
+	 */
+	protected <T extends Compute> T getCompute(String key, Connector connector) {
+
+		Matcher matcher = getMatcher(key);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
+
+		T compute = getCompute(matcher, connector);
+		notNull(compute,
+			() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
+
+		return compute;
 	}
 
 	/**
@@ -443,12 +484,12 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 */
 	private boolean isSourceContext(String value, Matcher matcher, Connector connector) {
 
-		if (this instanceof TypeProcessor) {
+		if (this instanceof com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor) {
 
 			return getTypeValue().equalsIgnoreCase(value);
 		}
 
-		return getSource(matcher, connector) != null;
+		return getSource(matcher, connector, false) != null;
 	}
 
 	/**
@@ -476,7 +517,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 */
 	private boolean isComputeContext(String value, Matcher matcher, Connector connector) {
 	
-		if (this instanceof TypeProcessor) {
+		if (this instanceof com.sentrysoftware.matrix.connector.parser.state.compute.common.TypeProcessor) {
 	
 			return getTypeValue().equalsIgnoreCase(value);
 		}

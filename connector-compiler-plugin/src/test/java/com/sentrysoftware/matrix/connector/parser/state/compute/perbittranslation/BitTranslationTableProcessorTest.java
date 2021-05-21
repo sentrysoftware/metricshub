@@ -30,46 +30,50 @@ class BitTranslationTableProcessorTest {
 	@Test
 	void testParse() {
 
-		// Key does not match
-		assertThrows(IllegalArgumentException.class, () -> bitTranslationTableProcessor.parse(FOO, FOO, connector));
+		PerBitTranslation perBitTranslation = PerBitTranslation
+			.builder()
+			.index(1)
+			.build();
 
-		// Key matches, no PerBitTranslation found
-		assertThrows(IllegalArgumentException.class,
-			() -> bitTranslationTableProcessor.parse(PER_BIT_TRANSLATION_BIT_TRANSLATION_TABLE_KEY, FOO, connector));
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+			.builder()
+			.index(1)
+			.computes(Collections.singletonList(perBitTranslation))
+			.build();
 
-		// Key matches, PerBitTranslation found, no TranslationTables found
-		PerBitTranslation perBitTranslation = new PerBitTranslation();
-		perBitTranslation.setIndex(1);
+		Collect collect = Collect
+			.builder()
+			.sources(Collections.singletonList(snmpGetTableSource))
+			.build();
 
-		connector.setTranslationTables(null);
+		HardwareMonitor hardwareMonitor = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.collect(collect)
+			.build();
 
 		connector
 			.getHardwareMonitors()
-			.add(HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.collect(Collect
-					.builder()
-					.sources(Collections.singletonList(SNMPGetTableSource
-						.builder()
-						.index(1)
-						.computes(Collections.singletonList(perBitTranslation))
-						.build()))
-					.build())
-				.build());
+			.add(hardwareMonitor);
 
+		// connector.getTranslationTables() == null
+		connector.setTranslationTables(null);
 		assertThrows(IllegalStateException.class,
 			() -> bitTranslationTableProcessor.parse(PER_BIT_TRANSLATION_BIT_TRANSLATION_TABLE_KEY, FOO, connector));
 
-		// Key matches, PerBitTranslation found, TranslationTables found, no BitTranslationTable named FOO
-		Map<String, TranslationTable> translationTables = new HashMap<>();
-		connector.setTranslationTables(translationTables);
+		// connector.getTranslationTables() != null, translationTables.get(tableName) == null
+		connector.setTranslationTables(Collections.emptyMap());
 		assertThrows(IllegalStateException.class,
 			() -> bitTranslationTableProcessor.parse(PER_BIT_TRANSLATION_BIT_TRANSLATION_TABLE_KEY, FOO, connector));
 
-		// Key matches, PerBitTranslation found, TranslationTables found, BitTranslationTable named FOO found
+		// connector.getTranslationTables() != null, translationTables.get(tableName) != null
 		TranslationTable translationTable = new TranslationTable();
+
+		Map<String, TranslationTable> translationTables = new HashMap<>();
 		translationTables.put(FOO, translationTable);
+
+		connector.setTranslationTables(translationTables);
+
 		bitTranslationTableProcessor.parse(PER_BIT_TRANSLATION_BIT_TRANSLATION_TABLE_KEY, FOO, connector);
 		assertEquals(translationTable, perBitTranslation.getBitTranslationTable());
 	}

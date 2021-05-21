@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MultiplyByProcessorTest {
 
@@ -20,37 +19,36 @@ class MultiplyByProcessorTest {
 	private final Connector connector = new Connector();
 
 	private static final String MULTIPLY_MULTIPLY_BY_KEY = "enclosure.collect.source(1).compute(1).multiplyby";
-	private static final String FOO = "FOO";
 	private static final String NINE = "9";
 
 	@Test
 	void testParse() {
 
-		// Key does not match
-		assertThrows(IllegalArgumentException.class, () -> multiplyByProcessor.parse(FOO, FOO, connector));
+		Multiply multiply = Multiply
+			.builder()
+			.index(1)
+			.build();
 
-		// Key matches, no Multiply found
-		assertThrows(IllegalArgumentException.class,
-			() -> multiplyByProcessor.parse(MULTIPLY_MULTIPLY_BY_KEY, FOO, connector));
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+			.builder()
+			.index(1)
+			.computes(Collections.singletonList(multiply))
+			.build();
 
-		// Key matches, Multiply found
-		Multiply multiply = new Multiply();
-		multiply.setIndex(1);
+		Collect collect = Collect
+			.builder()
+			.sources(Collections.singletonList(snmpGetTableSource))
+			.build();
+
+		HardwareMonitor hardwareMonitor = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.collect(collect)
+			.build();
 
 		connector
 			.getHardwareMonitors()
-			.add(HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.collect(Collect
-					.builder()
-					.sources(Collections.singletonList(SNMPGetTableSource
-						.builder()
-						.index(1)
-						.computes(Collections.singletonList(multiply))
-						.build()))
-					.build())
-				.build());
+			.add(hardwareMonitor);
 
 		multiplyByProcessor.parse(MULTIPLY_MULTIPLY_BY_KEY, NINE, connector);
 		assertEquals(NINE, multiply.getMultiplyBy());
