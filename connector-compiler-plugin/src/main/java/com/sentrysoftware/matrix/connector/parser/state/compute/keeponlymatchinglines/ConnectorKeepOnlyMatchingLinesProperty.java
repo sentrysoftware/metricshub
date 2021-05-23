@@ -18,8 +18,10 @@ public class ConnectorKeepOnlyMatchingLinesProperty {
 
 		return Stream
 			.of(
-				new TypeProcessor(KeepOnlyMatchingLines.class, KeepOnlyMatchingLinesProcessor.KEEP_ONLY_MATCHING_LINES_TYPE_VALUE),
-				new ColumnProcessor(KeepOnlyMatchingLines.class, KeepOnlyMatchingLinesProcessor.KEEP_ONLY_MATCHING_LINES_TYPE_VALUE),
+				new TypeProcessor(KeepOnlyMatchingLines.class,
+					KeepOnlyMatchingLinesProcessor.KEEP_ONLY_MATCHING_LINES_TYPE_VALUE),
+				new ColumnProcessor(KeepOnlyMatchingLines.class,
+					KeepOnlyMatchingLinesProcessor.KEEP_ONLY_MATCHING_LINES_TYPE_VALUE),
 				new ValueListProcessor(),
 				new RegexpProcessor())
 			.collect(Collectors.toSet());

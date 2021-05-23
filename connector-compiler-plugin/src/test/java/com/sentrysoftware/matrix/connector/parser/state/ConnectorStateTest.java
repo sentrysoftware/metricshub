@@ -14,6 +14,7 @@ import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CO
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_INSTANCE_TABLE;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SIMPLE_PROPERTY;
 import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_SOURCE_TABLE;
+import static com.sentrysoftware.matrix.connector.parser.state.ConnectorState.CONNECTOR_VALUE_TABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,6 +73,7 @@ class ConnectorStateTest {
 		assertTrue(connectorStates.contains(CONNECTOR_DETECTION));
 		assertTrue(connectorStates.contains(CONNECTOR_INSTANCE_TABLE));
 		assertTrue(connectorStates.contains(CONNECTOR_SOURCE_TABLE));
+		assertTrue(connectorStates.contains(CONNECTOR_VALUE_TABLE));
 		assertTrue(connectorStates.contains(CONNECTOR_COMPUTE));
 	}
 

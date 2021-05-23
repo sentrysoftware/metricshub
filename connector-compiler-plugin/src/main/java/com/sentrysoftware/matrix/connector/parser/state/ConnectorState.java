@@ -5,6 +5,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.ConnectorCompute
 import com.sentrysoftware.matrix.connector.parser.state.detection.ConnectorDetectionProperty;
 import com.sentrysoftware.matrix.connector.parser.state.instance.ConnectorInstanceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceProperty;
+import com.sentrysoftware.matrix.connector.parser.state.value.table.ConnectorValueTableProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public enum ConnectorState {
 	CONNECTOR_DETECTION(new StateParsersParent(ConnectorDetectionProperty.getConnectorProperties())),
 	CONNECTOR_INSTANCE_TABLE(new StateParsersParent(ConnectorInstanceProperty.getConnectorProperties())),
 	CONNECTOR_SOURCE_TABLE(new StateParsersParent(ConnectorSourceProperty.getConnectorProperties())),
+	CONNECTOR_VALUE_TABLE(new StateParsersParent(ConnectorValueTableProperty.getConnectorProperties())),
 	CONNECTOR_COMPUTE(new StateParsersParent(ConnectorComputeProperty.getConnectorProperties()));
 
 	private final IConnectorStateParser connectorStateProcessor;

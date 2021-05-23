@@ -18,8 +18,10 @@ public class ConnectorExcludeMatchingLinesProperty {
 
 		return Stream
 			.of(
-				new TypeProcessor(ExcludeMatchingLines.class, ExcludeMatchingLinesProcessor.EXCLUDE_MATCHING_LINES_TYPE_VALUE),
-				new ColumnProcessor(ExcludeMatchingLines.class, ExcludeMatchingLinesProcessor.EXCLUDE_MATCHING_LINES_TYPE_VALUE),
+				new TypeProcessor(ExcludeMatchingLines.class,
+					ExcludeMatchingLinesProcessor.EXCLUDE_MATCHING_LINES_TYPE_VALUE),
+				new ColumnProcessor(ExcludeMatchingLines.class,
+					ExcludeMatchingLinesProcessor.EXCLUDE_MATCHING_LINES_TYPE_VALUE),
 				new ValueListProcessor(),
 				new RegexpProcessor())
 			.collect(Collectors.toSet());
