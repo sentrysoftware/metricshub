@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.cli.component.cli;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,10 +45,22 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	"--connectorsExcluded" }, split = ",", required = false, description = "Enter the hdfs to exclude.")
 	private Set<String> hdfsExclusion;
 
+	@Option(names = { "--debug",
+	"-d"}, required = false, description = "Activate debug mode for logs.")
+	private boolean debug;
+
 	@Override
 	public Boolean call() {
+		configureLoggerContext();
 		System.out.println(engineService.call(this));
 		return true;
 	}
 
+	/**
+	 * Configure the logger context with the hostname and debugMode.
+	 */
+	private void configureLoggerContext() {
+		ThreadContext.put("targetId", hostname);
+		ThreadContext.put("debugMode", String.valueOf(debug));
+	}
 }
