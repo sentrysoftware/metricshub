@@ -1,19 +1,14 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.divide;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
-import com.sentrysoftware.matrix.connector.parser.state.compute.AbstractComputeParser;
+import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
-public abstract class DivideProcessor extends AbstractComputeParser {
+public abstract class DivideProcessor extends AbstractStateParser {
 
 	protected static final String DIVIDE_TYPE_VALUE = "Divide";
 
 	@Override
-	public Class<TypeProcessor> getTypeProcessor() {
-		return TypeProcessor.class;
-	}
-
-	@Override
-	public Class<Divide> getComputeType() {
+	public Class<Divide> getType() {
 		return Divide.class;
 	}
 

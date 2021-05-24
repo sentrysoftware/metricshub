@@ -2,18 +2,14 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
-
 public class StringProcessor extends LeftConcatProcessor {
 
 	private static final Pattern REGEXP_KEY_PATTERN = Pattern.compile(
-		"^\\s*(.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)\\.compute\\(([1-9]\\d*)\\)\\.string\\s*$",
+		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.string\\s*$",
 		Pattern.CASE_INSENSITIVE);
 
 	@Override
@@ -26,13 +22,6 @@ public class StringProcessor extends LeftConcatProcessor {
 
 		super.parse(key, value, connector);
 
-		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), "Invalid key: " + key + ConnectorParserConstants.DOT);
-
-		LeftConcat leftConcat = getCompute(getSource(matcher, connector), getComputeIndex(matcher));
-		notNull(leftConcat,
-			() -> "Could not find any Compute for the following key: " + key + ConnectorParserConstants.DOT);
-
-		leftConcat.setString(value);
+		((LeftConcat) getCompute(key, connector)).setString(value);
 	}
 }

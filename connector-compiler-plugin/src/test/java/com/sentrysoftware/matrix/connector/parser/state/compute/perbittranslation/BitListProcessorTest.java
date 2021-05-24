@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BitListProcessorTest {
 
@@ -20,38 +19,37 @@ class BitListProcessorTest {
 
 	private final Connector connector = new Connector();
 	private static final String PER_BIT_TRANSLATION_BIT_LIST_KEY = "enclosure.collect.source(1).compute(1).bitlist";
-	private static final String FOO = "FOO";
 
 	private static final String BIT_LIST = "0,1,2";
 
 	@Test
 	void testParse() {
 
-		// Key does not match
-		assertThrows(IllegalArgumentException.class, () -> bitListProcessor.parse(FOO, FOO, connector));
+		PerBitTranslation perBitTranslation = PerBitTranslation
+			.builder()
+			.index(1)
+			.build();
 
-		// Key matches, no PerBitTranslation found
-		assertThrows(IllegalArgumentException.class,
-			() -> bitListProcessor.parse(PER_BIT_TRANSLATION_BIT_LIST_KEY, FOO, connector));
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+			.builder()
+			.index(1)
+			.computes(Collections.singletonList(perBitTranslation))
+			.build();
 
-		// Key matches, PerBitTranslation found
-		PerBitTranslation perBitTranslation = new PerBitTranslation();
-		perBitTranslation.setIndex(1);
+		Collect collect = Collect
+			.builder()
+			.sources(Collections.singletonList(snmpGetTableSource))
+			.build();
+
+		HardwareMonitor hardwareMonitor = HardwareMonitor
+			.builder()
+			.type(MonitorType.ENCLOSURE)
+			.collect(collect)
+			.build();
 
 		connector
 			.getHardwareMonitors()
-			.add(HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.collect(Collect
-					.builder()
-					.sources(Collections.singletonList(SNMPGetTableSource
-						.builder()
-						.index(1)
-						.computes(Collections.singletonList(perBitTranslation))
-						.build()))
-					.build())
-				.build());
+			.add(hardwareMonitor);
 
 		bitListProcessor.parse(PER_BIT_TRANSLATION_BIT_LIST_KEY, BIT_LIST, connector);
 		assertEquals(Arrays.asList(0, 1, 2), perBitTranslation.getBitList());

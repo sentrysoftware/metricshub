@@ -1,19 +1,14 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.translate;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
-import com.sentrysoftware.matrix.connector.parser.state.compute.AbstractComputeParser;
+import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
-public abstract class TranslateProcessor extends AbstractComputeParser {
+public abstract class TranslateProcessor extends AbstractStateParser {
 
 	protected static final String TRANSLATE_TYPE_VALUE = "Translate";
 
 	@Override
-	public Class<TypeProcessor> getTypeProcessor() {
-		return TypeProcessor.class;
-	}
-
-	@Override
-	public Class<Translate> getComputeType() {
+	public Class<Translate> getType() {
 		return Translate.class;
 	}
 
