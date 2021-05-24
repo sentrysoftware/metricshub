@@ -29,6 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
@@ -39,6 +41,8 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -50,6 +54,7 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
@@ -82,7 +87,13 @@ class CollectOperationTest {
 	private static final String MY_OTHER_CONNECTOR_NAME = "myOtherConnecctor.connector";
 	private static final String FAN_ID_3 = "myConnecctor1.connector_fan_ecs1-01_1.3";
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
+	private static final String VERSION = "4.2.3";
+	private static final String SUCCESS = "Success";
+	private static final String BAD_RESULT = "1";
+	private static final String FAILED = "Failed";
 
+	@Mock
+	private CriterionVisitor criterionVisitor;
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -101,6 +112,7 @@ class CollectOperationTest {
 	private static EngineConfiguration engineConfiguration;
 
 	private static Connector connector;
+	private static SNMPGetNext criterion;
 
 	private static Map<String, String> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private static Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -127,7 +139,14 @@ class CollectOperationTest {
 				.unknownStatus(UNKNOWN_STATUS_WARN)
 				.build();
 
-		connector = Connector.builder().compiledFilename(MY_CONNECTOR_NAME).build();
+		criterion = SNMPGetNext.builder().oid(OID1).build();
+
+		connector = Connector.builder()
+				.compiledFilename(MY_CONNECTOR_NAME)
+				.detection(Detection.builder()
+						.criteria(Collections.singletonList(criterion))
+						.build())
+				.build();
 
 		parameters.put(HardwareConstants.DEVICE_ID, VALUETABLE_COLUMN_1);
 		parameters.put(HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2);
@@ -212,7 +231,7 @@ class CollectOperationTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.call();
 
-			final Monitor actual = getCollectedEnclosure(hostMonitoring);
+			final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(enclosure, actual);
 		}
@@ -220,14 +239,7 @@ class CollectOperationTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-			final Monitor connectorMonitor = Monitor
-					.builder()
-					.monitorType(MonitorType.CONNECTOR)
-					.name(MY_CONNECTOR_NAME)
-					.parentId(ECS1_01)
-					.targetId(ECS1_01)
-					.id(MY_CONNECTOR_NAME)
-					.build();
+			final Monitor connectorMonitor = buildConnectorMonitor();
 
 			final Monitor enclosure = buildEnclosure(metadata);
 
@@ -240,7 +252,7 @@ class CollectOperationTest {
 
 			collectOperation.call();
 
-			final Monitor actual = getCollectedEnclosure(hostMonitoring);
+			final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(enclosure, actual);
 
@@ -254,14 +266,7 @@ class CollectOperationTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor connectorMonitor = Monitor
-				.builder()
-				.monitorType(MonitorType.CONNECTOR)
-				.name(MY_CONNECTOR_NAME)
-				.parentId(ECS1_01)
-				.targetId(ECS1_01)
-				.id(MY_CONNECTOR_NAME)
-				.build();
+		final Monitor connectorMonitor = buildConnectorMonitor();
 
 		final Monitor enclosure = buildEnclosure(metadata);
 
@@ -277,13 +282,24 @@ class CollectOperationTest {
 				.getCollect()
 				.getSources()
 				.get(0));
+		doReturn(CriterionTestResult.builder()
+				.success(true)
+				.message(SUCCESS)
+				.result(VERSION)
+				.build())
+		.when(criterionVisitor).visit(criterion);
 
 		collectOperation.call();
 
 		final Monitor expected = buildExpectedEnclosure();
-		final Monitor actual = getCollectedEnclosure(hostMonitoring);
+		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expected, actual);
+
+		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+
+		assertEquals(expectedConnector, actualConnector);
 
 	}
 
@@ -306,10 +322,14 @@ class CollectOperationTest {
 
 	@Test
 	void testCollect() {
+
+		final Monitor connectorMonitor = buildConnectorMonitor();
+
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
 
 		hostMonitoring.addMonitor(enclosure);
+		hostMonitoring.addMonitor(connectorMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(sourceTable).when(sourceVisitor).visit((SNMPGetTableSource) connector
@@ -318,14 +338,36 @@ class CollectOperationTest {
 				.getCollect()
 				.getSources()
 				.get(0));
+		doReturn(CriterionTestResult.builder()
+				.success(true)
+				.message(SUCCESS)
+				.result(VERSION)
+				.build())
+		.when(criterionVisitor).visit(criterion);
 
-		collectOperation.collect(connector, hostMonitoring, ECS1_01);
+		collectOperation.collect(connector, connectorMonitor, hostMonitoring, ECS1_01);
 
-		final Monitor expected = buildExpectedEnclosure();
-		final Monitor actual = getCollectedEnclosure(hostMonitoring);
+		final Monitor expectedEnclosure = buildExpectedEnclosure();
+		final Monitor actualEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
-		assertEquals(expected, actual);
+		assertEquals(expectedEnclosure, actualEnclosure);
 
+		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+
+		assertEquals(expectedConnector, actualConnector);
+
+	}
+
+	private static Monitor buildConnectorMonitor() {
+		return Monitor
+				.builder()
+				.monitorType(MonitorType.CONNECTOR)
+				.name(MY_CONNECTOR_NAME)
+				.parentId(ECS1_01)
+				.targetId(ECS1_01)
+				.id(MY_CONNECTOR_NAME)
+				.build();
 	}
 
 	@Test
@@ -404,7 +446,7 @@ class CollectOperationTest {
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
 		final Monitor expected = buildExpectedEnclosure();
-		final Monitor actual = getCollectedEnclosure(hostMonitoring);
+		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expected, actual);
 	}
@@ -420,7 +462,7 @@ class CollectOperationTest {
 		final HardwareMonitor enclosureHardwareMonitor = buildHardwareEnclosureMonitor(CollectType.MULTI_INSTANCE, OID1);
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
-		final Monitor actual = getCollectedEnclosure(hostMonitoring);
+		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(enclosure, actual);
 	}
@@ -444,7 +486,7 @@ class CollectOperationTest {
 
 		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
-		final Monitor collectedEnclosure = getCollectedEnclosure(hostMonitoring);
+		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expectedEnclosure, collectedEnclosure);
 		assertTrue(collectedEnclosure.getParameters().isEmpty());
@@ -461,15 +503,15 @@ class CollectOperationTest {
 
 		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
-		final Monitor collectedEnclosure = getCollectedEnclosure(hostMonitoring);
+		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		final Monitor expected = buildExpectedEnclosure();
 
 		assertEquals(expected, collectedEnclosure);
 	}
 
-	private static Monitor getCollectedEnclosure(final IHostMonitoring hostMonitoring) {
-		return hostMonitoring.selectFromType(MonitorType.ENCLOSURE).get(ENCLOSURE_ID);
+	private static Monitor getCollectedMonitor(final IHostMonitoring hostMonitoring, final MonitorType monitorType, final String monitorId) {
+		return hostMonitoring.selectFromType(monitorType).get(monitorId);
 	}
 
 	@Test
@@ -665,7 +707,7 @@ class CollectOperationTest {
 
 			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
-			final Monitor collectedEnclosure = getCollectedEnclosure(hostMonitoring);
+			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
 			assertTrue(collectedEnclosure.getParameters().isEmpty());
@@ -680,7 +722,7 @@ class CollectOperationTest {
 
 			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
-			final Monitor collectedEnclosure = getCollectedEnclosure(hostMonitoring);
+			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
 			assertTrue(collectedEnclosure.getParameters().isEmpty());
@@ -699,7 +741,7 @@ class CollectOperationTest {
 
 		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
-		final Monitor collectedEnclosure = getCollectedEnclosure(hostMonitoring);
+		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		final Monitor expected = buildExpectedEnclosure();
 
@@ -761,8 +803,70 @@ class CollectOperationTest {
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
 		final Monitor expected = buildExpectedEnclosure();
-		final Monitor actual = getCollectedEnclosure(hostMonitoring);
+		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testCollectConnectorMonitorSuccess() {
+		final Monitor actual = buildConnectorMonitor();
+
+		doReturn(CriterionTestResult.builder()
+				.success(true)
+				.message(SUCCESS)
+				.result(VERSION)
+				.build())
+		.when(criterionVisitor).visit(criterion);
+
+		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
+
+		final Monitor expected = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testCollectConnectorMonitorFailed() {
+		final Monitor actual = buildConnectorMonitor();
+
+		doReturn(CriterionTestResult.builder()
+				.success(false)
+				.message(FAILED)
+				.result(BAD_RESULT)
+				.build())
+		.when(criterionVisitor).visit(criterion);
+
+		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
+
+		final Monitor expected = buildExpectedConnectorMonitor(false, BAD_RESULT, FAILED);
+
+		assertEquals(expected, actual);
+	}
+
+	private static Monitor buildExpectedConnectorMonitor(final boolean success, final String result, final String message) {
+		final Monitor expected = buildConnectorMonitor();
+
+		final StatusParam status = StatusParam
+				.builder()
+				.collectTime(strategyTime)
+				.name(HardwareConstants.STATUS_PARAMETER)
+				.state(success ? ParameterState.OK : ParameterState.ALARM)
+				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
+				.build();
+
+		final TextParam testReport = TextParam
+				.builder()
+				.collectTime(strategyTime)
+				.name(HardwareConstants.TEST_REPORT_PARAMETER)
+				.value("Received Result: " + result + ". " + message + "\nConclusion: TEST on ecs1-01 "
+						+ (success ? "SUCCEEDED" : "FAILED"))
+				.build();
+
+		expected.setParameters(Map.of(
+				HardwareConstants.STATUS_PARAMETER, status,
+				HardwareConstants.TEST_REPORT_PARAMETER, testReport));
+
+		return expected;
 	}
 }

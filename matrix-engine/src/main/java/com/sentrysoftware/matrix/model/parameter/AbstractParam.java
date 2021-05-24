@@ -27,7 +27,6 @@ public abstract class AbstractParam implements IParameterValue {
 	@Override
 	public void reset() {
 		this.collectTime = null;
-		this.state = null;
 		this.state = ParameterState.OK;
 	}
 
