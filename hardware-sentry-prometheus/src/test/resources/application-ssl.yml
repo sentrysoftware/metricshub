@@ -1,0 +1,18 @@
+target:
+  config:
+    file: data/hardware-sentry-config.yml
+http:
+  port: 8080
+server:
+  port: 8443
+  ssl:
+    redirect-http: false
+    enabled: true
+    key-alias: https
+    key-store: classpath:keystore/keystore.p12
+    key-store-password: Sentry
+    key-store-type: PKCS12
+trust:
+  store:
+    password: Sentry
+debugMode: false

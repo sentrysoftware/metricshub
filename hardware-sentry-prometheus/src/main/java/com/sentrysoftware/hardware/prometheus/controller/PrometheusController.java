@@ -1,16 +1,14 @@
 package com.sentrysoftware.hardware.prometheus.controller;
 
+import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
+import com.sentrysoftware.hardware.prometheus.service.PrometheusService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
-import com.sentrysoftware.hardware.prometheus.service.PrometheusService;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 /**
  * REST Controllers for Prometheus operations.
@@ -30,7 +28,7 @@ public class PrometheusController {
 			response = String.class
 	)
 	public String metrics() throws BusinessException {
+
 		return prometheusService.collectMetrics();
 	}
-
 }

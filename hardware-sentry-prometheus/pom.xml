@@ -134,7 +134,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.95</minimum>
+											<minimum>0.98</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -150,6 +150,33 @@
 						<exclude>com/sentrysoftware/hardware/prometheus/exception/**</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>keytool-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>create-https-certificate</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>generateKeyPair</goal>
+						</goals>
+						<configuration>
+							<alias>https</alias>
+							<dname>CN=localhost, OU=${project.name}, O=Sentry Software, C=FR</dname>
+							<keyalg>RSA</keyalg>
+							<keypass>Sentry</keypass>
+							<keystore>${project.build.outputDirectory}/keystore/keystore.p12</keystore>
+							<sigalg>SHA256withRSA</sigalg>
+							<skipIfExist>true</skipIfExist>
+							<storepass>Sentry</storepass>
+							<storetype>PKCS12</storetype>
+							<validity>3650</validity>
+							<workingDirectory>${project.build.directory}</workingDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
