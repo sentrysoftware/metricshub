@@ -22,6 +22,13 @@ public interface IMetaMonitor {
 			.unit(HardwareConstants.PRESENT_PARAMETER_UNIT)
 			.type(ParameterType.STATUS).build();
 
+	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
+			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
+			.type(ParameterType.STATUS)
+			.build();
+
 	void accept(IMonitorVisitor monitorVisitor);
 
 	Map<String, MetaParameter> getMetaParameters();

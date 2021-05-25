@@ -68,13 +68,6 @@ public class PhysicalDisk implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
-			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
-			.build();
-
 	public static final MetaParameter RECOVERABLE_ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER)

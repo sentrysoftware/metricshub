@@ -26,13 +26,6 @@ public class Memory implements IMetaMonitor {
 			.type(ParameterType.STATUS)
 			.build();
 
-	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
-			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
-			.build();
-
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
 	static {
