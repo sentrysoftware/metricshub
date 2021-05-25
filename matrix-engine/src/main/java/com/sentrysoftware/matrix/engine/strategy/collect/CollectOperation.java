@@ -21,10 +21,13 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -256,7 +259,7 @@ public class CollectOperation extends AbstractStrategy {
 					row,
 					parameters.get(HardwareConstants.DEVICE_ID));
 
-			if (!monitorOpt.isPresent()) {
+			if (monitorOpt.isEmpty()) {
 				log.warn("Collect - Couldn't find monitor {} associated with row {}. Connector {}",
 						monitorType.getName(), row, connectorName);
 				continue;
@@ -397,6 +400,11 @@ public class CollectOperation extends AbstractStrategy {
 			final IHostMonitoring hostMonitoring, final Map<String, String> parameters,
 			final MonitorType monitorType, final String hostname) {
 
+		PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
+		if (presentParam != null && presentParam.getPresent() != null && presentParam.getPresent() == 0) {
+			return;
+		}
+
 		// Get the source table used to collect parameters
 		final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(valueTable);
 
@@ -412,6 +420,7 @@ public class CollectOperation extends AbstractStrategy {
 					valueTable, connectorName, hostname);
 			return;
 		}
+
 
 		// Build the collect information as the parameters are collected by the MonitorCollectVisitor
 		// so that we avoid the tightly coupling with the current CollectOperation strategy.

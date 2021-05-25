@@ -323,7 +323,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		// Add model and vendor... or if none, some basic architecture information
 		if (vendor != null && model != null) {
-			if (model.toLowerCase().indexOf(vendor.toLowerCase()) != -1) {
+			if (model.toLowerCase().contains(vendor.toLowerCase())) {
 				nameBuilder.append(model);
 			} else {
 				nameBuilder.append(vendor).append(" ").append(model);
@@ -374,7 +374,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 			name = idCount;
 		}
 
-		if (name != null && name.toLowerCase().indexOf(monitorType.getName().toLowerCase()) != -1) {
+		if (name != null && name.toLowerCase().contains(monitorType.getName().toLowerCase())) {
 			name = name.replaceAll("(?i)\\s*"+monitorType.getName()+"\\s*", "");
 		}
 

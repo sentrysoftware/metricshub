@@ -1,18 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
@@ -23,9 +10,22 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 
 @Data
 @NoArgsConstructor
@@ -61,6 +61,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public synchronized void addMonitor(Monitor monitor) {
+
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 
 		final String id = monitor.getId();
@@ -69,16 +70,26 @@ public class HostMonitoring implements IHostMonitoring {
 		final MonitorType monitorType = monitor.getMonitorType();
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()), PARENT_ID_CANNOT_BE_NULL);
+		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
+			PARENT_ID_CANNOT_BE_NULL);
+
 		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
-	
+
+		monitor.addParameter(
+			PresentParam
+				.builder()
+				.state(ParameterState.OK)
+				.build());
+
 		if (monitors.containsKey(monitorType)) {
+
 			Map<String, Monitor> map = monitors.get(monitorType);
 
 			// Copy the parameters from the monitor instance previously collected
 			copyParameters(map.get(id), monitor);
 
 			map.put(id, monitor);
+
 		} else {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}

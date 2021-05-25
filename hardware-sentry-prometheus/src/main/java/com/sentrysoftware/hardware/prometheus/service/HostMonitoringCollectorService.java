@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,12 +53,14 @@ public class HostMonitoringCollectorService extends Collector {
 
 		predicates.put(ParameterType.STATUS, HostMonitoringCollectorService::checkStatusParameter);
 		predicates.put(ParameterType.NUMBER, HostMonitoringCollectorService::checkNumberParameter);
+		predicates.put(ParameterType.PRESENT, HostMonitoringCollectorService::checkPresentParameter);
 		PARAMETER_TYPE_PREDICATES = Collections.unmodifiableMap(predicates);
 
 		final Map<ParameterType, TriConsumer<GaugeMetricFamily, Monitor, String>> consumers = new EnumMap<>(ParameterType.class);
 
 		consumers.put(ParameterType.STATUS, HostMonitoringCollectorService::addStatusMetric);
 		consumers.put(ParameterType.NUMBER, HostMonitoringCollectorService::addNumberMetric);
+		consumers.put(ParameterType.PRESENT, HostMonitoringCollectorService::addPresentMetric);
 		PARAMETER_TYPE_CONSUMERS = Collections.unmodifiableMap(consumers);
 
 		final Map<MonitorType, String> monitorTypeNames = new EnumMap<>(MonitorType.class);
@@ -74,6 +77,25 @@ public class HostMonitoringCollectorService extends Collector {
 			}
 		}
 		MONITOR_TYPE_NAMES = Collections.unmodifiableMap(monitorTypeNames);
+	}
+
+	private static void addPresentMetric(GaugeMetricFamily gauge, Monitor monitor, String parameterName) {
+
+		gauge.addMetric(
+			// Id, parentId (can be null), label
+			createLabels(monitor),
+			getPresentParameterValue(monitor, parameterName));
+	}
+
+	private static Boolean checkPresentParameter(Monitor monitor, String parameterName) {
+
+		return checkParameter(monitor, parameterName)
+			&& getPresentParameterValue(monitor, parameterName) != null;
+	}
+
+	private static Integer getPresentParameterValue(Monitor monitor, String parameterName) {
+
+		return ((PresentParam) monitor.getParameters().get(parameterName)).getPresent();
 	}
 
 	@Override
