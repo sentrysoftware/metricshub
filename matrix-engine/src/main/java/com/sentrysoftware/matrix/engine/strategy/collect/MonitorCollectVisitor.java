@@ -162,6 +162,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.INTRUSION_STATUS_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER
 				);
 	}
