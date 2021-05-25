@@ -155,7 +155,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		final TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
 
-		if (null == detection) {
+		if (detection == null) {
 			log.warn("The connector {} DOES NOT match {}'s platform as it has no detection to test.",
 					connector.getCompiledFilename(), hostname);
 			return testedConnector;
@@ -163,7 +163,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		final List<Criterion> criteria = detection.getCriteria();
 
-		if (null == criteria || criteria.isEmpty()) {
+		if (criteria == null || criteria.isEmpty()) {
 			log.warn("The connector {} DOES NOT match {}'s platform as it has no criteria to test.",
 					connector.getCompiledFilename(), hostname);
 			return testedConnector;
