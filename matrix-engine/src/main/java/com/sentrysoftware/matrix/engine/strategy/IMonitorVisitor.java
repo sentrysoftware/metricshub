@@ -6,7 +6,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
@@ -38,8 +37,6 @@ public interface IMonitorVisitor {
 	void visit(CpuCore cpuCore);
 
 	void visit(DiskController diskController);
-
-	void visit(DiskEnclosure diskEnclosure);
 
 	void visit(Enclosure enclosure);
 

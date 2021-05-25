@@ -22,7 +22,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
@@ -194,19 +193,6 @@ class MonitorCollectVisitorTest {
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new DiskController());
-
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
-
-		assertEquals(statusParam, actual);
-	}
-
-	@Test
-	void testVisitDiskEnclosure() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-
-		monitorCollectVisitor.visit(new DiskEnclosure());
 
 		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
 

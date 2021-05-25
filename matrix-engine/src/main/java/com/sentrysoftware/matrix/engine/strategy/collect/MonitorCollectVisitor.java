@@ -15,7 +15,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
@@ -153,17 +152,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.BATTERY_STATUS_PARAMETER,
 				HardwareConstants.CONTROLLER_STATUS_PARAMETER
-				);
-	}
-
-	@Override
-	public void visit(DiskEnclosure diskEnclosure) {
-		collectBasicParameters(diskEnclosure);
-
-		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
-				HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER
 				);
 	}
 

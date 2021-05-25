@@ -17,7 +17,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
@@ -99,8 +98,6 @@ class MonitorDiscoveryVisitorTest {
 	private static final String CPU_CORE_MONITOR_X = "CpuCore: Monitor x";
 	private static final String DISK_CONTROLLER_ID = "myConnecctor.connector_diskcontroller_ecs1-01_1.1";
 	private static final String DISK_CONTROLLER_MONITOR_X = "DiskController: Monitor x";
-	private static final String DISK_ENCLOSURE_ID = "myConnecctor.connector_diskenclosure_ecs1-01_1.1";
-	private static final String DISK_ENCLOSURE_MONITOR_X = "DiskEnclosure: Monitor x";
 	private static final String FAN_MONITOR_X = "Fan: Monitor x";
 	private static final String LED_ID = "myConnecctor.connector_led_ecs1-01_1.1";
 	private static final String LED_MONITOR_X = "LED: Monitor x";
@@ -245,34 +242,6 @@ class MonitorDiscoveryVisitorTest {
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.DISK_CONTROLLER);
-
-		assertEquals(expectedMonitor, monitors.values().stream().findFirst().get());
-
-	}
-
-	@Test
-	void testVisitDiskEnclosure() {
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.DISK_ENCLOSURE);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((DiskEnclosure) MonitorType.DISK_ENCLOSURE.getMetaMonitor());
-		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
-		metadata.put(DISPLAY_ID, MONITOR_NAME);
-
-		final Monitor expectedMonitor = Monitor.builder()
-				.id(DISK_ENCLOSURE_ID)
-				.name(DISK_ENCLOSURE_MONITOR_X)
-				.parentId(ECS1_01)
-				.targetId(ECS1_01)
-				.metadata(metadata)
-				.monitorType(MonitorType.DISK_ENCLOSURE)
-				.extendedType(MonitorType.DISK_ENCLOSURE.getName())
-				.build();
-
-		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.DISK_ENCLOSURE);
 
 		assertEquals(expectedMonitor, monitors.values().stream().findFirst().get());
 

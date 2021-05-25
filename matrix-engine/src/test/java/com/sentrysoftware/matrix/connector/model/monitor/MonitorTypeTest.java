@@ -36,9 +36,6 @@ class MonitorTypeTest {
 		monitor = MonitorType.DISK_CONTROLLER;
 		assertEquals("DiskControllers", monitor.jsonKey());
 
-		monitor = MonitorType.DISK_ENCLOSURE;
-		assertEquals("DiskEnclosures", monitor.jsonKey());
-
 		monitor = MonitorType.ENCLOSURE;
 		assertEquals("Enclosures", monitor.jsonKey());
 

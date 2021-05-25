@@ -23,7 +23,6 @@ class HardwareMonitorComparatorTest {
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();
 	final HardwareMonitor hdfCpuCore = HardwareMonitor.builder().type(MonitorType.CPU_CORE).build();
 	final HardwareMonitor hdfDiskController = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).build();
-	final HardwareMonitor hdfDiskEnclosure = HardwareMonitor.builder().type(MonitorType.DISK_ENCLOSURE).build();
 	final HardwareMonitor hdfEnclosure = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).build();
 	final HardwareMonitor hdfFan = HardwareMonitor.builder().type(MonitorType.FAN).build();
 	final HardwareMonitor hdfLed = HardwareMonitor.builder().type(MonitorType.LED).build();
@@ -41,11 +40,10 @@ class HardwareMonitorComparatorTest {
 
 	final List<HardwareMonitor> allPossibleMonitorsType = Arrays.asList(
 			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
-			hdfCpuCore, hdfDiskController, hdfDiskEnclosure, hdfFan, hdfEnclosure,
+			hdfCpuCore, hdfDiskController, hdfFan, hdfEnclosure,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory,
 			hdfNetworkCard, hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply,
-			hdfRobotic, hdfTapeDrive, hdfTemperature, hdfVoltage,
-			hdfDiskEnclosure);
+			hdfRobotic, hdfTapeDrive, hdfTemperature, hdfVoltage);
 
 	@Test
 	void testCompareAllMonitorTypes() {
@@ -54,7 +52,7 @@ class HardwareMonitorComparatorTest {
 
 		List<MonitorType> expectedSort = Arrays.asList(MonitorType.ENCLOSURE, MonitorType.BLADE,
 				MonitorType.DISK_CONTROLLER, MonitorType.CPU, MonitorType.TARGET, MonitorType.BATTERY,
-				MonitorType.CPU_CORE, MonitorType.DISK_ENCLOSURE, MonitorType.DISK_ENCLOSURE, MonitorType.FAN,
+				MonitorType.CPU_CORE, MonitorType.FAN,
 				MonitorType.LED, MonitorType.LOGICAL_DISK, MonitorType.LUN, MonitorType.MEMORY,
 				MonitorType.NETWORK_CARD, MonitorType.OTHER_DEVICE, MonitorType.PHYSICAL_DISK, MonitorType.POWER_SUPPLY,
 				MonitorType.ROBOTIC, MonitorType.TAPE_DRIVE, MonitorType.TEMPERATURE, MonitorType.VOLTAGE);
@@ -84,7 +82,6 @@ class HardwareMonitorComparatorTest {
 	@Test
 	void testCompareMonitorTypeTwoByTwo3(){
 		assertEquals(1 , new HardwareMonitorComparator().compare(hardwareMonitorWithoutType, hdfEnclosure) );
-		assertEquals(1 , new HardwareMonitorComparator().compare(hardwareMonitorWithoutType, hdfDiskEnclosure) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hardwareMonitorWithoutType, hdfBlade) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hardwareMonitorWithoutType, hdfCPU) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hardwareMonitorWithoutType, hdfCpuCore) );
@@ -94,7 +91,6 @@ class HardwareMonitorComparatorTest {
 	@Test
 	void testCompareMonitorTypeTwoByTwo4(){
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfEnclosure, hardwareMonitorWithoutType) );
-		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfEnclosure, hdfDiskEnclosure) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfEnclosure, hdfBlade) );
 		assertEquals(-3 , new HardwareMonitorComparator().compare(hdfEnclosure, hdfCPU) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfEnclosure, hdfCpuCore) );
@@ -102,20 +98,9 @@ class HardwareMonitorComparatorTest {
 	}
 
 	@Test
-	void testCompareMonitorTypeTwoByTwo5(){
-		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hardwareMonitorWithoutType) );
-		assertEquals(1 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hdfEnclosure) );
-		assertEquals(1 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hdfBlade) );
-		assertEquals(1 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hdfCPU) );
-		assertEquals(2 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hdfCpuCore) );
-		assertEquals(1 , new HardwareMonitorComparator().compare(hdfDiskEnclosure, hdfDiskController) );
-	}
-
-	@Test
 	void testCompareMonitorTypeTwoByTwo6(){
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfBlade, hardwareMonitorWithoutType) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hdfBlade, hdfEnclosure) );
-		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfBlade, hdfDiskEnclosure) );
 		assertEquals(-2 , new HardwareMonitorComparator().compare(hdfBlade, hdfCPU) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfBlade, hdfCpuCore) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfBlade, hdfDiskController) );
@@ -125,7 +110,6 @@ class HardwareMonitorComparatorTest {
 	void testCompareMonitorTypeTwoByTwo7(){
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfCPU, hardwareMonitorWithoutType) );
 		assertEquals(3 , new HardwareMonitorComparator().compare(hdfCPU, hdfEnclosure) );
-		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfCPU, hdfDiskEnclosure) );
 		assertEquals(2 , new HardwareMonitorComparator().compare(hdfCPU, hdfBlade) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfCPU, hdfCpuCore) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hdfCPU, hdfDiskController) );
@@ -135,7 +119,6 @@ class HardwareMonitorComparatorTest {
 	void testCompareMonitorTypeTwoByTwo8(){
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfDiskController, hardwareMonitorWithoutType) );
 		assertEquals(2 , new HardwareMonitorComparator().compare(hdfDiskController, hdfEnclosure) );
-		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfDiskController, hdfDiskEnclosure) );
 		assertEquals(1 , new HardwareMonitorComparator().compare(hdfDiskController, hdfBlade) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfDiskController, hdfCpuCore) );
 		assertEquals(-1 , new HardwareMonitorComparator().compare(hdfDiskController, hdfCPU) );
