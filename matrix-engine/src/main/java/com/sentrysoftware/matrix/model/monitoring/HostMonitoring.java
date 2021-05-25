@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTE
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -13,8 +14,12 @@ import java.util.TreeMap;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
@@ -40,13 +45,17 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Override
-	public void clear() {
+	public void clearCurrent() {
 		monitors.clear();
 	}
 
 	@Override
-	public void backup() {
+	public void clearPrevious() {
 		previousMonitors.clear();
+	}
+
+	@Override
+	public void backup() {
 		previousMonitors.putAll(monitors);
 	}
 
@@ -64,11 +73,39 @@ public class HostMonitoring implements IHostMonitoring {
 		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
 	
 		if (monitors.containsKey(monitorType)) {
-			Map<String, Monitor> collection = monitors.get(monitorType);
-			collection.put(id, monitor);
+			Map<String, Monitor> map = monitors.get(monitorType);
+
+			// Copy the parameters from the monitor instance previously collected
+			copyParameters(map.get(id), monitor);
+
+			map.put(id, monitor);
 		} else {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
+	}
+
+	/**
+	 * Copy parameters from previous to current monitor. <br>
+	 * If the parameter is already collected the parameter's copy is skipped. E.g a present parameter set in the discovery
+	 * 
+	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
+	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
+	 */
+	static void copyParameters(final Monitor previous, final Monitor current) {
+		// This means that we are in the first discovery or a new monitor has been discovered
+		// Nothing to copy, just return
+		if (previous == null) {
+			return;
+		}
+
+		// Copy the parameters from previous, skip parameters already collected
+		previous.getParameters()
+			.entrySet()
+			.stream()
+			.filter(entry -> !current.getParameters().containsKey(entry.getKey()))
+			.map(Entry::getValue)
+			.forEach(current::addParameter);
+
 	}
 
 	@Override
@@ -224,9 +261,8 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public String toJsonString() {
-
-		return "{}";
+	public String toJson() {
+		return JsonHelper.serialize(monitors);
 	}
 
 	@Override

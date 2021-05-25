@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.function.Function;
 
 import org.springframework.util.Assert;
@@ -46,7 +47,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
-
 
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null";
 	private static final String VALUE_TABLE_CANNOT_BE_NULL = "valueTable cannot be null";
@@ -118,7 +118,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Blade blade) {
 		collectBasicParameters(blade);
-		
+
 		appendValuesToStatusParameter(
 				HardwareConstants.POWER_STATE_PARAMETER, 
 				HardwareConstants.PRESENT_PARAMETER);
@@ -127,7 +127,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Cpu cpu) {
 		collectBasicParameters(cpu);
-		
+
 		appendValuesToStatusParameter(
 				HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER, 
 				HardwareConstants.CURRENT_SPEED_PARAMETER,
@@ -159,12 +159,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Enclosure enclosure) {
 		collectBasicParameters(enclosure);
 
+		collectPowerConsumption();
+
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.INTRUSION_STATUS_PARAMETER,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER
-				);
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
+
 	}
 
 	@Override
@@ -364,19 +366,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 		}
 
-		final StatusParam statusParam = StatusParam
-				.builder()
-				.name(parameterName)
-				.collectTime(collectTime)
-				.state(state)
-				.unit(unit)
-				.statusInformation(buildStatusInformation(
-						parameterName,
-						state.ordinal(),
-						statusInformation))
-				.build();
-
-		monitor.addParameter(statusParam);
+		updateStatusParameter(monitor, parameterName, unit, collectTime, state, statusInformation);
 
 	}
 
@@ -388,7 +378,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param value         The text value of the status information
 	 * @return {@link String} value
 	 */
-	String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
+	static String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
 		return new StringBuilder()
 				.append(parameterName)
 				.append(HardwareConstants.COLON)
@@ -412,6 +402,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			return;
 		}
 
+		final String value = parameter.formatValueAsString();
+
+		if (value == null) {
+			return;
+		}
+
 		String existingStatusInformation = statusParam.getStatusInformation();
 
 		if (existingStatusInformation == null) {
@@ -421,7 +417,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		final StringBuilder builder = new StringBuilder(existingStatusInformation)
-				.append(parameter.formatValueAsString());
+				.append(value);
 
 		statusParam.setStatusInformation(builder.toString());
 	}
@@ -465,11 +461,33 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		checkCollectInfo(monitorCollectInfo);
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final Long collectTime = monitorCollectInfo.getCollectTime();
+
+
+		final OptionalDouble valueOpt = extractParameterValue(monitorType, parameterName);
+		if (valueOpt.isPresent()) {
+			updateNumberParameter(monitor, parameterName, unit, collectTime, valueOpt.getAsDouble(), valueOpt.getAsDouble());
+		}
+
+	}
+
+	/**
+	 * Extract the parameter value from the current row
+	 * 
+	 * @param monitorType   The type of the monitor
+	 * @param parameterName The unique name of the parameter
+	 * @return {@link OptionalDouble} value
+	 */
+	OptionalDouble extractParameterValue(final MonitorType monitorType, final String parameterName) {
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+
+		checkCollectInfo(monitorCollectInfo);
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
 		final List<String> row = monitorCollectInfo.getRow();
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
-		final Long collectTime = monitorCollectInfo.getCollectTime();
 
 		// Get the number value as string from the current row
 		final String stringValue = CollectHelper.getValueTableColumnValue(valueTable,
@@ -481,29 +499,84 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (stringValue == null) {
 			log.debug("No {} to collect for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
-			return;
+			return OptionalDouble.empty();
 		}
 
-		final Double value;
 		try {
-			value = Double.parseDouble(stringValue);
+			return OptionalDouble.of(Double.parseDouble(stringValue));
 		} catch(NumberFormatException e) {
-			log.error("Cannot parse the {} value {} for monitor id {}. {} won't be collected",
+			log.warn("Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
 					parameterName, stringValue, monitor.getId(), parameterName);
-			log.error("Parsing Error", e);
-			return;
 		}
 
-		final NumberParam numberParam = NumberParam
-				.builder()
-				.name(parameterName)
-				.collectTime(collectTime)
-				.unit(unit)
-				.value(value)
-				.build();
+		return OptionalDouble.empty();
+	}
+
+	/**
+	 * Update the number parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
+	 * 
+	 * @param monitor       The monitor we wish to collect the number parameter value
+	 * @param parameterName The unique name of the parameter
+	 * @param unit          The unit of the parameter
+	 * @param collectTime   The collect time for this parameter
+	 * @param value         The value to set on the {@link NumberParam} instance
+	 * @param rawValue      The raw value to set as it is needed when computing delta and rates
+	 */
+	static void updateNumberParameter(final Monitor monitor, final String parameterName, final String unit, final Long collectTime,
+			final Double value, final Double rawValue) {
+
+		// GET the existing number parameter and update the value and the collect time
+		NumberParam numberParam = monitor.getParameter(parameterName, NumberParam.class);
+
+		// The parameter is not present then create it
+		if (numberParam == null) {
+			numberParam = NumberParam
+					.builder()
+					.name(parameterName)
+					.unit(unit)
+					.build();
+
+		}
+
+		numberParam.setValue(value);
+		numberParam.setCollectTime(collectTime);
+		numberParam.setRawValue(rawValue);
 
 		monitor.addParameter(numberParam);
+	}
 
+	/**
+	 * Update the status parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
+	 * 
+	 * @param monitor           The monitor we wish to collect the status parameter value
+	 * @param parameterName     The unique name of the parameter
+	 * @param unit              The unit of the parameter
+	 * @param collectTime       The collect time for this parameter
+	 * @param state             The {@link ParameterState} (OK, WARN, ALARM) used to build the {@link StatusParam}
+	 * @param statusInformation The status information
+	 */
+	static void updateStatusParameter(final Monitor monitor, final String parameterName, final String unit, final Long collectTime,
+			final ParameterState state, final String statusInformation) {
+
+		StatusParam statusParam = monitor.getParameter(parameterName, StatusParam.class);
+
+		if (statusParam == null) {
+			statusParam = StatusParam
+					.builder()
+					.name(parameterName)
+					.unit(unit)
+					.build();
+		}
+
+		statusParam.setState(state);
+		statusParam.setStatus(state.ordinal());
+		statusParam.setStatusInformation(buildStatusInformation(
+				parameterName,
+				state.ordinal(),
+				statusInformation));
+		statusParam.setCollectTime(collectTime);
+
+		monitor.addParameter(statusParam);
 	}
 
 	/**
@@ -540,6 +613,141 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
 		.forEach(metaParam -> collectNumberParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+	}
+
+
+	/**
+	 * Collect the power consumption. <br>
+	 * <ol>
+	 * <li>If the energyUsage is collected by the connector, we compute the delta energyUsage (Joules) and then the powerConsumption (Watts) based on the
+	 * collected delta energyUsage and the collect time.</li>
+	 * <li>If the connector collects the powerConsumption, we directly collect the power consumption (Watts) then we compute the energy usage based on the
+	 * collected power consumption and the delta collect time</li>
+	 * </ol>
+	 */
+	void collectPowerConsumption() {
+		checkCollectInfo(monitorCollectInfo);
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final Long collectTime = monitorCollectInfo.getCollectTime();
+		final String hostname = monitorCollectInfo.getHostname();
+
+		// When the connector collects the energy usage,
+		// the power consumption will be computed based on the collected energy usage value
+		final OptionalDouble energyUsageRawOpt = extractParameterValue(monitor.getMonitorType(), HardwareConstants.ENERGY_USAGE_PARAMETER);
+		if (energyUsageRawOpt.isPresent() && energyUsageRawOpt.getAsDouble() >= 0) {
+
+			collectPowerWithEnergyUsage(monitor, collectTime, energyUsageRawOpt, hostname);
+			return;
+		}
+
+		// based on the power consumption compute the energy usage
+		final OptionalDouble powerConsumptionOpt = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
+		if (powerConsumptionOpt.isPresent() && powerConsumptionOpt.getAsDouble() >= 0) {
+			collectEnergyUsageWithPower(monitor, collectTime, powerConsumptionOpt, hostname);
+		}
+
+	}
+
+	/**
+	 * Collect the energy usage based on the power consumption
+	 * 
+	 * @param monitor             The monitor instance we wish to collect
+	 * @param collectTime         The current collect time
+	 * @param powerConsumptionOpt The power consumption as optional. Never empty
+	 * @param hostname            The system host name used for debug purpose
+	 */
+	static void collectEnergyUsageWithPower(final Monitor monitor, final Long collectTime, final OptionalDouble powerConsumptionOpt, String hostname) {
+		updateNumberParameter(monitor,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+				collectTime,
+				powerConsumptionOpt.getAsDouble(),
+				powerConsumptionOpt.getAsDouble());
+
+		final OptionalDouble collectTimeOpt = OptionalDouble.of(collectTime.doubleValue());
+		final OptionalDouble collectTimePreviousOpt = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
+
+		final OptionalDouble deltaTimeOpt = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				collectTimeOpt, collectTimePreviousOpt);
+		final OptionalDouble energyUsageOpt = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				powerConsumptionOpt, deltaTimeOpt);
+
+		if (energyUsageOpt.isPresent()) {
+			final double energyUsage =  energyUsageOpt.getAsDouble() / 1000D / (1000D / 3600D);
+
+			updateNumberParameter(monitor,
+					HardwareConstants.ENERGY_USAGE_PARAMETER,
+					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+					collectTime,
+					energyUsage,
+					energyUsage);
+		} else {
+			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
+					monitor.getId(), hostname, powerConsumptionOpt, collectTimeOpt, collectTimePreviousOpt);
+		}
+	}
+
+	/**
+	 * Collect the power consumption based on the energy usage Power Consumption = Delta(energyUsageRaw) - Delta(CollectTime)
+	 * @param monitor           The monitor instance we wish to collect
+	 * @param collectTime       The current collect time
+	 * @param energyUsageRawOpt The energyUsage as optional. Never empty
+	 * @param hostname          The system host name used for debug purpose
+	 */
+	static void collectPowerWithEnergyUsage(final Monitor monitor, final Long collectTime, final OptionalDouble energyUsageRawOpt, final String hostname) {
+
+		updateNumberParameter(monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				null,
+				energyUsageRawOpt.getAsDouble());
+
+		// Previous raw value
+		final OptionalDouble energyUsageRawPreviousOpt = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+
+		// Time
+		final OptionalDouble collectTimeOpt = OptionalDouble.of(collectTime.doubleValue());
+		final OptionalDouble collectTimePreviousOpt = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+
+		// Compute the rate value: delta(raw energy usage) / delta (time)
+		final OptionalDouble powerConsumptionOptional = CollectHelper.rate(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				energyUsageRawOpt, energyUsageRawPreviousOpt,
+				collectTimeOpt, collectTimePreviousOpt);
+
+		// Compute the delta to get the energy usage value
+		final OptionalDouble energyUsage = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsageRawOpt, energyUsageRawPreviousOpt);
+
+		if (energyUsage.isPresent()) {
+			updateNumberParameter(monitor,
+					HardwareConstants.ENERGY_USAGE_PARAMETER,
+					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+					collectTime,
+					energyUsage.getAsDouble() * 1000 * 3600, // kW-hours to Joules
+					energyUsageRawOpt.getAsDouble());
+		} else {
+			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy usage {}, previous raw energy usage {}",
+					monitor.getId(), hostname, energyUsageRawOpt, energyUsageRawPreviousOpt);
+		}
+
+		if (powerConsumptionOptional.isPresent()) {
+			// powerConsumptionOptional = (delta kwatt-hours) / delta (time in milliseconds)
+			// powerConsumption = rate * 1000 (1Kw = 1000 Watts) * (1000 * 3600  To milliseconds convert to hours) 
+			final double powerConsumption = powerConsumptionOptional.getAsDouble() * 1000 * (1000 * 3600);
+
+			updateNumberParameter(monitor,
+					HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+					HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+					collectTime,
+					powerConsumption,
+					powerConsumption);
+		} else {
+			log.debug("Cannot compute power consumption for monitor {} on system {}.\n"
+					+ "Current raw energy usage {}, previous raw energy usage {}, current time {}, previous time {}",
+					monitor.getId(), hostname, energyUsageRawOpt, energyUsageRawPreviousOpt, collectTimeOpt, collectTimePreviousOpt);
+		}
 	}
 
 	public static class StatusParamFirstComparator implements Comparator<MetaParameter> {

@@ -372,12 +372,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 	}
 
 	@Override
-	public void release() {
-		// TODO Copy parameter values from the last collect
+	public void post() {
+		// Not implemented yet
 	}
 
 	@Override
-	public void post() {
+	public void release() {
 		// Not implemented yet
 	}
 

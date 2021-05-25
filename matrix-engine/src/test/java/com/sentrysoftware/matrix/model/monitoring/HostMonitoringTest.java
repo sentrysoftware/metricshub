@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -30,6 +32,8 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class HostMonitoringTest {
 
+	private static final String ENCLOSURE_2 = "enclosure-2";
+	private static final String ENCLOSURE_1 = "enclosure-1";
 	private static final String STATUS = "Status";
 	private static final String TEST_REPORT = "TestReport";
 	private static final String PRESENT = "Present";
@@ -312,7 +316,7 @@ class HostMonitoringTest {
 	}
 
 	@Test
-	void testClear() {
+	void testClearCurrent() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
@@ -320,7 +324,7 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
 
-		hostMonitoring.clear();
+		hostMonitoring.clearCurrent();
 
 		assertTrue(hostMonitoring.getMonitors().isEmpty());
 	}
@@ -341,6 +345,22 @@ class HostMonitoringTest {
 	}
 
 	@Test
+	void testClearPrevious() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+
+		hostMonitoring.backup();
+
+		hostMonitoring.clearPrevious();
+
+		assertTrue(hostMonitoring.getPreviousMonitors().isEmpty());
+	}
+
+	@Test
 	void testResetParametersNumber() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
@@ -349,7 +369,7 @@ class HostMonitoringTest {
 
 		final long now = new Date().getTime();
 		final IParameterValue parameter = NumberParam.builder().name(POWER_CONSUMPTION)
-				.collectTime(now).value(100.0).build();
+				.collectTime(now).value(100.0).rawValue(100.0).build();
 		enclosure.addParameter(parameter);
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
@@ -363,12 +383,12 @@ class HostMonitoringTest {
 		final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
 
 		assertNull(parameterAfterReset.getCollectTime());
-		assertEquals(now, parameterAfterReset.getLastCollectTime());
+		assertEquals(now, parameterAfterReset.getPreviousCollectTime());
 		assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
 		assertNull(parameterAfterReset.getThreshold());
 		assertNull(parameterAfterReset.getValue());
-		assertEquals(100.0, parameterAfterReset.getLastValue());
+		assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
 	}
 
 	@Test
@@ -454,5 +474,64 @@ class HostMonitoringTest {
 		assertNull(parameterAfterReset.getThreshold());
 		assertNull(parameterAfterReset.getStatus());
 		assertNull(parameterAfterReset.getStatusInformation());
+		assertEquals(ParameterState.WARN, parameterAfterReset.getPreviousState());
+	}
+
+	@Test
+	void testToJson() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor enclosure1 = Monitor.builder().id(ENCLOSURE_1).name(ENCLOSURE_1).targetId(TARGET_ID)
+				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		hostMonitoring.addMonitor(enclosure1);
+
+		final Monitor enclosure2 = Monitor.builder().id(ENCLOSURE_2).name(ENCLOSURE_2)
+				.targetId(TARGET_ID).parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+
+		hostMonitoring.addMonitor(enclosure2);
+		System.out.println();
+		assertEquals(ResourceHelper.getResourceAsString("/data/host-monitoring.json", HostMonitoringTest.class).replaceAll("\\s", ""),
+				hostMonitoring.toJson().replaceAll("\\s", ""));
+
+	}
+
+	@Test
+	void testCopyParameters() {
+		final StatusParam status = StatusParam
+				.builder()
+				.state(ParameterState.OK)
+				.name(HardwareConstants.STATUS_PARAMETER)
+				.statusInformation("OK")
+				.build();
+		final long collectTime = new Date().getTime();
+		final NumberParam energyUsage = NumberParam
+				.builder()
+				.value(100.0)
+				.rawValue(1500.0)
+				.collectTime(collectTime)
+				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
+				.build();
+
+		final long previousCollectTime = collectTime - (2 * 60 * 1000);
+
+		energyUsage.setPreviousRawValue(1400.00);
+		energyUsage.setPreviousCollectTime(previousCollectTime);
+
+		final Monitor currentMonitor = Monitor.builder()
+				.id(ENCLOSURE_1)
+				.parameters(new HashMap<>(Map.of(HardwareConstants.STATUS_PARAMETER, status)))
+				.build();
+
+		final Monitor previousMonitor = Monitor.builder()
+				.id(ENCLOSURE_1)
+				.parameters(new HashMap<>(Map.of(HardwareConstants.STATUS_PARAMETER, status,
+						HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+				.build();
+
+		HostMonitoring.copyParameters(previousMonitor, currentMonitor);
+
+		assertEquals(status, currentMonitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class));
+		assertEquals(energyUsage, currentMonitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
 	}
 }

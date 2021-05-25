@@ -28,7 +28,7 @@ public class BooleanParam extends AbstractParam {
 		super.reset();
 
 		this.value = false;
-		
+
 	}
 
 	@Override

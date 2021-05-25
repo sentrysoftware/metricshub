@@ -37,6 +37,10 @@ public abstract class AbstractParam implements IParameterValue {
 	 * @return {@link String} value
 	 */
 	protected <T> String getValueAsString(T value) {
+		if (value == null) {
+			return null;
+		}
+
 		final StringBuilder builder = new StringBuilder(getName());
 
 		builder
