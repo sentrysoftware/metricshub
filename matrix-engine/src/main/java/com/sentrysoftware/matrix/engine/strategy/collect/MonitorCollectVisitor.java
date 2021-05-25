@@ -93,7 +93,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(MetaConnector metaConnector) {
-		// Not implemented yet
+		collectBasicParameters(metaConnector);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.TEST_REPORT_PARAMETER
+				);
+
 	}
 
 	@Override
@@ -104,18 +109,28 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Battery battery) {
 		collectBasicParameters(battery);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.CHARGE_PARAMETER
+				);
 	}
 
 	@Override
 	public void visit(Blade blade) {
 		collectBasicParameters(blade);
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.POWER_STATE_PARAMETER, 
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(Cpu cpu) {
 		collectBasicParameters(cpu);
 		
-		appendValuesToStatusParameter(HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER, 
+		appendValuesToStatusParameter(
+				HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER, 
 				HardwareConstants.CURRENT_SPEED_PARAMETER,
 				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER);
@@ -124,45 +139,81 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(CpuCore cpuCore) {
 		collectBasicParameters(cpuCore);
+
+		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
+				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(DiskController diskController) {
 		collectBasicParameters(diskController);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.BATTERY_STATUS_PARAMETER,
+				HardwareConstants.CONTROLLER_STATUS_PARAMETER
+				);
 	}
 
 	@Override
 	public void visit(DiskEnclosure diskEnclosure) {
 		collectBasicParameters(diskEnclosure);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.INTRUSION_STATUS_PARAMETER,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER
+				);
 	}
 
 	@Override
 	public void visit(Enclosure enclosure) {
 		collectBasicParameters(enclosure);
 
-		appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER, HardwareConstants.ENERGY_USAGE_PARAMETER);
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.INTRUSION_STATUS_PARAMETER,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER
+				);
 	}
 
 	@Override
 	public void visit(Fan fan) {
 		collectBasicParameters(fan);
 
-		appendValuesToStatusParameter(HardwareConstants.SPEED_PARAMETER, HardwareConstants.SPEED_PERCENT_PARAMETER);
+		appendValuesToStatusParameter(HardwareConstants.SPEED_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.SPEED_PERCENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(Led led) {
 		collectBasicParameters(led);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.COLOR_PARAMETER,
+				HardwareConstants.LED_INDICATOR_PARAMETER);
 	}
 
 	@Override
 	public void visit(LogicalDisk logicalDisk) {
 		collectBasicParameters(logicalDisk);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
 	}
 
 	@Override
 	public void visit(Lun lun) {
 		collectBasicParameters(lun);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER,
+				HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER);
 	}
 
 	@Override
@@ -176,26 +227,75 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(NetworkCard networkCard) {
 		collectBasicParameters(networkCard);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER, 
+				HardwareConstants.DUPLEX_MODE_PARAMETER, 
+				HardwareConstants.ERROR_PERCENT_PARAMETER, 
+				HardwareConstants.LINK_SPEED_PARAMETER, 
+				HardwareConstants.LINK_STATUS_PARAMETER, 
+				HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER, 
+				HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER, 
+				HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER, 
+				HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER, 
+				HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER);
+
 	}
 
 	@Override
 	public void visit(OtherDevice otherDevice) {
 		collectBasicParameters(otherDevice);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.USAGE_COUNT_PARAMETER, 
+				HardwareConstants.VALUE_PARAMETER);
 	}
 
 	@Override
 	public void visit(PhysicalDisk physicalDisk) {
 		collectBasicParameters(physicalDisk);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.USAGE_COUNT_PARAMETER, 
+				HardwareConstants.INTRUSION_STATUS_PARAMETER,
+				HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER,
+				HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER, 
+				HardwareConstants.HARD_ERROR_COUNT_PARAMETER, 
+				HardwareConstants.ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER,
+				HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, 
+				HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, 
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER, 
+				HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER, 
+				HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER);
+
 	}
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
 		collectBasicParameters(powerSupply);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.MOVE_COUNT_PARAMETER, 
+				HardwareConstants.ERROR_COUNT_PARAMETER);
 	}
 
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
+
+		appendValuesToStatusParameter(
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.ERROR_COUNT_PARAMETER, 
+				HardwareConstants.MOUNT_COUNT_PARAMETER, 
+				HardwareConstants.NEEDS_CLEANING_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER);
+
 	}
 
 	@Override

@@ -11,18 +11,16 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 public interface IMetaMonitor {
 
 	public static final MetaParameter STATUS = MetaParameter.builder()
-					.basicCollect(true)
-					.name(HardwareConstants.STATUS_PARAMETER)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
-					.type(ParameterType.STATUS)
-					.build();
+			.basicCollect(true)
+			.name(HardwareConstants.STATUS_PARAMETER)
+			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.type(ParameterType.STATUS).build();
 
 	public static final MetaParameter PRESENT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.PRESENT_PARAMETER)
 			.unit(HardwareConstants.PRESENT_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
-			.build();
+			.type(ParameterType.STATUS).build();
 
 	void accept(IMonitorVisitor monitorVisitor);
 

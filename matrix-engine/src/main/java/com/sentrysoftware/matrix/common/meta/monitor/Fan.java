@@ -32,6 +32,7 @@ public class Fan implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
+//		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.SPEED_PARAMETER, SPEED);
 		map.put(HardwareConstants.SPEED_PERCENT_PARAMETER, SPEED_PERCENT);
 

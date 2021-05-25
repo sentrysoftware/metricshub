@@ -6,10 +6,39 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 
 public class TapeDrive implements IMetaMonitor {
+
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter MOUNT_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.MOUNT_COUNT_PARAMETER)
+			.unit(HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter NEEDS_CLEANING = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.NEEDS_CLEANING_PARAMETER)
+			.unit(HardwareConstants.NEEDS_CLEANING_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter UNMOUNT_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.UNMOUNT_COUNT_PARAMETER)
+			.unit(HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -17,6 +46,11 @@ public class TapeDrive implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
+		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
+		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(HardwareConstants.MOUNT_COUNT_PARAMETER, MOUNT_COUNT);
+		map.put(HardwareConstants.NEEDS_CLEANING_PARAMETER, NEEDS_CLEANING);
+		map.put(HardwareConstants.UNMOUNT_COUNT_PARAMETER, UNMOUNT_COUNT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
