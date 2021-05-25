@@ -853,6 +853,7 @@ class CollectOperationTest {
 				.name(HardwareConstants.STATUS_PARAMETER)
 				.state(success ? ParameterState.OK : ParameterState.ALARM)
 				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
+				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
 				.build();
 
 		final TextParam testReport = TextParam
