@@ -1,7 +1,28 @@
-{"properties": [
-  {
-    "name": "target.config.file",
-    "type": "java.lang.String",
-    "description": "A description for 'target.config.file'"
-  }
-]}
+{
+  "properties": [
+    {
+      "name": "http.port",
+      "type": "java.lang.String",
+      "description": "Description for http.port."
+    },
+    {
+      "name": "trust.store.password",
+      "type": "java.lang.String",
+      "description": "Description for trust.store.password."
+    },
+    {
+      "name": "target.config.file",
+      "type": "java.lang.String",
+      "description": "Description for target.config.file."
+    },
+    {
+      "name": "server.ssl.redirect-http",
+      "type": "java.lang.String",
+      "description": "Description for server.ssl.redirect-http."
+    },
+    {
+      "name": "debugMode",
+      "type": "java.lang.String",
+      "description": "Description for debugMode."
+    }
+  ]}

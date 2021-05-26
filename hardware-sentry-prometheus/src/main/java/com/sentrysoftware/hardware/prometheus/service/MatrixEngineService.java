@@ -1,21 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,8 +19,22 @@ import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -44,6 +42,9 @@ public class MatrixEngineService {
 
 	@Value("${target.config.file}")
 	private File targetConfigFile;
+
+	@Value("${server.port}")
+	private int serverPort;
 
 	@Autowired
 	private IHostMonitoring hostMonitoring;
@@ -65,6 +66,7 @@ public class MatrixEngineService {
 		final HostConfigurationDTO hostConfigurationDTO = readConfiguration(targetConfigFile);
 
 		log.info("MatrixEngineService called for system {}", hostConfigurationDTO.getTarget().getHostname());
+		log.info("Server Port: {}", serverPort);
 
 		final Map<String, Connector> connectors = store.getConnectors();
 		if (connectors == null || connectors.isEmpty()) {
@@ -108,7 +110,7 @@ public class MatrixEngineService {
 			return mapper.readValue(targetConfigFile, HostConfigurationDTO.class);
 		} catch (IOException e) {
 			throw new BusinessException(ErrorCode.CANNOT_READ_CONFIGURATION,
-					"IOException when reading the configuration file: hardware-sentry-config.yml");
+					"IOException when reading the configuration file: " + targetConfigFile.getAbsolutePath());
 		}
 	}
 
@@ -120,24 +122,25 @@ public class MatrixEngineService {
 	 * @param selectedConnectors The connector names, the matrix engine will run
 	 * @return
 	 */
-	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO exporterConfig, final Set<String> selectedConnectors) {
+	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO exporterConfig,
+														final Set<String> selectedConnectors) {
 
 		final HardwareTarget target = exporterConfig.getTarget();
 
 		// The id is the hostname itself
 		target.setId(target.getHostname());
 
-		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
-		protocolConfigurations.putAll(Stream
-				.of(exporterConfig.getSnmp(),
-						exporterConfig.getCiscoUcs(),
-						exporterConfig.getSsh(),
-						exporterConfig.getHttp(),
-						exporterConfig.getWbem(),
-						exporterConfig.getWmi(),
-						exporterConfig.getHttp())
-				.filter(Objects::nonNull)
-				.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
+		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
+			new HashMap<>(Stream
+			.of(exporterConfig.getSnmp(),
+				exporterConfig.getCiscoUcs(),
+				exporterConfig.getSsh(),
+				exporterConfig.getHttp(),
+				exporterConfig.getWbem(),
+				exporterConfig.getWmi(),
+				exporterConfig.getHttp())
+			.filter(Objects::nonNull)
+			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 
 		return EngineConfiguration.builder()
 				.operationTimeout(exporterConfig.getOperationTimeout())
