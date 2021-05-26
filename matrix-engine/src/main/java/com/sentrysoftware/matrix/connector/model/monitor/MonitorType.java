@@ -11,7 +11,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
@@ -43,7 +42,6 @@ public enum MonitorType {
 	CPU("CPU", new Cpu()),
 	CPU_CORE("CpuCore", new CpuCore()),
 	DISK_CONTROLLER("DiskController", new DiskController()),
-	DISK_ENCLOSURE("DiskEnclosure", new DiskEnclosure()),
 	ENCLOSURE("Enclosure", new Enclosure()),
 	FAN("Fan", new Fan()),
 	LED("LED", new Led()),

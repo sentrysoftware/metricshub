@@ -29,7 +29,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskEnclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
@@ -147,11 +146,6 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(DiskController diskController) {
-		createMonitor(buildGenericName(), null);
-	}
-
-	@Override
-	public void visit(DiskEnclosure diskEnclosure) {
 		createMonitor(buildGenericName(), null);
 	}
 

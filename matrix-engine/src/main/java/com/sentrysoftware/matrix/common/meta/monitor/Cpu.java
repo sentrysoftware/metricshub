@@ -19,14 +19,6 @@ public class Cpu implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
-			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
-			.build();
-
-
 	public static final MetaParameter CURRENT_SPEED = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.CURRENT_SPEED_PARAMETER)

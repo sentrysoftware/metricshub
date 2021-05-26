@@ -6,10 +6,18 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 
 public class Robotic implements IMetaMonitor {
+
+	public static final MetaParameter MOVE_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.MOVE_COUNT_PARAMETER)
+			.unit(HardwareConstants.MOVE_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -17,6 +25,9 @@ public class Robotic implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
+		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
+		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(HardwareConstants.MOVE_COUNT_PARAMETER, MOVE_COUNT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

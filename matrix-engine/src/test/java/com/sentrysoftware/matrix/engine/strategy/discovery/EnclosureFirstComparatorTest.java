@@ -31,7 +31,6 @@ class EnclosureFirstComparatorTest {
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();
 	final HardwareMonitor hdfCpuCore = HardwareMonitor.builder().type(MonitorType.CPU_CORE).build();
 	final HardwareMonitor hdfDiskController = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).build();
-	final HardwareMonitor hdfDiskEnclosure = HardwareMonitor.builder().type(MonitorType.DISK_ENCLOSURE).build();
 	final HardwareMonitor hdfFan = HardwareMonitor.builder().type(MonitorType.FAN).build();
 	final HardwareMonitor hdfLed = HardwareMonitor.builder().type(MonitorType.LED).build();
 	final HardwareMonitor hdfLogicalDisk = HardwareMonitor.builder().type(MonitorType.LOGICAL_DISK).build();
@@ -48,18 +47,17 @@ class EnclosureFirstComparatorTest {
 
 	final List<HardwareMonitor> allPossibleConnectorsType = Arrays.asList(
 			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
-			hdfCpuCore, hdfDiskController, hdfDiskEnclosure, hdfFan,
+			hdfCpuCore, hdfDiskController, hdfFan,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory,
 			hdfNetworkCard, hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply,
-			hdfRobotic, hdfTapeDrive, hdfTemperature, hdfVoltage,
-			hdfDiskEnclosure);
+			hdfRobotic, hdfTapeDrive, hdfTemperature, hdfVoltage);
 
 	final List<HardwareMonitor> withoutEnclosure = Arrays.asList(
 			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
-			hdfCpuCore, hdfDiskController, hdfDiskEnclosure, hdfFan,
+			hdfCpuCore, hdfDiskController, hdfFan,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory, hdfNetworkCard,
 			hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply, hdfRobotic,
-			hdfTapeDrive, hdfTemperature, hdfVoltage, hdfDiskEnclosure);
+			hdfTapeDrive, hdfTemperature, hdfVoltage);
 
 	final HardwareMonitor hdfEmptyEnclosure = HardwareMonitor.builder().type(MonitorType.ENCLOSURE).build();
 	final HardwareMonitor hdfEnclosureDiscoveryOnly = HardwareMonitor

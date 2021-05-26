@@ -6,10 +6,18 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 
 public class PowerSupply implements IMetaMonitor {
+
+	public static final MetaParameter USED_CAPACITY = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.USED_CAPACITY_PARAMETER)
+			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -17,6 +25,8 @@ public class PowerSupply implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
+		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
+		map.put(HardwareConstants.USED_CAPACITY_PARAMETER, USED_CAPACITY);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
