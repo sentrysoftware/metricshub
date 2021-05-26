@@ -32,7 +32,7 @@
    ```
 
    ###### Example:
-   ![basic_execution](basic_execution.jpg)
+   ![basic_execution](images/basic_execution.png)
    
    ###### Note:
    By default, the application can be accessed at http://localhost:8080/metrics.
@@ -61,7 +61,7 @@
   $ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar --server.ssl.enabled=true
   ```
    ###### Example:
-   ![enabling_https](enabling_https.jpg)
+   ![enabling_https](images/enabling_https.png)
    
    ###### Note:
    Now, the application can be accessed at http://localhost:8080/metrics, or https://localhost:8443/metrics.
