@@ -33,13 +33,6 @@ public class PhysicalDisk implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
 	public static final MetaParameter HARD_ERROR_COUNT= MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.HARD_ERROR_COUNT_PARAMETER)

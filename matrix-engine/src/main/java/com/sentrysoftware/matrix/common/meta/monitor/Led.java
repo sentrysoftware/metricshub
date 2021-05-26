@@ -33,7 +33,6 @@ public class Led implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-//		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.COLOR_PARAMETER, COLOR);
 		map.put(HardwareConstants.LED_INDICATOR_PARAMETER, LED_INDICATOR);
 

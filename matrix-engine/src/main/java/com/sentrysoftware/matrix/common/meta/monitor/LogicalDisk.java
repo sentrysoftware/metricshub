@@ -18,13 +18,6 @@ public class LogicalDisk implements IMetaMonitor {
 			.unit(HardwareConstants.SPACE_GB_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
-	
-	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -32,7 +25,6 @@ public class LogicalDisk implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
 

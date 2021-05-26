@@ -12,13 +12,6 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 
 public class Robotic implements IMetaMonitor {
 
-	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
 	public static final MetaParameter MOVE_COUNT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.MOVE_COUNT_PARAMETER)

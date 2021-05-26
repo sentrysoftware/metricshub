@@ -181,7 +181,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(led);
 
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.COLOR_PARAMETER,
 				HardwareConstants.LED_INDICATOR_PARAMETER);
 	}
@@ -191,7 +190,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(logicalDisk);
 
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
 	}
@@ -278,7 +276,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(tapeDrive);
 
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 

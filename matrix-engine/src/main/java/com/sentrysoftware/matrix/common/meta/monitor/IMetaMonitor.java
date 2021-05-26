@@ -29,6 +29,14 @@ public interface IMetaMonitor {
 			.type(ParameterType.STATUS)
 			.build();
 
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+
 	void accept(IMonitorVisitor monitorVisitor);
 
 	Map<String, MetaParameter> getMetaParameters();
