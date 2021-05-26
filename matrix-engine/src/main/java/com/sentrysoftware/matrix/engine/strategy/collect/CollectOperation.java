@@ -16,10 +16,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,7 +73,15 @@ public class CollectOperation extends AbstractStrategy {
 		// loop over each connector then run its collect jobs
 		connectors.stream()
 		.filter(connector -> super.validateHardwareMonitors(connector, hostname, NO_HW_MONITORS_FOUND_MSG))
-		.forEach(connector -> collect(connector, hostMonitoring, hostname));
+		.forEach(connector -> {
+
+			// Get the connector monitor
+			final Monitor connectorMonitor = connectorMonitors.values().stream()
+			.filter(monitor -> connector.getCompiledFilename().equals(monitor.getName()))
+			.findFirst().orElseThrow();
+
+			collect(connector, connectorMonitor, hostMonitoring, hostname);
+		});
 
 		return true;
 	}
@@ -78,12 +89,17 @@ public class CollectOperation extends AbstractStrategy {
 	/**
 	 * Run the collect for the given connector
 	 * 
-	 * @param connector      The connector we wish to interpret and collect
-	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
-	 * @param hostname       The system hostname
+	 * @param connector        The connector we wish to interpret and collect
+	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
+	 * @param hostMonitoring   The monitors container, it also wraps the {@link SourceTable} objects
+	 * @param hostname         The system hostname
 	 */
-	void collect(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname) {
+	void collect(final Connector connector, final Monitor connectorMonitor,
+			final IHostMonitoring hostMonitoring, final String hostname) {
 		log.debug("Collect - Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
+
+		// Re-test the connector and collect the connector monitor
+		collectConnectorMonitor(connector, connectorMonitor, hostname);
 
 		// The parallel stream might need to be disabled, i.e. configured by the user
 		connector
@@ -91,6 +107,32 @@ public class CollectOperation extends AbstractStrategy {
 		.parallelStream()
 		.filter(hardwareMonitor -> validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname))
 		.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
+	}
+
+	/**
+	 * Run the collect for the given <code>connectorMonitor</code>
+	 * 
+	 * @param connector        The connector we wish to test
+	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
+	 * @param hostname         The system hostname
+	 */
+	void collectConnectorMonitor(final Connector connector, final Monitor connectorMonitor, final String hostname) {
+
+		log.debug("Start Connector Monitor {} Collect.", connectorMonitor.getId());
+
+		log.debug("Start Connector {} Test.", connector.getCompiledFilename());
+
+		final TestedConnector testedConnector = super.testConnector(connector, hostname);
+
+		log.debug("End of Test for Connector {}. Test Status: {}.", connector.getCompiledFilename(), getTestedConnectorStatus(testedConnector));
+
+		final StatusParam status = super.buildStatusParamForConnector(testedConnector);
+		final TextParam testReport = super.buildTestReportParameter(hostname, testedConnector);
+
+		connectorMonitor.addParameter(status);
+		connectorMonitor.addParameter(testReport);
+
+		log.debug("End of the Connector Monitor {} Collect. Status: {}", connectorMonitor.getId(), status.getStatus());
 	}
 
 	/**

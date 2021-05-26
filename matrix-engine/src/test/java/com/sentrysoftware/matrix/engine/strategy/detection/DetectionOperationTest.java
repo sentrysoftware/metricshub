@@ -307,22 +307,22 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testProcessDetectionNoDetectionNoCriteria() {
+	void testTestConnectorNoDetectionNoCriteria() {
 		{
 			final Connector connector = Connector.builder().detection(null).build();
-			final TestedConnector actual = detectionOperation.processDetection(connector, ECS1_01);
+			final TestedConnector actual = detectionOperation.testConnector(connector, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector).build(), actual);
 		}
 
 		{
 			final Connector connector1 = Connector.builder()
 					.detection(Detection.builder().criteria(Collections.emptyList()).build()).build();
-			final TestedConnector actual1 = detectionOperation.processDetection(connector1, ECS1_01);
+			final TestedConnector actual1 = detectionOperation.testConnector(connector1, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector1).build(), actual1);
 
 			final Connector connector2 = Connector.builder().detection(Detection.builder().criteria(null).build())
 					.build();
-			final TestedConnector actual2 = detectionOperation.processDetection(connector2, ECS1_01);
+			final TestedConnector actual2 = detectionOperation.testConnector(connector2, ECS1_01);
 			assertEquals(TestedConnector.builder().connector(connector2).build(), actual2);
 		}
 	}

@@ -8,13 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
@@ -22,8 +19,6 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.AbstractParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
@@ -31,9 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
-
-	@Autowired
-	private ICriterionVisitor criterionVisitor;
 
 	@Override
 	public Boolean call() throws Exception {
@@ -130,7 +122,6 @@ public class DetectionOperation extends AbstractStrategy {
 	void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) {
 		// Loop over the testedConnecotrs and create them in the HostMonitoring instance
 		testedConnectorList.forEach(testedConnector -> createConnector(target, testedConnector));
-		
 	}
 
 	/**
@@ -150,52 +141,13 @@ public class DetectionOperation extends AbstractStrategy {
 				.parentId(target.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
 
-		final AbstractParam testReport = buildTestReportParameter(target, testedConnector);
-		final StatusParam statusParam = buildStatusParam(testedConnector);
+		final TextParam testReport = buildTestReportParameter(target.getName(), testedConnector);
+		final StatusParam statusParam = buildStatusParamForConnector(testedConnector);
 
 		monitor.addParameter(testReport);
 		monitor.addParameter(statusParam);
 
 		hostMonitoring.addMonitor(monitor);
-	}
-
-	/**
-	 * Build status parameter for the given {@link TestedConnector} 
-	 * @param testedConnector
-	 * @return {@link StatusParam} instance
-	 */
-	StatusParam buildStatusParam(final TestedConnector testedConnector) {
-		boolean success = testedConnector.isSuccess();
-		return StatusParam.builder().collectTime(strategyTime).name(HardwareConstants.STATUS_PARAMETER)
-				.state(success ? ParameterState.OK : ParameterState.ALARM)
-				.statusInformation(success ? "Connector test succeeded" : "Connector test failed").build();
-	}
-
-	/**
-	 * Build test report parameter for the given {@link TestedConnector}
-	 * @param target
-	 * @param testedConnector
-	 * @return {@link TextParam} instance
-	 */
-	AbstractParam buildTestReportParameter(final Monitor target, final TestedConnector testedConnector) {
-		final TextParam testReport = TextParam.builder().collectTime(strategyTime).name(HardwareConstants.TEST_REPORT_PARAMETER).parameterState(ParameterState.OK).build();
-
-		final StringBuilder value = new StringBuilder();
-
-		final String builtTestResult = testedConnector.getCriterionTestResults().stream()
-						.map(criterionResult -> String.format("Received Result: %s. %s", criterionResult.getResult(),
-								criterionResult.getMessage()))
-						.collect(Collectors.joining("\n"));
-		value.append(builtTestResult)
-				.append("\nConclusion: ")
-				.append("TEST on ")
-				.append(target.getName())
-				.append(" ")
-				.append(testedConnector.isSuccess() ? "SUCCEEDED" : "FAILED");
-
-		testReport.setValue(value.toString());
-
-		return testReport;
 	}
 
 	/**
@@ -300,59 +252,12 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @return {@link Stream} of {@link Connector} instances
 	 */
 	Stream<TestedConnector> detectConnectors(final Stream<Connector> stream, final String hostname) {
-		return stream.parallel().map(c -> processDetection(c, hostname));
-	}
-
-	/**
-	 * Run the given connector detection criteria and return true if all the
-	 * criterion are successfully executed.
-	 * 
-	 * @param connector
-	 * @param hostname
-	 * @return <code>true</code> if the connector matches the platform
-	 */
-	TestedConnector processDetection(final Connector connector, final String hostname) {
-
-		log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
-		final Detection detection = connector.getDetection();
-
-		final TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
-
-		if (null == detection) {
-			log.warn("The connector {} DOES NOT match {}'s platform as it has no detection to test.",
-					connector.getCompiledFilename(), hostname);
+		return stream.parallel().map(connector -> { 
+			log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
+			final TestedConnector testedConnector = testConnector(connector, hostname);
+			log.debug("End of Detection for Connector {}. Detection Status: {}", connector.getCompiledFilename(), getTestedConnectorStatus(testedConnector));
 			return testedConnector;
-		}
-		final List<Criterion> criteria = detection.getCriteria();
-
-		if (null == criteria || criteria.isEmpty()) {
-			log.warn("The connector {} DOES NOT match {}'s platform as it has no criteria to test.",
-					connector.getCompiledFilename(), hostname);
-			return testedConnector;
-		}
-
-		for (Criterion criterion : criteria) {
-			CriterionTestResult critetionTestResult = processCriterion(criterion);
-			if (!critetionTestResult.isSuccess()) {
-				log.debug("The connector {} DOES NOT match {}'s platform.", connector.getCompiledFilename(), hostname);
-			}
-
-			testedConnector.getCriterionTestResults().add(critetionTestResult);
-		}
-
-		return testedConnector;
-	}
-
-	/**
-	 * Accept the criterion visitor which implement the logic that needs to be
-	 * executed for each criterion implementation
-	 * 
-	 * @param criterion
-	 * @return <code>true</code> if the criterion execution succeeded
-	 */
-	CriterionTestResult processCriterion(final Criterion criterion) {
-
-		return criterion.accept(criterionVisitor);
+		});
 	}
 
 	/**
