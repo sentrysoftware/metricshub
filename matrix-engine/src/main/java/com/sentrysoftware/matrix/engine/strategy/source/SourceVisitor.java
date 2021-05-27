@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,42 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
+		if (snmpGetSource == null || snmpGetSource.getOid() == null) {
+			return SourceTable.empty();
+		}
+
+		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class));
+
+		if (!snmpProtocolOpt.isPresent()) {
+			return SourceTable.empty();
+		}
+
+		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+
+			final String result = matsyaClientsExecutor.executeSNMPGet(
+					snmpGetSource.getOid(),
+					protocol,
+					hostname,
+					true);
+
+			if (result != null) {
+					return SourceTable
+							.builder()
+							.table(Stream.of(Stream.of(result).collect(Collectors.toList())).collect(Collectors.toList()))
+							.build();
+			}
+
+		} catch (Exception e) {
+			final String message = String.format(
+					"SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an exception. Message: %s.",
+					snmpGetSource.getOid(), hostname, e.getMessage());
+			log.debug(message, e);
+		}
+
 		return SourceTable.empty();
 	}
 
@@ -78,7 +115,7 @@ public class SourceVisitor implements ISourceVisitor {
 		SourceTable sourceTable = new SourceTable();
 		List<String> selectedColumns = snmpGetTableSource.getSnmpTableSelectColumns();
 
-		if(selectedColumns == null) {
+		if (selectedColumns == null) {
 			return SourceTable.empty();
 		}
 		String[] selectColumnArray = new String[selectedColumns.size()];
