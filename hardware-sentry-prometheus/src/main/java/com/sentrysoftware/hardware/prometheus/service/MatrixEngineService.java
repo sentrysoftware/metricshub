@@ -46,16 +46,13 @@ public class MatrixEngineService {
 	@Value("${target.config.file}")
 	private File targetConfigFile;
 
-	@Value("${server.port}")
+	@Value("${server.port:8080}")
 	private int serverPort;
 
-	@Value("${http.port:0}")
+	@Value("${http.port:8080}")
 	private int httpPort;
 
-	@Value("${target.id}")
-	private String targetId;
-
-	@Value("${debugMode}")
+	@Value("${debugMode:false}")
 	private boolean debugMode;
 
 	@Value("${server.ssl.enabled:false}")
@@ -77,13 +74,12 @@ public class MatrixEngineService {
 	 */
 	public void performJobs() throws BusinessException {
 
-		// Set the context for the logger
-		ThreadContext.put("targetId", targetId);
-		ThreadContext.put("debugMode", String.valueOf(debugMode));
-		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
 
 		// Read the configuration
 		final HostConfigurationDTO hostConfigurationDTO = readConfiguration(targetConfigFile);
+
+		// Set the context for the logger
+		configureLoggerContext(hostConfigurationDTO);
 
 		log.info("MatrixEngineService called for system {}", hostConfigurationDTO.getTarget().getHostname());
 		log.info("Server Port: {}", serverPort);
@@ -225,6 +221,17 @@ public class MatrixEngineService {
 				.stream()
 				.map(f -> f.substring(0, f.lastIndexOf('.')))
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Configure the logger context with the targetId, port and debugMode.
+	 *
+	 * @param hostConfigurationDTO
+	 */
+	private void configureLoggerContext(HostConfigurationDTO hostConfigurationDTO) {
+		ThreadContext.put("targetId", hostConfigurationDTO.getTarget().getHostname());
+		ThreadContext.put("debugMode", String.valueOf(debugMode));
+		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
 	}
 
 }

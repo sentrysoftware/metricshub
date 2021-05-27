@@ -7,7 +7,7 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<!-- Format of the output log -->
 			<PatternLayout
-				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:port}] %X %m%n" />
 		</Console>
 		<Routing name="Routing">
 			<Routes pattern="$${ctx:debugMode}">
@@ -24,7 +24,7 @@
 						</Policies>
 						<DefaultRolloverStrategy>
 							<Delete basePath="${baseDir}" maxDepth="3">
-								<IfFileName glob="*/*hardware-sentry-cli*.log.gz" />
+								<IfFileName glob="*/*hardware-sentry-prometheus*.log.gz" />
 								<IfLastModified age="2d" />
 							</Delete>
 						</DefaultRolloverStrategy>
