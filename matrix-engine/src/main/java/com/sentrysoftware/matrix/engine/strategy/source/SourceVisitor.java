@@ -97,7 +97,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		} catch (Exception e) {
 			final String message = String.format(
-					"SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an exception. Message: %s.",
+					"SNMP Get Source of %s on %s was unsuccessful due to an exception. Message: %s.",
 					snmpGetSource.getOid(), hostname, e.getMessage());
 			log.debug(message, e);
 		}
