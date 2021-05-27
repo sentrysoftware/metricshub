@@ -13,9 +13,4 @@ class HardwareSentryPrometheusAppTest {
 		assertDoesNotThrow(() -> {}); 
 	}
 
-	@Test
-	void testMain() {
-
-		assertDoesNotThrow(() -> HardwareSentryPrometheusApp.main(new String[]{}));
-	}
 }
