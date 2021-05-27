@@ -1,6 +1,7 @@
 target:
   config:
     file: hardware-sentry-config.yml
+  id: ecs1-01
 server:
   port: 8080
 debugMode: false

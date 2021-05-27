@@ -5,11 +5,6 @@
 	</Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<!-- The console only outputs errors -->
-			<!-- Right now the console display is disabled, but it can be activated 
-				by replacing onMatch="DENY" by onMatch="ACCEPT" -->
-			<ThresholdFilter level="error" onMatch="DENY"
-				onMismatch="DENY" />
 			<!-- Format of the output log -->
 			<PatternLayout
 				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
@@ -19,10 +14,10 @@
 				<!-- This route is chosen if ThreadContext has debugMode = true. -->
 				<Route key="true">
 					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${baseDir}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd}.log"
-						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+						fileName="${baseDir}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd}.log"
+						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout
-							pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+							pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:port}] %X %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
 							<SizeBasedTriggeringPolicy size="30 MB" />
@@ -42,7 +37,7 @@
 		<logger name="com.sentrysoftware" level="trace">
 			<appender-ref ref="Routing" />
 		</logger>
-		<Root level="error">
+		<Root level="info">
 			<AppenderRef ref="Console" />
 		</Root>
 	</Loggers>

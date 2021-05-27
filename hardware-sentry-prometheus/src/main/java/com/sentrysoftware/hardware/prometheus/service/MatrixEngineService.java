@@ -1,5 +1,22 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -19,22 +36,8 @@ import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -45,6 +48,18 @@ public class MatrixEngineService {
 
 	@Value("${server.port}")
 	private int serverPort;
+
+	@Value("${http.port:0}")
+	private int httpPort;
+
+	@Value("${target.id}")
+	private String targetId;
+
+	@Value("${debugMode}")
+	private boolean debugMode;
+
+	@Value("${server.ssl.enabled:false}")
+	private boolean sslEnabled;
 
 	@Autowired
 	private IHostMonitoring hostMonitoring;
@@ -61,6 +76,11 @@ public class MatrixEngineService {
 	 * @throws BusinessException
 	 */
 	public void performJobs() throws BusinessException {
+
+		// Set the context for the logger
+		ThreadContext.put("targetId", targetId);
+		ThreadContext.put("debugMode", String.valueOf(debugMode));
+		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
 
 		// Read the configuration
 		final HostConfigurationDTO hostConfigurationDTO = readConfiguration(targetConfigFile);
