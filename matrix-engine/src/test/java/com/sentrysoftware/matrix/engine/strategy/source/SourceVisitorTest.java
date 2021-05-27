@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -95,9 +96,36 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetSource() {
+	void testVisitSNMPGetSource() throws InterruptedException, ExecutionException, TimeoutException {
+		assertEquals(SourceTable.empty(), sourceVisitor.visit( SNMPGetSource.builder().oid(null).build()));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetSource.builder().oid(OID).build()));
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new SNMPGetSource()));
+		
+		// no snmp protocol
+		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor
+				.visit(SNMPGetSource.builder().oid(OID).build()));
+
+		// classic case
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(ECS1_01).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(true));
+		final SourceTable actual = sourceVisitor
+				.visit(SNMPGetSource.builder().oid(OID).build());
+		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01)))
+				.build();
+		assertEquals(expected, actual);
+
+		// test that the exception is correctly caught and still return a result
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		when(matsyaClientsExecutor.executeSNMPGet(any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetSource.builder().oid(OID).build()));
+
 	}
+
 
 	@Test
 	void testVisitSNMPGetTableNullArgs() throws Exception {
