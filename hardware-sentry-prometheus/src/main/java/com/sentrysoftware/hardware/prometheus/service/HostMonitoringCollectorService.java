@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +43,12 @@ public class HostMonitoringCollectorService extends Collector {
 	@Autowired
 	private IHostMonitoring hostMonitoring;
 
-	private static final Map<ParameterType, BiFunction<Monitor, String, Boolean>> PARAMETER_TYPE_PREDICATES;
+	private static final Map<ParameterType, BiPredicate<Monitor, String>> PARAMETER_TYPE_PREDICATES;
 	private static final Map<ParameterType, TriConsumer<GaugeMetricFamily, Monitor, String>> PARAMETER_TYPE_CONSUMERS;
 	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
 
 	static {
-		final Map<ParameterType, BiFunction<Monitor, String, Boolean>> predicates = new EnumMap<>(ParameterType.class);
+		final Map<ParameterType, BiPredicate<Monitor, String>> predicates = new EnumMap<>(ParameterType.class);
 
 		predicates.put(ParameterType.STATUS, HostMonitoringCollectorService::checkStatusParameter);
 		predicates.put(ParameterType.NUMBER, HostMonitoringCollectorService::checkNumberParameter);
@@ -189,7 +189,10 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
 	 */
 	static Boolean isParameterAvailable(final MetaParameter metaParameter, final Monitor monitor) {
-		return PARAMETER_TYPE_PREDICATES.get(metaParameter.getType()).apply(monitor, metaParameter.getName());
+
+		final BiPredicate<Monitor, String> biPredicate = PARAMETER_TYPE_PREDICATES.get(metaParameter.getType());
+		return biPredicate != null && biPredicate.test(monitor, metaParameter.getName());
+
 	}
 
 	/**

@@ -74,14 +74,14 @@ public class ComputeVisitor implements IComputeVisitor {
 	static {
 		final Map<Class<? extends Compute>, BiFunction<String, String, String>> map = new HashMap<>();
 		map.put(Add.class,
-				(op1, op2) -> Integer.toString(Integer.parseInt(op1) + Integer.parseInt(op2)));
+				(op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)));
 		map.put(Multiply.class,
-				(op1, op2) -> Integer.toString(Integer.parseInt(op1) * Integer.parseInt(op2)));
+				(op1, op2) -> Double.toString(Double.parseDouble(op1) * Double.parseDouble(op2)));
 		map.put(Divide.class,
 				(op1, op2) -> {
-					int op2Value = Integer.parseInt(op2);
+					Double op2Value = Double.parseDouble(op2);
 					if(op2Value != 0) {
-						return Integer.toString(Integer.parseInt(op1) / op2Value);
+						return Double.toString(Double.parseDouble(op1) / op2Value);
 					}
 					return null;
 				});
@@ -679,7 +679,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @param operand2 can be a reference to another column or a raw value
 	 */
 	private void performMathematicalOperation(final Compute computeOperation, Integer column, String operand2) {
-		
+
 		if (!MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass())) {
 			log.warn("The compute operation must be one of : Add, Multiply, Divide.");
 			return;
@@ -750,7 +750,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		try {
 			if(MATH_FUNCTIONS_MAP.containsKey(computeOperation)) {
 				String resultFunction = MATH_FUNCTIONS_MAP.get(computeOperation).apply(op1, op2);
-				if ( resultFunction != null) {
+				if (resultFunction != null) {
 					line.set(columnIndex, resultFunction);
 				}
 			}
