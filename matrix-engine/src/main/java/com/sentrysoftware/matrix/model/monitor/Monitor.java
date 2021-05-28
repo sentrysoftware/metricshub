@@ -1,10 +1,9 @@
 package com.sentrysoftware.matrix.model.monitor;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.springframework.util.Assert;
-
-import java.util.Map;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
@@ -43,6 +42,10 @@ public class Monitor {
 		Assert.notNull(key, "key cannot be null");
 
 		metadata.put(key, value);
+	}
+
+	public <T> T getParameter(final String parameterName, final Class<T> type) {
+		return type.cast(parameters.get(parameterName));
 	}
 
 }

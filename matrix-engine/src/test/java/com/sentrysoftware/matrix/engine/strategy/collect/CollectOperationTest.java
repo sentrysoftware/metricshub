@@ -59,7 +59,7 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
 
-	private static final String ENERGY_USAGE_15000_JOULES = "15000";
+	private static final String POWER_CONSUMPTION_WATTS = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
 	private static final String VALUETABLE_COLUMN_10 = "Valuetable.Column(10)";
@@ -72,7 +72,7 @@ class CollectOperationTest {
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
-	private static final String ENERGY_USAGE = "energyUsage";
+	private static final String POWER_CONSUMPTION = "powerConsumption";
 	private static final String CONNECTOR_NAME = "myConnector.connector";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
@@ -121,7 +121,7 @@ class CollectOperationTest {
 			OK_RAW_STATUS,
 			OPERABLE,
 			OK_RAW_STATUS,
-			ENERGY_USAGE_15000_JOULES);
+			POWER_CONSUMPTION_WATTS);
 
 	@BeforeAll
 	public static void setUp() {
@@ -152,7 +152,7 @@ class CollectOperationTest {
 		parameters.put(HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2);
 		parameters.put(HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
 		parameters.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4);
-		parameters.put(HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_5);
+		parameters.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_NAME);
@@ -194,8 +194,12 @@ class CollectOperationTest {
 
 			final Monitor enclosure = buildEnclosure(metadata);
 
-			final IParameterValue parameter = NumberParam.builder().name(ENERGY_USAGE)
-					.collectTime(strategyTime).value(100.0).build();
+			final IParameterValue parameter = NumberParam.builder()
+					.name(POWER_CONSUMPTION)
+					.collectTime(strategyTime)
+					.value(100.0)
+					.rawValue(100.0)
+					.build();
 			enclosure.addParameter(parameter);
 
 			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
@@ -206,15 +210,15 @@ class CollectOperationTest {
 			final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 			assertNotNull(result);
 
-			final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(ENERGY_USAGE);
+			final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
 			
 			assertNull(parameterAfterReset.getCollectTime());
-			assertEquals(strategyTime, parameterAfterReset.getLastCollectTime());
-			assertEquals(ENERGY_USAGE, parameterAfterReset.getName());
+			assertEquals(strategyTime, parameterAfterReset.getPreviousCollectTime());
+			assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
 			assertEquals(ParameterState.OK, parameterAfterReset.getState());
 			assertNull(parameterAfterReset.getThreshold());
 			assertNull(parameterAfterReset.getValue());
-			assertEquals(100.0, parameterAfterReset.getLastValue());
+			assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
 		}
 	}
 
@@ -626,7 +630,7 @@ class CollectOperationTest {
 				HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
 				HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
 				HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_5);
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 		final Collect collect = Collect
 				.builder()
 				.valueTable(VALUE_TABLE)
@@ -650,7 +654,7 @@ class CollectOperationTest {
 				.append("\n")
 				.append("intrusionStatus: 0 (No Intrusion Detected)")
 				.append("\n")
-				.append("energyUsage: 15000.0 Joules")
+				.append("powerConsumption: 150.0 Watts")
 				.toString();
 
 		final IParameterValue statusParam = StatusParam
@@ -673,14 +677,15 @@ class CollectOperationTest {
 				.build();
 		expected.addParameter(intructionStatusParam);
 
-		final IParameterValue energyUsage = NumberParam
+		final IParameterValue powerConsumption = NumberParam
 				.builder()
-				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
+				.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
 				.collectTime(strategyTime)
-				.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
-				.value(15000D)
+				.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+				.value(150D)
+				.rawValue(150D)
 				.build();
-		expected.addParameter(energyUsage);
+		expected.addParameter(powerConsumption);
 		return expected;
 	}
 
@@ -705,7 +710,8 @@ class CollectOperationTest {
 			final Monitor expectedEnclosure = buildEnclosure(metadata);
 			hostMonitoring.addMonitor(expectedEnclosure);
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME,
+					hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -720,7 +726,8 @@ class CollectOperationTest {
 			hostMonitoring.addMonitor(expectedEnclosure);
 			hostMonitoring.addSourceTable(VALUE_TABLE, SourceTable.empty());
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+					parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -739,7 +746,8 @@ class CollectOperationTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+				parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 

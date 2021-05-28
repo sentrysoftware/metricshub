@@ -19,7 +19,9 @@ public interface IHostMonitoring {
 
 	void setPreviousMonitors(Map<MonitorType, Map<String, Monitor>> previousMonitors);
 
-	void clear();
+	void clearCurrent();
+
+	void clearPrevious();
 
 	void backup();
 
@@ -33,7 +35,7 @@ public interface IHostMonitoring {
 
 	Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType);
 
-	String toJsonString();
+	String toJson();
 
 	void addSourceTable(String key, SourceTable sourceTable);
 
@@ -43,4 +45,5 @@ public interface IHostMonitoring {
 			String attachedToDeviceId, String attachedToDeviceType);
 
 	void resetParameters();
+
 }

@@ -20,7 +20,7 @@ public class Enclosure implements IMetaMonitor {
 			.build();
 
 	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
 			.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)

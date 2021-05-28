@@ -29,12 +29,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
@@ -287,8 +289,21 @@ class HostMonitoringCollectorServiceTest {
 						.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParamToReset))
 						.build();
 			assertFalse(HostMonitoringCollectorService.isParameterAvailable(Enclosure.STATUS, monitor));
+
 		}
 
+		{
+			TextParam textParam = TextParam.builder().name(HardwareConstants.TEST_REPORT_PARAMETER).value("text").build();
+			final Monitor monitor = Monitor.builder()
+						.id(ID_VALUE)
+						.parentId(PARENT_ID_VALUE)
+						.name(LABEL_VALUE)
+						.parameters(Map.of(HardwareConstants.TEST_REPORT_PARAMETER, textParam))
+						.build();
+			assertFalse(HostMonitoringCollectorService.isParameterAvailable(MetaConnector.TEST_REPORT, monitor));
+
+		}
+		
 	}
 
 	@Test

@@ -40,6 +40,7 @@
 		<picocli-spring-boot.version>4.6.1</picocli-spring-boot.version>
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<prometheus-client.version>0.10.0</prometheus-client.version>
+		<jackson.version>2.12.3</jackson.version>
 	</properties>
 
 	<modules>
@@ -170,9 +171,24 @@
 				<version>${prometheus-client.version}</version>
 			</dependency>
 			<dependency>
-		    	<groupId>io.prometheus</groupId>
-   				<artifactId>simpleclient_common</artifactId>
+				<groupId>io.prometheus</groupId>
+				<artifactId>simpleclient_common</artifactId>
 				<version>${prometheus-client.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

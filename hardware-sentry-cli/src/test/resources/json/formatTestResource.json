@@ -15,7 +15,8 @@
         "state" : "OK",
         "unit" : null,
         "status" : 0,
-        "statusInformation" : "OK"
+        "statusInformation" : "OK",
+        "previousState" : null
       }
     },
     "metadata" : { }
@@ -34,7 +35,8 @@
         "state" : "WARN",
         "unit" : null,
         "status" : 1,
-        "statusInformation" : "WARNING"
+        "statusInformation" : "WARNING",
+        "previousState" : null
       }
     },
     "metadata" : { }
@@ -53,7 +55,8 @@
         "state" : "OK",
         "unit" : null,
         "status" : 0,
-        "statusInformation" : "OK"
+        "statusInformation" : "OK",
+        "previousState" : null
       }
     },
     "metadata" : { }
