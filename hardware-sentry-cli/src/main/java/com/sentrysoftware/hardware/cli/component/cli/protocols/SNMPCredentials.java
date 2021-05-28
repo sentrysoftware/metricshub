@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 
 @Data
 public class SNMPCredentials {
-	@Option(names = "--snmp-version", defaultValue = "V1", description = "SNMP version : v1, v2c, v3- No Authentication, v3-MD5, v3-SHA.")
+	@Option(names = "--snmp-version", defaultValue = "V1", description = "SNMP version : V1, V2C, V3_NO_AUTH, V3_MD5, V3_SHA.")
 	SNMPProtocol.SNMPVersion snmpVersion;
 	@Option(names = "--snmp-port", defaultValue = "161", description = "SNMP Port, default : 161.")
 	int port;
