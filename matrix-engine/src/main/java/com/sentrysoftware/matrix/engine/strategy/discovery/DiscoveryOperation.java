@@ -1,5 +1,15 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -14,20 +24,9 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -35,6 +34,24 @@ public class DiscoveryOperation extends AbstractStrategy {
 	private static final String NO_HW_MONITORS_FOUND_MSG = "Could not discover system {}. No hardware monitors found in the connector {}";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
+
+	@Override
+	public void prepare() {
+
+		strategyConfig
+			.getHostMonitoring()
+			.backup();
+
+		strategyConfig
+			.getHostMonitoring()
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.forEach(monitor ->
+				resetPresentParam(monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)));
+	}
 
 	@Override
 	public Boolean call() throws Exception {
@@ -377,9 +394,18 @@ public class DiscoveryOperation extends AbstractStrategy {
 	@Override
 	public void post() {
 
-		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		// Missing monitors
+		handleMissingMonitorDetection(strategyConfig.getHostMonitoring());
+	}
 
-		Set<Monitor> previousMonitors = hostMonitoring
+	/**
+	 * Detect Missing Monitors 
+	 * 
+	 * @param hostMonitoring The wrapper of the monitors
+	 */
+	void handleMissingMonitorDetection(final IHostMonitoring hostMonitoring) {
+
+		final Set<Monitor> previousMonitors = hostMonitoring
 			.getPreviousMonitors()
 			.values()
 			.stream()
@@ -387,7 +413,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			.flatMap(Collection::stream)
 			.collect(Collectors.toSet());
 
-		Set<Monitor> currentMonitors = hostMonitoring
+		final Set<Monitor> currentMonitors = hostMonitoring
 			.getMonitors()
 			.values()
 			.stream()
@@ -395,7 +421,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			.flatMap(Collection::stream)
 			.collect(Collectors.toSet());
 
-		Set<String> currentMonitorIds = currentMonitors
+		final Set<String> currentMonitorIds = currentMonitors
 			.stream()
 			.map(Monitor::getId)
 			.collect(Collectors.toSet());
@@ -408,38 +434,36 @@ public class DiscoveryOperation extends AbstractStrategy {
 			.filter(monitor -> monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class) != null)
 			.filter(monitor ->
 				monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).getPresent() == null)
-			.forEach(this::setAsMissing);
+			.forEach(Monitor::setAsMissing);
 	}
 
-	private void processMissing(Monitor monitor, Set<String> currentMonitorIds, IHostMonitoring hostMonitoring) {
+	/**
+	 * Process missing monitor
+	 * 
+	 * @param previousMonitor   The previous monitor instance we wish to check
+	 * @param currentMonitorIds The current identifiers of the discovered monitor instances
+	 * @param hostMonitoring    The monitors wrapper
+	 */
+	static void processMissing(final Monitor previousMonitor, final Set<String> currentMonitorIds,
+			final IHostMonitoring hostMonitoring) {
 
-		if (!currentMonitorIds.contains(monitor.getId())
-			&& monitor.getMonitorType().getMetaMonitor().hasPresentParameter()) {
-
-			monitor.addParameter(PresentParam.builder().state(ParameterState.WARN).build());
-
-			Map<String, Monitor> monitorTypeMonitors = hostMonitoring
-				.getMonitors()
-				.get(monitor.getMonitorType());
-
-			if (monitorTypeMonitors == null) {
-
-				hostMonitoring
-					.getMonitors()
-					.put(monitor.getMonitorType(), new LinkedHashMap<>(Map.of(monitor.getId(), monitor)));
-
-			} else {
-
-				monitorTypeMonitors.put(monitor.getId(), monitor);
-			}
+		if (currentMonitorIds.contains(previousMonitor.getId())) {
+			return;
 		}
+
+		hostMonitoring.addMissingMonitor(previousMonitor);
 	}
 
-	private void setAsMissing(Monitor monitor) {
+	/**
+	 * Reset the present parameter
+	 * 
+	 * @param presentParam The parameter we wish to reset
+	 */
+	static void resetPresentParam(final PresentParam presentParam) {
 
-		monitor
-			.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)
-			.setPresent(0);
+		if (presentParam != null) {
+			presentParam.discoveryReset();
+		}
 	}
 
 	@Override
@@ -447,28 +471,4 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Not implemented yet
 	}
 
-	@Override
-	public void prepare() {
-
-		strategyConfig
-			.getHostMonitoring()
-			.backup();
-
-		strategyConfig
-			.getHostMonitoring()
-			.getMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.forEach(monitor ->
-				resetPresentParam(monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)));
-	}
-
-	private void resetPresentParam(PresentParam presentParam) {
-
-		if (presentParam != null) {
-			presentParam.discoveryReset();
-		}
-	}
 }

@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -499,6 +500,31 @@ public class CollectOperation extends AbstractStrategy {
 		return true;
 	}
 
+	/**
+	 * Refresh the collect time of the {@link PresentParam} in the given monitor instance
+	 * @param monitor
+	 */
+	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
+		final PresentParam presentParam = monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		if (presentParam != null) {
+			presentParam.setCollectTime(collectTime);
+		}
+	}
+
+	/**
+	 * Set the collect time in all the present parameters
+	 */
+	private void refreshPresentParameters() {
+		strategyConfig.getHostMonitoring()
+		.getMonitors()
+		.values()
+		.stream()
+		.map(Map::values)
+		.flatMap(Collection::stream)
+		.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
+		.forEach(monitor -> refreshPresentCollectTime(monitor, strategyTime));
+	}
+
 	@Override
 	public void release() {
 		// Not implemented yet
@@ -506,7 +532,10 @@ public class CollectOperation extends AbstractStrategy {
 
 	@Override
 	public void post() {
-		// Not implemented yet
+		// Refresh present parameters
+		refreshPresentParameters();
 	}
+
+
 
 }

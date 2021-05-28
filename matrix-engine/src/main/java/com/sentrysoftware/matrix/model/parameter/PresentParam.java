@@ -42,9 +42,28 @@ public class PresentParam extends AbstractParam {
 			: "present: 0 (Missing)";
 	}
 
+	/**
+	 * Reset present and previous state
+	 */
 	public void discoveryReset() {
 
 		present = null;
 		previousState = getState();
+
+		super.reset();
+	}
+
+	/**
+	 * @return A new {@link PresentParam} with state = OK - present
+	 */
+	public static PresentParam present() {
+		return PresentParam.builder().state(ParameterState.OK).build();
+	}
+
+	/**
+	 * @return A new {@link PresentParam} with state = ALARM - missing
+	 */
+	public static PresentParam missing() {
+		return PresentParam.builder().state(ParameterState.ALARM).build();
 	}
 }

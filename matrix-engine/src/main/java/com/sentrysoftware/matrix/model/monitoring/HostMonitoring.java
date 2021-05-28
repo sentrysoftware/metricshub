@@ -10,8 +10,6 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
@@ -75,11 +73,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
 
-		monitor.addParameter(
-			PresentParam
-				.builder()
-				.state(ParameterState.OK)
-				.build());
+		// The monitor is created then it is present
+		monitor.setAsPresent();
 
 		if (monitors.containsKey(monitorType)) {
 
@@ -120,7 +115,8 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void addMonitor(final Monitor monitor, final String id, final String connectorName, final MonitorType monitorType,
+	public synchronized void addMonitor(final Monitor monitor, final String id,
+			final String connectorName, final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
@@ -303,5 +299,29 @@ public class HostMonitoring implements IHostMonitoring {
 				sameTypeMonitors -> sameTypeMonitors.values().forEach(
 						mo -> mo.getParameters().values().forEach(
 								IParameterValue::reset)));
+	}
+
+	@Override
+	public synchronized void addMissingMonitor(Monitor monitor) {
+		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
+
+		final String id = monitor.getId();
+		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
+
+		final MonitorType monitorType = monitor.getMonitorType();
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+
+		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
+			return;
+		}
+
+		// The monitor is created as missing
+		monitor.setAsMissing();
+
+		if (monitors.containsKey(monitorType)) {
+			monitors.get(monitorType).put(id, monitor);
+		} else {
+			monitors.put(monitorType, createLinkedHashMap(id, monitor));
+		}
 	}
 }

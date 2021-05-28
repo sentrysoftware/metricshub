@@ -35,6 +35,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
@@ -497,4 +498,64 @@ class HostMonitoringCollectorServiceTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test
+	void testCheckPresentParameter() {
+
+		{
+			final PresentParam presentParam = PresentParam.present();
+			final Monitor monitor = Monitor.builder()
+						.id(ID_VALUE)
+						.parentId(PARENT_ID_VALUE)
+						.name(LABEL_VALUE)
+						.parameters(Map.of(HardwareConstants.PRESENT_PARAMETER, presentParam))
+						.build();
+			assertTrue(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+		}
+
+		{
+			final PresentParam presentParam = PresentParam.present();
+			presentParam.discoveryReset();
+			final Monitor monitor = Monitor.builder()
+						.id(ID_VALUE)
+						.parentId(PARENT_ID_VALUE)
+						.name(LABEL_VALUE)
+						.parameters(Map.of(HardwareConstants.PRESENT_PARAMETER, presentParam))
+						.build();
+			assertFalse(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder()
+						.id(ID_VALUE)
+						.parentId(PARENT_ID_VALUE)
+						.name(LABEL_VALUE)
+						.parameters(Collections.emptyMap())
+						.build();
+			assertFalse(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+		}
+	}
+
+	@Test
+	void testAddPresentMetric() {
+		final Monitor monitor = Monitor.builder()
+					.id(ID_VALUE)
+					.parentId(PARENT_ID_VALUE)
+					.name(LABEL_VALUE)
+					.monitorType(MonitorType.FAN)
+					.build();
+		monitor.setAsPresent();
+
+		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily("monitor_present",
+				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", Arrays.asList(ID, PARENT, LABEL));
+
+		HostMonitoringCollectorService.addPresentMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER);
+
+		final GaugeMetricFamily expected = new GaugeMetricFamily(
+				"monitor_present",
+				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}",
+				Arrays.asList(ID, PARENT, LABEL));
+		expected.addMetric(Arrays.asList(monitor.getId(), PARENT_ID_VALUE, LABEL_VALUE), 1);
+
+		assertEquals(expected, labeledGauge);
+	}
 }

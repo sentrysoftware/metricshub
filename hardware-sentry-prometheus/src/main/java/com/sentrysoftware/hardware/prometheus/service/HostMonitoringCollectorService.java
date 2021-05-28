@@ -79,7 +79,7 @@ public class HostMonitoringCollectorService extends Collector {
 		MONITOR_TYPE_NAMES = Collections.unmodifiableMap(monitorTypeNames);
 	}
 
-	private static void addPresentMetric(GaugeMetricFamily gauge, Monitor monitor, String parameterName) {
+	static void addPresentMetric(GaugeMetricFamily gauge, Monitor monitor, String parameterName) {
 
 		gauge.addMetric(
 			// Id, parentId (can be null), label
@@ -87,13 +87,13 @@ public class HostMonitoringCollectorService extends Collector {
 			getPresentParameterValue(monitor, parameterName));
 	}
 
-	private static Boolean checkPresentParameter(Monitor monitor, String parameterName) {
+	static Boolean checkPresentParameter(Monitor monitor, String parameterName) {
 
 		return checkParameter(monitor, parameterName)
 			&& getPresentParameterValue(monitor, parameterName) != null;
 	}
 
-	private static Integer getPresentParameterValue(Monitor monitor, String parameterName) {
+	static Integer getPresentParameterValue(Monitor monitor, String parameterName) {
 
 		return ((PresentParam) monitor.getParameters().get(parameterName)).getPresent();
 	}

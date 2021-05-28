@@ -23,7 +23,7 @@ import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.BooleanParam;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
@@ -36,7 +36,7 @@ class HostMonitoringTest {
 	private static final String ENCLOSURE_1 = "enclosure-1";
 	private static final String STATUS = "Status";
 	private static final String TEST_REPORT = "TestReport";
-	private static final String PRESENT = "Present";
+	private static final String PRESENT = "present";
 	private static final String POWER_CONSUMPTION = "PowerConsumption";
 	private static final String SOURCE_KEY_LOWER = "enclosure.discovery.source(1)";
 	private static final String SOURCE_KEY_PASCAL = "Enclosure.discovery.Source(1)";
@@ -392,14 +392,14 @@ class HostMonitoringTest {
 	}
 
 	@Test
-	void testResetParametersBoolean() {
+	void testResetParametersPresent() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = BooleanParam.builder().name(PRESENT).collectTime(new Date().getTime())
-				.value(true).build();
+		final IParameterValue parameter = PresentParam.builder().collectTime(new Date().getTime())
+				.state(ParameterState.OK).build();
 		enclosure.addParameter(parameter);
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
@@ -410,13 +410,12 @@ class HostMonitoringTest {
 
 		assertNotNull(result);
 
-		final BooleanParam parameterAfterReset = (BooleanParam) result.getParameters().get(PRESENT);
+		final PresentParam parameterAfterReset = (PresentParam) result.getParameters().get(PRESENT);
 
-		assertNull(parameterAfterReset.getCollectTime());
-		assertEquals(PRESENT, parameterAfterReset.getName());
+		assertNotNull(parameterAfterReset.getCollectTime());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
 		assertNull(parameterAfterReset.getThreshold());
-		assertFalse(parameterAfterReset.isValue());
+		assertEquals(1, parameterAfterReset.getPresent());
 	}
 
 	@Test
@@ -533,5 +532,62 @@ class HostMonitoringTest {
 
 		assertEquals(status, currentMonitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class));
 		assertEquals(energyUsage, currentMonitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+	}
+
+	@Test
+	void addMissingMonitor() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor fan = Monitor.builder()
+				.id(FAN_ID)
+				.name(FAN_NAME)
+				.targetId(TARGET_ID)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+
+		hostMonitoring.addMissingMonitor(fan);
+
+		final Monitor expectedFan = Monitor.builder()
+				.id(FAN_ID)
+				.name(FAN_NAME)
+				.targetId(TARGET_ID)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+		expectedFan.setAsMissing();
+
+		final String fanBisId = FAN_ID + "bis";
+		final Monitor fanBis = Monitor.builder()
+				.id(fanBisId)
+				.name(FAN_NAME + "bis")
+				.targetId(TARGET_ID)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+
+		hostMonitoring.addMissingMonitor(fanBis);
+
+		final Monitor expectedFanBis = Monitor.builder()
+				.id(fanBisId)
+				.name(FAN_NAME + "bis")
+				.targetId(TARGET_ID)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+		expectedFanBis.setAsMissing();
+
+		assertEquals(expectedFanBis, hostMonitoring.selectFromType(FAN).get(fanBisId));
+		assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
+
+		hostMonitoring.addMissingMonitor(Monitor.builder()
+				.id(ENCLOSURE_ID)
+				.targetId(TARGET_ID)
+				.parentId(ENCLOSURE_ID)
+				.name(ENCLOSURE_NAME)
+				.monitorType(MonitorType.ENCLOSURE)
+				.build());
+
+		assertNull(hostMonitoring.selectFromType(ENCLOSURE));
 	}
 }
