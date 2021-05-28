@@ -5,12 +5,6 @@
 	</Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<!-- The console only outputs errors -->
-			<!-- Right now the console display is disabled, but it can be activated 
-				by replacing onMatch="DENY" by onMatch="ACCEPT" -->
-			<ThresholdFilter level="error" onMatch="DENY"
-				onMismatch="DENY" />
-			<!-- Format of the output log -->
 			<PatternLayout disableAnsi="false"
 				pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
 		</Console>
@@ -19,8 +13,8 @@
 				<!-- This route is chosen if ThreadContext has debugMode = true. -->
 				<Route key="true">
 					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${baseDir}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd}.log"
-						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+						fileName="${baseDir}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd}.log"
+						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
@@ -28,7 +22,7 @@
 						</Policies>
 						<DefaultRolloverStrategy>
 							<Delete basePath="${baseDir}" maxDepth="3">
-								<IfFileName glob="*/*hardware-sentry-cli*.log.gz" />
+								<IfFileName glob="*/*hardware-sentry-prometheus*.log.gz" />
 								<IfLastModified age="2d" />
 							</Delete>
 						</DefaultRolloverStrategy>
@@ -41,7 +35,7 @@
 		<logger name="com.sentrysoftware" level="trace">
 			<appender-ref ref="Routing" />
 		</logger>
-		<Root level="error">
+		<Root level="info">
 			<AppenderRef ref="Console" />
 		</Root>
 	</Loggers>
