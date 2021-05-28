@@ -147,16 +147,16 @@
   ## SNMP configuration options
   Here are the available options for the SNMP configuration:
   
-  | Option                 | Description                                                | Available Values                            | Default Value |
-  |------------------------|------------------------------------------------------------|---------------------------------------------|---------------|
-  | --snmp-version         | The SNMP version                                           | V1<br>V2C<br>V3_NO_AUTH<br>v3_MD5<br>v3_SHA | V1            |
-  | --snmp-port            | The SNMP port                                              |                                             | 161           |
-  | --snmp-community       | The SNMP community                                         |                                             | public        |
-  | --snmp-timeout         | The SNMP timeout, in seconds                               |                                             | 120           |
-  | --snmp-username        | The user name (when the SNMP version is v3-SHA)            |                                             |               |
-  | --snmp-password        | The user password (when the SNMP version is v3-SHA)        |                                             |               |
-  | --snmp-privacy         | The encryption algorithm (when the SNMP version is v3-SHA) | AES<br>DES<br>NO_ENCRYPTION                 |               |
-  | --snmp-privacyPassword | The privacy password (when the SNMP version is v3-SHA)     |                                             |               |
+  | Option                 | Description                                                          | Available Values                            | Default Value |
+  |------------------------|----------------------------------------------------------------------|---------------------------------------------|---------------|
+  | --snmp-version         | The SNMP version                                                     | V1<br>V2C<br>V3_NO_AUTH<br>V3_MD5<br>V3_SHA | V1            |
+  | --snmp-port            | The SNMP port                                                        |                                             | 161           |
+  | --snmp-community       | The SNMP community                                                   |                                             | public        |
+  | --snmp-timeout         | The SNMP timeout, in seconds                                         |                                             | 120           |
+  | --snmp-username        | The user name (when the SNMP version is V3_MD5 or V3-SHA)            |                                             |               |
+  | --snmp-password        | The user password (when the SNMP version is V3_MD5 or V3-SHA)        |                                             |               |
+  | --snmp-privacy         | The encryption algorithm (when the SNMP version is V3_MD5 or V3-SHA) | AES<br>DES<br>NO_ENCRYPTION                 |               |
+  | --snmp-privacyPassword | The privacy password (when the SNMP version is V3_MD5 or V3-SHA)     |                                             |               |
   
   <a name="hdfs"></a>
   ## Specifying a list of connectors
