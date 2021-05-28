@@ -12,10 +12,7 @@ public class HardwareSentryPrometheusApp {
 	private static final String SSL_ENABLED = "--server.ssl.enabled=true";
 
 	public static void main(String[] args) {
-		// Default values for targetId and debugMode
-		ThreadContext.put("port", "");
-		ThreadContext.put("targetId", "");
-		ThreadContext.put("debugMode", "false");
+		initializeLoggerContext();
 
 		SpringApplication application = new SpringApplication(HardwareSentryPrometheusApp.class);
 
@@ -24,5 +21,15 @@ public class HardwareSentryPrometheusApp {
 		}
 
 		application.run(args);
+	}
+
+	/**
+	 * Initialize the log4j thread context values
+	 */
+	static void initializeLoggerContext() {
+		// Default values for targetId, debugMode and port
+		ThreadContext.put("port", "");
+		ThreadContext.put("targetId", "");
+		ThreadContext.put("debugMode", "false");
 	}
 }

@@ -13,4 +13,8 @@ class HardwareSentryPrometheusAppTest {
 		assertDoesNotThrow(() -> {}); 
 	}
 
+	@Test
+	void testInitializeLoggerContext() {
+		assertDoesNotThrow(() -> HardwareSentryPrometheusApp.initializeLoggerContext()); 
+	}
 }
