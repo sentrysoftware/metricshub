@@ -11,8 +11,8 @@
 			<ThresholdFilter level="error" onMatch="DENY"
 				onMismatch="DENY" />
 			<!-- Format of the output log -->
-			<PatternLayout
-				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+			<PatternLayout disableAnsi="false"
+				pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
 		</Console>
 		<Routing name="Routing">
 			<Routes pattern="$${ctx:debugMode}">
@@ -21,8 +21,7 @@
 					<RollingFile name="Rolling-${ctx:targetId}"
 						fileName="${baseDir}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd}.log"
 						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout
-							pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
 							<SizeBasedTriggeringPolicy size="30 MB" />

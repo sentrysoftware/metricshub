@@ -13,8 +13,8 @@ public class HardwareSentryPrometheusApp {
 
 	public static void main(String[] args) {
 		// Default values for targetId and debugMode
-		ThreadContext.put("port", "no-port-yet");
-		ThreadContext.put("targetId", "no-target-yet");
+		ThreadContext.put("port", "");
+		ThreadContext.put("targetId", "");
 		ThreadContext.put("debugMode", "false");
 
 		SpringApplication application = new SpringApplication(HardwareSentryPrometheusApp.class);
