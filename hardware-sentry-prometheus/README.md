@@ -89,3 +89,29 @@
   ```shell script
   $ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar --server.ssl.enabled=true --server.ssl.redirect-http=true
   ```
+  ## Build Docker Image
+  ### Prerequisites
+  - *Git* to checkout the code.
+  - *Java 11* to compile the code.
+  - *Maven* to build the project.
+  - *Docker Engine* to build and run the container.
+  
+  Building the exporter as a docker image can be done via the following steps:
+
+  - From the **hardware-sentry-prometheus** directory, run:
+    ```shell script
+    $ mvn clean package
+    ```
+    If you haven't built the **matrix-engine** dependency, run *mvn clean package* from the root directory **matrix**
+
+  - Run the following docker command from the **hardware-sentry-prometheus** directory:
+    ```shell script
+    $ docker build -t hardware-sentry-prometheus .
+    ```
+
+  ## Running Hardware Sentry Prometheus with Docker
+  After building the docker image, bind-mount your *hardware-sentry-config.yml* configuration from the host by running:
+
+  ```shell script
+  $ docker run -p 8080:8080 -v /path/to/hardware-sentry-config.yml:/hardware-sentry/hardware-sentry-config.yml hardware-sentry-prometheus:latest
+  ```
