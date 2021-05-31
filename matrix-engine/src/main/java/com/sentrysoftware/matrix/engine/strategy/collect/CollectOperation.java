@@ -402,7 +402,9 @@ public class CollectOperation extends AbstractStrategy {
 			final MonitorType monitorType, final String hostname) {
 
 		PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
-		if (presentParam != null && presentParam.getPresent() != null && presentParam.getPresent() == 0) {
+		if (presentParam != null 
+				&& presentParam.getPresent() != null 
+				&& presentParam.getPresent() == 0) {
 			return;
 		}
 
@@ -421,7 +423,6 @@ public class CollectOperation extends AbstractStrategy {
 					valueTable, connectorName, hostname);
 			return;
 		}
-
 
 		// Build the collect information as the parameters are collected by the MonitorCollectVisitor
 		// so that we avoid the tightly coupling with the current CollectOperation strategy.

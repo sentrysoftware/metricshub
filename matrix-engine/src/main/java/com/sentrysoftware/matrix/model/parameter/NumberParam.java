@@ -45,4 +45,9 @@ public class NumberParam extends AbstractParam {
 	public String formatValueAsString() {
 		return getValueAsString(value);
 	}
+
+	@Override
+	public Number numberValue() {
+		return value;
+	}
 }

@@ -39,4 +39,9 @@ public class TextParam extends AbstractParam {
 		return getValueAsString(value);
 	}
 
+	@Override
+	public Number numberValue() {
+		return null;
+	}
+
 }

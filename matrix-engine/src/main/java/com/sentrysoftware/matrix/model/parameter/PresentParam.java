@@ -66,4 +66,9 @@ public class PresentParam extends AbstractParam {
 	public static PresentParam missing() {
 		return PresentParam.builder().state(ParameterState.ALARM).build();
 	}
+
+	@Override
+	public Number numberValue() {
+		return present;
+	}
 }

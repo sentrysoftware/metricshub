@@ -45,4 +45,9 @@ public class StatusParam extends AbstractParam {
 		return statusInformation;
 	}
 
+	@Override
+	public Number numberValue() {
+		return status;
+	}
+
 }

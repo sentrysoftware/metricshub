@@ -277,7 +277,7 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
 						.build();
-			assertTrue(HostMonitoringCollectorService.isParameterAvailable(Enclosure.STATUS, monitor));
+			assertTrue(HostMonitoringCollectorService.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
 		}
 
 		{
@@ -289,7 +289,7 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParamToReset))
 						.build();
-			assertFalse(HostMonitoringCollectorService.isParameterAvailable(Enclosure.STATUS, monitor));
+			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
 
 		}
 
@@ -301,87 +301,14 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Map.of(HardwareConstants.TEST_REPORT_PARAMETER, textParam))
 						.build();
-			assertFalse(HostMonitoringCollectorService.isParameterAvailable(MetaConnector.TEST_REPORT, monitor));
+			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, MetaConnector.TEST_REPORT.getName()));
 
 		}
 		
 	}
 
 	@Test
-	void testCheckNumberParameter() {
-		{
-			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
-					.name(LABEL_VALUE)
-					.parameters(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER,
-							NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-							.value(3000D).build()))
-					.build();
-			assertTrue(HostMonitoringCollectorService.checkNumberParameter(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
-		}
-
-		{
-			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
-					.name(LABEL_VALUE)
-					.parameters(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER,
-							NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-							.value(null).build()))
-					.build();
-			assertFalse(HostMonitoringCollectorService.checkNumberParameter(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
-		}
-		{
-			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
-					.name(LABEL_VALUE)
-					.parameters(Collections.emptyMap())
-					.build();
-			assertFalse(HostMonitoringCollectorService.checkNumberParameter(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
-		}
-	}
-
-	@Test
-	void testCheckStatusParameter() {
-
-		{
-			final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
-			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
-						.name(LABEL_VALUE)
-						.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
-						.build();
-			assertTrue(HostMonitoringCollectorService.checkStatusParameter(monitor, HardwareConstants.STATUS_PARAMETER));
-		}
-
-		{
-			StatusParam statusParamToReset = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
-			statusParamToReset.reset();
-			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
-						.name(LABEL_VALUE)
-						.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParamToReset))
-						.build();
-			assertFalse(HostMonitoringCollectorService.checkStatusParameter(monitor, HardwareConstants.STATUS_PARAMETER));
-		}
-		
-		{
-			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
-						.name(LABEL_VALUE)
-						.parameters(Collections.emptyMap())
-						.build();
-			assertFalse(HostMonitoringCollectorService.checkStatusParameter(monitor, HardwareConstants.STATUS_PARAMETER));
-		}
-	}
-
-	@Test
-	void testGetStatusParameterValue() {
+	void testGetParameterValueStatus() {
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -391,11 +318,11 @@ class HostMonitoringCollectorServiceTest {
 						.name(HardwareConstants.STATUS_PARAMETER)
 						.state(ParameterState.OK).build()))
 				.build();
-		assertEquals(0, HostMonitoringCollectorService.getStatusParameterValue(monitor, HardwareConstants.STATUS_PARAMETER));
+		assertEquals(0, HostMonitoringCollectorService.getParameterValue(monitor, HardwareConstants.STATUS_PARAMETER));
 	}
 
 	@Test
-	void testGetNumberParameterValue() {
+	void testGetParameterValueNumber() {
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -404,7 +331,7 @@ class HostMonitoringCollectorServiceTest {
 						NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER)
 						.value(3000D).build()))
 				.build();
-		assertEquals(3000D, HostMonitoringCollectorService.getNumberParameterValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
+		assertEquals(3000D, HostMonitoringCollectorService.getParameterValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
 	}
 
 	@Test
@@ -452,7 +379,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testAddStatusMetric() {
+	void testAddMetricStatus() {
 		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_STATUS_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL));
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
@@ -463,7 +390,7 @@ class HostMonitoringCollectorServiceTest {
 						.name(HardwareConstants.STATUS_PARAMETER)
 						.state(ParameterState.OK).build()))
 				.build();
-		HostMonitoringCollectorService.addStatusMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER);
+		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_STATUS_METRIC, Arrays.asList(ID, PARENT, LABEL),
 				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE), ParameterState.OK.ordinal());
@@ -472,7 +399,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testAddNumberMetric() {
+	void testAddMetricNumber() {
 		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_ENERGY_USAGE_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL));
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
@@ -482,7 +409,7 @@ class HostMonitoringCollectorServiceTest {
 						NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER)
 						.value(3000D).build()))
 				.build();
-		HostMonitoringCollectorService.addNumberMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER);
+		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_ENERGY_USAGE_METRIC, Arrays.asList(ID, PARENT, LABEL),
 				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE), 3000D);
@@ -499,7 +426,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCheckPresentParameter() {
+	void testIsParameterAvailablePresent() {
 
 		{
 			final PresentParam presentParam = PresentParam.present();
@@ -509,7 +436,7 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Map.of(HardwareConstants.PRESENT_PARAMETER, presentParam))
 						.build();
-			assertTrue(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+			assertTrue(HostMonitoringCollectorService.isParameterAvailable(monitor, HardwareConstants.PRESENT_PARAMETER));
 		}
 
 		{
@@ -521,7 +448,7 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Map.of(HardwareConstants.PRESENT_PARAMETER, presentParam))
 						.build();
-			assertFalse(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, HardwareConstants.PRESENT_PARAMETER));
 		}
 
 		{
@@ -531,12 +458,12 @@ class HostMonitoringCollectorServiceTest {
 						.name(LABEL_VALUE)
 						.parameters(Collections.emptyMap())
 						.build();
-			assertFalse(HostMonitoringCollectorService.checkPresentParameter(monitor, HardwareConstants.PRESENT_PARAMETER));
+			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, HardwareConstants.PRESENT_PARAMETER));
 		}
 	}
 
 	@Test
-	void testAddPresentMetric() {
+	void testAddMetricPresent() {
 		final Monitor monitor = Monitor.builder()
 					.id(ID_VALUE)
 					.parentId(PARENT_ID_VALUE)
@@ -548,7 +475,7 @@ class HostMonitoringCollectorServiceTest {
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily("monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", Arrays.asList(ID, PARENT, LABEL));
 
-		HostMonitoringCollectorService.addPresentMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER);
+		HostMonitoringCollectorService.addMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER);
 
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
 				"monitor_present",
