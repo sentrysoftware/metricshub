@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sentrysoftware</groupId>
 		<artifactId>matrix</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>matrix-engine</artifactId>
 	<name>Matrix Engine</name>
