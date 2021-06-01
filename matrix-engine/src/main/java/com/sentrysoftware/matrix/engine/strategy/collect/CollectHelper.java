@@ -58,7 +58,7 @@ public class CollectHelper {
 	 * @param unknownStatus  Unknown status used when we are not able to translate the collected status
 	 * @param monitorId      Current collected monitor identifier
 	 * @param hostname       Current hostname  
-	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrustionStatus...
+	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
 	 * @return {@link ParameterState} value
 	 */
 	public static ParameterState translateStatus(final String status, final ParameterState unknownStatus,
@@ -200,22 +200,22 @@ public class CollectHelper {
 	/**
 	 * Perform a subtraction arithmetic operation
 	 * 
-	 * @param parameter  The name of the parameter
-	 * @param minuend    Minuend of the subtraction
-	 * @param subtrahend Subtrahend of the subtraction
+	 * @param parameterName	The name of the parameter
+	 * @param minuend		Minuend of the subtraction
+	 * @param subtrahend	Subtrahend of the subtraction
 	 * 
 	 * @return {@link OptionalDouble} value
 	 */
 	public static OptionalDouble subtract(final String parameterName, final OptionalDouble minuend, final OptionalDouble subtrahend) {
 
-		if (!minuend.isPresent()  || !subtrahend.isPresent()) {
+		if (minuend.isEmpty() || subtrahend.isEmpty()) {
 			return OptionalDouble.empty();
 		}
 
 		final double result = minuend.getAsDouble() - subtrahend.getAsDouble();
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameterName)) {
-			log.warn("Suspicious negative value ({} - {}) = for parameter {}", minuend, subtrahend, result, parameterName);
+			log.warn("Suspicious negative value ({} - {}) = {} for parameter {}", minuend, subtrahend, result, parameterName);
 			return OptionalDouble.empty();
 		}
 
@@ -233,7 +233,7 @@ public class CollectHelper {
 	 */
 	public static OptionalDouble divide(final String parameter, final OptionalDouble dividendOptional, final OptionalDouble divisorOptional) {
 
-		if (!dividendOptional.isPresent() || !divisorOptional.isPresent()) {
+		if (dividendOptional.isEmpty() || divisorOptional.isEmpty()) {
 			return OptionalDouble.empty();
 		}
 
@@ -264,7 +264,7 @@ public class CollectHelper {
 	 */
 	public static OptionalDouble multiply(final String parameter, final OptionalDouble multiplierOpt, final OptionalDouble multiplicandOpt) {
 
-		if (!multiplierOpt.isPresent() || !multiplicandOpt.isPresent()) {
+		if (multiplierOpt.isEmpty() || multiplicandOpt.isEmpty()) {
 			return OptionalDouble.empty();
 		}
 
@@ -285,16 +285,16 @@ public class CollectHelper {
 	 * 
 	 * @param parameterName          The parameter we wish to compute its rate value
 	 * @param valueOpt               The value from the current collect
-	 * @param perviousValueOpt       The value from the previous collect
-	 * @param collectTime            The time of the current collect
+	 * @param previousValueOpt       The value from the previous collect
+	 * @param collectTimeOpt         The time of the current collect
 	 * @param previousCollectTimeOpt The time of the previous collect
-	 * 
+	 *
 	 * @return {@link OptionalDouble} value
 	 */
-	public static OptionalDouble rate(String parameterName, OptionalDouble valueOpt, OptionalDouble perviousValueOpt, OptionalDouble collectTimeOpt,
+	public static OptionalDouble rate(String parameterName, OptionalDouble valueOpt, OptionalDouble previousValueOpt, OptionalDouble collectTimeOpt,
 			OptionalDouble previousCollectTimeOpt) {
 		return CollectHelper.divide(parameterName, 
-				CollectHelper.subtract(parameterName, valueOpt, perviousValueOpt),
+				CollectHelper.subtract(parameterName, valueOpt, previousValueOpt),
 				CollectHelper.subtract(parameterName, collectTimeOpt, previousCollectTimeOpt));
 	}
 

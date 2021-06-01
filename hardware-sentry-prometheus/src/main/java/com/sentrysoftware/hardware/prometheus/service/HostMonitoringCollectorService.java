@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +14,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.CaseFormat;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.TriConsumer;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.GaugeMetricFamily;
@@ -43,22 +38,9 @@ public class HostMonitoringCollectorService extends Collector {
 	@Autowired
 	private IHostMonitoring hostMonitoring;
 
-	private static final Map<ParameterType, BiPredicate<Monitor, String>> PARAMETER_TYPE_PREDICATES;
-	private static final Map<ParameterType, TriConsumer<GaugeMetricFamily, Monitor, String>> PARAMETER_TYPE_CONSUMERS;
 	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
 
 	static {
-		final Map<ParameterType, BiPredicate<Monitor, String>> predicates = new EnumMap<>(ParameterType.class);
-
-		predicates.put(ParameterType.STATUS, HostMonitoringCollectorService::checkStatusParameter);
-		predicates.put(ParameterType.NUMBER, HostMonitoringCollectorService::checkNumberParameter);
-		PARAMETER_TYPE_PREDICATES = Collections.unmodifiableMap(predicates);
-
-		final Map<ParameterType, TriConsumer<GaugeMetricFamily, Monitor, String>> consumers = new EnumMap<>(ParameterType.class);
-
-		consumers.put(ParameterType.STATUS, HostMonitoringCollectorService::addStatusMetric);
-		consumers.put(ParameterType.NUMBER, HostMonitoringCollectorService::addNumberMetric);
-		PARAMETER_TYPE_CONSUMERS = Collections.unmodifiableMap(consumers);
 
 		final Map<MonitorType, String> monitorTypeNames = new EnumMap<>(MonitorType.class);
 		for (MonitorType monitorType : MonitorType.values()) {
@@ -74,6 +56,33 @@ public class HostMonitoringCollectorService extends Collector {
 			}
 		}
 		MONITOR_TYPE_NAMES = Collections.unmodifiableMap(monitorTypeNames);
+	}
+
+	/**
+	 * Add a metric sample in the given Gauge metric
+	 * 
+	 * @param gauge         Prometheus {@link GaugeMetricFamily}
+	 * @param monitor       Collected {@link Monitor} instance
+	 * @param parameterName The parameter name we wish to add
+	 */
+	static void addMetric(final GaugeMetricFamily gauge, final Monitor monitor, final String parameterName) {
+
+		gauge.addMetric(
+			// Id, parentId (can be null), label
+			createLabels(monitor),
+			getParameterValue(monitor, parameterName).doubleValue());
+	}
+
+	/**
+	 * Get the parameter number value from the monitor instance
+	 * 
+	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param parameterName The parameter name we want to extract from the given monitor instance
+	 * @return {@link Number} value
+	 */
+	static Number getParameterValue(final Monitor monitor, final String parameterName) {
+
+		return monitor.getParameters().get(parameterName).numberValue();
 	}
 
 	@Override
@@ -136,9 +145,8 @@ public class HostMonitoringCollectorService extends Collector {
 
 		monitors.values()
 		.stream()
-		.filter(monitor -> isParameterAvailable(metaParameter, monitor))
-		.forEach(monitor -> PARAMETER_TYPE_CONSUMERS.get(metaParameter.getType())
-				.accept(labeledGauge, monitor, metaParameter.getName()));
+		.filter(monitor -> isParameterAvailable(monitor, metaParameter.getName()))
+		.forEach(monitor -> addMetric(labeledGauge, monitor, metaParameter.getName()));
 
 		mfs.add(labeledGauge);
 	}
@@ -178,67 +186,19 @@ public class HostMonitoringCollectorService extends Collector {
 
 		return monitors != null
 				&& !monitors.isEmpty()
-				&& monitors.values().stream().anyMatch(monitor -> isParameterAvailable(metaParameter, monitor));
+				&& monitors.values().stream().anyMatch(monitor -> isParameterAvailable(monitor, metaParameter.getName()));
 	}
 
 	/**
 	 * Check if the parameter defined in the passed {@link MetaParameter} is collected on the given monitor instance
 	 * 
-	 * @param metaParameter The {@link MetaParameter} defined by the matrix engine
 	 * @param monitor       The monitor we wish to check the parameter
+	 * @param parameterName The name of the parameter to check
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
 	 */
-	static Boolean isParameterAvailable(final MetaParameter metaParameter, final Monitor monitor) {
-
-		final BiPredicate<Monitor, String> biPredicate = PARAMETER_TYPE_PREDICATES.get(metaParameter.getType());
-		return biPredicate != null && biPredicate.test(monitor, metaParameter.getName());
-
-	}
-
-	/**
-	 * Check if a number parameter is collected
-	 * 
-	 * @param monitor       The monitor we wish to check its number parameter
-	 * @param parameterName The name of the parameter e.g. energyUsage, voltage, temperature.
-	 * @return
-	 */
-	static boolean checkNumberParameter(final Monitor monitor, final String parameterName) {
+	static Boolean isParameterAvailable(final Monitor monitor, final String parameterName) {
 		return checkParameter(monitor, parameterName)
-				&& getNumberParameterValue(monitor, parameterName) != null;
-	}
-
-	/**
-	 * Check if a status parameter is collected
-	 * 
-	 * @param monitor       The monitor we wish to check its status parameter
-	 * @param parameterName The name of the parameter e.g. status, intrusionStatus, errorStatus.
-	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
-	 */
-	static boolean checkStatusParameter(final Monitor monitor, final String parameterName) {
-		return checkParameter(monitor, parameterName)
-				&& getStatusParameterValue(monitor, parameterName) != null;
-	}
-
-	/**
-	 * Get the status parameter value (0,1 or 2)
-	 * 
-	 * @param monitor       The monitor we wish to get its status parameter value
-	 * @param parameterName The name of the parameter e.g. status, intrusionStatus, errorStatus.
-	 * @return {@link Integer} value
-	 */
-	static Integer getStatusParameterValue(final Monitor monitor, final String parameterName) {
-		return ((StatusParam) monitor.getParameters().get(parameterName)).getStatus();
-	}
-
-	/**
-	 * Get the number parameter value
-	 * 
-	 * @param monitor       The monitor we wish to get its number parameter value
-	 * @param parameterName The name of the parameter e.g. energyUsage, voltage, temperature.
-	 * @return {@link Double} value
-	 */
-	static Double getNumberParameterValue(final Monitor monitor, final String parameterName) {
-		return ((NumberParam) monitor.getParameters().get(parameterName)).getValue();
+				&& getParameterValue(monitor, parameterName) != null;
 	}
 
 	/**
@@ -264,33 +224,6 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static <T> T getValueOrElse(T actual, T other) {
 		return actual != null ? actual : other;
-	}
-
-	/**
-	 * Add a status metric in the given Gauge metric
-	 * 
-	 * @param gauge         Prometheus {@link GaugeMetricFamily}
-	 * @param monitor       Collected {@link Monitor} instance
-	 * @param parameterName The parameter name we wish to add
-	 */
-	static void addStatusMetric(final GaugeMetricFamily gauge, final Monitor monitor, final String parameterName) {
-		gauge.addMetric(
-				createLabels(monitor),
-				getStatusParameterValue(monitor, parameterName));
-	}
-
-	/**
-	 * Add a number metric in the given Gauge metric
-	 * 
-	 * @param gauge         Prometheus {@link GaugeMetricFamily}
-	 * @param monitor       Collected {@link Monitor} instance
-	 * @param parameterName The parameter name we wish to add
-	 */
-	static void addNumberMetric(final GaugeMetricFamily gauge, final Monitor monitor, final String parameterName) {
-		gauge.addMetric(
-				// Id, parentId (can be null), label
-				createLabels(monitor),
-				getNumberParameterValue(monitor, parameterName));
 	}
 
 	/**

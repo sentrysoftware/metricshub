@@ -5,8 +5,11 @@ import java.util.TreeMap;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,18 +37,67 @@ public class Monitor {
 	@Default
 	private Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+	/**
+	 * Add the given parameter to the internal map of parameters
+	 * 
+	 * @param parameter The parameter we wish to add
+	 */
 	public void addParameter(IParameterValue parameter) {
 		parameters.put(parameter.getName(), parameter);
 	}
 
+	/**
+	 * Add the given metadata key-value to the internal map of metadata
+	 * 
+	 * @param key   The metadata key, example: serialNumber
+	 * @param value the metadata value we wish to add
+	 */
 	public void addMetadata(final String key, final String value) {
 		Assert.notNull(key, "key cannot be null");
 
 		metadata.put(key, value);
 	}
 
-	public <T> T getParameter(final String parameterName, final Class<T> type) {
+	/**
+	 * Get a parameter by type
+	 * 
+	 * @param <T>
+	 * @param parameterName The unique name of the parameter
+	 * @param type          The type of the
+	 * @return {@link IParameterValue} instance
+	 */
+	public <T extends IParameterValue> T getParameter(final String parameterName, final Class<T> type) {
 		return type.cast(parameters.get(parameterName));
 	}
 
+	/**
+	 * Set the monitor as missing
+	 */
+	public void setAsMissing() {
+
+		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
+			return;
+		}
+
+		final PresentParam presentParam = getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+
+		if (presentParam != null) {
+			presentParam.setPresent(0);
+			presentParam.setState(ParameterState.ALARM);
+		} else {
+			addParameter(PresentParam.missing());
+		}
+
+	}
+
+	/**
+	 * Set the monitor as present
+	 */
+	public void setAsPresent() {
+
+		if (monitorType.getMetaMonitor().hasPresentParameter()) {
+			addParameter(PresentParam.present());
+		}
+
+	}
 }

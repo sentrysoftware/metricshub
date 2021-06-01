@@ -128,6 +128,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.BATTERY)
 				.extendedType(MonitorType.BATTERY.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.BATTERY);
 
@@ -156,6 +157,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.BLADE)
 				.extendedType(MonitorType.BLADE.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.BLADE);
 
@@ -184,6 +186,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.CPU)
 				.extendedType(MonitorType.CPU.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.CPU);
 
@@ -212,6 +215,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.CPU_CORE)
 				.extendedType(MonitorType.CPU_CORE.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.CPU_CORE);
 
@@ -240,6 +244,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.DISK_CONTROLLER)
 				.extendedType(MonitorType.DISK_CONTROLLER.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.DISK_CONTROLLER);
 
@@ -324,6 +329,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.FAN);
 
@@ -436,6 +442,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.MEMORY)
 				.extendedType(MonitorType.MEMORY.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.MEMORY);
 
@@ -464,6 +471,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.NETWORK_CARD)
 				.extendedType(MonitorType.NETWORK_CARD.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.NETWORK_CARD);
 
@@ -492,6 +500,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.OTHER_DEVICE)
 				.extendedType(MonitorType.OTHER_DEVICE.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.OTHER_DEVICE);
 
@@ -520,6 +529,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.extendedType(MonitorType.PHYSICAL_DISK.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.PHYSICAL_DISK);
 
@@ -548,6 +558,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.POWER_SUPPLY)
 				.extendedType(MonitorType.POWER_SUPPLY.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.POWER_SUPPLY);
 
@@ -576,6 +587,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.TAPE_DRIVE)
 				.extendedType(MonitorType.TAPE_DRIVE.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.TAPE_DRIVE);
 
@@ -661,6 +673,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.ROBOTIC)
 				.extendedType(MonitorType.ROBOTIC.getName())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ROBOTIC);
 
@@ -767,6 +780,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.build();
+		expectedFan.setAsPresent();
 
 		final Map<String, Monitor> fans = hostMonitoring.selectFromType(MonitorType.FAN);
 

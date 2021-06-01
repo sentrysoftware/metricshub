@@ -10,26 +10,26 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 
 public interface IMetaMonitor {
 
-	public static final MetaParameter STATUS = MetaParameter.builder()
+	MetaParameter STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.STATUS_PARAMETER)
 			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS).build();
 
-	public static final MetaParameter PRESENT = MetaParameter.builder()
-			.basicCollect(true)
+	MetaParameter PRESENT = MetaParameter.builder()
+			.basicCollect(false)
 			.name(HardwareConstants.PRESENT_PARAMETER)
 			.unit(HardwareConstants.PRESENT_PARAMETER_UNIT)
-			.type(ParameterType.STATUS).build();
+			.type(ParameterType.PRESENT).build();
 
-	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
+	MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
 			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
-	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+	MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
 			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
@@ -42,4 +42,9 @@ public interface IMetaMonitor {
 	Map<String, MetaParameter> getMetaParameters();
 
 	MonitorType getMonitorType();
+
+	default boolean hasPresentParameter() {
+
+		return getMetaParameters().containsKey(HardwareConstants.PRESENT_PARAMETER);
+	}
 }

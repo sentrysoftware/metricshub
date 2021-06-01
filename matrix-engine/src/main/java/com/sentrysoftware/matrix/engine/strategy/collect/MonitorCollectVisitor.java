@@ -580,11 +580,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * @param paramerState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
+	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
 	 */
-	static String getIntrusionStatusInformation(final ParameterState paramerState) {
-		switch (paramerState) {
+	static String getIntrusionStatusInformation(final ParameterState parameterState) {
+		switch (parameterState) {
 		case OK:
 			return "No Intrusion Detected";
 		case ALARM:

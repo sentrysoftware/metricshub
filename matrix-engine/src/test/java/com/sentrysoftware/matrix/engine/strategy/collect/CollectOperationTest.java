@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +56,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
@@ -690,7 +694,7 @@ class CollectOperationTest {
 	}
 
 	private static Monitor buildEnclosure(final Map<String, String> metadata) {
-		final Monitor enclosure = Monitor.builder()
+		return Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
@@ -699,7 +703,6 @@ class CollectOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
 				.build();
-		return enclosure;
 	}
 
 	@Test
@@ -877,5 +880,82 @@ class CollectOperationTest {
 				HardwareConstants.TEST_REPORT_PARAMETER, testReport));
 
 		return expected;
+	}
+
+	@Test
+	void testPost() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor fan1 = Monitor.builder()
+				.id("FAN1")
+				.name("FAN1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+
+		final Monitor fan2 = Monitor.builder()
+				.id("FAN2")
+				.name("FAN2")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+
+		final Monitor enclosure = buildEnclosure(metadata);
+		hostMonitoring.addMonitor(fan1);
+		hostMonitoring.addMonitor(fan2);
+		fan2.setParameters(Collections.emptyMap());
+		hostMonitoring.addMonitor(enclosure);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		collectOperation.post();
+
+		final Monitor collectedFan1 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN1");
+
+		assertEquals(strategyTime, 
+				collectedFan1.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)
+				.getCollectTime());
+
+		final Monitor weirdFan2 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN2");
+
+		assertNull(weirdFan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class));
+
+	}
+
+	@Test
+	void testProcessMonoInstanceValueTableParameterNotPresent() {
+		// Enclosure doesn't define present
+		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(buildEnclosure(metadata),
+				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+
+		final Monitor fan = Monitor.builder()
+				.id("FAN")
+				.name("FAN")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.build();
+		fan.setAsMissing();
+
+		// Missing is skipped, Present parameter equals 0
+		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
+				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+
+		// Weird case no parameters, no present
+		fan.setParameters(new HashMap<>());
+		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
+				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+
+		// Present parameter equals 1
+		fan.setAsPresent();
+		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
+				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+
+		// Weird case, Present parameter but present value is null
+		fan.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).setPresent(null);
+		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
+				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 	}
 }

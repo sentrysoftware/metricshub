@@ -1,18 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
@@ -23,9 +10,20 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 
 @Data
 @NoArgsConstructor
@@ -61,6 +59,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public synchronized void addMonitor(Monitor monitor) {
+
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 
 		final String id = monitor.getId();
@@ -69,16 +68,23 @@ public class HostMonitoring implements IHostMonitoring {
 		final MonitorType monitorType = monitor.getMonitorType();
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()), PARENT_ID_CANNOT_BE_NULL);
+		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
+			PARENT_ID_CANNOT_BE_NULL);
+
 		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
-	
+
+		// The monitor is created then it is present
+		monitor.setAsPresent();
+
 		if (monitors.containsKey(monitorType)) {
+
 			Map<String, Monitor> map = monitors.get(monitorType);
 
 			// Copy the parameters from the monitor instance previously collected
 			copyParameters(map.get(id), monitor);
 
 			map.put(id, monitor);
+
 		} else {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
@@ -109,7 +115,8 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void addMonitor(final Monitor monitor, final String id, final String connectorName, final MonitorType monitorType,
+	public synchronized void addMonitor(final Monitor monitor, final String id,
+			final String connectorName, final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
@@ -292,5 +299,29 @@ public class HostMonitoring implements IHostMonitoring {
 				sameTypeMonitors -> sameTypeMonitors.values().forEach(
 						mo -> mo.getParameters().values().forEach(
 								IParameterValue::reset)));
+	}
+
+	@Override
+	public synchronized void addMissingMonitor(Monitor monitor) {
+		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
+
+		final String id = monitor.getId();
+		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
+
+		final MonitorType monitorType = monitor.getMonitorType();
+		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+
+		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
+			return;
+		}
+
+		// The monitor is created as missing
+		monitor.setAsMissing();
+
+		if (monitors.containsKey(monitorType)) {
+			monitors.get(monitorType).put(id, monitor);
+		} else {
+			monitors.put(monitorType, createLinkedHashMap(id, monitor));
+		}
 	}
 }

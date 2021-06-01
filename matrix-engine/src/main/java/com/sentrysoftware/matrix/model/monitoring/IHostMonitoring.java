@@ -46,4 +46,5 @@ public interface IHostMonitoring {
 
 	void resetParameters();
 
+	void addMissingMonitor(Monitor monitor);
 }

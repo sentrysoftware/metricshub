@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +24,7 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +34,24 @@ public class DiscoveryOperation extends AbstractStrategy {
 	private static final String NO_HW_MONITORS_FOUND_MSG = "Could not discover system {}. No hardware monitors found in the connector {}";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
+
+	@Override
+	public void prepare() {
+
+		strategyConfig
+			.getHostMonitoring()
+			.backup();
+
+		strategyConfig
+			.getHostMonitoring()
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.forEach(monitor ->
+				resetPresentParam(monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)));
+	}
 
 	@Override
 	public Boolean call() throws Exception {
@@ -296,7 +316,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			// Means we have a column number so we can extract the value from the row
 			if (matcher.find()) {
-				final Integer columnIndex = Integer.parseInt(matcher.group(1)) - 1;
+				final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
 
 				if (columnIndex >= 0 && columnIndex < row.size()) {
 					// Get the real value from the source table row
@@ -373,7 +393,77 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	@Override
 	public void post() {
-		// Not implemented yet
+
+		// Missing monitors
+		handleMissingMonitorDetection(strategyConfig.getHostMonitoring());
+	}
+
+	/**
+	 * Detect Missing Monitors 
+	 * 
+	 * @param hostMonitoring The wrapper of the monitors
+	 */
+	void handleMissingMonitorDetection(final IHostMonitoring hostMonitoring) {
+
+		final Set<Monitor> previousMonitors = hostMonitoring
+			.getPreviousMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.collect(Collectors.toSet());
+
+		final Set<Monitor> currentMonitors = hostMonitoring
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.collect(Collectors.toSet());
+
+		final Set<String> currentMonitorIds = currentMonitors
+			.stream()
+			.map(Monitor::getId)
+			.collect(Collectors.toSet());
+
+		previousMonitors.forEach(monitor -> processMissing(monitor, currentMonitorIds, hostMonitoring));
+
+		currentMonitors
+			.stream()
+			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
+			.filter(monitor -> monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class) != null)
+			.filter(monitor ->
+				monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).getPresent() == null)
+			.forEach(Monitor::setAsMissing);
+	}
+
+	/**
+	 * Process missing monitor
+	 * 
+	 * @param previousMonitor   The previous monitor instance we wish to check
+	 * @param currentMonitorIds The current identifiers of the discovered monitor instances
+	 * @param hostMonitoring    The monitors wrapper
+	 */
+	static void processMissing(final Monitor previousMonitor, final Set<String> currentMonitorIds,
+			final IHostMonitoring hostMonitoring) {
+
+		if (currentMonitorIds.contains(previousMonitor.getId())) {
+			return;
+		}
+
+		hostMonitoring.addMissingMonitor(previousMonitor);
+	}
+
+	/**
+	 * Reset the present parameter
+	 * 
+	 * @param presentParam The parameter we wish to reset
+	 */
+	static void resetPresentParam(final PresentParam presentParam) {
+
+		if (presentParam != null) {
+			presentParam.discoveryReset();
+		}
 	}
 
 	@Override
