@@ -1,6 +1,18 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.TriFunction;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
@@ -30,22 +42,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -60,6 +62,16 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Setter
 	private Connector connector;
+
+	private static final TriFunction<List<String>, Integer, String, Integer> GET_VALUE_FROM_ROW = (row, index, value) -> {
+		if (index < row.size()) {
+			return transformToIntegerValue(row.get(index));
+		}
+		log.warn("Cannot get value at index {} from the row {}", index, row);
+		return null;
+	};
+
+	private static final TriFunction<List<String>, Integer, String, Integer> GET_VALUE = (row, index, value) -> transformToIntegerValue(value);
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
@@ -139,12 +151,11 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		if(divide.getColumn() == null || divide.getDivideBy() == null ) {
+		if (divide.getColumn() == null || divide.getDivideBy() == null) {
 			log.warn("Arguments in Compute Operation (Divide) : {} are wrong, the table remains unchanged.", divide);
 			return;
 		}
 
-		
 		Integer columnIndex = divide.getColumn();
 		String divideBy = divide.getDivideBy();
 
@@ -619,7 +630,148 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Substring substring) {
-		// Not implemented yet
+		if (!checkSubstring(substring)) {
+			log.warn("The substring {} is not valid, the table remains unchanged.", substring);
+			return;
+		}
+
+		final String start = substring.getStart();
+		final String length = substring.getLength();
+
+		final Integer startColumnIndex = getColumnIndex(start);
+		if (!checkValueAndColumnIndexConsistency(start, startColumnIndex)) {
+			log.warn("Inconsistent substring start value {}, the table remains unchanged.", start);
+			return;
+		}
+
+		final Integer lengthColumnIndex = getColumnIndex(length);
+		if (!checkValueAndColumnIndexConsistency(length, lengthColumnIndex)) {
+			log.warn("Inconsistent substring length value {}, the table remains unchanged.", length);
+			return;
+		}
+
+		performSubstring(substring.getColumn() - 1, start, startColumnIndex, length, lengthColumnIndex);
+	}
+
+	/**
+	 * Check the given {@link Substring} instance
+	 * 
+	 * @param substring The substring instance we wish to check
+	 * @return true if the substring is valid
+	 */
+	static boolean checkSubstring(final Substring substring) {
+		return substring != null
+				&& substring.getColumn() != null
+				&& substring.getColumn() >= 1
+				&& substring.getStart() != null
+				&& substring.getLength() != null;
+	}
+
+	/**
+	 * Perform a substring operation on the column identified by the given <code>columnIndex</code>
+	 * 
+	 * @param columnIndex      The column number in the current {@link SourceTable}
+	 * @param start            The begin index, inclusive and starts at 1
+	 * @param startColumnIndex The column index, so that we extract the start index. If equals -1 then it is not used
+	 * @param end              The ending index, exclusive
+	 * @param endColumnIndex   The column index, so that we extract the length index. If equals -1 then it is not used
+	 */
+	void performSubstring(final int columnIndex, final String start, final int startColumnIndex,
+			final String end, final int endColumnIndex) {
+
+		final TriFunction<List<String>, Integer, String, Integer> startFunction = getValueFunction(startColumnIndex);
+		final TriFunction<List<String>, Integer, String, Integer> endFunction = getValueFunction(endColumnIndex);
+
+		sourceTable.getTable()
+		.forEach(row ->  {
+			if (columnIndex < row.size()) {
+				final String columnValue = row.get(columnIndex);
+				final Integer beginIndex = startFunction.apply(row, startColumnIndex, start);
+				final Integer endIndex = endFunction.apply(row, endColumnIndex, end);
+
+				if (checkSubstringArguments(beginIndex, endIndex, columnValue.length())) {
+					// No need to put endIndex -1 as the String substring end index is exclusive 
+					// PSL substr(1,3) is equivalent to Java String substring(0, 3)
+					row.set(columnIndex, columnValue.substring(beginIndex -1, endIndex));
+					return;
+				}
+				log.warn("substring arguments are not valid: start={}, end={},"
+						+ " startColumnIndex={}, endColumnIndex={},"
+						+ " computed beginIndex={}, computed endInex={},"
+						+ " row={}, columnValue={}",
+						start, end,
+						startColumnIndex, endColumnIndex,
+						beginIndex, endIndex,
+						row, columnValue);
+			}
+
+			log.warn("Cannot perform substring on row {} on column index {}", row, columnIndex);
+		});
+	}
+
+	/**
+	 * Check the substring argument to avoid the {@link StringIndexOutOfBoundsException}
+	 * 
+	 * @param begin  Starts from 1
+	 * @param end    The end index of the string
+	 * @param length The length of the {@link String}
+	 * @return <code>true</code> if a {@link String} substring can performed
+	 */
+	static boolean checkSubstringArguments(final Integer begin, final Integer end, final int length) {
+		return begin != null
+				&& end != null
+				&& (begin - 1) >= 0
+				&& (begin - 1) <= end
+				&& end <= length;
+	}
+
+	/**
+	 * Transform the given {@link String} value to an {@link Integer} value
+	 * 
+	 * @param value The value we wish to parse
+	 * @return {@link Integer} value
+	 */
+	static Integer transformToIntegerValue(final String value) {
+		if (value != null && value.matches("\\d+")) {
+			return Integer.parseInt(value);
+		}
+		return null;
+	}
+
+	/**
+	 * Return the right {@link TriFunction} based on the <code>foreignColumnIndex</code>
+	 * 
+	 * @param foreignColumnIndex The index of the column we wish to check so that we choose the right function to return
+	 * @return {@link TriFunction} used to get the value
+	 */
+	static TriFunction<List<String>, Integer, String, Integer> getValueFunction(final int foreignColumnIndex) {
+		if (foreignColumnIndex  >= 0) {
+			return  GET_VALUE_FROM_ROW;
+		} else {
+			return  GET_VALUE;
+		}
+	}
+
+	/**
+	 * Check value and column index consistency. At least we need one data available
+	 * 
+	 * @param value              The string value as a number
+	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
+	 * @return <code>true</code> if data is consistent
+	 */
+	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
+		return foreignColumnIndex >= 0 || value.matches("\\d+");
+	}
+
+	/**
+	 * Get the column index for the given value
+	 * 
+	 * @param value The value we wish to parse
+	 * @return {@link Integer} value or -1 if value is not in the column pattern format
+	 */
+	static Integer getColumnIndex(final String value) {
+		final Matcher matcher = COLUMN_PATTERN.matcher(value);
+		return matcher.matches() ? Integer.parseInt(matcher.group(1)) - 1 : -1;
 	}
 
 	@Override
