@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
+import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -114,9 +115,10 @@ public abstract class AbstractStrategy implements IStrategy {
 			if (computes != null) {
 
 				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable, connector);
+				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
 				for (final Compute compute : computes) {
-					compute.accept(computeVisitor);
+					compute.accept(computeUpdaterVisitor);
 				}
 
 				hostMonitoring.addSourceTable(source.getKey(), computeVisitor.getSourceTable());

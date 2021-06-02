@@ -33,4 +33,18 @@ public class Substring extends Compute {
 		computeVisitor.visit(this);
 	}
 
+	/**
+	 * Copy the current instance
+	 * 
+	 * @return new {@link Substring} instance
+	 */
+	public Substring copy() {
+		return Substring.builder()
+				.column(column)
+				.start(start)
+				.length(length)
+				.index(getIndex())
+				.build();
+	}
+
 }
