@@ -10,6 +10,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.awk.ConnectorAwk
 import com.sentrysoftware.matrix.connector.parser.state.compute.divide.ConnectorDivideProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn.ConnectorDuplicateColumnProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.excludematchinglines.ConnectorExcludeMatchingLinesProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.extract.ConnectorExtractProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.keepcolumns.ConnectorKeepColumnsProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatProperty;
@@ -43,7 +44,8 @@ public class ConnectorComputeProperty {
 				ConnectorKeepColumnsProperty.getConnectorProperties(),
 				ConnectorSubstringProperty.getConnectorProperties(),
 				ConnectorSubstractProperty.getConnectorProperties(),
-				ConnectorAwkProperty.getConnectorProperties())
+				ConnectorAwkProperty.getConnectorProperties(),
+				ConnectorExtractProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
 	}
