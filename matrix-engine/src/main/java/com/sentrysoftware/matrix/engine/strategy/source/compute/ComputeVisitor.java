@@ -1,14 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.TriFunction;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -40,12 +31,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -194,7 +193,62 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Extract extract) {
-		// Not implemented yet
+
+		if (extract == null) {
+			log.warn("Extract object is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer column = extract.getColumn();
+		if (column == null || column < 1) {
+			log.warn("The column number in Extract cannot be {}, the table remains unchanged.", column);
+			return;
+		}
+
+		Integer subColumn = extract.getSubColumn();
+		if (subColumn == null || subColumn < 1) {
+			log.warn("The sub-column number in Extract cannot be {}, the table remains unchanged.", subColumn);
+			return;
+		}
+
+		String subSeparators = extract.getSubSeparators();
+		if (subSeparators == null || subSeparators.isEmpty()) {
+			log.warn("The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.");
+			return;
+		}
+
+		int columnIndex = column - 1;
+
+		String text;
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+
+			if (columnIndex >= row.size()) {
+				log.warn("Invalid column index: {}. The table remains unchanged.", column);
+				return;
+			}
+
+			text = row.get(columnIndex);
+			if (text == null) {
+				log.warn("Value at column {} cannot be null, the table remains unchanged.", column);
+				return;
+			}
+
+			String extractedValue = PslUtils.nthArgf(text, String.valueOf(subColumn), subSeparators, null);
+
+			if (extractedValue == null) {
+				log.warn("Could not extract value at index {} in {}. The table remains unchanged.", subColumn, text);
+				return;
+			}
+
+			resultRow = new ArrayList<>(row);
+			resultRow.set(columnIndex, extractedValue);
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
 	}
 
 	@Override

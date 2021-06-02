@@ -6,6 +6,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -794,8 +795,6 @@ class ComputeVisitorTest {
 		sourceTable.getTable().add(new ArrayList<>(LINE_3));
 	}
 
-
-
 	@Test
 	void testTranslation() {
 		
@@ -1550,5 +1549,109 @@ class ComputeVisitorTest {
 	void testGetColumnIndex() {
 		assertEquals(1, ComputeVisitor.getColumnIndex(" Column(2) "));
 		assertEquals(-1, ComputeVisitor.getColumnIndex("2"));
+	}
+
+	@Test
+	void testExtract() {
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
+		);
+
+		sourceTable.setTable(table);
+
+		// Extract is null
+		computeVisitor.visit((Extract) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column is null
+		Extract extract = Extract.builder().build();
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column < 1
+		extract.setColumn(0);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn is null
+		extract.setColumn(1);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn < 1
+		extract.setSubColumn(-1);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is null
+		extract.setSubColumn(1);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is empty
+		extract.setSubSeparators("");
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column > row size
+		extract.setSubSeparators("|");
+		extract.setColumn(6);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is null
+		extract.setColumn(4);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn < 1
+		table.get(0).set(3, "|OK|1");
+		table.get(1).set(3, "|OK|2");
+		table.get(2).set(3, "|OK|3");
+		extract.setSubColumn(0);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn > text.length()
+		extract.setSubColumn(4);
+		computeVisitor.visit(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Test OK, subSeparators is a single character
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
+		);
+		extract.setSubColumn(3);
+		computeVisitor.visit(extract);
+		assertEquals(result, sourceTable.getTable());
+
+		// Test OK, subSeparators is "()"
+		table.get(0).set(3, "STATUS1 (1)");
+		table.get(1).set(3, "STATUS2 (2)");
+		table.get(2).set(3, "STATUS3 (3)");
+		sourceTable.setTable(table);
+		extract.setSubColumn(2);
+		extract.setSubSeparators("()");
+		computeVisitor.visit(extract);
+		assertEquals(result, sourceTable.getTable());
+
+		// Test OK, subSeparators is "%%"
+		table.get(0).set(3, "1% of maximum");
+		table.get(1).set(3, "2% of maximum");
+		table.get(2).set(3, "3% of maximum");
+		sourceTable.setTable(table);
+		extract.setSubColumn(1);
+		extract.setSubSeparators("%%");
+		computeVisitor.visit(extract);
+		assertEquals(result, sourceTable.getTable());
 	}
 }
