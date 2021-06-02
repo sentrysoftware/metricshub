@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.RightConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -896,262 +897,252 @@ class ComputeVisitorTest {
 	
 	@Test
 	void testAdd() {
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "500", "2", "val1")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "1500", "5", "val2")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "200", "2", "val3")));
-		
-		Add addition = Add.builder().build();
-		computeVisitor.visit(addition);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "500", "2", "val1"),
+			Arrays.asList("ID2", "1500", "5", "val2"),
+			Arrays.asList("ID1", "200", "2", "val3"));
+
+		sourceTable.setTable(table);
 
 		computeVisitor.visit((Add) null);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
+
+		Add addition = Add.builder().build();
+		computeVisitor.visit(addition);
+		assertEquals(table, sourceTable.getTable());
+
+		addition = Add.builder().column(-1).add("").build();
+		computeVisitor.visit(addition);
+		assertEquals(table, sourceTable.getTable());
 
 		addition = Add.builder().column(2).build();
 		computeVisitor.visit(addition);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		addition = Add.builder().add("column(3)").build();
 		computeVisitor.visit(addition);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		addition = Add.builder().add("column(13)").build();
 		computeVisitor.visit(addition);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		addition = Add.builder().add("0").build();
 		computeVisitor.visit(addition);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
-		
+		assertEquals(table, sourceTable.getTable());
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "502.0", "2", "val1"),
+			Arrays.asList("ID2", "1505.0", "5", "val2"),
+			Arrays.asList("ID1", "202.0", "2", "val3"));
+
 		Add addColumn = Add.builder().column(2).add("column(3)").build();
 		computeVisitor.visit(addColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "502.0", "2", "val1"), 
-				Arrays.asList("ID2", "1505.0", "5", "val2"),
-				Arrays.asList("ID1", "202.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 		
 		addColumn = Add.builder().column(2).add("column(1)").build();
 		computeVisitor.visit(addColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "502.0", "2", "val1"), 
-				Arrays.asList("ID2", "1505.0", "5", "val2"),
-				Arrays.asList("ID1", "202.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 		
 		addColumn = Add.builder().column(2).add("id1").build();
 		computeVisitor.visit(addColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "502.0", "2", "val1"), 
-				Arrays.asList("ID2", "1505.0", "5", "val2"),
-				Arrays.asList("ID1", "202.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 
 		Add addValue = Add.builder().column(2).add("10").build();
 		computeVisitor.visit(addValue);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "512.0", "2", "val1"), 
-				Arrays.asList("ID2", "1515.0", "5", "val2"),
-				Arrays.asList("ID1", "212.0", "2", "val3")),
-				sourceTable.getTable());
+			Arrays.asList("ID1", "512.0", "2", "val1"),
+			Arrays.asList("ID2", "1515.0", "5", "val2"),
+			Arrays.asList("ID1", "212.0", "2", "val3")),
+			sourceTable.getTable());
+	}
+
+	@Test
+	void testSubstract() {
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "500", "2", "val1"),
+			Arrays.asList("ID2", "1500", "5", "val2"),
+			Arrays.asList("ID1", "200", "2", "val3"));
+
+		sourceTable.setTable(table);
+
+		computeVisitor.visit((Substract) null);
+		assertEquals(table, sourceTable.getTable());
+
+		Substract substract = Substract.builder().build();
+		computeVisitor.visit(substract);
+		assertEquals(table, sourceTable.getTable());
+
+		substract = Substract.builder().column(-1).substract("").build();
+		computeVisitor.visit(substract);
+		assertEquals(table, sourceTable.getTable());
+
+		substract = Substract.builder().column(2).build();
+		computeVisitor.visit(substract);
+		assertEquals(table, sourceTable.getTable());
+
+		substract = Substract.builder().substract("column(3)").build();
+		computeVisitor.visit(substract);
+		assertEquals(table,	sourceTable.getTable());
+
+		substract = Substract.builder().substract("column(13)").build();
+		computeVisitor.visit(substract);
+		assertEquals(table, sourceTable.getTable());
+
+		substract = Substract.builder().substract("0").build();
+		computeVisitor.visit(substract);
+		assertEquals(table, sourceTable.getTable());
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "498.0", "2", "val1"),
+			Arrays.asList("ID2", "1495.0", "5", "val2"),
+			Arrays.asList("ID1", "198.0", "2", "val3"));
+
+		Substract substractColumn = Substract.builder().column(2).substract("column(3)").build();
+		computeVisitor.visit(substractColumn);
+		assertEquals(result, sourceTable.getTable());
+
+		substractColumn = Substract.builder().column(2).substract("column(1)").build();
+		computeVisitor.visit(substractColumn);
+		assertEquals(result, sourceTable.getTable());
+
+		substractColumn = Substract.builder().column(2).substract("id1").build();
+		computeVisitor.visit(substractColumn);
+		assertEquals(result, sourceTable.getTable());
+
+		Substract substractValue = Substract.builder().column(2).substract("10").build();
+		computeVisitor.visit(substractValue);
+		assertEquals(Arrays.asList(
+			Arrays.asList("ID1", "488.0", "2", "val1"),
+			Arrays.asList("ID2", "1485.0", "5", "val2"),
+			Arrays.asList("ID1", "188.0", "2", "val3")),
+			sourceTable.getTable());
 	}
 	
 	@Test
 	void testDivide() {
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "500", "2", "val1")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "1500", "5", "val2")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "200", "2", "val3")));
-		
-		Divide divide = Divide.builder().build();
-		computeVisitor.visit(divide);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "500", "2", "val1"),
+			Arrays.asList("ID2", "1500", "5", "val2"),
+			Arrays.asList("ID1", "200", "2", "val3"));
+
+		sourceTable.setTable(table);
 
 		computeVisitor.visit((Divide) null);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
+
+		Divide divide = Divide.builder().build();
+		computeVisitor.visit(divide);
+		assertEquals(table, sourceTable.getTable());
+
+		divide = Divide.builder().column(-1).divideBy("").build();
+		computeVisitor.visit(divide);
+		assertEquals(table, sourceTable.getTable());
 
 		divide = Divide.builder().column(2).build();
 		computeVisitor.visit(divide);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		divide = Divide.builder().divideBy("column(3)").build();
 		computeVisitor.visit(divide);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		divide = Divide.builder().divideBy("column(13)").build();
 		computeVisitor.visit(divide);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		divide = Divide.builder().divideBy("0").build();
 		computeVisitor.visit(divide);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
-		
+		assertEquals(table, sourceTable.getTable());
+
+		List<List<String>> result1 = Arrays.asList(
+			Arrays.asList("ID1", "250.0", "2", "val1"),
+			Arrays.asList("ID2", "300.0", "5", "val2"),
+			Arrays.asList("ID1", "100.0", "2", "val3"));
+
 		Divide divideByColumn = Divide.builder().column(2).divideBy("column(3)").build();
 		computeVisitor.visit(divideByColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "250.0", "2", "val1"), 
-				Arrays.asList("ID2", "300.0", "5", "val2"),
-				Arrays.asList("ID1", "100.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result1, sourceTable.getTable());
 		
 		divideByColumn = Divide.builder().column(2).divideBy("column(1)").build();
 		computeVisitor.visit(divideByColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "250.0", "2", "val1"), 
-				Arrays.asList("ID2", "300.0", "5", "val2"),
-				Arrays.asList("ID1", "100.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result1, sourceTable.getTable());
 		
 		divideByColumn = Divide.builder().column(2).divideBy("id1").build();
 		computeVisitor.visit(divideByColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "250.0", "2", "val1"), 
-				Arrays.asList("ID2", "300.0", "5", "val2"),
-				Arrays.asList("ID1", "100.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result1, sourceTable.getTable());
+
+		List<List<String>> result2 = Arrays.asList(
+			Arrays.asList("ID1", "25.0", "2", "val1"),
+			Arrays.asList("ID2", "30.0", "5", "val2"),
+			Arrays.asList("ID1", "10.0", "2", "val3"));
 
 		Divide divideByValue = Divide.builder().column(2).divideBy("10").build();
 		computeVisitor.visit(divideByValue);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "25.0", "2", "val1"), 
-				Arrays.asList("ID2", "30.0", "5", "val2"),
-				Arrays.asList("ID1", "10.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result2, sourceTable.getTable());
 
 		divideByValue = Divide.builder().column(2).divideBy("0").build();
 		computeVisitor.visit(divideByValue);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "25.0", "2", "val1"), 
-				Arrays.asList("ID2", "30.0", "5", "val2"),
-				Arrays.asList("ID1", "10.0", "2", "val3")),
-				sourceTable.getTable());
-
+		assertEquals(result2, sourceTable.getTable());
 	}
 
 	
 	@Test
 	void testMultiply() {
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "500", "2", "val1")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "1500", "5", "val2")));
-		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "200", "2", "val3")));
-		
-		Multiply multiply = Multiply.builder().build();
-		computeVisitor.visit(multiply);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "500", "2", "val1"),
+			Arrays.asList("ID2", "1500", "5", "val2"),
+			Arrays.asList("ID1", "200", "2", "val3"));
+
+		sourceTable.setTable(table);
 
 		computeVisitor.visit((Multiply) null);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
+
+		Multiply multiply = Multiply.builder().build();
+		computeVisitor.visit(multiply);
+		assertEquals(table, sourceTable.getTable());
+
+		multiply = Multiply.builder().column(-1).multiplyBy("").build();
+		computeVisitor.visit(multiply);
+		assertEquals(table, sourceTable.getTable());
 
 		multiply = Multiply.builder().column(2).build();
 		computeVisitor.visit(multiply);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		multiply = Multiply.builder().multiplyBy("0").build();
 		computeVisitor.visit(multiply);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		multiply = Multiply.builder().multiplyBy("column(3)").build();
 		computeVisitor.visit(multiply);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(table, sourceTable.getTable());
 		
 		multiply = Multiply.builder().multiplyBy("column(13)").build();
 		computeVisitor.visit(multiply);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "500", "2", "val1"), 
-				Arrays.asList("ID2", "1500", "5", "val2"),
-				Arrays.asList("ID1", "200", "2", "val3")),
-				sourceTable.getTable());
-		
+		assertEquals(table, sourceTable.getTable());
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "1000.0", "2", "val1"),
+			Arrays.asList("ID2", "7500.0", "5", "val2"),
+			Arrays.asList("ID1", "400.0", "2", "val3"));
+
 		Multiply multiByColumn = Multiply.builder().column(2).multiplyBy("column(3)").build();
 		computeVisitor.visit(multiByColumn);
-		assertEquals(Arrays.asList(
-						Arrays.asList("ID1", "1000.0", "2", "val1"), 
-						Arrays.asList("ID2", "7500.0", "5", "val2"),
-						Arrays.asList("ID1", "400.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 		
 		multiByColumn = Multiply.builder().column(2).multiplyBy("column(1)").build();
 		computeVisitor.visit(multiByColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "1000.0", "2", "val1"), 
-				Arrays.asList("ID2", "7500.0", "5", "val2"),
-				Arrays.asList("ID1", "400.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 		
 		multiByColumn = Multiply.builder().column(2).multiplyBy("id1").build();
 		computeVisitor.visit(multiByColumn);
-		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "1000.0", "2", "val1"), 
-				Arrays.asList("ID2", "7500.0", "5", "val2"),
-				Arrays.asList("ID1", "400.0", "2", "val3")),
-				sourceTable.getTable());
+		assertEquals(result, sourceTable.getTable());
 
 		Multiply multiplyByValue = Multiply.builder().column(2).multiplyBy("10").build();
 		computeVisitor.visit(multiplyByValue);

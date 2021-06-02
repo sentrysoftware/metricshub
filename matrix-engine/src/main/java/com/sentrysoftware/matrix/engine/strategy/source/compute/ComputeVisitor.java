@@ -37,8 +37,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -72,21 +70,17 @@ public class ComputeVisitor implements IComputeVisitor {
 	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION = (str, translations) -> translations.get(str);
 
 	static {
-		final Map<Class<? extends Compute>, BiFunction<String, String, String>> map = new HashMap<>();
-		map.put(Add.class,
-				(op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)));
-		map.put(Multiply.class,
-				(op1, op2) -> Double.toString(Double.parseDouble(op1) * Double.parseDouble(op2)));
-		map.put(Divide.class,
-				(op1, op2) -> {
-					Double op2Value = Double.parseDouble(op2);
-					if(op2Value != 0) {
-						return Double.toString(Double.parseDouble(op1) / op2Value);
-					}
-					return null;
-				});
-		MATH_FUNCTIONS_MAP = Collections.unmodifiableMap(map);
-
+		MATH_FUNCTIONS_MAP = Map.of(
+			Add.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)),
+			Substract.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) - Double.parseDouble(op2)),
+			Multiply.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) * Double.parseDouble(op2)),
+			Divide.class, (op1, op2) -> {
+				Double op2Value = Double.parseDouble(op2);
+				if (op2Value != 0) {
+					return Double.toString(Double.parseDouble(op1) / op2Value);
+				}
+				return null;
+			});
 	}
 
 	@Override
@@ -614,7 +608,29 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Substract substract) {
-		// Not implemented yet
+
+		if (substract == null) {
+			log.warn("Compute Operation (Substract) is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer columnIndex = substract.getColumn();
+		String operand2 = substract.getSubstract();
+
+		if (columnIndex == null || operand2 == null ) {
+
+			log.warn("Arguments in Compute Operation (Substract) : {} are wrong, the table remains unchanged.",
+				substract);
+
+			return;
+		}
+
+		if (columnIndex < 1 ) {
+			log.warn("The index of the column to add cannot be < 1, the addition computation cannot be performed.");
+			return;
+		}
+
+		performMathematicalOperation(substract, columnIndex, operand2);
 	}
 
 	@Override
@@ -632,7 +648,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		TranslationTable translationTable = translate.getTranslationTable();
 		if (translationTable == null) {
-			log.warn("TranslationTable is null, the translate computation cannont be performed.");
+			log.warn("TranslationTable is null, the translate computation cannot be performed.");
 			return;
 		}
 
@@ -672,16 +688,16 @@ public class ComputeVisitor implements IComputeVisitor {
 
 
 	/**
-	 * Perform a mathematical computation (add, multiply or divide) on a given column in the sourcTable
+	 * Perform a mathematical computation (add, subtract, multiply or divide) on a given column in the sourceTable
 	 * Check if the operand2 is a reference to a column or a raw value 
-	 * @param computeOperation The compute operation must be one of : Add, Multiply, Divide.
+	 * @param computeOperation The compute operation must be one of : Add, Substract, Multiply, Divide.
 	 * @param column column to be changed
 	 * @param operand2 can be a reference to another column or a raw value
 	 */
 	private void performMathematicalOperation(final Compute computeOperation, Integer column, String operand2) {
 
 		if (!MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass())) {
-			log.warn("The compute operation must be one of : Add, Multiply, Divide.");
+			log.warn("The compute operation must be one of : Add, Substract, Multiply, Divide.");
 			return;
 		}
 
@@ -697,7 +713,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 			} catch (NumberFormatException e) {
-				log.warn("NumberFormatException : {} is not a correct operand2, the table remains unchanged.", operand2, computeOperation);
+				log.warn("NumberFormatException : {} is not a correct operand2 for {}, the table remains unchanged.", operand2, computeOperation);
 				log.warn("Exception : ", e);
 				return;
 			}
@@ -712,7 +728,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Execute the computational operation (Divide, Add or Multiply) on each row of the tableSource
+	 * Execute the computational operation (Add, Substract, Divide or Multiply) on each row of the tableSource
 	 * @param computeOperation 
 	 * @param columnIndex
 	 * @param op2
@@ -738,7 +754,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Given two operands, perform an addition, multiplication or division and modify the given line on the given columnIndex
+	 * Given two operands, perform an addition, subtraction, multiplication or division
+	 * and modify the given line on the given columnIndex
 	 * @param computeOperation
 	 * @param columnIndex
 	 * @param line
