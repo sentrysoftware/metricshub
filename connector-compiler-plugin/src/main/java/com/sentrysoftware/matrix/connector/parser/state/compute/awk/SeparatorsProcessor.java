@@ -10,7 +10,7 @@ public class SeparatorsProcessor extends AwkProcessor {
 	private static final Pattern SEPARATORS_KEY_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.separators\\s*$",
 			Pattern.CASE_INSENSITIVE);
-	
+
 	@Override
 	public Matcher getMatcher(String key) {
 		return SEPARATORS_KEY_PATTERN.matcher(key);

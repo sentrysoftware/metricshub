@@ -14,16 +14,16 @@ public class SelectColumnsProcessor extends AwkProcessor {
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.selectcolumns\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
-		@Override
-		public Matcher getMatcher(String key) {
-			return SELECT_COLUMNS_KEY_PATTERN.matcher(key);
-		}
+	@Override
+	public Matcher getMatcher(String key) {
+		return SELECT_COLUMNS_KEY_PATTERN.matcher(key);
+	}
 
-		@Override
-		public void parse(final String key, final String value, final Connector connector) {
+	@Override
+	public void parse(final String key, final String value, final Connector connector) {
 
-			super.parse(key, value, connector);
+		super.parse(key, value, connector);
 
-			((Awk) getCompute(key, connector)).setSelectColumns(Arrays.asList(value.split(COMMA)));
-		}
+		((Awk) getCompute(key, connector)).setSelectColumns(Arrays.asList(value.split(COMMA)));
+	}
 }
