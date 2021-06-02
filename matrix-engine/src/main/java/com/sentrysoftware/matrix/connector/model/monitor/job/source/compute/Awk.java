@@ -24,11 +24,11 @@ public class Awk extends Compute {
 	private String excludeRegExp;
 	private String keepOnlyRegExp;
 	private String separators;
-	private List<String> selectColumns = new ArrayList<>();
+	private List<Integer> selectColumns = new ArrayList<>();
 
 	@Builder
 	public Awk(Integer index, EmbeddedFile awkScript, String excludeRegExp, String keepOnlyRegExp, String separators,
-			List<String> selectColumns) {
+			List<Integer> selectColumns) {
 		super(index);
 		this.awkScript = awkScript;
 		this.excludeRegExp = excludeRegExp;

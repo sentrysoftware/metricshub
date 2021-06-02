@@ -23,7 +23,7 @@ public class SelectColumnsProcessorTest {
 
 	private static final String SELECT_COLUMNS_KEY = "enclosure.collect.source(1).compute(1).selectcolumns";
 	private static final String VALUE = "2,4,5,6";
-	private static final List<String> VALUE_RESULT = new ArrayList<>(Arrays.asList("2", "4", "5", "6"));
+	private static final List<Integer> VALUE_RESULT = new ArrayList<>(Arrays.asList(2, 4, 5, 6));
 
 	@Test
 	void testParse() {
