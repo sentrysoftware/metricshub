@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.perbittranslatio
 import com.sentrysoftware.matrix.connector.parser.state.compute.replace.ConnectorReplaceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.rightconcat.ConnectorRightConcatProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.substract.ConnectorSubstractProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.substring.ConnectorSubstringProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateProperty;
 
 public class ConnectorComputeProperty {
@@ -37,6 +38,7 @@ public class ConnectorComputeProperty {
 				ConnectorReplaceProperty.getConnectorProperties(),
 				ConnectorRightConcatProperty.getConnectorProperties(),
 				ConnectorTranslateProperty.getConnectorProperties(),
+				ConnectorSubstringProperty.getConnectorProperties(),
 				ConnectorSubstractProperty.getConnectorProperties(),
 				ConnectorAwkProperty.getConnectorProperties())
 			.flatMap(Set::stream)

@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -14,9 +15,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.RightConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,11 +23,15 @@ import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.PerBitTranslation;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Replace;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.RightConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
@@ -1320,4 +1322,177 @@ class ComputeVisitorTest {
 		assertEquals(table, sourceTable.getTable());
 	}
 
+	@Test
+	void visitSubstringNOK() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1"),
+				Arrays.asList("ID2", "Dell+33"),
+				Arrays.asList("ID3", "Dell+xyz"));
+
+		sourceTable.getTable().addAll(table);
+
+		{
+			computeVisitor.visit((Substring) null);
+			assertEquals(table, sourceTable.getTable());
+		}
+
+		{
+			computeVisitor.visit(Substring.builder().build());
+			assertEquals(table, sourceTable.getTable());
+		}
+
+		{
+			computeVisitor.visit(Substring.builder().column(2).start("TOTO").length("4").build());
+			assertEquals(table, sourceTable.getTable());
+		}
+
+		{
+			computeVisitor.visit(Substring.builder().column(2).start("1").length("TOTO").build());
+			assertEquals(table, sourceTable.getTable());
+		}
+	}
+
+	@Test
+	void testCheckSubstring() {
+		assertTrue(ComputeVisitor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
+		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
+		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().start("1").length("4").build()));
+		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().column(2).length("4").build()));
+		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().column(2).start("1").build()));
+		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().build()));
+		assertFalse(ComputeVisitor.checkSubstring((Substring) null));
+	}
+
+	@Test
+	void visitSubstring() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1"),
+				Arrays.asList("ID2", "Dell+33"),
+				Arrays.asList("ID3", "Dell+xyz"));
+
+		sourceTable.getTable().addAll(table);
+
+		final Substring substring = Substring.builder()
+				.column(2)
+				.index(1)
+				.start("1")
+				.length("4")
+				.build();
+
+		computeVisitor.visit(substring);
+
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "Dell"),
+				Arrays.asList("ID2", "Dell"),
+				Arrays.asList("ID3", "Dell"));
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void visitSubstringViaColumn() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1", "4"),
+				Arrays.asList("ID2", "Dell+33", "4"),
+				Arrays.asList("ID3", "Dell+xyz", "4"));
+
+		sourceTable.getTable().addAll(table);
+
+		final Substring substring = Substring.builder()
+				.column(2)
+				.index(1)
+				.start("1")
+				.length("Column(3)")
+				.build();
+
+		computeVisitor.visit(substring);
+
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "Dell", "4"),
+				Arrays.asList("ID2", "Dell", "4"),
+				Arrays.asList("ID3", "Dell", "4"));
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstringWrongBeginIndex() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1"),
+				Arrays.asList("ID2", "Dell+33"),
+				Arrays.asList("ID3", "Dell+xyz"));
+
+		sourceTable.getTable().addAll(table);
+
+		computeVisitor.performSubstring(1, "Column(4)", 3, "4", -1);
+
+		assertEquals(table, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstringWrongColumnIndex() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1"),
+				Arrays.asList("ID2", "Dell+33"),
+				Arrays.asList("ID3", "Dell+xyz"));
+
+		sourceTable.getTable().addAll(table);
+
+		computeVisitor.performSubstring(3, "1", -1, "4", -1);
+
+		assertEquals(table, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstring() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "Dell+1"),
+				Arrays.asList("ID2", "Dell+33"),
+				Arrays.asList("ID3", "Dell+xyz"));
+
+		sourceTable.getTable().addAll(table);
+
+		computeVisitor.performSubstring(1, "1", -1, "4", -1);
+
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "Dell"),
+				Arrays.asList("ID2", "Dell"),
+				Arrays.asList("ID3", "Dell"));
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void testCheckSubstringArguments() {
+		assertTrue(ComputeVisitor.checkSubstringArguments(1, 3, 3));
+		assertFalse(ComputeVisitor.checkSubstringArguments(null, 3, 3));
+		assertFalse(ComputeVisitor.checkSubstringArguments(1, null, 3));
+		assertFalse(ComputeVisitor.checkSubstringArguments(0, 3, 3));
+		assertFalse(ComputeVisitor.checkSubstringArguments(2, 0, 3));
+		assertFalse(ComputeVisitor.checkSubstringArguments(1, 4, 3));
+	}
+
+	@Test
+	void testTransformToIntegerValue() {
+		assertNull(ComputeVisitor.transformToIntegerValue(null));
+		assertNull(ComputeVisitor.transformToIntegerValue("a"));
+		assertEquals(1, ComputeVisitor.transformToIntegerValue("1"));
+	}
+
+	@Test
+	void testGetValueFunction() {
+		assertNotNull(ComputeVisitor.getValueFunction(-1));
+		assertNotNull(ComputeVisitor.getValueFunction(0));
+	}
+
+	@Test
+	void testCheckValueAndColumnIndexConsistency() {
+		assertTrue(ComputeVisitor.checkValueAndColumnIndexConsistency("1", -1));
+		assertFalse(ComputeVisitor.checkValueAndColumnIndexConsistency("Column(0)", -1));
+		assertTrue(ComputeVisitor.checkValueAndColumnIndexConsistency("Column(1)", 0));
+		assertTrue(ComputeVisitor.checkValueAndColumnIndexConsistency("1", 1));
+	}
+
+	@Test
+	void testGetColumnIndex() {
+		assertEquals(1, ComputeVisitor.getColumnIndex(" Column(2) "));
+		assertEquals(-1, ComputeVisitor.getColumnIndex("2"));
+	}
 }
