@@ -209,7 +209,39 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final KeepColumns keepColumns) {
-		// Not implemented yet
+
+		if (keepColumns == null) {
+			log.warn("KeepColumns object is null, the table remains unchanged.");
+			return;
+		}
+
+		if (keepColumns.getColumnNumbers() == null || keepColumns.getColumnNumbers().isEmpty()) {
+			log.warn("The column number list in KeepColumns cannot be null or empty. The table remains unchanged.");
+			return;
+		}
+
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+
+			resultRow = new ArrayList<>();
+			for (Integer columnIndex : keepColumns.getColumnNumbers()) {
+
+				if (columnIndex == null || columnIndex < 1 || columnIndex > row.size()) {
+
+					log.warn("Invalid index for a {}-sized row: {}. The table remains unchanged.",
+						row.size(), columnIndex);
+
+					return;
+				}
+
+				resultRow.add(row.get(columnIndex - 1));
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
 	}
 
 	@Override
@@ -731,7 +763,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @param begin  Starts from 1
 	 * @param end    The end index of the string
 	 * @param length The length of the {@link String}
-	 * @return <code>true</code> if a {@link String} substring can performed
+	 * @return <code>true</code> if a {@link String} substring can be performed
 	 */
 	static boolean checkSubstringArguments(final Integer begin, final Integer end, final int length) {
 		return begin != null
@@ -880,11 +912,12 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Execute the computational operation (Add, Substract, Divide or Multiply) on each row of the tableSource
-	 * @param computeOperation 
-	 * @param columnIndex
-	 * @param op2
-	 * @param op2Index
+	 * Execute the computational operation (Add, Substract, Divide or Multiply) on each row of the tableSource.
+	 *
+	 * @param computeOperation	The {@link Compute} operation that should be performed.
+	 * @param columnIndex		The index of the column on which the operation should be performed.
+	 * @param op2               The second operand of the operation.
+	 * @param op2Index			The column holding the value of the second operand in the {@link SourceTable}.
 	 */
 	private void performMathComputeOnTable(final Compute computeOperation, Integer columnIndex, String op2, int op2Index) {
 		for (List<String> line : sourceTable.getTable()) {
@@ -906,13 +939,14 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Given two operands, perform an addition, subtraction, multiplication or division
-	 * and modify the given line on the given columnIndex
-	 * @param computeOperation
-	 * @param columnIndex
-	 * @param line
-	 * @param op1
-	 * @param op2
+	 * Given two operands, perform an addition, substraction, multiplication or division
+	 * and modify the given line on the given columnIndex.
+	 *
+	 * @param computeOperation	The {@link Compute} operation that should be performed.
+	 * @param columnIndex		The index of the column on which the operation should be performed.
+	 * @param line				The row of the {@link SourceTable} that is being operated on.
+	 * @param op1				The first operand of the operation.
+	 * @param op2				The second operand of the operation.
 	 */
 	private void performMathComputeOnLine(final Class<? extends Compute> computeOperation, final Integer columnIndex,
 			final List<String> line, final String op1, final String op2) {

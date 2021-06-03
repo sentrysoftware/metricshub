@@ -1,29 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Multiply;
@@ -34,6 +17,23 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ComputeVisitorTest {
 
@@ -1323,6 +1323,57 @@ class ComputeVisitorTest {
 	}
 
 	@Test
+	void testKeepColumns() {
+
+		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
+
+		sourceTable.setTable(table);
+
+		// KeepColumns is null
+		computeVisitor.visit((KeepColumns) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is empty
+		KeepColumns keepColumns = KeepColumns.builder().build();
+		computeVisitor.visit(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is null
+		keepColumns.setColumnNumbers(null);
+		computeVisitor.visit(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is null
+		keepColumns.setColumnNumbers(Arrays.asList(1, null, 3));
+		computeVisitor.visit(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is lower than 1
+		keepColumns.setColumnNumbers(Arrays.asList(1, 0, 3));
+		computeVisitor.visit(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is greater than the rows' size
+		keepColumns.setColumnNumbers(Arrays.asList(1, 5, 3));
+		computeVisitor.visit(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// test OK
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
+			Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
+			Arrays.asList(LINE_3.get(0), LINE_3.get(1), LINE_3.get(3))
+		);
+
+		keepColumns.setColumnNumbers(Arrays.asList(1, 2, 4));
+		computeVisitor.visit(keepColumns);
+		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
 	void visitSubstringNOK() {
 		final List<List<String>> table = Arrays.asList(
 				Arrays.asList("ID1", "Dell+1"),
@@ -1360,7 +1411,7 @@ class ComputeVisitorTest {
 		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().column(2).length("4").build()));
 		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().column(2).start("1").build()));
 		assertFalse(ComputeVisitor.checkSubstring(Substring.builder().build()));
-		assertFalse(ComputeVisitor.checkSubstring((Substring) null));
+		assertFalse(ComputeVisitor.checkSubstring(null));
 	}
 
 	@Test
@@ -1462,8 +1513,13 @@ class ComputeVisitorTest {
 	@Test
 	void testCheckSubstringArguments() {
 		assertTrue(ComputeVisitor.checkSubstringArguments(1, 3, 3));
+
+		//noinspection ConstantConditions
 		assertFalse(ComputeVisitor.checkSubstringArguments(null, 3, 3));
+
+		//noinspection ConstantConditions
 		assertFalse(ComputeVisitor.checkSubstringArguments(1, null, 3));
+
 		assertFalse(ComputeVisitor.checkSubstringArguments(0, 3, 3));
 		assertFalse(ComputeVisitor.checkSubstringArguments(2, 0, 3));
 		assertFalse(ComputeVisitor.checkSubstringArguments(1, 4, 3));
