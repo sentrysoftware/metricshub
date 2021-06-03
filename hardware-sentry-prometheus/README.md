@@ -113,5 +113,5 @@
   After building the docker image, bind-mount your *hardware-sentry-config.yml* configuration from the host by running:
 
   ```shell script
-  $ docker run -p 8080:8080 -v /path/to/hardware-sentry-config.yml:/hardware-sentry/hardware-sentry-config.yml hardware-sentry-prometheus:latest
+  $ docker run -d -p 8080:8080 -v /path/to/hardware-sentry-config.yml:/hardware-sentry/hardware-sentry-config.yml hardware-sentry-prometheus:latest
   ```
