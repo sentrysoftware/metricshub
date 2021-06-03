@@ -17,15 +17,15 @@ public class Substring extends Compute {
 	private static final long serialVersionUID = 1959269892827970861L;
 
 	private Integer column;
-	private Integer start;
-	private Integer end;
+	private String start;
+	private String length;
 
 	@Builder
-	public Substring(Integer index, Integer column, Integer start, Integer end) {
+	public Substring(Integer index, Integer column, String start, String length) {
 		super(index);
 		this.column = column;
 		this.start = start;
-		this.end = end;
+		this.length = length;
 	}
 
 	@Override
