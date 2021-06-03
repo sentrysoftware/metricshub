@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.awk;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
@@ -14,7 +16,7 @@ public class AwkScriptProcessor extends AwkProcessor {
 			Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern EMBEDDED_PATTERN = Pattern.compile(
-			"^\\s*embeddedfile\\(((\\d+))\\)\\s*$",
+			"^\\s*embeddedfile\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
 	@Override
@@ -44,12 +46,7 @@ public class AwkScriptProcessor extends AwkProcessor {
 
 		EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
 
-		if (embeddedFile == null) {
-			throw new IllegalStateException(
-					"AwkScriptProcessor parse: Could not find EmbeddedFile in Source ("
-							+ value
-							+ ")");
-		}
+		Assert.state(embeddedFile != null, () -> "AwkScriptProcessor parse: Could not find EmbeddedFile in Source (" + value + ")");
 
 		((Awk) getCompute(key, connector)).setAwkScript(embeddedFile);
 	}
