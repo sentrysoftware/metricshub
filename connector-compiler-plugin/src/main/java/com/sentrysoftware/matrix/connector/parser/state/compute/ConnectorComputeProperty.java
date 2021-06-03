@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.compute.add.ConnectorAddProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.awk.ConnectorAwkProperty;
@@ -12,11 +16,8 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.multiply.Connect
 import com.sentrysoftware.matrix.connector.parser.state.compute.perbittranslation.ConnectorPerBitTranslationProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.replace.ConnectorReplaceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.rightconcat.ConnectorRightConcatProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.substract.ConnectorSubstractProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateProperty;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ConnectorComputeProperty {
 
@@ -36,6 +37,7 @@ public class ConnectorComputeProperty {
 				ConnectorReplaceProperty.getConnectorProperties(),
 				ConnectorRightConcatProperty.getConnectorProperties(),
 				ConnectorTranslateProperty.getConnectorProperties(),
+				ConnectorSubstractProperty.getConnectorProperties(),
 				ConnectorAwkProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
