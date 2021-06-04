@@ -149,8 +149,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		for (List<String> line : sourceTable.getTable()) {
 			try {
 				if (columnIndex < line.size()) {
-					line.set(columnIndex, String.valueOf(Integer.parseInt(line.get(columnIndex))
-							& (colOperand2 == -1 ? Integer.parseInt(operand2) : Integer.parseInt(line.get(colOperand2)))
+					line.set(columnIndex, String.valueOf(Long.parseLong(line.get(columnIndex))
+							& (colOperand2 == -1 ? Long.parseLong(operand2) : Long.parseLong(line.get(colOperand2)))
 							));
 				}
 			} catch (NumberFormatException e) {
