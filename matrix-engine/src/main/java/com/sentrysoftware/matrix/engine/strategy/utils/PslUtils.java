@@ -10,6 +10,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOUBLE_BACKSLASH;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_PARENTHESIS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_SQUARE_BRACKET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PLUS;
@@ -243,7 +244,7 @@ public class PslUtils {
 				result = Arrays
 					.stream(splitText, fromColumnNumber - 1, toColumnNumber)
 					.filter(value -> !isNthArg || !value.trim().isEmpty())
-					.map(value -> isNthArg ? value.trim() : value)
+					.map(value -> isNthArg ? value.replace(NEW_LINE, EMPTY) : value)
 					.collect(Collectors.joining(resultSeparator));
 			}
 		}
