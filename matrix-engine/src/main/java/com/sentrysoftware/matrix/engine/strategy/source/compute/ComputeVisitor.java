@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.TriFunction;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
@@ -61,15 +61,15 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Setter
 	private Connector connector;
 
-	private static final TriFunction<List<String>, Integer, String, Integer> GET_VALUE_FROM_ROW = (row, index, value) -> {
-		if (index < row.size()) {
-			return transformToIntegerValue(row.get(index));
+	private static final Function<ComputeValue, String> GET_VALUE_FROM_ROW = computeValue -> {
+		if (computeValue.getColumnIndex() < computeValue.getRow().size()) {
+			return computeValue.getRow().get(computeValue.getColumnIndex());
 		}
-		log.warn("Cannot get value at index {} from the row {}", index, row);
+		log.warn("Cannot get value at index {} from the row {}", computeValue.getColumnIndex(), computeValue.getRow());
 		return null;
 	};
 
-	private static final TriFunction<List<String>, Integer, String, Integer> GET_VALUE = (row, index, value) -> transformToIntegerValue(value);
+	private static final  Function<ComputeValue, String> GET_VALUE = computeValue -> computeValue.getValue();
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
@@ -758,15 +758,20 @@ public class ComputeVisitor implements IComputeVisitor {
 	void performSubstring(final int columnIndex, final String start, final int startColumnIndex,
 			final String end, final int endColumnIndex) {
 
-		final TriFunction<List<String>, Integer, String, Integer> startFunction = getValueFunction(startColumnIndex);
-		final TriFunction<List<String>, Integer, String, Integer> endFunction = getValueFunction(endColumnIndex);
+		final Function<ComputeValue, String> startFunction = getValueFunction(startColumnIndex);
+		final Function<ComputeValue, String> endFunction = getValueFunction(endColumnIndex);
 
 		sourceTable.getTable()
 		.forEach(row ->  {
 			if (columnIndex < row.size()) {
 				final String columnValue = row.get(columnIndex);
-				final Integer beginIndex = startFunction.apply(row, startColumnIndex, start);
-				final Integer endIndex = endFunction.apply(row, endColumnIndex, end);
+
+				final Integer beginIndex = transformToIntegerValue(startFunction.apply(
+						new ComputeValue(row, startColumnIndex, start)));
+
+				final Integer endIndex = transformToIntegerValue(
+						endFunction.apply(new ComputeValue(row, endColumnIndex, end)));
+
 
 				if (checkSubstringArguments(beginIndex, endIndex, columnValue.length())) {
 					// No need to put endIndex -1 as the String substring end index is exclusive 
@@ -818,17 +823,13 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Return the right {@link TriFunction} based on the <code>foreignColumnIndex</code>
+	 * Return the right {@link Function} based on the <code>foreignColumnIndex</code>
 	 * 
 	 * @param foreignColumnIndex The index of the column we wish to check so that we choose the right function to return
-	 * @return {@link TriFunction} used to get the value
+	 * @return {@link Function} used to get the value
 	 */
-	static TriFunction<List<String>, Integer, String, Integer> getValueFunction(final int foreignColumnIndex) {
-		if (foreignColumnIndex  >= 0) {
-			return  GET_VALUE_FROM_ROW;
-		} else {
-			return  GET_VALUE;
-		}
+	static Function<ComputeValue, String> getValueFunction(final int foreignColumnIndex) {
+		return (foreignColumnIndex >= 0) ? GET_VALUE_FROM_ROW : GET_VALUE;
 	}
 
 	/**
@@ -992,5 +993,15 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("There is a NumberFormatException on operand 1 : {} or the operand 2 {}", op1, op2);
 			log.warn("Exception : ", e);
 		} 
+	}
+
+	@AllArgsConstructor
+	private static class ComputeValue {
+		@Getter
+		private List<String> row;
+		@Getter
+		private int columnIndex;
+		@Getter
+		private String value;
 	}
 }

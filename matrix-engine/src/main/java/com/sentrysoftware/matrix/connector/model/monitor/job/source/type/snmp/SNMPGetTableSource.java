@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -36,4 +37,24 @@ public class SNMPGetTableSource extends SNMPSource {
 		return sourceVisitor.visit(this);
 	}
 
+	/**
+	 * Copy the current instance
+	 * 
+	 * @return new {@link SNMPGetTableSource} instance
+	 */
+	public SNMPGetTableSource copy() {
+		return SNMPGetTableSource.builder()
+				.oid(getOid())
+				.snmpTableSelectColumns(
+						snmpTableSelectColumns != null ? snmpTableSelectColumns
+								.stream()
+								.collect(Collectors.toList()) : null)
+				.index(getIndex())
+				.key(getKey())
+				.forceSerialization(isForceSerialization())
+				.computes(
+						getComputes() != null ? getComputes().stream()
+								.collect(Collectors.toList()) : null)
+				.build();
+	}
 }
