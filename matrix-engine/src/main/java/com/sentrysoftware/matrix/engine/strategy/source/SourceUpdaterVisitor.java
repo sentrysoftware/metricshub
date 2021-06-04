@@ -61,13 +61,29 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
-		replaceDeviceIdInSNMPOid(snmpGetSource, monitor);
+
+		if (monitor != null) {
+			// We must copy the source so that we don't modify the original source 
+			// which needs to be passed for each monitor when running the mono instance collect.
+			final SNMPGetSource copy = snmpGetSource.copy();
+			replaceDeviceIdInSNMPOid(copy, monitor);
+			return copy.accept(sourceVisitor);
+		}
+
 		return snmpGetSource.accept(sourceVisitor);
 	}
 
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
-		replaceDeviceIdInSNMPOid(snmpGetTableSource, monitor);
+
+		if (monitor != null) {
+			// We must copy the source so that we don't modify the original source 
+			// which needs to be passed for each monitor when running the mono instance collect.
+			final SNMPGetTableSource copy = snmpGetTableSource.copy();
+			replaceDeviceIdInSNMPOid(copy, monitor);
+			return copy.accept(sourceVisitor);
+		}
+
 		return snmpGetTableSource.accept(sourceVisitor);
 	}
 
