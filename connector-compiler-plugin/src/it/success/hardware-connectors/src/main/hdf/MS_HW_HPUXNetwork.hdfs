@@ -1,0 +1,260 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//           Hardware Sentry KM for PATROL
+//
+//                 by Sentry Software (c)
+//
+//                 MS_HW_HPUXNetwork.hdf
+//
+//      Supports: HP-UX machines
+//		Monitors: network interfaces
+//      Connects to: different HP-UX standard tools (lanscan, lanadmin, etc.)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP-UX - Network"
+hdf.TypicalPlatform="HP 9000,HP Integrity,HP SuperDome"
+hdf.ReliesOn="HP-UX system commands (lanscan, etc.)"
+hdf.Comments="Discovers and monitors Ethernet adapters."
+hdf.Version="1.0"
+hdf.MSHWRequiredVersion="1.6"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="HP"
+hdf.Supersedes="MS_HW_HPUXWBEMNetwork.hdf"
+
+//
+// DETECTION
+//
+
+// OS should be HP (for HP-UX, whatever version)
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="HP"
+
+// The various following tools have to be present
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/usr/sbin/lanscan"
+Detection.Criteria(2).ExpectedResult="^[0-9]+/[0-9]+/[0-9]+"
+
+
+//
+// Network cards
+//
+
+//
+// Discovery
+
+// Source(1) = output of EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Type="OsCommand"
+NetworkCard.Discovery.Source(1).CommandLine="for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ ""[0-9]+/[0-9]+/[0-9]+"") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
+
+// Process the output of the command through an AWK script
+// DeviceID;MacAddress;Model;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3,8"
+
+// InstanceTable = Source(1)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine="for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ ""[0-9]+/[0-9]+/[0-9]+"") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
+
+// Process the output of the command through an AWK script
+// DeviceID;MacAddress;Model;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).SelectColumns="2,4,5,6,7,9,10,11"
+
+
+// Extract the number of the status column
+// DeviceID;Speed; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(2).Type="Extract"
+NetworkCard.Collect.Source(1).Compute(2).Column="3"
+NetworkCard.Collect.Source(1).Compute(2).Subseparators="()"
+NetworkCard.Collect.Source(1).Compute(2).Subcolumn="2"
+
+// Duplicate the status column
+// DeviceID;Speed; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column="3"
+
+// Duplicate again the status column
+// DeviceID;Speed; Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(4).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(4).Column="3"
+
+// Translate the first STatusNumber column into a PATROL status
+// DeviceID;Speed; Patrol Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column="3"
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="NetworkCardStatusTranslationTable"
+
+// The NetworkCardStatusTranslationTable
+NetworkCardStatusTranslationTable(1)="OK"
+NetworkCardStatusTranslationTable(2)="OK"
+NetworkCardStatusTranslationTable(3)="WARN"
+NetworkCardStatusTranslationTable(5)="OK"
+NetworkCardStatusTranslationTable(6)="ALARM"
+NetworkCardStatusTranslationTable(7)="ALARM"
+NetworkCardStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second StatusNumber column into a more readable string
+// DeviceID;Speed; Patrol Status; Status Information ; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(6).Column="4"
+NetworkCard.Collect.Source(1).Compute(6).TranslationTable="NetworkCardStatusInformationTranslationTable"
+
+// The NetworkCardStatusInformationTranslationTable
+NetworkCardStatusInformationTranslationTable(1)="Up"
+NetworkCardStatusInformationTranslationTable(2)="Down"
+NetworkCardStatusInformationTranslationTable(3)="Testing"
+NetworkCardStatusInformationTranslationTable(5)="Dormant"
+NetworkCardStatusInformationTranslationTable(6)="Not present"
+NetworkCardStatusInformationTranslationTable(7)="Lower layer down"
+NetworkCardStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third StatusNumber column into LinkStatus
+// DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.Source(1).Compute(7).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(7).Column="5"
+NetworkCard.Collect.Source(1).Compute(7).TranslationTable="NetworkCardLinkStatusTranslationTable"
+
+// The NetworkCardLinkStatusTranslationTable
+NetworkCardLinkStatusTranslationTable(1)="OK"
+NetworkCardLinkStatusTranslationTable(2)="WARN"
+NetworkCardLinkStatusTranslationTable(3)="OK"
+NetworkCardLinkStatusTranslationTable(5)="OK"
+NetworkCardLinkStatusTranslationTable(6)="OK"
+NetworkCardLinkStatusTranslationTable(7)="WARN"
+NetworkCardLinkStatusTranslationTable(Default)="OK"
+
+
+// Value table = Source(1)
+//     1      2          3              4                   5           6            7                  8               9             10
+// DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(6)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(8)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(7)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(10)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(9)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = shell script that lists the lan interfaces
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+($1 == "PPA" && $2 == "Number") {
+	deviceID = $4
+	model = ""
+	bandwidth = ""
+	status = ""
+	inboundError = 0
+	outboundError = 0
+	inboundOctet = 0
+	outboundOctet = 0
+	inboundUnicastPackets = 0
+	inbountNonUnicastPackets = 0
+	outboundUnicastPackets = 0
+	outboundNonUnicastPackets = 0
+	errorCount = 0
+	macAddress = ""
+}
+
+($1 == "Description") {
+	if ($3 ~ "^lan[0-9]+")
+	{
+		model = $4 " " $5 " " $6 " " $7
+	}
+	else
+	{
+		model = $3 " " $4 " " $5 " " $6
+	}
+}
+
+($1 == "Station" && $2 == "Address" && $4 ~ /^0x[0-9a-fA-F]+$/) {
+	macAddress = substr($4, 3, length($4) - 2)
+}
+
+($1 == "Speed") {
+	bandwidth = $3 / 1000000
+}
+
+($1 == "Operation" && $2 == "Status") {
+	status = $5
+}
+
+($1 == "Inbound" && $2 == "Errors") {
+	inboundError = $4
+}
+
+($1 == "Inbound" && $2 == "Octets") {
+	inboundOctet = $4
+}
+
+($1 == "Inbound" && $2 == "Unicast" && $3 == "Packets") {
+	inboundUnicastPackets = $5
+}
+
+($1 == "Inbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+	inboundNonUnicastPackets = $5
+}
+
+($1 == "Outbound" && $2 == "Octets") {
+	outboundOctet = $4
+}
+
+($1 == "Outbound" && $2 == "Unicast" && $3 == "Packets") {
+	outboundUnicastPackets = $5
+}
+
+($1 == "Outbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+	outboundNonUnicastPackets = $5
+}
+
+($1 == "Outbound" && $2 == "Errors") {
+	outboundError = $4
+
+	inboundPackets = inboundUnicastPackets + inboundNonUnicastPackets
+	outboundPackets = outboundUnicastPackets + outboundNonUnicastPackets
+	errorCount = inboundError + outboundError
+	
+	printf("MSHW;%s;%s;%.0f;%s;%.0f;%.0f;%s;%.0f;%.0f;%.0f\n", deviceID, macAddress, bandwidth, status, errorCount, inboundPackets, model, outboundPackets, inboundOctet, outboundOctet)
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
