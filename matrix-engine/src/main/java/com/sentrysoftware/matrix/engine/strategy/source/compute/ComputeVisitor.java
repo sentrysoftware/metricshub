@@ -130,13 +130,14 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		Integer columnIndex = and.getColumn() - 1;
 		String operand2 = and.getAnd();
 
-		if (columnIndex == null || operand2 == null) {
+		if (and.getColumn() == null || operand2 == null) {
 			log.warn("Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.", and);
 			return;
 		}
+
+		Integer columnIndex = and.getColumn() - 1;
 
 		if (columnIndex < 0) {
 			log.warn("The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.");
@@ -145,14 +146,16 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		int colOperand2 = getColumnIndex(operand2);
 
-		try {
-			sourceTable.getTable()
-			.forEach(line -> line.set(columnIndex, String.valueOf(Integer.parseInt(line.get(columnIndex))
-					& (colOperand2 == -1 ? Integer.parseInt(operand2) : Integer.parseInt(line.get(colOperand2)))
-					)));
-		} catch (NumberFormatException e) {
-			log.warn("Data is not correctly formatted.");
-			return;
+		for (List<String> line : sourceTable.getTable()) {
+			try {
+				if (columnIndex < line.size()) {
+					line.set(columnIndex, String.valueOf(Integer.parseInt(line.get(columnIndex))
+							& (colOperand2 == -1 ? Integer.parseInt(operand2) : Integer.parseInt(line.get(colOperand2)))
+							));
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Data is not correctly formatted.");
+			}
 		}
 	}
 
