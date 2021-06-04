@@ -1,8 +1,27 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
@@ -18,23 +37,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ComputeVisitorTest {
 
@@ -1653,5 +1655,74 @@ class ComputeVisitorTest {
 		extract.setSubSeparators("%%");
 		computeVisitor.visit(extract);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testAnd() {
+		List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),	// 0000 0001
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "14"),	// 0000 1110
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255"));	// 1111 1110
+
+		List<List<String>> tableResult = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "14"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255"));
+
+		sourceTable.setTable(table);
+
+		// test null source to visit
+		computeVisitor.visit((PerBitTranslation) null);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test TranslationTable is null
+		And and = And.builder().column(0).and("1").index(0).build();	// and : 0000 0001
+		computeVisitor.visit(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test column value is not an integer
+		and.setColumn(3);
+		computeVisitor.visit(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// tests OK
+		and.setColumn(4);
+		tableResult = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "0"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "1"));
+		computeVisitor.visit(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		table = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),	// 0000 0001
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "14"),	// 0000 1110
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255"));	// 1111 1110
+		and.setAnd("30");											// and:0001 1110
+
+		sourceTable.setTable(table);
+
+		tableResult = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "0"),	// 0000 0001
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "14"),	// 0000 1110
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "30"));	// 0001 1110
+		computeVisitor.visit(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test with column
+		table = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "254", "1"),		// 1111 1110 & 0000 0001
+				Arrays.asList("ID2", "NAME2", "36", "14"),		// 0010 0100 & 0000 1110
+				Arrays.asList("ID3", "NAME3", "41", "255"));	// 0010 1001 & 1111 1111
+		and.setAnd("column(3)");
+
+		sourceTable.setTable(table);
+
+		tableResult = Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "254", "0"),	// 0000 0000
+				Arrays.asList("ID2", "NAME2", "36", "4"),	// 0000 0100
+				Arrays.asList("ID3", "NAME3", "41", "41"));	// 0010 1001
+		computeVisitor.visit(and);
+		assertEquals(tableResult, sourceTable.getTable());
 	}
 }

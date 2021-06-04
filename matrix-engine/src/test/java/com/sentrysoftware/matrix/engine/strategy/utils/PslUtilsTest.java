@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 import org.junit.jupiter.api.Test;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,5 +84,24 @@ class PslUtilsTest {
 		assertNull(PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 		selectColumns = "3-1";
 		assertNull(PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+
+		// text contains "\n" in columns
+		text = "OK|OK|\n|WARN|\nALARM";
+		selectColumns = "1-";
+		assertEquals("OK\nOK\n\n\nWARN\n\nALARM", PslUtils.nthArgf(text, selectColumns, separators, NEW_LINE));
+	}
+
+	@Test
+	void testNthArg() {
+
+		// text contains "\n" in columns
+		String text = "OK|OK|\n|WARN|\nALARM";
+		String selectColumns = "1-";
+		String separators = "|";
+		assertEquals("OK\nOK\nWARN\nALARM", PslUtils.nthArg(text, selectColumns, separators, NEW_LINE));
+
+		// selectColumns is "2-"
+		selectColumns = "2-";
+		assertEquals("OK\nWARN\nALARM", PslUtils.nthArg(text, selectColumns, separators, NEW_LINE));
 	}
 }

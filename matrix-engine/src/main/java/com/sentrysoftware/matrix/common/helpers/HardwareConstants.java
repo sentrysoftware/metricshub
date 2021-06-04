@@ -25,8 +25,9 @@ public class HardwareConstants {
 	public static final String COMMA = ",";
 	public static final String COLON = ":";
 	public static final String DOT = ".";
-	public static final String BACKSLASH = "\\";
-	public static final String DOUBLE_BACKSLASH = BACKSLASH + BACKSLASH;
+	public static final String DOUBLE_BACKSLASH = "\\\\";
+	public static final String CARET = "^";
+	public static final String PLUS = "+";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";

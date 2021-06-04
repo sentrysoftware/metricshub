@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CARET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_SQUARE_BRACKET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOUBLE_BACKSLASH;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_PARENTHESIS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_SQUARE_BRACKET;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PLUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 @Slf4j
@@ -18,8 +21,10 @@ public class PslUtils {
 	private static final String SPECIAL_CHARACTERS = "^$.*+?[]\\";
 	private static final String BACKSLASH_B = "\\b";
 	private static final String SEPARATORS_SPECIAL_CHARACTERS = "([()\\[\\]{}\\\\^\\-$|?*+.])";
-	private static final String ESCAPED_MATCHING_SPECIAL_CHARACTER = "\\\\$1";
-	private static final String DEFAULT_SEPARATOR_CHARACTERS = "[ ]";
+	private static final String ESCAPED_FIRST_MATCHING_GROUP = "\\\\$1";
+	private static final String FIRST_MATCHING_GROUP = "$1";
+	private static final String CLOSING_OPENING_PARENTHESIS = ")(";
+	private static final String CLOSING_PARENTHESIS_PLUS = ")+";
 	private static final char BACKSLASH_CHAR = '\\';
 	private static final char OPENING_PARENTHESIS_CHAR = '(';
 	private static final char CLOSING_PARENTHESIS_CHAR = ')';
@@ -150,6 +155,37 @@ public class PslUtils {
 	 */
 	public static String nthArgf(String text, String selectColumns, String separators, String resultSeparator) {
 
+		return nthArgCommon(text, selectColumns, separators, resultSeparator, false);
+	}
+
+	/**
+	 * @param text				The text that should be parsed.
+	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
+	 * @param separators		The set of characters used to split the given text.
+	 * @param resultSeparator	The separator used to join the resulting elements.
+	 *
+	 * @return					The nth group in the given text,
+	 * 							as formatted according to the given separators and column numbers.
+	 */
+	public static String nthArg(String text, String selectColumns, String separators, String resultSeparator) {
+
+		return nthArgCommon(text, selectColumns, separators, resultSeparator, true);
+	}
+
+	/**
+	 * @param text				The text that should be parsed.
+	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
+	 * @param separators		The set of characters used to split the given text.
+	 * @param resultSeparator	The separator used to join the resulting elements.
+	 * @param isNthArg			Indicates whether an <em>nthArg</em> operation should be performed
+	 *                          (as opposed to a <em>nthArgf</em> operation).
+	 *
+	 * @return					The nth group in the given text,
+	 * 							as formatted according to the given separators and column numbers.
+	 */
+	private static String nthArgCommon(String text, String selectColumns, String separators, String resultSeparator,
+									   boolean isNthArg) {
+
 		// If any arg is null, then return empty String
 		if (text == null || selectColumns == null || separators == null
 			|| text.isEmpty() || selectColumns.isEmpty() || separators.isEmpty()) {
@@ -159,23 +195,22 @@ public class PslUtils {
 
 		// Replace special chars with their literal equivalents
 		String separatorsRegExp = OPENING_SQUARE_BRACKET
-			+ separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_MATCHING_SPECIAL_CHARACTER)
+			+ separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_FIRST_MATCHING_GROUP)
 			+ CLOSING_SQUARE_BRACKET;
 
-		// Call nthArg with the input
-		return nthArg(text, selectColumns, separatorsRegExp, resultSeparator);
-	}
+		if (isNthArg) {
 
-	/**
-	 * @param text				The text that should be parsed.
-	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
-	 * @param separatorsRegExp	A transformed set of characters used to split the given text.
-	 * @param resultSeparator	The separator used to join the resulting elements.
-	 *
-	 * @return					The nth group in the given text,
-	 * 							as formatted according to the given separators and column numbers.
-	 */
-	private static String nthArg(String text, String selectColumns, String separatorsRegExp, String resultSeparator) {
+			// Remove redundant separators
+			text = text.replaceAll(OPENING_PARENTHESIS
+				+ separatorsRegExp
+				+ CLOSING_OPENING_PARENTHESIS
+				+ separatorsRegExp
+				+ CLOSING_PARENTHESIS_PLUS,
+				FIRST_MATCHING_GROUP);
+
+			// Remove leading separators
+			text = text.replaceAll(CARET + separatorsRegExp + PLUS, EMPTY);
+		}
 
 		// Check the result separator
 		if (resultSeparator == null) {
@@ -207,6 +242,8 @@ public class PslUtils {
 
 				result = Arrays
 					.stream(splitText, fromColumnNumber - 1, toColumnNumber)
+					.filter(value -> !isNthArg || !value.trim().isEmpty())
+					.map(value -> isNthArg ? value.trim() : value)
 					.collect(Collectors.joining(resultSeparator));
 			}
 		}
