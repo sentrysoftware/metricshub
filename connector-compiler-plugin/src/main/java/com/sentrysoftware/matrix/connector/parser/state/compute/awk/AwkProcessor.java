@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.awk;
 
-import java.util.regex.Matcher;
-
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 

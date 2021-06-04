@@ -19,9 +19,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
@@ -37,6 +39,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 class ComputeVisitorTest {
 
@@ -1381,7 +1384,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33"),
 				Arrays.asList("ID3", "Dell+xyz"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		{
 			computeVisitor.visit((Substring) null);
@@ -1422,7 +1425,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33"),
 				Arrays.asList("ID3", "Dell+xyz"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		final Substring substring = Substring.builder()
 				.column(2)
@@ -1447,7 +1450,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33", "4"),
 				Arrays.asList("ID3", "Dell+xyz", "4"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		final Substring substring = Substring.builder()
 				.column(2)
@@ -1472,7 +1475,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33"),
 				Arrays.asList("ID3", "Dell+xyz"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		computeVisitor.performSubstring(1, "Column(4)", 3, "4", -1);
 
@@ -1486,7 +1489,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33"),
 				Arrays.asList("ID3", "Dell+xyz"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		computeVisitor.performSubstring(3, "1", -1, "4", -1);
 
@@ -1500,7 +1503,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "Dell+33"),
 				Arrays.asList("ID3", "Dell+xyz"));
 
-		sourceTable.getTable().addAll(table);
+		sourceTable.setTable(table);
 
 		computeVisitor.performSubstring(1, "1", -1, "4", -1);
 
@@ -1724,5 +1727,196 @@ class ComputeVisitorTest {
 				Arrays.asList("ID3", "NAME3", "41", "41"));	// 0010 1001
 		computeVisitor.visit(and);
 		assertEquals(tableResult, sourceTable.getTable());
+	}
+
+	@Test
+	void testCheckConvert() {
+		assertTrue(ComputeVisitor.checkConvert(Convert.builder().column(1).conversionType(ConversionType.HEX_2_DEC).build()));
+		assertFalse(ComputeVisitor.checkConvert(Convert.builder().column(0).conversionType(ConversionType.HEX_2_DEC).build()));
+		assertFalse(ComputeVisitor.checkConvert(Convert.builder().conversionType(ConversionType.HEX_2_DEC).build()));
+		assertFalse(ComputeVisitor.checkConvert(Convert.builder().column(1).build()));
+		assertFalse(ComputeVisitor.checkConvert(null));
+	}
+
+	@Test
+	void testProcessHex2Dec() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "ff: dd:11"),
+				Arrays.asList("ID2", "aa:: dd: 22"),
+				Arrays.asList("ID3", " bb:cc:22 "));
+
+		sourceTable.setTable(table);
+
+		computeVisitor.convertHex2Dec(1);
+
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "16768273"),
+				Arrays.asList("ID2", "11197730"),
+				Arrays.asList("ID3", "12307490"));
+
+		assertEquals(expected, table);
+	}
+
+	@Test
+	void testProcessHex2DecNOK() {
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "zz"),
+					Arrays.asList("ID2", "tt"),
+					Arrays.asList("ID3", " pp"));
+
+			sourceTable.setTable(table);
+
+			computeVisitor.convertHex2Dec(1);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "zz"),
+					Arrays.asList("ID2", "tt"),
+					Arrays.asList("ID3", " pp"));
+
+			assertEquals(expected, table);
+		}
+
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "zz"),
+					Arrays.asList("ID2", "tt"),
+					Arrays.asList("ID3", " pp"));
+
+			sourceTable.setTable(table);
+
+			computeVisitor.convertHex2Dec(2);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "zz"),
+					Arrays.asList("ID2", "tt"),
+					Arrays.asList("ID3", " pp"));
+
+			assertEquals(expected, table);
+		}
+	}
+
+	@Test
+	void testGetWorstStatus() {
+		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN"}));
+		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "OK", "ALARM"}));
+		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN", "ALARM"}));
+		assertEquals(ParameterState.OK.name(), ComputeVisitor.getWorstStatus(new String[] {"ok", "", ""}));
+		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"warn", "", ""}));
+		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"alarm", "", ""}));
+		assertEquals("UNKNOWN", ComputeVisitor.getWorstStatus(new String[] {"STATE", "", ""}));
+	}
+
+	@Test
+	void testVisitBadConvert() {
+		final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "ff: dd:11"),
+				Arrays.asList("ID2", "aa:: dd: 22"),
+				Arrays.asList("ID3", " bb:cc:22 "));
+
+		sourceTable.setTable(table);
+
+		final Convert convert = Convert.builder().build();
+
+		computeVisitor.visit(convert);
+
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "ff: dd:11"),
+				Arrays.asList("ID2", "aa:: dd: 22"),
+				Arrays.asList("ID3", " bb:cc:22 "));
+
+		assertEquals(expected, table);
+	}
+
+	@Test
+	void testVisitConvert() {
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "ff: dd:11"),
+					Arrays.asList("ID2", "aa:: dd: 22"),
+					Arrays.asList("ID3", " bb:cc:22 "));
+
+			sourceTable.setTable(table);
+
+			final Convert convert = Convert.builder()
+					.column(2)
+					.conversionType(ConversionType.HEX_2_DEC)
+					.build();
+
+			computeVisitor.visit(convert);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "16768273"),
+					Arrays.asList("ID2", "11197730"),
+					Arrays.asList("ID3", "12307490"));
+
+			assertEquals(expected, table);
+		}
+
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "OK|OK"),
+					Arrays.asList("ID2", "OK|\n|WARN|"),
+					Arrays.asList("ID3", "OK|WARN\n|OK|ALARM"));
+
+			sourceTable.setTable(table);
+
+			final Convert convert = Convert.builder()
+					.column(2)
+					.conversionType(ConversionType.ARRAY_2_SIMPLE_STATUS)
+					.build();
+
+			computeVisitor.visit(convert);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "OK"),
+					Arrays.asList("ID2", "WARN"),
+					Arrays.asList("ID3", "ALARM"));
+
+			assertEquals(expected, table);
+		}
+
+	}
+
+	@Test
+	void testConvertArray2SimpleStatusNOK() {
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "OK|2"),
+					Arrays.asList("ID2", "OK|5"),
+					Arrays.asList("ID3", "OK|6"));
+
+			sourceTable.setTable(table);
+
+			computeVisitor.convertArray2SimpleStatus(2);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "OK|2"),
+					Arrays.asList("ID2", "OK|5"),
+					Arrays.asList("ID3", "OK|6"));
+
+			assertEquals(expected, table);
+		}
+	}
+
+	@Test
+	void testConvertArray2SimpleStatus() {
+		{
+			final List<List<String>> table = Arrays.asList(
+					Arrays.asList("ID1", "OK|OK"),
+					Arrays.asList("ID2", "OK|\n|WARN|"),
+					Arrays.asList("ID3", "OK|WARN\n|OK|ALARM"));
+
+			sourceTable.setTable(table);
+
+			computeVisitor.convertArray2SimpleStatus(1);
+
+			final List<List<String>> expected = Arrays.asList(
+					Arrays.asList("ID1", "OK"),
+					Arrays.asList("ID2", "WARN"),
+					Arrays.asList("ID3", "ALARM"));
+
+			assertEquals(expected, table);
+		}
 	}
 }
