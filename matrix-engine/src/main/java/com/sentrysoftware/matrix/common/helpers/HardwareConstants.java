@@ -6,6 +6,7 @@ public class HardwareConstants {
 	}
 
 	public static final String NEW_LINE = "\n";
+	public static final String TAB = "\t";
 	public static final String WHITE_SPACE = " ";
 	public static final String DASH = "-";
 	public static final String EMPTY = "";

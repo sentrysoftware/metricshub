@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractMatchingLines;
@@ -38,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 
@@ -60,6 +63,9 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Setter
 	private Connector connector;
+
+	@Setter
+	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static final Function<ComputeValue, String> GET_VALUE_FROM_ROW = computeValue -> {
 		if (computeValue.getColumnIndex() < computeValue.getRow().size()) {
@@ -130,7 +136,171 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Awk awk) {
-		// Not implemented yet
+
+		if (awk == null) {
+			log.warn("Compute Operation (Awk) is null, the table remains unchanged.");
+			return;
+		}
+
+		EmbeddedFile awkScript = awk.getAwkScript();
+		if (awkScript == null) {
+			log.warn("Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.", awk);
+			return;
+		}
+
+		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
+				? SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON)
+				: sourceTable.getRawData();
+		try {
+			
+			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
+
+			if (awkResult == null) {
+				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", awk);
+				return;
+			}
+
+			if (awkResult.isEmpty()) {
+				log.warn(" {} Compute Operation (Awk) result is enmpty, the table remains unchanged.", awk);
+				return;
+			}
+
+			// execute post processing
+			String excludeRegExp = awk.getExcludeRegExp();
+			if (excludeRegExp != null && !excludeRegExp.isEmpty()) {
+				awkResult = excludeRegExpStringInput(awkResult, excludeRegExp);
+			}
+
+			String keepOnlyRegExp = awk.getKeepOnlyRegExp();
+			if (keepOnlyRegExp != null && !keepOnlyRegExp.isEmpty()) {
+				awkResult = keepOnlyRegExpStringInput(awkResult, keepOnlyRegExp);
+			}
+
+			List<Integer>  selectColumns = awk.getSelectColumns();
+			if (selectColumns != null && !selectColumns.isEmpty()) {
+				awkResult = selectedColumnsStringInput(awk.getSeparators(), awkResult, selectColumns);
+			}
+
+			sourceTable.setRawData(awkResult);
+			sourceTable.setTable(SourceTable.csvToTable(awkResult, HardwareConstants.SEMICOLON));
+
+		} catch (Exception e) {
+			log.warn("Compute Operation (Awk) has failed. ", e);
+		}
+
+	}
+
+	/**
+	 * Extract separators and split each line with these separators
+	 * keep only values (from the split result) which index matches with the selected column list 
+	 * @param awk
+	 * @param awkResult
+	 * @param selectColumns
+	 * @return
+	 */
+	static String selectedColumnsStringInput(String separators, String awkResult, List<Integer> selectColumns) {
+
+		if (separators == null || separators.isEmpty()) {
+			log.error("No Separators {} indicated in Awk operation, the result remains unchanged.", separators);
+			return awkResult;
+		}
+
+		if (!separators.isEmpty()) {
+
+			// protect the initial string that contains ";" and replace it with "," if this
+			// latest is not in Separators list. Otherwise, just remove the ";"
+			// replace all separators by ";", which is the standard separator used by MS_HW
+			if (!separators.contains(HardwareConstants.SEMICOLON)
+					&& !separators.contains(HardwareConstants.COMMA)) {
+				awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
+			} else if (!separators.contains(HardwareConstants.SEMICOLON)) {
+				awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
+			}
+		}
+
+		StringBuilder selectedOutput = new StringBuilder();
+		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+
+			String[] splitedLine = line.split(separators);
+
+			// test if selected columns are not out of bounds
+			boolean idExists = selectColumns.stream().anyMatch(t -> (t -1 > splitedLine.length || t - 1 < 0));
+
+			if (idExists) {
+				log.error("SelectedColumns {} out of bounds in Awk operation. The result remains unchanged.", selectColumns);
+				return awkResult;
+			} else {
+				List<String> actualList = Arrays.asList(splitedLine);
+				// if separator = tab or simple space, then ignore empty cells
+				// equivalent to ntharg
+				if(separators.contains(HardwareConstants.TAB) || separators.contains(HardwareConstants.WHITE_SPACE)) {
+					actualList.removeIf(item -> item == null || "".equals(item));
+				}
+				// else nthargf, so empty cells matter
+
+				// mind that the joining operation do not add separator at the end and do not return new line
+				selectedOutput = selectedOutput.append(
+														actualList.stream()
+														.filter(e -> selectColumns.contains(actualList.indexOf(e) + 1))
+														.collect(Collectors.joining(HardwareConstants.SEMICOLON)))
+												.append(HardwareConstants.SEMICOLON).append(HardwareConstants.NEW_LINE);
+
+			}
+		}
+
+		if (!selectColumns.isEmpty()) {
+			awkResult = selectedOutput.toString().stripTrailing();
+		}
+		return awkResult;
+	}
+
+	/**
+	 * Remove lines containing a given regular expression
+	 * @param awkResult
+	 * @param excludeRegExp
+	 * @return
+	 */
+	static String excludeRegExpStringInput(String awkResult, String excludeRegExp) {
+		if(excludeRegExp == null || excludeRegExp.isEmpty()) {
+			return awkResult;
+		}
+		excludeRegExp = PslUtils.psl2JavaRegex(excludeRegExp);
+
+		StringBuilder excludeLines = new StringBuilder();
+
+		// Keep only the lines which don't match with regular expression
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(excludeRegExp));
+		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+			Matcher matcher = pattern.matcher(line);
+			if (!matcher.find()) {
+				excludeLines.append(line).append(HardwareConstants.NEW_LINE);
+			}
+		}
+		return excludeLines.toString().stripTrailing();
+	}
+
+	/**
+	 * Keep only the lines containing a given regular expression
+	 * @param awkResult
+	 * @param keepOnlyRegExp
+	 * @return
+	 */
+	static String keepOnlyRegExpStringInput(String awkResult, String keepOnlyRegExp) {
+		if(keepOnlyRegExp == null || keepOnlyRegExp.isEmpty()) {
+			return awkResult;
+		}
+		StringBuilder keeplines = new StringBuilder();
+
+		keepOnlyRegExp = PslUtils.psl2JavaRegex(keepOnlyRegExp);
+		// Keep only the lines containing a given regular expression
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(keepOnlyRegExp));
+		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+			Matcher matcher = pattern.matcher(line);
+			if (matcher.find()) {
+				keeplines.append(line).append(HardwareConstants.NEW_LINE);
+			}
+		}
+		return keeplines.toString().stripTrailing();
 	}
 
 	@Override
