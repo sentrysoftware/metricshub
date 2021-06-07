@@ -1,23 +1,27 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
-import static org.springframework.util.Assert.notNull;
-
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.springframework.util.Assert.isTrue;
 
 public class OidProcessor extends SnmpProcessor {
 
 	private static final String SNMP_GET_OID_KEY = ".snmpget";
 
-	private static final Pattern OID_KEY_PATTERN = Pattern.compile("^\\s*(detection\\.criteria\\((\\d+)\\)\\.snmpget)(next)?\\s*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern OID_KEY_PATTERN = Pattern.compile(
+		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.snmpget(next)?\\s*$",
+		Pattern.CASE_INSENSITIVE);
 
 	@Override
-	protected Pattern getKeyRegex() {
-		return OID_KEY_PATTERN;
+	protected Matcher getMatcher(String key) {
+		return OID_KEY_PATTERN.matcher(key);
 	}
 
 	@Override
@@ -25,26 +29,23 @@ public class OidProcessor extends SnmpProcessor {
 
 		super.parse(key, value, connector);
 
-		// Changing the criterion to SNMPGet if necessary
-		// Note: key is never null here
-		if (key.trim().endsWith(SNMP_GET_OID_KEY)) {
+		Matcher matcher = getMatcher(key);
+		isTrue(matcher.matches(), () -> "Invalid key: " + key);
 
-			notNull(knownCriterion, "knownCriterion should not be null.");
+		SNMP criterion = key.trim().endsWith(SNMP_GET_OID_KEY)
+			? new SNMPGet()
+			: new SNMPGetNext();
 
-			knownCriterion = SNMPGet
-					.builder()
-					.index(knownCriterion.getIndex())
-					.forceSerialization(knownCriterion.isForceSerialization())
-					.expectedResult(((SNMPGetNext) knownCriterion).getExpectedResult())
-					.build();
+		criterion.setIndex(getCriterionIndex(matcher));
+		criterion.setOid(value.trim());
 
-			connector
-					.getDetection()
-					.getCriteria()
-					.set(criterionIndexInDetection, knownCriterion);
+		Detection detection = connector.getDetection();
+		if (detection == null) {
+
+			detection = new Detection();
+			connector.setDetection(detection);
 		}
 
-		// Setting the OID
-		((SNMP) knownCriterion).setOid(value.trim());
+		detection.getCriteria().add(criterion);
 	}
 }

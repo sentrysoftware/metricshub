@@ -4,8 +4,10 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import org.junit.jupiter.api.Test;
 
@@ -92,5 +94,12 @@ class TypeProcessorTest {
 		compute = computes.get(0);
 		assertTrue(compute instanceof Add);
 		assertEquals(1, compute.getIndex());
+
+		// Value is valid, key matches, sources.getComputes() != null, Compute instantiation is not possible
+		LeftConcat leftConcat = LeftConcat.builder().index(1).build();
+		snmpGetTableSource.setComputes(Collections.singletonList(leftConcat));
+		TypeProcessor abstractConcatTypeProcessor = new TypeProcessor(AbstractConcat.class, "LeftConcat");
+		assertThrows(IllegalStateException.class,
+			() -> abstractConcatTypeProcessor.parse(TYPE_DISCOVERY_KEY, "LeftConcat", connector));
 	}
 }

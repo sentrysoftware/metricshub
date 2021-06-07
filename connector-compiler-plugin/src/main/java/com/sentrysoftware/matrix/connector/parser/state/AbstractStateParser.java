@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.connector.parser.state;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
@@ -10,6 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
+import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.OidProcessor;
 
 import java.util.List;
 import java.util.Map;
@@ -17,9 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COLLECT;
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMPUTE;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DETECTION_DOT_CRITERIA;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DISCOVERY;
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOT;
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DOT_COMPUTE;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 import static org.springframework.util.Assert.state;
@@ -29,6 +32,9 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected abstract Class<?> getType();
 	protected abstract String getTypeValue();
 	protected abstract Matcher getMatcher(String key);
+
+	private static final String CONNECTOR_CANNOT_BE_NULL = "Connector cannot be null.";
+	private static final String INVALID_KEY = "Invalid key: ";
 
 	/**
 	 * Extracts the name of the {@link HardwareMonitor}
@@ -151,7 +157,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * 						  which does match,
 	 * 						  the returned value would be <i><b><u>1</u></b></i>.
 	 *
-	 * @param matcher	A <u>NON-NULL</u> {@link Matcher}
+	 * @param matcher   A <u>NON-NULL</u> {@link Matcher}
 	 *                  whose <i>matches()</i> or <i>find()</i> method has already been called and returned <i>true</i>.
 	 *
 	 * @return			The index of the {@link Source},
@@ -167,7 +173,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 *
 	 * @throws NumberFormatException		if the fourth capturing group does not contain any parsable integer.
 	 */
-	protected Integer getSourceIndex(Matcher matcher) {
+	protected int getSourceIndex(Matcher matcher) {
 
 		return Integer.parseInt(matcher.group(4));
 	}
@@ -188,7 +194,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * 						  which does match,
 	 * 						  the returned value would be <i><b><u>2</u></b></i>.
 	 *
-	 * @param matcher	A <u>NON-NULL</u> {@link Matcher}
+	 * @param matcher   A <u>NON-NULL</u> {@link Matcher}
 	 *                  whose <i>matches()</i> or <i>find()</i> method has already been called and returned <i>true</i>.
 	 *
 	 * @return			The index of the {@link Compute},
@@ -199,14 +205,51 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * @throws IllegalStateException		If no match has yet been attempted,
 	 * 										or if the previous match operation failed.
 	 *
-	 * @throws IndexOutOfBoundsException	If there is no fourth capturing group
+	 * @throws IndexOutOfBoundsException	If there is no fifth capturing group
 	 * 										in the given {@link Matcher}'s inner {@link Pattern}.
 	 *
 	 * @throws NumberFormatException		if the fifth capturing group does not contain any parsable integer.
 	 */
-	protected Integer getComputeIndex(Matcher matcher) {
+	protected int getComputeIndex(Matcher matcher) {
 	
 		return Integer.parseInt(matcher.group(5));
+	}
+
+	/**
+	 * Extracts the index of the {@link Criterion}
+	 * from the {@link String} against which the given {@link Matcher}'s inner {@link Pattern} has been tested.<br>
+	 * The index of the {@link Criterion} is expected to be the first capturing group during the last match operation<br><br>
+	 *
+	 * <b><u>Note</u></b>: you should <u>NOT</u> call this method
+	 * 					   before making sure <i>matcher.matches()</i> or <i>matcher.find()</i> has been called
+	 * 					   and returned <i>true</i>.<br><br>
+	 *
+	 * <b><u>Example</u></b>: Assuming the inner {@link Pattern}'s regex is:<br>
+	 * 						  <i>\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.type\\s*$</i>
+	 * 						  <br>and the {@link String} against which the {@link Pattern} has been tested is:<br>
+	 * 						  <i>detection.criteria(<b><u>1</u></b>).type</i><br>
+	 * 						  which does match,
+	 * 						  the returned value would be <i><b><u>1</u></b></i>.
+	 *
+	 * @param matcher   A <u>NON-NULL</u> {@link Matcher}
+	 *                  whose <i>matches()</i> or <i>find()</i> method has already been called and returned <i>true</i>.
+	 *
+	 * @return			The index of the {@link Criterion},
+	 * 					which is supposed to be the first capturing group of the given {@link Matcher}'s inner {@link Pattern}.
+	 *
+	 * @throws NullPointerException			If the given {@link Matcher} is null.
+	 *
+	 * @throws IllegalStateException		If no match has yet been attempted,
+	 * 										or if the previous match operation failed.
+	 *
+	 * @throws IndexOutOfBoundsException	If there is no capturing group
+	 * 										in the given {@link Matcher}'s inner {@link Pattern}.
+	 *
+	 * @throws NumberFormatException		if the first capturing group does not contain any parsable integer.
+	 */
+	protected int getCriterionIndex(Matcher matcher) {
+
+		return Integer.parseInt(matcher.group(1));
 	}
 
 	/**
@@ -240,7 +283,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName, String monitorJobName,
 											   boolean createMonitorIfNull) {
 	
-		notNull(connector, "Connector cannot be null.");
+		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
 
 		HardwareMonitor hardwareMonitor = connector
 			.getHardwareMonitors()
@@ -366,7 +409,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 
 	/**
 	 * @param key		The key to parse.
-	 * @param connector	The {@link Connector} whose source is being searched for.
+	 * @param connector	The {@link Connector} whose {@link Source} is being searched for.
 	 * @param <T>		The type of {@link Source} being searched for.
 	 *
 	 * @return			The {@link Source} matching the given key.
@@ -374,7 +417,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected <T extends Source> T getSource(String key, Connector connector) {
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> INVALID_KEY + key + ConnectorParserConstants.DOT);
 
 		T source = getSource(matcher, connector, false);
 		notNull(source,
@@ -442,7 +485,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 
 	/**
 	 * @param key		The key to parse.
-	 * @param connector	The {@link Connector} whose source is being searched for.
+	 * @param connector	The {@link Connector} whose {@link Compute} is being searched for.
 	 * @param <T>		The type of {@link Compute} being searched for.
 	 *
 	 * @return			The {@link Compute} matching the given key.
@@ -450,7 +493,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected <T extends Compute> T getCompute(String key, Connector connector) {
 
 		Matcher matcher = getMatcher(key);
-		isTrue(matcher.matches(), () -> "Invalid key: " + key + ConnectorParserConstants.DOT);
+		isTrue(matcher.matches(), () -> INVALID_KEY + key + ConnectorParserConstants.DOT);
 
 		T compute = getCompute(matcher, connector);
 		notNull(compute,
@@ -526,8 +569,99 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	}
 
 	/**
+	 * @param <T>		A sub-type of the {@link Criterion} class.
+	 * @param matcher	A <u>NON-NULL</u> {@link Matcher},
+	 * 					whose match operation has been called successfully,
+	 * 					and from which a {@link Criterion} index can be extracted.
+	 * @param connector	The {@link Connector} whose {@link Criterion} is being searched for.
+	 *
+	 * @return			The {@link Criterion} in the given {@link Connector} matching the given {@link Matcher}.
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T extends Criterion> T getCriterion(Matcher matcher, Connector connector) {
+
+		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
+
+		Detection detection = connector.getDetection();
+		if (detection == null) {
+			return null;
+		}
+
+		List<Criterion> criteria = detection.getCriteria();
+		if (criteria == null) {
+			return null;
+		}
+
+		int criterionIndex = getCriterionIndex(matcher);
+
+		return (T) criteria
+			.stream()
+			.filter(criterion -> getType().isInstance(criterion) && criterion.getIndex() == criterionIndex)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	 * @param key		The key to parse.
+	 * @param connector	The {@link Connector} whose {@link Criterion} is being searched for.
+	 * @param <T>		The type of {@link Criterion} being searched for.
+	 *
+	 * @return			The {@link Criterion} matching the given key.
+	 */
+	protected <T extends Criterion> T getCriterion(String key, Connector connector) {
+
+		Matcher matcher = getMatcher(key);
+		isTrue(matcher.matches(), () -> INVALID_KEY + key + ConnectorParserConstants.DOT);
+
+		T criterion = getCriterion(matcher, connector);
+		notNull(criterion,
+			() -> "Could not find any Criterion for the following key: " + key + ConnectorParserConstants.DOT);
+
+		return criterion;
+	}
+
+	/**
+	 *
+	 * @param value		The value of the {@link Criterion} type,
+	 *                  in case <i>this</i> is a <i>TypeProcessor</i>
+	 * @param matcher   The {@link Matcher} used to retrieve the {@link Criterion}
+	 *                  in case <i>this</i> is not an <i>OidProcessor</i>
+	 * @param connector    The {@link Connector} used to retrieve the {@link Criterion}
+	 * 					in case <i>this</i> is not an <i>OidProcessor</i>
+	 *
+	 * @return			<ul>
+	 * 						<li>
+	 * 							<b>true</b> if:
+	 * 							<ul>
+	 * 								<li><i>this</i> is a <i>TypeProcessor</i> whose type matches the given value.</li>
+	 * 								<li><i>this</i> is an <i>OidProcessor</i>.</li>
+	 * 								<li>
+	 * 									<i>this</i> is neither a <i>TypeProcessor</i> nor an <i>OidProcessor</i>
+	 * 									and there is a {@link Compute} in the given {@link Connector}
+	 * 									matching the given {@link Matcher}.
+	 * 								</li>
+	 * 							</ul>
+	 * 						</li>
+	 * 						<li><b>false</b> otherwise.</li>
+	 *					</ul>
+	 */
+	private boolean isCriterionContext(String value, Matcher matcher, Connector connector) {
+
+		if (this instanceof com.sentrysoftware.matrix.connector.parser.state.detection.common.TypeProcessor) {
+
+			return getTypeValue().equalsIgnoreCase(value);
+		}
+
+		return (this instanceof OidProcessor) || getCriterion(matcher, connector) != null;
+	}
+
+	/**
 	 * @param key       The key will determine which context evaluation method should be called:<br>
 	 *                  <ul>
+	 *                  	<li>
+	 *                      	if the key starts with "detection.criteria" (ignoring case),
+	 *                      	the {@link Criterion} context evaluation method will be called.
+	 *                  	</li>
 	 *                  	<li>
 	 *                      	if the key contains ".compute" (ignoring case),
 	 *                      	the {@link Compute} context evaluation method will be called.
@@ -542,7 +676,11 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 */
 	private boolean isAccurateContext(String key, String value, Matcher matcher, Connector connector) {
 
-		return key.contains(DOT + COMPUTE)
+		if (key.startsWith(DETECTION_DOT_CRITERIA)) {
+			return isCriterionContext(value, matcher, connector);
+		}
+
+		return key.contains(DOT_COMPUTE)
 			? isComputeContext(value, matcher, connector)
 			: isSourceContext(value, matcher, connector);
 	}
@@ -551,7 +689,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	public boolean detect(final String key, final String value, final Connector connector) {
 	
 		Matcher matcher;
-	
+
 		return value != null
 			&& key != null
 			&& (matcher = getMatcher(key)).matches() //NOSONAR - Assigning matcher on purpose
@@ -563,6 +701,6 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 
 		notNull(key, "key cannot be null.");
 		notNull(value, "value cannot be null.");
-		notNull(connector, "Connector cannot be null.");
+		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
 	}
 }
