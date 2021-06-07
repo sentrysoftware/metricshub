@@ -25,6 +25,8 @@ import org.springframework.util.Assert;
 
 import lombok.Getter;
 
+import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DEFAULT;
+
 /**
  * Based on HDV Maven Plugin HardwareConnector Bertrand's implementation.
  * The aim of this bean is to provide a refined Connector content to be processed by the {@link ConnectorParser}
@@ -200,9 +202,9 @@ public class ConnectorRefined {
 			if (value.endsWith("\"")) {
 				value = value.substring(0, value.length() - 1);
 			}
-			value = value.replaceAll("\\\\t", "\t").replaceAll("\\\\n", "\n").replaceAll("\"\"", "\"");
+			value = value.replace("\\\\t", "\t").replace("\\\\n", "\n").replace("\"\"", "\"");
 
-			codeMap.put(codeMatcher.group(1).toLowerCase(), value);
+			put(codeMatcher.group(1), value);
 		}
 	}
 
@@ -260,8 +262,18 @@ public class ConnectorRefined {
 			final TranslationTable translationTable = TranslationTable.builder().name(translationTableName).build();
 
 			while (translationTableMatcher.find()) {
-				translationTable.getTranslations().put(translationTableMatcher.group(1).replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1").trim(),
-						translationTableMatcher.group(2).replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1").trim());
+
+				String key = translationTableMatcher
+					.group(1)
+					.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
+					.trim();
+
+				translationTable.getTranslations().put(DEFAULT.equalsIgnoreCase(key) ? DEFAULT : key,
+						translationTableMatcher
+							.group(2)
+							.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
+							.trim());
+
 				translationTableMatcher.appendReplacement(tempRawCode, "");
 			}
 			translationTables.put(translationTableName, translationTable);
@@ -351,7 +363,7 @@ public class ConnectorRefined {
 			// reference groups, etc.
 			// Replacing backslashes with double backslashes with double protection means
 			// (gasp) 8 backslashes! :-D
-			String defineValue = defineEntry.getValue().replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
+			String defineValue = defineEntry.getValue().replace("\\\\", "\\\\\\\\").replace("\\$", "\\\\\\$");
 
 			// Usual regex replacement code loop
 			tempRawCode = new StringBuffer();
@@ -374,7 +386,7 @@ public class ConnectorRefined {
 	 */
 	public String[] getProblemList() {
 
-		return problemList.toArray(new String[problemList.size()]);
+		return problemList.toArray(new String[0]);
 	}
 
 	/**
@@ -421,7 +433,7 @@ public class ConnectorRefined {
 	 */
 	public void put(String key, String value) {
 
-		codeMap.put(key, value);
+		codeMap.put(key.toLowerCase(), value);
 	}
 
 	/**

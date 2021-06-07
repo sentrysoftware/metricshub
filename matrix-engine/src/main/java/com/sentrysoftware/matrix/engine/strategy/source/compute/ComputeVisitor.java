@@ -51,6 +51,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
 
@@ -80,13 +81,25 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
-			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ONE + HardwareConstants.CLOSING_PARENTHESIS);
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION =
+		(str, translations) -> translations
+			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
+					+ str + HardwareConstants.COMMA
+					+ HardwareConstants.ONE
+					+ HardwareConstants.CLOSING_PARENTHESIS,
+				translations.get(DEFAULT));
 
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
-			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ZERO +  HardwareConstants.CLOSING_PARENTHESIS);
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION =
+		(str, translations) -> translations
+			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
+					+ str
+					+ HardwareConstants.COMMA
+					+ HardwareConstants.ZERO
+					+ HardwareConstants.CLOSING_PARENTHESIS,
+				translations.get(DEFAULT));
 
-	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION = (str, translations) -> translations.get(str);
+	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION =
+		(str, translations) -> translations.getOrDefault(str, translations.get(DEFAULT));
 
 	static {
 		MATH_FUNCTIONS_MAP = Map.of(
@@ -148,11 +161,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		int columnIndex = arrayTranslate.getColumn() - 1;
-		if (columnIndex < 0) {
-			log.warn("The index of the column to translate cannot be < 1, the translate computation cannot be performed.");
+		int column = arrayTranslate.getColumn();
+		if (column < 1) {
+			log.warn("The column number to translate cannot be < 1, the translate computation cannot be performed.");
 			return;
 		}
+
+		int columnIndex = column - 1;
 
 		String arraySeparator = arrayTranslate.getArraySeparator();
 		if (arraySeparator == null) {
@@ -164,24 +179,37 @@ public class ComputeVisitor implements IComputeVisitor {
 			resultSeparator = PIPE;
 		}
 
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
 		for (List<String> row : sourceTable.getTable()) {
 
-			if (columnIndex < row.size()) {
+			if (columnIndex >= row.size()) {
 
-				String arrayValue = row.get(columnIndex);
-				if (arrayValue != null) {
+				log.warn("The index of the column is {} but the row size is {}, the translate computation cannot be performed.",
+					column, row.size());
 
-					String[] splitArrayValue = arrayValue.split(arraySeparator, -1);
-
-					String translatedArrayValue = Arrays
-						.stream(splitArrayValue)
-						.map(value -> translate(value, translations, TRANSLATION_FUNCTION, EMPTY))
-						.collect(Collectors.joining(resultSeparator));
-
-					row.set(columnIndex, translatedArrayValue);
-				}
+				return;
 			}
+
+			resultRow = new ArrayList<>(row);
+
+			String arrayValue = row.get(columnIndex);
+			if (arrayValue != null) {
+
+				String[] splitArrayValue = arrayValue.split(arraySeparator, -1);
+
+				String translatedArrayValue = Arrays
+					.stream(splitArrayValue)
+					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, EMPTY))
+					.collect(Collectors.joining(resultSeparator));
+
+				resultRow.set(columnIndex, translatedArrayValue);
+			}
+
+			resultTable.add(resultRow);
 		}
+
+		sourceTable.setTable(resultTable);
 	}
 
 	@Override
