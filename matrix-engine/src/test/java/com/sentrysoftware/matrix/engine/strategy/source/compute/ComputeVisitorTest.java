@@ -1965,6 +1965,13 @@ class ComputeVisitorTest {
 		doReturn(null).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
 		assertEquals(new ArrayList<>(), sourceTable.getTable());
+		
+		sourceTable.setTable(new ArrayList<>());
+		sourceTable.setRawData(null);
+		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(SEMICOLON_SEPARATOR).selectColumns(Arrays.asList(1, 2, 3)).build();
+		doReturn("").when(matsyaClientsExecutor).executeAwkScript(any(), any());
+		computeVisitor.visit(awkOK);
+		assertEquals(new ArrayList<>(), sourceTable.getTable());
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
@@ -1978,14 +1985,24 @@ class ComputeVisitorTest {
 	void testSelectedColumnsStringInput() {
 
 		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput("", LINE_RAW_DATA, Arrays.asList(1, 2, 3))); // no separator
+		String rawData = LINE_RAW_DATA.replaceAll(SEMICOLON_SEPARATOR, "_"); // other separator
 		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList())); // no selected columns
 		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(50))); // out of bounds
 
 		String expected = "FOO;ID1;NAME1;MANUFACTURER1;\nBAR;ID2;NAME2;MANUFACTURER2;\nBAZ;ID3;NAME3;MANUFACTURER3;";
 		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(1,2,3,4))); // use case trad
+		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput("_", rawData, Arrays.asList(1,2,3,4))); // use case trad
 
 		expected = "ID1;NAME1;\nID2;NAME2;\nID3;NAME3;";
 		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(2,3))); // use case trad
+		
+		String input = "id1   name1  val1\nid2   name2  val2\nid3   name3  val3";
+		String output = "name1;val1;\nname2;val2;\nname3;val3;";
+		assertEquals(output, ComputeVisitor.selectedColumnsStringInput(" ", input, Arrays.asList(2,3))); // spaces separator
+
+		input = "id1   na;me1  val;1\nid2   name2  val2\nid3   name3  val3";
+		output = "na,me1;val,1;\nname2;val2;\nname3;val3;";
+		assertEquals(output, ComputeVisitor.selectedColumnsStringInput(" ", input, Arrays.asList(2,3))); // make sure that we replace intial ";" by "," because we use it as separator 
 	}
 	
 	@Test

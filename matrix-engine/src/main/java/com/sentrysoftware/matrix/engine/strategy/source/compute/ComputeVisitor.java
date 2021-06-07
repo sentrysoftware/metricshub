@@ -255,8 +255,15 @@ public class ComputeVisitor implements IComputeVisitor {
 		StringBuilder selectedOutput = new StringBuilder();
 		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
 
+			// if separator = tab or simple space, then ignore empty cells
+			// equivalent to ntharg
+			if(separators.contains(HardwareConstants.TAB) || separators.contains(HardwareConstants.WHITE_SPACE)) {
+				line = line.replaceAll("\\s+", HardwareConstants.WHITE_SPACE);
+			}
+			// else nthargf, so empty cells matter
 			String[] splitedLine = line.split(separators);
 
+			
 			// test if selected columns are not out of bounds
 			boolean idExists = selectColumns.stream().anyMatch(t -> (t -1 > splitedLine.length || t - 1 < 0));
 
@@ -265,13 +272,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				return awkResult;
 			} else {
 				List<String> actualList = Arrays.asList(splitedLine);
-				// if separator = tab or simple space, then ignore empty cells
-				// equivalent to ntharg
-				if(separators.contains(HardwareConstants.TAB) || separators.contains(HardwareConstants.WHITE_SPACE)) {
-					actualList.removeIf(item -> item == null || "".equals(item));
-				}
-				// else nthargf, so empty cells matter
-
+				
 				// mind that the joining operation do not add separator at the end and do not return new line
 				selectedOutput = selectedOutput.append(
 														actualList.stream()
