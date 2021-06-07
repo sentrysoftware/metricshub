@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.compute.add.ConnectorAddProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.and.ConnectorAndProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.arraytranslate.ConnectorArrayTranslateProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.awk.ConnectorAwkProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.convert.ConnectorConvertProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.divide.ConnectorDivideProperty;
@@ -49,7 +50,8 @@ public class ConnectorComputeProperty {
 				ConnectorAwkProperty.getConnectorProperties(),
 				ConnectorExtractProperty.getConnectorProperties(),
 				ConnectorAndProperty.getConnectorProperties(),
-				ConnectorConvertProperty.getConnectorProperties())
+				ConnectorConvertProperty.getConnectorProperties(),
+				ConnectorArrayTranslateProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
 	}

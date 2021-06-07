@@ -1,0 +1,2002 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//           Hardware Sentry KM for PATROL
+//
+//               by Sentry Software (c)
+//
+//
+//      Supports: NetApp disk arrays
+//                Connects to NetApp's SNMP Agent
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="NetApp Filer (SNMP)"
+hdf.TypicalPlatform="NetApp"
+hdf.ReliesOn="NetApp SNMP Agent"
+hdf.Version="1.2.1"
+hdf.Comments="This connector discovers the enclosure and the disks of NetApp disk arrays (filer) as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+hdf.Supersedes="MS_HW_NetAppREST7Mode.hdf"
+
+//
+// Detection
+//
+
+// Verify that the NetApp SNMP agent responds to our requests
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.789.1.1"
+
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+// Source(1) = netapp "fake" SNMP Table
+// DeviceID;productID;vendorCode;model;firmwareVersion;serialNumber
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4,5,6,9"
+
+// Translate the vendorCode into a real name
+// DeviceID;productID;vendor;model;firmwareVersion;serialNumber
+Enclosure.Discovery.Source(1).Compute(1).Type="Translate"
+Enclosure.Discovery.Source(1).Compute(1).Column=3
+Enclosure.Discovery.Source(1).Compute(1).TranslationTable="VendorTranslationTable"
+
+// The VendorTranslationTable
+VendorTranslationTable(1)="NetApp"
+VendorTranslationTable(2)="Dell"
+VendorTranslationTable(3)="IBM"
+VendorTranslationTable(Default)="NetApp"
+
+// Concat serialNumber and productID
+// DeviceID;productID;vendor;model;firmwareVersion;serialNumber - ID
+Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=6
+Enclosure.Discovery.Source(1).Compute(2).String=" - ID: "
+
+Enclosure.Discovery.Source(1).Compute(3).Type="RightConcat"
+Enclosure.Discovery.Source(1).Compute(3).Column=6
+Enclosure.Discovery.Source(1).Compute(3).String=Column(2)
+
+// InstanceTable = Source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="NetApp"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.Type="Storage"
+
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = raidP SNMP Table
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.6.10.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="14,17,18,22,25,26,27,30,10,16"
+
+// Source(2) = spareDisk SNMP table
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(2).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.789.1.6.3.1"
+PhysicalDisk.Discovery.Source(2).SnmpTableSelectColumns="5,12,13,7,16,17,18,21,2,4"
+
+// Source(3) = otherDisk SNMP table (failed and excluded disks)
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(3).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.789.1.6.9.1"
+PhysicalDisk.Discovery.Source(3).SnmpTableSelectColumns="5,12,13,7,16,17,18,21,2,4"
+
+// Source(4) = RaidVentry SNMP table
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(4).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.789.1.6.2.1"
+PhysicalDisk.Discovery.Source(4).SnmpTableSelectColumns="6,19,20,9,26,27,28,31,2,4"
+
+
+// Source(4) = table union of source(1), source(2) and source(3)
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(5).Type="TableUnion"
+PhysicalDisk.Discovery.Source(5).Table1=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(5).Table2=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(5).Table3=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Source(5).Table4=%PhysicalDisk.Discovery.Source(4)%
+
+// Concat Vendor, Model and DiskType
+// AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(5).Compute(1).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(1).Column=6
+PhysicalDisk.Discovery.Source(5).Compute(1).String=" "
+
+PhysicalDisk.Discovery.Source(5).Compute(2).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(2).Column=6
+PhysicalDisk.Discovery.Source(5).Compute(2).String=Column(7)
+
+PhysicalDisk.Discovery.Source(5).Compute(3).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(5).Compute(3).String=", "
+
+PhysicalDisk.Discovery.Source(5).Compute(4).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(4).Column=6
+PhysicalDisk.Discovery.Source(5).Compute(4).String=Column(8)
+
+// Concat AdapterID, ShelfID and BayNumber
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(5).Compute(5).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(5).Column=1
+PhysicalDisk.Discovery.Source(5).Compute(5).String="/"
+
+PhysicalDisk.Discovery.Source(5).Compute(6).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(6).Column=1
+PhysicalDisk.Discovery.Source(5).Compute(6).String=Column(2)
+
+PhysicalDisk.Discovery.Source(5).Compute(7).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(7).Column=1
+PhysicalDisk.Discovery.Source(5).Compute(7).String="/"
+
+PhysicalDisk.Discovery.Source(5).Compute(8).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(8).Column=1
+PhysicalDisk.Discovery.Source(5).Compute(8).String=Column(3)
+
+// Convert SizeMB to bytes
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
+PhysicalDisk.Discovery.Source(5).Compute(9).Type="Multiply"
+PhysicalDisk.Discovery.Source(5).Compute(9).Column=4
+PhysicalDisk.Discovery.Source(5).Compute(9).MultiplyBy=1048576
+
+// Add a Blank PredictiveFailure
+PhysicalDisk.Discovery.Source(5).Compute(10).Type="RightConcat"
+PhysicalDisk.Discovery.Source(5).Compute(10).Column=10
+PhysicalDisk.Discovery.Source(5).Compute(10).String=";"
+
+//now creates a fake disk to monitor the unassigned disks.
+//first let's check in the oid is returned and if number of disks active disks.If so let's create this fake disk.
+//ID;Disk numbers;Active disks
+PhysicalDisk.Discovery.Source(6).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(6).SnmpTableOid="1.3.6.1.4.1.789.1.6.4"
+PhysicalDisk.Discovery.Source(6).SnmpTableSelectColumns="ID,1,2"
+
+//this awk empty the first column and returns empty info to match other disks parameters.
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;PredictedFailureactivation;
+PhysicalDisk.Discovery.Source(6).Compute(1).Type="Awk"
+PhysicalDisk.Discovery.Source(6).Compute(1).AwkScript=EmbeddedFile(11)
+
+//now union source(5) and source (6)
+PhysicalDisk.Discovery.Source(7).Type="TableUnion"
+PhysicalDisk.Discovery.Source(7).Table1=%PhysicalDisk.Discovery.Source(5)%
+PhysicalDisk.Discovery.Source(7).Table2=%PhysicalDisk.Discovery.Source(6)%
+
+// Replace the DiskID with the DiskName
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskName;PredictedFailureactivation;
+PhysicalDisk.Discovery.Source(7).Compute(1).Type="Replace"
+PhysicalDisk.Discovery.Source(7).Compute(1).Column=10
+PhysicalDisk.Discovery.Source(7).Compute(1).Replace=Column(10)
+PhysicalDisk.Discovery.Source(7).Compute(1).ReplaceBy=Column(9)
+
+// Extract the ShelfID
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;
+PhysicalDisk.Discovery.Source(7).Compute(2).Type="Extract"
+PhysicalDisk.Discovery.Source(7).Compute(2).Column=10
+PhysicalDisk.Discovery.Source(7).Compute(2).SubColumn=2
+PhysicalDisk.Discovery.Source(7).Compute(2).SubSeparators="."
+
+// Table Join the Discovery to Blade Discovery 2
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
+PhysicalDisk.Discovery.Source(8).Type="TableJoint"
+PhysicalDisk.Discovery.Source(8).LeftTable=%PhysicalDisk.Discovery.Source(7)%
+PhysicalDisk.Discovery.Source(8).RightTable=%Blade.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(8).LeftKeyColumn=10
+PhysicalDisk.Discovery.Source(8).RightKeyColumn=2
+PhysicalDisk.Discovery.Source(8).DefaultRightLine="NetApp;;Enclosure;"
+
+// Duplicate column one for additional information.
+// Don't want to change how IDs work.
+PhysicalDisk.Discovery.Source(8).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(8).Compute(1).Column=1
+
+// AdditionalInformation formatting
+PhysicalDisk.Discovery.Source(8).Compute(2).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(8).Compute(2).Column=2
+PhysicalDisk.Discovery.Source(8).Compute(2).String="Location: "
+
+// InstanceTable = Source(6)
+// Use Diskname as DiskId because DiskID OID may be empty. Case HC-949
+// AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(8)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(10)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID="NetApp"
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(13)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(15)
+PhysicalDisk.Discovery.Instance.ParameterActivation.PredictedFailure=InstanceTable.Column(12)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = raidP SNMP Table
+// DiskID;Status
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.6.10.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="10,2"
+
+// Duplicate the Status column
+// DiskID;Status;Status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="raidPDiskStatusTranslationTable"
+
+// The raidPDiskStatusTranslationTable
+raidPDiskStatusTranslationTable(1)="OK"
+raidPDiskStatusTranslationTable(2)="OK"
+raidPDiskStatusTranslationTable(3)="OK"
+raidPDiskStatusTranslationTable(4)="OK"
+raidPDiskStatusTranslationTable(5)="OK"
+raidPDiskStatusTranslationTable(6)="ALARM"
+raidPDiskStatusTranslationTable(9)="WARN"
+raidPDiskStatusTranslationTable(10)="OK"
+raidPDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="raidPDiskStatusInformationTranslationTable"
+
+// The raidPDiskStatusInformationTranslationTable
+raidPDiskStatusInformationTranslationTable(1)="Active"
+raidPDiskStatusInformationTranslationTable(2)="Reconstruction in progress"
+raidPDiskStatusInformationTranslationTable(3)="Parity reconstruction in progress"
+raidPDiskStatusInformationTranslationTable(4)="Parity verification in progress"
+raidPDiskStatusInformationTranslationTable(5)="Scrubbing in progress"
+raidPDiskStatusInformationTranslationTable(6)="Failed"
+raidPDiskStatusInformationTranslationTable(9)="Predicted Failure"
+raidPDiskStatusInformationTranslationTable(10)="Offline"
+raidPDiskStatusInformationTranslationTable(Default)="Unknown status"
+
+// Source(2) = spareDisk SNMP Table
+// DiskID;Status
+PhysicalDisk.Collect.Source(2).Type="SnmpTable"
+PhysicalDisk.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.789.1.6.3.1"
+PhysicalDisk.Collect.Source(2).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// DiskID;Status;Status;
+PhysicalDisk.Collect.Source(2).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(2).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(2).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(2).Compute(2).Column=2
+PhysicalDisk.Collect.Source(2).Compute(2).TranslationTable="spareDiskStatusTranslationTable"
+
+// The spareDiskStatusTranslationTable
+spareDiskStatusTranslationTable(1)="OK"
+spareDiskStatusTranslationTable(2)="OK"
+spareDiskStatusTranslationTable(3)="OK"
+spareDiskStatusTranslationTable(10)="OK"
+spareDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(2).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(2).Compute(3).Column=3
+PhysicalDisk.Collect.Source(2).Compute(3).TranslationTable="spareDiskStatusInformationTranslationTable"
+
+// The spareDiskStatusInformationTranslationTable
+spareDiskStatusInformationTranslationTable(1)="Spare"
+spareDiskStatusInformationTranslationTable(2)="Adding spare"
+spareDiskStatusInformationTranslationTable(3)="By-passed"
+spareDiskStatusInformationTranslationTable(10)="Offline"
+spareDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// Source(3) = otherDisk SNMP Table
+// DiskID;Status;
+PhysicalDisk.Collect.Source(3).Type="SnmpTable"
+PhysicalDisk.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.789.1.6.9.1"
+PhysicalDisk.Collect.Source(3).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// DiskID;Status;Status;
+PhysicalDisk.Collect.Source(3).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(3).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(3).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(3).Compute(2).Column=2
+PhysicalDisk.Collect.Source(3).Compute(2).TranslationTable="otherDiskStatusTranslationTable"
+
+// The otherDiskStatusTranslationTable
+otherDiskStatusTranslationTable(1)="ALARM"
+otherDiskStatusTranslationTable(2)="OK"
+otherDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(3).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(3).Compute(3).Column=3
+PhysicalDisk.Collect.Source(3).Compute(3).TranslationTable="otherDiskStatusInformationTranslationTable"
+
+// The otherDiskStatusInformationTranslationTable
+otherDiskStatusInformationTranslationTable(1)="Broken"
+otherDiskStatusInformationTranslationTable(2)="By-passed"
+otherDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+//Fake disk collect
+// Now check if we have in the summary table some unassigned disks flagged as failure and collect the associated message.
+//we also have to check the Predicted failure parameters.
+//ID;diskFailedCount;DiskFailedMessage;diskPrefailedCount.
+PhysicalDisk.Collect.Source(4).Type="SnmpTable"
+PhysicalDisk.Collect.Source(4).SnmpTableOid="1.3.6.1.4.1.789.1.6.4"
+PhysicalDisk.Collect.Source(4).SnmpTableSelectColumns="ID,7,10,11"
+
+//now translate the diskfailedcount: 0 by ok and if greater than 0 alarm
+//ID;PatrolStatus;DiskFailedMessage;diskPrefailedCount.
+PhysicalDisk.Collect.Source(4).Compute(1).Type="Translate"
+PhysicalDisk.Collect.Source(4).Compute(1).Column=2
+PhysicalDisk.Collect.Source(4).Compute(1).TranslationTable="diskFailedCountTranslationTable"
+
+diskFailedCountTranslationTable(0)="OK"
+diskFailedCountTranslationTable(Default)="ALARM"
+
+//now translate the diskPrefailedCount by 0 ok and if greater than 0 alarm
+//ID;PatrolStatus;DiskFailedMessage;PredictedFailure.
+PhysicalDisk.Collect.Source(4).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(4).Compute(2).Column=4
+PhysicalDisk.Collect.Source(4).Compute(2).TranslationTable="diskPrefailedCountTranslationTable"
+
+diskPrefailedCountTranslationTable(0)="False"
+diskPrefailedCountTranslationTable(Default)="True"
+
+//Now let's add the fake disk ID
+//diskID;PatrolStatus;DiskFailedMessage;PredictedFailure.
+PhysicalDisk.Collect.Source(4).Compute(3).Type="LeftConcat"
+PhysicalDisk.Collect.Source(4).Compute(3).Column=1
+PhysicalDisk.Collect.Source(4).Compute(3).String="Unassigned Disks."
+
+
+//let's collect RaidVentry
+
+PhysicalDisk.Collect.Source(5).Type="SnmpTable"
+PhysicalDisk.Collect.Source(5).SnmpTableOid="1.3.6.1.4.1.789.1.6.2.1"
+PhysicalDisk.Collect.Source(5).SnmpTableSelectColumns="2,3"
+
+PhysicalDisk.Collect.Source(5).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(5).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(5).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(5).Compute(2).Column=2
+PhysicalDisk.Collect.Source(5).Compute(2).TranslationTable="raidPDiskStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(5).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(5).Compute(3).Column=3
+PhysicalDisk.Collect.Source(5).Compute(3).TranslationTable="raidPDiskStatusInformationTranslationTable"
+
+
+// Source(6) = union of source(1), source(2)  source(3)  source(4) and source(5)
+// DiskID;PATROLStatus;StatusInformation;PredictedFailure.
+PhysicalDisk.Collect.Source(6).Type="TableUnion"
+PhysicalDisk.Collect.Source(6).Table1=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(6).Table2=%PhysicalDisk.Collect.Source(2)%
+PhysicalDisk.Collect.Source(6).Table3=%PhysicalDisk.Collect.Source(3)%
+PhysicalDisk.Collect.Source(6).Table4=%PhysicalDisk.Collect.Source(4)%
+PhysicalDisk.Collect.Source(6).Table5=%PhysicalDisk.Collect.Source(5)%
+
+// ValueTable = Source(5)
+// DiskID;PATROLStatus;StatusInformation;PredictedFailure.
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(6)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
+
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = aggrTable SNMP table
+// aggrName;aggrOptions
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.5.11.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,7"
+
+// Try to extract the RAIDLevel from the aggrOptions
+// aggrName;RAIDLevel
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Replace"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=2
+LogicalDisk.Discovery.Source(1).Compute(1).Replace="raidtype="
+LogicalDisk.Discovery.Source(1).Compute(1).ReplaceBy="�"
+
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=2
+LogicalDisk.Discovery.Source(1).Compute(2).Subseparators="�"
+LogicalDisk.Discovery.Source(1).Compute(2).Subcolumn=2
+
+LogicalDisk.Discovery.Source(1).Compute(3).Type="Extract"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=2
+LogicalDisk.Discovery.Source(1).Compute(3).Subseparators=","
+LogicalDisk.Discovery.Source(1).Compute(3).Subcolumn=1
+
+LogicalDisk.Discovery.Source(1).Compute(4).Type="Replace"
+LogicalDisk.Discovery.Source(1).Compute(4).Column=2
+LogicalDisk.Discovery.Source(1).Compute(4).Replace="_"
+LogicalDisk.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+LogicalDisk.Discovery.Source(1).Compute(5).Type="Replace"
+LogicalDisk.Discovery.Source(1).Compute(5).Column=2
+LogicalDisk.Discovery.Source(1).Compute(5).Replace="raid"
+LogicalDisk.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Source(2) = dfTable SNMP Table
+// dfName;dfHighTotalKBytes;dfLowTotalKBytes;
+LogicalDisk.Discovery.Source(2).Type="SnmpTable"
+LogicalDisk.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.789.1.5.4.1"
+LogicalDisk.Discovery.Source(2).SnmpTableSelectColumns="2,14,15"
+
+// Netapp logical volume calculation:
+// Size = (High * 2^32) + Low  if low >= 0
+// Size = (High * 2^32) + 2^32 + Low  if low < 0
+
+// Multiply HighTotal by 4294967296
+// dfName;dfHighTotalKBytes;dfLowTotalKBytes;
+LogicalDisk.Discovery.Source(2).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(2).Compute(1).Column=2
+LogicalDisk.Discovery.Source(2).Compute(1).MultiplyBy=4294967296
+
+// Add a blank column to the right of the table to prevent a calculation error later for non-negative dfLowTotalKBytes values
+// dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
+LogicalDisk.Discovery.Source(2).Compute(2).Type="RightConcat"
+LogicalDisk.Discovery.Source(2).Compute(2).Column=3
+LogicalDisk.Discovery.Source(2).Compute(2).String=";"
+
+// Replace the negative sign by a "4294967296;"
+// if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
+// if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
+LogicalDisk.Discovery.Source(2).Compute(3).Type="Replace"
+LogicalDisk.Discovery.Source(2).Compute(3).Column=3
+LogicalDisk.Discovery.Source(2).Compute(3).Replace="-"
+LogicalDisk.Discovery.Source(2).Compute(3).ReplaceBy="4294967296;-"
+
+// Add 3rd & 4th column to get a real LowTotal Bytes Valus
+// if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
+// if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
+LogicalDisk.Discovery.Source(2).Compute(4).Type="Add"
+LogicalDisk.Discovery.Source(2).Compute(4).Column=3
+LogicalDisk.Discovery.Source(2).Compute(4).Add=Column(4)
+
+// Add High & Low to get real disk size
+// if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
+// if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
+LogicalDisk.Discovery.Source(2).Compute(5).Type="Add"
+LogicalDisk.Discovery.Source(2).Compute(5).Column=2
+LogicalDisk.Discovery.Source(2).Compute(5).Add=Column(3)
+
+// Keep only the ID & Size
+// dfName;size;
+LogicalDisk.Discovery.Source(2).Compute(6).Type="KeepColumns"
+LogicalDisk.Discovery.Source(2).Compute(6).ColumnNumbers="1,2"
+
+// Convert sizeKB to bytes
+// dfName;size;
+LogicalDisk.Discovery.Source(2).Compute(7).Type="Multiply"
+LogicalDisk.Discovery.Source(2).Compute(7).Column=2
+LogicalDisk.Discovery.Source(2).Compute(7).MultiplyBy=1024
+
+// Source(3) = Table joint of source(1) and source(2)
+// aggrName;RAIDLevel;dfName;size
+LogicalDisk.Discovery.Source(3).Type="TableJoint"
+LogicalDisk.Discovery.Source(3).LeftTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Source(3).RightTable=%LogicalDisk.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(3).LeftKeyColumn=1
+LogicalDisk.Discovery.Source(3).RightKeyColumn=1
+LogicalDisk.Discovery.Source(3).DefaultRightLine=";;"
+
+// Add ";Aggregate" as the last column to indicate that these instances are aggregates
+// aggrName;RAIDLevel;dfName;size;logicalDiskType;CountInCapacityReport;
+LogicalDisk.Discovery.Source(3).Compute(1).Type="RightConcat"
+LogicalDisk.Discovery.Source(3).Compute(1).Column=4
+LogicalDisk.Discovery.Source(3).Compute(1).String=";Aggregate;1"
+
+// Source(4) = raidP SNMP Table
+// SizeMB;
+LogicalDisk.Discovery.Source(4).Type="SnmpTable"
+LogicalDisk.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.789.1.6.10.1"
+LogicalDisk.Discovery.Source(4).SnmpTableSelectColumns="22"
+
+// Compute the sum of SizeMB and returns a single instance
+// corresponding fo the primordial storage pool
+// aggrName;RAIDLevel;dfName;sizeMB;logicalDiskType;CountInCapacityReport;
+LogicalDisk.Discovery.Source(4).Compute(1).Type="Awk"
+LogicalDisk.Discovery.Source(4).Compute(1).AwkScript=EmbeddedFile(8)
+LogicalDisk.Discovery.Source(4).Compute(1).KeepOnlyRegExp="MSHW;"
+LogicalDisk.Discovery.Source(4).Compute(1).SelectColumns="2,3,4,5,6,7"
+LogicalDisk.Discovery.Source(4).Compute(1).Separators=";"
+
+// Convert MB to bytes
+// aggrName;RAIDLevel;dfName;size;logicalDiskType;CountInCapacityReport;
+LogicalDisk.Discovery.Source(4).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(4).Compute(2).Column=4
+LogicalDisk.Discovery.Source(4).Compute(2).MultiplyBy=1048576
+
+// Source(5) = Source(3) + Source(4)
+LogicalDisk.Discovery.Source(5).Type="TableUnion"
+LogicalDisk.Discovery.Source(5).Table1=%LogicalDisk.Discovery.Source(3)%
+LogicalDisk.Discovery.Source(5).Table2=%LogicalDisk.Discovery.Source(4)%
+
+
+// InstanceTable = source(3)
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(5)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID="NetApp"
+LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the aggrTable SNMP table
+// aggrName;StatusArray
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.5.11.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,6"
+
+// Remove the blanks from Status
+// aggrName;StatusArray
+LogicalDisk.Collect.Source(1).Compute(1).Type="Replace"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+LogicalDisk.Collect.Source(1).Compute(1).Replace=" "
+LogicalDisk.Collect.Source(1).Compute(1).ReplaceBy=""
+
+// Duplicate the status column
+// aggrName;StatusArray;StatusArray
+LogicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+
+// Translate first status array into an array of PATROL Statuses
+// aggrName;PATROLStatusArray;StatusArray
+LogicalDisk.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(3).Column=2
+LogicalDisk.Collect.Source(1).Compute(3).ArraySeparator=","
+LogicalDisk.Collect.Source(1).Compute(3).ResultSeparator="|"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="aggrStatusTranslationTable"
+
+// The aggrStatusTranslationTable
+aggrStatusTranslationTable("aggr")="OK"
+aggrStatusTranslationTable("copying")="OK"
+aggrStatusTranslationTable("degraded")="WARN"
+aggrStatusTranslationTable("foreign")="OK"
+aggrStatusTranslationTable("growing")="OK"
+aggrStatusTranslationTable("initializing")="OK"
+aggrStatusTranslationTable("invalid")="ALARM"
+aggrStatusTranslationTable("ironing")="WARN"
+aggrStatusTranslationTable("mirrordegraded")="WARN"
+aggrStatusTranslationTable("mirror_degraded")="WARN"
+aggrStatusTranslationTable("mirrored")="OK"
+aggrStatusTranslationTable("needscheck")="WARN"
+aggrStatusTranslationTable("needs_check")="WARN"
+aggrStatusTranslationTable("partial")="WARN"
+aggrStatusTranslationTable("raid0")="OK"
+aggrStatusTranslationTable("raid4")="OK"
+aggrStatusTranslationTable("raid_dp")="OK"
+aggrStatusTranslationTable("mixed_raid_type")="OK"
+aggrStatusTranslationTable("reconstruct")="WARN"
+aggrStatusTranslationTable("redirect")="OK"
+aggrStatusTranslationTable("resyncing")="WARN"
+aggrStatusTranslationTable("snapmirrored")="OK"
+aggrStatusTranslationTable("trad")="OK"
+aggrStatusTranslationTable("verifying")="OK"
+aggrStatusTranslationTable("waflinconsistent")="ALARM"
+aggrStatusTranslationTable("wafl_inconsistent")="ALARM"
+
+// Keep only the worst status from the PATROLStatus array
+// aggrName;PATROLStatus;statusArray;
+LogicalDisk.Collect.Source(1).Compute(4).Type="Convert"
+LogicalDisk.Collect.Source(1).Compute(4).Column=2
+LogicalDisk.Collect.Source(1).Compute(4).ConversionType="array2simplestatus"
+
+// Translate the second StatusArray into a more readable string
+// aggrName;PATROLStatus;statusInformation;
+LogicalDisk.Collect.Source(1).Compute(5).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(5).Column=3
+LogicalDisk.Collect.Source(1).Compute(5).ArraySeparator=","
+LogicalDisk.Collect.Source(1).Compute(5).ResultSeparator=" - "
+LogicalDisk.Collect.Source(1).Compute(5).TranslationTable="aggrStatusInformationTranslationTable"
+
+// The aggrStatusInformationTranslationTable
+aggrStatusInformationTranslationTable("aggr")=""
+aggrStatusInformationTranslationTable("copying")="Copying"
+aggrStatusInformationTranslationTable("degraded")="Degraded"
+aggrStatusInformationTranslationTable("foreign")="Foreign"
+aggrStatusInformationTranslationTable("growing")="Growing"
+aggrStatusInformationTranslationTable("initializing")="Initializing"
+aggrStatusInformationTranslationTable("invalid")="Invalid"
+aggrStatusInformationTranslationTable("ironing")="Ironing"
+aggrStatusInformationTranslationTable("mirrordegraded")="Mirror Degraded"
+aggrStatusInformationTranslationTable("mirror_degraded")="Mirror Degraded"
+aggrStatusInformationTranslationTable("mirrored")=""
+aggrStatusInformationTranslationTable("needscheck")="Needs Check"
+aggrStatusInformationTranslationTable("needs_check")="Needs Check"
+aggrStatusInformationTranslationTable("partial")="Partial"
+aggrStatusInformationTranslationTable("raid0")=""
+aggrStatusInformationTranslationTable("raid4")=""
+aggrStatusInformationTranslationTable("raid_dp")=""
+aggrStatusInformationTranslationTable("mixed_raid_type")=""
+aggrStatusInformationTranslationTable("reconstruct")="Reconstructing"
+aggrStatusInformationTranslationTable("redirect")="Redirecting"
+aggrStatusInformationTranslationTable("resyncing")="Resyncing"
+aggrStatusInformationTranslationTable("snapmirrored")=""
+aggrStatusInformationTranslationTable("trad")=""
+aggrStatusInformationTranslationTable("verifying")="Verifying"
+aggrStatusInformationTranslationTable("waflinconsistent")="WAFL Inconsistent"
+aggrStatusInformationTranslationTable("wafl_inconsistent")="WAFL Inconsistent"
+
+// Source(2) = dfTable SNMP Table
+// dfName;freeHighKb;freeLowKB;
+LogicalDisk.Collect.Source(2).Type="SnmpTable"
+LogicalDisk.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.789.1.5.4.1"
+LogicalDisk.Collect.Source(2).SnmpTableSelectColumns="2,18,19"
+
+// Netapp logical volume calculation:
+// Size = (High * 2^32) + Low  if low >= 0
+// Size = (High * 2^32) + 2^32 + Low  if low < 0
+
+// Multiply HighTotal by 4294967296
+// dfName;freeHighKb;freeLowKB;
+LogicalDisk.Collect.Source(2).Compute(1).Type="Multiply"
+LogicalDisk.Collect.Source(2).Compute(1).Column=2
+LogicalDisk.Collect.Source(2).Compute(1).MultiplyBy=4294967296
+
+// Add a blank column to the right of the table to prevent a calculation error later for non-negative dfLowTotalKBytes values
+// dfName;freeHighKb;freeLowKB;BlankColumn;
+LogicalDisk.Collect.Source(2).Compute(2).Type="RightConcat"
+LogicalDisk.Collect.Source(2).Compute(2).Column=3
+LogicalDisk.Collect.Source(2).Compute(2).String=";"
+
+// Replace the negative sign by a "4294967296;"
+// if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
+// if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
+LogicalDisk.Collect.Source(2).Compute(3).Type="Replace"
+LogicalDisk.Collect.Source(2).Compute(3).Column=3
+LogicalDisk.Collect.Source(2).Compute(3).Replace="-"
+LogicalDisk.Collect.Source(2).Compute(3).ReplaceBy="4294967296;-"
+
+// Add 3rd & 4th column to get a real LowTotal Bytes Valus
+// if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
+// if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
+LogicalDisk.Collect.Source(2).Compute(4).Type="Add"
+LogicalDisk.Collect.Source(2).Compute(4).Column=3
+LogicalDisk.Collect.Source(2).Compute(4).Add=Column(4)
+
+// Add High & Low to get real disk size
+// if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
+// if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
+LogicalDisk.Collect.Source(2).Compute(5).Type="Add"
+LogicalDisk.Collect.Source(2).Compute(5).Column=2
+LogicalDisk.Collect.Source(2).Compute(5).Add=Column(3)
+
+// Keep only the ID & Size
+// dfName;freeKB;
+LogicalDisk.Collect.Source(2).Compute(6).Type="KeepColumns"
+LogicalDisk.Collect.Source(2).Compute(6).ColumnNumbers="1,2"
+
+// Convert freeKB to bytes
+// dfName;free
+LogicalDisk.Collect.Source(2).Compute(7).Type="Multiply"
+LogicalDisk.Collect.Source(2).Compute(7).Column=2
+LogicalDisk.Collect.Source(2).Compute(7).MultiplyBy=1024
+
+// Source(3) = Table joint of source(1) and source(2)
+// aggrName;PATROLStatus;statusInformation;dfName;free
+LogicalDisk.Collect.Source(3).Type="TableJoint"
+LogicalDisk.Collect.Source(3).LeftTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.Source(3).RightTable=%LogicalDisk.Collect.Source(2)%
+LogicalDisk.Collect.Source(3).LeftKeyColumn=1
+LogicalDisk.Collect.Source(3).RightKeyColumn=1
+LogicalDisk.Collect.Source(3).DefaultRightLine=";;"
+
+// Source(4) = raidP SNMP Table
+// UsedMB;SizeMB;
+LogicalDisk.Collect.Source(4).Type="SnmpTable"
+LogicalDisk.Collect.Source(4).SnmpTableOid="1.3.6.1.4.1.789.1.6.10.1"
+LogicalDisk.Collect.Source(4).SnmpTableSelectColumns="20,22"
+
+// Compute the sum of UsedMB and SizeMB and returns a single instance
+// corresponding fo the primordial storage pool and its unallocated space
+// aggrName;PATROLStatus;statusInformation;dfName;freeMB
+LogicalDisk.Collect.Source(4).Compute(1).Type="Awk"
+LogicalDisk.Collect.Source(4).Compute(1).AwkScript=EmbeddedFile(7)
+LogicalDisk.Collect.Source(4).Compute(1).KeepOnlyRegExp="MSHW;"
+LogicalDisk.Collect.Source(4).Compute(1).SelectColumns="2,3,4,5,6"
+LogicalDisk.Collect.Source(4).Compute(1).Separators=";"
+
+// Convert MB to bytes
+// aggrName;PATROLStatus;statusInformation;dfName;free
+LogicalDisk.Collect.Source(4).Compute(2).Type="Multiply"
+LogicalDisk.Collect.Source(4).Compute(2).Column=5
+LogicalDisk.Collect.Source(4).Compute(2).MultiplyBy=1048576
+
+// Source(5) = Union of Source(3) and Source(4)
+// aggrName;PATROLStatus;statusInformation;dfName;free
+LogicalDisk.Collect.Source(5).Type="TableUnion"
+LogicalDisk.Collect.Source(5).Table1=%LogicalDisk.Collect.Source(3)%
+LogicalDisk.Collect.Source(5).Table2=%LogicalDisk.Collect.Source(4)%
+
+// ValueTable = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(5)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(5)
+
+
+//
+// NetworkCard (FC ports)
+//
+
+//
+// Discovery
+
+// Source(1) = fcpTargetTable SNMP table
+// ID;Name;WWNAddress;SpeedGB;PortTypeCode
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.17.17.1.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="ID,2,4,5,8"
+
+// Remove ":" from the WWNAddress
+// ID;Name;WWNAddress;SpeedGB;PortTypeCode
+NetworkCard.Discovery.Source(1).Compute(1).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(1).Column=3
+NetworkCard.Discovery.Source(1).Compute(1).Replace=":"
+NetworkCard.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Convert SpeedGB to MB/s
+// ID;Name;WWNAddress;Speed;PortTypeCode
+NetworkCard.Discovery.Source(1).Compute(2).Type="Multiply"
+NetworkCard.Discovery.Source(1).Compute(2).Column=4
+NetworkCard.Discovery.Source(1).Compute(2).MultiplyBy=1000
+
+// Translate the PortTypeCode to a FC Port Type string
+// ID;Name;WWNAddress;Speed;PortType
+NetworkCard.Discovery.Source(1).Compute(3).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(3).Column=5
+NetworkCard.Discovery.Source(1).Compute(3).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(2)="FC Port F"
+PortTypeTranslationTable(3)="FC Port"
+PortTypeTranslationTable(4)="FC Port L"
+PortTypeTranslationTable(Default)="FC Port"
+
+// Add an address type column
+// ID;Name;Address;AddressType;Speed;PortType
+NetworkCard.Discovery.Source(1).Compute(4).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(4).Column=3
+NetworkCard.Discovery.Source(1).Compute(4).String=";wwN"
+
+// Add "FC" to the ID
+// ID;Name;Address;AddressType;Speed;PortType
+NetworkCard.Discovery.Source(1).Compute(5).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(5).Column=1
+NetworkCard.Discovery.Source(1).Compute(5).String="FC"
+
+
+// InstanceTable = Source(1)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.AttachedToDeviceID="NetApp"
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = fcpTargetTable SNMP table
+// ID;Status;
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.17.17.1.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="ID,6"
+
+// Duplicate Status (twice)
+// ID;Status;Status;Status;
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+
+// Translate the first status into a PATROL Status
+// ID;PATROLStatus;Status;Status
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=2
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="fcpStatusTranslationTable"
+
+// The fcpStatusTranslationTable
+fcpStatusTranslationTable(1)="OK"
+fcpStatusTranslationTable(2)="WARN"
+fcpStatusTranslationTable(3)="OK"
+fcpStatusTranslationTable(4)="OK"
+fcpStatusTranslationTable(5)="OK"
+fcpStatusTranslationTable(6)="OK"
+fcpStatusTranslationTable(7)="OK"
+fcpStatusTranslationTable(8)="WARN"
+fcpStatusTranslationTable(9)="ALARM"
+fcpStatusTranslationTable(10)="OK"
+fcpStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status into a more readable string
+// ID;PATROLStatus;StatusInformation;Status
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=3
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="fcpStatusInformationTranslationTable"
+
+// The fcpStatusInformationTranslationTable
+fcpStatusInformationTranslationTable(1)="Startup"
+fcpStatusInformationTranslationTable(2)="Un-initialized"
+fcpStatusInformationTranslationTable(3)="Initializing Firmware"
+fcpStatusInformationTranslationTable(4)="Link Not Connected"
+fcpStatusInformationTranslationTable(5)="Waiting for Link Up"
+fcpStatusInformationTranslationTable(6)="Online"
+fcpStatusInformationTranslationTable(7)="Link Disconnected"
+fcpStatusInformationTranslationTable(8)="Resetting"
+fcpStatusInformationTranslationTable(9)="Offline"
+fcpStatusInformationTranslationTable(10)="Offlined by User"
+fcpStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third status into a LinkStatus
+// ID;PATROLStatus;StatusInformation;LinkStatus
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=4
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="fcpLinkStatusTranslationTable"
+
+// The fcpLinkStatusTranslationTable
+fcpLinkStatusTranslationTable(4)="WARN"
+fcpLinkStatusTranslationTable(5)="WARN"
+fcpLinkStatusTranslationTable(7)="WARN"
+fcpLinkStatusTranslationTable(Default)="OK"
+
+// Add "FC" to the ID
+// ID;Name;Address;AddressType;Speed;PortType
+NetworkCard.Collect.Source(1).Compute(6).Type="LeftConcat"
+NetworkCard.Collect.Source(1).Compute(6).Column=1
+NetworkCard.Collect.Source(1).Compute(6).String="FC"
+
+
+// ValueTable = Source(1)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+
+//
+// Power supplies
+//
+
+//
+// Discovery
+
+// Source(1) = enclTable SNMP table
+// One column contains the list of power supplies, the other one the list of corresponding serial numbers
+// ShelfID;PowerSupplyIDList;SerialNumberList;Location;PartNumber;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="4,13,14,3,61"
+
+// Remove spaces from the separators
+// ShelfID;PowerSupplyIDList;SerialNumberList;Location;PartNumber;
+PowerSupply.Discovery.Source(1).Compute(1).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).Replace=", "
+PowerSupply.Discovery.Source(1).Compute(1).ReplaceBy=","
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).Replace=", "
+PowerSupply.Discovery.Source(1).Compute(2).ReplaceBy=","
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(3).Column=5
+PowerSupply.Discovery.Source(1).Compute(3).Replace=", "
+PowerSupply.Discovery.Source(1).Compute(3).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// PowerSupplyID;SerialNumber;Location;PartNumber;
+PowerSupply.Discovery.Source(1).Compute(4).Type="Awk"
+PowerSupply.Discovery.Source(1).Compute(4).AwkScript=EmbeddedFile(1)
+PowerSupply.Discovery.Source(1).Compute(4).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Discovery.Source(1).Compute(4).Separators=";"
+PowerSupply.Discovery.Source(1).Compute(4).SelectColumns="2,3,4,5"
+
+// Add Part Number Identifier
+// PowerSupplyID;SerialNumber;Location;PartNumber;
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=4
+PowerSupply.Discovery.Source(1).Compute(5).String="Part Number: "
+
+// Get the General Power Supply Failures Value
+// NumberOfFailedPSUs
+PowerSupply.Discovery.Source(2).Type="SnmpGet"
+PowerSupply.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.4.0"
+
+// Source (3) = Table Union of 1 & 2
+// PowerSupplyID;SerialNumber
+// NumberOfFailedPSUs
+PowerSupply.Discovery.Source(3).Type="TableUnion"
+PowerSupply.Discovery.Source(3).Table1=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(3).Table2=%PowerSupply.Discovery.Source(2)%
+
+// Process the union of Individual and General so that only one is returned.
+// PowerSupplyID;SerialNumber;Location;PartNumber;AttachID;AttachType;
+PowerSupply.Discovery.Source(3).Compute(1).Type="Awk"
+PowerSupply.Discovery.Source(3).Compute(1).AwkScript=EmbeddedFile(9)
+PowerSupply.Discovery.Source(3).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Discovery.Source(3).Compute(1).Separators=";"
+PowerSupply.Discovery.Source(3).Compute(1).SelectColumns="2,3,4,5,6,7"
+
+PowerSupply.Discovery.Source(3).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(3).Compute(2).Column=3
+PowerSupply.Discovery.Source(3).Compute(2).String="Location: "
+
+PowerSupply.Discovery.Source(3).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(3).Compute(3).Column=2
+PowerSupply.Discovery.Source(3).Compute(3).String="Serial Number: "
+
+// Instance Table = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(3)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = enclTable SNMP table (like discovery)
+// One column contains the list of power supplies, the other one the list of failed PSUs
+// ShelfID;PowerSupplyIDList;failedList;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="4,13,15"
+
+// Remove spaces from the separators
+// ShelfID;PowerSupplyIDList;failedList;
+PowerSupply.Collect.Source(1).Compute(1).Type="Replace"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).Replace=", "
+PowerSupply.Collect.Source(1).Compute(1).ReplaceBy=","
+
+PowerSupply.Collect.Source(1).Compute(2).Type="Replace"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).Replace=", "
+PowerSupply.Collect.Source(1).Compute(2).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// PowerSupplyID;PATROLStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(3).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(3).AwkScript=EmbeddedFile(2)
+PowerSupply.Collect.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Collect.Source(1).Compute(3).Separators=";"
+PowerSupply.Collect.Source(1).Compute(3).SelectColumns="2,3,4"
+
+// Get the General Power Supply Failures Value
+// NumberOfFailedPSUs
+PowerSupply.Collect.Source(2).Type="SnmpGet"
+PowerSupply.Collect.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.4.0"
+
+// Concat the Label & a TableID
+// MSHW_TableID;PowerSupplyID;NumberOfFailedPSUs;
+PowerSupply.Collect.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(2).Compute(1).Column=1
+PowerSupply.Collect.Source(2).Compute(1).String="MSHW_TableID;Global;"
+
+// Translate for Patrol Status
+// MSHW_TableID;PowerSupplyID;PatrolStatus;
+PowerSupply.Collect.Source(2).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(2).Compute(2).Column=3
+PowerSupply.Collect.Source(2).Compute(2).TranslationTable="generalStatusTranslationTable"
+
+// Get the General Power Supply Information Value
+// StatusInformation
+PowerSupply.Collect.Source(3).Type="SnmpGet"
+PowerSupply.Collect.Source(3).SnmpOid="1.3.6.1.4.1.789.1.2.4.5.0"
+
+// Add a TableID
+// MSHW_TableID;StatusInformation
+PowerSupply.Collect.Source(3).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(3).Compute(1).Column=1
+PowerSupply.Collect.Source(3).Compute(1).String="MSHW_TableID;"
+
+// Joint the tables to have a single General Status
+// MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
+PowerSupply.Collect.Source(4).Type="TableJoint"
+PowerSupply.Collect.Source(4).LeftTable=%PowerSupply.Collect.Source(2)%
+PowerSupply.Collect.Source(4).RightTable=%PowerSupply.Collect.Source(3)%
+PowerSupply.Collect.Source(4).LeftKeyColumn="1"
+PowerSupply.Collect.Source(4).RightKeyColumn="1"
+
+// Remove the TableIDs
+// PowerSupplyID;PatrolStatus;StatusInformation;
+PowerSupply.Collect.Source(4).Compute(1).Type="KeepColumns"
+PowerSupply.Collect.Source(4).Compute(1).ColumnNumbers="2,3,5"
+
+// Table Union General and Individual
+// PowerSupplyID;PatrolStatus;StatusInformation;
+PowerSupply.Collect.Source(5).Type="TableUnion"
+PowerSupply.Collect.Source(5).Table1=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(5).Table2=%PowerSupply.Collect.Source(4)%
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(5)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = enclTable SNMP table
+// One column contains the list of power supplies, the other one the list of corresponding serial numbers
+// ShelfID;FanIDList;Location;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="4,17,3"
+
+// Remove spaces from the separators
+// ShelfID;FanIDList;Location;
+Fan.Discovery.Source(1).Compute(1).Type="Replace"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).Replace=", "
+Fan.Discovery.Source(1).Compute(1).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// FanID;FanIDList;Location;
+Fan.Discovery.Source(1).Compute(2).Type="Awk"
+Fan.Discovery.Source(1).Compute(2).AwkScript=EmbeddedFile(3)
+Fan.Discovery.Source(1).Compute(2).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(2).Separators=";"
+Fan.Discovery.Source(1).Compute(2).SelectColumns="2,3,4"
+
+// Get the General Fan Failures Value
+// NumberOfFailedFANs
+Fan.Discovery.Source(2).Type="SnmpGet"
+Fan.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.2.0"
+
+// Source (3) = Table Union of 1 & 2
+// FanID;FanLocation
+// NumberOfFailedFANs
+Fan.Discovery.Source(3).Type="TableUnion"
+Fan.Discovery.Source(3).Table1=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(3).Table2=%Fan.Discovery.Source(2)%
+
+// Process the union of Individual and General so that only one is returned.
+// FanID;;FanLocation;AttachID;AttachType;
+Fan.Discovery.Source(3).Compute(1).Type="Awk"
+Fan.Discovery.Source(3).Compute(1).AwkScript=EmbeddedFile(9)
+Fan.Discovery.Source(3).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(3).Compute(1).Separators=";"
+Fan.Discovery.Source(3).Compute(1).SelectColumns="2,3,4,6,7"
+
+Fan.Discovery.Source(3).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(3).Compute(2).Column=3
+Fan.Discovery.Source(3).Compute(2).String="Location: "
+
+// Instance Table = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(3)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+Fan.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = enclTable SNMP table (like discovery)
+// One column contains the list of power supplies, the other one the list of failed PSUs
+// ShelfID;FanIDList;failedList;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="4,17,18"
+
+// Remove spaces from the separators
+// ShelfID;FanIDList;FailedList;
+Fan.Collect.Source(1).Compute(1).Type="Replace"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).Replace=", "
+Fan.Collect.Source(1).Compute(1).ReplaceBy=","
+
+Fan.Collect.Source(1).Compute(2).Type="Replace"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).Replace=", "
+Fan.Collect.Source(1).Compute(2).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// FanID;PATROLStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(3).Type="Awk"
+Fan.Collect.Source(1).Compute(3).AwkScript=EmbeddedFile(4)
+Fan.Collect.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(3).Separators=";"
+Fan.Collect.Source(1).Compute(3).SelectColumns="2,3,4"
+
+// Get the General Power Supply Failures Value
+// NumberOfFailedFANs
+Fan.Collect.Source(2).Type="SnmpGet"
+Fan.Collect.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.2.0"
+
+// Concat the Label & a TableID
+// MSHW_TableID;FanID;NumberOfFailedFans;
+Fan.Collect.Source(2).Compute(1).Type="LeftConcat"
+Fan.Collect.Source(2).Compute(1).Column=1
+Fan.Collect.Source(2).Compute(1).String="MSHW_TableID;Global;"
+
+// Translate for Patrol Status
+// MSHW_TableID;FanID;PatrolStatus;
+Fan.Collect.Source(2).Compute(2).Type="Translate"
+Fan.Collect.Source(2).Compute(2).Column=3
+Fan.Collect.Source(2).Compute(2).TranslationTable="generalStatusTranslationTable"
+
+// Get the General Power Supply Information Value
+// StatusInformation
+Fan.Collect.Source(3).Type="SnmpGet"
+Fan.Collect.Source(3).SnmpOid="1.3.6.1.4.1.789.1.2.4.3.0"
+
+// Add a TableID
+// MSHW_TableID;StatusInformation
+Fan.Collect.Source(3).Compute(1).Type="LeftConcat"
+Fan.Collect.Source(3).Compute(1).Column=1
+Fan.Collect.Source(3).Compute(1).String="MSHW_TableID;"
+
+// Joint the tables to have a single General Status
+// MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
+Fan.Collect.Source(4).Type="TableJoint"
+Fan.Collect.Source(4).LeftTable=%Fan.Collect.Source(2)%
+Fan.Collect.Source(4).RightTable=%Fan.Collect.Source(3)%
+Fan.Collect.Source(4).LeftKeyColumn="1"
+Fan.Collect.Source(4).RightKeyColumn="1"
+
+// Remove the TableIDs
+// PowerSupplyID;PatrolStatus;StatusInformation;
+Fan.Collect.Source(4).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(4).Compute(1).ColumnNumbers="2,3,5"
+
+// Table Union General and Individual
+// PowerSupplyID;PatrolStatus;StatusInformation;
+Fan.Collect.Source(5).Type="TableUnion"
+Fan.Collect.Source(5).Table1=%Fan.Collect.Source(1)%
+Fan.Collect.Source(5).Table2=%Fan.Collect.Source(4)%
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(5)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+// Source(1) = enclTable SNMP table
+// One column contains the list of temperature sensors, the other one the list of corresponding warning and alarm thresholds
+// ShelfID;TemperatureIDList;AlarmThresholdList;WarningThresholdList;Location;
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="4,20,26,27,3"
+
+// Remove spaces from the separators
+// ShelfID;TemperatureIDList;AlarmThresholdList;WarningThresholdList;
+Temperature.Discovery.Source(1).Compute(1).Type="Replace"
+Temperature.Discovery.Source(1).Compute(1).Column=2
+Temperature.Discovery.Source(1).Compute(1).Replace=", "
+Temperature.Discovery.Source(1).Compute(1).ReplaceBy=","
+
+Temperature.Discovery.Source(1).Compute(2).Type="Replace"
+Temperature.Discovery.Source(1).Compute(2).Column=3
+Temperature.Discovery.Source(1).Compute(2).Replace=", "
+Temperature.Discovery.Source(1).Compute(2).ReplaceBy=","
+
+Temperature.Discovery.Source(1).Compute(3).Type="Replace"
+Temperature.Discovery.Source(1).Compute(3).Column=4
+Temperature.Discovery.Source(1).Compute(3).Replace=", "
+Temperature.Discovery.Source(1).Compute(3).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per temperature instance
+// TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
+Temperature.Discovery.Source(1).Compute(4).Type="Awk"
+Temperature.Discovery.Source(1).Compute(4).AwkScript=EmbeddedFile(5)
+Temperature.Discovery.Source(1).Compute(4).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(1).Compute(4).Separators=";"
+Temperature.Discovery.Source(1).Compute(4).SelectColumns="2,3,4,5,6,7"
+
+// Get the General Temperature Value
+// OverTemp
+Temperature.Discovery.Source(2).Type="SnmpGet"
+Temperature.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.1.0"
+
+// Source (3) = Table Union of 1 & 2
+// TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
+// OverTemp
+Temperature.Discovery.Source(3).Type="TableUnion"
+Temperature.Discovery.Source(3).Table1=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(3).Table2=%Temperature.Discovery.Source(2)%
+
+// Process the union of Individual and General so that only one is returned.
+// TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
+Temperature.Discovery.Source(3).Compute(1).Type="Awk"
+Temperature.Discovery.Source(3).Compute(1).AwkScript=EmbeddedFile(10)
+Temperature.Discovery.Source(3).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(3).Compute(1).Separators=";"
+Temperature.Discovery.Source(3).Compute(1).SelectColumns="2,3,4,5,6,7,8,9"
+
+Temperature.Discovery.Source(3).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(3).Compute(2).Column=6
+Temperature.Discovery.Source(3).Compute(2).String="Location: "
+
+// Instance Table = Source(3)
+// TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;BladeID;AttachementType;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(8)
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = enclTable SNMP table (like discovery)
+// One column contains the list of temperature sensor IDs, the other one the list of actual temperatures
+// ShelfID;TemperatureIDList;temperatureList;
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="4,20,25"
+
+// Remove spaces from the separators
+// ShelfID;TemperatureIDList;SerialNumberList;
+Temperature.Collect.Source(1).Compute(1).Type="Replace"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).Replace=", "
+Temperature.Collect.Source(1).Compute(1).ReplaceBy=","
+
+Temperature.Collect.Source(1).Compute(2).Type="Replace"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).Replace=", "
+Temperature.Collect.Source(1).Compute(2).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// TemperatureID;Temperature;Status;
+Temperature.Collect.Source(1).Compute(3).Type="Awk"
+Temperature.Collect.Source(1).Compute(3).AwkScript=EmbeddedFile(6)
+Temperature.Collect.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(3).Separators=";"
+Temperature.Collect.Source(1).Compute(3).SelectColumns="2,3,4"
+
+// Get the General Power Supply Failures Value
+// TempGeneralValue
+Temperature.Collect.Source(2).Type="SnmpGet"
+Temperature.Collect.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.1.0"
+
+// Concat the Label & a TableID
+// TemperatureID;Temperature;Status
+Temperature.Collect.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(2).Compute(1).Column=1
+Temperature.Collect.Source(2).Compute(1).String="Global;;"
+
+// Translate for Patrol Status
+// TemperatureID;Temperature;PatrolStatus
+Temperature.Collect.Source(2).Compute(2).Type="Translate"
+Temperature.Collect.Source(2).Compute(2).Column=3
+Temperature.Collect.Source(2).Compute(2).TranslationTable="tempStatusTranslationTable"
+
+// Translate for Patrol Status
+// TemperatureID;Temperature;PatrolStatus
+Temperature.Collect.Source(3).Type="TableUnion"
+Temperature.Collect.Source(3).Table1=%Temperature.Collect.Source(1)%
+Temperature.Collect.Source(3).Table2=%Temperature.Collect.Source(2)%
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(3)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+
+// The tempStatusTranslationTable
+tempStatusTranslationTable(1)="OK"
+tempStatusTranslationTable(2)="ALARM"
+tempStatusTranslationTable(Default)="UNKNOWN"
+
+// The generalStatusTranslationTable
+// Translates the number of failed devices to a status
+generalStatusTranslationTable(0)="OK"
+generalStatusTranslationTable(1)="ALARM"
+generalStatusTranslationTable(2)="ALARM"
+generalStatusTranslationTable(3)="ALARM"
+generalStatusTranslationTable(4)="ALARM"
+generalStatusTranslationTable(5)="ALARM"
+generalStatusTranslationTable(6)="ALARM"
+generalStatusTranslationTable(7)="ALARM"
+generalStatusTranslationTable(8)="ALARM"
+generalStatusTranslationTable(9)="ALARM"
+generalStatusTranslationTable(10)="ALARM"
+generalStatusTranslationTable(11)="ALARM"
+generalStatusTranslationTable(12)="ALARM"
+generalStatusTranslationTable(13)="ALARM"
+generalStatusTranslationTable(14)="ALARM"
+generalStatusTranslationTable(15)="ALARM"
+generalStatusTranslationTable(16)="ALARM"
+generalStatusTranslationTable(17)="ALARM"
+generalStatusTranslationTable(18)="ALARM"
+generalStatusTranslationTable(19)="ALARM"
+generalStatusTranslationTable(Default)="UNKNOWN"
+
+//
+//
+// Battery
+//
+
+//
+// Discovery
+
+// Source(1) = NV Battery
+// Status
+Battery.Discovery.Source(1).Type="SnmpGet"
+Battery.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.789.1.2.5.1.0"
+
+// Exclude lines with Status of Not Present or Unknown
+// Status
+Battery.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=1
+Battery.Discovery.Source(1).Compute(1).ValueList="4,7"
+
+// The discovery table
+// Status
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID="NVRam Battery"
+Battery.Discovery.Instance.DisplayID="NVRam Battery"
+
+
+// Collect
+
+// Collect type: MultiInstance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = NV Battery
+// Status
+Battery.Collect.Source(1).Type="SnmpGet"
+Battery.Collect.Source(1).SnmpOid="1.3.6.1.4.1.789.1.2.5.1.0"
+
+// Duplicate status, because we will translate it two times
+// Status;Status;
+Battery.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(1).Column=1
+
+// Translate Status into PATROLStatus
+// PATROLStatus;Status;
+Battery.Collect.Source(1).Compute(2).Type="Translate"
+Battery.Collect.Source(1).Compute(2).Column=1
+Battery.Collect.Source(1).Compute(2).TranslationTable="BatteryStatusTranslationTable"
+
+// The BatteryStatusTranslationTable status translation table
+BatteryStatusTranslationTable(1)="OK"
+BatteryStatusTranslationTable(2)="WARN"
+BatteryStatusTranslationTable(3)="ALARM"
+BatteryStatusTranslationTable(4)="ALARM"
+BatteryStatusTranslationTable(5)="WARN"
+BatteryStatusTranslationTable(6)="ALARM"
+BatteryStatusTranslationTable(7)="UNKNOWN"
+BatteryStatusTranslationTable(8)="WARN"
+BatteryStatusTranslationTable(9)="OK"
+BatteryStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second Status into more readable string
+// PATROLStatus;StatusInformation;
+Battery.Collect.Source(1).Compute(3).Type="Translate"
+Battery.Collect.Source(1).Compute(3).Column=2
+Battery.Collect.Source(1).Compute(3).TranslationTable="BatteryStatusInformationTranslationTable"
+
+// The BatteryStatusInformationTranslationTable translation table
+BatteryStatusInformationTranslationTable(1)=""
+BatteryStatusInformationTranslationTable(2)="Partially Discharged"
+BatteryStatusInformationTranslationTable(3)="Fully Discharged"
+BatteryStatusInformationTranslationTable(4)="Not Present"
+BatteryStatusInformationTranslationTable(5)="Near End of Life"
+BatteryStatusInformationTranslationTable(6)="At End of Life"
+BatteryStatusInformationTranslationTable(7)="Unknown"
+BatteryStatusInformationTranslationTable(8)="Over Charged'"
+BatteryStatusInformationTranslationTable(9)="Fully Charged"
+BatteryStatusInformationTranslationTable(Default)="Unknown"
+
+
+// The value table
+// ID;Status;StatusInformation;
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID="NVRam Battery"
+Battery.Collect.Status=ValueTable.Column(1)
+Battery.Collect.StatusInformation=ValueTable.Column(2)
+
+//
+//
+// Blade
+//
+
+//
+// Discovery
+
+// Source(1) = enclEntry
+// ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
+Blade.Discovery.Source(1).Type="SnmpTable"
+Blade.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+Blade.Discovery.Source(1).SnmpTableSelectColumns="1,4,6,7,8,9"
+
+// Add Labels
+Blade.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Blade.Discovery.Source(1).Compute(1).Column=5
+Blade.Discovery.Source(1).Compute(1).String="Version: "
+
+// The discovery table
+// ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Blade.Discovery.Instance.AttachedToDeviceID="NetApp"
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(4)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+// Make a copy for attaching disks
+// ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
+Blade.Discovery.Source(2)=%Blade.Discovery.Source(1)%
+
+// Keep only the ID
+// ShelfAddress;SerialNumber;
+Blade.Discovery.Source(2).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(2).Compute(1).ColumnNumbers="2,6"
+
+// Add Attach Type
+// ShelfAddress;SerialNumber;AttachToType;
+Blade.Discovery.Source(2).Compute(2).Type="RightConcat"
+Blade.Discovery.Source(2).Compute(2).Column=2
+Blade.Discovery.Source(2).Compute(2).String=";Blade"
+
+// Keep only Serials that are at least 4 long (Netapp 9 or later).  Shorted IDs don't match properly
+// ShelfAddress;SerialNumber;AttachToType;
+Blade.Discovery.Source(2).Compute(3).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(2).Compute(3).Column=2
+Blade.Discovery.Source(2).Compute(3).RegExp="...."
+
+//
+// Power supplies
+//
+
+//
+// Discovery
+
+// Source(1) = enclTable SNMP table
+// One column contains the list of power supplies, the other one the list of corresponding serial numbers
+// ShelfID;OtherDeviceIDList;SerialNumberList;Location;PartNumber;
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="4,31,32,3,63"
+
+// Remove spaces from the separators
+// ShelfID;OtherDeviceIDList;SerialNumberList;Location;PartNumber;
+OtherDevice.Discovery.Source(1).Compute(1).Type="Replace"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).Replace=", "
+OtherDevice.Discovery.Source(1).Compute(1).ReplaceBy=","
+
+OtherDevice.Discovery.Source(1).Compute(2).Type="Replace"
+OtherDevice.Discovery.Source(1).Compute(2).Column=3
+OtherDevice.Discovery.Source(1).Compute(2).Replace=", "
+OtherDevice.Discovery.Source(1).Compute(2).ReplaceBy=","
+
+OtherDevice.Discovery.Source(1).Compute(3).Type="Replace"
+OtherDevice.Discovery.Source(1).Compute(3).Column=5
+OtherDevice.Discovery.Source(1).Compute(3).Replace=", "
+OtherDevice.Discovery.Source(1).Compute(3).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// OtherDeviceID;SerialNumber;Location;PartNumber;
+OtherDevice.Discovery.Source(1).Compute(4).Type="Awk"
+OtherDevice.Discovery.Source(1).Compute(4).AwkScript=EmbeddedFile(1)
+OtherDevice.Discovery.Source(1).Compute(4).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Discovery.Source(1).Compute(4).Separators=";"
+OtherDevice.Discovery.Source(1).Compute(4).SelectColumns="2,3,4,5"
+
+// Add Part Number Identifier
+// OtherDeviceID;SerialNumber;Location;PartNumber;
+OtherDevice.Discovery.Source(1).Compute(5).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column=4
+OtherDevice.Discovery.Source(1).Compute(5).String="Part Number: "
+
+// Process the union of Individual and General so that only one is returned.
+// OtherDeviceID;SerialNumber;Location;PartNumber;OtherDeviceID;AttachType;
+OtherDevice.Discovery.Source(1).Compute(6).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(6).Column=4
+OtherDevice.Discovery.Source(1).Compute(6).String=";EnclosureID;Blade"
+
+// Replace Column 5 with the DeviceID
+OtherDevice.Discovery.Source(1).Compute(7).Type="Replace"
+OtherDevice.Discovery.Source(1).Compute(7).Column=5
+OtherDevice.Discovery.Source(1).Compute(7).Replace=Column(5)
+OtherDevice.Discovery.Source(1).Compute(7).ReplaceBy=Column(1)
+
+// Extract the ShelfID from the OtherDeviceID
+// OtherDeviceID;SerialNumber;Location;PartNumber;ShelfID;AttachType;
+OtherDevice.Discovery.Source(1).Compute(8).Type="Extract"
+OtherDevice.Discovery.Source(1).Compute(8).Column=5
+OtherDevice.Discovery.Source(1).Compute(8).SubColumn=1
+OtherDevice.Discovery.Source(1).Compute(8).SubSeparators="-"
+
+OtherDevice.Discovery.Source(1).Compute(9).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(9).Column=3
+OtherDevice.Discovery.Source(1).Compute(9).String="Location: "
+
+// Instance Table = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(6)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.DeviceType="Service Electronics"
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = enclTable SNMP table (like discovery)
+// One column contains the list of power supplies, the other one the list of failed PSUs
+// ShelfID;OtherDeviceIDList;failedList;
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.789.1.21.1.2.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="4,31,33"
+
+// Remove spaces from the separators
+// ShelfID;OtherDeviceIDList;failedList;
+OtherDevice.Collect.Source(1).Compute(1).Type="Replace"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+OtherDevice.Collect.Source(1).Compute(1).Replace=", "
+OtherDevice.Collect.Source(1).Compute(1).ReplaceBy=","
+
+OtherDevice.Collect.Source(1).Compute(2).Type="Replace"
+OtherDevice.Collect.Source(1).Compute(2).Column=3
+OtherDevice.Collect.Source(1).Compute(2).Replace=", "
+OtherDevice.Collect.Source(1).Compute(2).ReplaceBy=","
+
+// Process that weird stuff through an AWK script so that we get a real table
+// with a line per power supply instance
+// OtherDeviceID;PATROLStatus;StatusInformation;
+OtherDevice.Collect.Source(1).Compute(3).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(3).AwkScript=EmbeddedFile(2)
+OtherDevice.Collect.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Collect.Source(1).Compute(3).Separators=";"
+OtherDevice.Collect.Source(1).Compute(3).SelectColumns="2,3,4"
+
+// Get the General Power Supply Failures Value
+// NumberOfFailedPSUs
+OtherDevice.Collect.Source(2).Type="SnmpGet"
+OtherDevice.Collect.Source(2).SnmpOid="1.3.6.1.4.1.789.1.2.4.4.0"
+
+// Concat the Label & a TableID
+// MSHW_TableID;OtherDeviceID;NumberOfFailedPSUs;
+OtherDevice.Collect.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(1).Column=1
+OtherDevice.Collect.Source(2).Compute(1).String="MSHW_TableID;Global;"
+
+// Translate for Patrol Status
+// MSHW_TableID;OtherDeviceID;PatrolStatus;
+OtherDevice.Collect.Source(2).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(2).Compute(2).Column=3
+OtherDevice.Collect.Source(2).Compute(2).TranslationTable="generalStatusTranslationTable"
+
+// Get the General Power Supply Information Value
+// StatusInformation
+OtherDevice.Collect.Source(3).Type="SnmpGet"
+OtherDevice.Collect.Source(3).SnmpOid="1.3.6.1.4.1.789.1.2.4.5.0"
+
+// Add a TableID
+// MSHW_TableID;StatusInformation
+OtherDevice.Collect.Source(3).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(3).Compute(1).Column=1
+OtherDevice.Collect.Source(3).Compute(1).String="MSHW_TableID;"
+
+// Joint the tables to have a single General Status
+// MSHW_TableID;OtherDeviceID;PatrolStatus;MSHW_TableID;StatusInformation;
+OtherDevice.Collect.Source(4).Type="TableJoint"
+OtherDevice.Collect.Source(4).LeftTable=%OtherDevice.Collect.Source(2)%
+OtherDevice.Collect.Source(4).RightTable=%OtherDevice.Collect.Source(3)%
+OtherDevice.Collect.Source(4).LeftKeyColumn="1"
+OtherDevice.Collect.Source(4).RightKeyColumn="1"
+
+// Remove the TableIDs
+// OtherDeviceID;PatrolStatus;StatusInformation;
+OtherDevice.Collect.Source(4).Compute(1).Type="KeepColumns"
+OtherDevice.Collect.Source(4).Compute(1).ColumnNumbers="2,3,5"
+
+// Table Union General and Individual
+// OtherDeviceID;PatrolStatus;StatusInformation;
+OtherDevice.Collect.Source(5).Type="TableUnion"
+OtherDevice.Collect.Source(5).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(5).Table2=%OtherDevice.Collect.Source(4)%
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(5)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(1)
+//   Power Supply & Other Device
+//   Awk script that takes the one-line-says-all thing and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { FS = ";" }
+{ location = $4
+	shelfID = $1
+	psCount = split($2, psIDArray, ",")
+	split($3, psSerialNumberArray, ",")
+  split($5, psPartNumberArray, ",")
+	for (i=1 ; i<=psCount ; i++)
+	{if (psIDArray[i] ~ /[A-Za-z0-9]/) {
+		                               print "MSHW;" shelfID "-" psIDArray[i] ";" psSerialNumberArray[i] ";" location "-" psIDArray[i] ";" psPartNumberArray[i] ";"
+		                              }
+	}
+}
+EmbeddedFile(1).End
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(2)
+//
+//   Awk script that takes the one-line-says-all thing and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN { FS = ";" }
+{
+	shelfID = $1
+	psCount = split($2, psIDArray, ",")
+	failedPsList = "," $3 ","
+
+	for (i=1 ; i<=psCount ; i++)
+	{
+		if (index(failedPsList, "," psIDArray[i] ",") > 0)
+		{
+			print "MSHW;" shelfID "-" psIDArray[i] ";ALARM;Failed;"
+		}
+		else
+		{
+			print "MSHW;" shelfID "-" psIDArray[i] ";OK;;" location ";"
+		}
+	}
+}
+EmbeddedFile(2).End
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(3)
+//
+//   Awk script that takes the one-line-says-all thing about fans and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN { FS = ";" }
+{ location = $3
+	shelfID = $1
+	fanCount = split($2, fanIDArray, ",")
+
+	for (i=1 ; i<=fanCount ; i++)
+	{if (fanIDArray[i] ~ /[A-Za-z0-9]/) {
+		                               print "MSHW;" shelfID "-" fanIDArray[i] ";Shelf " shelfID ";" location "-" fanIDArray[i] ";"
+		                              }
+	}
+}
+EmbeddedFile(3).End
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(4)
+//
+//   Awk script that takes the one-line-says-all thing about fans and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN { FS = ";" }
+{
+	shelfID = $1
+	fanCount = split($2, fanIDArray, ",")
+	failedFanList = "," $3 ","
+
+	for (i=1 ; i<=fanCount ; i++)
+	{
+		if (index(failedFanList, "," fanIDArray[i] ",") > 0)
+		{
+			print "MSHW;" shelfID "-" fanIDArray[i] ";ALARM;Failed;"
+		}
+		else
+		{
+			print "MSHW;" shelfID "-" fanIDArray[i] ";OK;;"
+		}
+	}
+}
+EmbeddedFile(4).End
+
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(5)
+//
+//   Awk script that takes the one-line-says-all thing about temperature sensors and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(5):
+BEGIN { FS = ";" }
+{ location = $5
+	shelfID = $1
+	temperatureCount = split($2, temperatureIDArray, ",")
+	split($3, alarmThresholdArray, ",")
+	split($4, warningThresholdArray, ",")
+
+	for (i=1 ; i<=temperatureCount ; i++)
+	{
+		cIndex = index(warningThresholdArray[i], "C")
+		if (cIndex > 0)
+		{
+			warningThreshold = substr(warningThresholdArray[i], 1, cIndex - 1)
+		}
+		else
+		{
+			warningThreshold = ""
+		}
+
+		cIndex = index(alarmThresholdArray[i], "C")
+		if (cIndex > 0)
+		{
+			alarmThreshold = substr(alarmThresholdArray[i], 1, cIndex - 1)
+		}
+		else
+		{
+			alarmThreshold = ""
+		}
+
+		print "MSHW;" shelfID "-" temperatureIDArray[i] ";" shelfID ";" warningThreshold ";" alarmThreshold ";;" location ";"
+	}
+}
+EmbeddedFile(5).End
+
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(6)
+//
+//   Awk script that takes the one-line-says-all thing about temperature sensors and convert
+//   that into a normal regular table (one line per instance, you know)
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(6):
+BEGIN { FS = ";" }
+{
+	shelfID = $1
+	temperatureCount = split($2, temperatureIDArray, ",")
+	split($3, temperatureArray, ",")
+
+	for (i=1 ; i<=temperatureCount ; i++)
+	{
+		cIndex = index(temperatureArray[i], "C")
+		if (cIndex > 0)
+		{
+			temperature = substr(temperatureArray[i], 1, cIndex - 1)
+		}
+		else
+		{
+			temperature = ""
+		}
+
+		print "MSHW;" shelfID "-" temperatureIDArray[i] ";" temperature ";;"
+	}
+}
+EmbeddedFile(6).End
+
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(7)
+//
+//   Awk script that takes UsedMB;SizeMB; table for physical disks
+//   and returns a single line with the total remaining space in those
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(7):
+BEGIN { FS = ";"; totalUsedMB = 0; totalSizeMB = 0; }
+{
+	usedMB = $1;
+	sizeMB = $2;
+
+	totalUsedMB = totalUsedMB + usedMB;
+	totalSizeMB = totalSizeMB + sizeMB;
+}
+END {
+	unallocatedSpace = totalSizeMB - totalUsedMB;
+	if (unallocatedSpace < 0) { unallocatedSpace = 0; }
+	printf("MSHW;PrimordialStoragePool;OK;;;%d\n", unallocatedSpace);
+}
+EmbeddedFile(7).End
+
+
+
+/////////////////////////////////////////////////////////////
+//
+//   EmbeddedFile(8)
+//
+//   Awk script that takes SizeMB; table for physical disks
+//   and returns a single line corresponding to the primordial storage pool
+//
+/////////////////////////////////////////////////////////////
+EmbeddedFile(8):
+BEGIN { FS = ";"; totalSizeMB = 0; }
+{
+	sizeMB = $1;
+
+	totalSizeMB = totalSizeMB + sizeMB;
+}
+END {
+	printf("MSHW;PrimordialStoragePool;;;%d;Primordial Storage Pool;0\n", totalSizeMB);
+}
+EmbeddedFile(8).End
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///    PSU & FANS & OtherDevice
+///    EmbeddedFile(9) = awk script that checks if there are any individual sensors
+///   and prints a global status (if valid) if not
+/////////////////////////////////////////////////////////
+EmbeddedFile(9):
+BEGIN {FS="[;]";individualFound="false";globalFound="false";}
+# Individual Found
+# $4 does not exist for Fans, but this is dealt with
+(NF >= 2) && ($2 ~ /.+/) { bladeID = $1; gsub(/-.*/,"",bladeID)
+                          print ("MSHW;"$1";"$2";"$3";"$4";"bladeID";blade;")
+                          individualFound="true"
+                          }
+(NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
+(NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
+END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;Global;;NetApp;Enclosure;"}}
+EmbeddedFile(9).End
+///////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///    Temperature
+///    EmbeddedFile(10) = awk script that checks if there are any individual sensors
+///   and prints a global status (if valid) if not
+/////////////////////////////////////////////////////////
+EmbeddedFile(10):
+BEGIN {FS="[;]";individualFound="false";globalFound="false";}
+# Individual Found
+(NF >= 4) { bladeID = $1; gsub(/-.*/,"",bladeID)
+        print ("MSHW;"$1";"$2";"$3";"$4";;"$6";"bladeID";blade;")
+        individualFound="true"
+       }
+(NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
+(NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
+END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;;;Activate;Global;NetApp;Enclosure;"}}
+EmbeddedFile(10).End
+///////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///    Disk Summary Table
+///    EmbeddedFile(10) = awk script that checks if there are any individual sensors
+///    input: ID;totaldisk;activedisk
+///   output: AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;PredictedFailureactivation
+/////////////////////////////////////////////////////////
+EmbeddedFile(11):
+BEGIN {FS=";";}
+{
+  if ($2 > $3)
+  {
+      print "Unassigned Disks: "$2-$3";;;;;;;Unassigned Disks."$1";Unassigned Disks."$1";Unassigned Disks."$1";true;"
+  }
+}
+EmbeddedFile(11).End
+///////////////////////////////////////////////////////////////
