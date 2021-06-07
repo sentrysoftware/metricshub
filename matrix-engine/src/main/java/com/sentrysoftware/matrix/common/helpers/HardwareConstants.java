@@ -17,6 +17,8 @@ public class HardwareConstants {
 	public static final String PARENTHESIS_EMPTY = "()";
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
+	public static final String OPENING_SQUARE_BRACKET = "[";
+	public static final String CLOSING_SQUARE_BRACKET = "]";
 	public static final String SEMICOLON = ";";
 	public static final String COLUMN_REGEXP = "^\\s*column\\((\\d+)\\)\\s*$";
 	public static final String LOCALHOST = "localhost";
@@ -24,6 +26,9 @@ public class HardwareConstants {
 	public static final String COMMA = ",";
 	public static final String COLON = ":";
 	public static final String DOT = ".";
+	public static final String DOUBLE_BACKSLASH = "\\\\";
+	public static final String CARET = "^";
+	public static final String PLUS = "+";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";

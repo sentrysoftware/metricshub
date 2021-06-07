@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.AbstractConcat;
@@ -40,9 +41,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -131,7 +134,38 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final And and) {
-		// Not implemented yet
+		if (and == null) {
+			log.warn("Compute Operation (And) is null, the table remains unchanged.");
+			return;
+		}
+
+		String operand2 = and.getAnd();
+
+		if (and.getColumn() == null || operand2 == null) {
+			log.warn("Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.", and);
+			return;
+		}
+
+		Integer columnIndex = and.getColumn() - 1;
+
+		if (columnIndex < 0) {
+			log.warn("The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.");
+			return;
+		}
+
+		int colOperand2 = getColumnIndex(operand2);
+
+		for (List<String> line : sourceTable.getTable()) {
+			try {
+				if (columnIndex < line.size()) {
+					line.set(columnIndex, String.valueOf(Long.parseLong(line.get(columnIndex))
+							& (colOperand2 == -1 ? Long.parseLong(operand2) : Long.parseLong(line.get(colOperand2)))
+							));
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Data is not correctly formatted.");
+			}
+		}
 	}
 
 	@Override
@@ -305,7 +339,94 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Convert convert) {
-		// Not implemented yet
+		if (!checkConvert(convert)) {
+			log.warn("The convert {} is not valid, the table remains unchanged.", convert);
+			return;
+		}
+
+		final Integer columnIndex = convert.getColumn() - 1;
+		final ConversionType conversionType = convert.getConversionType();
+
+		if (ConversionType.HEX_2_DEC.equals(conversionType)) {
+			convertHex2Dec(columnIndex);
+		} else if (ConversionType.ARRAY_2_SIMPLE_STATUS.equals(conversionType)) {
+			convertArray2SimpleStatus(columnIndex);
+		}
+	}
+
+	/**
+	 * Covert the array located in the cell indexed by columnIndex to a simple status OK, WARN, ALARM or UNKNOWN
+	 * 
+	 * @param columnIndex The column number
+	 */
+	void convertArray2SimpleStatus(final Integer columnIndex) {
+		sourceTable.getTable().forEach(row ->
+			{
+				if (columnIndex < row.size()) {
+					final String value = PslUtils.nthArg(row.get(columnIndex), "1-", "|", "\n");
+					row.set(columnIndex, getWorstStatus(value.split("\n")));
+				}
+
+				log.warn("Couldn't perform Array2SimpleStatus conversion compute on row {} at index {}", row, columnIndex);
+			});
+	}
+
+	/**
+	 * Get the worst status of the given values. Changing this method requires an update on
+	 * {@link CollectHelper#translateStatus(String, ParameterState, String, String, String)}
+	 * 
+	 * @param values The array of string statuses to check, expected values are 'OK', 'WARN', 'ALARM'
+	 * 
+	 * @return String value: OK, WARN, ALARM or UNKNOWN
+	 */
+	static String getWorstStatus(final String[] values) {
+		String status = "UNKNOWN";
+		for (final String value : values) {
+			if (ParameterState.ALARM.name().equalsIgnoreCase(value)) {
+				return ParameterState.ALARM.name();
+			} else if (ParameterState.WARN.name().equalsIgnoreCase(value)) {
+				status = ParameterState.WARN.name();
+			} else if (ParameterState.OK.name().equalsIgnoreCase(value) && "UNKNOWN".equals(status)) {
+				status = ParameterState.OK.name();
+			}
+		}
+
+		return status;
+	}
+
+	/**
+	 * Convert the column value at the given columnIndex from hexadecimal to decimal
+	 * 
+	 * @param columnIndex The column number
+	 */
+	void convertHex2Dec(final Integer columnIndex) {
+		sourceTable.getTable().forEach(row ->
+			{
+				if (columnIndex < row.size()) {
+					final String value = row.get(columnIndex).replace("0x", "")
+							.replace(":", "")
+							.replaceAll("\\s*", "");
+					if (value.matches("^[0-9A-Fa-f]+$")) {
+						row.set(columnIndex, String.valueOf(Long.parseLong(value, 16)));
+						return;
+					}
+				}
+
+				log.warn("Couldn't perform Hex2Dec conversion compute on row {} at index {}", row, columnIndex);
+			});
+	}
+
+	/**
+	 * Check the given {@link Convert} instance
+	 * 
+	 * @param convert The instance we wish to check
+	 * @return <code>true</code> if the {@link Convert} instance is valid
+	 */
+	static boolean checkConvert(final Convert convert) {
+		return convert != null
+				&& convert.getColumn() != null
+				&& convert.getColumn() >= 1
+				&& convert.getConversionType() != null;
 	}
 
 	@Override
@@ -364,7 +485,62 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Extract extract) {
-		// Not implemented yet
+
+		if (extract == null) {
+			log.warn("Extract object is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer column = extract.getColumn();
+		if (column == null || column < 1) {
+			log.warn("The column number in Extract cannot be {}, the table remains unchanged.", column);
+			return;
+		}
+
+		Integer subColumn = extract.getSubColumn();
+		if (subColumn == null || subColumn < 1) {
+			log.warn("The sub-column number in Extract cannot be {}, the table remains unchanged.", subColumn);
+			return;
+		}
+
+		String subSeparators = extract.getSubSeparators();
+		if (subSeparators == null || subSeparators.isEmpty()) {
+			log.warn("The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.");
+			return;
+		}
+
+		int columnIndex = column - 1;
+
+		String text;
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+
+			if (columnIndex >= row.size()) {
+				log.warn("Invalid column index: {}. The table remains unchanged.", column);
+				return;
+			}
+
+			text = row.get(columnIndex);
+			if (text == null) {
+				log.warn("Value at column {} cannot be null, the table remains unchanged.", column);
+				return;
+			}
+
+			String extractedValue = PslUtils.nthArgf(text, String.valueOf(subColumn), subSeparators, null);
+
+			if (extractedValue == null) {
+				log.warn("Could not extract value at index {} in {}. The table remains unchanged.", subColumn, text);
+				return;
+			}
+
+			resultRow = new ArrayList<>(row);
+			resultRow.set(columnIndex, extractedValue);
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
 	}
 
 	@Override

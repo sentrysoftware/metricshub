@@ -17,10 +17,10 @@ public class And extends Compute {
 	private static final long serialVersionUID = -1026653374377611321L;
 
 	private Integer column;
-	private Integer and;
+	private String and;
 
 	@Builder
-	public And(Integer index, Integer column, Integer and) {
+	public And(Integer index, Integer column, String and) {
 		super(index);
 		this.column = column;
 		this.and = and;
