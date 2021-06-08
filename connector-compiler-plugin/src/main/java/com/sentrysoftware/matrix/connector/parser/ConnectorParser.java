@@ -1,6 +1,10 @@
 package com.sentrysoftware.matrix.connector.parser;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorState;
 import lombok.Data;
 import org.springframework.util.Assert;
@@ -84,4 +88,48 @@ public class ConnectorParser {
 
 		// TODO if the Connector defines an IPMI source then add "ipmitool" to the list of sudoCommands in the Connector bean.
 	}
+
+	public static void main(String[] args) {
+
+        Connector connector = new ConnectorParser()
+//                .parse("../matrix/connector-compiler-plugin/src/it/success/hardware-connectors/src/main/hdf/MS_HW_DellOpenManage.hdfs")
+//                .parse("../hardware-connectors/src/main/hdf/MS_HW_AdptStorManUnix.hdfs")
+//                .parse("../hardware-connectors/src/main/hdf/MS_HW_CpMgServTru64.hdfs")
+//                .parse("../hardware-connectors/src/main/hdf/MS_HW_CiscoUCSCIMC.hdfs")
+                .parse("../hardware-connectors/src/main/hdf/MS_HW_SunILOMSNMP.hdfs")
+//                .parse("../hardware-connectors/src/main/hdf/MS_HW_Director4Linux.hdfs")
+                .orElseThrow(() -> new IllegalStateException("Connector should not be null"));
+
+        Detection detection = connector.getDetection();
+        if (detection == null) {
+            throw new IllegalStateException("Detection should not be null.");
+        }
+
+        for (Criterion criterion : detection.getCriteria()) {
+
+			System.out.println("\nType:\t\t\t\t" + criterion.getClass().getSimpleName());
+			System.out.println("index:\t\t\t\t" + criterion.getIndex());
+			System.out.println("ForceSerialization:\t" + criterion.isForceSerialization());
+
+			if (criterion instanceof SNMP) {
+
+				SNMP snmpCriterion = (SNMP) criterion;
+
+				System.out.println("OID:\t\t\t\t" + snmpCriterion.getOid());
+				System.out.println("ExpectedResult:\t\t" + snmpCriterion.getExpectedResult());
+
+            } else if (criterion instanceof WBEM) {
+
+				WBEM wbemCriterion = (WBEM) criterion;
+
+				System.out.println("WbemNamespace:\t\t\t\t" + wbemCriterion.getWbemNamespace());
+				System.out.println("WbemQuery:\t\t\t\t" + wbemCriterion.getWbemQuery());
+				System.out.println("ExpectedResult:\t\t" + wbemCriterion.getExpectedResult());
+				System.out.println("ErrorMessage:\t" + wbemCriterion.getErrorMessage());
+
+			} else {
+				System.out.println("\n" + criterion);
+			}
+        }
+    }
 }
