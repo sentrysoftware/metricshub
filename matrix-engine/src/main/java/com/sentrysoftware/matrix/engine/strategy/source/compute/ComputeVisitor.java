@@ -190,12 +190,12 @@ public class ComputeVisitor implements IComputeVisitor {
 			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
 
 			if (awkResult == null) {
-				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", awk);
+				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", awk.getIndex());
 				return;
 			}
 
 			if (awkResult.isEmpty()) {
-				log.warn(" {} Compute Operation (Awk) result is enmpty, the table remains unchanged.", awk);
+				log.warn(" {} Compute Operation (Awk) result is enmpty, the table remains unchanged.", awk.getIndex());
 				return;
 			}
 
@@ -239,17 +239,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return awkResult;
 		}
 
-		if (!separators.isEmpty()) {
-
-			// protect the initial string that contains ";" and replace it with "," if this
-			// latest is not in Separators list. Otherwise, just remove the ";"
-			// replace all separators by ";", which is the standard separator used by MS_HW
-			if (!separators.contains(HardwareConstants.SEMICOLON)
-					&& !separators.contains(HardwareConstants.COMMA)) {
-				awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
-			} else if (!separators.contains(HardwareConstants.SEMICOLON)) {
-				awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
-			}
+		// protect the initial string that contains ";" and replace it with "," if this
+		// latest is not in Separators list. Otherwise, just remove the ";"
+		// replace all separators by ";", which is the standard separator used by MS_HW
+		if (!separators.contains(HardwareConstants.SEMICOLON) && !separators.contains(HardwareConstants.COMMA)) {
+			awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
+		} else if (!separators.contains(HardwareConstants.SEMICOLON)) {
+			awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
 		}
 
 		StringBuilder selectedOutput = new StringBuilder();
@@ -290,7 +286,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Remove lines containing a given regular expression
+	 * Remove lines matching a given regular expression
 	 * @param awkResult
 	 * @param excludeRegExp
 	 * @return
@@ -304,7 +300,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		StringBuilder excludeLines = new StringBuilder();
 
 		// Keep only the lines which don't match with regular expression
-		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(excludeRegExp));
+		Pattern pattern = Pattern.compile(excludeRegExp);
 		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
 			Matcher matcher = pattern.matcher(line);
 			if (!matcher.find()) {
@@ -315,7 +311,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Keep only the lines containing a given regular expression
+	 * Keep only the lines matching a given regular expression
 	 * @param awkResult
 	 * @param keepOnlyRegExp
 	 * @return
@@ -327,8 +323,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		StringBuilder keeplines = new StringBuilder();
 
 		keepOnlyRegExp = PslUtils.psl2JavaRegex(keepOnlyRegExp);
-		// Keep only the lines containing a given regular expression
-		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(keepOnlyRegExp));
+		// Keep only the lines matching a given regular expression
+		Pattern pattern = Pattern.compile(keepOnlyRegExp);
 		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {

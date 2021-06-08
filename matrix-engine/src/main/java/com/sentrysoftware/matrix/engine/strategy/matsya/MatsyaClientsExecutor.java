@@ -191,9 +191,17 @@ public class MatsyaClientsExecutor {
 		return TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber, defaultRightLine, false, caseInsensitive);
 		
 	}
-	
-	public String executeAwkScript(String embeddedFileScript, String input) throws Exception{
-		if (embeddedFileScript == null || input == null ) {
+
+	/**
+	 * Call Matsya in order to execute the Awk script on the given input
+	 * 
+	 * @param embeddedFileScript
+	 * @param input
+	 * @return
+	 * @throws Exception
+	 */
+	public String executeAwkScript(String embeddedFileScript, String input) throws Exception {
+		if (embeddedFileScript == null || input == null) {
 			return null;
 		}
 		return AwkExecutor.executeAwk(embeddedFileScript, input);
