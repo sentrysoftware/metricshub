@@ -632,7 +632,24 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Json2CSV json2csv) {
-		// Not implemented yet
+		if (json2csv == null) {
+			log.warn("Compute Operation (Json2CSV) is null, the table remains unchanged.");
+			return;
+		}
+
+		try {
+			String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
+					sourceTable.getRawData(), json2csv.getEntryKey(), json2csv.getProperties(), json2csv.getSeparator());
+
+			System.out.println("json2csvResult : " + json2csvResult);
+			
+			if (json2csvResult != null && !json2csvResult.isEmpty()) {
+				sourceTable.setRawData(json2csvResult);
+				sourceTable.setTable(SourceTable.csvToTable(json2csvResult, json2csv.getSeparator()));
+			}
+		} catch (Exception e) {
+			log.warn("Compute Operation (Json2CSV) has failed. ", e);
+		}
 	}
 
 	@Override

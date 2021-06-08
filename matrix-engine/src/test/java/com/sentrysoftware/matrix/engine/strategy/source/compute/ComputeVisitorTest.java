@@ -26,18 +26,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -2109,5 +2111,30 @@ class ComputeVisitorTest {
 		assertEquals("", ComputeVisitor.keepOnlyRegExpStringInput("", "^"+BAR).toString()); 
 		String expected = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1";
 		assertEquals(expected , ComputeVisitor.keepOnlyRegExpStringInput(LINE_RAW_DATA, "^"+FOO).toString()); // use case trad
+	}
+	
+	@Test
+	void testJson2Csv() {
+		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring.json", ComputeVisitorTest.class).replaceAll("\\s", "");
+		sourceTable.setRawData(rawData);
+
+		Json2CSV json2CSV = null;
+		computeVisitor.visit(json2CSV);
+		assertEquals(rawData, sourceTable.getRawData());
+
+		json2CSV = Json2CSV.builder().build();
+		computeVisitor.visit(json2CSV);
+		assertEquals(rawData, sourceTable.getRawData());
+
+		json2CSV = Json2CSV.builder()
+				.entryKey("/ENCLOSURE/enclosure-1")
+				.separator(";")
+				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
+				.build();
+
+		computeVisitor.visit(json2CSV);
+
+		String rawDataRes = "/ENCLOSURE/enclosure-1;enclosure-1;enclosure-1;ENCLOSURE;targetId;\n";
+		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
 }
