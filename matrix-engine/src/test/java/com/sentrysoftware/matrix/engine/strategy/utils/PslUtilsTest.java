@@ -41,24 +41,24 @@ class PslUtilsTest {
 	void testNthArgf() {
 
 		// text is null
-		assertNull(PslUtils.nthArgf(null, null, null, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(null, null, null, null));
 
 		// text is not null, selectColumns is null
-		assertNull(PslUtils.nthArgf(EMPTY, null, null, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, null, null, null));
 
 		// text is not null, selectColumns is not null, separators is null
-		assertNull(PslUtils.nthArgf(EMPTY, EMPTY, null, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, EMPTY, null, null));
 
 		// selectColumns is not null, separators is not null, text is empty
-		assertNull(PslUtils.nthArgf(EMPTY, EMPTY, EMPTY, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, EMPTY, EMPTY, null));
 
 		// text is not null and not empty, separators is not null, selectColumns is empty
 		String text = "|OK|1";
-		assertNull(PslUtils.nthArgf(text, EMPTY, EMPTY, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(text, EMPTY, EMPTY, null));
 
 		// text is not null and not empty, selectColumns is not null and not empty, separators is empty
 		String selectColumns = "3";
-		assertNull(PslUtils.nthArgf(text, selectColumns, EMPTY, null));
+		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, EMPTY, null));
 
 		// text is not null and not empty, separators is not null and not empty, resultSeparator is not null,
 		// selectColumns starts with '-'
@@ -79,16 +79,23 @@ class PslUtilsTest {
 		// text is not null and not empty, separators is not null and not empty, resultSeparator is not null,
 		// selectColumns is invalid
 		selectColumns = "foo-bar";
-		assertNull(PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 		selectColumns = "3-4";
-		assertNull(PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+		assertEquals("1", PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 		selectColumns = "3-1";
-		assertNull(PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 
 		// text contains "\n" in columns
 		text = "OK|OK|\n|WARN|\nALARM";
 		selectColumns = "1-";
 		assertEquals("OK\nOK\n\n\nWARN\n\nALARM", PslUtils.nthArgf(text, selectColumns, separators, NEW_LINE));
+
+		assertEquals("a,b,d", PslUtils.nthArgf("a,b,c,d,e,", "1,2,4", ",", ","));
+		assertEquals("a,b,c,d,e,", PslUtils.nthArgf("a,b,c,d,e,", "1-", ",", ","));
+		assertEquals("a,b,c", PslUtils.nthArgf("a,b,c,d,e,", "1-3", ",", ","));
+		assertEquals("b,c,d", PslUtils.nthArgf("a,b,c,d,e,", "2-4", ",", ","));
+		assertEquals("b", PslUtils.nthArgf("a,b,c,d,e,", "2", ",", ","));
+		assertEquals("a,b,c,d,e,", PslUtils.nthArgf("a,b,c,d,e,", "1-50", ",", ","));
 	}
 
 	@Test
@@ -102,6 +109,18 @@ class PslUtilsTest {
 
 		// selectColumns is "2-"
 		selectColumns = "2-";
-		assertEquals("OK\nWARN\nALARM", PslUtils.nthArg(text, selectColumns, separators, NEW_LINE));
+		assertEquals("OK\nWARN", PslUtils.nthArg(text, selectColumns, separators, NEW_LINE));
+
+		assertEquals("OK\nWARN\nALARM", PslUtils.nthArg("OK|OK|\nOK|WARN|\nOK|ALARM", selectColumns, separators, NEW_LINE));
+
+		assertEquals("a,b,c,d", PslUtils.nthArg("a,b,\nc,d,e,", "1-2", ",", ","));
+
+		assertEquals("a,b,e,f", PslUtils.nthArg("a,b,c,d,\ne,f,g,h,", "-2", ",", ","));
+		assertEquals("a,b,d", PslUtils.nthArg("a,b,c,d,e,", "1,2,4", ",", ","));
+		assertEquals("a,b,c,d,e", PslUtils.nthArg("a,b,c,d,e,", "1-", ",", ","));
+		assertEquals("a,b,c", PslUtils.nthArg("a,b,c,d,e,", "1-3", ",", ","));
+		assertEquals("b,c,d", PslUtils.nthArg("a,b,c,d,e,", "2-4", ",", ","));
+		assertEquals("b", PslUtils.nthArg("a,b,c,d,e,", "2", ",", ","));
+		assertEquals("a,b,c,d,e", PslUtils.nthArg("a,b,c,d,e,", "1-50", ",", ","));
 	}
 }

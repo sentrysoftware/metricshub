@@ -15,10 +15,14 @@
 			<unpackOptions>
 				<includes>
 					<include>matrix/connector/**</include>
-				    <include>com/**</include>
+					<include>com/**</include>
 					<include>org/**</include>
+					<include>uk/**</include>
 					<include>META-INF/**</include>
 				</includes>
+				<excludes>
+					<exclude>org/slf4j/impl/**</exclude>
+				</excludes>
 			</unpackOptions>
 		</dependencySet>
 	</dependencySets>

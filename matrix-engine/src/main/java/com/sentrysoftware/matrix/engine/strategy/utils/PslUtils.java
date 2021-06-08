@@ -2,7 +2,9 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CARET;
@@ -191,7 +193,7 @@ public class PslUtils {
 		if (text == null || selectColumns == null || separators == null
 			|| text.isEmpty() || selectColumns.isEmpty() || separators.isEmpty()) {
 
-			return null;
+			return EMPTY;
 		}
 
 		// Replace special chars with their literal equivalents
@@ -218,12 +220,42 @@ public class PslUtils {
 			resultSeparator = WHITE_SPACE;
 		}
 
+		// The list holding the final result
+		List<String> finalResult = new ArrayList<>();
+
+		// Split the text value using the new line separator
+		String [] textArray = text.split(NEW_LINE);
+		for (String line : textArray) {
+			processText(line, selectColumns, separatorsRegExp, resultSeparator, finalResult, isNthArg);
+		}
+
+		// Alright, we did it!
+		return finalResult.stream().collect(Collectors.joining(resultSeparator));
+	}
+
+	/**
+	 * Process the given text value and update the finalResult {@link List}
+	 * 
+	 * @param text             The text we wish to process
+	 * @param selectColumns    The columns to select. E.g. <em>1-2</em> <em>1,2,3</em> <em>1-</em> <em>-4</em>
+	 * @param separatorsRegExp The separator used to split the text value
+	 * @param resultSeparator  The separator of the final result
+	 * @param finalResult      The final result as {@link List}
+	 * @param isNthArg         Indicate whether we want ntharg or nthargf.
+	 */
+	static void processText(final String text,
+			final String selectColumns,
+			final String separatorsRegExp,
+			final String resultSeparator,
+			final List<String> finalResult,
+			final boolean isNthArg) {
+
 		// Split the input text into a String array thanks to the separatorsRegExp
-		String[] splitText = text.split(separatorsRegExp, -1);
+		final String[] splitText = text.split(separatorsRegExp, -1);
 
 		// The user can specify several columns.
 		// Split the selectColumns into an array too.
-		String[] columnsArray = selectColumns.split(COMMA);
+		final String[] columnsArray = selectColumns.split(COMMA);
 
 		// So, for each columns group requested
 		String result = null;
@@ -244,13 +276,11 @@ public class PslUtils {
 				result = Arrays
 					.stream(splitText, fromColumnNumber - 1, toColumnNumber)
 					.filter(value -> !isNthArg || !value.trim().isEmpty())
-					.map(value -> isNthArg ? value.replace(NEW_LINE, EMPTY) : value)
 					.collect(Collectors.joining(resultSeparator));
+
+				finalResult.add(result);
 			}
 		}
-
-		// Alright, we did it!
-		return result;
 	}
 
 	/**
@@ -300,6 +330,9 @@ public class PslUtils {
 
 				fromColumnNumber = Integer.parseInt(columns.substring(0, dashIndex));
 				toColumnNumber = Integer.parseInt(columns.substring(dashIndex + 1));
+				if (toColumnNumber > columnCount) {
+					toColumnNumber = columnCount;
+				}
 			}
 
 			if (fromColumnNumber > columnCount || toColumnNumber > columnCount) {
@@ -321,4 +354,5 @@ public class PslUtils {
 
 		return new int[]{fromColumnNumber, toColumnNumber};
 	}
+
 }

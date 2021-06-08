@@ -196,6 +196,10 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring-boot.version}</version>
+				<configuration>
+					<!-- MATSYA is already wrapped in matrix-engine -->
+					<excludeGroupIds>com.sentrysoftware.patrol.matsya</excludeGroupIds>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

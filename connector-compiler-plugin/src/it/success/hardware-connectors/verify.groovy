@@ -6,6 +6,7 @@ assert new File(basedir, "target/matrix/connector/MS_HW_CpMgServTru64.connector"
 assert new File(basedir, "target/matrix/connector/MS_HW_DellOpenManage.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_DelliDRACREST.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_Director4Linux.connector").isFile()
+assert new File(basedir, "target/matrix/connector/MS_HW_Director4NT.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_IBMBlade.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_NetApp.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_ServerviewNT.connector").isFile()
