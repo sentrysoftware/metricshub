@@ -21,6 +21,12 @@ class WbemQueryProcessorTest {
 	private static final String FOO = "FOO";
 
 	@Test
+	void testGetTypeValue() {
+
+		assertNull(new WbemQueryProcessor(WBEM.class, null).getTypeValue());
+	}
+
+	@Test
 	void testParse() {
 
 		WBEM wbem = WBEM.builder().index(1).build();

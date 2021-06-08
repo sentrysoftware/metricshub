@@ -23,6 +23,12 @@ class WbemNameSpaceProcessorTest {
 	private static final String FOO = "FOO";
 
 	@Test
+	void testGetTypeValue() {
+
+		assertNull(new WbemNameSpaceProcessor(WBEM.class, null).getTypeValue());
+	}
+
+	@Test
 	void testParse() {
 
 		WBEM wbem = WBEM.builder().index(1).build();

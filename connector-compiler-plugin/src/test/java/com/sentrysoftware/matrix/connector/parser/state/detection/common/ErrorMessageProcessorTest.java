@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ErrorMessageProcessorTest {
 
@@ -19,6 +21,12 @@ class ErrorMessageProcessorTest {
 
 	private static final String ERROR_MESSAGE_KEY = "detection.criteria(1).errormessage";
 	private static final String FOO = "FOO";
+
+	@Test
+	void testGetTypeValue() {
+
+		assertNull(new ErrorMessageProcessor(WBEM.class, null).getTypeValue());
+	}
 
 	@Test
 	void testParse() {
