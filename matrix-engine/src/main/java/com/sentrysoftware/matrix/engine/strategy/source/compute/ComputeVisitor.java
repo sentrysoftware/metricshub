@@ -642,7 +642,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					sourceTable.getRawData(), json2csv.getEntryKey(), json2csv.getProperties(), json2csv.getSeparator());
 
 			System.out.println("json2csvResult : " + json2csvResult);
-			
+
 			if (json2csvResult != null && !json2csvResult.isEmpty()) {
 				sourceTable.setRawData(json2csvResult);
 				sourceTable.setTable(SourceTable.csvToTable(json2csvResult, json2csv.getSeparator()));

@@ -2112,7 +2112,7 @@ class ComputeVisitorTest {
 		String expected = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1";
 		assertEquals(expected , ComputeVisitor.keepOnlyRegExpStringInput(LINE_RAW_DATA, "^"+FOO).toString()); // use case trad
 	}
-	
+
 	@Test
 	void testJson2Csv() {
 		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring.json", ComputeVisitorTest.class).replaceAll("\\s", "");

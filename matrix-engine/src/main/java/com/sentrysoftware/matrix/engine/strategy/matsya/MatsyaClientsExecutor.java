@@ -228,13 +228,9 @@ public class MatsyaClientsExecutor {
 
 				try {
 					JFlat jsonFlat = new JFlat(jsonSource);
-					
-					System.out.println("jsonSource : \n" + jsonSource);
-					
+
 					jsonFlat.parse();
-					
-					System.out.println("parse isok");
-					
+
 					return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString(); // Get the CSV
 				}
 				catch(IllegalArgumentException e) {
