@@ -140,6 +140,11 @@
 				<artifactId>spring-context</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
+			<dependency>				
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-awk</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-tablejoin</artifactId>

@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Comp
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
@@ -43,6 +44,9 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	@Autowired
 	protected SourceVisitor sourceVisitor;
+
+	@Autowired
+	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@Autowired
 	@Setter
@@ -114,7 +118,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 			if (computes != null) {
 
-				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable, connector);
+				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceTable, connector, matsyaClientsExecutor);
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
 				for (final Compute compute : computes) {

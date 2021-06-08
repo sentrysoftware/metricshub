@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +21,7 @@ class SourceTableTest {
 						.collect(Collectors.toList()),
 						SourceTable.csvToTable(csvTable, ";"));
 
-		assertNull(SourceTable.csvToTable(null, ";"));
+		assertNotNull(SourceTable.csvToTable(null, ";"));
 
 		assertEquals(Collections.emptyList(), SourceTable.csvToTable("\n\n\n", ";"));
 

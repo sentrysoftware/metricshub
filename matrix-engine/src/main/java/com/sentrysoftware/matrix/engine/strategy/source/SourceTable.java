@@ -17,9 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SourceTable {
-	private static final SourceTable EMPTY = SourceTable.builder().build();
 
-	private String csvTable; // for the moment we keep the String possibility
+	private String rawData;
 
 	@Default
 	private List<List<String>> table = new ArrayList<>();
@@ -70,7 +69,7 @@ public class SourceTable {
 					.filter(line -> !line.isEmpty())
 					.collect(Collectors.toList());
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 
@@ -98,7 +97,11 @@ public class SourceTable {
 		return new ArrayList<>();
 	}
 
+	/**
+	 * @return Empty {@link SourceTable} instance
+	 */
 	public static SourceTable empty() {
-		return EMPTY;
+		return SourceTable.builder().build();
 	}
+
 }
