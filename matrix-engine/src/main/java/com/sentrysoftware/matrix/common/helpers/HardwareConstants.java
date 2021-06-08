@@ -29,6 +29,7 @@ public class HardwareConstants {
 	public static final String DOUBLE_BACKSLASH = "\\\\";
 	public static final String CARET = "^";
 	public static final String PLUS = "+";
+	public static final String PIPE = "|";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
@@ -128,4 +129,5 @@ public class HardwareConstants {
 	public static final String ONE = "1";
 	public static final String ZERO = "0";
 
+	public static final String DEFAULT = "default";
 }

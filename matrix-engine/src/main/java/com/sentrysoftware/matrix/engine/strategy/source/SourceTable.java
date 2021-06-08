@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SourceTable {
-	private static final SourceTable EMPTY = SourceTable.builder().build();
 
 	private String rawData;
 
@@ -98,8 +97,11 @@ public class SourceTable {
 		return new ArrayList<>();
 	}
 
-	public static SourceTable empty() {
-		return EMPTY;
-	}
+	 /**
+		 * @return Empty {@link SourceTable} instance
+		 */
+		public static SourceTable empty() {
+			return SourceTable.builder().build();
+		}
 
 }
