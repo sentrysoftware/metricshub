@@ -22,15 +22,15 @@ public class WBEMSource extends Source {
 	private static final long serialVersionUID = -1068957824633332862L;
 
 	private String wbemQuery;
-	private String wbemNameSpace;
+	private String wbemNamespace;
 
 	@Builder
 	public WBEMSource(List<Compute> computes, boolean forceSerialization, String wbemQuery,
-			String wbemNameSpace, int index, String key) {
+			String wbemNamespace, int index, String key) {
 
 		super(computes, forceSerialization, index, key);
 		this.wbemQuery = wbemQuery;
-		this.wbemNameSpace = wbemNameSpace;
+		this.wbemNamespace = wbemNamespace;
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import com.sentrysoftware.matrix.connector.parser.state.source.snmptable.Connect
 import com.sentrysoftware.matrix.connector.parser.state.source.tablejoin.ConnectorTableJoinProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.tableunion.ConnectorTableUnionProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.wbem.ConnectorWbemProperty;
+import com.sentrysoftware.matrix.connector.parser.state.source.wmi.ConnectorWmiProperty;
 
 public class ConnectorSourceProperty {
 
@@ -22,7 +23,8 @@ public class ConnectorSourceProperty {
 				ConnectorTableJoinProperty.getConnectorProperties(),
 				ConnectorTableUnionProperty.getConnectorProperties(),
 				ConnectorSnmpGetProperty.getConnectorProperties(),
-				ConnectorWbemProperty.getConnectorProperties())
+				ConnectorWbemProperty.getConnectorProperties(),
+				ConnectorWmiProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
 	}

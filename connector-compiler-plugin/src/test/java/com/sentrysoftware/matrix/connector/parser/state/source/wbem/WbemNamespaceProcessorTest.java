@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 
@@ -13,41 +12,43 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemNamespaceProcessor;
 
-class WbemNameSpaceProcessorTest {
+class WbemNamespaceProcessorTest {
+
 	private static final String WBEM_NAMESPACE_KEY = "enclosure.discovery.source(1).WbemNameSpace";
 	private static final String NAMESPACE_VALUE = "root/emc/smis";
-	
-	private WbemNameSpaceProcessor wbemNameSpaceProcessor;
+
+	private WbemNamespaceProcessor wbemNamespaceProcessor = new WbemNamespaceProcessor(WBEMSource.class, "WBEM");
+
 	private Connector connector;
 
 	@BeforeEach
 	void setUp() {
 		connector = new Connector();
-		wbemNameSpaceProcessor = new WbemNameSpaceProcessor();
-	}
-
-	@Test
-	void testGetMatcher() {
-		assertNotNull(wbemNameSpaceProcessor.getMatcher(WBEM_NAMESPACE_KEY));
-		assertNotNull(wbemNameSpaceProcessor.getMatcher("otherKey"));
 	}
 
 	@Test
 	void testParse() {
-		WBEMSource wbemQuery = WBEMSource.builder().index(1).build();
-		Discovery discovery = Discovery.builder().sources(Collections.singletonList(wbemQuery)).build();
-		HardwareMonitor hardwareMonitor = HardwareMonitor
-			.builder()
-			.type(MonitorType.ENCLOSURE)
-			.discovery(discovery)
-			.build();
+
+		final WBEMSource wbemQuery = WBEMSource.builder()
+				.index(1)
+				.build();
+
+		final Discovery discovery = Discovery.builder()
+				.sources(Collections.singletonList(wbemQuery))
+				.build();
+
+		final HardwareMonitor hardwareMonitor = HardwareMonitor.builder()
+				.type(MonitorType.ENCLOSURE)
+				.discovery(discovery)
+				.build();
 
 		connector.setHardwareMonitors(Collections.singletonList(hardwareMonitor));
 
-		wbemNameSpaceProcessor.parse(WBEM_NAMESPACE_KEY, NAMESPACE_VALUE, connector);
-		assertEquals(NAMESPACE_VALUE, wbemQuery.getWbemNameSpace());
-		
-		 
+		wbemNamespaceProcessor.parse(WBEM_NAMESPACE_KEY, NAMESPACE_VALUE, connector);
+
+		assertEquals(NAMESPACE_VALUE, wbemQuery.getWbemNamespace());
+
 	}
 }
