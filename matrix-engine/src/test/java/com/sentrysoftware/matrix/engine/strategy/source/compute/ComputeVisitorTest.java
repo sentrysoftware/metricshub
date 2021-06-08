@@ -1641,7 +1641,12 @@ class ComputeVisitorTest {
 		// column is valid, text is not null, subColumn > text.length()
 		extract.setSubColumn(4);
 		computeVisitor.visit(extract);
-		assertEquals(table, sourceTable.getTable());
+		List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
+				Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
+				Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
+			);
+		assertEquals(expected, sourceTable.getTable());
 
 		// Test OK, subSeparators is a single character
 		List<List<String>> result = Arrays.asList(
@@ -1651,7 +1656,7 @@ class ComputeVisitorTest {
 		);
 		extract.setSubColumn(3);
 		computeVisitor.visit(extract);
-		assertEquals(result, sourceTable.getTable());
+		assertEquals(expected, sourceTable.getTable());
 
 		// Test OK, subSeparators is "()"
 		table.get(0).set(3, "STATUS1 (1)");
@@ -2075,7 +2080,7 @@ class ComputeVisitorTest {
 		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput("", LINE_RAW_DATA, Arrays.asList(1, 2, 3))); // no separator
 		String rawData = LINE_RAW_DATA.replaceAll(SEMICOLON_SEPARATOR, "_"); // other separator
 		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList())); // no selected columns
-		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(50))); // out of bounds
+		assertEquals(";\n;\n;", ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(50))); // out of bounds
 
 		String expected = "FOO;ID1;NAME1;MANUFACTURER1;\nBAR;ID2;NAME2;MANUFACTURER2;\nBAZ;ID3;NAME3;MANUFACTURER3;";
 		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput(SEMICOLON_SEPARATOR, LINE_RAW_DATA, Arrays.asList(1,2,3,4))); // use case trad
