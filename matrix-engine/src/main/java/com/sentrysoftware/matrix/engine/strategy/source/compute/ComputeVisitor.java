@@ -41,6 +41,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -49,6 +50,10 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -72,17 +77,29 @@ public class ComputeVisitor implements IComputeVisitor {
 		return null;
 	};
 
-	private static final  Function<ComputeValue, String> GET_VALUE = computeValue -> computeValue.getValue();
+	private static final  Function<ComputeValue, String> GET_VALUE = ComputeValue::getValue;
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
-			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ONE + HardwareConstants.CLOSING_PARENTHESIS);
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION =
+		(str, translations) -> translations
+			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
+					+ str + HardwareConstants.COMMA
+					+ HardwareConstants.ONE
+					+ HardwareConstants.CLOSING_PARENTHESIS,
+				translations.get(DEFAULT));
 
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION = (str, translations) -> translations.get(
-			HardwareConstants.OPENING_PARENTHESIS + str + HardwareConstants.COMMA + HardwareConstants.ZERO +  HardwareConstants.CLOSING_PARENTHESIS);
+	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION =
+		(str, translations) -> translations
+			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
+					+ str
+					+ HardwareConstants.COMMA
+					+ HardwareConstants.ZERO
+					+ HardwareConstants.CLOSING_PARENTHESIS,
+				translations.get(DEFAULT));
 
-	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION = (str, translations) -> translations.get(str);
+	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION =
+		(str, translations) -> translations.getOrDefault(str, translations.get(DEFAULT));
 
 	static {
 		MATH_FUNCTIONS_MAP = Map.of(
@@ -123,7 +140,76 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final ArrayTranslate arrayTranslate) {
-		// Not implemented yet
+
+		if (arrayTranslate == null) {
+			log.warn("The Source (ArrayTranslate) to visit is null, the array translate computation cannot be performed.");
+			return;
+		}
+
+		TranslationTable translationTable = arrayTranslate.getTranslationTable();
+		if (translationTable == null) {
+			log.warn("TranslationTable is null, the array translate computation cannot be performed.");
+			return;
+		}
+
+		Map<String, String> translations = translationTable.getTranslations();
+		if (translations == null) {
+
+			log.warn("The Translation Map {} is null, the array translate computation cannot be performed.",
+				translationTable.getName());
+
+			return;
+		}
+
+		int column = arrayTranslate.getColumn();
+		if (column < 1) {
+			log.warn("The column number to translate cannot be < 1, the translate computation cannot be performed.");
+			return;
+		}
+
+		int columnIndex = column - 1;
+
+		String arraySeparator = arrayTranslate.getArraySeparator();
+		if (arraySeparator == null) {
+			arraySeparator = PIPE;
+		}
+
+		String resultSeparator = arrayTranslate.getResultSeparator();
+		if (resultSeparator == null) {
+			resultSeparator = PIPE;
+		}
+
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+
+			if (columnIndex >= row.size()) {
+
+				log.warn("The index of the column is {} but the row size is {}, the translate computation cannot be performed.",
+					column, row.size());
+
+				return;
+			}
+
+			resultRow = new ArrayList<>(row);
+
+			String arrayValue = row.get(columnIndex);
+			if (arrayValue != null) {
+
+				String[] splitArrayValue = arrayValue.split(arraySeparator, -1);
+
+				String translatedArrayValue = Arrays
+					.stream(splitArrayValue)
+					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, EMPTY))
+					.collect(Collectors.joining(resultSeparator));
+
+				resultRow.set(columnIndex, translatedArrayValue);
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
 	}
 
 	@Override
@@ -140,7 +226,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		Integer columnIndex = and.getColumn() - 1;
+		int columnIndex = and.getColumn() - 1;
 
 		if (columnIndex < 0) {
 			log.warn("The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.");
@@ -708,8 +794,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		for (Integer bit : bitList) {
 
 			translation = ((int) Math.pow(2, bit) & valueToReplace) != 0
-						? translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION)
-						: translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION);
+						? translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION, null)
+						: translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION, null);
 
 			if (translation != null) {
 				result.add(translation);
@@ -768,11 +854,17 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @param valueToTranslate		The value being translated.
 	 * @param translationMap		The reference dictionary used for the translation.
 	 * @param translationFunction	The function used to perform the translation.
+	 * @param defaultResult         The value that should be returned if the translation function returns null.
 	 *
-	 * @return						The translation of <i>valueToTranslate</i>.
+	 *  @return						The translation of <i>valueToTranslate</i>.
 	 */
-	private String translate(final String valueToTranslate, final Map<String, String> translationMap, final BiFunction<String, Map<String, String>, String> translationFunction) {
-		return translationFunction.apply(valueToTranslate, translationMap);
+	private String translate(final String valueToTranslate, final Map<String, String> translationMap,
+							 final BiFunction<String, Map<String, String>, String> translationFunction,
+							 String defaultResult) {
+
+		String result = translationFunction.apply(valueToTranslate, translationMap);
+
+		return result == null ? defaultResult : result;
 	}
 
 	@Override
@@ -1030,7 +1122,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (columnIndex < line.size()) {
 				String valueToBeReplaced = line.get(columnIndex);
-				String newValue = translate(valueToBeReplaced, translations, TRANSLATION_FUNCTION);
+				String newValue = translate(valueToBeReplaced, translations, TRANSLATION_FUNCTION, null);
 
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
@@ -1137,16 +1229,16 @@ public class ComputeVisitor implements IComputeVisitor {
 		} catch (NumberFormatException e) {
 			log.warn("There is a NumberFormatException on operand 1 : {} or the operand 2 {}", op1, op2);
 			log.warn("Exception : ", e);
-		} 
+		}
 	}
 
 	@AllArgsConstructor
 	private static class ComputeValue {
 		@Getter
-		private List<String> row;
+		private final List<String> row;
 		@Getter
-		private int columnIndex;
+		private final int columnIndex;
 		@Getter
-		private String value;
+		private final String value;
 	}
 }

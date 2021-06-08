@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -10,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -898,7 +903,6 @@ class ComputeVisitorTest {
 				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
 				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")),
 				sourceTable.getTable());
-		
 	}
 	
 	@Test
@@ -1094,7 +1098,6 @@ class ComputeVisitorTest {
 		computeVisitor.visit(divideByValue);
 		assertEquals(result2, sourceTable.getTable());
 	}
-
 	
 	@Test
 	void testMultiply() {
@@ -1603,7 +1606,7 @@ class ComputeVisitorTest {
 
 		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
 		// column > row size
-		extract.setSubSeparators("|");
+		extract.setSubSeparators(PIPE);
 		extract.setColumn(6);
 		computeVisitor.visit(extract);
 		assertEquals(table, sourceTable.getTable());
@@ -1903,20 +1906,105 @@ class ComputeVisitorTest {
 	void testConvertArray2SimpleStatus() {
 		{
 			final List<List<String>> table = Arrays.asList(
-					Arrays.asList("ID1", "OK|OK"),
-					Arrays.asList("ID2", "OK|\n|WARN|"),
-					Arrays.asList("ID3", "OK|WARN\n|OK|ALARM"));
+				Arrays.asList("ID1", "OK|OK"),
+				Arrays.asList("ID2", "OK|\n|WARN|"),
+				Arrays.asList("ID3", "OK|WARN\n|OK|ALARM"));
 
 			sourceTable.setTable(table);
 
 			computeVisitor.convertArray2SimpleStatus(1);
 
 			final List<List<String>> expected = Arrays.asList(
-					Arrays.asList("ID1", "OK"),
-					Arrays.asList("ID2", "WARN"),
-					Arrays.asList("ID3", "ALARM"));
+				Arrays.asList("ID1", "OK"),
+				Arrays.asList("ID2", "WARN"),
+				Arrays.asList("ID3", "ALARM"));
 
 			assertEquals(expected, table);
 		}
+	}
+
+	@Test
+	void testArrayTranslate() {
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", null, "TYPE1"),
+			Arrays.asList("ID2", null, "TYPE2"),
+			Arrays.asList("ID3", null, "TYPE3")
+		);
+
+		sourceTable.setTable(table);
+
+		// ArrayTranslate is null
+		computeVisitor.visit((ArrayTranslate) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is null
+		ArrayTranslate arrayTranslate = ArrayTranslate.builder().build();
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is null
+		arrayTranslate.setTranslationTable(TranslationTable.builder().translations(null).build());
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column < 1
+		Map<String, String> translations = new HashMap<>();
+		arrayTranslate.getTranslationTable().setTranslations(translations);
+		arrayTranslate.setColumn(0);
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is null, resultSeparator is null, columnIndex >= row size
+		arrayTranslate.setColumn(4);
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is not null, resultSeparator is not null, columnIndex >= row size
+		arrayTranslate.setArraySeparator(COMMA);
+		arrayTranslate.setResultSeparator(PIPE);
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is not null, resultSeparator is not null, columnIndex < row size,
+		// arrayValue is null
+		arrayTranslate.setColumn(2);
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// Test OK
+
+		table = Arrays.asList(
+			Arrays.asList("ID1", "STATUS11,STATUS12,STATUS13", "TYPE1"),
+			Arrays.asList("ID2", ",STATUS22,STATUS23,", "TYPE2"),
+			Arrays.asList("ID3", "STATUS31", "TYPE3")
+		);
+
+		sourceTable.setTable(table);
+
+		translations = Map
+			.of(
+				EMPTY, "NO_VALUE",
+				"STATUS11", "TRANSLATED_STATUS11",
+				"STATUS12", "TRANSLATED_STATUS12",
+				"STATUS13", "TRANSLATED_STATUS13",
+				"STATUS22", "TRANSLATED_STATUS22", // No translation for STATUS23
+				"STATUS31", "TRANSLATED_STATUS31"
+			);
+
+		arrayTranslate.getTranslationTable().setTranslations(translations);
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", "TYPE1"),
+			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22||NO_VALUE", "TYPE2"),
+			Arrays.asList("ID3", "TRANSLATED_STATUS31", "TYPE3")
+		);
+
+		computeVisitor.visit(arrayTranslate);
+		assertEquals(result, sourceTable.getTable());
 	}
 }
