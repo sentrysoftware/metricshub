@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.common.TypeProce
 class ConnectorSubstringPropertyTest {
 
 	@Test
-	void test() {
+	void testGetConnectorProperties() {
 		assertEquals(Stream.of(TypeProcessor.class, ColumnProcessor.class, StartProcessor.class, LengthProcessor.class).collect(Collectors.toSet()),
 				ConnectorSubstringProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
 	}

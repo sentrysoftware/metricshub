@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.wbem;
+package com.sentrysoftware.matrix.connector.parser.state.source.wmi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProces
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemNamespaceProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemQueryProcessor;
 
-class ConnectorWbemPropertyTest {
+class ConnectorWmiPropertyTest {
 
 	@Test
 	void testGetConnectorProperties() {
@@ -21,6 +21,7 @@ class ConnectorWbemPropertyTest {
 				ForceSerializationProcessor.class,
 				WbemQueryProcessor.class,
 				WbemNamespaceProcessor.class).collect(Collectors.toSet()),
-				ConnectorWbemProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
+				ConnectorWmiProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
 	}
+
 }
