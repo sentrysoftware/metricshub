@@ -97,11 +97,11 @@ public class SourceTable {
 		return new ArrayList<>();
 	}
 
-	 /**
-		 * @return Empty {@link SourceTable} instance
-		 */
-		public static SourceTable empty() {
-			return SourceTable.builder().build();
-		}
+	/**
+	 * @return Empty {@link SourceTable} instance
+	 */
+	public static SourceTable empty() {
+		return SourceTable.builder().build();
+	}
 
 }
