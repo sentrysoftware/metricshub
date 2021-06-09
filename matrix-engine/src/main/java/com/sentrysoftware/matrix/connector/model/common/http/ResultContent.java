@@ -6,5 +6,5 @@ public enum ResultContent {
 	HTTP_STATUS,
 	HEADER,
 	BODY,
-	ALL;
+	ALL
 }

@@ -23,6 +23,7 @@ public class ConnectorParserConstants {
 	public static final String SOURCE_REFERENCE_REGEX_REPLACEMENT = "^\\s*%(.*)%\\s*$";
 
 	public static final String INTEGER_REGEX = "^[1-9]\\d*$";
+	public static final String EMBEDDED_FILE_REGEX = "^\\s*embeddedfile\\(([1-9]\\d*)\\)\\s*$";
 
 	public static final String DISCOVERY = "discovery";
 	public static final String COLLECT = "collect";

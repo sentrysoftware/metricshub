@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection;
 
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.detection.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.wbem.ConnectorWbemProperty;
 
@@ -17,7 +18,8 @@ public class ConnectorDetectionProperty {
 		return Stream
 			.of(
 				ConnectorSnmpProperty.getConnectorProperties(),
-				ConnectorWbemProperty.getConnectorProperties())
+				ConnectorWbemProperty.getConnectorProperties(),
+				ConnectorHttpProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
 	}
