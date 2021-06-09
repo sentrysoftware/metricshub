@@ -11,4 +11,5 @@ assert new File(basedir, "target/matrix/connector/MS_HW_SunXsigoSwitch.connector
 assert new File(basedir, "target/matrix/connector/MS_HW_SunXsigoSwitch.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_IBMBlade.connector").isFile()
 assert new File(basedir, "target/matrix/connector/MS_HW_NetApp.connector").isFile()
+assert new File(basedir, "target/matrix/connector/MS_HW_Director4NT.connector").isFile()
 assert new File(basedir, "target/hardware-connectors-1.0-SNAPSHOT-matrix.jar").isFile()

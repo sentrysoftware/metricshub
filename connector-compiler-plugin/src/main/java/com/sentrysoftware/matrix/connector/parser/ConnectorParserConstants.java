@@ -38,4 +38,8 @@ public class ConnectorParserConstants {
 	public static final String SET_COLUMN = "setColumn";
 
 	public static final String DEFAULT = "default";
+
+	public static final String SET_WBEM_NAMESPACE = "setWbemNamespace";
+
+	public static final String SET_WBEM_QUERY = "setWbemQuery";
 }

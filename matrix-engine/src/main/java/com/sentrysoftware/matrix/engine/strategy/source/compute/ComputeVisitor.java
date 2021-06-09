@@ -324,13 +324,17 @@ public class ComputeVisitor implements IComputeVisitor {
 			return awkResult;
 		}
 
+		String selectColumnsStr = selectColumns.stream()
+				.map(String::valueOf)
+				.collect(Collectors.joining(HardwareConstants.COMMA));
+
 		// protect the initial string that contains ";" and replace it with "," if this
 		// latest is not in Separators list. Otherwise, just remove the ";"
 		// replace all separators by ";", which is the standard separator used by MS_HW
 		if (!separators.contains(HardwareConstants.SEMICOLON) && !separators.contains(HardwareConstants.COMMA)) {
-			awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
+			awkResult = awkResult.replace(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
 		} else if (!separators.contains(HardwareConstants.SEMICOLON)) {
-			awkResult = awkResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
+			awkResult = awkResult.replace(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
 		}
 
 		StringBuilder selectedOutput = new StringBuilder();
@@ -338,35 +342,21 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			// if separator = tab or simple space, then ignore empty cells
 			// equivalent to ntharg
-			if(separators.contains(HardwareConstants.TAB) || separators.contains(HardwareConstants.WHITE_SPACE)) {
-				line = line.replaceAll("\\s+", HardwareConstants.WHITE_SPACE);
-			}
-			// else nthargf, so empty cells matter
-			String[] splitedLine = line.split(separators);
-
-			
-			// test if selected columns are not out of bounds
-			boolean idExists = selectColumns.stream().anyMatch(t -> (t -1 > splitedLine.length || t - 1 < 0));
-
-			if (idExists) {
-				log.error("SelectedColumns {} out of bounds in Awk operation. The result remains unchanged.", selectColumns);
-				return awkResult;
+			if (!separators.contains(HardwareConstants.TAB) && !separators.contains(HardwareConstants.WHITE_SPACE)) {
+				line = PslUtils.nthArgf(line, selectColumnsStr, separators, HardwareConstants.SEMICOLON);
 			} else {
-				List<String> actualList = Arrays.asList(splitedLine);
-				
-				// mind that the joining operation do not add separator at the end and do not return new line
-				selectedOutput = selectedOutput.append(
-														actualList.stream()
-														.filter(e -> selectColumns.contains(actualList.indexOf(e) + 1))
-														.collect(Collectors.joining(HardwareConstants.SEMICOLON)))
-												.append(HardwareConstants.SEMICOLON).append(HardwareConstants.NEW_LINE);
-
+				line = PslUtils.nthArg(line, selectColumnsStr, separators, HardwareConstants.SEMICOLON);
 			}
+
+			// mind that the joining operation do not add separator at the end and do not return new line
+			selectedOutput.append(line).append(HardwareConstants.SEMICOLON).append(HardwareConstants.NEW_LINE);
+
 		}
 
 		if (!selectColumns.isEmpty()) {
 			awkResult = selectedOutput.toString().stripTrailing();
 		}
+
 		return awkResult;
 	}
 
@@ -610,11 +600,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 
 			String extractedValue = PslUtils.nthArgf(text, String.valueOf(subColumn), subSeparators, null);
-
-			if (extractedValue == null) {
-				log.warn("Could not extract value at index {} in {}. The table remains unchanged.", subColumn, text);
-				return;
-			}
 
 			resultRow = new ArrayList<>(row);
 			resultRow.set(columnIndex, extractedValue);
