@@ -26,6 +26,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -67,6 +68,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 		if (snmpGetSource == null || snmpGetSource.getOid() == null) {
+			log.error("Malformed SNMPGetSource {}. Returning an empty table.", snmpGetSource);
 			return SourceTable.empty();
 		}
 
@@ -74,6 +76,8 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class));
 
 		if (!snmpProtocolOpt.isPresent()) {
+			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetSource {}.",
+					snmpGetSource);
 			return SourceTable.empty();
 		}
 
@@ -108,6 +112,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
 		if (snmpGetTableSource == null || snmpGetTableSource.getOid() == null) {
+			log.error("Malformed SNMPGetTableSource {}. Returning an empty table.", snmpGetTableSource);
 			return SourceTable.empty();
 		}
 		// run Matsya in order to execute the snmpTable
@@ -120,11 +125,13 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 		String[] selectColumnArray = new String[selectedColumns.size()];
 		selectColumnArray = selectedColumns.toArray(selectColumnArray);
-		
+
 		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(SNMPProtocol.class));
 
 		if (!snmpProtocolOpt.isPresent()) {
+			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetTableSource {}.",
+					snmpGetTableSource);
 			return SourceTable.empty();
 		}
 
@@ -149,34 +156,35 @@ public class SourceVisitor implements ISourceVisitor {
 			final String message = String.format(
 					"SNMP Test Failed - SNMP Table of %s on %s was unsuccessful due to an exception. Message: %s.",
 					snmpGetTableSource.getOid(), hostname, e.getMessage());
-			log.debug(message, e);
+			log.error(message, e);
 			return SourceTable.empty();
 		}
 	}
 
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
-		if (tableJoinSource == null || strategyConfig.getHostMonitoring() == null) {
+		if (tableJoinSource == null) {
+			log.error("TableJoinSource cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
 		if (sources == null ) {
-			log.debug("SourceTable Map cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.error("SourceTable Map cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
-			log.debug("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.error("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
-			log.debug("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.error("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
-			log.debug("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
+			log.error("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
 			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")");
 			return SourceTable.empty();
 		}
@@ -271,8 +279,73 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final WMISource wmiSource) {
-		return SourceTable.empty();
+		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
+			log.warn("Malformed WMISource {}. Returning an empty table.", wmiSource);
+			return SourceTable.empty();
+		}
+
+		final Optional<IProtocolConfiguration> wmiProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WMIProtocol.class));
+
+		if (!wmiProtocolOpt.isPresent()) {
+			log.debug("The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
+					wmiSource.getKey());
+			return SourceTable.empty();
+		}
+
+		final WMIProtocol protocol = (WMIProtocol) wmiProtocolOpt.get();
+
+		// Get the namespace
+		final String namespace = getNamespace(wmiSource, protocol);
+
+		if (namespace == null) {
+			log.error("Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.", wmiSource.getKey());
+			return SourceTable.empty();
+		}
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+
+			final List<List<String>> table = matsyaClientsExecutor.executeWmi(hostname,
+					protocol.getUsername(),
+					protocol.getPassword(),
+					protocol.getTimeout(),
+					wmiSource.getWbemQuery(),
+					namespace);
+
+			return SourceTable.builder().table(table).build();
+
+		} catch (Exception e) {
+			log.error("Error detected when running WMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiSource.getWbemQuery(), hostname,
+					protocol.getUsername(), protocol.getTimeout(),
+					wmiSource.getWbemNamespace());
+			log.error("Exception", e);
+			return SourceTable.empty();
+		}
+
 	}
 
-	
+	/**
+	 * Get the namespace to use for the execution of the given {@link WMISource} instance
+	 *
+	 * @param wmiSource {@link WMISource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
+	 *                  string</em>
+	 * @param protocol The {@link WMIProtocol} from which we get the default namespace when the mode is not automatic
+	 * @return {@link String} value
+	 */
+	String getNamespace(final WMISource wmiSource, final WMIProtocol protocol) {
+
+		final String sourceNamespace = wmiSource.getWbemNamespace();
+
+		if ("automatic".equalsIgnoreCase(sourceNamespace)) {
+			// The namespace should be detected correctly in the detection strategy phase
+			return strategyConfig.getHostMonitoring().getDetectedWmiNamespace();
+		} else {
+			return sourceNamespace != null ? sourceNamespace : protocol.getNamespace();
+		}
+
+	}
+
 }

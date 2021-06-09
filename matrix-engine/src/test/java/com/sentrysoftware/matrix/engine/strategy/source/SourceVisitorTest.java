@@ -2,14 +2,17 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -46,6 +50,9 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
 class SourceVisitorTest {
+	private static final String ROOT_IBMSD_WMI_NAMESPACE = "root\\ibmsd";
+	private static final String PC14 = "pc14";
+	private static final String WQL = "SELECT DeviceID,State FROM IBMPSG_RAIDDiskDrive";
 	private static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102"));
 	private static final String ECS1_01 = "ecs1-01";
 	private static final List<String> SNMP_SELECTED_COLUMNS = Arrays.asList("ID","9","11","49");
@@ -282,14 +289,14 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
 
 		doReturn(null).when(strategyConfig).getHostMonitoring();
-		tableJoinExample = TableJoinSource.builder()
+		final TableJoinSource tableJoinSource = TableJoinSource.builder()
 											.keyType("notWbem")
 											.leftTable("tab1")
 											.rightTable("tab2")
 											.leftKeyColumn(1)
 											.rightKeyColumn(1)
 											.defaultRightLine(null).build();
-		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
+		assertThrows(NullPointerException.class, () -> sourceVisitor.visit(tableJoinSource));
 	}
 
 	@Test
@@ -345,8 +352,107 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WMISource()));
+	void testVisitWMISourceMalformed() {
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit((WMISource) null));
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(WMISource.builder().build()));
+	}
+
+	@Test
+	void testVisitWMISourceButWMINotConfigured() {
+		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Collections.emptyMap()).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
+	}
+
+	@Test
+	void testVisitWMISourceNoNamespace() {
+		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.username(PC14 + "\\" + "Administrator")
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(null).when(hostMonitoring).getDetectedWmiNamespace();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
+	}
+
+	@Test
+	void testVisitWMISource() throws Exception {
+		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.username(PC14 + "\\" + "Administrator")
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("1.1", "0|4587"),
+				Arrays.asList("1.2", "2|4587"),
+				Arrays.asList("1.3", "1|4587"));
+		doReturn(expected).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(), 
+				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
+		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.visit(wmiSource));
+
+	}
+
+	@Test
+	void testVisitWMISourceTimeout() throws Exception {
+
+		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.username(PC14 + "\\" + "Administrator")
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(), 
+				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
+
+	}
+
+	@Test
+	void testGetNamespace() {
+		{
+			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
+		}
+
+		{
+			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace(ROOT_IBMSD_WMI_NAMESPACE).build();
+			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
+		}
+
+		{
+			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).build();
+			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder()
+					.namespace(ROOT_IBMSD_WMI_NAMESPACE).build()));
+		}
 	}
 
 	@Test

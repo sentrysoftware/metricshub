@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -12,12 +14,21 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wmi.WmiHelper;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +54,7 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	private <T> T execute(final Callable<T> callable, final long timeout)
+	<T> T execute(final Callable<T> callable, final long timeout)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
 		try {
@@ -201,9 +212,9 @@ public class MatsyaClientsExecutor {
 	 * @param embeddedFileScript
 	 * @param input
 	 * @return
-	 * @throws Exception
+	 * @throws AwkException
 	 */
-	public String executeAwkScript(String embeddedFileScript, String input) throws Exception {
+	public String executeAwkScript(String embeddedFileScript, String input) throws AwkException {
 		if (embeddedFileScript == null || input == null) {
 			return null;
 		}
@@ -217,31 +228,114 @@ public class MatsyaClientsExecutor {
 	 * @param propertyList
 	 * @param separator
 	 * @return
-	 * @throws Exception
+	 * @throws TimeoutException 
+	 * @throws ExecutionException 
+	 * @throws InterruptedException
 	 */
-	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
-			throws Exception {
+	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator) throws InterruptedException, ExecutionException, TimeoutException {
 
-		final Callable<String> jflatToCSV = new Callable<String>() {
-			@Override
-			public String call() {
+		final Callable<String> jflatToCSV = () -> {
 
-				try {
-					JFlat jsonFlat = new JFlat(jsonSource);
+			try {
+				JFlat jsonFlat = new JFlat(jsonSource);
 
-					jsonFlat.parse();
+				jsonFlat.parse();
 
-					return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString(); // Get the CSV
-				} catch(IllegalArgumentException e) {
-					log.error("Error detected in the arguments when translating the JSON structure into CSV.");
-				} catch(Exception e) {
-					log.error("Error detected when running jsonFlat parsing.");
-				}
-
-				return null;
+				// Get the CSV
+				return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString();
+			} catch(IllegalArgumentException e) {
+				log.error("Error detected in the arguments when translating the JSON structure into CSV.");
+			} catch(Exception e) {
+				log.error("Error detected when running jsonFlat parsing.");
 			}
+
+			return null;
 		};
 
 		return execute(jflatToCSV, json2CsvTimeout);
 	}
+
+	/**
+	 * Execute a WMI query through Matsya
+	 * 
+	 * @param hostname  The hostname of the device where the WMI service is running
+	 * @param username  The username to establish the connection with the device through the WMI protocol
+	 * @param password  The password to establish the connection with the device through the WMI protocol
+	 * @param timeout   The timeout in seconds after which the query is rejected
+	 * @param wbemQuery The WQL to execute
+	 * @param namespace The WBEM namespace where all the classes reside
+	 * @throws LocalhostCheckException    If the localhost check fails
+	 * @throws WmiComException            For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WmiWqlQuerySyntaxException In case of not valid query
+	 * @throws TimeoutException           When the given timeout is reached
+	 */
+	public List<List<String>> executeWmi(final String hostname, final String username,
+			final char[] password, final Long timeout,
+			final String wbemQuery, final String namespace)
+			throws LocalhostCheckException, WmiComException, TimeoutException, WmiWqlQuerySyntaxException {
+
+		// Where to connect to?
+		// Local: namespace
+		// Remote: hostname\namespace
+		final String networkResource = buildWMINetworkResource(hostname, namespace);
+
+		// Go!
+		try (final WmiWbemServicesHandler wbemServices = 
+				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
+
+			// Connect
+			wbemServices.connect();
+
+			// Execute the WQL and get the result
+			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery);
+
+			// Extract the exact property names (case sensitive), in the right order
+			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
+
+			// Build the table
+			return buildWMITable(result, properties);
+
+		}
+	}
+
+	/**
+	 * Build the WMI network resource
+	 * @param hostname    The hostname of the device where the WMI service is running
+	 * @param namespace   The WMI namespace
+	 * @return {@link String} value
+	 * @throws LocalhostCheckException
+	 */
+	String buildWMINetworkResource(final String hostname, final String namespace) throws LocalhostCheckException {
+		return NetworkHelper.isLocalhost(hostname) ?
+				namespace : String.format("\\\\%s\\%s", hostname, namespace);
+	}
+
+	/**
+	 * Convert the given result to a {@link List} of {@link List} table
+	 * 
+	 * @param result          The result we want to process
+	 * @param properties      The ordered properties
+	 * @return {@link List} of {@link List} table
+	 */
+	List<List<String>> buildWMITable(final List<Map<String, Object>> result, final List<String> properties) {
+		final List<List<String>> table = new ArrayList<>();
+		final WmiStringConverter stringConverter = new WmiStringConverter();
+
+		// Transform the result to a list of list
+		result.forEach(row ->
+			{
+				final List<String> line = new ArrayList<>();
+
+				// loop over the right order
+				properties.forEach(property -> line.add(stringConverter.convert(row.get(property))
+								.replace(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY)));
+
+				// We have a line?
+				if (!line.isEmpty()) {
+					table.add(line);
+				}
+			});
+		return table;
+	}
+
 }
