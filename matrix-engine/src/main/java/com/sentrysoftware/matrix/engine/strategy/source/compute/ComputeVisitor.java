@@ -88,20 +88,11 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION =
 		(str, translations) -> translations
-			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
-					+ str + HardwareConstants.COMMA
-					+ HardwareConstants.ONE
-					+ HardwareConstants.CLOSING_PARENTHESIS,
-				translations.get(DEFAULT));
+			.getOrDefault(str + HardwareConstants.COMMA + HardwareConstants.ONE, translations.get(DEFAULT));
 
 	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION =
 		(str, translations) -> translations
-			.getOrDefault(HardwareConstants.OPENING_PARENTHESIS
-					+ str
-					+ HardwareConstants.COMMA
-					+ HardwareConstants.ZERO
-					+ HardwareConstants.CLOSING_PARENTHESIS,
-				translations.get(DEFAULT));
+			.getOrDefault(str + HardwareConstants.COMMA + HardwareConstants.ZERO, translations.get(DEFAULT));
 
 	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION =
 		(str, translations) -> translations.getOrDefault(str, translations.get(DEFAULT));
@@ -243,8 +234,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		for (List<String> line : sourceTable.getTable()) {
 			try {
 				if (columnIndex < line.size()) {
-					line.set(columnIndex, String.valueOf(Long.parseLong(line.get(columnIndex))
-							& (colOperand2 == -1 ? Long.parseLong(operand2) : Long.parseLong(line.get(colOperand2)))
+					line.set(columnIndex, String.valueOf((long) Double.parseDouble(line.get(columnIndex))
+							& (colOperand2 == -1 ? (long) Double.parseDouble(operand2) : (long) Double.parseDouble(line.get(colOperand2)))
 							));
 				}
 			} catch (NumberFormatException e) {
@@ -906,25 +897,25 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (columnIndex < line.size()) {
 
-				int valueToBeReplacedInt;
+				long valueToBeReplacedLong;
 
 				try {
-					valueToBeReplacedInt = Integer.parseInt(line.get(columnIndex));
+					// The integer value could be modified and converted to a double by a prior compute 
+					valueToBeReplacedLong = (long) Double.parseDouble(line.get(columnIndex));
 				} catch (NumberFormatException e) {
 					log.warn("Data is not correctly formatted.");
 					return;
 				}
 
-				List<String> columnResult = translate(bitList, valueToBeReplacedInt, translations);
+				List<String> columnResult = translate(bitList, valueToBeReplacedLong, translations);
 
 				if (!columnResult.isEmpty()) {
-					String separator = HardwareConstants.WHITE_SPACE + HardwareConstants.DASH + HardwareConstants.WHITE_SPACE;
 
 					line.set(columnIndex,
 						columnResult
 							.stream()
-							.map(value -> String.join(separator, value))
-							.collect(Collectors.joining(separator)));
+							.filter(value -> !value.trim().isEmpty())
+							.collect(Collectors.joining(" - ")));
 				}
 			}
 		}
@@ -932,12 +923,12 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * @param bitList			The list of bits that need to be checked.
-	 * @param valueToReplace	The integer value that is being translated.
+	 * @param valueToReplace	The long value that is being translated.
 	 * @param translations		The reference dictionary used for translations.
 	 *
 	 * @return					A {@link List} of all the available translations for the given integer value.
 	 */
-	private List<String> translate(List<Integer> bitList, int valueToReplace, Map<String, String> translations) {
+	private List<String> translate(List<Integer> bitList, long valueToReplace, Map<String, String> translations) {
 
 		List<String> result = new ArrayList<>();
 
@@ -1204,8 +1195,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @return {@link Integer} value
 	 */
 	static Integer transformToIntegerValue(final String value) {
-		if (value != null && value.matches("\\d+")) {
-			return Integer.parseInt(value);
+		if (value != null && value.matches("\\d+(\\.\\d+)?")) {
+			return (int) Double.parseDouble(value);
 		}
 		return null;
 	}
@@ -1322,12 +1313,11 @@ public class ComputeVisitor implements IComputeVisitor {
 				return;
 			}
 
-		} else if (!operand2.matches("\\d+")) {
+		} else if (!operand2.matches("\\d+(\\.\\d+)?")) {
 			log.warn("operand2 is not a number: {}, the table remains unchanged.", operand2);
 			return;
 		}
 
-		
 		performMathComputeOnTable(computeOperation, columnIndex, operand2, operandByIndex);
 	}
 
