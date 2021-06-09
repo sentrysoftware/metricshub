@@ -33,13 +33,14 @@ public class ConnectorParserConstants {
 	public static final String TYPE = "type";
 	public static final String VALUE_TABLE = "valuetable";
 
-	public static final String COMPUTE = "compute";
+	public static final String DETECTION_DOT_CRITERIA = "detection.criteria";
+	public static final String DOT_COMPUTE = ".compute";
 
 	public static final String SET_COLUMN = "setColumn";
-
-	public static final String DEFAULT = "default";
-
+	public static final String SET_EXPECTED_RESULT = "setExpectedResult";
+	public static final String SET_ERROR_MESSAGE = "setErrorMessage";
+	public static final String SET_WBEM_QUERY = "setWbemQuery";
 	public static final String SET_WBEM_NAMESPACE = "setWbemNamespace";
 
-	public static final String SET_WBEM_QUERY = "setWbemQuery";
+	public static final String DEFAULT = "default";
 }
