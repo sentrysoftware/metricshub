@@ -18,6 +18,7 @@
 				    <include>com/**</include>
 					<include>org/**</include>
 					<include>META-INF/**</include>
+					<include>javax/**</include>
 				</includes>
 			</unpackOptions>
 		</dependencySet>

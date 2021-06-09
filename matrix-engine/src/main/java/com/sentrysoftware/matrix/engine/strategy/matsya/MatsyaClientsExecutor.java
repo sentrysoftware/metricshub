@@ -232,11 +232,9 @@ public class MatsyaClientsExecutor {
 					jsonFlat.parse();
 
 					return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString(); // Get the CSV
-				}
-				catch(IllegalArgumentException e) {
+				} catch(IllegalArgumentException e) {
 					log.error("Error detected in the arguments when translating the JSON structure into CSV.");
-				}
-				catch(Exception e) {
+				} catch(Exception e) {
 					log.error("Error detected when running jsonFlat parsing.");
 				}
 
