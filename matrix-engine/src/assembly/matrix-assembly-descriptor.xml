@@ -19,6 +19,7 @@
 					<include>org/**</include>
 					<include>uk/**</include>
 					<include>META-INF/**</include>
+					<include>javax/**</include>
 				</includes>
 				<excludes>
 					<exclude>org/slf4j/impl/**</exclude>

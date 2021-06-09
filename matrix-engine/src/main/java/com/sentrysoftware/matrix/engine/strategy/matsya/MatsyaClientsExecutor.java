@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 
@@ -28,7 +29,9 @@ public class MatsyaClientsExecutor {
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
-
+	
+	private long json2CsvTimeout = 60; //seconds
+	
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
 	 * @param <T>
@@ -205,5 +208,40 @@ public class MatsyaClientsExecutor {
 			return null;
 		}
 		return AwkExecutor.executeAwk(embeddedFileScript, input);
+	}
+	
+	/**
+	 * Execute JSON to CSV operation using Matsya.
+	 * @param jsonSource
+	 * @param jsonEntryKey
+	 * @param propertyList
+	 * @param separator
+	 * @return
+	 * @throws Exception
+	 */
+	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
+			throws Exception {
+
+		final Callable<String> jflatToCSV = new Callable<String>() {
+			@Override
+			public String call() {
+
+				try {
+					JFlat jsonFlat = new JFlat(jsonSource);
+
+					jsonFlat.parse();
+
+					return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString(); // Get the CSV
+				} catch(IllegalArgumentException e) {
+					log.error("Error detected in the arguments when translating the JSON structure into CSV.");
+				} catch(Exception e) {
+					log.error("Error detected when running jsonFlat parsing.");
+				}
+
+				return null;
+			}
+		};
+
+		return execute(jflatToCSV, json2CsvTimeout);
 	}
 }

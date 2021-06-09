@@ -51,6 +51,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-jflat</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-tablejoin</artifactId>
 		</dependency>
 		<dependency>
