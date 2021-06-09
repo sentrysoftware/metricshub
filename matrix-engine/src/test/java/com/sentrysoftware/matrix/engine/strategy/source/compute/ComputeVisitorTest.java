@@ -1270,15 +1270,15 @@ class ComputeVisitorTest {
 	void testPerBitTranslation() {
 
 		final Map<String, String> translationMap = Stream.of(new String[][] {
-			{"(0,1)","No Network"},
-			{"(1,0)","Authentication Failure"},
-			{"(1,1)","Not Ready"},
-			{"(2,1)","Fan Failure"},
-			{"(3,1)","AC Switch On"},
-			{"(4,1)","AC Power On"},
-			{"(5,1)","Ready"},
-			{"(6,1)","Failed"},
-			{"(7,1)","Predicted Failure"}
+			{"0,1","No Network"},
+			{"1,0","Authentication Failure"},
+			{"1,1","Not Ready"},
+			{"2,1","Fan Failure"},
+			{"3,1","AC Switch On"},
+			{"4,1","AC Power On"},
+			{"5,1","Ready"},
+			{"6,1","Failed"},
+			{"7,1","Predicted Failure"}
 		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
 		List<Integer> bitList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7);
