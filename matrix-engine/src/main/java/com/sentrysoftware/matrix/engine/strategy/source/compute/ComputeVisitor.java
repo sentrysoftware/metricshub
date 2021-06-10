@@ -625,13 +625,15 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				for (String objectPath : columnValue.split(HardwareConstants.COMMA)) {
 					// objectPath here should look like "<key>=<value>".
-					String[] splitedValue = objectPath.split(HardwareConstants.EQUAL);
+					String[] splitedValue = objectPath.split(HardwareConstants.EQUAL, 2);
 
+					String key = splitedValue[0];
 					/*
 					 * The key we are looking for can either be like "<propertyName>" or "<systemName>.<propertyName>".
 					 * So we add a dot at the beginning of the key and see if it ends with ".<propertyName>".
 					 */
-					if (HardwareConstants.DOT.concat(splitedValue[0]).toLowerCase().endsWith(HardwareConstants.DOT.concat(propertyName).toLowerCase())) {
+					if (key.length() >= propertyName.length()
+							&& HardwareConstants.DOT.concat(key).toLowerCase().endsWith(HardwareConstants.DOT.concat(propertyName).toLowerCase())) {
 						line.set(columnIndex, splitedValue[1].replace(HardwareConstants.DOUBLE_QUOTE, HardwareConstants.EMPTY).trim());
 						break;
 					}
