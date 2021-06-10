@@ -18,10 +18,13 @@ public class ExtractPropertyFromWbemPath extends Compute {
 
 	private String propertyName;
 
+	private Integer column;
+
 	@Builder
-	public ExtractPropertyFromWbemPath(Integer index, String propertyName) {
+	public ExtractPropertyFromWbemPath(Integer index, String propertyName, Integer column) {
 		super(index);
 		this.propertyName = propertyName;
+		this.column = column;
 	}
 
 	@Override

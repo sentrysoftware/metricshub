@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,12 +32,14 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExtractPropertyFromWbemPath;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
@@ -126,6 +127,14 @@ class ComputeVisitorTest {
 	private static final List<String> LINE_1_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID1_suffix", "new,Column(4)", "AnotherNew.Column", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"));
 	private static final List<String> LINE_2_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID2_suffix", "new,Column(4)", "AnotherNew.Column", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"));
 	private static final List<String> LINE_3_RESULT_TWO_NEW_COLUMNS_RIGHT = new ArrayList<>(Arrays.asList("ID3_suffix", "new,Column(4)", "AnotherNew.Column", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"));
+
+	private static final List<String> LINE_WBEM_PATH_1 = Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-NAME1\"");
+	private static final List<String> LINE_WBEM_PATH_2 = Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Symm_StorageSystem.Name=\"SYMMETRIX-+-NAME2\"");
+	private static final List<String> LINE_WBEM_PATH_3 = Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",NotAName=\"NotAName\",Name=\"SYMMETRIX-+-NAME3\"");
+
+	private static final List<String> LINE_WBEM_PATH_1_RESULT = Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "SYMMETRIX-+-NAME1");
+	private static final List<String> LINE_WBEM_PATH_2_RESULT = Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "SYMMETRIX-+-NAME2");
+	private static final List<String> LINE_WBEM_PATH_3_RESULT = Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "SYMMETRIX-+-NAME3");
 
 	@BeforeEach
 	void setUp() {
@@ -2141,5 +2150,28 @@ class ComputeVisitorTest {
 
 		String rawDataRes = "/ENCLOSURE/enclosure-1;enclosure-1;enclosure-1;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
+	}
+
+	@Test
+	void testExtractPropertyFromWbemPath() {
+		List<List<String>> table = Arrays.asList(LINE_WBEM_PATH_1, LINE_WBEM_PATH_2, LINE_WBEM_PATH_3);
+
+		sourceTable.setTable(table);
+		ExtractPropertyFromWbemPath extractPropertyFromWbemPath = null;
+		computeVisitor.visit(extractPropertyFromWbemPath);
+		assertEquals(table, sourceTable.getTable());
+
+		extractPropertyFromWbemPath = ExtractPropertyFromWbemPath.builder().build();
+		computeVisitor.visit(extractPropertyFromWbemPath);
+		assertEquals(table, sourceTable.getTable());
+
+		extractPropertyFromWbemPath = ExtractPropertyFromWbemPath.builder().propertyName(null).column(4).build();
+		computeVisitor.visit(extractPropertyFromWbemPath);
+		assertEquals(table, sourceTable.getTable());
+
+		extractPropertyFromWbemPath.setPropertyName("Name");
+		List<List<String>> tableResult = Arrays.asList(LINE_WBEM_PATH_1_RESULT, LINE_WBEM_PATH_2_RESULT, LINE_WBEM_PATH_3_RESULT);
+		computeVisitor.visit(extractPropertyFromWbemPath);
+		assertEquals(tableResult, sourceTable.getTable());
 	}
 }

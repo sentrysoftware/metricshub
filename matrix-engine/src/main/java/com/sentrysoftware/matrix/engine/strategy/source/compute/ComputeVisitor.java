@@ -603,7 +603,41 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
-		// Not implemented yet
+		if (extractPropertyFromWbemPath == null) {
+			log.warn("Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.");
+			return;
+		}
+
+		Integer columnIndex = extractPropertyFromWbemPath.getColumn();
+		String propertyName = extractPropertyFromWbemPath.getPropertyName();
+
+		if (columnIndex == null || columnIndex < 1 || propertyName == null) {
+			log.warn("Arguments in Compute Operation (ExtractPropertyFromWbemPath) : {} are wrong, the table remains unchanged.", extractPropertyFromWbemPath);
+			return;
+		}
+
+		columnIndex--;
+
+		for (List<String> line : sourceTable.getTable()) {
+
+			if (columnIndex < line.size()) {
+				String columnValue = line.get(columnIndex);
+
+				for (String objectPath : columnValue.split(HardwareConstants.COMMA)) {
+					// objectPath here should look like "<key>=<value>".
+					String[] splitedValue = objectPath.split(HardwareConstants.EQUAL);
+
+					/*
+					 * The key we are looking for can either be like "<propertyName>" or "<systemName>.<propertyName>".
+					 * So we add a dot at the beginning of the key and see if it ends with ".<propertyName>".
+					 */
+					if (HardwareConstants.DOT.concat(splitedValue[0]).toLowerCase().endsWith(HardwareConstants.DOT.concat(propertyName).toLowerCase())) {
+						line.set(columnIndex, splitedValue[1].replace(HardwareConstants.DOUBLE_QUOTE, HardwareConstants.EMPTY).trim());
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
