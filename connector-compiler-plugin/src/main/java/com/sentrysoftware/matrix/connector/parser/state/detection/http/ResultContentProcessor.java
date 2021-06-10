@@ -23,6 +23,6 @@ public class ResultContentProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((HTTP) getCriterion(key, connector)).setResultContent(ResultContent.valueOf(value));
+		((HTTP) getCriterion(key, connector)).setResultContent(ResultContent.getByName(value));
 	}
 }
