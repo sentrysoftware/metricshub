@@ -67,8 +67,14 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
-		if (snmpGetSource == null || snmpGetSource.getOid() == null) {
-			log.error("Malformed SNMPGetSource {}. Returning an empty table.", snmpGetSource);
+		if (snmpGetSource == null) {
+			log.error("SNMPGetSource cannot be null, the SNMP Get operation will return an empty result.");
+			return SourceTable.empty();
+
+		}
+
+		if (snmpGetSource.getOid() == null) {
+			log.error("SNMPGetSource OID cannot be null. Returning an empty table for source {}.", snmpGetSource);
 			return SourceTable.empty();
 		}
 
@@ -111,10 +117,17 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
-		if (snmpGetTableSource == null || snmpGetTableSource.getOid() == null) {
-			log.error("Malformed SNMPGetTableSource {}. Returning an empty table.", snmpGetTableSource);
+		if (snmpGetTableSource == null) {
+			log.error("SNMPGetTableSource cannot be null, the SNMP GetTable operation will return an empty result.");
+			return SourceTable.empty();
+
+		}
+
+		if (snmpGetTableSource.getOid() == null) {
+			log.error("SNMPGetTableSource OID cannot be null. Returning an empty table for source {}.", snmpGetTableSource);
 			return SourceTable.empty();
 		}
+
 		// run Matsya in order to execute the snmpTable
 		// receives a List structure
 		SourceTable sourceTable = new SourceTable();
@@ -164,13 +177,13 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
 		if (tableJoinSource == null) {
-			log.error("TableJoinSource cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.error("TableJoinSource cannot be null, the Table Join will return an empty result.");
 			return SourceTable.empty();
 		}
 
 		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
 		if (sources == null ) {
-			log.error("SourceTable Map cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.error("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
@@ -183,6 +196,7 @@ public class SourceVisitor implements ISourceVisitor {
 			log.error("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
+
 		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
 			log.error("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
 			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")");
@@ -210,8 +224,7 @@ public class SourceVisitor implements ISourceVisitor {
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
 
 		if (tableUnionSource == null) {
-			log.warn("Table Union cannot be null, the Union operation {} will return an empty result.",
-					tableUnionSource);
+			log.warn("TableUnionSource cannot be null, the Table Union operation will return an empty result.");
 			return SourceTable.empty();
 		}
 
