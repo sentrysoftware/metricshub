@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @Builder
@@ -12,10 +13,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SNMPProtocol implements IProtocolConfiguration {
 
-	private SNMPVersion version;
-	private String community;
-	private Integer port;
-	private Long timeout;
+	@Default
+	private SNMPVersion version = SNMPVersion.V1;
+	@Default
+	private String community = "public";
+	@Default
+	private Integer port = 161;
+	@Default
+	private Long timeout = 120L;
 	private Privacy privacy;
 	private String privacyPassword;
 	private String username;

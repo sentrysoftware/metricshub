@@ -11,7 +11,10 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.util.Assert;
 
 import java.util.Collections;
@@ -41,6 +44,10 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();
 	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new LinkedHashMap<>();
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+	@Getter
+	@Setter
+	private String detectedWmiNamespace;
 
 	@Override
 	public void clearCurrent() {
