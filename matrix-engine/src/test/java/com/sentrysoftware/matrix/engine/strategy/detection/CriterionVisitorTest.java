@@ -1,12 +1,18 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -32,14 +38,23 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor.NamespaceResult;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor.PossibleNamespacesResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
 
+	private static final String AUTOMATIC = "Automatic";
+	private static final String ROOT_HPQ_NAMESPACE = "root\\hpq";
+	private static final String NAMESPACE_WMI_QUERY = "SELECT Name FROM __NAMESPACE";
+	private static final String WMI_WQL = "SELECT Version FROM IBMPSG_UniversalManageabilityServices";
 	private static final String UCS_EXPECTED = "UCS";
 	private static final String UCS_SYSTEM_CISCO_RESULT = "UCS System Cisco";
 	private static final String RESULT_4 = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
@@ -50,6 +65,8 @@ class CriterionVisitorTest {
 	private static final String VERSION = "2.4.6";
 	private static final String EMPTY = "";
 	private static final String OID = "1.3.6.1.4.1.674.10893.1.20";
+
+	private static final String PC14 = "pc14";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -311,4 +328,372 @@ class CriterionVisitorTest {
 		assertEquals(CriterionTestResult.empty(),
 				criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build()));
 	}
+
+	@Test
+	void testExtractPossibleNamespaces() {
+		final Set<String> result = CriterionVisitor.extractPossibleNamespaces(Arrays.asList(
+				Collections.emptyList(),
+				Collections.singletonList("hpq"),
+				Collections.singletonList("interop"),
+				Collections.singletonList("SECURITY")));
+
+		assertEquals(Set.of(ROOT_HPQ_NAMESPACE), result);
+
+	}
+
+	@Test
+	void testDetectPossibleWmiNamespacesAlreadyDetected() {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.getPossibleWmiNamespaces().add(ROOT_HPQ_NAMESPACE);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertEquals(PossibleNamespacesResult.builder().possibleNamespaces(Set.of(ROOT_HPQ_NAMESPACE)).success(true).build(),
+				criterionVisitor.detectPossibleWmiNamespaces(wmi, protocol));
+
+	}
+
+	@Test 
+	void testDetectPossibleWmiNamespaces() throws Exception {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+				.build();
+
+		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		final List<List<String>> wqlResult = Arrays.asList(List.of("hpq"), List.of("SECURITY"), List.of("Cli"));
+
+		doReturn(wqlResult).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+				protocol.getTimeout(), NAMESPACE_WMI_QUERY, "root");
+
+		final PossibleNamespacesResult actual = criterionVisitor.detectPossibleWmiNamespaces(wmi, protocol);
+		final PossibleNamespacesResult expected = PossibleNamespacesResult.builder()
+				.possibleNamespaces(Set.of(ROOT_HPQ_NAMESPACE))
+				.success(true)
+				.build();
+
+		assertEquals(expected, actual);
+	}
+
+	@Test 
+	void testDetectPossibleWmiNamespacesException() throws Exception {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+				.build();
+
+		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+				protocol.getTimeout(), NAMESPACE_WMI_QUERY, "root");
+
+		final PossibleNamespacesResult actual = criterionVisitor.detectPossibleWmiNamespaces(wmi, protocol);
+
+		assertFalse(actual.isSuccess());
+	}
+
+	@Test 
+	void testDetectPossibleWmiNamespacesEmpty() throws Exception {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+				.build();
+
+		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+				protocol.getTimeout(), NAMESPACE_WMI_QUERY, "root");
+
+		final PossibleNamespacesResult actual = criterionVisitor.detectPossibleWmiNamespaces(wmi, protocol);
+
+		assertFalse(actual.isSuccess());
+	}
+
+	@Test
+	void testFindNamespaceAutomaticAlreadyDetected() {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setAutomaticWmiNamespace(ROOT_HPQ_NAMESPACE);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		final NamespaceResult result = criterionVisitor.findNamespace(wmi, protocol);
+		assertTrue(result.isSuccess());
+		assertEquals(ROOT_HPQ_NAMESPACE, result.getNamespace());
+	}
+
+	@Test
+	void testFindNamespaceNotAutomatic() {
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(ROOT_HPQ_NAMESPACE).build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+
+			final NamespaceResult result = criterionVisitor.findNamespace(wmi, protocol);
+			assertTrue(result.isSuccess());
+			assertEquals(ROOT_HPQ_NAMESPACE, result.getNamespace());
+		}
+
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+
+			final NamespaceResult result = criterionVisitor.findNamespace(wmi, protocol);
+			assertTrue(result.isSuccess());
+			assertEquals("root/cimv2", result.getNamespace());
+		}
+	}
+
+	@Test
+	void testFindNamespaceAutomatic() throws Exception {
+
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult("^ibm.*$").build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+					.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+					.build();
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			doReturn(Arrays.asList(List.of("ibmsd"),
+					List.of("cimv2"),
+					List.of("ibm"),
+					List.of("ibm2"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), NAMESPACE_WMI_QUERY, "root");
+
+			doReturn(List.of(List.of("ibm system version 1.0.00"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), WMI_WQL, "root\\ibmsd");
+			doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), WMI_WQL, "root\\ibm2");
+			doReturn(List.of(List.of("ibm system version 1.0.00"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), WMI_WQL, "root\\cimv2");
+			doThrow(new TimeoutException("Test timeout exception")).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), WMI_WQL, "root\\ibm");
+			final NamespaceResult result = criterionVisitor.findNamespace(wmi, protocol);
+
+			assertTrue(result.isSuccess());
+			assertEquals("root\\ibmsd", result.getNamespace());
+			assertEquals("root\\ibmsd", hostMonitoring.getAutomaticWmiNamespace());
+		}
+
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult(null).build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+					.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+					.build();
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			doReturn(List.of(List.of("ibmsd"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+					protocol.getTimeout(), NAMESPACE_WMI_QUERY, "root");
+
+			final NamespaceResult result = criterionVisitor.findNamespace(wmi, protocol);
+
+			assertTrue(result.isSuccess());
+			assertEquals("root\\ibmsd", result.getNamespace());
+			assertEquals("root\\ibmsd", hostMonitoring.getAutomaticWmiNamespace());
+		}
+	}
+
+	@Test
+	void testVisitWmiBadCriterion() {
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(WMI.builder()
+				.wbemNamespace(AUTOMATIC)
+				.expectedResult(null)
+				.build()));
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((WMI) null));
+	}
+
+	@Test
+	void testVisitWmiNoProtocol() {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult(null).build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, new SNMPProtocol()))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(wmi));
+	}
+
+	@Test
+	void testVisitWmiCannotDetectNamespace() throws Exception {
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult("^ibm.*$").build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+					.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+					.build();
+
+			doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator",
+					"password".toCharArray(),
+					protocol.getTimeout(),
+					NAMESPACE_WMI_QUERY,
+					"root");
+
+			assertFalse(criterionVisitor.visit(wmi).isSuccess());
+		}
+
+		{
+			final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult(null).build();
+			final WMIProtocol protocol = WMIProtocol.builder()
+					.username(PC14 + "\\" + "Administrator")
+					.password("password".toCharArray())
+					.build();
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+					.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+					.build();
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			doReturn(List.of(List.of("ibmsd"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator",
+					"password".toCharArray(),
+					protocol.getTimeout(),
+					NAMESPACE_WMI_QUERY,
+					"root");
+
+			// Expected doesn't matches
+			doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator",
+					"password".toCharArray(),
+					protocol.getTimeout(),
+					WMI_WQL,
+					"root\\ibmsd");
+
+			assertFalse(criterionVisitor.visit(wmi).isSuccess());
+		}
+	}
+
+	@Test
+	void testVisitWmi() throws Exception {
+		WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult("^ibm.*$").build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+				.build();
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doReturn(Arrays.asList(List.of("ibmsd"),
+				List.of("cimv2"),
+				List.of("ibm"),
+				List.of("ibm2"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator",
+						"password".toCharArray(),
+						protocol.getTimeout(),
+						NAMESPACE_WMI_QUERY,
+						"root");
+
+		doReturn(List.of(List.of("ibm system version 1.0.00"),
+				List.of("controller version 8.8.00"))).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator", "password".toCharArray(),
+				protocol.getTimeout(), WMI_WQL, "root\\ibmsd");
+
+		assertTrue(criterionVisitor.visit(wmi).isSuccess());
+
+		wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult(null).build();
+		assertTrue(criterionVisitor.visit(wmi).isSuccess());
+	}
+
+	@Test
+	void testVisitWmiResultNotMatched() throws Exception {
+		final WMI wmi = WMI.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult("^ibm.*$").build();
+		final WMIProtocol protocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class, protocol))
+				.build();
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setAutomaticWmiNamespace("root\\ibmsd");
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doReturn(List.of(List.of("hp system version 1.0.00"),
+				List.of("controller version 8.8.00"))).when(matsyaClientsExecutor)
+		.executeWmi(PC14, PC14 + "\\" + "Administrator",
+				"password".toCharArray(),
+				protocol.getTimeout(),
+				WMI_WQL,
+				"root\\ibmsd");
+		assertFalse(criterionVisitor.visit(wmi).isSuccess());
+
+		doReturn(Collections.emptyList()).when(matsyaClientsExecutor)
+		.executeWmi(PC14, PC14 + "\\" + "Administrator",
+				"password".toCharArray(),
+				protocol.getTimeout(),
+				WMI_WQL,
+				"root\\ibmsd");
+		assertFalse(criterionVisitor.visit(wmi).isSuccess());
+
+		// Exception
+		doThrow(new RuntimeException("Test exception")).when(matsyaClientsExecutor).executeWmi(PC14, PC14 + "\\" + "Administrator",
+				"password".toCharArray(),
+				protocol.getTimeout(),
+				WMI_WQL,
+				"root\\ibmsd");
+
+		assertFalse(criterionVisitor.visit(wmi).isSuccess());
+	}
+
+
 }

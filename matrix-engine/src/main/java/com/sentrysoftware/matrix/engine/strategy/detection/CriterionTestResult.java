@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CriterionTestResult {
-	private static final CriterionTestResult EMPTY = CriterionTestResult.builder().build();
 
 	private String result;
 	private boolean success;
 	private String message;
 
 	public static CriterionTestResult empty() {
-		return EMPTY;
+		return CriterionTestResult.builder().build();
 	}
 }
