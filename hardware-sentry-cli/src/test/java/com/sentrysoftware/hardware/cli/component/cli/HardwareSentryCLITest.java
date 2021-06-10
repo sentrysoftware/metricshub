@@ -1,22 +1,33 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import org.junit.jupiter.api.Test;
+import picocli.CommandLine;
+import picocli.CommandLine.MissingParameterException;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-
-import picocli.CommandLine;
-import picocli.CommandLine.MissingParameterException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HardwareSentryCLITest {
+
+	private static final String HOST_OPTION = "-host";
+	private static final String DEVICE_TYPE_OPTION = "-dt";
+
+	private static final String HTTPS_OPTION = "--https";
+	private static final String HTTP_PORT_OPTION = "--http-port";
+	private static final String HTTP_TIMEOUT_OPTION = "--http-timeout";
+	private static final String HTTP_USERNAME_OPTION = "--http-username";
+	private static final String HTTP_PASSWORD_OPTION = "--http-password";
 
 	@Test
 	void argumentsTest() {
@@ -73,7 +84,7 @@ class HardwareSentryCLITest {
 		assertEquals("public", sentryCli.getSnmpCredentials().getCommunity());
 		assertEquals(120, sentryCli.getSnmpCredentials().getTimeout());
 		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2")));
-		assertNull(sentryCli.getHdfsExclusion());;
+		assertNull(sentryCli.getHdfsExclusion());
 		
 		String[] args_required_host = { 
 				"-dt", "HP_UX", 
@@ -135,4 +146,50 @@ class HardwareSentryCLITest {
 
 	}
 
+	@Test
+	void httpCredentialsTest() {
+
+		final String HOST = "host";
+		final String USER = "user";
+		final String PORT = "443";
+		final String TIMEOUT = "60";
+
+		// No HTTP credentials
+		String[] arguments = {HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString()};
+		HardwareSentryCLI hardwareSentryCLI = new HardwareSentryCLI();
+		CommandLine commandLine = new CommandLine(hardwareSentryCLI);
+		commandLine.parseArgs(arguments);
+		assertEquals(HOST, hardwareSentryCLI.getHostname());
+		assertEquals(TargetType.LINUX, hardwareSentryCLI.getDeviceType());
+		assertNull(hardwareSentryCLI.getHttpCredentials());
+
+		// Default values
+		arguments = new String[] {HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER};
+		commandLine.parseArgs(arguments);
+		assertEquals(HOST, hardwareSentryCLI.getHostname());
+		assertEquals(TargetType.LINUX, hardwareSentryCLI.getDeviceType());
+		HTTPCredentials httpCredentials = hardwareSentryCLI.getHttpCredentials();
+		assertNotNull(httpCredentials);
+		assertFalse(httpCredentials.isHttps());
+		assertEquals(8080, httpCredentials.getPort());
+		assertEquals(120L, httpCredentials.getTimeout());
+		assertEquals(USER, httpCredentials.getUsername());
+		assertEquals(USER, httpCredentials.getPassword());
+
+		// Explicit values
+		arguments = new String[] {HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER, HTTPS_OPTION,
+			HTTP_PORT_OPTION, PORT, HTTP_TIMEOUT_OPTION, TIMEOUT};
+		commandLine.parseArgs(arguments);
+		assertEquals(HOST, hardwareSentryCLI.getHostname());
+		assertEquals(TargetType.LINUX, hardwareSentryCLI.getDeviceType());
+		httpCredentials = hardwareSentryCLI.getHttpCredentials();
+		assertNotNull(httpCredentials);
+		assertTrue(httpCredentials.isHttps());
+		assertEquals(Integer.parseInt(PORT), httpCredentials.getPort());
+		assertEquals(Long.parseLong(TIMEOUT), httpCredentials.getTimeout());
+		assertEquals(USER, httpCredentials.getUsername());
+		assertEquals(USER, httpCredentials.getPassword());
+	}
 }

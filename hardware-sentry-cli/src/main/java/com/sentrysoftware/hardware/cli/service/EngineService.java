@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +33,15 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static org.springframework.util.Assert.notNull;
+
 @Slf4j
 @Service
 public class EngineService {
 
 	private static final String DOT_CONNECTOR = ".connector";
 	private static final String DOT_SEPARATOR = "\\.";
+
 	@Autowired
 	private JobResultFormatterService jobResultFormatterService;
 
@@ -46,73 +51,109 @@ public class EngineService {
 		EngineConfiguration engineConf = new EngineConfiguration();
 
 		engineConf.setTarget(new HardwareTarget(data.getHostname(), data.getHostname(), data.getDeviceType()));
-
-		Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> protocols = new HashMap<>();
-
-		// for the moment we only manage SNMP protocol, so we will set
-		// IProtocolConfiguration in this way
-		if (null != data.getSnmpCredentials()) {
-			SNMPProtocol snmpInstance = getSNMPCredentials(data.getSnmpCredentials());
-			protocols.put(SNMPProtocol.class, snmpInstance);
-		}
-
-		if (null != data.getWbemCredentials()) {
-			WBEMProtocol wbemInstance = getWBEMProtocol(data.getWbemCredentials());
-			protocols.put(WBEMProtocol.class, wbemInstance);
-		}
-
-		engineConf.setProtocolConfigurations(protocols);
+		engineConf.setProtocolConfigurations(getProtocols(data));
 
 		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
-		if (null != allConnectors) {
-			Set<String> allConnectorKeySet = allConnectors.keySet();
+		if (allConnectors != null) {
+
 			engineConf.setSelectedConnectors(
-					getSelectedConnectors(allConnectorKeySet, data.getHdfs(), data.getHdfsExclusion()));
+					getSelectedConnectors(allConnectors.keySet(), data.getHdfs(), data.getHdfsExclusion()));
 		}
+
 		// run detection
 		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname());
 		EngineResult detectionResult = new Engine().run(engineConf, hostMonitoring, new DetectionOperation());
 		log.info("Detection Status {}", detectionResult.getOperationStatus());
+
 		// run discovery
 		EngineResult discoveryResult = new Engine().run(engineConf, hostMonitoring, new DiscoveryOperation());
 		log.info("Discovery Status {}", discoveryResult.getOperationStatus());
+
 		// run collect
 		EngineResult collectResult = new Engine().run(engineConf, hostMonitoring, new CollectOperation());
 		log.info("Collect Status {}", collectResult.getOperationStatus());
 
 		// Call the formatter with the HostMonitoring object
 		return jobResultFormatterService.format(hostMonitoring);
-
 	}
 
 	/**
-	 * Set @SNMPProtocol based on HardwareSentryCLi.snmpCredentials
-	 * 
-	 * @param cliSNMPCredentials
-	 * @return
+	 * @param hardwareSentryCLI	The {@link HardwareSentryCLI} instance calling this service.
+	 *
+	 * @return					A {@link Map} associating the input protocol type to its input credentials.
 	 */
-	public SNMPProtocol getSNMPCredentials(SNMPCredentials cliSNMPCredentials) {
-		SNMPProtocol snmpInstance = new SNMPProtocol();
+	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols(
+		HardwareSentryCLI hardwareSentryCLI) {
 
-		snmpInstance.setVersion(cliSNMPCredentials.getSnmpVersion());
-		snmpInstance.setCommunity(cliSNMPCredentials.getCommunity());
-		snmpInstance.setPort(cliSNMPCredentials.getPort());
-		snmpInstance.setTimeout(cliSNMPCredentials.getTimeout());
-		snmpInstance.setPort(cliSNMPCredentials.getPort());
+		Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> protocols = new HashMap<>();
 
-		snmpInstance.setUsername(cliSNMPCredentials.getUsername());
-		snmpInstance.setPassword(cliSNMPCredentials.getPassword());
-		snmpInstance.setPrivacyPassword(cliSNMPCredentials.getPrivacyPassword());
-		snmpInstance.setPrivacy(cliSNMPCredentials.getPrivacy());
+		if (hardwareSentryCLI.getSnmpCredentials() != null) {
 
-		return snmpInstance;
+			protocols.put(SNMPProtocol.class, getSNMPProtocol(hardwareSentryCLI.getSnmpCredentials()));
+
+		} else if (hardwareSentryCLI.getWbemCredentials() != null) {
+
+			protocols.put(WBEMProtocol.class, getWBEMProtocol(hardwareSentryCLI.getWbemCredentials()));
+
+		} else if (hardwareSentryCLI.getHttpCredentials() != null) {
+
+			protocols.put(HTTPProtocol.class, getHTTPProtocol(hardwareSentryCLI.getHttpCredentials()));
+		}
+
+		return protocols;
+	}
+
+	/**
+	 * @param snmpCredentials	The CLI SNMP credentials input.
+	 *
+	 * @return					A new {@link SNMPProtocol} based on the given CLI SNMP credentials input.
+	 */
+	public SNMPProtocol getSNMPProtocol(SNMPCredentials snmpCredentials) {
+
+		notNull(snmpCredentials, "snmpCredentials cannot be null.");
+
+		SNMPProtocol snmpProtocol = new SNMPProtocol();
+
+		snmpProtocol.setVersion(snmpCredentials.getSnmpVersion());
+		snmpProtocol.setCommunity(snmpCredentials.getCommunity());
+		snmpProtocol.setPort(snmpCredentials.getPort());
+		snmpProtocol.setTimeout(snmpCredentials.getTimeout());
+
+		snmpProtocol.setUsername(snmpCredentials.getUsername());
+		snmpProtocol.setPassword(snmpCredentials.getPassword());
+		snmpProtocol.setPrivacyPassword(snmpCredentials.getPrivacyPassword());
+		snmpProtocol.setPrivacy(snmpCredentials.getPrivacy());
+
+		return snmpProtocol;
+	}
+
+	/**
+	 * @param httpCredentials	The CLI HTTP credentials input.
+	 *
+	 * @return					A new {@link HTTPProtocol} based on the given CLI HTTP credentials input.
+	 */
+	public HTTPProtocol getHTTPProtocol(HTTPCredentials httpCredentials) {
+
+		notNull(httpCredentials, "httpCredentials cannot be null.");
+
+		HTTPProtocol httpProtocol = new HTTPProtocol();
+
+		httpProtocol.setHttps(httpCredentials.isHttps());
+		httpProtocol.setPort(httpCredentials.getPort());
+		httpProtocol.setTimeout(httpCredentials.getTimeout());
+
+		httpProtocol.setUsername(httpCredentials.getUsername());
+		httpProtocol.setPassword(httpCredentials.getPassword() == null ? null :  httpCredentials.getPassword().toCharArray());
+
+		return httpProtocol;
 	}
 
 	/**
 	 * Set @WBEMProtocol based on HardwareSentryCLi.wbemCredentials
 	 * 
-	 * @param cliWBEMCredentials
-	 * @return
+	 * @param cliWBEMCredentials	The CLI WBEM credentials input.
+	 *
+	 * @return						A new {@link WBEMProtocol} based on the given CLI WBEM credentials input.
 	 */
 	public WBEMProtocol getWBEMProtocol(WBEMCredentials cliWBEMCredentials) {
 		WBEMProtocol wbemInstance = new WBEMProtocol();
@@ -135,10 +176,13 @@ public class EngineService {
 	 *   <li><em>userExclusion</em>: based on the ConnectorStore, filter the connectors to keep only connectors not in <code>cliHdfsExclusion</code>
 	 * </ol>
 	 * 
-	 * @param allConnectors
-	 * @param cliHdfs
-	 * @param cliHdfsExclusion
-	 * @return
+	 * @param allConnectors     The {@link Set} of all {@link Connector} names (with a .hdfs extension).
+	 * @param cliHdfs			The user-selected {@link Set} of {@link Connector} names (with a .hdfs extension).
+	 * @param cliHdfsExclusion	The {@link Set} of {@link Connector} names (with a .hdfs extension) to exclude.
+	 *
+	 * @return					The selected {@link Connector} names, with a .connector extension.
+	 * 							If <em>allConnectors</em> is null,
+	 * 							an empty {@link Set} is returned to trigger the automatic selection.
 	 */
 	public Set<String> getSelectedConnectors(Set<String> allConnectors, Set<String> cliHdfs,
 			Set<String> cliHdfsExclusion) {

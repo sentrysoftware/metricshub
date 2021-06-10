@@ -1,5 +1,31 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
+import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matsya.awk.AwkException;
+import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.http.HttpClient;
+import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.jflat.JFlat;
+import com.sentrysoftware.matsya.snmp.SNMPClient;
+import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wmi.WmiHelper;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,26 +37,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matsya.awk.AwkException;
-import com.sentrysoftware.matsya.awk.AwkExecutor;
-import com.sentrysoftware.matsya.jflat.JFlat;
-import com.sentrysoftware.matsya.snmp.SNMPClient;
-import com.sentrysoftware.matsya.tablejoin.TableJoin;
-import com.sentrysoftware.matsya.wmi.WmiHelper;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
-import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
-import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
-
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -80,9 +93,9 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeSNMPGetNext(final String oid, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		Assert.notNull(oid, OID_CANNOT_BE_NULL);
-		Assert.notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		Assert.notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(oid, OID_CANNOT_BE_NULL);
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
 
 		return executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
 
@@ -102,9 +115,9 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeSNMPGet(final String oid, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		Assert.notNull(oid, OID_CANNOT_BE_NULL);
-		Assert.notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		Assert.notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(oid, OID_CANNOT_BE_NULL);
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
 
 		return executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, null, logMode);
 
@@ -124,10 +137,10 @@ public class MatsyaClientsExecutor {
 	 */
 	public List<List<String>> executeSNMPTable(final String oid, String[] selectColumnArray, final SNMPProtocol protocol, final String hostname,
 			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		Assert.notNull(oid, OID_CANNOT_BE_NULL);
-		Assert.notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		Assert.notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-		Assert.notNull(selectColumnArray, SELECTED_COLUMN_CANNOT_BE_NULL);
+		notNull(oid, OID_CANNOT_BE_NULL);
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(selectColumnArray, SELECTED_COLUMN_CANNOT_BE_NULL);
 
 		return executeSNMPGetRequest(SNMPGetRequest.TABLE, oid, protocol, hostname, selectColumnArray, logMode);
 
@@ -220,7 +233,7 @@ public class MatsyaClientsExecutor {
 		}
 		return AwkExecutor.executeAwk(embeddedFileScript, input);
 	}
-	
+
 	/**
 	 * Execute JSON to CSV operation using Matsya.
 	 * @param jsonSource
@@ -338,4 +351,108 @@ public class MatsyaClientsExecutor {
 		return table;
 	}
 
+	/**
+	 * @param http		The {@link Detection} values.
+	 * @param protocol	The {@link HTTPProtocol} containing the connexion configuration.
+	 * @param hostname	The hostname against which the HTTP request is being executed.
+	 * @param logMode	Whether or not logging is enabled.
+	 *
+	 * @return			The result of the execution of the given HTTP request.
+	 */
+	public String executeHttp(HTTP http, HTTPProtocol protocol, String hostname, boolean logMode) {
+
+		notNull(http, "http cannot be null");
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+
+		String method = http.getMethod();
+
+		String username = protocol.getUsername();
+		char[] password = protocol.getPassword();
+
+		Header header = http.getHeader();
+		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, EMPTY);
+
+		Body body = http.getBody();
+		String bodyContent = body == null ? null : body.getContent(username, password, EMPTY);
+
+		// Building the full URL
+		String url = http.getUrl();
+		notNull(url, "URL cannot be null");
+
+		String fullUrl = (protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP)
+			+ COLON_DOUBLE_SLASH
+			+ hostname
+			+ COLON
+			+ protocol.getPort()
+			+ (url.startsWith(SLASH) ? url : SLASH + url);
+
+		try {
+
+			// Sending the request
+			HttpResponse httpResponse = sendHttpRequest(fullUrl, method, username, password, headerContent, bodyContent,
+				protocol.getTimeout().intValue());
+
+			// The request returned an error
+			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
+
+				return "HTTP Error "
+					+ httpResponse.getStatusCode()
+					+ httpResponse;
+			}
+
+			// The request has been successful
+			switch (http.getResultContent()) {
+
+				case BODY: return httpResponse.getBody();
+				case HEADER: return httpResponse.getHeader();
+				case HTTP_STATUS: return String.valueOf(httpResponse.getStatusCode());
+				case ALL: return httpResponse.toString();
+				default: throw new IllegalArgumentException("Unsupported ResultContent: " + http.getResultContent());
+			}
+
+		} catch (IOException e) {
+
+			if (logMode) {
+				log.error("Error detected when running HTTP request {} {} : {}", method, fullUrl, e.getMessage());
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param url			The full URL of the HTTP request.
+	 * @param method		The HTTP method (GET, POST, ...).
+	 * @param username		The username for the connexion.
+	 * @param password		The password for the connexion.
+	 * @param headerContent	The {@link Map} of properties-values in the header.
+	 * @param bodyContent	The body as a plain text.
+	 * @param timeout		The timeout of the request.
+	 *
+	 * @return				The {@link HttpResponse} returned by the server.
+	 *
+	 * @throws IOException	If a reading or writing operation fails.
+	 */
+	protected HttpResponse sendHttpRequest(String url, String method, String username, char[] password,
+										 Map<String, String> headerContent, String bodyContent, int timeout) throws IOException {
+
+		return HttpClient
+			.sendRequest(
+				url,
+				method,
+				null,
+				username,
+				password,
+				null,
+				0,
+				null,
+				null,
+				null,
+				headerContent,
+				bodyContent,
+				timeout,
+				null
+			);
+	}
 }

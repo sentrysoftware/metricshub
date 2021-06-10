@@ -27,6 +27,8 @@ public class HardwareConstants {
 	public static final String COLON = ":";
 	public static final String DOT = ".";
 	public static final String DOUBLE_BACKSLASH = "\\\\";
+	public static final String COLON_DOUBLE_SLASH = "://";
+	public static final String SLASH = "/";
 	public static final String CARET = "^";
 	public static final String PLUS = "+";
 	public static final String PIPE = "|";
@@ -132,4 +134,15 @@ public class HardwareConstants {
 	public static final String ZERO = "0";
 
 	public static final String DEFAULT = "default";
+
+	public static final String HTTP = "HTTP";
+	public static final String HTTPS = "HTTPS";
+
+	public static final String USERNAME_MACRO = "%{USERNAME}";
+	public static final String AUTHENTICATION_TOKEN_MACRO = "%{AUTHENTICATIONTOKEN}";
+	public static final String PASSWORD_MACRO = "%{PASSWORD}";
+	public static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
+	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+
+	public static final String USERNAME = "USERNAME";
 }

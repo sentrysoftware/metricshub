@@ -1,21 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -30,12 +14,33 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
@@ -51,6 +56,10 @@ class CriterionVisitorTest {
 	private static final String EMPTY = "";
 	private static final String OID = "1.3.6.1.4.1.674.10893.1.20";
 
+	private static final String PUREM_SAN = "purem-san";
+	private static final String FOO = "FOO";
+	private static final String BAR = "BAR";
+
 	@Mock
 	private StrategyConfig strategyConfig;
 
@@ -62,18 +71,105 @@ class CriterionVisitorTest {
 
 	private static EngineConfiguration engineConfiguration;
 
-	@BeforeAll
-	public static void setUp() {
-		SNMPProtocol protocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1).port(161).timeout(120L).build();
-		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
-		
+	private void initHTTP() {
+
+		if (engineConfiguration != null
+			&& engineConfiguration.getProtocolConfigurations().get(HTTPProtocol.class) != null) {
+
+			return;
+		}
+
+		HTTPProtocol protocol = HTTPProtocol
+			.builder()
+			.port(443)
+			.timeout(120L)
+			.build();
+
+		engineConfiguration = EngineConfiguration
+			.builder()
+			.target(HardwareTarget.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(TargetType.LINUX).build())
+			.protocolConfigurations(Map.of(HTTPProtocol.class, protocol))
+			.build();
 	}
 
 	@Test
-	void testVisitHTTP() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new HTTP()));
+	void testVisitHTTPFailure() {
+
+		// null HTTP
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((HTTP) null));
+
+		// HTTP is not null, protocol is null
+		engineConfiguration = EngineConfiguration.builder().build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		HTTP http = new HTTP();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(http));
+		verify(strategyConfig).getEngineConfiguration();
+
+		// HTTP is not null, protocol is not null, expectedResult is null, result is null
+		initHTTP();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig, times(2)).getEngineConfiguration();
+		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// HTTP is not null, protocol is not null, expectedResult is null, result is empty
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig, times(3)).getEngineConfiguration();
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertEquals(EMPTY, criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// HTTP is not null, protocol is not null, expectedResult is not null, result is null
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		http.setExpectedResult(FOO);
+		criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig, times(4)).getEngineConfiguration();
+		verify(matsyaClientsExecutor, times(3)).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// HTTP is not null, protocol is not null, expectedResult is not null, result is not null and does not match
+		doReturn(BAR).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig, times(5)).getEngineConfiguration();
+		verify(matsyaClientsExecutor, times(4)).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertEquals(BAR, criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+	}
+
+	@Test
+	void testVisitHTTPSuccess() {
+
+		initHTTP();
+		HTTP http = new HTTP();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		// HTTP is not null, protocol is not null, expectedResult is null, result is neither null nor empty
+		doReturn(FOO).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertEquals(FOO, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+
+		// HTTP is not null, protocol is not null, expectedResult is not null, result is not null and matches
+		http.setExpectedResult(FOO);
+		criterionTestResult = criterionVisitor.visit(http);
+		verify(strategyConfig, times(2)).getEngineConfiguration();
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		assertNotNull(criterionTestResult);
+		assertEquals(FOO, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+
 	}
 
 	@Test
@@ -107,8 +203,34 @@ class CriterionVisitorTest {
 		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new Service()));
 	}
 
+	private void initSNMP() {
+
+		if (engineConfiguration != null
+			&& engineConfiguration.getProtocolConfigurations().get(SNMPProtocol.class) != null) {
+
+			return;
+		}
+
+		SNMPProtocol protocol = SNMPProtocol
+			.builder()
+			.community("public")
+			.version(SNMPVersion.V1)
+			.port(161)
+			.timeout(120L)
+			.build();
+
+		engineConfiguration = EngineConfiguration
+			.builder()
+			.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+			.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+			.build();
+	}
+
 	@Test
 	void testVisitSNMPGetException() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doThrow(new TimeoutException("SNMPGet timeout")).when(matsyaClientsExecutor).executeSNMPGet(any(),
 				any(), any(), eq(false));
@@ -121,6 +243,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNullResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(null).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
@@ -132,6 +257,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetEmptyResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
@@ -143,6 +271,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetSuccessWithNoExpectedResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
@@ -155,6 +286,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetExpectedResultNotMatches() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(VERSION).build());
@@ -167,6 +301,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetExpectedResultMatches() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(UCS_EXPECTED).build());
@@ -180,6 +317,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetReturnsEmptyResult() {
+
+		initSNMP();
+
 		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit((SNMPGet) null));
 		assertEquals(CriterionTestResult.empty(),
 				new CriterionVisitor().visit(SNMPGet.builder().oid(null).build()));
@@ -210,6 +350,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextException() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doThrow(new TimeoutException("SNMPGetNext timeout")).when(matsyaClientsExecutor).executeSNMPGetNext(any(),
 				any(), any(), eq(false));
@@ -222,6 +365,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextNullResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(null).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
@@ -233,6 +379,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextEmptyResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
@@ -244,6 +393,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextNotSameSubTreeOID() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(RESULT_1).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
@@ -255,6 +407,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
@@ -267,6 +422,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextExpectedResultNotMatches() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
@@ -279,6 +437,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextExpectedResultMatches() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(RESULT_3).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
@@ -292,6 +453,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextExpectedResultCannotExtract() throws Exception {
+
+		initSNMP();
+
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(RESULT_4).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
@@ -304,6 +468,9 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitSNMPGetNextReturnsEmptyResult() {
+
+		initSNMP();
+
 		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit((SNMPGetNext) null));
 		assertEquals(CriterionTestResult.empty(),
 				new CriterionVisitor().visit(SNMPGetNext.builder().oid(null).build()));
