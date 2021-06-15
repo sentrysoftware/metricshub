@@ -10,6 +10,7 @@ import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import picocli.CommandLine;
@@ -81,4 +82,57 @@ class HardwareSentryCLITest {
 		assertThrows(MissingParameterException.class, () -> new CommandLine(new HardwareSentryCLI()).parseArgs(args_required_host));
 		
 	}
+
+	@Test
+	void argumentsWBEMTest() {
+		String[] args_hdfs = { "-host", "hostaa", 
+				"-dt", "HP_UX", 
+				"--wbem-protocol", "HTTP", 
+				"--wbem-port", "5989",
+				"--wbem-namespace", "root/emc", 
+				"--wbem-timeout", "120", 
+				"--wbem-username", "admin", 
+				"--wbem-password", "#1Password", 
+				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+		HardwareSentryCLI sentryCli = new HardwareSentryCLI();
+		new CommandLine(sentryCli).parseArgs(args_hdfs);
+
+		assertEquals("hostaa", sentryCli.getHostname());
+		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
+		assertEquals(WBEMProtocol.WBEMProtocols.HTTP,
+				WBEMProtocol.WBEMProtocols.getValue(sentryCli.getWbemCredentials().getProtocol()));
+		assertEquals(5989, sentryCli.getWbemCredentials().getPort());
+		assertEquals("root/emc", sentryCli.getWbemCredentials().getNamespace());
+		assertEquals(120, sentryCli.getWbemCredentials().getTimeout());
+		assertEquals("admin", sentryCli.getWbemCredentials().getUsername());
+		assertEquals("#1Password", sentryCli.getWbemCredentials().getPassword());
+		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		assertNull(sentryCli.getHdfsExclusion());
+
+		String[] args_hdfs2 = { "-host", "dev-hv-01", 
+				"-dt", "MS_WINDOWS", 
+				"--wbem-protocol", "https", 
+				"--wbem-port", "5989", 
+				"--wbem-namespace", "root/emc", 
+				"--wbem-timeout", "120", 
+				"--wbem-username", "admin",
+				"--wbem-password", "#1Password", 
+				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+
+		new CommandLine(sentryCli).parseArgs(args_hdfs2);
+
+		assertEquals("dev-hv-01", sentryCli.getHostname());
+		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+		assertEquals(WBEMProtocol.WBEMProtocols.HTTPS,
+				WBEMProtocol.WBEMProtocols.getValue(sentryCli.getWbemCredentials().getProtocol()));
+		assertEquals(5989, sentryCli.getWbemCredentials().getPort());
+		assertEquals("root/emc", sentryCli.getWbemCredentials().getNamespace());
+		assertEquals(120, sentryCli.getWbemCredentials().getTimeout());
+		assertEquals("admin", sentryCli.getWbemCredentials().getUsername());
+		assertEquals("#1Password", sentryCli.getWbemCredentials().getPassword());
+		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		assertNull(sentryCli.getHdfsExclusion());
+
+	}
+
 }
