@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class UrlProcessorTest {
+class UrlProcessorTest {
 	private static final String URL_KEY = "enclosure.discovery.source(3).url";
 	private static final String VALUE = "/api/rest/StorageCenter/ScChassis/PowerSupplyList";
 

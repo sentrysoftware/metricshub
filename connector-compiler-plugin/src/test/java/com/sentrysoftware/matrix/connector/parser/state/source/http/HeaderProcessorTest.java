@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class HeaderProcessorTest {
+class HeaderProcessorTest {
 
 	private static final String HEADER_KEY = "enclosure.discovery.source(3).header";
 	private static final String VALUE_STRING = "<?xml version='1.0' encoding='utf-8' ?>";

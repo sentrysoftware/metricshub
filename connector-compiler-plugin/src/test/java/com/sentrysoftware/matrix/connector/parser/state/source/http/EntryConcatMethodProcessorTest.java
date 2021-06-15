@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class EntryConcatMethodProcessorTest {
+class EntryConcatMethodProcessorTest {
 	private static final String ENTRY_CONCAT_METHOD_KEY = "enclosure.discovery.source(3).entryconcatmethod";
 	private static final String WRONG_VALUE = "listt";
 	private static final String VALUE = "JSONArrayExtended";

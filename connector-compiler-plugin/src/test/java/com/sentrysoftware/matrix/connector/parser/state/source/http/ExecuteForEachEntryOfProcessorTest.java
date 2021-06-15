@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class ExecuteForEachEntryOfProcessorTest {
+class ExecuteForEachEntryOfProcessorTest {
 
 	private static final String ENTRY_CONCAT_END_KEY = "enclosure.discovery.source(3).executeforeachentryof";
 	private static final String VALUE = "%Enclosure.Discovery.Source(2)%";

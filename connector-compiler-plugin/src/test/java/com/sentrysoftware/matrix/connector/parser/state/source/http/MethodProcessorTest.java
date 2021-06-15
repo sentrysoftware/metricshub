@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class MethodProcessorTest {
+class MethodProcessorTest {
 
 	private static final String METHOD_KEY = "enclosure.discovery.source(3).method";
 	private static final String VALUE = "GET";

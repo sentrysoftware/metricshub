@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class BodyProcessorTest {
+class BodyProcessorTest {
 
 	private static final String BODY_KEY = "enclosure.discovery.source(3).body";
 	private static final String VALUE_STRING = "<?xml version='1.0' encoding='utf-8' ?>";

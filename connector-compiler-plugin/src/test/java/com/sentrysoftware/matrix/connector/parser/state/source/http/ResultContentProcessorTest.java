@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class ResultContentProcessorTest {
+class ResultContentProcessorTest {
 	private static final String RESULT_CONTENT_KEY = "enclosure.discovery.source(3).resultcontent";
 
 

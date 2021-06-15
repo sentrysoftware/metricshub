@@ -6,9 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-
-
-public class HttpProcessorTest {
+class HttpProcessorTest {
 
 	@Test
 	void testGetType() {

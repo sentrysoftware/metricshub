@@ -44,7 +44,7 @@ public class BodyProcessor  extends HttpProcessor {
 				embeddedFileIndex = Integer.parseInt(embeddedFileMatcher.group(1));
 			} catch(NumberFormatException e) {
 				throw new IllegalStateException(
-						"AwkScriptProcessor parse: Could not instantiate EmbeddedFile from Source ("
+						"BodyProcessor parse: Could not instantiate EmbeddedFile from Source ("
 								+ value
 								+ "): "
 								+ e.getMessage());
@@ -52,7 +52,7 @@ public class BodyProcessor  extends HttpProcessor {
 
 			EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
 
-			Assert.state(embeddedFile != null, () -> "AwkScriptProcessor parse: Could not find EmbeddedFile in Source (" + value + ")");
+			Assert.state(embeddedFile != null, () -> "BodyProcessor parse: Could not find EmbeddedFile in Source (" + value + ")");
 
 			body = new EmbeddedFileBody(embeddedFile);
 		} else {

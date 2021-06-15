@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
-public class AuthenticationTokenProcessorTest {
+class AuthenticationTokenProcessorTest {
 
 	private static final String AUTHENTICATION_TOKEN_KEY = "enclosure.discovery.source(3).authenticationtoken";
 	private static final String VALUE = "%enclosure.discovery.source(1)%";
