@@ -57,7 +57,7 @@ public class EngineService {
 
 		// Set WMI Protocol
 		if (null != data.getWmiCredentials()) {
-			protocols.put(SNMPProtocol.class, getWMIProtocol(data.getWmiCredentials()));
+			protocols.put(WMIProtocol.class, getWMIProtocol(data.getWmiCredentials()));
 		}
 
 		engineConf.setProtocolConfigurations(protocols);
@@ -94,7 +94,7 @@ public class EngineService {
 	private WMIProtocol getWMIProtocol(final WMICredentials wmiCredentials) {
 		return WMIProtocol.builder()
 				.username(wmiCredentials.getUsername())
-				.password(wmiCredentials.getPassword())
+				.password(wmiCredentials.getPassword().toCharArray())
 				.timeout(wmiCredentials.getTimeout())
 				.namespace(wmiCredentials.getNamespace())
 				.build();
