@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.Engine;
@@ -19,6 +20,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -49,8 +51,13 @@ public class EngineService {
 		// for the moment we only manage SNMP protocol, so we will set
 		// IProtocolConfiguration in this way
 		if (null != data.getSnmpCredentials()) {
-			SNMPProtocol snmpInstance = getSNMPCredentials(data.getSnmpCredentials());
+			SNMPProtocol snmpInstance = getSNMPProtocol(data.getSnmpCredentials());
 			protocols.put(SNMPProtocol.class, snmpInstance);
+		}
+
+		// Set WMI Protocol
+		if (null != data.getWmiCredentials()) {
+			protocols.put(SNMPProtocol.class, getWMIProtocol(data.getWmiCredentials()));
 		}
 
 		engineConf.setProtocolConfigurations(protocols);
@@ -61,6 +68,7 @@ public class EngineService {
 			engineConf.setSelectedConnectors(
 					getSelectedConnectors(allConnectorKeySet, data.getHdfs(), data.getHdfsExclusion()));
 		}
+
 		// run detection
 		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname());
 		EngineResult detectionResult = new Engine().run(engineConf, hostMonitoring, new DetectionOperation());
@@ -78,12 +86,27 @@ public class EngineService {
 	}
 
 	/**
+	 * Set @WMIProtocol based on HardwareSentryCLi.wmiCredentials
+	 * 
+	 * @param wmiCredentials
+	 * @return {@link WMIProtocol} instance
+	 */
+	private WMIProtocol getWMIProtocol(final WMICredentials wmiCredentials) {
+		return WMIProtocol.builder()
+				.username(wmiCredentials.getUsername())
+				.password(wmiCredentials.getPassword())
+				.timeout(wmiCredentials.getTimeout())
+				.namespace(wmiCredentials.getNamespace())
+				.build();
+	}
+
+	/**
 	 * Set @SNMPProtocol based on HardwareSentryCLi.snmpCredentials
 	 * 
 	 * @param cliSNMPCredentials
 	 * @return
 	 */
-	public SNMPProtocol getSNMPCredentials(SNMPCredentials cliSNMPCredentials) {
+	public SNMPProtocol getSNMPProtocol(SNMPCredentials cliSNMPCredentials) {
 		SNMPProtocol snmpInstance = new SNMPProtocol();
 
 		snmpInstance.setVersion(cliSNMPCredentials.getSnmpVersion());

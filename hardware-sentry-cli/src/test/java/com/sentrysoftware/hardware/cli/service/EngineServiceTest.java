@@ -56,7 +56,7 @@ class EngineServiceTest {
 		snmpCred.setSnmpVersion(SNMPVersion.V1);
 		snmpCred.setTimeout(10);
 		snmpCred.setUsername("user");
-		SNMPProtocol snmpProtocol = engine.getSNMPCredentials(snmpCred);
+		SNMPProtocol snmpProtocol = engine.getSNMPProtocol(snmpCred);
 		assertEquals("comm1", snmpProtocol.getCommunity());
 		assertEquals("pwd1", snmpProtocol.getPassword());
 		assertEquals(110, snmpProtocol.getPort());
