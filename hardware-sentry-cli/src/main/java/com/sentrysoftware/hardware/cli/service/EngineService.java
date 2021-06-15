@@ -57,7 +57,7 @@ public class EngineService {
 		}
 
 		if (null != data.getWbemCredentials()) {
-			WBEMProtocol wbemInstance = getWBEMCredentials(data.getWbemCredentials());
+			WBEMProtocol wbemInstance = getWBEMProtocol(data.getWbemCredentials());
 			protocols.put(WBEMProtocol.class, wbemInstance);
 		}
 
@@ -114,7 +114,7 @@ public class EngineService {
 	 * @param cliWBEMCredentials
 	 * @return
 	 */
-	public WBEMProtocol getWBEMCredentials(WBEMCredentials cliWBEMCredentials) {
+	public WBEMProtocol getWBEMProtocol(WBEMCredentials cliWBEMCredentials) {
 		WBEMProtocol wbemInstance = new WBEMProtocol();
 
 		wbemInstance.setProtocol(WBEMProtocols.getValue(cliWBEMCredentials.getProtocol()));
