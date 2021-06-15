@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -20,6 +21,8 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
@@ -53,6 +56,12 @@ public class EngineService {
 		if (null != data.getSnmpCredentials()) {
 			SNMPProtocol snmpInstance = getSNMPProtocol(data.getSnmpCredentials());
 			protocols.put(SNMPProtocol.class, snmpInstance);
+		}
+
+		if (null != data.getWbemCredentials()) {
+			WBEMProtocol wbemInstance = getWBEMProtocol(data.getWbemCredentials());
+			protocols.put(WBEMProtocol.class, wbemInstance);
+
 		}
 
 		// Set WMI Protocol
@@ -121,6 +130,25 @@ public class EngineService {
 		snmpInstance.setPrivacy(cliSNMPCredentials.getPrivacy());
 
 		return snmpInstance;
+	}
+
+	/**
+	 * Set @WBEMProtocol based on HardwareSentryCLi.wbemCredentials
+	 * 
+	 * @param cliWBEMCredentials
+	 * @return
+	 */
+	public WBEMProtocol getWBEMProtocol(WBEMCredentials cliWBEMCredentials) {
+		WBEMProtocol wbemInstance = new WBEMProtocol();
+
+		wbemInstance.setProtocol(WBEMProtocols.getValue(cliWBEMCredentials.getProtocol()));
+		wbemInstance.setPort(cliWBEMCredentials.getPort());
+		wbemInstance.setNamespace(cliWBEMCredentials.getNamespace());
+		wbemInstance.setTimeout(cliWBEMCredentials.getTimeout());
+		wbemInstance.setUsername(cliWBEMCredentials.getUsername());
+		wbemInstance.setPassword(cliWBEMCredentials.getPassword().toCharArray());
+
+		return wbemInstance;
 	}
 
 	/**
