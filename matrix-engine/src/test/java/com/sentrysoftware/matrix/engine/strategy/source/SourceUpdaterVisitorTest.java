@@ -23,6 +23,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HT
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
@@ -37,10 +38,11 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 class SourceUpdaterVisitorTest {
 
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
-	private static final String VALUE_TABLE = "Enclosure.Collect.Source(1)";
+	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String DEVICE_ID = "deviceId";
 	private static final String EMBEDDED_FILE_CODE_CONTENT_1 = "showplatform -v,13,14";
 	private static final String EMBEDDED_FILE_CODE_CONTENT_2 = "showenvironment,7,8";
+	private static final String VALUE_VAL1 = "val1";
 
 	@Mock
 	private ISourceVisitor sourceVisitor;
@@ -88,6 +90,32 @@ class SourceUpdaterVisitorTest {
 	void testVisitReferenceSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(ReferenceSource.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(ReferenceSource.builder().build()));
+
+		ReferenceSource referenceSource = ReferenceSource.builder().reference(VALUE_TABLE).build();
+		final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expected = SourceTable.builder().table(result).build();
+
+		final SNMPGetSource snmpGetSource = SNMPGetSource.builder().oid("1.2.3.4.5.6.%Fan.Collect.DeviceID").build();
+		doReturn(metadata).when(monitor).getMetadata();
+		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
+		doReturn(expectedSnmp).when(sourceVisitor).visit(any(SNMPGetSource.class));
+		assertEquals(expectedSnmp, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(snmpGetSource));
+
+		doReturn(expected).when(sourceVisitor).visit(any(ReferenceSource.class));
+		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(referenceSource));
+	}
+
+	@Test
+	void testVisitStaticSource() {
+		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(StaticSource.class));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(StaticSource.builder().build()));
+
+		StaticSource staticSource = StaticSource.builder().reference(VALUE_VAL1).build();
+		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expected = SourceTable.builder().table(resultTable).build();
+		doReturn(expected).when(sourceVisitor).visit(any(StaticSource.class));
+		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(staticSource));
 	}
 
 	@Test
@@ -101,7 +129,7 @@ class SourceUpdaterVisitorTest {
 
 			final SNMPGetSource snmpGetSource = SNMPGetSource.builder().oid("1.2.3.4.5.6.%Fan.Collect.DeviceID").build();
 			doReturn(metadata).when(monitor).getMetadata();
-			final List<List<String>> result = Collections.singletonList(Collections.singletonList("val1"));
+			final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 			final SourceTable expected = SourceTable.builder().table(result).build();
 			doReturn(expected).when(sourceVisitor).visit(any(SNMPGetSource.class));
 			assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(snmpGetSource));

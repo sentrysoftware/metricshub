@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HT
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
@@ -55,8 +56,14 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
-		
+
 		return referenceSource.accept(sourceVisitor);
+	}
+
+	@Override
+	public SourceTable visit(final StaticSource staticSource) {
+
+		return staticSource.accept(sourceVisitor);
 	}
 
 	@Override

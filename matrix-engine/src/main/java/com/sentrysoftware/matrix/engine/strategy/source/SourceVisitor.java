@@ -1,10 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,6 +18,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HT
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
@@ -38,6 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 public class SourceVisitor implements ISourceVisitor {
 
 	private static final String WBEM = "wbem";
+
+	private static final Pattern SOURCE_PATTERN = Pattern.compile(
+			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
 	@Autowired
 	private StrategyConfig strategyConfig;
@@ -62,7 +69,72 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
-		return SourceTable.empty();
+		if (referenceSource == null) {
+			log.error("ReferenceSource cannot be null, the ReferenceSource operation will return an empty result.");
+			return SourceTable.empty();
+		}
+
+		String reference = referenceSource.getReference();
+
+		if (reference == null || reference.isEmpty()) {
+			log.error("ReferenceSource reference cannot be null. Returning an empty table for source {}.", referenceSource);
+			return SourceTable.empty();
+		}
+
+		SourceTable sourceRef = getSourceTable(reference);
+		SourceTable sourceRes = new SourceTable();
+
+		List<List<String>> table = new ArrayList<>();
+
+		sourceRef.getTable().forEach(row ->
+		{
+			final List<String> line = new ArrayList<>();
+
+			row.forEach(property -> line.add(new String(property)));
+
+			if (!line.isEmpty()) {
+				table.add(line);
+			}
+		});
+
+		sourceRes.setTable(table);
+		return sourceRes;
+	}
+
+	@Override
+	public SourceTable visit(final StaticSource staticSource) {
+		if (staticSource == null) {
+			log.error("StaticSource cannot be null, the StaticSource operation will return an empty result.");
+			return SourceTable.empty();
+		}
+
+		String reference = staticSource.getReference();
+
+		if (reference == null || reference.isEmpty()) {
+			log.error("StaticSource reference cannot be null. Returning an empty table for source {}.", staticSource);
+			return SourceTable.empty();
+		}
+
+		SourceTable sourceRes = new SourceTable();
+		List<List<String>> table = new ArrayList<>();
+
+		// In case there are ';' in the reference and it's needed to be separated into multiple columns
+		SourceTable sourceRef = getSourceTable(reference);
+
+		sourceRef.getTable().forEach(row ->
+		{
+			final List<String> line = new ArrayList<>();
+
+			row.forEach(property -> line.add(new String(property)));
+
+			if (!line.isEmpty()) {
+				table.add(line);
+			}
+		});
+
+		sourceRes.setTable(table);
+
+		return sourceRes;
 	}
 
 	@Override
@@ -261,18 +333,17 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable getSourceTable(final String key) {
 
-		// In case the key contains a ';' convert the CSV to table
-		if (key.indexOf(';') >= 0) {
-			return SourceTable.builder()
-					.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
-					.build();
+		if (SOURCE_PATTERN.matcher(key).matches()) {
+			final SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+			if (sourceTable == null) {
+				log.warn("The following source table {} cannot be found.", key);
+			}
+			return sourceTable;
 		}
 
-		final SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
-		if (sourceTable == null) {
-			log.warn("The following source table {} cannot be found.", key);
-		}
-		return sourceTable;
+		return SourceTable.builder()
+				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+				.build();
 	}
 
 	@Override
