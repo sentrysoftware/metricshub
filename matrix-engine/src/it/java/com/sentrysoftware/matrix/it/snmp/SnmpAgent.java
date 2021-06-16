@@ -391,7 +391,8 @@ public class SnmpAgent implements VariableProvider {
 
 			try {
 				final MOScalar<? extends Variable> scalar = function.apply(oid, value);
-				// Index the object as we are going the use in the SnmpRequestProcessor for GET requests
+
+				// Index the object as we need it in the SnmpRequestProcessor for GET requests
 				MANAGED_OBJECTS.put(oid, scalar);
 
 				register(scalar);
