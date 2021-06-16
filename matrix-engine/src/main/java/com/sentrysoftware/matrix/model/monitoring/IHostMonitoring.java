@@ -48,7 +48,9 @@ public interface IHostMonitoring {
 
 	void addMissingMonitor(Monitor monitor);
 
-	void setDetectedWmiNamespace(String namespace);
+	void setAutomaticWmiNamespace(String automaticNamespace);
 
-	String getDetectedWmiNamespace();
+	String getAutomaticWmiNamespace();
+
+	Set<String> getPossibleWmiNamespaces();
 }

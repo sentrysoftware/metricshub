@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +47,8 @@ public class SourceTable {
 					.map(line -> String.join(separator, line) + separator)
 					.collect(Collectors.joining("\n"));
 		}
-		return null;
+
+		return EMPTY;
 	}
 
 	/**

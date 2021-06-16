@@ -1,11 +1,15 @@
 package com.sentrysoftware.matrix.engine.strategy;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -221,10 +225,10 @@ public abstract class AbstractStrategy implements IStrategy {
 		return StatusParam
 				.builder()
 				.collectTime(strategyTime)
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.state(success ? ParameterState.OK : ParameterState.ALARM)
 				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.build();
 	}
 
@@ -238,15 +242,19 @@ public abstract class AbstractStrategy implements IStrategy {
 		final TextParam testReport = TextParam
 				.builder()
 				.collectTime(strategyTime)
-				.name(HardwareConstants.TEST_REPORT_PARAMETER)
+				.name(TEST_REPORT_PARAMETER)
 				.parameterState(ParameterState.OK)
 				.build();
 
 		final StringBuilder value = new StringBuilder();
 
 		final String builtTestResult = testedConnector.getCriterionTestResults().stream()
-						.map(criterionResult -> String.format("Received Result: %s. %s", criterionResult.getResult(),
-								criterionResult.getMessage()))
+						.map(criterionResult -> {
+							final String result = criterionResult.getResult();
+							String message = criterionResult.getMessage();
+							return String.format("Received Result: %s. %s", result != null ? result : N_A,
+									message != null ? message : N_A);
+						})
 						.collect(Collectors.joining("\n"));
 		value.append(builtTestResult)
 				.append("\nConclusion: ")

@@ -165,6 +165,10 @@
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/TestedConnector.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestedConnectorBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestResult.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*NamespaceResult.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*NamespaceResultBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*PossibleNamespacesResult.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*PossibleNamespacesResultBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestResultBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/monitoring/HostMonitoringVO.*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/monitoring/*HostMonitoringVOBuilder.*</exclude>
