@@ -629,7 +629,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * Run the given WMI query provided in the {@link WMI} criterion then create a csv table
 	 * 
 	 * @param hostname  The target hostname
-	 * @param wmi       The {@link WMI} criterion defnining the WBEM Query
+	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WMI namespace
 	 * @param protocol  The User's configured credentials
 	 * @return String value
