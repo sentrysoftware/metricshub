@@ -161,7 +161,10 @@ public class DetectionOperation extends AbstractStrategy {
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 
 		// Create the target
-		final Monitor targetMonitor = Monitor.builder().id(target.getId()).targetId(target.getId()).name(target.getHostname())
+		final Monitor targetMonitor = Monitor.builder()
+				.id(target.getId())
+				.targetId(target.getId())
+				.name(target.getHostname())
 				.monitorType(MonitorType.TARGET).build();
 
 		// Create the location metadata

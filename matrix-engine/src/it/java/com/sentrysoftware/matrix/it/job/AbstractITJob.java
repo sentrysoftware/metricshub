@@ -1,0 +1,211 @@
+package com.sentrysoftware.matrix.it.job;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.Engine;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.OperationStatus;
+import com.sentrysoftware.matrix.engine.strategy.IStrategy;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.Data;
+
+@Data
+public abstract class AbstractITJob implements ITJob {
+
+	protected EngineConfiguration engineConfiguration;
+	protected IHostMonitoring hostMonitoring;
+	protected EngineResult lastEngineResult;
+
+	/**
+	 * Assert the expected {@link Monitor} instance and the corresponding actual instance from the given Map of monitors
+	 * 
+	 * @param expected
+	 * @param monitors
+	 */
+	private static void assertMonitor(Monitor expected, Map<String, Monitor> monitors) {
+		final MonitorType monitorType = expected.getMonitorType();
+
+		assertNotNull(monitors, () -> "<null> monitors found for type " + monitorType);
+		assertFalse(monitors.isEmpty(), () -> "No monitor found for type " + monitorType);
+
+		assertMonitor(expected, monitors.get(expected.getId()));
+	}
+
+	/**
+	 * Assert that expected and actual are equal. 
+	 * 
+	 * @param expected
+	 * @param actual
+	 */
+	private static void assertMonitor(Monitor expected, final Monitor actual) {
+
+		MonitorType monitorType = expected.getMonitorType();
+
+		assertNotNull(actual, () -> "Cannot find the Monitor with type " + monitorType + " and ID: " + expected.getId());
+
+		assertEquals(expected.getExtendedType(), actual.getExtendedType(), () -> "ExtendedType doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
+		assertEquals(expected.getName(), actual.getName(), () -> "Name doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
+		assertEquals(expected.getParentId(), actual.getParentId(), () -> "ParentId doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
+		assertEquals(expected.getTargetId(), actual.getTargetId(), () -> "TargetId doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
+
+		assertMetadata(expected, actual);
+
+		assertParameters(expected, actual);
+	}
+
+	/**
+	 * Assert that expected and actual parameters are equal. <br>
+	 * We only test testable/important data, for example the collectTime cannot be tested.
+	 * 
+	 * @param expected
+	 * @param actual
+	 */
+	private static void assertParameters(Monitor expected, Monitor actual) {
+		for (Entry<String, IParameterValue> expectedEntry : expected.getParameters().entrySet()) {
+			final IParameterValue expectedParameter = expectedEntry.getValue();
+			final MonitorType monitorType = expected.getMonitorType();
+			final String monitorId = expected.getId();
+			switch (expectedParameter.getType()) {
+			case NumberParam.NUMBER_TYPE:
+				assertNumberParam((NumberParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), NumberParam.class), monitorType, monitorId);
+				break;
+			case TextParam.TEXT_TYPE:
+				assertTextParam((TextParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), TextParam.class), monitorType, monitorId);
+				break;
+			case StatusParam.STATUS_TYPE:
+				assertStatusParam((StatusParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), StatusParam.class), monitorType, monitorId);
+				break;
+			case PresentParam.PRESENT_TYPE:
+				assertPresentParam((PresentParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), PresentParam.class), monitorType,
+						monitorId);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Assert that expected and actual are equal.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param monitorType
+	 * @param monitorId
+	 */
+	private static void assertNumberParam(NumberParam expected, NumberParam actual, MonitorType monitorType, String monitorId) {
+		assertNotNull(actual,
+				() -> "NumberParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getValue(), actual.getValue(), "NumberParam value doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getRawValue(), actual.getRawValue(), "NumberParam raw value doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+	}
+
+	/**
+	 * Assert that expected and actual are equal.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param monitorType
+	 * @param monitorId
+	 */
+	private static void assertTextParam(TextParam expected, TextParam actual, MonitorType monitorType, String monitorId) {
+		assertNotNull(actual,
+				() -> "TextParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getValue(), actual.getValue(), "TextParam value doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+	}
+
+	/**
+	 * Assert that expected and actual are equal.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param monitorType
+	 * @param monitorId
+	 */
+	private static void assertStatusParam(StatusParam expected, StatusParam actual, MonitorType monitorType, String monitorId) {
+		assertNotNull(actual,
+				() -> "StatusParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getStatus(), actual.getStatus(), "StatusParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getStatusInformation(), actual.getStatusInformation(), "StatusParam status information doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+	}
+
+	/**
+	 * Assert that expected and actual are equal.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param monitorType
+	 * @param monitorId
+	 */
+	private static void assertPresentParam(PresentParam expected, PresentParam actual, MonitorType monitorType, String monitorId) {
+		assertNotNull(actual,
+				() -> "PresentParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getPresent(), actual.getPresent(), "PresentParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+	}
+
+	/**
+	 * Assert that expected and actual metadata are equal.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param monitorType
+	 * @param monitorId
+	 */
+	private static void assertMetadata(Monitor expected, Monitor actual) {
+		for (Entry<String, String> expectedMetadata : expected.getMetadata().entrySet()) {
+			assertEquals(expectedMetadata.getValue(), actual.getMetadata().get(expectedMetadata.getKey()),
+					() -> "metadata doesn't match. metadata key: " + expectedMetadata.getKey() + ". MonitorType: " + expected.getMonitorType()
+							+ ". ID: " + expected.getId());
+		}
+	}
+
+
+	@Override
+	public ITJob verifyExpected(String expectedPath) throws Exception {
+
+		stopServer();
+
+		assertEquals(OperationStatus.SUCCESS, lastEngineResult.getOperationStatus(), "Last strategy failed.");
+
+		final InputStream is = ITJobUtils.getItResourceAsInputStream(expectedPath);
+		final HostMonitoringVO hostMonitoringVO = JsonHelper.deserialize(is, HostMonitoringVO.class);
+
+		hostMonitoringVO.getMonitors().forEach(monitor -> assertMonitor(
+				monitor, hostMonitoring.selectFromType(monitor.getMonitorType())));
+
+		return this;
+	}
+
+	@Override
+	public ITJob executeStrategy(IStrategy strategy) {
+		assertTrue(isServerStarted(), "Server not ready.");
+
+		lastEngineResult = new Engine().run(engineConfiguration, hostMonitoring, strategy);
+
+		return this;
+	}
+
+	@Override
+	public ITJob prepareEngine(EngineConfiguration engineConfiguration, IHostMonitoring hostMonitoring) {
+		this.engineConfiguration = engineConfiguration;
+		this.hostMonitoring = hostMonitoring;
+		return this;
+	}
+
+}

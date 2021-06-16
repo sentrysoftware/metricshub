@@ -1,0 +1,2501 @@
+{
+  "total" : 62,
+  "monitors" : [ {
+    "id" : "MS_HW_DellOpenManage.connector_battery_localhost_1.1",
+    "name" : "Battery: 1.1",
+    "monitorType" : "BATTERY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "System Board CMOS Battery",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "type" : "System Board CMOS Battery"
+    }
+  }, {
+    "id" : "localhost@MS_HW_DellOpenManage.connector",
+    "name" : "MS_HW_DellOpenManage.connector",
+    "monitorType" : "CONNECTOR",
+    "parentId" : "localhost",
+    "targetId" : "localhost",
+    "extendedType" : null,
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "Connector test succeeded",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "testReport" : {
+        "name" : "testReport",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : null,
+        "value" : "Received Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1. Successful SNMP GetNext of 1.3.6.1.4.1.674.10892.1.300.10.1 on localhost. Returned Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1.\nConclusion: TEST on localhost SUCCEEDED",
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : { }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_cpu_localhost_1.1",
+    "name" : "CPU: 1.1",
+    "monitorType" : "CPU",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "CPU",
+    "parameters" : {
+      "currentSpeed" : {
+        "name" : "currentSpeed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "MHz",
+        "value" : 2100.0,
+        "rawValue" : 2100.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\ncurrentSpeed: 2100.0 MHz\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot CPU1",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "maximumspeed" : "4000",
+      "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
+      "vendor" : "Intel"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "name" : "Computer: Dell PowerEdge R630",
+    "monitorType" : "ENCLOSURE",
+    "parentId" : "localhost",
+    "targetId" : "localhost",
+    "extendedType" : "Computer",
+    "parameters" : {
+      "energyUsage" : {
+        "name" : "energyUsage",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "Joules",
+        "value" : null,
+        "rawValue" : 3191.749,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "intrusionStatus" : {
+        "name" : "intrusionStatus",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 2 = Intrusion Detected}",
+        "status" : 0,
+        "statusInformation" : "intrusionStatus: 0 (No Intrusion Detected)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nintrusionStatus: 0 (No Intrusion Detected)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Serial Number: FSJR3N2",
+      "additionalinformation2" : "Alternative Serial Number: 34377965102",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1",
+      "idCount" : "0",
+      "model" : "PowerEdge R630",
+      "type" : "Computer",
+      "vendor" : "Dell"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.1",
+    "name" : "Fan: 1.1",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5640.0,
+        "rawValue" : 5640.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "fantype" : "System Board1A",
+      "idCount" : "0",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.10",
+    "name" : "Fan: 1.10",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.10",
+      "fantype" : "System Board3B",
+      "idCount" : "9",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.11",
+    "name" : "Fan: 1.11",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.11",
+      "fantype" : "System Board4B",
+      "idCount" : "10",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.12",
+    "name" : "Fan: 1.12",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4320.0,
+        "rawValue" : 4320.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4320.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.12",
+      "fantype" : "System Board5B",
+      "idCount" : "11",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.13",
+    "name" : "Fan: 1.13",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.13",
+      "fantype" : "System Board6B",
+      "idCount" : "12",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.14",
+    "name" : "Fan: 1.14",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.14",
+      "fantype" : "System Board7B",
+      "idCount" : "13",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.2",
+    "name" : "Fan: 1.2",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5640.0,
+        "rawValue" : 5640.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.2",
+      "fantype" : "System Board2A",
+      "idCount" : "1",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.3",
+    "name" : "Fan: 1.3",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5760.0,
+        "rawValue" : 5760.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5760.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.3",
+      "fantype" : "System Board3A",
+      "idCount" : "2",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.4",
+    "name" : "Fan: 1.4",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5640.0,
+        "rawValue" : 5640.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.4",
+      "fantype" : "System Board4A",
+      "idCount" : "3",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.5",
+    "name" : "Fan: 1.5",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5520.0,
+        "rawValue" : 5520.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5520.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.5",
+      "fantype" : "System Board5A",
+      "idCount" : "4",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.6",
+    "name" : "Fan: 1.6",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5640.0,
+        "rawValue" : 5640.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.6",
+      "fantype" : "System Board6A",
+      "idCount" : "5",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.7",
+    "name" : "Fan: 1.7",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 5640.0,
+        "rawValue" : 5640.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.7",
+      "fantype" : "System Board7A",
+      "idCount" : "6",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.8",
+    "name" : "Fan: 1.8",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.8",
+      "fantype" : "System Board1B",
+      "idCount" : "7",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.9",
+    "name" : "Fan: 1.9",
+    "monitorType" : "FAN",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Fan",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "speed" : {
+        "name" : "speed",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "RPM",
+        "value" : 4200.0,
+        "rawValue" : 4200.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "600",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.9",
+      "fantype" : "System Board2B",
+      "idCount" : "8",
+      "warningthreshold" : "840"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.1",
+    "name" : "Memory: 1.1",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A1",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "serialnumber" : "2B6230D1",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.10",
+    "name" : "Memory: 1.10",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A10",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.10",
+      "idCount" : "9",
+      "serialnumber" : "2B62303E",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.11",
+    "name" : "Memory: 1.11",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A11",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.11",
+      "idCount" : "10",
+      "serialnumber" : "2B6232CA",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.12",
+    "name" : "Memory: 1.12",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A12",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.12",
+      "idCount" : "11",
+      "serialnumber" : "2B6230D3",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.2",
+    "name" : "Memory: 1.2",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A2",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.2",
+      "idCount" : "1",
+      "serialnumber" : "2B6230F3",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.3",
+    "name" : "Memory: 1.3",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A3",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.3",
+      "idCount" : "2",
+      "serialnumber" : "2B6230D6",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.4",
+    "name" : "Memory: 1.4",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A4",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.4",
+      "idCount" : "3",
+      "serialnumber" : "2B6230CF",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.5",
+    "name" : "Memory: 1.5",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A5",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.5",
+      "idCount" : "4",
+      "serialnumber" : "2B6230EA",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.6",
+    "name" : "Memory: 1.6",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A6",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.6",
+      "idCount" : "5",
+      "serialnumber" : "2B6230F4",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.7",
+    "name" : "Memory: 1.7",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A7",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.7",
+      "idCount" : "6",
+      "serialnumber" : "2B623048",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.8",
+    "name" : "Memory: 1.8",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A8",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.8",
+      "idCount" : "7",
+      "serialnumber" : "2B623041",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.9",
+    "name" : "Memory: 1.9",
+    "monitorType" : "MEMORY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "DDR4",
+    "parameters" : {
+      "errorCount" : {
+        "name" : "errorCount",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot A9",
+      "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
+      "additionalinformation3" : "Alternative Serial Number: 00180130",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.9",
+      "idCount" : "8",
+      "serialnumber" : "2B6230D7",
+      "size" : "16384.0",
+      "type" : "DDR4",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_1",
+    "name" : "OtherDevice: 1",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "EventLog",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1",
+      "devicetype" : "ESM",
+      "displayid" : "1",
+      "idCount" : "0"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_SDCardDevice-1.1",
+    "name" : "OtherDevice: SDCardDevice-1.1",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Size : 0 MB ",
+      "additionallabel" : "",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "SDCardDevice-1.1",
+      "devicetype" : "vFlash",
+      "displayid" : "SDCardDevice-1.1",
+      "idCount" : "1"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.1",
+    "name" : "PowerSupply: 1.1",
+    "monitorType" : "POWER_SUPPLY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "PowerSupply",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (AC Switch On - AC Power On)\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "powersupplypower" : "750.0",
+      "powersupplytype" : "AC"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.2",
+    "name" : "PowerSupply: 1.2",
+    "monitorType" : "POWER_SUPPLY",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "PowerSupply",
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (AC Switch On - AC Power On)\npresent: 1 (Present)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.2",
+      "idCount" : "1",
+      "powersupplypower" : "750.0",
+      "powersupplytype" : "AC"
+    }
+  }, {
+    "id" : "localhost",
+    "name" : "localhost",
+    "monitorType" : "TARGET",
+    "parentId" : null,
+    "targetId" : "localhost",
+    "extendedType" : null,
+    "parameters" : { },
+    "metadata" : {
+      "location" : "localhost",
+      "operatingSystemType" : "LINUX"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.1",
+    "name" : "Temperature: 1.1",
+    "monitorType" : "TEMPERATURE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Temperature",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\ntemperature: 23.0 degrees Celsius",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "temperature" : {
+        "name" : "temperature",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "degrees Celsius",
+        "value" : 23.0,
+        "rawValue" : 23.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "47.0",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "temperaturetype" : "System Board Inlet",
+      "warningthreshold" : "42.0"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.2",
+    "name" : "Temperature: 1.2",
+    "monitorType" : "TEMPERATURE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Temperature",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\ntemperature: 30.0 degrees Celsius",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "temperature" : {
+        "name" : "temperature",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "degrees Celsius",
+        "value" : 30.0,
+        "rawValue" : 30.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "75.0",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.2",
+      "idCount" : "1",
+      "temperaturetype" : "System Board Exhaust",
+      "warningthreshold" : "70.0"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.3",
+    "name" : "Temperature: 1.3",
+    "monitorType" : "TEMPERATURE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Temperature",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\ntemperature: 37.0 degrees Celsius",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "temperature" : {
+        "name" : "temperature",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "degrees Celsius",
+        "value" : 37.0,
+        "rawValue" : 37.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
+    "metadata" : {
+      "alarmthreshold" : "90.0",
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.3",
+      "idCount" : "2",
+      "temperaturetype" : "CPU1",
+      "warningthreshold" : "85.0"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.1",
+    "name" : "Voltage: 1.1",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.1",
+      "idCount" : "0",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 VCORE PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.10",
+    "name" : "Voltage: 1.10",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.10",
+      "idCount" : "9",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board DIMM PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.11",
+    "name" : "Voltage: 1.11",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.11",
+      "idCount" : "10",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board VCCIO PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.12",
+    "name" : "Voltage: 1.12",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.12",
+      "idCount" : "11",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M01 VDDQ PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.13",
+    "name" : "Voltage: 1.13",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.13",
+      "idCount" : "12",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board NDC PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.14",
+    "name" : "Voltage: 1.14",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.14",
+      "idCount" : "13",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M01 VPP PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.15",
+    "name" : "Voltage: 1.15",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.15",
+      "idCount" : "14",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 1.5V PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.16",
+    "name" : "Voltage: 1.16",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.16",
+      "idCount" : "15",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 1.5V AUX PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.17",
+    "name" : "Voltage: 1.17",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.17",
+      "idCount" : "16",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 FIVR PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.18",
+    "name" : "Voltage: 1.18",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.18",
+      "idCount" : "17",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board PS2 PG Fail"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.19",
+    "name" : "Voltage: 1.19",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.19",
+      "idCount" : "18",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board PS1 PG Fail"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.2",
+    "name" : "Voltage: 1.2",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.2",
+      "idCount" : "1",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 3.3V PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.20",
+    "name" : "Voltage: 1.20",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.20",
+      "idCount" : "19",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board BP1 5V PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.21",
+    "name" : "Voltage: 1.21",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.21",
+      "idCount" : "20",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board BP2 5V PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.22",
+    "name" : "Voltage: 1.22",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.22",
+      "idCount" : "21",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M01 VTT PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.23",
+    "name" : "Voltage: 1.23",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nvoltage: 228000.0 mV",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "voltage" : {
+        "name" : "voltage",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "mV",
+        "value" : 228000.0,
+        "rawValue" : 228000.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.23",
+      "idCount" : "22",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "PS1 Voltage 1"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.24",
+    "name" : "Voltage: 1.24",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)\nvoltage: 224000.0 mV",
+        "previousState" : null,
+        "type" : "StatusParam"
+      },
+      "voltage" : {
+        "name" : "voltage",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "mV",
+        "value" : 224000.0,
+        "rawValue" : 224000.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.24",
+      "idCount" : "23",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "PS2 Voltage 2"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.3",
+    "name" : "Voltage: 1.3",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.3",
+      "idCount" : "2",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 5V AUX PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.4",
+    "name" : "Voltage: 1.4",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.4",
+      "idCount" : "3",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M23 VPP PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.5",
+    "name" : "Voltage: 1.5",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.5",
+      "idCount" : "4",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 2.5V AUX PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.6",
+    "name" : "Voltage: 1.6",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.6",
+      "idCount" : "5",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 1.05V PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.7",
+    "name" : "Voltage: 1.7",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.7",
+      "idCount" : "6",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M23 VDDQ PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.8",
+    "name" : "Voltage: 1.8",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.8",
+      "idCount" : "7",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "CPU1 M23 VTT PG"
+    }
+  }, {
+    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.9",
+    "name" : "Voltage: 1.9",
+    "monitorType" : "VOLTAGE",
+    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "targetId" : "localhost",
+    "extendedType" : "Voltage",
+    "parameters" : {
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1624024821235,
+        "threshold" : null,
+        "state" : "OK",
+        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+        "status" : 0,
+        "statusInformation" : "status: 0 (OK)",
+        "previousState" : null,
+        "type" : "StatusParam"
+      }
+    },
+    "metadata" : {
+      "connector" : "MS_HW_DellOpenManage.connector",
+      "deviceid" : "1.9",
+      "idCount" : "8",
+      "lowerthreshold" : "",
+      "upperthreshold" : "",
+      "voltagetype" : "System Board 5V SWITCH PG"
+    }
+  } ]
+}

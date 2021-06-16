@@ -41,6 +41,9 @@
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<prometheus-client.version>0.10.0</prometheus-client.version>
 		<jackson.version>2.12.3</jackson.version>
+		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+		<snmp4j.version>3.5.1</snmp4j.version>
+		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 	</properties>
 
 	<modules>
@@ -205,6 +208,16 @@
 				<artifactId>jackson-core</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.snmp4j</groupId>
+				<artifactId>snmp4j</artifactId>
+				<version>${snmp4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.snmp4j</groupId>
+				<artifactId>snmp4j-agent</artifactId>
+				<version>${snmp4j-agent.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -225,6 +238,11 @@
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>${jacoco-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>${maven-failsafe-plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
