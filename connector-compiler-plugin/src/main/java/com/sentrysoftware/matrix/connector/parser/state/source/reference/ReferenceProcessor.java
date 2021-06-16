@@ -46,7 +46,7 @@ public class ReferenceProcessor extends AbstractStateParser {
 					.build();
 		} else {
 			source = StaticSource.builder()
-					.reference(value)
+					.staticValue(value)
 					.build();
 		}
 

@@ -111,7 +111,7 @@ class SourceUpdaterVisitorTest {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(StaticSource.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(StaticSource.builder().build()));
 
-		StaticSource staticSource = StaticSource.builder().reference(VALUE_VAL1).build();
+		StaticSource staticSource = StaticSource.builder().staticValue(VALUE_VAL1).build();
 		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(resultTable).build();
 		doReturn(expected).when(sourceVisitor).visit(any(StaticSource.class));

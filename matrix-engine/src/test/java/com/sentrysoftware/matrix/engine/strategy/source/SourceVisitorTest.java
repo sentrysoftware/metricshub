@@ -139,7 +139,7 @@ class SourceVisitorTest {
 		staticSource = StaticSource.builder().build();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
 
-		staticSource = StaticSource.builder().reference(VALUE_A1).build();
+		staticSource = StaticSource.builder().staticValue(VALUE_A1).build();
 
 		assertEquals(expectedTable, sourceVisitor.visit(staticSource).getTable());
 	}
@@ -154,7 +154,7 @@ class SourceVisitorTest {
 		StaticSource staticSource = StaticSource.builder().build();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
 
-		staticSource = StaticSource.builder().reference(VALUE_LIST).build();
+		staticSource = StaticSource.builder().staticValue(VALUE_LIST).build();
 
 		assertEquals(expectedTable, sourceVisitor.visit(staticSource).getTable());
 	}

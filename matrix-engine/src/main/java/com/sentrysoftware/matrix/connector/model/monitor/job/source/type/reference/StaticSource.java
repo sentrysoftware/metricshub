@@ -21,12 +21,12 @@ public class StaticSource  extends Source {
 
 	private static final long serialVersionUID = 3446426549562321969L;
 
-	private String reference;
+	private String staticValue;
 
 	@Builder
-	public StaticSource(List<Compute> computes, boolean forceSerialization, String reference, int index, String key) {
+	public StaticSource(List<Compute> computes, boolean forceSerialization, String staticValue, int index, String key) {
 		super(computes, forceSerialization, index, key);
-		this.reference = reference;
+		this.staticValue = staticValue;
 	}
 
 	@Override

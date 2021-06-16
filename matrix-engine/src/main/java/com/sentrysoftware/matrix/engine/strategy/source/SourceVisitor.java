@@ -108,9 +108,9 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		String reference = staticSource.getReference();
+		String staticValue = staticSource.getStaticValue();
 
-		if (reference == null || reference.isEmpty()) {
+		if (staticValue == null || staticValue.isEmpty()) {
 			log.error("StaticSource reference cannot be null. Returning an empty table for source {}.", staticSource);
 			return SourceTable.empty();
 		}
@@ -119,7 +119,7 @@ public class SourceVisitor implements ISourceVisitor {
 		List<List<String>> table = new ArrayList<>();
 
 		// In case there are ';' in the reference and it's needed to be separated into multiple columns
-		SourceTable sourceRef = getSourceTable(reference);
+		SourceTable sourceRef = getSourceTable(staticValue);
 
 		sourceRef.getTable().forEach(row ->
 		{

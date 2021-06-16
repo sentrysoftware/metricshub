@@ -36,6 +36,6 @@ public class ReferenceProcessorTest {
 
 		Source source = connector.getHardwareMonitors().get(0).getDiscovery().getSources().get(0);
 		assertEquals(StaticSource.class, source.getClass());
-		assertEquals(STATIC_VALUE, ((StaticSource) source).getReference());
+		assertEquals(STATIC_VALUE, ((StaticSource) source).getStaticValue());
 	}
 }
