@@ -56,7 +56,7 @@ class SourceTableTest {
 
 	@Test
 	void testTableToCsv() {
-		assertEquals(null, SourceTable.tableToCsv(null, ";"));
+		assertEquals("", SourceTable.tableToCsv(null, ";"));
 		assertEquals("", SourceTable.tableToCsv(Collections.emptyList(), ";"));
 		assertEquals(";;;;;;",
 				SourceTable.tableToCsv(Collections.singletonList(Arrays.asList("", "", "", "", "", "")), ";"));

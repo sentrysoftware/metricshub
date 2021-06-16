@@ -26,19 +26,19 @@ class MatsyaClientsExecutorTest {
 	void testBuildWMINetworkResource() throws LocalhostCheckException {
 		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(true);
-			assertEquals("root/cimv2", new MatsyaClientsExecutor().buildWMINetworkResource("hostname", "root/cimv2"));
+			assertEquals("root/cimv2", new MatsyaClientsExecutor().buildWmiNetworkResource("hostname", "root/cimv2"));
 		}
 
 		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(false);
 			assertEquals("\\\\hostname\\root/cimv2", new MatsyaClientsExecutor()
-					.buildWMINetworkResource("hostname", "root/cimv2"));
+					.buildWmiNetworkResource("hostname", "root/cimv2"));
 		}
 	}
 
 	@Test
-	void testBuildWMITable() {
-		final List<List<String>> result = new MatsyaClientsExecutor().buildWMITable(
+	void testBuildWmiTable() {
+		final List<List<String>> result = new MatsyaClientsExecutor().buildWmiTable(
 				Arrays.asList(
 						Map.of("DeviceID", "1.1","Name", "Disk 1"),
 						Map.of("DeviceID", "1.2","Name", "Disk 2"),

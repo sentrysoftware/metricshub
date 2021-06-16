@@ -425,7 +425,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if ("automatic".equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
-			return strategyConfig.getHostMonitoring().getDetectedWmiNamespace();
+			return strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
 		} else {
 			return sourceNamespace != null ? sourceNamespace : protocol.getNamespace();
 		}

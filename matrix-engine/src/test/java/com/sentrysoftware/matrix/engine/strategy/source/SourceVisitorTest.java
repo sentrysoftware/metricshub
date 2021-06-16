@@ -438,7 +438,7 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(null).when(hostMonitoring).getDetectedWmiNamespace();
+		doReturn(null).when(hostMonitoring).getAutomaticWmiNamespace();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
 	}
 
@@ -455,7 +455,7 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
 		final List<List<String>> expected = Arrays.asList(
 				Arrays.asList("1.1", "0|4587"),
 				Arrays.asList("1.2", "2|4587"),
@@ -482,7 +482,7 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
 		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
 				"password".toCharArray(), 
@@ -496,7 +496,7 @@ class SourceVisitorTest {
 		{
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getDetectedWmiNamespace();
+			doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
 			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
 		}
 

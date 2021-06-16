@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
 import com.sentrysoftware.hardware.cli.service.EngineService;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -40,6 +41,9 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 
 	@ArgGroup(validate = false)
 	private WBEMCredentials wbemCredentials;
+
+	@ArgGroup(validate = false)
+	private WMICredentials wmiCredentials;
 
 	@Option(names = { "-hdfs",
 	"--connectors" }, split = ",", required = false, description = "Enter the hdfs to run.")

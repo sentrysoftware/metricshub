@@ -1,5 +1,19 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
@@ -10,23 +24,9 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import org.springframework.util.Assert;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 
 @Data
 @NoArgsConstructor
@@ -45,9 +45,9 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new LinkedHashMap<>();
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-	@Getter
-	@Setter
-	private String detectedWmiNamespace;
+	private String automaticWmiNamespace;
+
+	private Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 	@Override
 	public void clearCurrent() {
@@ -331,4 +331,5 @@ public class HostMonitoring implements IHostMonitoring {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
 	}
+
 }
