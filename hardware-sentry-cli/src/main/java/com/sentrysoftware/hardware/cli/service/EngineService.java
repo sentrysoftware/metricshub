@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.Engine;
@@ -24,6 +25,7 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -91,6 +93,10 @@ public class EngineService {
 
 			protocols.put(SNMPProtocol.class, getSNMPProtocol(hardwareSentryCLI.getSnmpCredentials()));
 
+		} else if (hardwareSentryCLI.getWmiCredentials() != null) {
+
+			protocols.put(WMIProtocol.class, getWMIProtocol(hardwareSentryCLI.getWmiCredentials()));
+
 		} else if (hardwareSentryCLI.getWbemCredentials() != null) {
 
 			protocols.put(WBEMProtocol.class, getWBEMProtocol(hardwareSentryCLI.getWbemCredentials()));
@@ -146,6 +152,22 @@ public class EngineService {
 		httpProtocol.setPassword(httpCredentials.getPassword() == null ? null :  httpCredentials.getPassword().toCharArray());
 
 		return httpProtocol;
+	}
+
+	/**
+	 * Set @WMIProtocol based on HardwareSentryCLi.wmiCredentials
+	 *
+	 * @param wmiCredentials	The CLI WMI credentials input.
+	 *
+	 * @return 					{@link WMIProtocol} instance
+	 */
+	private WMIProtocol getWMIProtocol(final WMICredentials wmiCredentials) {
+		return WMIProtocol.builder()
+			.username(wmiCredentials.getUsername())
+			.password(wmiCredentials.getPassword().toCharArray())
+			.timeout(wmiCredentials.getTimeout())
+			.namespace(wmiCredentials.getNamespace())
+			.build();
 	}
 
 	/**

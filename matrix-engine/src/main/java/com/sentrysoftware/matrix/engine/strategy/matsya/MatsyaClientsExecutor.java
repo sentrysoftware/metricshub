@@ -53,9 +53,9 @@ public class MatsyaClientsExecutor {
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
-	
+
 	private long json2CsvTimeout = 60; //seconds
-	
+
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
 	 * @param <T>
@@ -290,7 +290,7 @@ public class MatsyaClientsExecutor {
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
-		final String networkResource = buildWMINetworkResource(hostname, namespace);
+		final String networkResource = buildWmiNetworkResource(hostname, namespace);
 
 		// Go!
 		try (final WmiWbemServicesHandler wbemServices = 
@@ -306,7 +306,7 @@ public class MatsyaClientsExecutor {
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
 
 			// Build the table
-			return buildWMITable(result, properties);
+			return buildWmiTable(result, properties);
 
 		}
 	}
@@ -318,7 +318,7 @@ public class MatsyaClientsExecutor {
 	 * @return {@link String} value
 	 * @throws LocalhostCheckException
 	 */
-	String buildWMINetworkResource(final String hostname, final String namespace) throws LocalhostCheckException {
+	String buildWmiNetworkResource(final String hostname, final String namespace) throws LocalhostCheckException {
 		return NetworkHelper.isLocalhost(hostname) ?
 				namespace : String.format("\\\\%s\\%s", hostname, namespace);
 	}
@@ -330,7 +330,7 @@ public class MatsyaClientsExecutor {
 	 * @param properties      The ordered properties
 	 * @return {@link List} of {@link List} table
 	 */
-	List<List<String>> buildWMITable(final List<Map<String, Object>> result, final List<String> properties) {
+	List<List<String>> buildWmiTable(final List<Map<String, Object>> result, final List<String> properties) {
 		final List<List<String>> table = new ArrayList<>();
 		final WmiStringConverter stringConverter = new WmiStringConverter();
 

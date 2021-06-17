@@ -89,9 +89,11 @@ class HardwareSentryCLITest {
 		String[] args_required_host = { 
 				"-dt", "HP_UX", 
 				"-hdfs", "hdfs1,hdfs2" };
-		
-		assertThrows(MissingParameterException.class, () -> new CommandLine(new HardwareSentryCLI()).parseArgs(args_required_host));
-		
+
+		final CommandLine commandLine = new CommandLine(new HardwareSentryCLI());
+
+		assertThrows(MissingParameterException.class, () -> commandLine.parseArgs(args_required_host));
+
 	}
 
 	@Test
@@ -164,7 +166,7 @@ class HardwareSentryCLITest {
 		assertNull(hardwareSentryCLI.getHttpCredentials());
 
 		// Default values
-		arguments = new String[] {HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+		arguments = new String[]{HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
 			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER};
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCLI.getHostname());
@@ -178,7 +180,7 @@ class HardwareSentryCLITest {
 		assertEquals(USER, httpCredentials.getPassword());
 
 		// Explicit values
-		arguments = new String[] {HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+		arguments = new String[]{HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
 			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER, HTTPS_OPTION,
 			HTTP_PORT_OPTION, PORT, HTTP_TIMEOUT_OPTION, TIMEOUT};
 		commandLine.parseArgs(arguments);
@@ -191,5 +193,25 @@ class HardwareSentryCLITest {
 		assertEquals(Long.parseLong(TIMEOUT), httpCredentials.getTimeout());
 		assertEquals(USER, httpCredentials.getUsername());
 		assertEquals(USER, httpCredentials.getPassword());
+	}
+
+	@Test
+	void argumentsWMITest() {
+		String[] args_hdfs = { "-host", "hostaa", 
+				"-dt", "MS_WINDOWS", 
+				"--wmi-namespace", "root\\ibmsd",
+				"--wmi-username", "admin", 
+				"--wmi-password", "#1Password", 
+				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+		HardwareSentryCLI sentryCli = new HardwareSentryCLI();
+		new CommandLine(sentryCli).parseArgs(args_hdfs);
+
+		assertEquals("hostaa", sentryCli.getHostname());
+		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+		assertEquals("root\\ibmsd", sentryCli.getWmiCredentials().getNamespace());
+		assertEquals(120L, sentryCli.getWmiCredentials().getTimeout());
+		assertEquals("admin", sentryCli.getWmiCredentials().getUsername());
+		assertEquals("#1Password", sentryCli.getWmiCredentials().getPassword());
+		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
 	}
 }
