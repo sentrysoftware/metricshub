@@ -33,6 +33,7 @@
    - _\<protocol-configuration\>_ refers to a set of:
    
         - [SNMP configuration options](#snmp)
+        - [HTTP configuration options](#http)
    
    ###### Example:
    ```shell script
@@ -158,6 +159,18 @@
   | --snmp-privacy         | The encryption algorithm (when the SNMP version is V3_MD5 or V3-SHA) | AES<br>DES<br>NO_ENCRYPTION                 |               |
   | --snmp-privacyPassword | The privacy password (when the SNMP version is V3_MD5 or V3-SHA)     |                                             |               |
   
+  <a name="http"></a>
+  ## HTTP configuration options
+  Here are the available options for the HTTP configuration:
+  
+  | Option          | Description                     | Available Values | Default Value | Remark            |
+  |-----------------|---------------------------------|------------------|---------------|-------------------|
+  | --http          | Use HTTP instead of HTTPS       |                  | false         | Takes no argument |
+  | --http-port     | The HTTP(S) port                |                  | 443           |                   |
+  | --http-timeout  | The HTTP(S) timeout, in seconds |                  | 120           |                   |
+  | --http-username | The user name                   |                  |               |                   |
+  | --http-password | The user password               |                  |               |                   |
+
   <a name="hdfs"></a>
   ## Specifying a list of connectors
   You can specify a comma-separated list of connectors by using the _-hdfs_ (or _--connectors_) option.

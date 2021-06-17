@@ -104,7 +104,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final HTTP criterion) {
 
-		if (null == criterion) {
+		if (criterion == null) {
 			return CriterionTestResult.empty();
 		}
 
@@ -160,7 +160,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		} else {
 
-			Pattern pattern = Pattern.compile(expectedResult);
+			Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult));
 			if (result != null && pattern.matcher(result).find()) {
 
 				message = String.format("Successful HTTP Test on %s. Returned Result: %s.", hostname, result);

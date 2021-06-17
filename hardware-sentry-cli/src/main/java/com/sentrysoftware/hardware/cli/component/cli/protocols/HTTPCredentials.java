@@ -6,10 +6,10 @@ import picocli.CommandLine.Option;
 @Data
 public class HTTPCredentials {
 
-	@Option(names = "--https", defaultValue = "false", description = "Use HTTPS, default : false.")
-	boolean https;
+	@Option(names = "--http", defaultValue = "false", description = "Use HTTP, default : false.")
+	boolean http;
 
-	@Option(names = "--http-port", defaultValue = "8080", description = "HTTP(S) Port, default : 8080.")
+	@Option(names = "--http-port", defaultValue = "443", description = "HTTP(S) Port, default : 443.")
 	int port;
 
 	@Option(names = "--http-timeout", defaultValue = "120", description = "HTTP(S) Timeout, unit: seconds, default: 120.")

@@ -144,7 +144,7 @@ public class EngineService {
 
 		HTTPProtocol httpProtocol = new HTTPProtocol();
 
-		httpProtocol.setHttps(httpCredentials.isHttps());
+		httpProtocol.setHttps(!httpCredentials.isHttp());
 		httpProtocol.setPort(httpCredentials.getPort());
 		httpProtocol.setTimeout(httpCredentials.getTimeout());
 

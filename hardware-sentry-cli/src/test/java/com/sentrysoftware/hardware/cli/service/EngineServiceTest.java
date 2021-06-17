@@ -84,7 +84,7 @@ class EngineServiceTest {
 		HTTPCredentials httpCredentials = new HTTPCredentials();
 		HTTPProtocol httpProtocol = engine.getHTTPProtocol(httpCredentials);
 		assertNotNull(httpProtocol);
-		assertFalse(httpProtocol.getHttps());
+		assertTrue(httpProtocol.getHttps());
 		assertEquals(0, httpProtocol.getPort());
 		assertEquals(0L, httpProtocol.getTimeout());
 		assertNull(httpProtocol.getUsername());
@@ -95,7 +95,7 @@ class EngineServiceTest {
 		httpCredentials.setPassword(password);
 		httpProtocol = engine.getHTTPProtocol(httpCredentials);
 		assertNotNull(httpProtocol);
-		assertFalse(httpProtocol.getHttps());
+		assertTrue(httpProtocol.getHttps());
 		assertEquals(0, httpProtocol.getPort());
 		assertEquals(0L, httpProtocol.getTimeout());
 		assertNull(httpProtocol.getUsername());

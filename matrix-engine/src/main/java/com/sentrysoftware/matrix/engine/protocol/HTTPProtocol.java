@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 public class HTTPProtocol implements IProtocolConfiguration {
 
 	@Default
-	private Boolean https = false;
+	private Boolean https = true;
 
 	@Default
-	private Integer port = 8080;
+	private Integer port = 443;
 
 	@Default
 	private Long timeout = 120L;

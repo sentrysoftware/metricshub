@@ -23,7 +23,7 @@ class HardwareSentryCLITest {
 	private static final String HOST_OPTION = "-host";
 	private static final String DEVICE_TYPE_OPTION = "-dt";
 
-	private static final String HTTPS_OPTION = "--https";
+	private static final String HTTP_OPTION = "--http";
 	private static final String HTTP_PORT_OPTION = "--http-port";
 	private static final String HTTP_TIMEOUT_OPTION = "--http-timeout";
 	private static final String HTTP_USERNAME_OPTION = "--http-username";
@@ -173,22 +173,22 @@ class HardwareSentryCLITest {
 		assertEquals(TargetType.LINUX, hardwareSentryCLI.getDeviceType());
 		HTTPCredentials httpCredentials = hardwareSentryCLI.getHttpCredentials();
 		assertNotNull(httpCredentials);
-		assertFalse(httpCredentials.isHttps());
-		assertEquals(8080, httpCredentials.getPort());
+		assertFalse(httpCredentials.isHttp());
+		assertEquals(443, httpCredentials.getPort());
 		assertEquals(120L, httpCredentials.getTimeout());
 		assertEquals(USER, httpCredentials.getUsername());
 		assertEquals(USER, httpCredentials.getPassword());
 
 		// Explicit values
 		arguments = new String[]{HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
-			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER, HTTPS_OPTION,
+			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, USER, HTTP_OPTION,
 			HTTP_PORT_OPTION, PORT, HTTP_TIMEOUT_OPTION, TIMEOUT};
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCLI.getHostname());
 		assertEquals(TargetType.LINUX, hardwareSentryCLI.getDeviceType());
 		httpCredentials = hardwareSentryCLI.getHttpCredentials();
 		assertNotNull(httpCredentials);
-		assertTrue(httpCredentials.isHttps());
+		assertTrue(httpCredentials.isHttp());
 		assertEquals(Integer.parseInt(PORT), httpCredentials.getPort());
 		assertEquals(Long.parseLong(TIMEOUT), httpCredentials.getTimeout());
 		assertEquals(USER, httpCredentials.getUsername());

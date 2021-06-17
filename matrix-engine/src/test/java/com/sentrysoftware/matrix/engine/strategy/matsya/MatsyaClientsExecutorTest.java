@@ -53,7 +53,7 @@ class MatsyaClientsExecutorTest {
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";
 	private static final String BAZ = "BAZ";
-	private static final int DEFAULT_PORT = 8080;
+	private static final int DEFAULT_PORT = 443;
 
 	@BeforeAll
 	static void setUp() {
@@ -151,6 +151,7 @@ class MatsyaClientsExecutorTest {
 		http.setUrl(FOO);
 
 		HTTPProtocol httpProtocol = new HTTPProtocol();
+		httpProtocol.setHttps(false);
 		httpProtocol.setUsername(FOO);
 		httpProtocol.setPassword(FOO.toCharArray());
 
