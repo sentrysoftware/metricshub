@@ -4,6 +4,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HT
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
@@ -22,6 +23,8 @@ public interface ISourceVisitor {
 	SourceTable visit(final OSCommandSource osCommandSource);
 
 	SourceTable visit(final ReferenceSource referenceSource);
+
+	SourceTable visit(final StaticSource staticSource);
 
 	SourceTable visit(final SNMPGetSource snmpGetSource);
 

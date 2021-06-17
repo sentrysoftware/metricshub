@@ -30,6 +30,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HT
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
@@ -40,8 +41,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -58,6 +59,9 @@ class SourceVisitorTest {
 	private static final List<String> SNMP_SELECTED_COLUMNS = Arrays.asList("ID","9","11","49");
 	private static final List<String> SNMP_WRONG_COLUMNS = Arrays.asList("ID","ID9","ID11","ID49");
 	private static final String OID = "1.3.6.1.4.1.674.10892.1.300.10.1";
+	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
+	private static final String VALUE_LIST = "a1;b1;c1";
+	private static final String VALUE_A1 = "a1";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -99,7 +103,60 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitReferenceSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new ReferenceSource()));
+		ReferenceSource referenceSource = null;
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(referenceSource));
+		referenceSource = new ReferenceSource();
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(referenceSource));
+
+		List<List<String>> expectedTable = Arrays.asList(
+				Arrays.asList("a1", "b1", "c1"),
+				Arrays.asList("val1", "val2", "val3"));
+
+		SourceTable tabl1 = SourceTable.builder()
+				.table(expectedTable)
+				.build();
+
+		referenceSource = ReferenceSource.builder().build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(referenceSource));
+
+		referenceSource = ReferenceSource.builder().reference(VALUE_TABLE).build();
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		assertEquals(expectedTable, sourceVisitor.visit(referenceSource).getTable());
+	}
+
+	@Test
+	void testVisitStaticSourceSingleValue() {
+		StaticSource staticSource = null;
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(staticSource));
+		staticSource = new StaticSource();
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(staticSource));
+
+		List<List<String>> expectedTable = Arrays.asList(
+				Arrays.asList(VALUE_A1));
+
+		staticSource = StaticSource.builder().build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
+
+		staticSource = StaticSource.builder().staticValue(VALUE_A1).build();
+
+		assertEquals(expectedTable, sourceVisitor.visit(staticSource).getTable());
+	}
+
+	@Test
+	void testVisitStaticSourceMultipleValues() {
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new StaticSource()));
+
+		List<List<String>> expectedTable = Arrays.asList(
+				Arrays.asList("a1", "b1", "c1"));
+
+		StaticSource staticSource = StaticSource.builder().build();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
+
+		staticSource = StaticSource.builder().staticValue(VALUE_LIST).build();
+
+		assertEquals(expectedTable, sourceVisitor.visit(staticSource).getTable());
 	}
 
 	@Test
@@ -326,12 +383,12 @@ class SourceVisitorTest {
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableUnionExample).getTable());
 
 		tableUnionExample = TableUnionSource.builder()
-				.tables(Arrays.asList("tab1", "tab2", "tab3"))
+				.tables(Arrays.asList("Enclosure.Discovery.Source(1)", "Enclosure.Discovery.Source(2)", "Enclosure.Discovery.Source(3)"))
 				.build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey("tab1");
-		doReturn(tabl2).when(hostMonitoring).getSourceTableByKey("tab2");
+		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey("Enclosure.Discovery.Source(1)");
+		doReturn(tabl2).when(hostMonitoring).getSourceTableByKey("Enclosure.Discovery.Source(2)");
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
 
 	}
