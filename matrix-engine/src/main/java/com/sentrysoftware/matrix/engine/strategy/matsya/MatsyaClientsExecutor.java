@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -10,23 +11,29 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wbem2.WbemExecuteQuery;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -54,7 +61,7 @@ public class MatsyaClientsExecutor {
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
 
-	private long json2CsvTimeout = 60; //seconds
+	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
@@ -265,7 +272,7 @@ public class MatsyaClientsExecutor {
 			return null;
 		};
 
-		return execute(jflatToCSV, json2CsvTimeout);
+		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 	}
 
 	/**
@@ -277,15 +284,15 @@ public class MatsyaClientsExecutor {
 	 * @param timeout   The timeout in seconds after which the query is rejected
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException    If the localhost check fails
-	 * @throws WmiComException            For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WmiWqlQuerySyntaxException In case of not valid query
-	 * @throws TimeoutException           When the given timeout is reached
+	 * @throws LocalhostCheckException	If the localhost check fails
+	 * @throws WmiComException			For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WqlQuerySyntaxException	In case of not valid query
+	 * @throws TimeoutException			When the given timeout is reached
 	 */
 	public List<List<String>> executeWmi(final String hostname, final String username,
 			final char[] password, final Long timeout,
 			final String wbemQuery, final String namespace)
-			throws LocalhostCheckException, WmiComException, TimeoutException, WmiWqlQuerySyntaxException {
+		throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
 
 		// Where to connect to?
 		// Local: namespace
@@ -454,5 +461,64 @@ public class MatsyaClientsExecutor {
 				timeout,
 				null
 			);
+	}
+
+	/**
+	 * @param namespace	The namespace with which the query should be executed.
+	 * @param query		The query that is being executed.
+	 * @param protocol	The {@link WBEMProtocol} properties.
+	 * @param hostname	The name of the host against which the query is being executed.
+	 * @param logMode	Whether or not logging is enabled.
+	 *
+	 * @return			A table (as a {@link List} of {@link List} of {@link String}s)
+	 * 					resulting from the execution of the query.
+	 *
+	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
+	 * @throws WBEMException			If there is a WBEM error.
+	 * @throws TimeoutException			If the query did not complete on time.
+	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 */
+	public List<List<String>> executeWbem(String namespace, String query, WBEMProtocol protocol, String hostname,
+										  boolean logMode)
+		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+
+		WBEMProtocol.WBEMProtocols wbemProtocols = protocol.getProtocol();
+		notNull(wbemProtocols, "wbemProtocols cannot be null");
+		String protocolName = wbemProtocols.name();
+
+		Integer port = protocol.getPort();
+		notNull(port, "port cannot be null");
+
+		URL url;
+		try {
+
+			url = new URL(String.format("%s://%s:%d", protocolName, hostname, port));
+
+		} catch (MalformedURLException e) {
+
+			if (logMode) {
+
+				log.error("Error detected when creating URL {}://{}:{} : {}", protocolName, hostname, port,
+					e.getMessage());
+			}
+
+			return Collections.emptyList();
+		}
+
+		Long timeout = protocol.getTimeout();
+		notNull(timeout, "timeout cannot be null");
+
+		WbemQueryResult wbemQueryResult = WbemExecuteQuery.executeQuery(
+			url,
+			namespace,
+			protocol.getUsername(),
+			protocol.getPassword(),
+			query,
+			timeout.intValue() * 1000);
+
+		return wbemQueryResult.getValues();
 	}
 }

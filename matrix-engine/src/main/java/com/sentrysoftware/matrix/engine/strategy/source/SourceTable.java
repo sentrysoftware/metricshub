@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +48,9 @@ public class SourceTable {
 					.stream()
 					.filter(Objects::nonNull)
 					.map(line -> replaceSeparator ?  
-							line.stream().map(val -> val.replace(separator, ",")).collect(Collectors.toList()) : line)
+							line.stream().map(val -> val.replace(separator, COMMA)).collect(Collectors.toList()) : line)
 					.map(line -> String.join(separator, line) + separator)
-					.collect(Collectors.joining("\n"));
+					.collect(Collectors.joining(NEW_LINE));
 		}
 
 		return EMPTY;

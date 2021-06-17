@@ -46,8 +46,10 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	private String automaticWmiNamespace;
-
 	private Set<String> possibleWmiNamespaces = new TreeSet<>();
+
+	private String automaticWbemNamespace;
+	private Set<String> possibleWbemNamespaces = new TreeSet<>();
 
 	@Override
 	public void clearCurrent() {

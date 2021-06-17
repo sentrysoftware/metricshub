@@ -53,4 +53,10 @@ public interface IHostMonitoring {
 	String getAutomaticWmiNamespace();
 
 	Set<String> getPossibleWmiNamespaces();
+
+	void setAutomaticWbemNamespace(String automaticNamespace);
+
+	String getAutomaticWbemNamespace();
+
+	Set<String> getPossibleWbemNamespaces();
 }

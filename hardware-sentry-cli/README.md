@@ -34,6 +34,8 @@
    
         - [SNMP configuration options](#snmp)
         - [HTTP configuration options](#http)
+        - [WMI configuration options](#wmi)
+        - [WBEM configuration options](#wbem)
    
    ###### Example:
    ```shell script
@@ -159,6 +161,30 @@
   | --snmp-privacy         | The encryption algorithm (when the SNMP version is V3_MD5 or V3-SHA) | AES<br>DES<br>NO_ENCRYPTION                 |               |
   | --snmp-privacyPassword | The privacy password (when the SNMP version is V3_MD5 or V3-SHA)     |                                             |               |
   
+  <a name="wmi"></a>
+  ## WMI configuration options
+  Here are the available options for the WMI configuration:
+  
+  | Option          | Description                 | Available Values | Default Value | Remark                                                      |
+  |-----------------|-----------------------------|------------------|---------------|-------------------------------------------------------------|
+  | --wmi-namespace | The WMI namespace           |                  | root/cimv2    | Leave blank to let the solution detect the proper namespace |
+  | --wmi-timeout   | The WMI timeout, in seconds |                  | 120           |                                                             |
+  | --wmi-username  | The user name               |                  |               |                                                             |
+  | --wmi-password  | The user password           |                  |               |                                                             |
+
+  <a name="wbem"></a>
+  ## WBEM configuration options
+  Here are the available options for the WBEM configuration:
+  
+  | Option           | Description                  | Available Values | Default Value |
+  |------------------|------------------------------|------------------|---------------|
+  | --wbem-protocol  | The WBEM protocol            | https<br>http    | https         |
+  | --wbem-port      | The WBEM port                |                  | 5989          |
+  | --wbem-namespace | The WBEM namespace           |                  | root/cimv2    |
+  | --wbem-timeout   | The WBEM timeout, in seconds |                  | 120           |
+  | --wbem-username  | The user name                |                  |               |
+  | --wbem-password  | The user password            |                  |               |
+
   <a name="http"></a>
   ## HTTP configuration options
   Here are the available options for the HTTP configuration:
