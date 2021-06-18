@@ -2079,7 +2079,7 @@ class ComputeVisitorTest {
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
-		doReturn(SourceTable.tableToCsv(table, SEMICOLON_SEPARATOR)).when(matsyaClientsExecutor).executeAwkScript(any(), any());
+		doReturn(SourceTable.tableToCsv(table, SEMICOLON_SEPARATOR, true)).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).excludeRegExp("ID1").keepOnlyRegExp("ID2").separators(SEMICOLON_SEPARATOR).selectColumns(Arrays.asList(2, 3)).build());
 		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 		assertEquals(Arrays.asList(Arrays.asList("NAME2", "MANUFACTURER2")), sourceTable.getTable());
