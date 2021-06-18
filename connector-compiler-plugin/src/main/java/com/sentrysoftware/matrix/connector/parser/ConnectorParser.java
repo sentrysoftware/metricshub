@@ -81,7 +81,5 @@ public class ConnectorParser {
 
 		Optional<ConnectorState> firstConnectorState = connectorStates.stream().findFirst();
 		firstConnectorState.ifPresent(connectorState -> connectorState.parse(key, value, connector));
-
-		// TODO if the Connector defines an IPMI source then add "ipmitool" to the list of sudoCommands in the Connector bean.
 	}
 }
