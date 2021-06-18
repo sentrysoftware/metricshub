@@ -66,6 +66,10 @@
 			<artifactId>module-wmiclient</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-httpclient</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>

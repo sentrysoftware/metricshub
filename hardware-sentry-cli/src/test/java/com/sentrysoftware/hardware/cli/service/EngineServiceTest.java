@@ -1,19 +1,24 @@
 package com.sentrysoftware.hardware.cli.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EngineServiceTest {
 
@@ -65,5 +70,35 @@ class EngineServiceTest {
 		assertEquals(SNMPVersion.V1, snmpProtocol.getVersion());
 		assertEquals(10, snmpProtocol.getTimeout());
 		assertEquals("user", snmpProtocol.getUsername());
+	}
+
+	@Test
+	void getHTTPCredentialsTest() {
+
+
+
+		// httpCredentials is null
+		assertThrows(IllegalArgumentException.class, () -> engine.getHTTPProtocol(null));
+
+		// httpCredentials is not null, password is null
+		HTTPCredentials httpCredentials = new HTTPCredentials();
+		HTTPProtocol httpProtocol = engine.getHTTPProtocol(httpCredentials);
+		assertNotNull(httpProtocol);
+		assertTrue(httpProtocol.getHttps());
+		assertEquals(0, httpProtocol.getPort());
+		assertEquals(0L, httpProtocol.getTimeout());
+		assertNull(httpProtocol.getUsername());
+		assertNull(httpProtocol.getPassword());
+
+		// httpCredentials is not null, password is not null
+		String password = "password";
+		httpCredentials.setPassword(password);
+		httpProtocol = engine.getHTTPProtocol(httpCredentials);
+		assertNotNull(httpProtocol);
+		assertTrue(httpProtocol.getHttps());
+		assertEquals(0, httpProtocol.getPort());
+		assertEquals(0L, httpProtocol.getTimeout());
+		assertNull(httpProtocol.getUsername());
+		assertTrue(Arrays.equals(password.toCharArray(), httpProtocol.getPassword()));
 	}
 }
