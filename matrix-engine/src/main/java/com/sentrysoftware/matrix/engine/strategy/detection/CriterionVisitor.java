@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +54,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private static final String NAMESPACE_MESSAGE = "\n- Namespace: ";
 
 	private static final Pattern SNMP_GETNEXT_RESULT_REGEX = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
+	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
 	private static final Map<String, String> WMI_INTEROPERABILITY_NAMESPACES;
 	private static final Set<String> IGNORED_WMI_NAMESPACES;
@@ -100,8 +103,86 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final HTTP criterion) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+
+		if (criterion == null) {
+			return CriterionTestResult.empty();
+		}
+
+		EngineConfiguration engineConfiguration = strategyConfig.getEngineConfiguration();
+
+		HTTPProtocol protocol = (HTTPProtocol) engineConfiguration
+			.getProtocolConfigurations()
+			.get(HTTPProtocol.class);
+
+		if (protocol == null) {
+			return CriterionTestResult.empty();
+		}
+
+		final String hostname = engineConfiguration
+			.getTarget()
+			.getHostname();
+
+		final String result = matsyaClientsExecutor.executeHttp(criterion, protocol, hostname, false);
+
+		final TestResult testResult = checkHttpResult(hostname, result, criterion.getExpectedResult());
+
+		return CriterionTestResult
+			.builder()
+			.result(result)
+			.success(testResult.isSuccess())
+			.message(testResult.getMessage())
+			.build();
+	}
+
+	/**
+	 * @param hostname			The hostname against which the HTTP test has been carried out.
+	 * @param result			The actual result of the HTTP test.
+	 *
+	 * @param expectedResult	The expected result of the HTTP test.
+	 * @return					A {@link TestResult} summarizing the outcome of the HTTP test.
+	 */
+	private TestResult checkHttpResult(String hostname, String result, String expectedResult) {
+
+		String message;
+		boolean success = false;
+
+		if (expectedResult == null) {
+
+			if (result == null || result.isEmpty()) {
+
+				message = String.format("HTTP Test Failed - the HTTP Test on %s did not return any result.", hostname);
+
+			} else {
+
+				message = String.format("Successful HTTP Test on %s. Returned Result: %s.", hostname, result);
+				success = true;
+			}
+
+		} else {
+
+			Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult));
+			if (result != null && pattern.matcher(result).find()) {
+
+				message = String.format("Successful HTTP Test on %s. Returned Result: %s.", hostname, result);
+				success = true;
+
+			} else {
+
+				message = String
+					.format("HTTP Test Failed - "
+							+"the returned result (%s) of the HTTP Test on %s did not match the expected result (%s).",
+						result, hostname, expectedResult);
+				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
+			}
+		}
+
+		log.debug(message);
+
+		return TestResult
+			.builder()
+			.message(message)
+			.success(success)
+			.build();
 	}
 
 	@Override
@@ -222,7 +303,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			message = String.format(
 					"SNMP Test Failed - SNMP Get of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
 					oid, hostname);
-			message += String.format("Expected value: %s - returned value %s.", expected, result);
+			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
 			message = String.format("Successful SNMP Get of %s on %s. Returned Result: %s.", oid, hostname, result);
 			success = true;
@@ -825,7 +906,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				message = String.format(
 						"SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
 						oid, hostname);
-				message += String.format("Expected value: %s - returned value %s.", expected, value);
+				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, value);
 				success = false;
 			} else {
 				message = String.format("Successful SNMP GetNext of %s on %s. Returned Result: %s.", oid, hostname, result);
