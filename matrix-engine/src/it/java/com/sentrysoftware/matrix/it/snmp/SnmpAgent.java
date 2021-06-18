@@ -21,7 +21,6 @@ import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.agent.AgentConfigManager;
 import org.snmp4j.agent.DefaultMOContextScope;
 import org.snmp4j.agent.DefaultMOServer;
-import org.snmp4j.agent.DuplicateRegistrationException;
 import org.snmp4j.agent.MOQuery;
 import org.snmp4j.agent.MOQueryWithSource;
 import org.snmp4j.agent.MOServer;
@@ -143,7 +142,7 @@ public class SnmpAgent implements VariableProvider {
 
 		if (pos >= 0) {
 			context = new OctetString(name.substring(0, pos));
-			oid = new OID(name.substring(pos + 1, name.length()));
+			oid = new OID(name.substring(pos + 1));
 		} else {
 			oid = new OID(name);
 		}
@@ -409,9 +408,8 @@ public class SnmpAgent implements VariableProvider {
 	 * Register the given {@link ManagedObject} in the {@link MOServer} registry
 	 * 
 	 * @param mo {@link ManagedObject} instance we wish to register
-	 * @throws DuplicateRegistrationException
 	 */
-	private void register(ManagedObject<?> mo) throws DuplicateRegistrationException {
+	private void register(ManagedObject<?> mo) {
 		((DefaultMOServer) server).getRegistry().put(mo.getScope(), mo);
 	}
 }

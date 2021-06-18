@@ -164,8 +164,6 @@ public abstract class AbstractITJob implements ITJob {
 	 * 
 	 * @param expected
 	 * @param actual
-	 * @param monitorType
-	 * @param monitorId
 	 */
 	private static void assertMetadata(Monitor expected, Monitor actual) {
 		for (Entry<String, String> expectedMetadata : expected.getMetadata().entrySet()) {

@@ -68,7 +68,7 @@ public class SnmpRequestProcessor extends CommandProcessor {
 		public void processPdu(final SnmpRequest request, final MOServer server) {
 			// The command response is already set by SNMP4J, so here we should receive a source which already contains a result from the 
 			// SNMP4J registry but it can contain NULL if we are in a nested table column
-			final CommandResponderEvent<?> commandResponder = (CommandResponderEvent<?>) request.getSource();
+			final CommandResponderEvent<?> commandResponder = request.getSource();
 
 			// Get the variable bindings
 			final List<VariableBinding> variableBindings = (List<VariableBinding>) commandResponder.getPDU()
@@ -90,7 +90,7 @@ public class SnmpRequestProcessor extends CommandProcessor {
 					variableBindings.add(variableBinding);
 
 					// Then proceed
-					proceed(request, server, moScalar);
+					proceed(request, moScalar);
 					return;
 				}
 
@@ -116,10 +116,9 @@ public class SnmpRequestProcessor extends CommandProcessor {
 		 * then handle requested data for SNMP V1 especially for the Counter64 SNMP V2
 		 * 
 		 * @param request The {@link SnmpRequest} we wish to process
-		 * @param server  The server managing the {@link SnmpRequest}
 		 * @param mo      The managed object
 		 */
-		public void proceed(final SnmpRequest request, final  MOServer server, final MOScalar<? extends Variable> mo) {
+		public void proceed(final SnmpRequest request, final MOScalar<? extends Variable> mo) {
 
 			initRequestPhase(request);
 

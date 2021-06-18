@@ -44,8 +44,8 @@ public class JsonHelper {
 	/**
 	 * Deserialize and return the requested type using the InputStream
 	 * 
-	 * @param InputStream {@link InputStream} connection to the JSON
-	 * @param clazz       The target Java type
+	 * @param is    {@link InputStream} connection to the JSON
+	 * @param clazz The target Java type
 	 * @return new Object
 	 * @throws IOException
 	 */
