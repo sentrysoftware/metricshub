@@ -3,8 +3,6 @@ package com.sentrysoftware.matrix.engine.strategy.collect;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,17 +149,17 @@ public class CollectHelper {
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} rawValue
 	 * @param parameterName The name of the {@link NumberParam} instance
 	 * @param previous      Indicate whether we should return the <code>rawValue</code> or <code>previousRawValue</code>.
-	 * @return {@link Optional} of a {@link Double} value
+	 * @return a {@link Double} value
 	 */
-	public static OptionalDouble getNumberParamRawValue(final Monitor monitor, final String parameterName, final boolean previous) {
+	public static Double getNumberParamRawValue(final Monitor monitor, final String parameterName, final boolean previous) {
 
 		final NumberParam parameter = monitor.getParameter(parameterName, NumberParam.class);
 
 		if (parameter == null) {
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return previous ? getOptionalDouble(parameter.getPreviousRawValue()) : getOptionalDouble(parameter.getRawValue());
+		return previous ? getDoubleValue(parameter.getPreviousRawValue()) : getDoubleValue(parameter.getRawValue());
 	}
 
 	/**
@@ -170,31 +168,31 @@ public class CollectHelper {
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} collect time
 	 * @param parameterName The name of the {@link NumberParam} instance
 	 * @param previous      Indicate whether we should return the <code>collectTime</code> or the <code>previousCollectTime</code>.
-	 * @return {@link Optional} of a {@link Double} value
+	 * @return a {@link Double} value
 	 */
-	public static OptionalDouble getNumberParamCollectTime(final Monitor monitor, final String parameterName, final boolean previous) {
+	public static Double getNumberParamCollectTime(final Monitor monitor, final String parameterName, final boolean previous) {
 
 		final NumberParam parameter = monitor.getParameter(parameterName, NumberParam.class);
 
 		if (parameter == null) {
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return previous ? getOptionalDouble(parameter.getPreviousCollectTime()) : getOptionalDouble(parameter.getCollectTime());
+		return previous ? getDoubleValue(parameter.getPreviousCollectTime()) : getDoubleValue(parameter.getCollectTime());
 	}
 
 	/**
-	 * Wrap the given number in an {@link OptionalDouble} instance
+	 * Return the {@link Double} value of the given {@link Number} instance
 	 * 
 	 * @param number
-	 * @return {@link OptionalDouble} instance
+	 * @return {@link Double} instance
 	 */
-	public static OptionalDouble getOptionalDouble(final Number number) {
+	public static Double getDoubleValue(final Number number) {
 		if (number == null) {
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return OptionalDouble.of(number.doubleValue());
+		return number.doubleValue();
 	}
 
 	/**
@@ -204,98 +202,93 @@ public class CollectHelper {
 	 * @param minuend		Minuend of the subtraction
 	 * @param subtrahend	Subtrahend of the subtraction
 	 * 
-	 * @return {@link OptionalDouble} value
+	 * @return {@link Double} value
 	 */
-	public static OptionalDouble subtract(final String parameterName, final OptionalDouble minuend, final OptionalDouble subtrahend) {
+	public static Double subtract(final String parameterName, final Double minuend, final Double subtrahend) {
 
-		if (minuend.isEmpty() || subtrahend.isEmpty()) {
-			return OptionalDouble.empty();
+		if (minuend == null || subtrahend == null) {
+			return null;
 		}
 
-		final double result = minuend.getAsDouble() - subtrahend.getAsDouble();
+		final double result = minuend - subtrahend;
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameterName)) {
 			log.warn("Suspicious negative value ({} - {}) = {} for parameter {}", minuend, subtrahend, result, parameterName);
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return OptionalDouble.of(result);
+		return result;
 
 	}
 
 	/**
 	 * Perform a division arithmetic operation
 	 * 
-	 * @param parameter        The parameter we wish to compute using a division (Rate, Percentage...)
-	 * @param dividendOptional The dividend to use
-	 * @param divisorOptional  The divisor to use
-	 * @return {@link OptionalDouble} value
+	 * @param parameter The parameter we wish to compute using a division (Rate, Percentage...)
+	 * @param dividend  The dividend to use
+	 * @param divisor   The divisor to use
+	 * @return {@link Double} value
 	 */
-	public static OptionalDouble divide(final String parameter, final OptionalDouble dividendOptional, final OptionalDouble divisorOptional) {
+	public static Double divide(final String parameter, final Double dividend, final Double divisor) {
 
-		if (dividendOptional.isEmpty() || divisorOptional.isEmpty()) {
-			return OptionalDouble.empty();
+		if (dividend == null || divisor == null) {
+			return null;
 		}
-
-		double dividend = dividendOptional.getAsDouble();
-		double divisor = divisorOptional.getAsDouble();
 
 		if (divisor == 0) {
 			log.debug("Couldn't compute ({} / {}) for parameter {}", dividend, divisor, parameter);
-			return OptionalDouble.empty();
+			return null;
 		}
 
 		final double result = dividend / divisor;
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameter)) {
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return OptionalDouble.of(result);
+		return result;
 	}
 
 	/**
 	 * Perform a multiplication arithmetic operation
 	 * 
-	 * @param parameter       The parameter we wish to compute using a multiplication
-	 * @param multiplierOpt   The multiplier to use
-	 * @param multiplicandOpt The multiplicand to use
-	 * @return {@link OptionalDouble} value
+	 * @param parameter    The parameter we wish to compute using a multiplication
+	 * @param multiplier   The multiplier to use
+	 * @param multiplicand The multiplicand to use
+	 * @return {@link Double} value
 	 */
-	public static OptionalDouble multiply(final String parameter, final OptionalDouble multiplierOpt, final OptionalDouble multiplicandOpt) {
+	public static Double multiply(final String parameter, final Double multiplier, final Double multiplicand) {
 
-		if (multiplierOpt.isEmpty() || multiplicandOpt.isEmpty()) {
-			return OptionalDouble.empty();
+		if (multiplier == null || multiplicand == null) {
+			return null;
 		}
 
-		double multiplier = multiplierOpt.getAsDouble();
-		double multiplicand = multiplicandOpt.getAsDouble();
 		double result = multiplier * multiplicand;
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameter)) {
-			return OptionalDouble.empty();
+			return null;
 		}
 
-		return OptionalDouble.of(multiplier * multiplicand);
+		return result;
 
 	}
 
 	/**
 	 * Compute a rate (value - previousValue) / (collectTime - previousCollectTime)
 	 * 
-	 * @param parameterName          The parameter we wish to compute its rate value
-	 * @param valueOpt               The value from the current collect
-	 * @param previousValueOpt       The value from the previous collect
-	 * @param collectTimeOpt         The time of the current collect
-	 * @param previousCollectTimeOpt The time of the previous collect
+	 * @param parameterName       The parameter we wish to compute its rate value
+	 * @param value               The value from the current collect
+	 * @param previousValue       The value from the previous collect
+	 * @param collectTime         The time of the current collect
+	 * @param previousCollectTime The time of the previous collect
 	 *
-	 * @return {@link OptionalDouble} value
+	 * @return {@link Double} value
 	 */
-	public static OptionalDouble rate(String parameterName, OptionalDouble valueOpt, OptionalDouble previousValueOpt, OptionalDouble collectTimeOpt,
-			OptionalDouble previousCollectTimeOpt) {
+	public static Double rate(String parameterName, Double value, Double previousValue, Double collectTime,
+			Double previousCollectTime) {
 		return CollectHelper.divide(parameterName, 
-				CollectHelper.subtract(parameterName, valueOpt, previousValueOpt),
-				CollectHelper.subtract(parameterName, collectTimeOpt, previousCollectTimeOpt));
+				CollectHelper.subtract(parameterName, value, previousValue),
+				CollectHelper.subtract(parameterName, collectTime, previousCollectTime));
 	}
 
 }
