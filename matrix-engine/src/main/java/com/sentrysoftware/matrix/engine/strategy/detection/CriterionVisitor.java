@@ -38,6 +38,7 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
@@ -185,7 +186,47 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final IPMI ipmi) {
-		// Not implemented yet
+
+		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+
+		if (TargetType.MS_WINDOWS.equals(targetType)) {
+			return processWindowsIpmiDetection();
+		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			return processUnixIpmiDetection();
+		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+			return processOutOfBandIpmiDetection();
+		}
+
+		return CriterionTestResult.builder()
+				.message("Failed to make an IPMI query on localhost. " + targetType.name() + " is an unsupported OS for IPMI.")
+				.success(false)
+				.build();
+	}
+
+	/**
+	 * Process IPMI detection for the Out Of Band device
+	 * 
+	 * @return
+	 */
+	private CriterionTestResult processOutOfBandIpmiDetection() {
+		return CriterionTestResult.empty();
+	}
+
+	/**
+	 * Process IPMI detection for the Unix system
+	 * 
+	 * @return
+	 */
+	private CriterionTestResult processUnixIpmiDetection() {
+		return CriterionTestResult.empty();
+	}
+
+	/**
+	 * Process IPMI detection for the Windows (NT) system
+	 * 
+	 * @return
+	 */
+	private CriterionTestResult processWindowsIpmiDetection() {
 		return CriterionTestResult.empty();
 	}
 

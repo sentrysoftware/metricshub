@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 
 public interface ICriterionVisitor {
 
-	public CriterionTestResult visit(final HTTP criterion);
+	public CriterionTestResult visit(final HTTP http);
 
 	public CriterionTestResult visit(final IPMI ipmi);
 

@@ -15,6 +15,8 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
@@ -54,6 +56,9 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
 
+	private static final String MANAGEMENT_CARD_HOST = "management-card-host";
+	private static final String HOST_LINUX = "host-linux";
+	private static final String HOST_WIN = "host-win";
 	private static final String AUTOMATIC = "Automatic";
 	private static final String ROOT_HPQ_NAMESPACE = "root\\hpq";
 	private static final String NAMESPACE_WMI_QUERY = "SELECT Name FROM __NAMESPACE";
@@ -186,8 +191,48 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMI() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new IPMI()));
+	void testVisitIPMIWindows() {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(HOST_WIN)
+						.id(HOST_WIN)
+						.type(TargetType.MS_WINDOWS)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, WMIProtocol.builder().build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMILinux() {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(HOST_LINUX)
+						.id(HOST_LINUX)
+						.type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMIOutOfBand() {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(MANAGEMENT_CARD_HOST)
+						.id(MANAGEMENT_CARD_HOST)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, IPMIOverLanProtocol.builder().build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
 	}
 
 	@Test

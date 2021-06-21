@@ -154,7 +154,8 @@ public class MatrixEngineService {
 				exporterConfig.getHttp(),
 				exporterConfig.getWbem(),
 				exporterConfig.getWmi(),
-				exporterConfig.getHttp())
+				exporterConfig.getHttp(),
+				exporterConfig.getOsCommand())
 			.filter(Objects::nonNull)
 			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 

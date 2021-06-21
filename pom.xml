@@ -44,6 +44,7 @@
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<snmp4j.version>3.5.1</snmp4j.version>
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
+		<commons-lang3.version>3.12.0</commons-lang3.version>
 	</properties>
 
 	<modules>
@@ -227,6 +228,11 @@
 				<groupId>org.snmp4j</groupId>
 				<artifactId>snmp4j-agent</artifactId>
 				<version>${snmp4j-agent.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
