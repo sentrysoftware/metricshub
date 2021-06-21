@@ -171,6 +171,11 @@
 				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-httpclient</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>io.springfox</groupId>
 				<artifactId>springfox-swagger2</artifactId>
 				<version>${io.springfox.version}</version>

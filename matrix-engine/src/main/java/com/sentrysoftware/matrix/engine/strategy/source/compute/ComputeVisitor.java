@@ -259,7 +259,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
-				? SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON)
+				? SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, true)
 				: sourceTable.getRawData();
 		try {
 			
@@ -853,7 +853,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 					sourceTable.setTable(
 						SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON),
+							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
 							HardwareConstants.SEMICOLON));
 				}
 			}
@@ -1101,7 +1101,9 @@ public class ComputeVisitor implements IComputeVisitor {
 			.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
 		}
 
-		sourceTable.setTable(SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON), HardwareConstants.SEMICOLON));
+		sourceTable.setTable(SourceTable.csvToTable(
+				SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
+				HardwareConstants.SEMICOLON));
 	}
 
 	@Override

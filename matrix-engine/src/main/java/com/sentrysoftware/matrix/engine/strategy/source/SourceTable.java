@@ -35,15 +35,18 @@ public class SourceTable {
 	 * a1,b1,c1,
 	 * a2,b2,c2,
 	 *
-	 * @param table The table result we wish to parse
-	 * @param separator The cells separator on each line
+	 * @param table            The table result we wish to parse
+	 * @param separator        The cells separator on each line
+	 * @param replaceSeparator Whether we should replace the separator by comma 
 	 * @return {@link String} value
 	 */
-	public static String tableToCsv(final List<List<String>> table, final String separator) {
+	public static String tableToCsv(final List<List<String>> table, final String separator, final boolean replaceSeparator) {
 		if (table != null) {
 			return table
 					.stream()
 					.filter(Objects::nonNull)
+					.map(line -> replaceSeparator ?  
+							line.stream().map(val -> val.replace(separator, ",")).collect(Collectors.toList()) : line)
 					.map(line -> String.join(separator, line) + separator)
 					.collect(Collectors.joining("\n"));
 		}

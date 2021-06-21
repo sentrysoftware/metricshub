@@ -362,20 +362,18 @@ public class SourceVisitor implements ISourceVisitor {
 	public SourceTable visit(final WBEMSource wbemSource) {
 
 		if (wbemSource == null || wbemSource.getWbemQuery() == null) {
-			log.warn("Malformed WBEMSource {}. Returning an empty table.", wbemSource);
+			log.error("Malformed WBEMSource {}. Returning an empty table.", wbemSource);
 			return SourceTable.empty();
 		}
 
-		final Optional<IProtocolConfiguration> wbemProtocolOpt = Optional.ofNullable(
-				strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WBEMProtocol.class));
+		final WBEMProtocol protocol = (WBEMProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WBEMProtocol.class);
 
-		if (!wbemProtocolOpt.isPresent()) {
-			log.debug("The WBEM Credentials are not configured. Returning an empty table for WMI source {}.",
+		if (protocol == null) {
+			log.debug("The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
 					wbemSource.getKey());
 			return SourceTable.empty();
 		}
-
-		final WBEMProtocol protocol = (WBEMProtocol) wbemProtocolOpt.get();
 
 		// Get the namespace, the default one is : root/cimv2
 		String namespace = wbemSource.getWbemNamespace() != null ? wbemSource.getWbemNamespace()
