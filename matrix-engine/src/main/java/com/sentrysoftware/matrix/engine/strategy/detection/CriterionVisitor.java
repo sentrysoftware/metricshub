@@ -729,7 +729,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				wbemQuery,
 				namespace);
 
-		return SourceTable.tableToCsv(queryResult, ";");
+		return SourceTable.tableToCsv(queryResult, ";", true);
 
 	}
 

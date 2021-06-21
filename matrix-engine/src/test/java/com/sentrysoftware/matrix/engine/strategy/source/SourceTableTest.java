@@ -56,23 +56,26 @@ class SourceTableTest {
 
 	@Test
 	void testTableToCsv() {
-		assertEquals("", SourceTable.tableToCsv(null, ";"));
-		assertEquals("", SourceTable.tableToCsv(Collections.emptyList(), ";"));
+		assertEquals("", SourceTable.tableToCsv(null, ";", false));
+		assertEquals("", SourceTable.tableToCsv(Collections.emptyList(), ";", false));
 		assertEquals(";;;;;;",
-				SourceTable.tableToCsv(Collections.singletonList(Arrays.asList("", "", "", "", "", "")), ";"));
+				SourceTable.tableToCsv(Collections.singletonList(Arrays.asList("", "", "", "", "", "")), ";", false));
 		assertEquals(";;;;;;\n;;;;;;",
 				SourceTable.tableToCsv(
 						Stream.of(
 								Arrays.asList("", "", "", "", "", ""),
 								Arrays.asList("", "", "", "", "", ""))
 						.collect(Collectors.toList()),
-						";"));
+						";", false));
 		assertEquals(";;a;;;;\n;;;a;;;",
 				SourceTable.tableToCsv(
 						Stream.of(
 								Arrays.asList("", "", "a", "", "", ""),
 								Arrays.asList("", "", "", "a", "", ""))
 						.collect(Collectors.toList()),
-						";"));
+						";", false));
+
+		assertEquals("a;b;c,d;", SourceTable.tableToCsv(
+				Collections.singletonList(Arrays.asList("a", "b", "c;d")), ";", true));
 	}
 }
