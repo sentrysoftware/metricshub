@@ -20,7 +20,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 public class JobResultFormatterService {
 
 	/**
-	 * Parse and write the monitors of a hostmonitoring into a JSON format.
+	 * Parse and write the monitors of a host monitoring into a JSON format.
 	 * @param hostMonitoring The hostMonitoring to parse.
 	 * @return The data from the monitors parsed into a JSON format.
 	 */

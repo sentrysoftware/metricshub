@@ -14,6 +14,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class TextParam extends AbstractParam {
 
+	public static final String TEXT_TYPE = "TextParam";
+
 	private String value;
 
 	@Builder
@@ -42,6 +44,11 @@ public class TextParam extends AbstractParam {
 	@Override
 	public Number numberValue() {
 		return null;
+	}
+
+	@Override
+	public String getType() {
+		return TEXT_TYPE;
 	}
 
 }

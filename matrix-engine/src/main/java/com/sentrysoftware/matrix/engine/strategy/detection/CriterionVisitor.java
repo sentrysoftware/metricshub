@@ -5,7 +5,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
@@ -13,8 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +30,8 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.telnet.Telne
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -228,13 +226,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = getSnmpProtocol();
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			return CriterionTestResult.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -368,16 +366,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final Optional<IProtocolConfiguration> wmiProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WMIProtocol.class));
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WMIProtocol.class);
 
-		if (!wmiProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The WMI Credentials are not configured. Cannot process WMI detection {}.",
 					wmi);
 			return CriterionTestResult.empty();
 		}
-
-		final WMIProtocol protocol = (WMIProtocol) wmiProtocolOpt.get();
 
 		// Find the namespace
 		final NamespaceResult namespaceResult = findNamespace(wmi, protocol);
@@ -818,13 +814,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = getSnmpProtocol();
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			return CriterionTestResult.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -854,15 +850,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
-	}
-
-	/**
-	 * 
-	 * @return The {@link SNMPProtocol} if any
-	 */
-	private Optional<IProtocolConfiguration> getSnmpProtocol() {
-		return Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class));
 	}
 
 	/**

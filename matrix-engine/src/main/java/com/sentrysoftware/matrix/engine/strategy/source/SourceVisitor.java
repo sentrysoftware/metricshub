@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,7 +26,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
@@ -76,31 +74,29 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		String reference = referenceSource.getReference();
+		final String reference = referenceSource.getReference();
 
 		if (reference == null || reference.isEmpty()) {
 			log.error("ReferenceSource reference cannot be null. Returning an empty table for source {}.", referenceSource);
 			return SourceTable.empty();
 		}
 
-		SourceTable sourceRef = getSourceTable(reference);
-		SourceTable sourceRes = new SourceTable();
+		final SourceTable sourceTable = new SourceTable();
 
-		List<List<String>> table = new ArrayList<>();
+		final SourceTable origin = getSourceTable(reference);
+		if (origin == null) {
+			return SourceTable.empty();
+		}
 
-		sourceRef.getTable().forEach(row ->
-		{
-			final List<String> line = new ArrayList<>();
+		final List<List<String>> table = origin.getTable()
+				.stream()
+				.map(ArrayList::new)
+				.filter(row -> !row.isEmpty())
+				.collect(Collectors.toList());
 
-			row.forEach(property -> line.add(new String(property)));
+		sourceTable.setTable(table);
 
-			if (!line.isEmpty()) {
-				table.add(line);
-			}
-		});
-
-		sourceRes.setTable(table);
-		return sourceRes;
+		return sourceTable;
 	}
 
 	@Override
@@ -110,33 +106,26 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		String staticValue = staticSource.getStaticValue();
+		final String staticValue = staticSource.getStaticValue();
 
 		if (staticValue == null || staticValue.isEmpty()) {
 			log.error("StaticSource reference cannot be null. Returning an empty table for source {}.", staticSource);
 			return SourceTable.empty();
 		}
 
-		SourceTable sourceRes = new SourceTable();
-		List<List<String>> table = new ArrayList<>();
+		final SourceTable sourceTable = new SourceTable();
 
-		// In case there are ';' in the reference and it's needed to be separated into multiple columns
-		SourceTable sourceRef = getSourceTable(staticValue);
+		// Call getSpourceTable, in case there are ';' in the static source and it's needed to be separated into multiple columns
+		// Note: In case of the static source getSourceTable never returns null
+		final List<List<String>> table = getSourceTable(staticValue).getTable()
+				.stream()
+				.map(ArrayList::new)
+				.filter(row -> !row.isEmpty())
+				.collect(Collectors.toList());
 
-		sourceRef.getTable().forEach(row ->
-		{
-			final List<String> line = new ArrayList<>();
+		sourceTable.setTable(table);
 
-			row.forEach(property -> line.add(new String(property)));
-
-			if (!line.isEmpty()) {
-				table.add(line);
-			}
-		});
-
-		sourceRes.setTable(table);
-
-		return sourceRes;
+		return sourceTable;
 	}
 
 	@Override
@@ -152,16 +141,15 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class));
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetSource {}.",
 					snmpGetSource);
 			return SourceTable.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -213,16 +201,15 @@ public class SourceVisitor implements ISourceVisitor {
 		String[] selectColumnArray = new String[selectedColumns.size()];
 		selectColumnArray = selectedColumns.toArray(selectColumnArray);
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class));
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetTableSource {}.",
 					snmpGetTableSource);
 			return SourceTable.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -412,16 +399,14 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Optional<IProtocolConfiguration> wmiProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WMIProtocol.class));
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WMIProtocol.class);
 
-		if (!wmiProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
 					wmiSource.getKey());
 			return SourceTable.empty();
 		}
-
-		final WMIProtocol protocol = (WMIProtocol) wmiProtocolOpt.get();
 
 		// Get the namespace
 		final String namespace = getNamespace(wmiSource, protocol);

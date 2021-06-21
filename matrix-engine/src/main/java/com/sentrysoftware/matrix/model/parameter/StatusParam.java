@@ -14,6 +14,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class StatusParam extends AbstractParam {
 
+	public static final String STATUS_TYPE = "StatusParam";
+
 	private Integer status;
 	private String statusInformation;
 	private ParameterState previousState;
@@ -48,6 +50,11 @@ public class StatusParam extends AbstractParam {
 	@Override
 	public Number numberValue() {
 		return status;
+	}
+
+	@Override
+	public String getType() {
+		return STATUS_TYPE;
 	}
 
 }

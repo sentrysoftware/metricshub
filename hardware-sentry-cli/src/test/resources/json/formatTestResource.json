@@ -16,7 +16,8 @@
         "unit" : null,
         "status" : 0,
         "statusInformation" : "OK",
-        "previousState" : null
+        "previousState" : null,
+        "type" : "StatusParam"
       }
     },
     "metadata" : { }
@@ -36,7 +37,8 @@
         "unit" : null,
         "status" : 1,
         "statusInformation" : "WARNING",
-        "previousState" : null
+        "previousState" : null,
+        "type" : "StatusParam"
       }
     },
     "metadata" : { }
@@ -56,7 +58,8 @@
         "unit" : null,
         "status" : 0,
         "statusInformation" : "OK",
-        "previousState" : null
+        "previousState" : null,
+        "type" : "StatusParam"
       }
     },
     "metadata" : { }

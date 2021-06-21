@@ -14,6 +14,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class NumberParam extends AbstractParam {
 
+	public static final String NUMBER_TYPE = "NumberParam";
+
 	private Double value;
 	private Double rawValue;
 	private Double previousRawValue;
@@ -50,4 +52,10 @@ public class NumberParam extends AbstractParam {
 	public Number numberValue() {
 		return value;
 	}
+
+	@Override
+	public String getType() {
+		return NUMBER_TYPE;
+	}
+
 }
