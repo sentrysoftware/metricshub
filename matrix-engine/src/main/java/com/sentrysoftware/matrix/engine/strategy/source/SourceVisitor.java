@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,7 +26,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -90,7 +88,7 @@ public class SourceVisitor implements ISourceVisitor {
 		{
 			final List<String> line = new ArrayList<>();
 
-			row.forEach(property -> line.add(new String(property)));
+			row.forEach(line::add);
 
 			if (!line.isEmpty()) {
 				table.add(line);
@@ -150,16 +148,15 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class));
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetSource {}.",
 					snmpGetSource);
 			return SourceTable.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -211,16 +208,15 @@ public class SourceVisitor implements ISourceVisitor {
 		String[] selectColumnArray = new String[selectedColumns.size()];
 		selectColumnArray = selectedColumns.toArray(selectColumnArray);
 
-		final Optional<IProtocolConfiguration> snmpProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class));
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
-		if (!snmpProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetTableSource {}.",
 					snmpGetTableSource);
 			return SourceTable.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) snmpProtocolOpt.get();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
@@ -368,16 +364,14 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Optional<IProtocolConfiguration> wmiProtocolOpt = Optional.ofNullable(strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WMIProtocol.class));
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WMIProtocol.class);
 
-		if (!wmiProtocolOpt.isPresent()) {
+		if (protocol == null) {
 			log.debug("The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
 					wmiSource.getKey());
 			return SourceTable.empty();
 		}
-
-		final WMIProtocol protocol = (WMIProtocol) wmiProtocolOpt.get();
 
 		// Get the namespace
 		final String namespace = getNamespace(wmiSource, protocol);
