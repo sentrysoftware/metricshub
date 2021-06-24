@@ -190,7 +190,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
 
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
-			return processWindowsIpmiDetection();
+			return processWindowsIpmiDetection(ipmi);
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
 			return processUnixIpmiDetection();
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
@@ -226,8 +226,50 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * 
 	 * @return
 	 */
-	private CriterionTestResult processWindowsIpmiDetection() {
-		return CriterionTestResult.empty();
+	private CriterionTestResult processWindowsIpmiDetection(final IPMI ipmi) {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+
+		if (wmiProtocol == null) {
+			return CriterionTestResult.builder()
+					.message("No WMI protocol provided.")
+					.success(false)
+					.build();
+		}
+
+		final WMI wmi = WMI.builder()
+				.forceSerialization(ipmi.isForceSerialization())
+				.build();
+
+		final NamespaceResult namespaceResult = findNamespace(wmi, wmiProtocol);
+
+		String wmiTable;
+		try {
+			wmiTable = runWmiQueryAndGetCsv(hostname, "SELECT Description FROM ComputerSystem", wmiProtocol.getNamespace(), wmiProtocol);
+		} catch (Exception e) {
+			final String message = String.format(
+					"Ipmi Test Failed - WMI request was unsuccessful due to an exception. Message: %s.",
+					e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().message(message).build();
+		}
+
+		if (wmiTable == null || wmiTable.isEmpty()) {
+			return CriterionTestResult.builder()
+					.message("The Microsoft IPMI WMI provider did not report the presence of any BMC controller.")
+					.success(false)
+					.build();
+		}
+
+		// Test the result
+		final TestResult testResult = getMatchingWmiResult(wmi, namespaceResult.getNamespace(), wmiTable);
+
+		return CriterionTestResult.builder()
+				.success(testResult.isSuccess())
+				.message(testResult.getMessage())
+				.result(wmiTable)
+				.build();
 	}
 
 	@Override

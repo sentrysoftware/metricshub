@@ -1,5 +1,31 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -16,6 +42,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
@@ -28,30 +55,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
@@ -78,6 +82,10 @@ class CriterionVisitorTest {
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";
 	private static final String PC14 = "pc14";
+	
+	private static final String USERNAME = "username";
+	private static final char[] PASSWORD = "password".toCharArray();
+	private static final Long TIME_OUT = 120L;
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -191,7 +199,9 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMIWindows() {
+	void testVisitIPMIWindowsFailure() throws Exception {
+		// No WMI protocol
+		Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.target(HardwareTarget.builder()
@@ -199,10 +209,91 @@ class CriterionVisitorTest {
 						.id(HOST_WIN)
 						.type(TargetType.MS_WINDOWS)
 						.build())
-				.protocolConfigurations(Map.of(HTTPProtocol.class, WMIProtocol.builder().build()))
+				.protocolConfigurations(protocolConfigurations)
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
+
+		IPMI ipmi = IPMI.builder().forceSerialization(true).build();
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(ipmi);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals("No WMI protocol provided.", criterionTestResult.getMessage());
+
+		// matsyaClientsExecutor gives null result to WMI request
+		WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.namespace(HOST_WIN)
+				.username(USERNAME)
+				.password(PASSWORD)
+				.timeout(TIME_OUT)
+				.build();
+		protocolConfigurations.put(wmiProtocol.getClass(), wmiProtocol);
+
+		doReturn(null).when(matsyaClientsExecutor).executeWmi(HOST_WIN,
+				USERNAME,
+				PASSWORD,
+				TIME_OUT,
+				"SELECT Description FROM ComputerSystem",
+				HOST_WIN);
+
+		criterionTestResult = criterionVisitor.visit(ipmi);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals("The Microsoft IPMI WMI provider did not report the presence of any BMC controller.", criterionTestResult.getMessage());
+
+		// Exception thrown by matsyaClientsExecutor when executing the WMI request
+		doThrow(new WmiComException("Unit test error")).when(matsyaClientsExecutor).executeWmi(HOST_WIN,
+				USERNAME,
+				PASSWORD,
+				TIME_OUT,
+				"SELECT Description FROM ComputerSystem",
+				HOST_WIN);
+
+		criterionTestResult = criterionVisitor.visit(ipmi);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals("Ipmi Test Failed - WMI request was unsuccessful due to an exception. Message: Unit test error.", criterionTestResult.getMessage());
+
+	}
+
+	@Test
+	void testVisitIPMIWindowsSuccess() throws Exception {
+		Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
+		WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.namespace(HOST_WIN)
+				.username(USERNAME)
+				.password(PASSWORD)
+				.timeout(TIME_OUT)
+				.build();
+		protocolConfigurations.put(wmiProtocol.getClass(), wmiProtocol);
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(HOST_WIN)
+						.id(HOST_WIN)
+						.type(TargetType.MS_WINDOWS)
+						.build())
+				.protocolConfigurations(protocolConfigurations)
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		String resultWmi = "System description";
+		String resultFinal = "System description;";
+
+		doReturn(Collections.singletonList(Collections.singletonList(resultWmi))).when(matsyaClientsExecutor).executeWmi(HOST_WIN,
+				USERNAME,
+				PASSWORD,
+				TIME_OUT,
+				"SELECT Description FROM ComputerSystem",
+				HOST_WIN);
+
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(IPMI.builder().forceSerialization(true).build());
+
+		assertNotNull(criterionTestResult);
+		assertEquals(resultFinal, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
 	}
 
 	@Test
