@@ -233,7 +233,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		if (wmiProtocol == null) {
 			return CriterionTestResult.builder()
-					.message("No WMI protocol provided.")
+					.message("No WMI credentials provided.")
 					.success(false)
 					.build();
 		}
@@ -242,7 +242,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.forceSerialization(ipmi.isForceSerialization())
 				.build();
 
-		final NamespaceResult namespaceResult = findNamespace(wmi, wmiProtocol);
+		final NamespaceResult namespaceResult = NamespaceResult.builder().namespace("root/hardware").build();
 
 		String wmiTable;
 		try {

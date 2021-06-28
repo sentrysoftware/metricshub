@@ -218,7 +218,7 @@ class CriterionVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertEquals("No WMI protocol provided.", criterionTestResult.getMessage());
+		assertEquals("No WMI credentials provided.", criterionTestResult.getMessage());
 
 		// matsyaClientsExecutor gives null result to WMI request
 		WMIProtocol wmiProtocol = WMIProtocol.builder()
