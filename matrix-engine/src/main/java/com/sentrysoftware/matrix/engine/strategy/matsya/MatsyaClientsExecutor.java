@@ -11,7 +11,6 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -20,7 +19,7 @@ import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
-import com.sentrysoftware.matsya.wbem2.WbemExecuteQuery;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -464,12 +462,13 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param namespace	The namespace with which the query should be executed.
-	 * @param query		The query that is being executed.
-	 * @param protocol	The {@link WBEMProtocol} properties.
-	 * @param hostname	The name of the host against which the query is being executed.
-	 * @param logMode	Whether or not logging is enabled.
 	 *
+	 * @param url		The target URL, as a {@link String}.
+	 * @param username	The username to access the host.
+	 * @param password	The password to access the host.
+	 * @param timeout	The timeout, in milliseconds.
+	 * @param query		The query that is being executed.
+	 * @param namespace	The namespace with which the query should be executed.
 	 * @return			A table (as a {@link List} of {@link List} of {@link String}s)
 	 * 					resulting from the execution of the query.
 	 *
@@ -477,47 +476,20 @@ public class MatsyaClientsExecutor {
 	 * @throws WBEMException			If there is a WBEM error.
 	 * @throws TimeoutException			If the query did not complete on time.
 	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
 	 */
-	public List<List<String>> executeWbem(String namespace, String query, WBEMProtocol protocol, String hostname,
-										  boolean logMode)
-		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+	public List<List<String>> executeWbem(String url, String username, char[] password, int timeout, String query,
+										  String namespace)
+		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
 
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-
-		WBEMProtocol.WBEMProtocols wbemProtocols = protocol.getProtocol();
-		notNull(wbemProtocols, "wbemProtocols cannot be null");
-		String protocolName = wbemProtocols.name();
-
-		Integer port = protocol.getPort();
-		notNull(port, "port cannot be null");
-
-		URL url;
-		try {
-
-			url = new URL(String.format("%s://%s:%d", protocolName, hostname, port));
-
-		} catch (MalformedURLException e) {
-
-			if (logMode) {
-
-				log.error("Error detected when creating URL {}://{}:{} : {}", protocolName, hostname, port,
-					e.getMessage());
-			}
-
-			return Collections.emptyList();
-		}
-
-		Long timeout = protocol.getTimeout();
-		notNull(timeout, "timeout cannot be null");
-
-		WbemQueryResult wbemQueryResult = WbemExecuteQuery.executeQuery(
-			url,
+		WbemQueryResult wbemQueryResult = WbemExecutor.executeWql(
+			new URL(url),
 			namespace,
-			protocol.getUsername(),
-			protocol.getPassword(),
+			username,
+			password,
 			query,
-			timeout.intValue() * 1000);
+			timeout,
+			null);
 
 		return wbemQueryResult.getValues();
 	}

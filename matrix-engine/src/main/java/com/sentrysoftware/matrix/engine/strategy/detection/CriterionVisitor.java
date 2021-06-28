@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
 import static org.springframework.util.Assert.notNull;
@@ -425,7 +427,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.result(csvTable)
 				.build();
 
-		} catch (WqlQuerySyntaxException | WBEMException | TimeoutException | InterruptedException e) { // NOSONAR - not propagating InterruptedException
+		} catch (Exception e) { // NOSONAR - not propagating InterruptedException
 
 			final String message = String.format(
 				"WBEM Test Failed - WBEM Criterion query %s on %s was unsuccessful due to an exception. Message: %s.",
@@ -447,6 +449,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @param wbem		{@link WBEM} instance from which we want to extract the namespace.
 	 *                  Special values are <em>automatic</em> or <em>null</em>.
 	 * @param protocol	The {@link WBEMProtocol} from which we get the default namespace when the mode is not automatic.
+	 * @param hostname	The hostname of the target device.
 	 *
 	 * @return			A {@link NamespaceResult} wrapping the suitable namespace, if there is any.
 	 */
@@ -477,7 +480,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Detect the WBEM namespace
 	 *
+	 * @param wbem		{@link WBEM} instance from which we want to extract the namespace.
+	 *                  Special values are <em>automatic</em> or <em>null</em>.
 	 * @param protocol	The user's configured credentials.
+	 * @param hostname	The hostname of the target device.
 	 *
 	 * @return			A {@link NamespaceResult} wrapping the detected namespace
 	 * 					and the error message if the detection fails.
@@ -498,8 +504,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// Run the query on each namespace and check if the result match the criterion
-		final Map<String, String> namespaces = executeWbemAndFilterNamespaces(wbem, protocol, possibleWbemNamespacesResult,
-			hostname);
+		final Map<String, String> namespaces = executeWbemAndFilterNamespaces(wbem, protocol,
+			possibleWbemNamespacesResult, hostname);
 
 		// No namespace then stop
 		if (namespaces.isEmpty()) {
@@ -548,6 +554,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * Detects the possible WBEM namespaces using the configured {@link WBEMProtocol}.
 	 *
 	 * @param protocol	The user's configured {@link WBEMProtocol}.
+	 * @param hostname	The hostname of the target device.
 	 *
 	 * @return 			A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * 					and the possibleWmiNamespaces {@link Set}.
@@ -566,16 +573,26 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.build();
 		}
 
+		// Preparing arguments for the WBEM executor
+		String url = buildWbemUrl(protocol, hostname);
+
+		String username = protocol.getUsername();
+		char[] password = protocol.getPassword();
+
+		Long timeout = protocol.getTimeout(); // protocol cannot be null here
+		notNull(timeout, "timeout cannot be null");
+
+		// First, let us execute "SELECT Name FROM __NAMESPACE" on the "root" namespace
 		String wbemQuery = null;
+		List<List<String>> queryResult;
 		String message;
 		try {
 
-			// First, let us execute "SELECT Name FROM __NAMESPACE" on the "root" namespace
 			wbemQuery = "SELECT Name FROM __NAMESPACE";
-			List<List<String>> queryResult = matsyaClientsExecutor.executeWbem(ROOT, wbemQuery, protocol,
-				hostname,false);
+			queryResult = matsyaClientsExecutor.executeWbem(url, username, password, timeout.intValue() * 1000,
+				wbemQuery, ROOT);
 
-			possibleWbemNamespaces = extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES, ROOT_SLASH, true);
+			possibleWbemNamespaces = extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES, ROOT_SLASH);
 			if (possibleWbemNamespaces.isEmpty()) {
 
 				message = String.format("%s does not respond to WBEM request %s. Cancelling namespace detection.",
@@ -590,36 +607,92 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 			}
 
-			// Now testing each interoperability namespace
-			wbemQuery = "SELECT Name FROM CIM_NameSpace";
-			for (String namespace : WBEM_INTEROPERABILITY_NAMESPACES) {
+		} catch (WBEMException e) {
 
-				queryResult = matsyaClientsExecutor.executeWbem(namespace, wbemQuery, protocol, hostname,false);
+			int id = e.getID();
 
-				possibleWbemNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES,
-					ROOT_SLASH, true));
+			if (id != WBEMException.CIM_ERR_INVALID_NAMESPACE && id != WBEMException.CIM_ERR_INVALID_CLASS
+				&& id != WBEMException.CIM_ERR_NOT_FOUND) {
+
+				message = String.format("%s does not respond to WBEM requests. Error is: %s" +
+						"\nCancelling namespace detection.", hostname, e.toString());
+
+				log.debug(message);
+
+				return PossibleNamespacesResult
+					.builder()
+					.errorMessage(message)
+					.success(false)
+					.build();
 			}
 
-		} catch (WqlQuerySyntaxException | WBEMException | TimeoutException | InterruptedException e) { // NOSONAR - not propagating InterruptedException
+		} catch (Exception e) { // NOSONAR - not propagating InterruptedException
 
-			message = String.format("%s does not respond to WBEM request %s. Cancelling namespace detection. Error: %s",
-			hostname, wbemQuery, e.getMessage());
+			message = String.format("%s does not respond to WBEM request %s. Error is: %s" +
+					"\nMoving on to testing each interoperability namespace...",
+				hostname, wbemQuery, e.getMessage()
+			);
 
 			log.debug(message);
+		}
+
+		// Now testing each interoperability namespace
+		wbemQuery = "SELECT Name FROM CIM_NameSpace";
+		for (String namespace : WBEM_INTEROPERABILITY_NAMESPACES) {
+
+			try {
+
+				queryResult = matsyaClientsExecutor.executeWbem(url, username, password, timeout.intValue() * 1000,
+					wbemQuery, namespace);
+
+				possibleWbemNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES,
+					ROOT_SLASH));
+
+			} catch (Exception e) { // NOSONAR - not propagating InterruptedException
+
+				message = String.format("%s does not respond to WBEM request %s (%s)." +
+						"Trying with the next interoperability namespace left.",
+					hostname, wbemQuery, namespace);
+
+				log.debug(message);
+			}
+		}
+
+		if (possibleWbemNamespaces.isEmpty()) {
 
 			return PossibleNamespacesResult
 				.builder()
-				.errorMessage(message)
+				.errorMessage("No suitable namespace could be found to query host " + hostname + DOT)
 				.success(false)
 				.build();
 		}
 
-		// Success
 		return PossibleNamespacesResult
 			.builder()
 			.possibleNamespaces(possibleWbemNamespaces)
 			.success(true)
 			.build();
+	}
+
+	/**
+	 * @param protocol	The user's configured {@link WBEMProtocol}.
+	 * @param hostname	The hostname of the target device.
+	 *
+	 * @return			A url based on the given input, as a {@link String}.
+	 */
+	private String buildWbemUrl(WBEMProtocol protocol, String hostname) {
+
+		notNull(protocol, "protocol cannot be null");
+		notNull(hostname, "hostname cannot be null");
+
+		WBEMProtocol.WBEMProtocols wbemProtocols = protocol.getProtocol();
+		notNull(wbemProtocols, "wbemProtocols cannot be null");
+		String protocolName = wbemProtocols.name();
+
+		Integer port = protocol.getPort();
+		notNull(port, "port cannot be null");
+
+		return String.format("%s://%s:%d", protocolName, hostname, port);
 	}
 
 	/**
@@ -635,7 +708,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * 									associating each matching namespace to the corresponding query result.
 	 */
 	private Map<String, String> executeWbemAndFilterNamespaces(WBEM wbem, WBEMProtocol protocol,
-															   PossibleNamespacesResult possibleNamespacesResult, String hostname) {
+															   PossibleNamespacesResult possibleNamespacesResult,
+															   String hostname) {
 
 		Map<String, String> result = new TreeMap<>();
 
@@ -652,7 +726,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					result.put(namespace, csvTable);
 				}
 
-			} catch (WqlQuerySyntaxException | WBEMException | TimeoutException | InterruptedException e) { // NOSONAR - not propagating InterruptedException
+			} catch (Exception e) { // NOSONAR - not propagating InterruptedException
 
 				// Log an error and go to the next iteration
 				final String message = String.format("Query %s failed for namespace %s on host %s. Error: %s",
@@ -679,14 +753,16 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @throws InterruptedException		If the current thread was interrupted while waiting.
 	 */
 	private String runWbemQueryAndGetCsv(String hostname, String wbemQuery, String namespace, WBEMProtocol protocol)
-		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
 
-		final List<List<String>> queryResult = matsyaClientsExecutor.executeWbem(
-			namespace,
-			wbemQuery,
-			protocol,
-			hostname,
-			false);
+		// Preparing arguments for the WBEM executor
+		String url = buildWbemUrl(protocol, hostname);
+
+		Long timeout = protocol.getTimeout(); // protocol cannot be null here
+		notNull(timeout, "timeout cannot be null");
+
+		final List<List<String>> queryResult = matsyaClientsExecutor.executeWbem(url, protocol.getUsername(),
+			protocol.getPassword(), timeout.intValue() * 1000, wbemQuery, namespace);
 
 		return SourceTable.tableToCsv(queryResult, SEMICOLON, true);
 	}
@@ -774,8 +850,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String expected = expectedResult != null ? expectedResult : EMPTY;
 
-		final Pattern pattern = Pattern.compile(
-			PslUtils.psl2JavaRegex(expected),
+		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected),
 			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 		final Matcher matcher = pattern.matcher(csvTable);
@@ -1129,7 +1204,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			// Add the result of this request to possibleWmiNamespaces
 			// This will update the possibleWmiNamespace in the HostMonitoring
-			possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WMI_NAMESPACES, ROOT_BACKSLASH, false));
+			possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WMI_NAMESPACES, ROOT_BACKSLASH));
 
 		} catch (Exception e) {
 			// Log the error message and proceed with the next namespace
@@ -1151,26 +1226,25 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * Extract the possible namespaces from the given query result. We expect a query result with multiple lines and only one column defining
-	 * the namespace value. <br>
+	 * Extract the possible namespaces from the given query result.
+	 * We expect a query result with multiple lines and only one column defining the namespace value.<br>
 	 * The namespace is selected only if it is not from the <em>interop</em> family and it is not flagged as ignored.
 	 * 
 	 * @param namespaceQueryResult	The result which should return a collection of namespaces.
 	 * @param ignoredNameSpaces		The {@link Set} of namespaces that should be ignored.
 	 * @param prefix				Add this prefix to each valid namespace.
-	 * @param removeSemiColons		Whether or not semicolon characters should be removed from the namespaces.
 	 *
-	 * @return						{@link Set} of namespace values sorted according to the natural ordering of its elements.
+	 * @return						{@link Set} of namespace values sorted according to the natural ordering.
 	 */
 	static Set<String> extractPossibleNamespaces(final List<List<String>> namespaceQueryResult,
-												 Set<String> ignoredNameSpaces, String prefix, boolean removeSemiColons) {
+												 Set<String> ignoredNameSpaces, String prefix) {
 
 		return namespaceQueryResult
 			.stream()
 			.filter(row -> !row.isEmpty())
 			.flatMap(List::stream)
 			.filter(namespace -> !namespace.toLowerCase().contains(INTEROP) && !ignoredNameSpaces.contains(namespace))
-			.map(namespace -> prefix + (removeSemiColons ? namespace.replace(SEMICOLON, EMPTY) : namespace))
+			.map(namespace -> prefix + namespace)
 			.collect(Collectors.toCollection(TreeSet::new));
 	}
 

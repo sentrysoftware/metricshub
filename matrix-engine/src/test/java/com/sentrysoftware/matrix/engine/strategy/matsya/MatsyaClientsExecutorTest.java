@@ -9,11 +9,10 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.wbem2.WbemExecuteQuery;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -296,57 +296,32 @@ class MatsyaClientsExecutorTest {
 	}
 
 	@Test
-	void testExecuteWbem() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+	void testExecuteWbem() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
 
-		// protocol is null
-		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeWbem(null, null, null, null, false));
+		// url is null
+		assertThrows(MalformedURLException.class,
+			() -> matsyaClientsExecutor.executeWbem(null, null, null, 0, null, null));
 
-		// protocol is not null, hostname is null
-		WBEMProtocol wbemProtocol = new WBEMProtocol();
-		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeWbem(null, null, wbemProtocol, null, false));
-
-		// protocol is not null, hostname is not null, wbemProtocol.protocol is null
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, wbemProtocol, DEV_HV_01, false));
-
-		// protocol is not null, hostname is not null, wbemProtocol.protocol is not null, port is null
-		wbemProtocol.setProtocol(WBEMProtocol.WBEMProtocols.HTTPS);
-		wbemProtocol.setPort(null);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, wbemProtocol, DEV_HV_01, false));
-
-		// protocol is not null, hostname is not null, wbemProtocol.protocol is not null, port is not null
-		// timeout is null
-		wbemProtocol.setPort(5989);
-		wbemProtocol.setTimeout(null);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, wbemProtocol, DEV_HV_01, false));
-
-		// protocol is not null, hostname is not null, wbemProtocol.protocol is not null, port is not null
-		// timeout is not null, query execution throws exception
-		wbemProtocol.setTimeout(120L);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, wbemProtocol, DEV_HV_01, false));
-
-		// protocol is not null, hostname is not null, wbemProtocol.protocol is not null, port is not null
-		// timeout is not null, query execution completes
-		try (MockedStatic<WbemExecuteQuery> mockedWbemExecuteQuery = mockStatic(WbemExecuteQuery.class)) {
+		// url is not null
+		try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
 
 			WbemQueryResult wbemQueryResult = new WbemQueryResult(Collections.emptySet(), Collections.emptyList());
 
-			mockedWbemExecuteQuery.when(() -> WbemExecuteQuery.executeQuery(
+			mockedWbemExecuteQuery.when(() -> WbemExecutor.executeWql(
 				any(URL.class),
 				anyString(), // namespace
 				isNull(), // username
 				isNull(), // password
 				anyString(), // query
-				anyInt())) // timeout
+				anyInt(), // timeout
+				isNull()))
 				.thenReturn(wbemQueryResult);
 
-			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(FOO, BAR, wbemProtocol, DEV_HV_01, false));
+			String url = "https://" + DEV_HV_01 + ":5989";
+			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, null, null, 0, FOO, BAR));
 
-			mockedWbemExecuteQuery.verify(() -> WbemExecuteQuery.executeQuery(any(URL.class), anyString(), isNull(),
-				isNull(), anyString(), anyInt()));
+			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
+				isNull(), anyString(), anyInt(), isNull()));
 		}
 	}
 }
