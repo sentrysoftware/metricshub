@@ -1,13 +1,20 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
+import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
+import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
+import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -22,23 +29,67 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
+@Slf4j
 public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
 	private static final Pattern EMBEDDEDFILE_REPLACEMENT_PATTERN = Pattern.compile("%EmbeddedFile\\((\\d+)\\)%", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SOURCE_PATTERN = Pattern.compile(
+			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
+			Pattern.CASE_INSENSITIVE);
+	private static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile(
+			"^\\s*(.*)(\\%entry.column\\(([1-9]\\d*)\\)\\%)(.*)\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
 	private ISourceVisitor sourceVisitor;
 	private Connector connector;
 	private Monitor monitor;
 
+	@Autowired
+	private StrategyConfig strategyConfig;
+
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
-		
+
+		String entries = httpSource.getExecuteForEachEntryOf();
+
+		if (entries != null && !entries.isEmpty()) {
+			SourceTable sourceTable = getSourceTable(entries);
+			if (sourceTable != null) {
+				SourceTable result = SourceTable.builder().table(new ArrayList<>()).build();
+
+				for  (List<String> row : sourceTable.getTable()) {
+					final HTTPSource copy = httpSource.copy();
+					replaceDynamicEntriesInHttpSource(copy, row);
+
+					if (monitor != null) {
+						replaceDeviceIdsInHttpSource(copy, monitor);
+					}
+
+					SourceTable thisSourceTable = copy.accept(sourceVisitor);
+
+					result.getTable().addAll(thisSourceTable.getTable());
+				}
+				return result;
+			}
+		}
+
+		if (monitor != null) {
+			final HTTPSource copy = httpSource.copy();
+			replaceDeviceIdsInHttpSource(copy, monitor);
+			return copy.accept(sourceVisitor);
+		}
+
 		return httpSource.accept(sourceVisitor);
 	}
 
@@ -176,25 +227,106 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 * Detect the mono instance replacements in the given {@link SNMPSource} oid then replace all the occurrences by the DeviceID
 	 * 
 	 * @param snmpSource The Source we wish to update
-	 * @param monitor    The monitor passed by the mono instance collect
+	 * @param monitor The monitor passed by the mono instance collect
 	 */
 	void replaceDeviceIdInSNMPOid(final SNMPSource snmpSource, final Monitor monitor) {
 		Assert.notNull(snmpSource, "snmpSource cannot be null.");
 		Assert.notNull(snmpSource.getOid(), "snmpSource Oid cannot be null.");
 
-		// The monitor is null means the replacement is not required this occurs
-		// when the visitor is called from the discovery or the MultiInstance collect
+		snmpSource.setOid(replaceDeviceId(snmpSource.getOid(), monitor));
+	}
+
+	/**
+	 * Replace all dynamic entries from the {@link httpSource} by the values in the {@link row}.
+	 * 
+	 * @param httpSource
+	 * @param row
+	 */
+	void replaceDynamicEntriesInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final List<String> row) {
+		final String url = httpSource.getUrl();
+		final Header header = httpSource.getHeader();
+		final Body body = httpSource.getBody();
+
+		if (url != null) {
+			httpSource.setUrl(replaceDynamicEntry(url, row));
+		}
+
+		if (header != null && header.getClass().isInstance(StringHeader.class)) {
+			httpSource.setHeader(new StringHeader(replaceDynamicEntry(((StringHeader) httpSource.getHeader()).getHeader(), row)));
+		}
+
+		if (body != null && body.getClass().isInstance(StringBody.class)) {
+			httpSource.setBody(new StringBody(replaceDynamicEntry(((StringBody) httpSource.getBody()).getBody(), row)));
+		}
+	}
+
+	/**
+	 * Replace the dynamic parts of the {@link key} by the right column from the {@link row}.
+	 * 
+	 * @param key
+	 * @param row
+	 * @return
+	 */
+	String replaceDynamicEntry(@NonNull final String key, @NonNull final List<String> row) {
+		// We need to keep the original key in case there is a problem.
+		String res = key;
+		Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(res);
+
+		while (matcher.matches()) {
+			try {
+				res = res.replace(matcher.group(2), row.get(Integer.parseInt(matcher.group(3)) - 1));
+			} catch (NumberFormatException e) {
+				log.warn("The dynamic key from HTTPSource is badly formatted : {}", key);
+				return key;
+			}
+			matcher = DYNAMIC_ENTRY_PATTERN.matcher(res);
+		}
+
+		return res;
+	}
+
+	/**
+	 * Replace the deviceId in the {@link httpSource} by the one in the metadata in MonoInstance collects.
+	 * 
+	 * @param httpSource
+	 * @param monitor
+	 */
+	void replaceDeviceIdsInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final Monitor monitor) {
+		final String url = httpSource.getUrl();
+		final Header header = httpSource.getHeader();
+		final Body body = httpSource.getBody();
+
+		if (url != null) {
+			httpSource.setUrl(replaceDeviceId(url, monitor));
+		}
+
+		if (header != null && header.getClass().isInstance(StringHeader.class)) {
+			httpSource.setHeader(new StringHeader(replaceDeviceId(((StringHeader) httpSource.getHeader()).getHeader(), monitor)));
+		}
+
+		if (body != null && body.getClass().isInstance(StringBody.class)) {
+			httpSource.setBody(new StringBody(replaceDeviceId(((StringBody) httpSource.getBody()).getBody(), monitor)));
+		}
+	}
+
+	/**
+	 * Replace the deviceId in the {@link key} by the one in the metadata in MonoInstance collects.
+	 * 
+	 * @param key The key where to replace the deviceId.
+	 * @param monitor Can be null, in that case {@link key} is directly returned.
+	 * @return
+	 */
+	String replaceDeviceId(final String key, final Monitor monitor) {
 		if (monitor == null) {
-			return;
+			return key;
 		}
 
 		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
 		Assert.notNull(monitor.getMetadata().get(HardwareConstants.DEVICE_ID), "monitor deviceId cannot be null.");
 
-		final String oid = snmpSource.getOid();
 		final String deviceId = monitor.getMetadata().get(HardwareConstants.DEVICE_ID);
 
-		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(oid);
+		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(key);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -202,7 +334,25 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 		matcher.appendTail(sb);
 
-		snmpSource.setOid(sb.toString());
+		return sb.toString();
 	}
 
+	/**
+	 * Get source table based on the {@link key}
+	 * 
+	 * @param key
+	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
+	 */
+	SourceTable getSourceTable(final String key) {
+
+		if (SOURCE_PATTERN.matcher(key).matches()) {
+			HostMonitoring hostMonitoring = (HostMonitoring) strategyConfig.getHostMonitoring();
+			final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(key);
+			return sourceTable;
+		}
+
+		return SourceTable.builder()
+				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+				.build();
+	}
 }

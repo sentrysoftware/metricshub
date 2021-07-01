@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -52,6 +54,51 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
+		if (httpSource == null) {
+			log.error("HTTPSource cannot be null, the HTTPSource operation will return an empty result.");
+			return SourceTable.empty();
+		}
+
+		final HTTPProtocol protocol = (HTTPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(HTTPProtocol.class);
+
+		if (protocol == null) {
+			log.debug("The HTTP Credentials are not configured. Returning an empty table for HTTPSource {}.",
+					httpSource);
+			return SourceTable.empty();
+		}
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+
+			HTTP http = HTTP.builder()
+					.method(httpSource.getMethod())
+					.url(httpSource.getUrl())
+					.header(httpSource.getHeader())
+					.body(httpSource.getBody())
+					.build();
+
+			final String result = matsyaClientsExecutor.executeHttp(
+					http,
+					protocol,
+					hostname,
+					true);
+
+			if (result != null) {
+				return SourceTable
+						.builder()
+						.table(Stream.of(Stream.of(result).collect(Collectors.toList())).collect(Collectors.toList()))
+						.build();
+			}
+
+		} catch (Exception e) {
+			final String message = String.format(
+					"HTTP request of %s was unsuccessful due to an exception. Message: %s.",
+					hostname, e.getMessage());
+			log.debug(message, e);
+		}
+
 		return SourceTable.empty();
 	}
 

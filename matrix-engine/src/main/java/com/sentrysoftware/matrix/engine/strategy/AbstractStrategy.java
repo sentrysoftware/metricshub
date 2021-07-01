@@ -105,7 +105,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		// visit and process the source
 		for (final Source source : sources) {
 
-			final SourceTable sourceTable = source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor));
+			final SourceTable sourceTable = source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
 
 			if (sourceTable == null) {
 				log.warn("Received null source table for source key {}. Connector {}. Monitor {}. System {}",

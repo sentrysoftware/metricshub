@@ -40,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCS
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
@@ -79,16 +80,33 @@ class SourceVisitorTest {
 
 	@BeforeAll
 	public static void setUp() {
-		SNMPProtocol protocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1).port(161).timeout(120L).build();
+		SNMPProtocol snmpProtocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1).port(161).timeout(120L).build();
+		HTTPProtocol httpProtocol = HTTPProtocol.builder().username("username").password("password".toCharArray()).port(161).timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, snmpProtocol, HTTPProtocol.class, httpProtocol)).build();
 		
 	}
 
 	@Test
 	void testVisitHTTPSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new HTTPSource()));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(HTTPSource.builder().build()));
+
+		// no http protocol
+		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(HTTPSource.builder().build()));
+
+		// classic case
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(ECS1_01).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(true));
+		final SourceTable actual = sourceVisitor
+				.visit(HTTPSource.builder().build());
+		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
+		assertEquals(expected, actual);
 	}
 
 	@Test
