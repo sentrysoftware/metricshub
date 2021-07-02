@@ -102,10 +102,10 @@ class SourceVisitorTest {
 
 		// classic case
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(ECS1_01).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(true));
+		doReturn(ECS1_01).when(matsyaClientsExecutor).executeHttp(any(), eq(true));
 		final SourceTable actual = sourceVisitor
 				.visit(HTTPSource.builder().build());
-		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
+		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
 		assertEquals(expected, actual);
 	}
 

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -31,6 +30,7 @@ import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
@@ -71,24 +71,19 @@ public class SourceVisitor implements ISourceVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
-
-			HTTP http = HTTP.builder()
+			final String result = matsyaClientsExecutor.executeHttp(
+					HTTPRequest.builder()
 					.method(httpSource.getMethod())
 					.url(httpSource.getUrl())
 					.header(httpSource.getHeader())
 					.body(httpSource.getBody())
-					.build();
-
-			final String result = matsyaClientsExecutor.executeHttp(
-					http,
-					protocol,
-					hostname,
+					.build(),
 					true);
 
 			if (result != null) {
 				return SourceTable
 						.builder()
-						.table(Stream.of(Stream.of(result).collect(Collectors.toList())).collect(Collectors.toList()))
+						.rawData(result)
 						.build();
 			}
 

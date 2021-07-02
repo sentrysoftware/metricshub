@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +30,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.AllArgsConstructor;
@@ -48,7 +46,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 	private static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile(
-			"^\\s*(.*)(\\%entry.column\\(([1-9]\\d*)\\)\\%)(.*)\\s*$",
+			"%entry.column\\(([1-9]\\d*)\\)%",
 			Pattern.CASE_INSENSITIVE);
 
 	private ISourceVisitor sourceVisitor;
@@ -66,11 +64,17 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		if (entries != null && !entries.isEmpty()) {
 			SourceTable sourceTable = getSourceTable(entries);
 			if (sourceTable != null) {
-				SourceTable result = SourceTable.builder().table(new ArrayList<>()).build();
+				SourceTable result = SourceTable.builder().build();
 
 				for  (List<String> row : sourceTable.getTable()) {
 					final HTTPSource copy = httpSource.copy();
-					replaceDynamicEntriesInHttpSource(copy, row);
+
+					try {
+						replaceDynamicEntriesInHttpSource(copy, row);
+					} catch (NumberFormatException e) {
+						log.warn("The dynamic key from HTTPSource is badly formatted : {}", copy);
+						continue;
+					}
 
 					if (monitor != null) {
 						replaceDeviceIdsInHttpSource(copy, monitor);
@@ -81,6 +85,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 					result.getTable().addAll(thisSourceTable.getTable());
 				}
 				return result;
+			} else {
+				log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", entries);
 			}
 		}
 
@@ -237,12 +243,12 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Replace all dynamic entries from the {@link httpSource} by the values in the {@link row}.
+	 * Replace all dynamic entries from the {@link HTTPSource} by the values in the row.
 	 * 
 	 * @param httpSource
 	 * @param row
 	 */
-	void replaceDynamicEntriesInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final List<String> row) {
+	void replaceDynamicEntriesInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final List<String> row) throws NumberFormatException {
 		final String url = httpSource.getUrl();
 		final Header header = httpSource.getHeader();
 		final Body body = httpSource.getBody();
@@ -261,32 +267,29 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Replace the dynamic parts of the {@link key} by the right column from the {@link row}.
+	 * Replace the dynamic parts of the key by the right column from the row.
 	 * 
 	 * @param key
 	 * @param row
 	 * @return
 	 */
-	String replaceDynamicEntry(@NonNull final String key, @NonNull final List<String> row) {
-		// We need to keep the original key in case there is a problem.
-		String res = key;
-		Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(res);
+	static String replaceDynamicEntry(@NonNull final String key, @NonNull final List<String> row) throws NumberFormatException {
 
-		while (matcher.matches()) {
-			try {
-				res = res.replace(matcher.group(2), row.get(Integer.parseInt(matcher.group(3)) - 1));
-			} catch (NumberFormatException e) {
-				log.warn("The dynamic key from HTTPSource is badly formatted : {}", key);
-				return key;
-			}
-			matcher = DYNAMIC_ENTRY_PATTERN.matcher(res);
+		final Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(key);
+
+		final StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			String value = row.get(Integer.parseInt(matcher.group(1)) - 1);
+			matcher.appendReplacement(sb, value);
 		}
 
-		return res;
+		matcher.appendTail(sb);
+
+		return sb.toString();
 	}
 
 	/**
-	 * Replace the deviceId in the {@link httpSource} by the one in the metadata in MonoInstance collects.
+	 * Replace the deviceId in the {@link HTTPSource} by the one in the metadata in MonoInstance collects.
 	 * 
 	 * @param httpSource
 	 * @param monitor
@@ -310,10 +313,10 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Replace the deviceId in the {@link key} by the one in the metadata in MonoInstance collects.
+	 * Replace the deviceId in the key by the one in the metadata in MonoInstance collects.
 	 * 
 	 * @param key The key where to replace the deviceId.
-	 * @param monitor Can be null, in that case {@link key} is directly returned.
+	 * @param monitor Can be null, in that case key is directly returned.
 	 * @return
 	 */
 	String replaceDeviceId(final String key, final Monitor monitor) {
@@ -338,7 +341,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Get source table based on the {@link key}
+	 * Get source table based on the key
 	 * 
 	 * @param key
 	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
@@ -346,9 +349,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	SourceTable getSourceTable(final String key) {
 
 		if (SOURCE_PATTERN.matcher(key).matches()) {
-			HostMonitoring hostMonitoring = (HostMonitoring) strategyConfig.getHostMonitoring();
-			final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(key);
-			return sourceTable;
+			return strategyConfig.getHostMonitoring().getSourceTableByKey(key);
 		}
 
 		return SourceTable.builder()

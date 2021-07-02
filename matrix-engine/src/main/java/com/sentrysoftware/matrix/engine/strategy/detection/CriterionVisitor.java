@@ -35,6 +35,7 @@ import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
@@ -120,7 +121,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.getTarget()
 			.getHostname();
 
-		final String result = matsyaClientsExecutor.executeHttp(criterion, protocol, hostname, false);
+		final String result = matsyaClientsExecutor.executeHttp(HTTPRequest.builder()
+				.method(criterion.getMethod())
+				.url(criterion.getUrl())
+				.header(criterion.getHeader())
+				.body(criterion.getBody())
+				.build(),
+				false);
 
 		final TestResult testResult = checkHttpResult(hostname, result, criterion.getExpectedResult());
 

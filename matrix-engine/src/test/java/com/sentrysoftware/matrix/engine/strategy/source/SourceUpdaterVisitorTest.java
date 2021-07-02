@@ -121,6 +121,27 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
+	void testReplaceDynamicEntry() {
+		List<String> row = Arrays.asList("val1", "val2", "val3");
+		var key1 = "/endpoint/%entry.column(1)%/%entry.column(2)%";
+		assertEquals("/endpoint/val1/val2", SourceUpdaterVisitor.replaceDynamicEntry(key1, row));
+
+		var key2 = "{\n"
+				+ "    \"id\" : \"%entry.column(1)%\",\n"
+				+ "    \"name\" : \"%entry.column(2)%\"\n"
+				+ "}";
+		var expected =  "{\n"
+				+ "    \"id\" : \"val1\",\n"
+				+ "    \"name\" : \"val2\"\n"
+				+ "}";
+
+		assertEquals(expected, SourceUpdaterVisitor.replaceDynamicEntry(key2, row));
+
+		var key3 =  "%entry.column(1)%";
+		assertEquals("val1", SourceUpdaterVisitor.replaceDynamicEntry(key3, row));
+	}
+
+	@Test
 	void testVisitIPMI() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(IPMI.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(IPMI.builder().build()));
