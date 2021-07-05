@@ -309,15 +309,15 @@ public class MatsyaClientsExecutor {
 	 * @param timeout   The timeout in seconds after which the query is rejected
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException    If the localhost check fails
-	 * @throws WmiComException            For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WqlQuerySyntaxException In case of not valid query
-	 * @throws TimeoutException           When the given timeout is reached
+	 * @throws LocalhostCheckException  If the localhost check fails
+	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WqlQuerySyntaxException  In case of not valid query
+	 * @throws TimeoutException         When the given timeout is reached
 	 */
 	public List<List<String>> executeWmi(final String hostname, final String username,
 			final char[] password, final Long timeout,
 			final String wbemQuery, final String namespace)
-			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
+			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
 
 		// Where to connect to?
 		// Local: namespace

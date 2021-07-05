@@ -38,8 +38,8 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 import lombok.Builder;
 import lombok.Data;
@@ -713,7 +713,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @throws LocalhostCheckException
 	 * @throws WmiComException
 	 * @throws TimeoutException
-	 * @throws WmiWqlQuerySyntaxException
+	 * @throws WqlQuerySyntaxException 
 	 */
 	String runWmiQueryAndGetCsv(final String hostname, final String wbemQuery, final String namespace, final WMIProtocol protocol)
 			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
