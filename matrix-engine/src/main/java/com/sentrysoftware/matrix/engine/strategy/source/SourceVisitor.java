@@ -28,7 +28,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -369,8 +368,19 @@ public class SourceVisitor implements ISourceVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
+			if (hostname == null) {
+				log.error("No hostname indicated, the URL cannot be built.");
+				return SourceTable.empty();
+			}
+			if (protocol.getPort() == null || protocol.getPort() == 0) {
+				log.error("No port indicated to connect to the following hostname : {}", hostname);
+				return SourceTable.empty();
+			}
 
-			final String wbemUrl = buildHttpUrlString(protocol.getProtocol(), hostname, protocol.getPort());
+			// if protocol = null than we use the default one : https
+			String transferProtocol = protocol.getProtocol() == null ? WBEMProtocol.WBEMProtocols.HTTPS.name().toLowerCase()
+					: protocol.getProtocol().name().toLowerCase();
+			final String wbemUrl = String.format("%s://%s:%d", transferProtocol, hostname, protocol.getPort());
 			if (wbemUrl == null) {
 				log.error(
 						"Cannot build URL with the following information : hostname :{}, port : {}. Returning an empty table.",
@@ -378,8 +388,9 @@ public class SourceVisitor implements ISourceVisitor {
 				return SourceTable.empty();
 			}
 
+			int timeout = protocol.getTimeout() == null ? 120000 : protocol.getTimeout().intValue() * 1000; // seconds to milliseconds
 			final List<List<String>> table = matsyaClientsExecutor.executeWbem(wbemUrl, protocol.getUsername(),
-					protocol.getPassword(), protocol.getTimeout(), wbemSource.getWbemQuery(), namespace);
+					protocol.getPassword(), timeout, wbemSource.getWbemQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -461,26 +472,4 @@ public class SourceVisitor implements ISourceVisitor {
 
 	}
 
-	/**
-	 * Build HTTP URL based on Hostname and Port
-	 * 
-	 * @param protocol
-	 * @param hostname
-	 * @return
-	 */
-	public static String buildHttpUrlString(final WBEMProtocols protocol, final String hostname, final Integer port) {
-		if (hostname == null) {
-			log.error("No hostname indicated, the URL cannot be built.");
-			return null;
-		}
-		if (port == null || port == 0) {
-			log.error("No port indicated to connect to the following hostname : {}", hostname);
-			return null;
-		}
-
-		// if protocol = null than we use the default one : https
-		String transferProtocol = protocol == null ? WBEMProtocol.WBEMProtocols.HTTPS.name().toLowerCase()
-				: protocol.name().toLowerCase();
-		return transferProtocol + HardwareConstants.TRANSFER_SYMBOLS + hostname + HardwareConstants.COLON + port;
-	}
 }

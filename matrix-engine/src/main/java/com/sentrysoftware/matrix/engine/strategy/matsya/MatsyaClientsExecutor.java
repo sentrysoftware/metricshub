@@ -43,8 +43,8 @@ import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
-import com.sentrysoftware.matsya.wbem2.WbemExecuteQuery;
-import com.sentrysoftware.matsya.wbem2.handlers.WbemQueryResult;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
@@ -291,11 +291,11 @@ public class MatsyaClientsExecutor {
 	 * @throws InterruptedException
 	 */
 	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
-			final Long timeout, final String query, final String namespace) throws MalformedURLException,
+			final int timeout, final String query, final String namespace) throws MalformedURLException,
 			WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
 
-		WbemQueryResult wbemResult = WbemExecuteQuery.executeQuery(new URL(url), namespace, username, password, query,
-				timeout.intValue());
+		WbemQueryResult  wbemResult = WbemExecutor.executeWql(new URL(url), namespace, username, password, query,
+				timeout, null);
 
 		return wbemResult.getValues();
 	}

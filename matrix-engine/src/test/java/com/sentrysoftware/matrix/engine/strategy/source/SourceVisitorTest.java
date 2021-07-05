@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -44,9 +45,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -498,12 +498,12 @@ class SourceVisitorTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		
 		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
-				any(), any(), any());
+				anyInt(), any(), any());
 		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
 		
 		 // handle exception
 		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
-				any(), any(), any());
+				anyInt(), any(), any());
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 	}
 
@@ -631,11 +631,11 @@ class SourceVisitorTest {
 		}
 	}
 	
-	@Test
-	void testBuildHttpUrlString() {
-		assertEquals("https://hostname:1000", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTPS, "hostname", 1000));
-		assertEquals("http://xxxxx:5989", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", 5989));
-		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", null));
-		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, null, 000));
-	}
+//	@Test
+//	void testBuildHttpUrlString() {
+//		assertEquals("https://hostname:1000", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTPS, "hostname", 1000));
+//		assertEquals("http://xxxxx:5989", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", 5989));
+//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", null));
+//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, null, 000));
+//	}
 }
