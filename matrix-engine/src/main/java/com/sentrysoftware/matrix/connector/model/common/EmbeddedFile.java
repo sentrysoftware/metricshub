@@ -17,4 +17,8 @@ public class EmbeddedFile implements Serializable {
 
 	private String content;
 	private String type;
+
+	public EmbeddedFile copy() {
+		return EmbeddedFile.builder().content(new String(content)).type(new String(type)).build();
+	}
 }

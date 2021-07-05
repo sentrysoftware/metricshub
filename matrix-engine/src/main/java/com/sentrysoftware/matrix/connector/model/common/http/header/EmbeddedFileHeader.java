@@ -69,6 +69,6 @@ public class EmbeddedFileHeader implements Header {
 	}
 
 	public Header copy() {
-		return EmbeddedFileHeader.builder().header(header).build();
+		return EmbeddedFileHeader.builder().header(header.copy()).build();
 	}
 }

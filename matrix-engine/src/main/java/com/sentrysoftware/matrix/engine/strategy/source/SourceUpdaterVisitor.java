@@ -87,6 +87,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 				return result;
 			} else {
 				log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", entries);
+				return SourceTable.empty();
 			}
 		}
 

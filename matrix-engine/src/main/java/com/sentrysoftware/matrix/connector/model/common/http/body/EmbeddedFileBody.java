@@ -51,6 +51,6 @@ public class EmbeddedFileBody implements Body {
 	}
 
 	public Body copy() {
-		return EmbeddedFileBody.builder().body(body).build();
+		return EmbeddedFileBody.builder().body(body.copy()).build();
 	}
 }
