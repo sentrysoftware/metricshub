@@ -1,5 +1,30 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.notNull;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.springframework.stereotype.Component;
+
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -18,32 +43,14 @@ import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -266,6 +273,31 @@ public class MatsyaClientsExecutor {
 		};
 
 		return execute(jflatToCSV, json2CsvTimeout);
+	}
+	
+	/**
+	 * Execute a WBEM query through Matsya
+	 * @param url
+	 * @param username
+	 * @param password
+	 * @param timeout
+	 * @param query
+	 * @param namespace
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws WqlQuerySyntaxException
+	 * @throws WBEMException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
+			final int timeout, final String query, final String namespace) throws MalformedURLException,
+			WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+
+		WbemQueryResult  wbemResult = WbemExecutor.executeWql(new URL(url), namespace, username, password, query,
+				timeout, null);
+
+		return wbemResult.getValues();
 	}
 
 	/**
