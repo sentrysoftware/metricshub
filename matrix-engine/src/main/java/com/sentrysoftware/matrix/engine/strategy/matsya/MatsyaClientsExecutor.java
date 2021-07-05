@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
@@ -19,7 +20,6 @@ import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -277,15 +277,15 @@ public class MatsyaClientsExecutor {
 	 * @param timeout   The timeout in seconds after which the query is rejected
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException    If the localhost check fails
-	 * @throws WmiComException            For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WmiWqlQuerySyntaxException In case of not valid query
-	 * @throws TimeoutException           When the given timeout is reached
+	 * @throws LocalhostCheckException  If the localhost check fails
+	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WqlQuerySyntaxException  In case of not valid query
+	 * @throws TimeoutException         When the given timeout is reached
 	 */
 	public List<List<String>> executeWmi(final String hostname, final String username,
 			final char[] password, final Long timeout,
 			final String wbemQuery, final String namespace)
-			throws LocalhostCheckException, WmiComException, TimeoutException, WmiWqlQuerySyntaxException {
+			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
 
 		// Where to connect to?
 		// Local: namespace
