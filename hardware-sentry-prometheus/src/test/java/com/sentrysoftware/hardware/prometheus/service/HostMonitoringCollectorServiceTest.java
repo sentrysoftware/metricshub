@@ -3,6 +3,8 @@ package com.sentrysoftware.hardware.prometheus.service;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +15,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,30 +71,40 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testCollect() throws IOException {
+
 		final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
 		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER).value(3000D).build();
-		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, Monitor.builder()
-				.id(ENCLOSURE_ID)
-				.parentId(ECS)
-				.name(ENCLOSURE_NAME)
-				.parameters(Map.of(
-						HardwareConstants.STATUS_PARAMETER, statusParam,
-						HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
-				.build());
+
+		Monitor enclosureMonitor = Monitor.builder()
+			.id(ENCLOSURE_ID)
+			.parentId(ECS)
+			.name(ENCLOSURE_NAME)
+			.parameters(Map.of(
+				HardwareConstants.STATUS_PARAMETER, statusParam,
+				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+			.build();
+		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
+
+		Monitor fan1Monitor = Monitor.builder()
+			.id(FAN_ID + 1)
+			.parentId(ENCLOSURE_ID)
+			.name(FAN_NAME + 1)
+			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+			.build();
+		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+
+		Monitor fan2Monitor = Monitor.builder()
+			.id(FAN_ID + 2)
+			.parentId(ENCLOSURE_ID)
+			.name(FAN_NAME + 2)
+			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+			.build();
+		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 
 		Map<String, Monitor> fans = new LinkedHashMap<String, Monitor>(); 
-		fans.put(FAN_ID + 1, Monitor.builder()
-				.id(FAN_ID + 1)
-				.parentId(ENCLOSURE_ID)
-				.name(FAN_NAME + 1)
-				.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
-				.build());
-		fans.put(FAN_ID + 2, Monitor.builder()
-				.id(FAN_ID + 2)
-				.parentId(ENCLOSURE_ID)
-				.name(FAN_NAME + 2)
-				.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
-				.build());
+		fans.put(FAN_ID + 1, fan1Monitor);
+		fans.put(FAN_ID + 2, fan2Monitor);
 
 		Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();
 		monitors.put(MonitorType.ENCLOSURE, enclosures);
@@ -101,10 +114,11 @@ class HostMonitoringCollectorServiceTest {
 
 		CollectorRegistry.defaultRegistry.clear();
 
+		hostMonitoringCollectorService.setHostMonitoringMap(Map.of(ECS, hostMonitoring));
 		hostMonitoringCollectorService.register();
 
 		final StringWriter writer = new StringWriter();
-		TextFormat.write004(writer , CollectorRegistry.defaultRegistry.metricFamilySamples());
+		TextFormat.write004(writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
 		writer.flush();
 
 		assertEquals(ResourceHelper.getResourceAsString("/data/metrics.txt", HostMonitoringCollectorService.class), writer.toString());
@@ -133,11 +147,11 @@ class HostMonitoringCollectorServiceTest {
 
 		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, monitors, mfs);
 
-		Set<Sample> actual = mfs.get(0).samples.stream().collect(Collectors.toSet());
-		final Sample sample1 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL),
-				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName()), ParameterState.OK.ordinal());
-		final Sample sample2 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL),
-				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName()), ParameterState.OK.ordinal());
+		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
+		final Sample sample1 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName(), null), ParameterState.OK.ordinal());
+		final Sample sample2 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName(), null), ParameterState.OK.ordinal());
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
 		assertEquals(expected, actual);
@@ -179,8 +193,8 @@ class HostMonitoringCollectorServiceTest {
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
 				"enclosure_status",
 				"Metric: Enclosure status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
-				Arrays.asList(ID, PARENT, LABEL));
-		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE), 0);
+				Arrays.asList(ID, PARENT, LABEL, FQDN));
+		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 0);
 
 		assertEquals(expected, mfs.get(0));
 	}
@@ -380,7 +394,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testAddMetricStatus() {
-		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_STATUS_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL));
+		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_STATUS_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL, FQDN));
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -392,15 +406,15 @@ class HostMonitoringCollectorServiceTest {
 				.build();
 		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
-		final Sample expected = new Sample(MONITOR_STATUS_METRIC, Arrays.asList(ID, PARENT, LABEL),
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE), ParameterState.OK.ordinal());
+		final Sample expected = new Sample(MONITOR_STATUS_METRIC, Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), ParameterState.OK.ordinal());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testAddMetricNumber() {
-		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_ENERGY_USAGE_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL));
+		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_ENERGY_USAGE_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL, FQDN));
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -411,8 +425,8 @@ class HostMonitoringCollectorServiceTest {
 				.build();
 		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
-		final Sample expected = new Sample(MONITOR_ENERGY_USAGE_METRIC, Arrays.asList(ID, PARENT, LABEL),
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE), 3000D);
+		final Sample expected = new Sample(MONITOR_ENERGY_USAGE_METRIC, Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 3000D);
 
 		assertEquals(expected, actual);
 	}
@@ -421,7 +435,7 @@ class HostMonitoringCollectorServiceTest {
 	void testCreateLabels() {
 		final List<String> actual = HostMonitoringCollectorService.createLabels(
 				Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE).build());
-		final List<String> expected = Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE);
+		final List<String> expected = Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null);
 		assertEquals(expected, actual);
 	}
 
@@ -473,15 +487,15 @@ class HostMonitoringCollectorServiceTest {
 		monitor.setAsPresent();
 
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily("monitor_present",
-				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", Arrays.asList(ID, PARENT, LABEL));
+				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", Arrays.asList(ID, PARENT, LABEL, FQDN));
 
 		HostMonitoringCollectorService.addMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER);
 
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
 				"monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}",
-				Arrays.asList(ID, PARENT, LABEL));
-		expected.addMetric(Arrays.asList(monitor.getId(), PARENT_ID_VALUE, LABEL_VALUE), 1);
+				Arrays.asList(ID, PARENT, LABEL, FQDN));
+		expected.addMetric(Arrays.asList(monitor.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 1);
 
 		assertEquals(expected, labeledGauge);
 	}

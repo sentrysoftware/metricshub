@@ -1,28 +1,12 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
 import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -35,9 +19,26 @@ import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -59,24 +60,45 @@ public class MatrixEngineService {
 	private boolean sslEnabled;
 
 	@Autowired
-	private IHostMonitoring hostMonitoring;
-
-	@Autowired
 	private ConnectorStore store;
 
 	@Autowired
 	private Engine engine;
 
+	@Getter
+	private final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
+
 	/**
 	 * Call the matrix engine to perform detection, discovery and collect strategies
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
-	public void performJobs() throws BusinessException {
-
+	public void performJobs(String targetId) throws BusinessException {
 
 		// Read the configuration
-		final HostConfigurationDTO hostConfigurationDTO = readConfiguration(targetConfigFile);
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile);
+
+		if (targetId == null) {
+
+			for (HostConfigurationDTO hostConfigurationDTO : multiHostsConfigurationDTO.getTargets()) {
+
+				performJobs(hostConfigurationDTO);
+			}
+
+		} else {
+
+			HostConfigurationDTO hostConfigurationDTO = multiHostsConfigurationDTO
+				.getTargets()
+				.stream()
+				.filter(hostConfiguration -> hostConfiguration.getTarget().getHostname().equals(targetId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Invalid target ID: %s", targetId)));
+
+			performJobs(hostConfigurationDTO);
+		}
+	}
+
+	private void performJobs(HostConfigurationDTO hostConfigurationDTO) throws BusinessException {
 
 		// Set the context for the logger
 		configureLoggerContext(hostConfigurationDTO);
@@ -90,9 +112,11 @@ public class MatrixEngineService {
 		}
 
 		final Set<String> selectedConnectors = getSelectedConnectors(connectors.keySet(),
-				hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());
+			hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());
 
 		final EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
+
+		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(hostConfigurationDTO.getTarget().getHostname());
 
 		// Detection
 		final EngineResult detectionResult = engine.run(engineConfiguration, hostMonitoring, new DetectionOperation());
@@ -105,7 +129,6 @@ public class MatrixEngineService {
 		// Collect
 		final EngineResult collectResult = engine.run(engineConfiguration, hostMonitoring, new CollectOperation());
 		log.info("Collect Status {}", collectResult.getOperationStatus());
-
 	}
 
 	/**
@@ -114,7 +137,7 @@ public class MatrixEngineService {
 	 * @return {@link HostConfigurationDTO} instance
 	 * @throws BusinessException
 	 */
-	HostConfigurationDTO readConfiguration(final File targetConfigFile) throws BusinessException {
+	MultiHostsConfigurationDTO readConfiguration(final File targetConfigFile) throws BusinessException {
 
 		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -123,8 +146,19 @@ public class MatrixEngineService {
 		mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
 
 		try {
-			return mapper.readValue(targetConfigFile, HostConfigurationDTO.class);
+
+			MultiHostsConfigurationDTO multiHostsConfigurationDTO = mapper.readValue(targetConfigFile,
+				MultiHostsConfigurationDTO.class);
+
+			multiHostsConfigurationDTO
+				.getTargets()
+				.forEach(hostConfigurationDTO -> hostMonitoringMap.put(hostConfigurationDTO.getTarget().getHostname(),
+					new HostMonitoring()));
+
+			return multiHostsConfigurationDTO;
+
 		} catch (IOException e) {
+
 			throw new BusinessException(ErrorCode.CANNOT_READ_CONFIGURATION,
 					"IOException when reading the configuration file: " + targetConfigFile.getAbsolutePath());
 		}
@@ -229,9 +263,9 @@ public class MatrixEngineService {
 	 * @param hostConfigurationDTO
 	 */
 	private void configureLoggerContext(HostConfigurationDTO hostConfigurationDTO) {
+
 		ThreadContext.put("targetId", hostConfigurationDTO.getTarget().getHostname());
 		ThreadContext.put("debugMode", String.valueOf(debugMode));
 		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
 	}
-
 }

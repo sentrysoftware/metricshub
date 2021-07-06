@@ -148,4 +148,7 @@ public class HardwareConstants {
 	public static final String USERNAME = "USERNAME";
 
 	public static final String AUTOMATIC_NAMESPACE = "automatic";
+
+	public static final String FQDN = "fqdn";
+	public static final String TARGET_FQDN = "targetFqdn";
 }

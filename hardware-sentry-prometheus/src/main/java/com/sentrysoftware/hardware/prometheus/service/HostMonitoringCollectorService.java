@@ -1,27 +1,29 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.google.common.base.CaseFormat;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import io.prometheus.client.Collector;
 import io.prometheus.client.GaugeMetricFamily;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+
 
 /**
  * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems, 
@@ -35,8 +37,8 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
 
-	@Autowired
-	private IHostMonitoring hostMonitoring;
+	@Setter
+	private Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
 
 	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
 
@@ -68,7 +70,7 @@ public class HostMonitoringCollectorService extends Collector {
 	static void addMetric(final GaugeMetricFamily gauge, final Monitor monitor, final String parameterName) {
 
 		gauge.addMetric(
-			// Id, parentId (can be null), label
+			// Id, parentId (can be null), label, fqdn
 			createLabels(monitor),
 			getParameterValue(monitor, parameterName).doubleValue());
 	}
@@ -88,12 +90,17 @@ public class HostMonitoringCollectorService extends Collector {
 	@Override
 	public List<MetricFamilySamples> collect() {
 
-		final List<MetricFamilySamples> mfs = new ArrayList<>();
+		final List<MetricFamilySamples> metricFamilySamplesList = new ArrayList<>();
 
-		// Loop over all the monitor and create metrics (Prometheus samples)
-		hostMonitoring.getMonitors().forEach((monitorType, monitors) -> processSameTypeMonitors(monitorType, monitors, mfs));
+		// Loop over all the monitors and create metrics (Prometheus samples)
+		for (IHostMonitoring hostMonitoring : hostMonitoringMap.values()) {
 
-		return mfs;
+			hostMonitoring
+				.getMonitors()
+				.forEach((monitorType, monitors) -> processSameTypeMonitors(monitorType, monitors, metricFamilySamplesList));
+		}
+
+		return metricFamilySamplesList;
 	}
 
 	/**
@@ -141,12 +148,13 @@ public class HostMonitoringCollectorService extends Collector {
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(
 				metricName,
 				help,
-				Arrays.asList(ID, PARENT, LABEL));
+				Arrays.asList(ID, PARENT, LABEL, FQDN));
 
-		monitors.values()
-		.stream()
-		.filter(monitor -> isParameterAvailable(monitor, metaParameter.getName()))
-		.forEach(monitor -> addMetric(labeledGauge, monitor, metaParameter.getName()));
+		monitors
+			.values()
+			.stream()
+			.filter(monitor -> isParameterAvailable(monitor, metaParameter.getName()))
+			.forEach(monitor -> addMetric(labeledGauge, monitor, metaParameter.getName()));
 
 		mfs.add(labeledGauge);
 	}
@@ -234,8 +242,10 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link List} of {@link String} values
 	 */
 	static List<String> createLabels(final Monitor monitor) {
+
 		return Arrays.asList(monitor.getId(),
 				getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY),
-				monitor.getName());
+				monitor.getName(),
+				monitor.getFqdn());
 	}
 }

@@ -1,31 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_PARENTHESIS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PARENTHESIS_EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
-import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
@@ -35,6 +12,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.Lun;
 import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
@@ -50,8 +28,29 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_PARENTHESIS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PARENTHESIS_EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
@@ -274,14 +273,15 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		monitor.setParentId(parentId);
 		monitor.setTargetId(targetMonitor.getId());
 		monitor.setExtendedType(extendedType);
+		monitor.addMetadata(TARGET_FQDN, targetMonitor.getFqdn());
 
 		// Finally we can add the monitor
 		hostMonitoring.addMonitor(monitor,
-				id,
-				connectorName,
-				monitorType,
-				attachedToDeviceId,
-				attachedToDeviceType);
+			id,
+			connectorName,
+			monitorType,
+			attachedToDeviceId,
+			attachedToDeviceType);
 	}
 
 	private static String getTextDataValueOrElse(final String data, final String other) {

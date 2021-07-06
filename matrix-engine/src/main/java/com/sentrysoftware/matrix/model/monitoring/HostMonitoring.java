@@ -1,6 +1,18 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.common.helpers.StreamUtils;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -12,21 +24,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.common.helpers.StreamUtils;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
-import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
-import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 
 @Data
 @NoArgsConstructor
@@ -84,6 +82,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		// The monitor is created then it is present
 		monitor.setAsPresent();
+
+		//
 
 		if (monitors.containsKey(monitorType)) {
 
@@ -333,5 +333,4 @@ public class HostMonitoring implements IHostMonitoring {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
 	}
-
 }

@@ -227,7 +227,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCreatetargetOnExistingtarget() {
+	void testCreatetargetOnExistingtarget() throws LocalhostCheckException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString());
 
@@ -255,14 +255,14 @@ class DetectionOperationTest {
 		{
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Collections.emptyList()).build();
-			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
 			final CriterionTestResult ctr = CriterionTestResult.builder().success(true).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr, ctr).collect(Collectors.toList())).build();
-			assertTrue((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertTrue(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
@@ -270,7 +270,7 @@ class DetectionOperationTest {
 			final CriterionTestResult ctr2 = CriterionTestResult.builder().success(false).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr1, ctr2).collect(Collectors.toList())).build();
-			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 	}
 

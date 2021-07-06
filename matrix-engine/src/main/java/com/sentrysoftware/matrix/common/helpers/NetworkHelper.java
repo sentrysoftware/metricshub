@@ -63,7 +63,7 @@ public class NetworkHelper {
 	 * @return {@link InetAddress} of the given hostname
 	 * @throws LocalhostCheckException when we encounter the {@link UnknownHostException}
 	 */
-	private static InetAddress getInetAddress(final String hostname) throws LocalhostCheckException {
+	public static InetAddress getInetAddress(final String hostname) throws LocalhostCheckException {
 
 		try {
 			return InetAddress.getByName(hostname);
@@ -74,4 +74,26 @@ public class NetworkHelper {
 		}
 	}
 
+	/**
+	 * @param hostname					The hostname whose FQDN is being searched for.
+	 *
+	 * @return							The FQDN of the given hostname
+	 *
+	 * @throws LocalhostCheckException	If the given hostname cannot be resolved.
+	 */
+	public static String getFqdn(String hostname) throws LocalhostCheckException {
+
+		String fqdn = hostname;
+		InetAddress inetAddress = null;
+
+		if (hostname != null && !hostname.isEmpty()) {
+			inetAddress = NetworkHelper.getInetAddress(hostname);
+		}
+
+		if (inetAddress != null) {
+			fqdn = inetAddress.getCanonicalHostName();
+		}
+
+		return fqdn;
+	}
 }

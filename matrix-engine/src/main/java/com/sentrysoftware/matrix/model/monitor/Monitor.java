@@ -1,21 +1,22 @@
 package com.sentrysoftware.matrix.model.monitor;
 
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 @Data
 @Builder
@@ -61,9 +62,8 @@ public class Monitor {
 	/**
 	 * Get a parameter by type
 	 * 
-	 * @param <T>
 	 * @param parameterName The unique name of the parameter
-	 * @param type          The type of the
+	 * @param type          The type of the parameter
 	 * @return {@link IParameterValue} instance
 	 */
 	public <T extends IParameterValue> T getParameter(final String parameterName, final Class<T> type) {
@@ -98,6 +98,12 @@ public class Monitor {
 		if (monitorType.getMetaMonitor().hasPresentParameter()) {
 			addParameter(PresentParam.present());
 		}
+	}
 
+	public String getFqdn() {
+
+		String fqdn = metadata.get(FQDN);
+
+		return fqdn != null ? fqdn : metadata.get(TARGET_FQDN);
 	}
 }

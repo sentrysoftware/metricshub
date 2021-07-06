@@ -1,11 +1,11 @@
 # HELP enclosure_energy_usage Metric: Enclosure energyUsage - Unit: Joules
 # TYPE enclosure_energy_usage gauge
-enclosure_energy_usage{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",} 3000.0
+enclosure_energy_usage{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",} 3000.0
 # HELP enclosure_status Metric: Enclosure status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE enclosure_status gauge
-enclosure_status{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",} 0.0
+enclosure_status{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",} 0.0
 # HELP fan_status Metric: Fan status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE fan_status gauge
-fan_status{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",} 0.0
-fan_status{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",} 0.0
+fan_status{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",fqdn="targetFqdn",} 0.0
+fan_status{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",fqdn="targetFqdn",} 0.0
 

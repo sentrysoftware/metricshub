@@ -42,11 +42,11 @@ class PrometheusServiceTest {
 
 	@Test
 	void testCollectMetrics() throws BusinessException {
-		doNothing().when(matrixEngineService).performJobs();
+		doNothing().when(matrixEngineService).performJobs(null);
 		doAnswer(invocation -> new TestCollector().register()).when(hostMonitoringCollectorService).register();
 
 		assertEquals(ResourceHelper.getResourceAsString("/data/simple_gauge.txt", PrometheusServiceTest.class),
-				prometheusService.collectMetrics());
+				prometheusService.collectMetrics(null));
 	}
 
 	@Test
@@ -54,12 +54,12 @@ class PrometheusServiceTest {
 		final PrintStream origin = System.out;
 		final PrintStream printStream = new PrintStream(new CustomOutputStream());
 		System.setOut(printStream);
-		doNothing().when(matrixEngineService).performJobs();
+		doNothing().when(matrixEngineService).performJobs(null);
 		doAnswer(invocation ->  new TestCollector().register()).when(hostMonitoringCollectorService).register();
 
 		try (MockedStatic<TextFormat> textFormat = mockStatic(TextFormat.class)) {
 			textFormat.when(() -> TextFormat.write004(any(Writer.class), any())).thenThrow(new IOException("IO Exception thrown for Test"));
-			assertThrows(BusinessException.class, () -> prometheusService.collectMetrics());
+			assertThrows(BusinessException.class, () -> prometheusService.collectMetrics(null));
 		}
 
 		printStream.close();

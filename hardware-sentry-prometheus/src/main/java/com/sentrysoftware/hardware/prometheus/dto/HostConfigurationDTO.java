@@ -20,7 +20,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO to wrap the exporter configuration.
+ * DTO to wrap the exporter configuration for one specific target.
  */
 @Data
 @NoArgsConstructor
@@ -57,5 +57,4 @@ public class HostConfigurationDTO {
 
 	@Default
 	private ParameterState unknownStatus = ParameterState.WARN;
-
 }
