@@ -1,12 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CARET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_SQUARE_BRACKET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
@@ -17,6 +10,16 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_SQUARE_BRACKET;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PLUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PslUtils {
@@ -353,6 +356,55 @@ public class PslUtils {
 		}
 
 		return new int[]{fromColumnNumber, toColumnNumber};
+	}
+
+	/**
+	 * Converts an entry and its result into an extended JSON format:
+	 * 	{
+	 * 		"Entry":{
+	 * 			"Full":"<entry>",
+	 * 			"Column(1)":"<1st field value>",
+	 * 	    	"Column(2)":"<2nd field value>",
+	 * 			"Column(3)":"<3rd field value>",
+	 * 			"Value":<result> <- Result must be properly formatted (either "result" or {"property":"value"}
+	 * 		}
+	 * 	}
+	 *
+	 * @param entry The row of values.
+	 * @param tableResult The output returned by the SourceVisitor.
+	 * @return
+	 */
+	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
+			throws IllegalArgumentException{
+		if (row.isEmpty()) {
+			throw new IllegalArgumentException("Empty row of values");
+		}
+
+		String rawData = tableResult.getRawData();
+		if (rawData == null || rawData.isEmpty()) {
+			throw new IllegalArgumentException("Empty SourceTable data: " + tableResult);
+		}
+
+		StringBuilder jsonContent = new StringBuilder();
+		jsonContent.append("{\n\"Entry\":{\n\"Full\":\"")
+		.append(row)
+		.append("\",\n");
+
+		int i = 1;
+
+		for (String value : row.split(",")) {
+			jsonContent
+			.append("\"Column(")
+			.append(i)
+			.append(")\":\"")
+			.append(value)
+			.append("\",\n");
+			i++;
+		}
+
+		jsonContent.append("\"Value\":").append(tableResult.getRawData()).append("\n}\n}");
+
+		return jsonContent.toString();
 	}
 
 }

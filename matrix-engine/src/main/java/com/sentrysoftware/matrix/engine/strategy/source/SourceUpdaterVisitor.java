@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -29,6 +33,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCS
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
@@ -64,7 +69,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		if (entries != null && !entries.isEmpty()) {
 			SourceTable sourceTable = getSourceTable(entries);
 			if (sourceTable != null) {
-				SourceTable result = SourceTable.builder().build();
+				SourceTable result = SourceTable.builder().rawData("").build();
 
 				for  (List<String> row : sourceTable.getTable()) {
 					final HTTPSource copy = httpSource.copy();
@@ -82,7 +87,36 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 					SourceTable thisSourceTable = copy.accept(sourceVisitor);
 
-					result.getTable().addAll(thisSourceTable.getTable());
+					if (httpSource.getEntryConcatMethod() == null) {
+						result.setRawData(
+								result.getRawData()
+								.concat(thisSourceTable.getRawData()));
+					} else {
+						switch (httpSource.getEntryConcatMethod()) {
+						case JSON_ARRAY:
+							result.setRawData(
+									(result.getRawData().isEmpty() ? result.getRawData() : result.getRawData().concat(",\n"))
+									.concat(thisSourceTable.getRawData()));
+							break;
+						case JSON_ARRAY_EXTENDED:
+							result.setRawData(
+									(result.getRawData().isEmpty() ? "" : result.getRawData().concat(",\n"))
+									.concat(PslUtils.formatExtendedJSON(rowToCsv(row, ","), thisSourceTable)));
+							break;
+						case CUSTOM:
+							result.setRawData(
+									result.getRawData()
+									.concat(httpSource.getEntryConcatStart())
+									.concat(thisSourceTable.getRawData())
+									.concat(httpSource.getEntryConcatEnd()));
+							break;
+						default: // LIST or empty
+							result.setRawData(
+									result.getRawData()
+									.concat(thisSourceTable.getRawData()));
+							break;
+						}
+					}
 				}
 				return result;
 			} else {
@@ -356,5 +390,26 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		return SourceTable.builder()
 				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
 				.build();
+	}
+
+	/**
+	 * Transform the {@link List} row to a {@link String} representation
+	 * [a1,b1,c2]
+	 *  =>
+	 * a1,b1,c1
+	 *
+	 * @param row             The row result we wish to parse
+	 * @param separator       The cells separator on each line
+	 * @return {@link String} value
+	 */
+	public static String rowToCsv(final List<String> row, final String separator) {
+		if (row != null) {
+			return row
+					.stream()
+					.filter(Objects::nonNull)
+					.collect(Collectors.joining(separator));
+		}
+
+		return EMPTY;
 	}
 }

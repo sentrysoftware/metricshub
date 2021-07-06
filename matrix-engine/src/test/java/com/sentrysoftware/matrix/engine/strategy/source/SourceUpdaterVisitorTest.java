@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -104,20 +105,66 @@ class SourceUpdaterVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
 
-		List<List<String>> expectedTable1 = Arrays.asList(
-				Arrays.asList("expectedVal1"));
-		List<List<String>> expectedTable2 = Arrays.asList(
-				Arrays.asList("expectedVal2"));
+		String expectedResult = "expectedVal1expectedVal2";
 
-		List<List<String>> expectedResult = Arrays.asList(
-				Arrays.asList("expectedVal1"),
-				Arrays.asList("expectedVal2"));
-
-		SourceTable expected1 = SourceTable.builder().table(expectedTable1).build();
-		SourceTable expected2 = SourceTable.builder().table(expectedTable2).build();
+		SourceTable expected1 = SourceTable.builder().rawData("expectedVal1").build();
+		SourceTable expected2 = SourceTable.builder().rawData("expectedVal2").build();
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		SourceTable result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
-		assertEquals(expectedResult, result.getTable());
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.LIST);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "expectedVal1,\n" +
+				"expectedVal2";
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "{\n" +
+				"\"Entry\":{\n" +
+				"\"Full\":\"val1,val2,val3\",\n" +
+				"\"Column(1)\":\"val1\",\n" +
+				"\"Column(2)\":\"val2\",\n" +
+				"\"Column(3)\":\"val3\",\n" +
+				"\"Value\":expectedVal1\n" +
+				"}\n" +
+				"},\n" +
+				"{\n" +
+				"\"Entry\":{\n" +
+				"\"Full\":\"a1,b1,c1\",\n" +
+				"\"Column(1)\":\"a1\",\n" +
+				"\"Column(2)\":\"b1\",\n" +
+				"\"Column(3)\":\"c1\",\n" +
+				"\"Value\":expectedVal2\n" +
+				"}\n" +
+				"}";
+
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.CUSTOM);
+		httpSource.setEntryConcatStart("EntryConcatStart_");
+		httpSource.setEntryConcatEnd("_EntryConcatEnd\n");
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "EntryConcatStart_expectedVal1_EntryConcatEnd\n" +
+				"EntryConcatStart_expectedVal2_EntryConcatEnd\n";
+		assertEquals(expectedResult, result.getRawData());
 	}
 
 	@Test
