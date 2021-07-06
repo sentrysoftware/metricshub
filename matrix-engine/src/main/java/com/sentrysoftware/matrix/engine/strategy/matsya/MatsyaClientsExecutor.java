@@ -9,6 +9,8 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -32,14 +35,16 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiWqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
 
@@ -267,6 +272,31 @@ public class MatsyaClientsExecutor {
 
 		return execute(jflatToCSV, json2CsvTimeout);
 	}
+	
+	/**
+	 * Execute a WBEM query through Matsya
+	 * @param url
+	 * @param username
+	 * @param password
+	 * @param timeout
+	 * @param query
+	 * @param namespace
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws WqlQuerySyntaxException
+	 * @throws WBEMException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
+			final int timeout, final String query, final String namespace) throws MalformedURLException,
+			WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+
+		WbemQueryResult  wbemResult = WbemExecutor.executeWql(new URL(url), namespace, username, password, query,
+				timeout, null);
+
+		return wbemResult.getValues();
+	}
 
 	/**
 	 * Execute a WMI query through Matsya
@@ -277,15 +307,15 @@ public class MatsyaClientsExecutor {
 	 * @param timeout   The timeout in seconds after which the query is rejected
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException    If the localhost check fails
-	 * @throws WmiComException            For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WmiWqlQuerySyntaxException In case of not valid query
-	 * @throws TimeoutException           When the given timeout is reached
+	 * @throws LocalhostCheckException  If the localhost check fails
+	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WqlQuerySyntaxException  In case of not valid query
+	 * @throws TimeoutException         When the given timeout is reached
 	 */
 	public List<List<String>> executeWmi(final String hostname, final String username,
 			final char[] password, final Long timeout,
 			final String wbemQuery, final String namespace)
-			throws LocalhostCheckException, WmiComException, TimeoutException, WmiWqlQuerySyntaxException {
+			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
 
 		// Where to connect to?
 		// Local: namespace

@@ -28,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
@@ -387,7 +388,61 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final WBEMSource wbemSource) {
-		return SourceTable.empty();
+
+		if (wbemSource == null || wbemSource.getWbemQuery() == null) {
+			log.error("Malformed WBEMSource {}. Returning an empty table.", wbemSource);
+			return SourceTable.empty();
+		}
+
+		final WBEMProtocol protocol = (WBEMProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WBEMProtocol.class);
+
+		if (protocol == null) {
+			log.debug("The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
+					wbemSource.getKey());
+			return SourceTable.empty();
+		}
+
+		// Get the namespace, the default one is : root/cimv2
+		String namespace = wbemSource.getWbemNamespace() != null ? wbemSource.getWbemNamespace()
+				: protocol.getNamespace();
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+			if (hostname == null) {
+				log.error("No hostname indicated, the URL cannot be built.");
+				return SourceTable.empty();
+			}
+			if (protocol.getPort() == null || protocol.getPort() == 0) {
+				log.error("No port indicated to connect to the following hostname : {}", hostname);
+				return SourceTable.empty();
+			}
+
+			// if protocol = null than we use the default one : https
+			String transferProtocol = protocol.getProtocol() == null ? WBEMProtocol.WBEMProtocols.HTTPS.name().toLowerCase()
+					: protocol.getProtocol().name().toLowerCase();
+			final String wbemUrl = String.format("%s://%s:%d", transferProtocol, hostname, protocol.getPort());
+			if (wbemUrl == null) {
+				log.error(
+						"Cannot build URL with the following information : hostname :{}, port : {}. Returning an empty table.",
+						hostname, protocol.getPort());
+				return SourceTable.empty();
+			}
+
+			int timeout = protocol.getTimeout() == null ? 120000 : protocol.getTimeout().intValue() * 1000; // seconds to milliseconds
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(wbemUrl, protocol.getUsername(),
+					protocol.getPassword(), timeout, wbemSource.getWbemQuery(), namespace);
+
+			return SourceTable.builder().table(table).build();
+
+		} catch (Exception e) {
+			log.error("Error detected when running WBEM Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wbemSource.getWbemQuery(), hostname, protocol.getUsername(), protocol.getTimeout(),
+					wbemSource.getWbemNamespace());
+			log.error("Exception", e);
+			return SourceTable.empty();
+		}
 	}
 
 	@Override
