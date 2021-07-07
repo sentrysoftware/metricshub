@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +42,6 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
-import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper.CommandTypeEnum;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -60,7 +58,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private static final String IPMI_VERSION = "IPMI Version";
 	private static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
 	private static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
-	private static final String IPMI_TOOL_SUDO_MACRO = "%\\{SUDO:ipmitool\\}";
+	private static final String IPMI_TOOL_SUDO_MACRO = "%{SUDO:ipmitool}";
 
 	private static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 
@@ -243,7 +241,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(OSCommandConfig.class);
 
 		if (osCommandConfig == null) {
-			final String message = String.format("Couldn't OS Command Configuration on %s. Retrun empty result.",
+			final String message = String.format("No OS Command Configuration for %s. Retrun empty result.",
 					hostname);
 			log.error(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
@@ -253,19 +251,18 @@ public class CriterionVisitor implements ICriterionVisitor {
 			ipmitoolCommand = buildIpmiCommand(targetType, hostname, sshProtocol, osCommandConfig, defaultTimeout);
 		}
 
+		// buildIpmiCommand method can either return the actual result of the built command or an error. If it an error we display it in the error message
 		if (!ipmitoolCommand.startsWith("PATH=")) {
 			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
 		}
 		// execute the command
 		try {
 			String result = null;
-			osCommandConfig.getTimeout().intValue();
-			result = runOsCommand(ipmitoolCommand, hostname, sshProtocol, defaultTimeout,
-					OsCommandHelper.CommandTypeEnum.SHELL);
+			result = runOsCommand(ipmitoolCommand, hostname, sshProtocol, defaultTimeout);
 			if (result != null && !result.contains(IPMI_VERSION)) {
 				// Didn't find what we expected: exit
 				return CriterionTestResult.builder().success(false).result(result)
-						.message("Didn't get the expected result from ipmitool : " + ipmitoolCommand).build();
+						.message("Didn't get the expected result from ipmitool: " + ipmitoolCommand).build();
 			} else {
 				// everything goes well
 				strategyConfig.getHostMonitoring()
@@ -276,7 +273,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 		} catch (IOException | InterruptedException e) {
-			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception : %s",
+			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception: %s",
 					ipmitoolCommand, hostname, e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
@@ -286,7 +283,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	/**
 	 * Check the OS type and version and build the correct IPMI command. If the
-	 * process fails, return the accroding error
+	 * process fails, return the according error
 	 * 
 	 * @param targetType
 	 * @param hostname
@@ -303,7 +300,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// wizard) --> yes
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
 		if (osCommandConfig.isUseSudo() || osCommandConfig.getUseSudoCommandList().contains("ipmitool")) {
-			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replaceAll(IPMI_TOOL_SUDO_MACRO, osCommandConfig.getSudoCommand());
+			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replace(IPMI_TOOL_SUDO_MACRO, osCommandConfig.getSudoCommand());
 		} else {
 			ipmitoolCommand = IPMI_TOOL_COMMAND;
 		}
@@ -314,10 +311,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 			try {
 				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
 				// (Solaris)
-				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshProtocol, defaultTimeout,
-						OsCommandHelper.CommandTypeEnum.SHELL);
+				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshProtocol, defaultTimeout);
 			} catch (InterruptedException | IOException e) {
-				final String message = String.format("Couldn't identify Solaris version %s on %s. Exception : %s",
+				final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
 						ipmitoolCommand, hostname, e.getMessage());
 				log.debug(message, e);
 				return message;
@@ -327,7 +323,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				try {
 					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
 				} catch (Exception e) {
-					final String message = String.format("Couldn't identify Solaris version %s on %s. Exception : %s",
+					final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
 							ipmitoolCommand, hostname, e.getMessage());
 					log.debug(message, e);
 					return message;
@@ -352,16 +348,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @param hostname
 	 * @param sshProtocol
 	 * @param timeout
-	 * @param commandType
 	 * @return
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
 	public String runOsCommand(String ipmitoolCommand, final String hostname, final SSHProtocol sshProtocol,
-			final int timeout, CommandTypeEnum commandType) throws InterruptedException, IOException {
+			final int timeout) throws InterruptedException, IOException {
 		String result;
 		if (strategyConfig.getHostMonitoring().isLocalhost()) { // or we can use NetworkHelper.isLocalhost(hostname)
-			result = OsCommandHelper.runLocalCommand(ipmitoolCommand, commandType);
+			result = OsCommandHelper.runLocalCommand(ipmitoolCommand);
 		} else {
 			if (sshProtocol == null) {
 				return null;
@@ -394,7 +389,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		String solarisVersion = split[1];
-		if (StringUtils.isNumeric(solarisVersion)) {
+		 try {
 			int versionInt = Integer.parseInt(solarisVersion);
 			if (versionInt == 9) {
 				// On Solaris 9, the IPMI interface drive is 'lipmi'
@@ -409,11 +404,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
 				ipmitoolCommand = ipmitoolCommand + "bmc";
 			}
-		} else {
+		} catch (NumberFormatException e) {
 			throw new Exception("Couldn't identify Solaris version as a valid one.\nThe 'uname -r' command returned: "
 					+ solarisOsVersion);
 		}
-		return ipmitoolCommand;
+
+		 return ipmitoolCommand;
 	}
 
 	/**

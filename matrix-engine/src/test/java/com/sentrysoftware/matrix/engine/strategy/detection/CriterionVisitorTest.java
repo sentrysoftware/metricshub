@@ -315,8 +315,7 @@ class CriterionVisitorTest {
 		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		String version = criterionVisitor.runOsCommand("ver", "localhost", null, 120,
-				OsCommandHelper.CommandTypeEnum.CMD);
+		String version = criterionVisitor.runOsCommand("ver", "localhost", null, 120);
 		assertTrue(version.startsWith("Microsoft Windows"));
 	}
 
@@ -326,8 +325,7 @@ class CriterionVisitorTest {
 		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		String version = criterionVisitor.runOsCommand("uname -a", "localhost", null, 120,
-				OsCommandHelper.CommandTypeEnum.SHELL);
+		String version = criterionVisitor.runOsCommand("uname -a", "localhost", null, 120);
 		assertTrue(version.startsWith("Linux"));
 	}
 
@@ -344,7 +342,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			assertEquals(CriterionTestResult.builder().result("").success(false)
-					.message("Couldn't OS Command Configuration on " + HOST_LINUX + ". Retrun empty result.").build(),
+					.message("No OS Command Configuration for " + HOST_LINUX + ". Retrun empty result.").build(),
 					criterionVisitor.visit(new IPMI()));
 		}
 		SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
@@ -379,8 +377,7 @@ class CriterionVisitorTest {
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn("PATH=blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(),
 					any(), eq(120));
-			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand("PATH=blabla", HOST_LINUX, ssh, 120,
-					OsCommandHelper.CommandTypeEnum.SHELL);
+			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand("PATH=blabla", HOST_LINUX, ssh, 120);
 			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
 
 		}
@@ -422,7 +419,7 @@ class CriterionVisitorTest {
 		// Otherwise even for other contexts/methods it will always return the same
 		// result (it is static..)
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn(ipmiResultExample);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(any())).thenReturn(ipmiResultExample);
 			assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
 					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
 					criterionVisitor.visit(new IPMI()));
@@ -437,18 +434,18 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
 
-		String cmdResult = criterionVisitor.runOsCommand(null, "localhost", ssh, 120, null);
+		String cmdResult = criterionVisitor.runOsCommand(null, "localhost", ssh, 120);
 		assertNull(cmdResult);
 
-		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", null, 120, null);
+		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", null, 120);
 		assertNull(cmdResult);
 
-		cmdResult = criterionVisitor.runOsCommand("cmd", null, ssh, 120, null);
+		cmdResult = criterionVisitor.runOsCommand("cmd", null, ssh, 120);
 		assertNull(cmdResult);
 
 		doReturn("something").when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
 				eq(120));
-		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", ssh, 120, OsCommandHelper.CommandTypeEnum.CMD);
+		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", ssh, 120);
 		assertEquals("something", cmdResult);
 
 	}
@@ -463,7 +460,7 @@ class CriterionVisitorTest {
 			hostMonitoring.setLocalhost(true);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("5.10");
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any())).thenReturn("5.10");
 				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
@@ -471,7 +468,7 @@ class CriterionVisitorTest {
 			}
 
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("blabla");
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any())).thenReturn("blabla");
 				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
@@ -481,7 +478,7 @@ class CriterionVisitorTest {
 
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 				osCommandConfig.setUseSudo(true);
-				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("5.10");
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any())).thenReturn("5.10");
 				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);

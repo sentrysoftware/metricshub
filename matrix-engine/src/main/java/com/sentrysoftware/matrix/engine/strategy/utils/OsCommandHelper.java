@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.SystemUtils;
+//import org.apache.commons.lang3.SystemUtils;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -61,38 +61,28 @@ public class OsCommandHelper {
 	 * @return <code>true</code> if the local system is Windows otherwise <code>false</code>
 	 */
 	public static boolean isWindows() {
-		return SystemUtils.IS_OS_WINDOWS;
+		return System.getProperty("os.name").toLowerCase().startsWith("windows");
 	}
 
-	public static String runLocalCommand(String command, CommandTypeEnum cmdType)
+	public static String runLocalCommand(String command)
 			throws InterruptedException, IOException {
 
 		Process process = null;
 
-		// -- Linux --
-		// Run a shell command
-		if (CommandTypeEnum.SHELL.equals(cmdType)) {
-			process = Runtime.getRuntime().exec(command);
+		if (isWindows()) {
+			command = "CMD.EXE /C " + command;
 		}
 
-		// -- Windows --
-		// Run a command
-		if (CommandTypeEnum.CMD.equals(cmdType)) {
-			process = Runtime.getRuntime().exec("cmd /c " + command);
-		}
+		process = Runtime.getRuntime().exec(command);
 
 		if (process != null) {
 			process.waitFor();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-			return reader.lines().collect(Collectors.joining(System.lineSeparator())).trim();
+			return reader.lines().collect(Collectors.joining("\n")).trim();
 		}
 
 		return null;
-	}
-
-	public enum CommandTypeEnum {
-		SHELL, CMD
 	}
 
 }

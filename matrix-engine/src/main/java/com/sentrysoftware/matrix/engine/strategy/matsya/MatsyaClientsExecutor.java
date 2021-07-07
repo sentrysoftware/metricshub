@@ -9,9 +9,9 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,6 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matsya.Utils;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -526,11 +525,8 @@ public class MatsyaClientsExecutor {
 			command = null;
 		}
 
-		// Charset?
-		Charset charset = Utils.getCharsetFromLocale(""); // always use charsetName = "GBK"
-
 		// Connect
-		SSHClient client = new SSHClient(hostname, charset);
+		SSHClient client = new SSHClient(hostname, StandardCharsets.UTF_8.name());
 		boolean authenticated = false;
 		client.connect(timeout * 1000);
 
@@ -562,7 +558,6 @@ public class MatsyaClientsExecutor {
 				result = client.executeCommand(command, timeout * 1000);
 			} catch (IOException e) {
 				log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
-				client.disconnect();
 				throw e;
 			} finally {
 				client.disconnect();
@@ -572,7 +567,7 @@ public class MatsyaClientsExecutor {
 				return result.result;
 			} else {
 				// Failure
-				log.error("Execution failed: ", result.result);
+				log.error("Execution failed: {}.", result.result);
 			}
 
 		}
