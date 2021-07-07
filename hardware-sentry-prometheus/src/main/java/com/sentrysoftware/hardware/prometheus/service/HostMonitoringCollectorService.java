@@ -159,7 +159,8 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		return String.format("Metric: %s %s - Unit: %s", monitorName, metaParameter.getName(), metaParameter.getUnit());
+		String unit = metaParameter.getDisplayUnit() == null ? metaParameter.getUnit() : metaParameter.getDisplayUnit();
+		return String.format("Metric: %s %s - Unit: %s", monitorName, metaParameter.getName(), unit);
 	}
 
 	/**
