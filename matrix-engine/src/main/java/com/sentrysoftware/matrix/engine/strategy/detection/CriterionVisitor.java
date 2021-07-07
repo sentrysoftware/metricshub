@@ -45,24 +45,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
 import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @Component
 public class CriterionVisitor implements ICriterionVisitor {
 
+	private static final String COLUMN_SEPARATOR = ";";
+
 	private static final String NAMESPACE_MESSAGE = "\n- Namespace: ";
-	private static final String ROOT = "root";
-	private static final String ROOT_BACKSLASH = "root\\";
-	private static final String ROOT_SLASH = "root/";
-	private static final String SLASH_ROOT = "/root";
-	private static final String ROOT_SLASH_CIMV2 = "root/cimv2";
-	private static final String ROOT_BACKSLASH_CIMV2 = "root\\cimv2";
-	private static final String INTEROP = "interop";
+	private static final String DEFAULT_NAMESPACE = "root/cimv2";
+	private static final String DEFAULT_NAMESPACE_WMI = "root\\cimv2";
+	private static final String INTEROP_NAMESPACE = "interop";
 
 	private static final Pattern SNMP_GETNEXT_RESULT_REGEX = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
@@ -106,10 +102,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 			"PG_Interop",
 			"root/Interop",
 			"root/PG_Interop",
-			INTEROP
+			INTEROP_NAMESPACE
 		);
 
-	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of(ROOT, SLASH_ROOT);
+	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
 	@Autowired
 	private StrategyConfig strategyConfig;
@@ -457,7 +453,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String criterionNamespace = wbem.getWbemNamespace();
 
-		if (AUTOMATIC.equalsIgnoreCase(criterionNamespace)) {
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(criterionNamespace)) {
 
 			final String automaticNamespace = strategyConfig.getHostMonitoring().getAutomaticWbemNamespace();
 
@@ -529,7 +525,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// because it's one that we find in many places and not necessarily with anything useful in it
 		// especially if there are other matching namespaces.
 		if (namespaces.size() > 1) {
-			namespaces.remove(ROOT_SLASH_CIMV2);
+			namespaces.remove(DEFAULT_NAMESPACE);
 		}
 
 		// Okay, so even if we have several, select a single one
@@ -574,13 +570,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// Preparing arguments for the WBEM executor
-		String url = buildWbemUrl(protocol, hostname);
+		boolean useEncryption = WBEMProtocol.WBEMProtocols.HTTPS.equals(protocol.getProtocol()); // protocol cannot be null here
+		String url = MatsyaClientsExecutor.buildWbemUrl(hostname, protocol.getPort(), useEncryption);
 
 		String username = protocol.getUsername();
 		char[] password = protocol.getPassword();
 
-		Long timeout = protocol.getTimeout(); // protocol cannot be null here
-		notNull(timeout, "timeout cannot be null");
+		Long timeout = protocol.getTimeout();
 
 		// First, let us execute "SELECT Name FROM __NAMESPACE" on the "root" namespace
 		String wbemQuery = null;
@@ -590,12 +586,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			wbemQuery = "SELECT Name FROM __NAMESPACE";
 			queryResult = matsyaClientsExecutor.executeWbem(url, username, password, timeout.intValue() * 1000,
-				wbemQuery, ROOT);
+				wbemQuery, "root");
 
-			possibleWbemNamespaces = extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES, ROOT_SLASH);
+			possibleWbemNamespaces = extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES, "root/");
 			if (possibleWbemNamespaces.isEmpty()) {
 
-				message = String.format("%s does not respond to WBEM request %s. Cancelling namespace detection.",
+				message = String.format("%s does not respond to WBEM request %s. Canceling namespace detection.",
 					hostname, wbemQuery);
 
 				log.debug(message);
@@ -615,7 +611,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				&& id != WBEMException.CIM_ERR_NOT_FOUND) {
 
 				message = String.format("%s does not respond to WBEM requests. Error is: %s" +
-						"\nCancelling namespace detection.", hostname, e.toString());
+						"\nCanceling namespace detection.", hostname, e.toString());
 
 				log.debug(message);
 
@@ -646,7 +642,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					wbemQuery, namespace);
 
 				possibleWbemNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES,
-					ROOT_SLASH));
+					"root/"));
 
 			} catch (Exception e) { // NOSONAR - not propagating InterruptedException
 
@@ -662,7 +658,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			return PossibleNamespacesResult
 				.builder()
-				.errorMessage("No suitable namespace could be found to query host " + hostname + DOT)
+				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
 				.success(false)
 				.build();
 		}
@@ -672,27 +668,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.possibleNamespaces(possibleWbemNamespaces)
 			.success(true)
 			.build();
-	}
-
-	/**
-	 * @param protocol	The user's configured {@link WBEMProtocol}.
-	 * @param hostname	The hostname of the target device.
-	 *
-	 * @return			A url based on the given input, as a {@link String}.
-	 */
-	private String buildWbemUrl(WBEMProtocol protocol, String hostname) {
-
-		notNull(protocol, "protocol cannot be null");
-		notNull(hostname, "hostname cannot be null");
-
-		WBEMProtocol.WBEMProtocols wbemProtocols = protocol.getProtocol();
-		notNull(wbemProtocols, "wbemProtocols cannot be null");
-		String protocolName = wbemProtocols.name();
-
-		Integer port = protocol.getPort();
-		notNull(port, "port cannot be null");
-
-		return String.format("%s://%s:%d", protocolName, hostname, port);
 	}
 
 	/**
@@ -756,15 +731,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
 
 		// Preparing arguments for the WBEM executor
-		String url = buildWbemUrl(protocol, hostname);
+		boolean useEncryption = WBEMProtocol.WBEMProtocols.HTTPS.equals(protocol.getProtocol()); // protocol cannot be null here
+		String url = MatsyaClientsExecutor.buildWbemUrl(hostname, protocol.getPort(), useEncryption);
 
-		Long timeout = protocol.getTimeout(); // protocol cannot be null here
-		notNull(timeout, "timeout cannot be null");
+		Long timeout = protocol.getTimeout();
 
 		final List<List<String>> queryResult = matsyaClientsExecutor.executeWbem(url, protocol.getUsername(),
 			protocol.getPassword(), timeout.intValue() * 1000, wbemQuery, namespace);
 
-		return SourceTable.tableToCsv(queryResult, SEMICOLON, true);
+		return SourceTable.tableToCsv(queryResult, COLUMN_SEPARATOR, true);
 	}
 
 	@Override
@@ -1008,7 +983,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String criterionNamespace = wmi.getWbemNamespace();
 
-		if (AUTOMATIC.equalsIgnoreCase(criterionNamespace)) {
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(criterionNamespace)) {
 			final String automaticWmiNamespace = strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
 
 			// It's OK if the namespace has already been detected, we don't re-execute the heavy detection
@@ -1062,8 +1037,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// So, now we have a list of working namespaceList
 		// We'd better have only one, but you never know, so try to be clever here...
 		if (namespaces.size() > 1) {
-			namespaces.remove(ROOT_SLASH_CIMV2);
-			namespaces.remove(ROOT_BACKSLASH_CIMV2);
+			namespaces.remove(DEFAULT_NAMESPACE);
+			namespaces.remove(DEFAULT_NAMESPACE_WMI);
 		}
 
 		// Okay, so even if we have several, select a single one
@@ -1158,7 +1133,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @throws TimeoutException			When the given timeout is reached
 	 * @throws WqlQuerySyntaxException	In case of invalid query
 	 */
-	String runWmiQueryAndGetCsv(final String hostname, final String wbemQuery, final String namespace, final WMIProtocol protocol)
+	String runWmiQueryAndGetCsv(final String hostname, final String wbemQuery, final String namespace,
+								final WMIProtocol protocol)
 			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
 
 		final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(hostname,
@@ -1168,8 +1144,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				wbemQuery,
 				namespace);
 
-		return SourceTable.tableToCsv(queryResult, SEMICOLON, true);
-
+		return SourceTable.tableToCsv(queryResult, COLUMN_SEPARATOR, true);
 	}
 
 	/**
@@ -1200,15 +1175,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 				protocol.getPassword(),
 				protocol.getTimeout(),
 				wbemQuery,
-				ROOT);
+				"root");
 
 			// Add the result of this request to possibleWmiNamespaces
 			// This will update the possibleWmiNamespace in the HostMonitoring
-			possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WMI_NAMESPACES, ROOT_BACKSLASH));
+			possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WMI_NAMESPACES, "root\\"));
 
 		} catch (Exception e) {
 			// Log the error message and proceed with the next namespace
-			final String message = String.format("%s does not respond to WMI request %s. Cancelling namespace detection. Error: %s",
+			final String message = String.format("%s does not respond to WMI request %s. Canceling namespace detection. Error: %s",
 				hostname, wbemQuery, e.getMessage());
 			log.debug(message);
 		}
@@ -1243,7 +1218,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.stream()
 			.filter(row -> !row.isEmpty())
 			.flatMap(List::stream)
-			.filter(namespace -> !namespace.toLowerCase().contains(INTEROP) && !ignoredNameSpaces.contains(namespace))
+			.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_NAMESPACE) && !ignoredNameSpaces.contains(namespace))
 			.map(namespace -> prefix + namespace)
 			.collect(Collectors.toCollection(TreeSet::new));
 	}

@@ -1,8 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +12,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SourceTable {
+
+	private static final String ALTERNATE_COLUMN_SEPARATOR = ",";
 
 	private String rawData;
 
@@ -42,13 +43,18 @@ public class SourceTable {
 	 * @param replaceSeparator Whether we should replace the separator by comma 
 	 * @return {@link String} value
 	 */
-	public static String tableToCsv(final List<List<String>> table, final String separator, final boolean replaceSeparator) {
+	public static String tableToCsv(final List<List<String>> table, final String separator,
+									final boolean replaceSeparator) {
 		if (table != null) {
 			return table
 					.stream()
 					.filter(Objects::nonNull)
-					.map(line -> replaceSeparator ?  
-							line.stream().map(val -> val.replace(separator, COMMA)).collect(Collectors.toList()) : line)
+					.map(line -> replaceSeparator
+						? line
+							.stream()
+							.map(val -> val.replace(separator, ALTERNATE_COLUMN_SEPARATOR))
+							.collect(Collectors.toList())
+						: line)
 					.map(line -> String.join(separator, line) + separator)
 					.collect(Collectors.joining(NEW_LINE));
 		}

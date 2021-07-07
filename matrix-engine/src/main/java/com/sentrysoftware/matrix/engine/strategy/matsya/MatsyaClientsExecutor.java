@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -274,6 +275,50 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
+	 *
+	 * @param url						The target URL, as a {@link String}.
+	 * @param username					The username to access the host.
+	 * @param password					The password to access the host.
+	 * @param timeout					The timeout, in milliseconds.
+	 * @param query						The query that is being executed.
+	 * @param namespace					The namespace with which the query should be executed.
+	 *
+	 * @return							A table (as a {@link List} of {@link List} of {@link String}s)
+	 * 									resulting from the execution of the query.
+	 *
+	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
+	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
+	 * @throws WBEMException			If there is a WBEM error.
+	 * @throws TimeoutException			If the query did not complete on time.
+	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 */
+	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
+			final int timeout, final String query, final String namespace) throws MalformedURLException,
+			WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+
+		WbemQueryResult  wbemResult = WbemExecutor.executeWql(new URL(url), namespace, username, password, query,
+				timeout, null);
+
+		return wbemResult.getValues();
+	}
+
+	/**
+	 * @param hostname		The hostname of the target device.
+	 * @param port			The port used to access the target device.
+	 * @param useEncryption	Indicate whether HTTPS should be used (as opposed to using HTTP).
+	 *
+	 * @return				A url based on the given input, as a {@link String}.
+	 */
+	public static String buildWbemUrl(String hostname, int port, boolean useEncryption) {
+
+		String protocolName = useEncryption ? "https" : "http";
+
+		return String.format("%s://%s:%d", protocolName, hostname, port);
+	}
+
+
+
+	/**
 	 * Execute a WMI query through Matsya
 	 * 
 	 * @param hostname  The hostname of the device where the WMI service is running
@@ -282,15 +327,15 @@ public class MatsyaClientsExecutor {
 	 * @param timeout   The timeout in seconds after which the query is rejected
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException	If the localhost check fails
-	 * @throws WmiComException			For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WqlQuerySyntaxException	In case of not valid query
-	 * @throws TimeoutException			When the given timeout is reached
+	 * @throws LocalhostCheckException  If the localhost check fails
+	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws WqlQuerySyntaxException  In case of not valid query
+	 * @throws TimeoutException         When the given timeout is reached
 	 */
 	public List<List<String>> executeWmi(final String hostname, final String username,
 			final char[] password, final Long timeout,
 			final String wbemQuery, final String namespace)
-		throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
+			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
 
 		// Where to connect to?
 		// Local: namespace
@@ -459,38 +504,5 @@ public class MatsyaClientsExecutor {
 				timeout,
 				null
 			);
-	}
-
-	/**
-	 *
-	 * @param url		The target URL, as a {@link String}.
-	 * @param username	The username to access the host.
-	 * @param password	The password to access the host.
-	 * @param timeout	The timeout, in milliseconds.
-	 * @param query		The query that is being executed.
-	 * @param namespace	The namespace with which the query should be executed.
-	 * @return			A table (as a {@link List} of {@link List} of {@link String}s)
-	 * 					resulting from the execution of the query.
-	 *
-	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
-	 * @throws WBEMException			If there is a WBEM error.
-	 * @throws TimeoutException			If the query did not complete on time.
-	 * @throws InterruptedException		If the current thread was interrupted while waiting.
-	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
-	 */
-	public List<List<String>> executeWbem(String url, String username, char[] password, int timeout, String query,
-										  String namespace)
-		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
-
-		WbemQueryResult wbemQueryResult = WbemExecutor.executeWql(
-			new URL(url),
-			namespace,
-			username,
-			password,
-			query,
-			timeout,
-			null);
-
-		return wbemQueryResult.getValues();
 	}
 }

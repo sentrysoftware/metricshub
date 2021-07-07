@@ -324,4 +324,11 @@ class MatsyaClientsExecutorTest {
 				isNull(), anyString(), anyInt(), isNull()));
 		}
 	}
+
+	@Test
+	void testBuildWbemUrl() {
+
+		assertEquals("https://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, true));
+		assertEquals("http://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, false));
+	}
 }

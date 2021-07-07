@@ -147,5 +147,5 @@ public class HardwareConstants {
 
 	public static final String USERNAME = "USERNAME";
 
-	public static final String AUTOMATIC = "automatic";
+	public static final String AUTOMATIC_NAMESPACE = "automatic";
 }

@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -42,18 +45,22 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 
 @ExtendWith(MockitoExtension.class)
 class SourceVisitorTest {
 	private static final String ROOT_IBMSD_WMI_NAMESPACE = "root\\ibmsd";
 	private static final String PC14 = "pc14";
 	private static final String WQL = "SELECT DeviceID,State FROM IBMPSG_RAIDDiskDrive";
+	private static final String EMC_HOSTNAME = "dev-hv-01";
+	private static final String WBEM_QUERY = "SELECT __PATH,Name FROM EMC_StorageSystem";
 	private static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102"));
 	private static final String ECS1_01 = "ecs1-01";
 	private static final List<String> SNMP_SELECTED_COLUMNS = Arrays.asList("ID","9","11","49");
@@ -404,8 +411,100 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWBEMSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new WBEMSource()));
+	void testVisitWBEMSource() throws MalformedURLException, WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit((WBEMSource) null));
+		assertEquals(SourceTable.empty(), new SourceVisitor().visit(WBEMSource.builder().build()));
+		
+		WBEMSource wbemSource = WBEMSource.builder().wbemQuery(WBEM_QUERY).build();
+		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Collections.emptyMap()).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		// no wbem protocol
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
+
+
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WBEMProtocol.class,
+						WBEMProtocol.builder()
+						.build()))
+				.build();
+		// empty protocol
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
+
+
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WBEMProtocol.class,
+						WBEMProtocol.builder()
+						.username(EMC_HOSTNAME)
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		// no namespace
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
+
+
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WBEMProtocol.class,
+						WBEMProtocol.builder()
+						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
+						.username(EMC_HOSTNAME)
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		// unable to build URL : no port
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
+
+
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WBEMProtocol.class,
+						WBEMProtocol.builder()
+						.port(5989)
+						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
+						.username(EMC_HOSTNAME)
+						.password("password".toCharArray())
+						.build()))
+				.build();
+		// unable to build URL : no hostname
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
+
+
+
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().id(EMC_HOSTNAME).hostname(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WBEMProtocol.class,
+						WBEMProtocol.builder()
+						.port(5989)
+						.protocol(WBEMProtocol.WBEMProtocols.HTTPS)
+						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
+						.username(EMC_HOSTNAME)
+						.password("password".toCharArray())
+						.timeout(120L)
+						.build()))
+				.build();
+
+		List<List<String>> listValues = Arrays.asList(
+				Arrays.asList("a1", "b2", "c2"), 
+				Arrays.asList("v1", "v2", "v3"));
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		
+		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
+				anyInt(), any(), any());
+		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
+		
+		 // handle exception
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
+				anyInt(), any(), any());
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 	}
 
 	@Test
@@ -531,4 +630,12 @@ class SourceVisitorTest {
 					sourceVisitor.getSourceTable("val1;val2;val3;"));
 		}
 	}
+	
+//	@Test
+//	void testBuildHttpUrlString() {
+//		assertEquals("https://hostname:1000", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTPS, "hostname", 1000));
+//		assertEquals("http://xxxxx:5989", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", 5989));
+//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", null));
+//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, null, 000));
+//	}
 }

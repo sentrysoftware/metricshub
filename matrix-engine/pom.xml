@@ -63,6 +63,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-wbemclient2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-wmiclient</artifactId>
 		</dependency>
 		<dependency>
@@ -159,7 +163,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.77</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
