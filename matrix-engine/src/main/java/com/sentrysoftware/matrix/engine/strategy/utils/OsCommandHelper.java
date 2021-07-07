@@ -2,8 +2,12 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import static org.springframework.util.Assert.notNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -58,6 +62,37 @@ public class OsCommandHelper {
 	 */
 	public static boolean isWindows() {
 		return SystemUtils.IS_OS_WINDOWS;
+	}
+
+	public static String runLocalCommand(String command, CommandTypeEnum cmdType)
+			throws InterruptedException, IOException {
+
+		Process process = null;
+
+		// -- Linux --
+		// Run a shell command
+		if (CommandTypeEnum.SHELL.equals(cmdType)) {
+			process = Runtime.getRuntime().exec(command);
+		}
+
+		// -- Windows --
+		// Run a command
+		if (CommandTypeEnum.CMD.equals(cmdType)) {
+			process = Runtime.getRuntime().exec("cmd /c " + command);
+		}
+
+		if (process != null) {
+			process.waitFor();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+			return reader.lines().collect(Collectors.joining(System.lineSeparator())).trim();
+		}
+
+		return null;
+	}
+
+	public enum CommandTypeEnum {
+		SHELL, CMD
 	}
 
 }

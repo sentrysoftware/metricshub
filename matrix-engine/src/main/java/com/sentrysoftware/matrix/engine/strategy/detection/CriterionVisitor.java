@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,11 +35,15 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper.CommandTypeEnum;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -49,6 +56,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class CriterionVisitor implements ICriterionVisitor {
+
+	private static final String IPMI_VERSION = "IPMI Version";
+	private static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
+	private static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
+	private static final String IPMI_TOOL_SUDO_MACRO = "%\\{SUDO:ipmitool\\}";
+
+	private static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 
 	private static final String NAMESPACE_MESSAGE = "\n- Namespace: ";
 
@@ -192,7 +206,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
 			return processWindowsIpmiDetection(ipmi);
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			return processUnixIpmiDetection();
+			return processUnixIpmiDetection(targetType);
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
 			return processOutOfBandIpmiDetection();
 		}
@@ -215,10 +229,191 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Process IPMI detection for the Unix system
 	 * 
+	 * @param targetType
+	 * 
 	 * @return
 	 */
-	private CriterionTestResult processUnixIpmiDetection() {
-		return CriterionTestResult.empty();
+	private CriterionTestResult processUnixIpmiDetection(TargetType targetType) {
+
+		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SSHProtocol.class);
+		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		if (osCommandConfig == null) {
+			final String message = String.format("Couldn't OS Command Configuration on %s. Retrun empty result.",
+					hostname);
+			log.error(message);
+			return CriterionTestResult.builder().success(false).result("").message(message).build();
+		}
+		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
+		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
+			ipmitoolCommand = buildIpmiCommand(targetType, hostname, sshProtocol, osCommandConfig, defaultTimeout);
+		}
+
+		if (!ipmitoolCommand.startsWith("PATH=")) {
+			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
+		}
+		// execute the command
+		try {
+			String result = null;
+			osCommandConfig.getTimeout().intValue();
+			result = runOsCommand(ipmitoolCommand, hostname, sshProtocol, defaultTimeout,
+					OsCommandHelper.CommandTypeEnum.SHELL);
+			if (result != null && !result.contains(IPMI_VERSION)) {
+				// Didn't find what we expected: exit
+				return CriterionTestResult.builder().success(false).result(result)
+						.message("Didn't get the expected result from ipmitool : " + ipmitoolCommand).build();
+			} else {
+				// everything goes well
+				strategyConfig.getHostMonitoring()
+						.setIpmiExecutionCount(strategyConfig.getHostMonitoring().getIpmiExecutionCount() + 1);
+				return CriterionTestResult.builder().success(true).result(result)
+						.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
+						.build();
+			}
+
+		} catch (IOException | InterruptedException e) {
+			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception : %s",
+					ipmitoolCommand, hostname, e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().success(false).result("").message(message).build();
+		}
+
+	}
+
+	/**
+	 * Check the OS type and version and build the correct IPMI command. If the
+	 * process fails, return the accroding error
+	 * 
+	 * @param targetType
+	 * @param hostname
+	 * @param sshProtocol
+	 * @param osCommandConfig
+	 * @param defaultTimeout
+	 * @return
+	 */
+	public String buildIpmiCommand(TargetType targetType, final String hostname, final SSHProtocol sshProtocol,
+			final OSCommandConfig osCommandConfig, final int defaultTimeout) {
+		// do we need to use sudo or not?
+		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
+		// Or if the command is listed in useSudoCommandList (possible only in classic
+		// wizard) --> yes
+		String ipmitoolCommand; // Sonar don't agree with modifying arguments
+		if (osCommandConfig.isUseSudo() || osCommandConfig.getUseSudoCommandList().contains("ipmitool")) {
+			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replaceAll(IPMI_TOOL_SUDO_MACRO, osCommandConfig.getSudoCommand());
+		} else {
+			ipmitoolCommand = IPMI_TOOL_COMMAND;
+		}
+
+		// figure out the version of the Solaris OS
+		if (TargetType.SUN_SOLARIS.equals(targetType)) {
+			String solarisOsVersion = null;
+			try {
+				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
+				// (Solaris)
+				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshProtocol, defaultTimeout,
+						OsCommandHelper.CommandTypeEnum.SHELL);
+			} catch (InterruptedException | IOException e) {
+				final String message = String.format("Couldn't identify Solaris version %s on %s. Exception : %s",
+						ipmitoolCommand, hostname, e.getMessage());
+				log.debug(message, e);
+				return message;
+			}
+			// Get IPMI command
+			if (solarisOsVersion != null) {
+				try {
+					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
+				} catch (Exception e) {
+					final String message = String.format("Couldn't identify Solaris version %s on %s. Exception : %s",
+							ipmitoolCommand, hostname, e.getMessage());
+					log.debug(message, e);
+					return message;
+				}
+			}
+		} else {
+			// If not Solaris, then we're on Linux
+			// On Linux, the IPMI interface driver is always 'open'
+			ipmitoolCommand = ipmitoolCommand + "open";
+		}
+		strategyConfig.getHostMonitoring().setIpmitoolCommand(ipmitoolCommand);
+
+		// At the very end of the command line, the actual IPMI command
+		ipmitoolCommand = ipmitoolCommand + " bmc info";
+		return ipmitoolCommand;
+	}
+
+	/**
+	 * Run SSH command. Check if we can execute on localhost or remote
+	 * 
+	 * @param ipmitoolCommand
+	 * @param hostname
+	 * @param sshProtocol
+	 * @param timeout
+	 * @param commandType
+	 * @return
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public String runOsCommand(String ipmitoolCommand, final String hostname, final SSHProtocol sshProtocol,
+			final int timeout, CommandTypeEnum commandType) throws InterruptedException, IOException {
+		String result;
+		if (strategyConfig.getHostMonitoring().isLocalhost()) { // or we can use NetworkHelper.isLocalhost(hostname)
+			result = OsCommandHelper.runLocalCommand(ipmitoolCommand, commandType);
+		} else {
+			if (sshProtocol == null) {
+				return null;
+			}
+			String keyFilePath = sshProtocol.getPrivateKey() == null ? null
+					: sshProtocol.getPrivateKey().getAbsolutePath();
+			result = matsyaClientsExecutor.runRemoteSshCommand(hostname, sshProtocol.getUsername(),
+					Arrays.toString(sshProtocol.getPassword()), keyFilePath, ipmitoolCommand, timeout);
+		}
+		return result;
+	}
+
+	/**
+	 * Get IPMI command based on solaris version if version == 9 than use lipmi if
+	 * version > 9 than use bmc else return error
+	 * 
+	 * @param ipmitoolCommand
+	 * @param hostname
+	 * @param solarisOsVersion
+	 * @return
+	 * @throws Exception
+	 */
+	public String getIpmiCommandForSolaris(String ipmitoolCommand, final String hostname, String solarisOsVersion)
+			throws Exception {
+		String[] split = solarisOsVersion.split("\\.");
+		if (split.length < 2) {
+			throw new Exception(String.format(
+					"Unkown Solaris version (%s) for host: %s IPMI cannot be executed, return empty result.",
+					solarisOsVersion, hostname));
+		}
+
+		String solarisVersion = split[1];
+		if (StringUtils.isNumeric(solarisVersion)) {
+			int versionInt = Integer.parseInt(solarisVersion);
+			if (versionInt == 9) {
+				// On Solaris 9, the IPMI interface drive is 'lipmi'
+				ipmitoolCommand = ipmitoolCommand + "lipmi";
+			} else if (versionInt < 9) {
+
+				throw new Exception(String.format(
+						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed, return empty result.",
+						solarisOsVersion, hostname));
+
+			} else {
+				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
+				ipmitoolCommand = ipmitoolCommand + "bmc";
+			}
+		} else {
+			throw new Exception("Couldn't identify Solaris version as a valid one.\nThe 'uname -r' command returned: "
+					+ solarisOsVersion);
+		}
+		return ipmitoolCommand;
 	}
 
 	/**

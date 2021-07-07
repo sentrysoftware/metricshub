@@ -9,6 +9,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matsya.Utils;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
@@ -42,6 +44,7 @@ import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
+import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
@@ -487,4 +490,93 @@ public class MatsyaClientsExecutor {
 				null
 			);
 	}
+	
+	/**
+	 * Use Matsya ssh-client in order to run ssh command
+	 * @param hostname
+	 * @param username
+	 * @param password
+	 * @param keyFilePath
+	 * @param command
+	 * @param timeout
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalStateException 
+	 */
+	public String runRemoteSshCommand(String hostname, String username, String password, String keyFilePath,
+			String command, int timeout) throws IOException {
+
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(username, "Username cannot be null.");
+		notNull(command, "Command cannot be null.");
+
+		if (timeout < 0) {
+			log.error("Invalid value of the specified timeout {} ", timeout);
+			return null;
+		}
+
+		// Password
+		if (password == null) {
+			log.warn("Could not read password. Using an empty password instead.");
+			password = "";
+		}
+
+		command = command.trim(); // has already been tested that is not null
+		if (command.isEmpty()) {
+			command = null;
+		}
+
+		// Charset?
+		Charset charset = Utils.getCharsetFromLocale(""); // always use charsetName = "GBK"
+
+		// Connect
+		SSHClient client = new SSHClient(hostname, charset);
+		boolean authenticated = false;
+		client.connect(timeout * 1000);
+
+		try {
+			if (password.isEmpty()) {
+				authenticated = client.authenticate(username);
+			} else if (keyFilePath == null) {
+				authenticated = client.authenticate(username, password);
+			} else {
+				authenticated = client.authenticate(username, keyFilePath, password);
+			}
+
+		} catch (IOException e) {
+			log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
+			client.disconnect();
+			throw e;
+		}
+
+		if (!authenticated) {
+			log.warn("Failed to authenticate as {} on {}.", username, hostname);
+		}
+
+		// Command or interactive shell?
+		if (command != null) {
+
+			// We have a command: execute it
+			SSHClient.CommandResult result;
+			try {
+				result = client.executeCommand(command, timeout * 1000);
+			} catch (IOException e) {
+				log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
+				client.disconnect();
+				throw e;
+			} finally {
+				client.disconnect();
+			}
+
+			if (result.success) {
+				return result.result;
+			} else {
+				// Failure
+				log.error("Execution failed: ", result.result);
+			}
+
+		}
+		return null;
+	}
+
 }

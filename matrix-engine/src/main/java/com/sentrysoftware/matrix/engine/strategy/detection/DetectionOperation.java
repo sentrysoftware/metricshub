@@ -160,6 +160,8 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 
+		hostMonitoring.setLocalhost(isLocalhost);
+
 		// Create the target
 		final Monitor targetMonitor = Monitor.builder()
 				.id(target.getId())

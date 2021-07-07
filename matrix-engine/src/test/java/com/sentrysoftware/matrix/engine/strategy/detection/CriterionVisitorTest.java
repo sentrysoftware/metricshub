@@ -4,14 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,9 +24,12 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
@@ -46,11 +52,13 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor.NamespaceResult;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor.PossibleNamespacesResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -95,6 +103,10 @@ class CriterionVisitorTest {
 
 	@InjectMocks
 	private CriterionVisitor criterionVisitor;
+
+	@InjectMocks
+	@Spy
+	private CriterionVisitor criterionVisitorSpy;
 
 	private static EngineConfiguration engineConfiguration;
 
@@ -296,19 +308,229 @@ class CriterionVisitorTest {
 		assertTrue(criterionTestResult.isSuccess());
 	}
 
+
 	@Test
-	void testVisitIPMILinux() {
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.target(HardwareTarget.builder()
-						.hostname(HOST_LINUX)
-						.id(HOST_LINUX)
-						.type(TargetType.LINUX)
-						.build())
-				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build()))
+	@EnabledOnOs(org.junit.jupiter.api.condition.OS.WINDOWS)
+	void testRunOsCommandWindows() throws InterruptedException, IOException {
+		HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(true);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		String version = criterionVisitor.runOsCommand("ver", "localhost", null, 120,
+				OsCommandHelper.CommandTypeEnum.CMD);
+		assertTrue(version.startsWith("Microsoft Windows"));
+	}
+
+	@Test
+	@EnabledOnOs(org.junit.jupiter.api.condition.OS.LINUX)
+	void testRunOsCommandLinux() throws InterruptedException, IOException {
+		HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(true);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		String version = criterionVisitor.runOsCommand("uname -a", "localhost", null, 120,
+				OsCommandHelper.CommandTypeEnum.SHELL);
+		assertTrue(version.startsWith("Linux"));
+	}
+
+	@Test
+	void testVisitIPMILinux() throws IOException, InterruptedException {
+		// osConfig null
+		{
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+
+					.build();
+
+			HostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			assertEquals(CriterionTestResult.builder().result("").success(false)
+					.message("Couldn't OS Command Configuration on " + HOST_LINUX + ". Retrun empty result.").build(),
+					criterionVisitor.visit(new IPMI()));
+		}
+		SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		{
+			// wrong IPMIToolCommand
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+					.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+											OSCommandConfig.class, OSCommandConfig.builder().build(), 
+											SSHProtocol.class, ssh))
+					.build();
+
+			HostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			doReturn("blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(), any(),
+					eq(120));
+			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
+
+		}
+		{
+			// wrong result when running IPMIToolCommand
+			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+					.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+													OSCommandConfig.class, OSCommandConfig.builder().build(), 
+													SSHProtocol.class, ssh))
+					.build();
+
+			HostMonitoring hostMonitoring = new HostMonitoring();
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			doReturn("PATH=blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(),
+					any(), eq(120));
+			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand("PATH=blabla", HOST_LINUX, ssh, 120,
+					OsCommandHelper.CommandTypeEnum.SHELL);
+			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
+
+		}
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+												OSCommandConfig.class, OSCommandConfig.builder().build(), 
+												SSHProtocol.class, ssh))
 				.build();
+
+		HostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
+		// set ssh
+		String ipmiResultExample = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
+				+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
+				+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
+				+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
+		doReturn(ipmiResultExample).when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
+				eq(120));
+		assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
+				.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
+				criterionVisitor.visit(new IPMI()));
+
+		// run localhost command
+		final EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.SUN_SOLARIS)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+												OSCommandConfig.class, OSCommandConfig.builder().build(), 
+												SSHProtocol.class, ssh))
+				.build();
+		hostMonitoring.setLocalhost(true);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfigurationLocal).when(strategyConfig).getEngineConfiguration();
+		// here the try is important because it only will mock the static reference for
+		// the following context.
+		// Otherwise even for other contexts/methods it will always return the same
+		// result (it is static..)
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn(ipmiResultExample);
+			assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
+					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
+					criterionVisitor.visit(new IPMI()));
+		}
+
+	}
+
+	@Test
+	void testRunOsCommand() throws InterruptedException, IOException {
+		HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(false);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+
+		String cmdResult = criterionVisitor.runOsCommand(null, "localhost", ssh, 120, null);
+		assertNull(cmdResult);
+
+		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", null, 120, null);
+		assertNull(cmdResult);
+
+		cmdResult = criterionVisitor.runOsCommand("cmd", null, ssh, 120, null);
+		assertNull(cmdResult);
+
+		doReturn("something").when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
+				eq(120));
+		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", ssh, 120, OsCommandHelper.CommandTypeEnum.CMD);
+		assertEquals("something", cmdResult);
+
+	}
+
+	@Test
+	void testBuildIpmiCommand() {
+		SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		OSCommandConfig osCommandConfig = OSCommandConfig.builder().build();
+		{
+			// test Solaris
+			HostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.setLocalhost(true);
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("5.10");
+				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+						osCommandConfig, 120);
+				assertNotNull(cmdResult);
+				assertTrue(cmdResult.startsWith("PATH")); // Successful command
+			}
+
+			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("blabla");
+				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+						osCommandConfig, 120);
+				assertNotNull(cmdResult);
+				assertTrue(cmdResult.startsWith("Couldn't")); // Not Successful command the response starts with
+																// Couldn't identify
+			}
+
+			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+				osCommandConfig.setUseSudo(true);
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), any())).thenReturn("5.10");
+				String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+						osCommandConfig, 120);
+				assertNotNull(cmdResult);
+				assertTrue(cmdResult.contains("sudo")); // Successful sudo command
+			}
+		}
+
+		{
+			// test Linux
+			osCommandConfig.setUseSudo(false);
+			String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.LINUX, "toto", ssh, osCommandConfig, 120);
+			assertEquals("PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info", cmdResult);
+		}
+
+	}
+
+	@Test
+	void testGetIpmiCommandForSolaris() throws Exception {
+		String ipmitoolCommand = "ipmitoolCommand ";
+		{ // Solaris Version 10 => bmc
+			String cmdResult = criterionVisitor.getIpmiCommandForSolaris(ipmitoolCommand, "toto", "5.10");
+			assertEquals("ipmitoolCommand bmc", cmdResult);
+		}
+		{ // Solaris version 9 => lipmi
+			String cmdResult = criterionVisitor.getIpmiCommandForSolaris(ipmitoolCommand, "toto", "5.9");
+			assertEquals("ipmitoolCommand lipmi", cmdResult);
+		}
+		
+
+		{// wrong String OS version
+			Exception exception = assertThrows(Exception.class, () -> {
+				criterionVisitor.getIpmiCommandForSolaris(ipmitoolCommand, "toto", "blabla");
+			});
+
+			String expectedMessage = "Unkown Solaris version";
+			String actualMessage = exception.getMessage();
+
+			assertTrue(actualMessage.contains(expectedMessage));
+		}
+		{// old OS version
+			Exception exception = assertThrows(Exception.class, () -> {
+				criterionVisitor.getIpmiCommandForSolaris(ipmitoolCommand, "toto", "4.1.1B");
+			});
+
+			String expectedMessage = "Solaris version (4.1.1B) is too old";
+			String actualMessage = exception.getMessage();
+
+			assertTrue(actualMessage.contains(expectedMessage));
+		}
 	}
 
 	@Test

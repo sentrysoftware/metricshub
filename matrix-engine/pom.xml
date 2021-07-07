@@ -63,6 +63,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-sshclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-wbemclient2</artifactId>
 		</dependency>
 		<dependency>
@@ -212,6 +216,7 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							<mainClass>com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper</mainClass>
 						</manifest>
 						<manifestSections>
 							<manifestSection>
