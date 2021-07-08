@@ -9,8 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-//import org.apache.commons.lang3.SystemUtils;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 
@@ -20,6 +18,12 @@ public class OsCommandHelper {
 	}
 
 	private static final Pattern EMBEDDEDFILE_REPLACEMENT_PATTERN = Pattern.compile("%EmbeddedFile\\((\\d+)\\)%", Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * Whether we're running on Windows or not
+	 */
+	private static final boolean IS_WINDOWS =
+			System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 	/**
 	 * Replace the content of the EmbeddedFiles in the given command line
@@ -57,19 +61,20 @@ public class OsCommandHelper {
 		return sb.toString();
 	}
 
+
 	/**
-	 * @return <code>true</code> if the local system is Windows otherwise <code>false</code>
+	 * @return whether current system is Windows or not
 	 */
 	public static boolean isWindows() {
-		return System.getProperty("os.name").toLowerCase().startsWith("windows");
+		return IS_WINDOWS;
 	}
-
+	
 	public static String runLocalCommand(String command)
 			throws InterruptedException, IOException {
 
 		Process process = null;
 
-		if (isWindows()) {
+		if (IS_WINDOWS) {
 			command = "CMD.EXE /C " + command;
 		}
 

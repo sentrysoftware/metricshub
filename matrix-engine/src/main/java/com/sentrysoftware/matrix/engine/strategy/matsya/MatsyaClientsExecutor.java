@@ -526,7 +526,7 @@ public class MatsyaClientsExecutor {
 		}
 
 		// Connect
-		SSHClient client = new SSHClient(hostname, StandardCharsets.UTF_8.name());
+		SSHClient client = new SSHClient(hostname, StandardCharsets.UTF_8);
 		boolean authenticated = false;
 		client.connect(timeout * 1000);
 
