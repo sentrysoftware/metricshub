@@ -32,8 +32,10 @@ public class WBEMProtocol implements IProtocolConfiguration {
 
 		/**
 		 * Convert to upper case in order to manage case sensitivity
-		 * @param label
-		 * @return
+		 *
+		 * @param label	The {@link String} representation of the {@link WBEMProtocols}.
+		 *
+		 * @return		The {@link WBEMProtocols} having the given {@link String} representation (case insensitive).
 		 */
 		public static WBEMProtocols getValue(final String label) {
 			return WBEMProtocols.valueOf(label.toUpperCase());

@@ -1,22 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -33,6 +20,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -40,58 +28,84 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @Component
 public class CriterionVisitor implements ICriterionVisitor {
 
+	private static final String COLUMN_SEPARATOR = ";";
+
 	private static final String NAMESPACE_MESSAGE = "\n- Namespace: ";
+	private static final String DEFAULT_NAMESPACE = "root/cimv2";
+	private static final String DEFAULT_NAMESPACE_WMI = "root\\cimv2";
+	private static final String INTEROP_NAMESPACE = "interop";
 
 	private static final Pattern SNMP_GETNEXT_RESULT_REGEX = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
-	private static final Map<String, String> WMI_INTEROPERABILITY_NAMESPACES;
-	private static final Set<String> IGNORED_WMI_NAMESPACES;
-	static {
-		WMI_INTEROPERABILITY_NAMESPACES = Map.of(
-					"root", "__NAMESPACE"
-				);
+	private static final Set<String> IGNORED_WMI_NAMESPACES = Set
+		.of(
+			"SECURITY",
+			"RSOP",
+			"Cli",
+			"aspnet",
+			"SecurityCenter",
+			"WMI",
+			"Policy",
+			"DEFAULT",
+			"directory",
+			"subscription",
+			"vm",
+			"root\\SECURITY",
+			"root\\RSOP",
+			"root\\Cli",
+			"root\\aspnet",
+			"root\\SecurityCenter",
+			"root\\WMI",
+			"root\\wmi",
+			"root\\Policy",
+			"root\\DEFAULT",
+			"root\\directory",
+			"root\\subscription",
+			"root\\vm",
+			"root\\perfmon",
+			"root\\MSCluster",
+			"root\\MicrosoftActiveDirectory",
+			"root\\MicrosoftNLB",
+			"root\\Microsoft",
+			"root\\ServiceModel",
+			"root\\nap");
 
-		IGNORED_WMI_NAMESPACES = Set.of("SECURITY",
-				"RSOP",
-				"Cli",
-				"aspnet",
-				"SecurityCenter",
-				"WMI",
-				"Policy",
-				"DEFAULT",
-				"directory",
-				"subscription",
-				"vm",
-				"root\\SECURITY",
-				"root\\RSOP",
-				"root\\Cli",
-				"root\\aspnet",
-				"root\\SecurityCenter",
-				"root\\WMI",
-				"root\\wmi",
-				"root\\Policy",
-				"root\\DEFAULT",
-				"root\\directory",
-				"root\\subscription",
-				"root\\vm",
-				"root\\perfmon",
-				"root\\MSCluster",
-				"root\\MicrosoftActiveDirectory",
-				"root\\MicrosoftNLB",
-				"root\\Microsoft",
-				"root\\ServiceModel",
-				"root\\nap");
-	}
+	private static final Set<String> WBEM_INTEROPERABILITY_NAMESPACES = Set
+		.of(
+			"Interop",
+			"PG_Interop",
+			"root/Interop",
+			"root/PG_Interop",
+			INTEROP_NAMESPACE
+		);
+
+	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
 	@Autowired
 	private StrategyConfig strategyConfig;
@@ -354,8 +368,378 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final WBEM wbem) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+
+		if (wbem == null || wbem.getWbemQuery() == null) {
+
+			log.error("Malformed WBEM criterion {}. Cannot process WBEM detection.", wbem);
+			return CriterionTestResult.empty();
+		}
+
+		EngineConfiguration engineConfiguration = strategyConfig.getEngineConfiguration();
+
+		WBEMProtocol protocol = (WBEMProtocol) engineConfiguration
+			.getProtocolConfigurations()
+			.get(WBEMProtocol.class);
+
+		if (protocol == null) {
+
+			log.debug("The WBEM Credentials are not configured. Cannot process WBEM detection {}.", wbem);
+			return CriterionTestResult.empty();
+		}
+
+		final String hostname = engineConfiguration
+			.getTarget()
+			.getHostname();
+
+		// Find the namespace
+		final NamespaceResult namespaceResult = findNamespace(wbem, protocol, hostname);
+
+		// Stop if no namespace is found
+		if (!namespaceResult.isSuccess()) {
+
+			return CriterionTestResult
+				.builder()
+				.success(false)
+				.message(buildNoNamespaceErrorMessage(wbem.getWbemQuery(), wbem.getExpectedResult(), namespaceResult,
+					WBEM.class))
+				.build();
+		}
+
+		try {
+
+			// Run the WBEM query if necessary
+			final String csvTable = namespaceResult.getCsvTable() == null
+				? runWbemQueryAndGetCsv(hostname, wbem.getWbemQuery(), namespaceResult.getNamespace(), protocol)
+				: namespaceResult.getCsvTable();
+
+			// Test the result
+			final TestResult testResult = getMatchingResult(wbem.getWbemQuery(), namespaceResult.getNamespace(),
+				wbem.getExpectedResult(), csvTable, WBEM.class);
+
+			return CriterionTestResult
+				.builder()
+				.success(testResult.isSuccess())
+				.message(testResult.getMessage())
+				.result(csvTable)
+				.build();
+
+		} catch (Exception e) { // NOSONAR - not propagating InterruptedException
+
+			final String message = String.format(
+				"WBEM Test Failed - WBEM Criterion query %s on %s was unsuccessful due to an exception. Message: %s.",
+				wbem.getWbemQuery(), hostname, e.getMessage());
+
+			log.debug(message, e);
+
+			return CriterionTestResult
+				.builder()
+				.success(false)
+				.message(message)
+				.build();
+		}
+	}
+
+	/**
+	 * Finds the namespace to use for the execution of the given {@link WBEM} {@link Criterion}.
+	 *
+	 * @param wbem		{@link WBEM} instance from which we want to extract the namespace.
+	 *                  Special values are <em>automatic</em> or <em>null</em>.
+	 * @param protocol	The {@link WBEMProtocol} from which we get the default namespace when the mode is not automatic.
+	 * @param hostname	The hostname of the target device.
+	 *
+	 * @return			A {@link NamespaceResult} wrapping the suitable namespace, if there is any.
+	 */
+	private NamespaceResult findNamespace(WBEM wbem, WBEMProtocol protocol, String hostname) {
+
+		final String criterionNamespace = wbem.getWbemNamespace();
+
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(criterionNamespace)) {
+
+			final String automaticNamespace = strategyConfig.getHostMonitoring().getAutomaticWbemNamespace();
+
+			// It's OK if the namespace has already been detected, we don't re-execute the heavy detection
+			return automaticNamespace != null
+				? NamespaceResult.builder().namespace(automaticNamespace).success(true).build()
+				: detectWbemNamespace(wbem, protocol, hostname);
+
+		} else {
+
+			// Not automatic, then it is provided by the connector otherwise we get the one from the configuration
+			return NamespaceResult
+				.builder()
+				.namespace(criterionNamespace != null ? criterionNamespace : protocol.getNamespace())
+				.success(true)
+				.build();
+		}
+	}
+
+	/**
+	 * Detect the WBEM namespace
+	 *
+	 * @param wbem		{@link WBEM} instance from which we want to extract the namespace.
+	 *                  Special values are <em>automatic</em> or <em>null</em>.
+	 * @param protocol	The user's configured credentials.
+	 * @param hostname	The hostname of the target device.
+	 *
+	 * @return			A {@link NamespaceResult} wrapping the detected namespace
+	 * 					and the error message if the detection fails.
+	 */
+	private NamespaceResult detectWbemNamespace(WBEM wbem, WBEMProtocol protocol, String hostname) {
+
+		// Detect possible namespaces
+		final PossibleNamespacesResult possibleWbemNamespacesResult = detectPossibleWbemNamespaces(protocol, hostname);
+
+		// If we can't detect the namespace then we must stop
+		if (!possibleWbemNamespacesResult.isSuccess()) {
+
+			return NamespaceResult
+				.builder()
+				.success(false)
+				.errorMessage(possibleWbemNamespacesResult.getErrorMessage())
+				.build();
+		}
+
+		// Run the query on each namespace and check if the result match the criterion
+		final Map<String, String> namespaces = executeWbemAndFilterNamespaces(wbem, protocol,
+			possibleWbemNamespacesResult, hostname);
+
+		// No namespace then stop
+		if (namespaces.isEmpty()) {
+
+			final String message = String
+				.format("No WBEM namespace matches the specified criterion (where '%s' should have matched with '%s')",
+					wbem.getWbemQuery(), wbem.getExpectedResult());
+
+			log.debug(message);
+
+			return NamespaceResult
+				.builder()
+				.success(false)
+				.errorMessage(message)
+				.build();
+		}
+
+		// So, now we have a list of working namespaces.
+		// We'd better have only one, but you never know, so try to be clever here...
+		// If we have several matching namespaces, including root/cimv2, then exclude this one
+		// because it's one that we find in many places and not necessarily with anything useful in it
+		// especially if there are other matching namespaces.
+		if (namespaces.size() > 1) {
+			namespaces.remove(DEFAULT_NAMESPACE);
+		}
+
+		// Okay, so even if we have several, select a single one
+		final String automaticNamespace = namespaces
+			.keySet()
+			.stream()
+			.findFirst()
+			.orElseThrow();
+
+		// Remember the automatic WBEM namespace
+		strategyConfig.getHostMonitoring().setAutomaticWbemNamespace(automaticNamespace);
+
+		return NamespaceResult
+			.builder()
+			.success(true)
+			.namespace(automaticNamespace)
+			.csvTable(namespaces.get(automaticNamespace))
+			.build();
+	}
+
+	/**
+	 * Detects the possible WBEM namespaces using the configured {@link WBEMProtocol}.
+	 *
+	 * @param protocol	The user's configured {@link WBEMProtocol}.
+	 * @param hostname	The hostname of the target device.
+	 *
+	 * @return 			A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
+	 * 					and the possibleWmiNamespaces {@link Set}.
+	 */
+	private PossibleNamespacesResult detectPossibleWbemNamespaces(final WBEMProtocol protocol, String hostname) {
+
+		// This list was already retrieved by a previous call, just take this one
+		// This will avoid multiple calls to findWbemNamespace doing exactly the same thing several times
+		Set<String> possibleWbemNamespaces = strategyConfig.getHostMonitoring().getPossibleWbemNamespaces();
+		if (!possibleWbemNamespaces.isEmpty()) {
+
+			return PossibleNamespacesResult
+				.builder()
+				.possibleNamespaces(possibleWbemNamespaces)
+				.success(true)
+				.build();
+		}
+
+		// Preparing arguments for the WBEM executor
+		boolean useEncryption = WBEMProtocol.WBEMProtocols.HTTPS.equals(protocol.getProtocol()); // protocol cannot be null here
+		String url = MatsyaClientsExecutor.buildWbemUrl(hostname, protocol.getPort(), useEncryption);
+
+		String username = protocol.getUsername();
+		char[] password = protocol.getPassword();
+
+		Long timeout = protocol.getTimeout();
+
+		// First, let us execute "SELECT Name FROM __NAMESPACE" on the "root" namespace
+		String wbemQuery = null;
+		List<List<String>> queryResult;
+		String message;
+		try {
+
+			wbemQuery = "SELECT Name FROM __NAMESPACE";
+			queryResult = matsyaClientsExecutor.executeWbem(url, username, password, timeout.intValue() * 1000,
+				wbemQuery, "root");
+
+			possibleWbemNamespaces = extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES, "root/");
+			if (possibleWbemNamespaces.isEmpty()) {
+
+				message = String.format("%s does not respond to WBEM request %s. Canceling namespace detection.",
+					hostname, wbemQuery);
+
+				log.debug(message);
+
+				return PossibleNamespacesResult
+					.builder()
+					.errorMessage(message)
+					.success(false)
+					.build();
+			}
+
+		} catch (WBEMException e) {
+
+			int id = e.getID();
+
+			if (id != WBEMException.CIM_ERR_INVALID_NAMESPACE && id != WBEMException.CIM_ERR_INVALID_CLASS
+				&& id != WBEMException.CIM_ERR_NOT_FOUND) {
+
+				message = String.format("%s does not respond to WBEM requests. Error is: %s" +
+						"\nCanceling namespace detection.", hostname, e.toString());
+
+				log.debug(message);
+
+				return PossibleNamespacesResult
+					.builder()
+					.errorMessage(message)
+					.success(false)
+					.build();
+			}
+
+		} catch (Exception e) { // NOSONAR - not propagating InterruptedException
+
+			message = String.format("%s does not respond to WBEM request %s. Error is: %s" +
+					"\nMoving on to testing each interoperability namespace...",
+				hostname, wbemQuery, e.getMessage()
+			);
+
+			log.debug(message);
+		}
+
+		// Now testing each interoperability namespace
+		wbemQuery = "SELECT Name FROM CIM_NameSpace";
+		for (String namespace : WBEM_INTEROPERABILITY_NAMESPACES) {
+
+			try {
+
+				queryResult = matsyaClientsExecutor.executeWbem(url, username, password, timeout.intValue() * 1000,
+					wbemQuery, namespace);
+
+				possibleWbemNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WBEM_NAMESPACES,
+					"root/"));
+
+			} catch (Exception e) { // NOSONAR - not propagating InterruptedException
+
+				message = String.format("%s does not respond to WBEM request %s (%s)." +
+						"Trying with the next interoperability namespace left.",
+					hostname, wbemQuery, namespace);
+
+				log.debug(message);
+			}
+		}
+
+		if (possibleWbemNamespaces.isEmpty()) {
+
+			return PossibleNamespacesResult
+				.builder()
+				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
+				.success(false)
+				.build();
+		}
+
+		return PossibleNamespacesResult
+			.builder()
+			.possibleNamespaces(possibleWbemNamespaces)
+			.success(true)
+			.build();
+	}
+
+	/**
+	 * Executes the given {@link WBEM} criteria
+	 * and selects the matching namespaces from the passed {@link PossibleNamespacesResult} instance.
+	 *
+	 * @param wbem						The WBEM criterion we wish to execute.
+	 * @param protocol					The user's configured WBEM protocol (credentials).
+	 * @param possibleNamespacesResult	The possible namespaces, always shows success = true.
+	 * @param hostname					The hostname of the target device.
+	 *
+	 * @return							A {@link Map}
+	 * 									associating each matching namespace to the corresponding query result.
+	 */
+	private Map<String, String> executeWbemAndFilterNamespaces(WBEM wbem, WBEMProtocol protocol,
+															   PossibleNamespacesResult possibleNamespacesResult,
+															   String hostname) {
+
+		Map<String, String> result = new TreeMap<>();
+
+		// Loop over each namespace and run the WBEM query and check if the result matches
+		for (final String namespace : possibleNamespacesResult.getPossibleNamespaces()) {
+
+			try {
+
+				// Do the request
+				final String csvTable = runWbemQueryAndGetCsv(hostname, wbem.getWbemQuery(), namespace, protocol);
+
+				// If the result matched then the namespace is selected
+				if (isMatchingResult(wbem.getExpectedResult(), csvTable)) {
+					result.put(namespace, csvTable);
+				}
+
+			} catch (Exception e) { // NOSONAR - not propagating InterruptedException
+
+				// Log an error and go to the next iteration
+				final String message = String.format("Query %s failed for namespace %s on host %s. Error: %s",
+					wbem.getWbemQuery(), namespace, hostname, e.getMessage());
+
+				log.debug(message);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * @param hostname	The target hostname.
+	 * @param wbemQuery	The query to execute.
+	 * @param namespace	The WBEM namespace.
+	 * @param protocol	The User's configured credentials.
+	 *
+	 * @return			The result of the WBEM query formatted as a CSV.
+	 *
+	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
+	 * @throws WBEMException			If there is a WBEM error.
+	 * @throws TimeoutException			If the query did not complete on time.
+	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 */
+	private String runWbemQueryAndGetCsv(String hostname, String wbemQuery, String namespace, WBEMProtocol protocol)
+		throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
+
+		// Preparing arguments for the WBEM executor
+		boolean useEncryption = WBEMProtocol.WBEMProtocols.HTTPS.equals(protocol.getProtocol()); // protocol cannot be null here
+		String url = MatsyaClientsExecutor.buildWbemUrl(hostname, protocol.getPort(), useEncryption);
+
+		Long timeout = protocol.getTimeout();
+
+		final List<List<String>> queryResult = matsyaClientsExecutor.executeWbem(url, protocol.getUsername(),
+			protocol.getPassword(), timeout.intValue() * 1000, wbemQuery, namespace);
+
+		return SourceTable.tableToCsv(queryResult, COLUMN_SEPARATOR, true);
 	}
 
 	@Override
@@ -382,7 +766,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		if (!namespaceResult.isSuccess()) {
 			return CriterionTestResult.builder()
 					.success(false)
-					.message(buildNoWmiNamespaceErrorMessage(wmi, namespaceResult))
+					.message(buildNoNamespaceErrorMessage(wmi.getWbemQuery(), wmi.getExpectedResult(), namespaceResult,
+						WMI.class))
 					.build();
 		}
 
@@ -394,7 +779,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final String csvTable = runWmiQueryAndGetCsv(hostname, wmi.getWbemQuery(), namespaceResult.getNamespace(), protocol);
 
 			// Test the result
-			final TestResult testResult = getMatchingWmiResult(wmi, namespaceResult.getNamespace(), csvTable);
+			final TestResult testResult = getMatchingResult(wmi.getWbemQuery(), namespaceResult.getNamespace(),
+				wmi.getExpectedResult(), csvTable, WMI.class);
 
 			return CriterionTestResult.builder()
 					.success(testResult.isSuccess())
@@ -409,31 +795,38 @@ public class CriterionVisitor implements ICriterionVisitor {
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
-		
 	}
 
 	/**
-	 * Try to find the matching line that matches the expected result in defined in the given {@link WMI} criterion
-	 * 
-	 * @param wmi       The WMI criterion
-	 * @param namespace The WMI namespace
-	 * @param csvTable  The WMI result as csv
-	 * @return {@link TestResult} which indicates if the check has succeeded or not. TestResult will also wraps the message to set in the
-	 *         testReport parameter
+	 * Tries to find the row that matches the expected result in the given {@link Criterion}.
+	 *
+	 * @param query				The query that was executed.
+	 * @param namespace			The namespace in which the query was executed.
+	 * @param expectedResult	The expected result.
+	 * @param csvTable			The CSV resulting from the execution of the query.
+	 *
+	 * @param criterionType		The type of {@link Criterion}.
+	 *
+	 * @return					{@link TestResult} which indicates if the check has succeeded or not.
+	 *							TestResult will also wraps the message to set in the testReport parameter.
 	 */
-	static TestResult getMatchingWmiResult(final WMI wmi, final String namespace, final String csvTable) {
+	static TestResult getMatchingResult(final String query, final String namespace, final String expectedResult,
+										final String csvTable, final Class<? extends Criterion> criterionType) {
 
 		// Not result? success = false
 		if (csvTable.isEmpty()) {
-			return TestResult.builder()
+
+			return TestResult
+				.builder()
 				.success(false)
-				.message(buildWmiEmptyResultErrorMessage(wmi, namespace))
-			.build();
+				.message(buildEmptyResultErrorMessage(query, namespace, expectedResult, criterionType))
+				.build();
 		}
 
-		final String expected = wmi.getExpectedResult() != null ? wmi.getExpectedResult() : EMPTY;
+		final String expected = expectedResult != null ? expectedResult : EMPTY;
 
-		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected),
+			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 		final Matcher matcher = pattern.matcher(csvTable);
 
@@ -443,10 +836,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return TestResult
 					.builder()
 					.success(true)
-					.message(buildWmiSuccessMessage(wmi.getWbemQuery(),
-							namespace,
-							wmi.getExpectedResult(),
-							matcher.group()))
+					.message(buildSuccessMessage(query, namespace, expectedResult, matcher.group(), criterionType))
 					.build();
 		}
 
@@ -454,24 +844,28 @@ public class CriterionVisitor implements ICriterionVisitor {
 		return TestResult
 				.builder()
 				.success(false)
-				.message(buildWmiFailedMessage(wmi.getWbemQuery(), namespace, wmi.getExpectedResult()))
+				.message(buildFailedMessage(query, namespace, expectedResult, criterionType))
 				.build();
 	}
 
 	/**
-	 * Build the WMI failed message
-	 * 
-	 * @param wbemQuery      The executed WBEM query
-	 * @param namespace      The WMI namespace
-	 * @param expected       The expected result
-	 * @return {@link String} value
+	 * Builds a failure message in a WMI or WBEM context.
+	 *
+	 * @param query			The executed query.
+	 * @param namespace		The namespace in which the query was executed.
+	 * @param expected		The expected result.
+	 * @param criterionType	The type of {@link Criterion}.
+	 *
+	 * @return				A customized message indicating that the test failed.
 	 */
-	static String buildWmiFailedMessage(final String wbemQuery, final String namespace, final String expected) {
+	static String buildFailedMessage(final String query, final String namespace, final String expected,
+									 final Class<? extends Criterion> criterionType) {
 
-		final StringBuilder message = new StringBuilder("WMI Test Failed - The following WMI query succeeded but its result did not match the expected output:\n- WMI query: ")
-				.append(wbemQuery)
-				.append(NAMESPACE_MESSAGE)
-				.append(namespace);
+		final StringBuilder message = new StringBuilder(criterionType.getSimpleName())
+			.append(" Test Failed - The following query succeeded but its result did not match the expected output:\n- query: ")
+			.append(query)
+			.append(NAMESPACE_MESSAGE)
+			.append(namespace);
 
 		appendExpected(message, expected);
 
@@ -479,21 +873,26 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * Build the WMI success message
-	 * 
-	 * @param wbemQuery      The executed WBEM query
-	 * @param namespace      The WMI namespace
-	 * @param expected       The expected result
-	 * @param matchingResult The matching WMI result
-	 * @return {@link String} value
+	 * Builds a success message in a WMI or WBEM context.
+	 *
+	 * @param query				The executed query.
+	 * @param namespace			The namespace in which the query was executed.
+	 * @param expected			The expected result.
+	 * @param matchingResult	The matching result.
+	 * @param criterionType		The type of {@link Criterion}.
+	 *
+	 * @return					A customized message indicating that the test succeeded.
 	 */
-	static String buildWmiSuccessMessage(final String wbemQuery, final String namespace,
-			final String expected, final String matchingResult) {
+	static String buildSuccessMessage(final String query, final String namespace, final String expected,
+									  final String matchingResult, final Class<? extends Criterion> criterionType) {
+
 		final StringBuilder message = new StringBuilder();
 
 		message
-			.append("The following WMI query succeeded: \n- WQL query: ")
-			.append(wbemQuery)
+			.append("The following ")
+			.append(criterionType.getSimpleName())
+			.append(" query succeeded:\n- ")
+			.append(query)
 			.append(NAMESPACE_MESSAGE)
 			.append(namespace);
 
@@ -517,43 +916,60 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * When the WMI test returns an empty result this message will be set in the testReport parameter
-	 * 
-	 * @param wmi       The WMI criterion
-	 * @param namespace The namespace used in the detection
-	 * @return {@link String} value
+	 * In a WMI or WBEM context,
+	 * when the test returns an empty result, this message will be set in the testReport parameter.
+	 *
+	 * @param query				The query that was executed.
+	 * @param namespace			The namespace used in the detection.
+	 * @param expectedResult	The expected result of the query.
+	 * @param criterionType		The type of {@link Criterion}.
+	 *
+	 * @return					A customized error message indicating that the test returned an empty result.
 	 */
-	static String buildWmiEmptyResultErrorMessage(final WMI wmi, final String namespace) {
-		final StringBuilder message = new StringBuilder()
-				.append("WMI Test Failed - The following WMI query succeeded but did not have any result:\n- WQL query: ")
-				.append(wmi.getWbemQuery())
-				.append(NAMESPACE_MESSAGE)
-				.append(namespace);
+	static String buildEmptyResultErrorMessage(final String query, final String namespace, final String expectedResult,
+											   final Class<? extends Criterion> criterionType) {
 
-		appendExpected(message, wmi.getExpectedResult());
+		final StringBuilder message = new StringBuilder()
+			.append(criterionType.getSimpleName())
+			.append(" Test Failed - The following query succeeded but did not have any result:\n- query: ")
+			.append(query)
+			.append(NAMESPACE_MESSAGE)
+			.append(namespace);
+
+		appendExpected(message, expectedResult);
 
 		return message.toString();
 	}
 
 	/**
-	 * Build the error message used which will be set in the test report paramter later by {@link DetectionOperation} in case we can't detect
-	 * the namespace
+	 * In a WMI or WBEM context,
+	 * builds the error message which will be set in the test report parameter later by {@link DetectionOperation}
+	 * in case we can't detect the namespace.
 	 * 
-	 * @param wmi             The WMI criterion
-	 * @param namespaceResult The {@link NamespaceResult} defining the exact error message to append
-	 * @return {@link String} value
+	 * @param query             The query.
+	 * @param expectedResult	The expected result.
+	 * @param namespaceResult	The {@link NamespaceResult} defining the exact error message to append.
+	 * @param criterionType		{@link WMI} or {@link WBEM}.
+	 * @return					The "no namespace found" error message.
 	 */
-	String buildNoWmiNamespaceErrorMessage(final WMI wmi, final NamespaceResult namespaceResult) {
+	String buildNoNamespaceErrorMessage(final String query, final String expectedResult,
+										final NamespaceResult namespaceResult,
+										final Class<? extends Criterion> criterionType) {
 
-		final StringBuilder message = new StringBuilder("WMI Test Failed - The following WMI query failed:\n- WQL query: ")
-			.append(wmi.getWbemQuery());
+		notNull(criterionType, "criterionType cannot be null.");
+		String type = criterionType.getSimpleName();
 
-		appendExpected(message, wmi.getExpectedResult());
+		final StringBuilder message = new StringBuilder(type)
+			.append(" Test Failed - The following ")
+			.append(type)
+			.append(" query failed:\n- WQL query: ")
+			.append(query);
+
+		appendExpected(message, expectedResult);
 
 		return message
 			.append("\n- No valid namespace could be found.\n- Error Message:\n")
 			.append(namespaceResult.getErrorMessage()).toString();
-
 	}
 
 	/**
@@ -567,11 +983,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String criterionNamespace = wmi.getWbemNamespace();
 
-		if ("automatic".equalsIgnoreCase(criterionNamespace)) {
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(criterionNamespace)) {
 			final String automaticWmiNamespace = strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
 
 			// It's OK if the namespace has already been detected, we don't re-execute the heavy detection
-			return automaticWmiNamespace != null ? 
+			return automaticWmiNamespace != null ?
 					NamespaceResult.builder().namespace(automaticWmiNamespace).success(true).build()
 					: detectWmiNamespace(wmi, protocol);
 		} else {
@@ -621,8 +1037,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// So, now we have a list of working namespaceList
 		// We'd better have only one, but you never know, so try to be clever here...
 		if (namespaces.size() > 1) {
-			namespaces.remove("root/cimv2");
-			namespaces.remove("root\\cimv2");
+			namespaces.remove(DEFAULT_NAMESPACE);
+			namespaces.remove(DEFAULT_NAMESPACE_WMI);
 		}
 
 		// Okay, so even if we have several, select a single one
@@ -661,7 +1077,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				final String csvTable = runWmiQueryAndGetCsv(hostname, wmi.getWbemQuery(), namespace, protocol);
 
 				// If the result matched then the namespace is selected
-				if (isMatchingWmiResult(wmi.getExpectedResult(), csvTable)) {
+				if (isMatchingResult(wmi.getExpectedResult(), csvTable)) {
 					namespaces.add(namespace);
 				}
 
@@ -683,7 +1099,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * 
 	 * @return <code>true</code> if the result matches otherwise <code>false</code>
 	 */
-	static boolean isMatchingWmiResult(String expected, final String csvTable) {
+	static boolean isMatchingResult(String expected, final String csvTable) {
 
 		// No result means not match
 		if (csvTable.isEmpty()) {
@@ -705,17 +1121,20 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Run the given WMI query provided in the {@link WMI} criterion then create a csv table
 	 * 
-	 * @param hostname  The target hostname
-	 * @param wbemQuery The WQL to execute
-	 * @param namespace The WMI namespace
-	 * @param protocol  The User's configured credentials
-	 * @return String value
-	 * @throws LocalhostCheckException
-	 * @throws WmiComException
-	 * @throws TimeoutException
-	 * @throws WqlQuerySyntaxException 
+	 * @param hostname					The target hostname
+	 * @param wbemQuery					The WQL to execute
+	 * @param namespace					The WMI namespace
+	 * @param protocol					The User's configured credentials
+	 *
+	 * @return 							String value
+	 *
+	 * @throws LocalhostCheckException	If the localhost check fails
+	 * @throws WmiComException			For any problem encountered with JNA. I.e. on the connection or the query execution
+	 * @throws TimeoutException			When the given timeout is reached
+	 * @throws WqlQuerySyntaxException	In case of invalid query
 	 */
-	String runWmiQueryAndGetCsv(final String hostname, final String wbemQuery, final String namespace, final WMIProtocol protocol)
+	String runWmiQueryAndGetCsv(final String hostname, final String wbemQuery, final String namespace,
+								final WMIProtocol protocol)
 			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException {
 
 		final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(hostname,
@@ -725,8 +1144,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				wbemQuery,
 				namespace);
 
-		return SourceTable.tableToCsv(queryResult, ";", true);
-
+		return SourceTable.tableToCsv(queryResult, COLUMN_SEPARATOR, true);
 	}
 
 	/**
@@ -748,31 +1166,26 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
-		// Test each interoperability namespace
-		for (Entry<String, String> entry : WMI_INTEROPERABILITY_NAMESPACES.entrySet()) {
+		// Test root namespace
+		final String wbemQuery = "SELECT Name FROM __NAMESPACE";
+		try {
+			// Do the request
+			final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(hostname,
+				protocol.getUsername(),
+				protocol.getPassword(),
+				protocol.getTimeout(),
+				wbemQuery,
+				"root");
 
-			final String clazz = entry.getValue();
-			final String namespace = entry.getKey();
-			final String wbemQuery = "SELECT Name FROM " + clazz;
-			try {
-				// Do the request
-				final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(hostname,
-						protocol.getUsername(),
-						protocol.getPassword(),
-						protocol.getTimeout(),
-						wbemQuery,
-						namespace);
+			// Add the result of this request to possibleWmiNamespaces
+			// This will update the possibleWmiNamespace in the HostMonitoring
+			possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult, IGNORED_WMI_NAMESPACES, "root\\"));
 
-				// Add the result of this request to possibleWmiNamespaces
-				// This will update the possibleWmiNamespace in the HostMonitoring
-				possibleWmiNamespaces.addAll(extractPossibleNamespaces(queryResult));
-
-			} catch (Exception e) {
-				// Log the error message and proceed with the next namespace
-				final String message = String.format("%s does not respond to WMI request %s. Cancelling namespace detection. Error: %s",
-						hostname, wbemQuery, e.getMessage());
-				log.debug(message);
-			}
+		} catch (Exception e) {
+			// Log the error message and proceed with the next namespace
+			final String message = String.format("%s does not respond to WMI request %s. Canceling namespace detection. Error: %s",
+				hostname, wbemQuery, e.getMessage());
+			log.debug(message);
 		}
 
 		// No namespace? then it is a test failure
@@ -788,22 +1201,26 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * Extract the possible namespaces from the given query result. We expect a query result with multiple lines and only one column defining
-	 * the namespace value. <br>
+	 * Extract the possible namespaces from the given query result.
+	 * We expect a query result with multiple lines and only one column defining the namespace value.<br>
 	 * The namespace is selected only if it is not from the <em>interop</em> family and it is not flagged as ignored.
 	 * 
-	 * @param namespaceQueryResult The result which should return a collection of namespaces.
-	 * @return {@link Set} of namespace values sorted according to the natural ordering of its elements.
+	 * @param namespaceQueryResult	The result which should return a collection of namespaces.
+	 * @param ignoredNameSpaces		The {@link Set} of namespaces that should be ignored.
+	 * @param prefix				Add this prefix to each valid namespace.
+	 *
+	 * @return						{@link Set} of namespace values sorted according to the natural ordering.
 	 */
-	static Set<String> extractPossibleNamespaces(final List<List<String>> namespaceQueryResult) {
+	static Set<String> extractPossibleNamespaces(final List<List<String>> namespaceQueryResult,
+												 Set<String> ignoredNameSpaces, String prefix) {
 
-		return namespaceQueryResult.stream()
-				.filter(line -> !line.isEmpty())
-				.flatMap(List::stream)
-				.filter(value -> !value.toLowerCase().contains("interop")
-						&& !IGNORED_WMI_NAMESPACES.contains(value))
-				.map(value -> "root\\" + value)
-				.collect(Collectors.toCollection(TreeSet::new));
+		return namespaceQueryResult
+			.stream()
+			.filter(row -> !row.isEmpty())
+			.flatMap(List::stream)
+			.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_NAMESPACE) && !ignoredNameSpaces.contains(namespace))
+			.map(namespace -> prefix + namespace)
+			.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	@Override
@@ -897,7 +1314,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 				success = false;
 			} else {
 				message = String.format("Successful SNMP GetNext of %s on %s. Returned Result: %s.", oid, hostname, result);
-				success = true;
 			}
 		} else {
 			message = String.format(
@@ -967,5 +1383,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 		private String namespace;
 		private boolean success;
 		private String errorMessage;
+		private String csvTable;
 	}
 }

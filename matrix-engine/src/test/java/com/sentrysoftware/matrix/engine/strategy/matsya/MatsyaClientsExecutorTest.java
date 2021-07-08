@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -8,8 +9,11 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +21,10 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -50,6 +57,7 @@ class MatsyaClientsExecutorTest {
 	private static MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static final String PUREM_SAN = "purem-san";
+	private static final String DEV_HV_01 = "dev-hv-01";
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";
 	private static final String BAZ = "BAZ";
@@ -285,5 +293,42 @@ class MatsyaClientsExecutorTest {
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 		}
+	}
+
+	@Test
+	void testExecuteWbem() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
+
+		// url is null
+		assertThrows(MalformedURLException.class,
+			() -> matsyaClientsExecutor.executeWbem(null, null, null, 0, null, null));
+
+		// url is not null
+		try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
+
+			WbemQueryResult wbemQueryResult = new WbemQueryResult(Collections.emptySet(), Collections.emptyList());
+
+			mockedWbemExecuteQuery.when(() -> WbemExecutor.executeWql(
+				any(URL.class),
+				anyString(), // namespace
+				isNull(), // username
+				isNull(), // password
+				anyString(), // query
+				anyInt(), // timeout
+				isNull()))
+				.thenReturn(wbemQueryResult);
+
+			String url = "https://" + DEV_HV_01 + ":5989";
+			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, null, null, 0, FOO, BAR));
+
+			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
+				isNull(), anyString(), anyInt(), isNull()));
+		}
+	}
+
+	@Test
+	void testBuildWbemUrl() {
+
+		assertEquals("https://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, true));
+		assertEquals("http://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, false));
 	}
 }

@@ -1,29 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.springframework.util.Assert.notNull;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.springframework.stereotype.Component;
-
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -49,8 +25,30 @@ import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -61,7 +59,7 @@ public class MatsyaClientsExecutor {
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
 
-	private long json2CsvTimeout = 60; //seconds
+	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
@@ -272,23 +270,26 @@ public class MatsyaClientsExecutor {
 			return null;
 		};
 
-		return execute(jflatToCSV, json2CsvTimeout);
+		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 	}
-	
+
 	/**
-	 * Execute a WBEM query through Matsya
-	 * @param url
-	 * @param username
-	 * @param password
-	 * @param timeout
-	 * @param query
-	 * @param namespace
-	 * @return
-	 * @throws MalformedURLException
-	 * @throws WqlQuerySyntaxException
-	 * @throws WBEMException
-	 * @throws TimeoutException
-	 * @throws InterruptedException
+	 *
+	 * @param url						The target URL, as a {@link String}.
+	 * @param username					The username to access the host.
+	 * @param password					The password to access the host.
+	 * @param timeout					The timeout, in milliseconds.
+	 * @param query						The query that is being executed.
+	 * @param namespace					The namespace with which the query should be executed.
+	 *
+	 * @return							A table (as a {@link List} of {@link List} of {@link String}s)
+	 * 									resulting from the execution of the query.
+	 *
+	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
+	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
+	 * @throws WBEMException			If there is a WBEM error.
+	 * @throws TimeoutException			If the query did not complete on time.
+	 * @throws InterruptedException		If the current thread was interrupted while waiting.
 	 */
 	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
 			final int timeout, final String query, final String namespace) throws MalformedURLException,
@@ -299,6 +300,22 @@ public class MatsyaClientsExecutor {
 
 		return wbemResult.getValues();
 	}
+
+	/**
+	 * @param hostname		The hostname of the target device.
+	 * @param port			The port used to access the target device.
+	 * @param useEncryption	Indicate whether HTTPS should be used (as opposed to using HTTP).
+	 *
+	 * @return				A url based on the given input, as a {@link String}.
+	 */
+	public static String buildWbemUrl(String hostname, int port, boolean useEncryption) {
+
+		String protocolName = useEncryption ? "https" : "http";
+
+		return String.format("%s://%s:%d", protocolName, hostname, port);
+	}
+
+
 
 	/**
 	 * Execute a WMI query through Matsya
