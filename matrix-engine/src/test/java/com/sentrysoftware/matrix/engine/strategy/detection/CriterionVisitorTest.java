@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.LINUX;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -310,7 +312,7 @@ class CriterionVisitorTest {
 
 
 	@Test
-	@EnabledOnOs(org.junit.jupiter.api.condition.OS.WINDOWS)
+	@EnabledOnOs(WINDOWS)
 	void testRunOsCommandWindows() throws InterruptedException, IOException {
 		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
@@ -320,7 +322,7 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	@EnabledOnOs(org.junit.jupiter.api.condition.OS.LINUX)
+	@EnabledOnOs(LINUX)
 	void testRunOsCommandLinux() throws InterruptedException, IOException {
 		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
