@@ -49,4 +49,8 @@ public class EmbeddedFileBody implements Body {
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
 			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((USERNAME + COLON + passwordAsString).getBytes()));
 	}
+
+	public Body copy() {
+		return EmbeddedFileBody.builder().body(body.copy()).build();
+	}
 }

@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
@@ -57,6 +58,27 @@ public class HTTPSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	public HTTPSource copy() {
+		return HTTPSource.builder()
+				.index(getIndex())
+				.key(getKey())
+				.forceSerialization(isForceSerialization())
+				.computes(
+						getComputes() != null ? getComputes().stream()
+								.collect(Collectors.toList()) : null)
+				.method(method)
+				.url(url)
+				.header(header != null ? header.copy() : null)
+				.body(body != null ? body.copy() : null)
+				.authenticationToken(authenticationToken)
+				.executeForEachEntryOf(executeForEachEntryOf)
+				.resultContent(resultContent)
+				.entryConcatMethod(entryConcatMethod)
+				.entryConcatStart(entryConcatStart)
+				.entryConcatEnd(entryConcatEnd)
+				.build();
 	}
 
 }

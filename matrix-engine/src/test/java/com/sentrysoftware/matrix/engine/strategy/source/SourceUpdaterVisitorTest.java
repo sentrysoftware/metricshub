@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -32,7 +33,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
 class SourceUpdaterVisitorTest {
@@ -53,6 +56,12 @@ class SourceUpdaterVisitorTest {
 	@Mock
 	private Monitor monitor;
 
+	@Mock
+	private StrategyConfig strategyConfig;
+
+	@Mock
+	private HostMonitoring hostMonitoring;
+
 	@InjectMocks
 	private SourceUpdaterVisitor sourceUpdaterVisitor;
 
@@ -71,25 +80,130 @@ class SourceUpdaterVisitorTest {
 	@Test
 	void testVisitHTTPSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(HTTPSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(HTTPSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(HTTPSource.builder().build()));
+
+		final SNMPGetSource snmpGetSource = SNMPGetSource.builder().oid("1.2.3.4.5.6.%Fan.Collect.DeviceID").build();
+		doReturn(metadata).when(monitor).getMetadata();
+		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
+		doReturn(expectedSnmp).when(sourceVisitor).visit(any(SNMPGetSource.class));
+		assertEquals(expectedSnmp, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(snmpGetSource));
+
+		HTTPSource httpSource = HTTPSource.builder()
+				.executeForEachEntryOf("enclosure.collect.source(1)")
+				.url("urlprefix_%Entry.Column(1)%_urlmidsection_%Entry.Column(2)%_urlsuffix")
+				.build();
+
+		List<List<String>> table = Arrays.asList(
+				Arrays.asList("val1", "val2", "val3"),
+				Arrays.asList("a1", "b1", "c1"));
+
+		SourceTable sourceTable = SourceTable.builder()
+				.table(table)
+				.build();
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+
+		String expectedResult = "expectedVal1expectedVal2";
+
+		SourceTable expected1 = SourceTable.builder().rawData("expectedVal1").build();
+		SourceTable expected2 = SourceTable.builder().rawData("expectedVal2").build();
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		SourceTable result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.LIST);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "expectedVal1,\n" +
+				"expectedVal2";
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "{\n" +
+				"\"Entry\":{\n" +
+				"\"Full\":\"val1,val2,val3\",\n" +
+				"\"Column(1)\":\"val1\",\n" +
+				"\"Column(2)\":\"val2\",\n" +
+				"\"Column(3)\":\"val3\",\n" +
+				"\"Value\":expectedVal1\n" +
+				"}\n" +
+				"},\n" +
+				"{\n" +
+				"\"Entry\":{\n" +
+				"\"Full\":\"a1,b1,c1\",\n" +
+				"\"Column(1)\":\"a1\",\n" +
+				"\"Column(2)\":\"b1\",\n" +
+				"\"Column(3)\":\"c1\",\n" +
+				"\"Value\":expectedVal2\n" +
+				"}\n" +
+				"}";
+
+		assertEquals(expectedResult, result.getRawData());
+
+		httpSource.setEntryConcatMethod(EntryConcatMethod.CUSTOM);
+		httpSource.setEntryConcatStart("EntryConcatStart_");
+		httpSource.setEntryConcatEnd("_EntryConcatEnd\n");
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
+		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
+		expectedResult = "EntryConcatStart_expectedVal1_EntryConcatEnd\n" +
+				"EntryConcatStart_expectedVal2_EntryConcatEnd\n";
+		assertEquals(expectedResult, result.getRawData());
+	}
+
+	@Test
+	void testReplaceDynamicEntry() {
+		List<String> row = Arrays.asList("val1", "val2", "val3");
+		var key1 = "/endpoint/%entry.column(1)%/%entry.column(2)%";
+		assertEquals("/endpoint/val1/val2", SourceUpdaterVisitor.replaceDynamicEntry(key1, row));
+
+		var key2 = "{\n"
+				+ "    \"id\" : \"%entry.column(1)%\",\n"
+				+ "    \"name\" : \"%entry.column(2)%\"\n"
+				+ "}";
+		var expected =  "{\n"
+				+ "    \"id\" : \"val1\",\n"
+				+ "    \"name\" : \"val2\"\n"
+				+ "}";
+
+		assertEquals(expected, SourceUpdaterVisitor.replaceDynamicEntry(key2, row));
+
+		var key3 =  "%entry.column(1)%";
+		assertEquals("val1", SourceUpdaterVisitor.replaceDynamicEntry(key3, row));
 	}
 
 	@Test
 	void testVisitIPMI() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(IPMI.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(IPMI.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(IPMI.builder().build()));
 	}
 
 	@Test
 	void testVisitOSCommandSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(OSCommandSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(OSCommandSource.builder().commandLine("cmd --version").build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(OSCommandSource.builder().commandLine("cmd --version").build()));
 	}
 
 	@Test
 	void testVisitReferenceSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(ReferenceSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(ReferenceSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(ReferenceSource.builder().build()));
 
 		ReferenceSource referenceSource = ReferenceSource.builder().reference(VALUE_TABLE).build();
 		final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
@@ -100,29 +214,29 @@ class SourceUpdaterVisitorTest {
 		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
 		doReturn(expectedSnmp).when(sourceVisitor).visit(any(SNMPGetSource.class));
-		assertEquals(expectedSnmp, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(snmpGetSource));
+		assertEquals(expectedSnmp, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(snmpGetSource));
 
 		doReturn(expected).when(sourceVisitor).visit(any(ReferenceSource.class));
-		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(referenceSource));
+		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(referenceSource));
 	}
 
 	@Test
 	void testVisitStaticSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(StaticSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(StaticSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(StaticSource.builder().build()));
 
 		StaticSource staticSource = StaticSource.builder().staticValue(VALUE_VAL1).build();
 		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(resultTable).build();
 		doReturn(expected).when(sourceVisitor).visit(any(StaticSource.class));
-		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(staticSource));
+		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(staticSource));
 	}
 
 	@Test
 	void testVisitSNMPGetSource() {
 		{
 			doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(SNMPGetSource.class));
-			assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, null).visit(SNMPGetSource.builder().oid("1.2.3.4.5.6").build()));
+			assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, null, strategyConfig).visit(SNMPGetSource.builder().oid("1.2.3.4.5.6").build()));
 		}
 
 		{
@@ -132,7 +246,7 @@ class SourceUpdaterVisitorTest {
 			final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 			final SourceTable expected = SourceTable.builder().table(result).build();
 			doReturn(expected).when(sourceVisitor).visit(any(SNMPGetSource.class));
-			assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(snmpGetSource));
+			assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(snmpGetSource));
 		}
 	}
 
@@ -140,7 +254,7 @@ class SourceUpdaterVisitorTest {
 	void testVisitSNMPGetTableSource() {
 		{
 			doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
-			assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, null).visit(SNMPGetTableSource.builder().oid("1.2.3.4.5.6").build()));
+			assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, null, strategyConfig).visit(SNMPGetTableSource.builder().oid("1.2.3.4.5.6").build()));
 		}
 
 		{
@@ -151,44 +265,44 @@ class SourceUpdaterVisitorTest {
 			final SourceTable expected = SourceTable.builder().table(result).build();
 			doReturn(expected).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
 			// Update the test when you implement SourceVisitor.visit(SNMPGetSource snmpGetSource)
-			assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(snmpGetTableSource));
+			assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(snmpGetTableSource));
 		}
 	}
 
 	@Test
 	void testVisitTableJoinSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(TableJoinSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(TableJoinSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(TableJoinSource.builder().build()));
 	}
 
 	@Test
 	void testVisitTableUnionSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(TableUnionSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(TableUnionSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(TableUnionSource.builder().build()));
 	}
 
 	@Test
 	void testVisitTelnetInteractiveSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(TelnetInteractiveSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(TelnetInteractiveSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(TelnetInteractiveSource.builder().build()));
 	}
 
 	@Test
 	void testVisitUCSSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(UCSSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(UCSSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(UCSSource.builder().build()));
 	}
 
 	@Test
 	void testVisitWBEMSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(WBEMSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(WBEMSource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(WBEMSource.builder().build()));
 	}
 
 	@Test
 	void testVisitWMISource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(WMISource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor).visit(WMISource.builder().build()));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(WMISource.builder().build()));
 	}
 
 	@Test

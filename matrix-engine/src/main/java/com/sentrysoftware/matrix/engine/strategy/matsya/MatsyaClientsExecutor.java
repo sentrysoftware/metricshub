@@ -6,8 +6,6 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
@@ -401,63 +399,62 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param http		The {@link Detection} values.
-	 * @param protocol	The {@link HTTPProtocol} containing the connexion configuration.
-	 * @param hostname	The hostname against which the HTTP request is being executed.
+	 * @param httpRequest		The {@link HTTPRequest} values.
 	 * @param logMode	Whether or not logging is enabled.
 	 *
 	 * @return			The result of the execution of the given HTTP request.
 	 */
-	public String executeHttp(HTTP http, HTTPProtocol protocol, String hostname, boolean logMode) {
+	public String executeHttp(HTTPRequest httpRequest, boolean logMode) {
 
-		notNull(http, "http cannot be null");
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(httpRequest, "httpRequest cannot be null");
 
-		String method = http.getMethod();
+		HTTPProtocol protocol = httpRequest.getHttpProtocol();
+		notNull(httpRequest.getHttpProtocol(), PROTOCOL_CANNOT_BE_NULL);
+		notNull(httpRequest.getHostname(), HOSTNAME_CANNOT_BE_NULL);
+
+		String method = httpRequest.getMethod();
 
 		String username = protocol.getUsername();
 		char[] password = protocol.getPassword();
 
-		Header header = http.getHeader();
+		Header header = httpRequest.getHeader();
 		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, EMPTY);
 
-		Body body = http.getBody();
+		Body body = httpRequest.getBody();
 		String bodyContent = body == null ? null : body.getContent(username, password, EMPTY);
 
 		// Building the full URL
-		String url = http.getUrl();
+		String url = httpRequest.getUrl();
 		notNull(url, "URL cannot be null");
 
 		String fullUrl = (protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP)
-			+ COLON_DOUBLE_SLASH
-			+ hostname
-			+ COLON
-			+ protocol.getPort()
-			+ (url.startsWith(SLASH) ? url : SLASH + url);
+				+ COLON_DOUBLE_SLASH
+				+ httpRequest.getHostname()
+				+ COLON
+				+ protocol.getPort()
+				+ (url.startsWith(SLASH) ? url : SLASH + url);
 
 		try {
 
 			// Sending the request
 			HttpResponse httpResponse = sendHttpRequest(fullUrl, method, username, password, headerContent, bodyContent,
-				protocol.getTimeout().intValue());
+					protocol.getTimeout().intValue());
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
 
 				return "HTTP Error "
-					+ httpResponse.getStatusCode()
-					+ httpResponse;
+						+ httpResponse.getStatusCode()
+						+ httpResponse;
 			}
 
 			// The request has been successful
-			switch (http.getResultContent()) {
-
+			switch (httpRequest.getResultContent()) {
 				case BODY: return httpResponse.getBody();
 				case HEADER: return httpResponse.getHeader();
 				case HTTP_STATUS: return String.valueOf(httpResponse.getStatusCode());
 				case ALL: return httpResponse.toString();
-				default: throw new IllegalArgumentException("Unsupported ResultContent: " + http.getResultContent());
+				default: throw new IllegalArgumentException("Unsupported ResultContent: " + httpRequest.getResultContent());
 			}
 
 		} catch (IOException e) {

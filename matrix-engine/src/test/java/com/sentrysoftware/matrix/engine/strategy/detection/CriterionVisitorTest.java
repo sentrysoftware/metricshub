@@ -134,38 +134,38 @@ class CriterionVisitorTest {
 		// HTTP is not null, protocol is not null, expectedResult is null, result is null
 		initHTTP();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is null, result is empty
-		doReturn(EMPTY).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(3)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(EMPTY, criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is not null, result is null
-		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		http.setExpectedResult(FOO);
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(4)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(3)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(3)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is not null, result is not null and does not match
-		doReturn(BAR).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(BAR).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(5)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(4)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(4)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(BAR, criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -179,10 +179,10 @@ class CriterionVisitorTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		// HTTP is not null, protocol is not null, expectedResult is null, result is neither null nor empty
-		doReturn(FOO).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(FOO).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig).getEngineConfiguration();
-		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(FOO, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -191,7 +191,7 @@ class CriterionVisitorTest {
 		http.setExpectedResult(FOO);
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(FOO, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());

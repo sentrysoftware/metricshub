@@ -46,4 +46,8 @@ public class StringBody implements Body {
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
 			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((USERNAME + COLON + passwordAsString).getBytes()));
 	}
+
+	public Body copy() {
+		return StringBody.builder().body(body).build();
+	}
 }
