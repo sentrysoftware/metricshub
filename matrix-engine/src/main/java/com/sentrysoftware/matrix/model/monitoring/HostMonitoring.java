@@ -47,6 +47,11 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private String automaticWmiNamespace;
 
+	private boolean isLocalhost;
+
+	private String ipmitoolCommand;
+	private int ipmiExecutionCount;
+
 	private Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 	@Override

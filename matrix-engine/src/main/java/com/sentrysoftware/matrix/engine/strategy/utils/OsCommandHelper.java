@@ -2,10 +2,12 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import static org.springframework.util.Assert.notNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.SystemUtils;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -16,6 +18,12 @@ public class OsCommandHelper {
 	}
 
 	private static final Pattern EMBEDDEDFILE_REPLACEMENT_PATTERN = Pattern.compile("%EmbeddedFile\\((\\d+)\\)%", Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * Whether we're running on Windows or not
+	 */
+	private static final boolean IS_WINDOWS =
+			System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 	/**
 	 * Replace the content of the EmbeddedFiles in the given command line
@@ -53,11 +61,33 @@ public class OsCommandHelper {
 		return sb.toString();
 	}
 
+
 	/**
-	 * @return <code>true</code> if the local system is Windows otherwise <code>false</code>
+	 * @return whether current system is Windows or not
 	 */
 	public static boolean isWindows() {
-		return SystemUtils.IS_OS_WINDOWS;
+		return IS_WINDOWS;
+	}
+	
+	public static String runLocalCommand(String command)
+			throws InterruptedException, IOException {
+
+		Process process = null;
+
+		if (IS_WINDOWS) {
+			command = "CMD.EXE /C " + command;
+		}
+
+		process = Runtime.getRuntime().exec(command);
+
+		if (process != null) {
+			process.waitFor();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+			return reader.lines().collect(Collectors.joining("\n")).trim();
+		}
+
+		return null;
 	}
 
 }
