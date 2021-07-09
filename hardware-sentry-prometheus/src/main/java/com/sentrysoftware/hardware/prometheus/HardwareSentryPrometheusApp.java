@@ -31,5 +31,6 @@ public class HardwareSentryPrometheusApp {
 		ThreadContext.put("port", "");
 		ThreadContext.put("targetId", "");
 		ThreadContext.put("debugMode", "false");
+		ThreadContext.put("outputDirectory", "/tmp/logs");
 	}
 }

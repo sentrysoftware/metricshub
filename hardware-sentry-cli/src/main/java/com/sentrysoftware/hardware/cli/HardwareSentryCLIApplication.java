@@ -20,9 +20,10 @@ public class HardwareSentryCLIApplication {
 			disabledCommands.add("--spring.main.banner-mode=off");
 		}
 
-		// Default values for targetId and debugMode
+		// Default values for targetId and debugMode and outputDirectory
 		ThreadContext.put("targetId", "no-target-yet");
 		ThreadContext.put("debugMode", "false");
+		ThreadContext.put("outputDirectory", "/tmp/logs");
 
 		final String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands.toArray(String[]::new));
 

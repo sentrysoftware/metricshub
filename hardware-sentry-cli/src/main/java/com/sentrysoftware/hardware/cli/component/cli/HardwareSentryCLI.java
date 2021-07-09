@@ -3,11 +3,11 @@ package com.sentrysoftware.hardware.cli.component.cli;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
@@ -51,24 +51,31 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	@Option(names = { "-hdfsExcluded", "--connectorsExcluded" }, split = ",", description = "Enter the hdfs to exclude.")
 	private Set<String> hdfsExclusion;
 
-	@Option(names = { "--debug", "-d"}, description = "Activate debug mode for logs.")
+	@Option(names = { "--debug", "-d" }, description = "Activate debug mode for logs.")
 	private boolean debug;
+
+	@Option(names = { "--output" }, description = "Output directory for logs.")
+	private String outputDirectory;
 
 	@Override
 	public Boolean call() {
 
 		configureLoggerContext();
+
 		System.out.println(engineService.call(this)); // NOSONAR
 
 		return true;
 	}
 
 	/**
-	 * Configure the logger context with the hostname and debugMode.
+	 * Configure the logger context with the hostname, debugMode and output directory.
 	 */
 	private void configureLoggerContext() {
 
 		ThreadContext.put("targetId", hostname);
 		ThreadContext.put("debugMode", String.valueOf(debug));
+		if (outputDirectory != null) {
+			ThreadContext.put("outputDirectory", outputDirectory);
+		}
 	}
 }
