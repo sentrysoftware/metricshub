@@ -11,8 +11,6 @@ public class MetaParameter {
 
 	private String name;
 	private String unit;
-	private String displayUnit;
 	private ParameterType type;
 	private boolean basicCollect;
-	private double factor;
 }

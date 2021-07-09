@@ -70,7 +70,7 @@ public class HostMonitoringCollectorService extends Collector {
 		gauge.addMetric(
 			// Id, parentId (can be null), label
 			createLabels(monitor),
-			getParameterValue(monitor, parameterName).doubleValue());
+			convertParameterValue(monitor, parameterName));
 	}
 
 	/**
@@ -83,6 +83,26 @@ public class HostMonitoringCollectorService extends Collector {
 	static Number getParameterValue(final Monitor monitor, final String parameterName) {
 
 		return monitor.getParameters().get(parameterName).numberValue();
+	}
+
+	/**
+	 * Convert the parameter number value according to the factor indicated for
+	 * Prometheus
+	 * 
+	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param parameterName The parameter name we want to extract from the given
+	 *                      monitor instance
+	 * @return {@link Number} value
+	 */
+	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
+
+		Double prometheusParamFactor = PrometheusSpecificities
+				.getPrometheusParameterFactor(monitor.getName().toLowerCase(), parameterName.toLowerCase());
+		Number paramValue = getParameterValue(monitor, parameterName);
+		if (paramValue != null) {
+			return paramValue.doubleValue() * prometheusParamFactor;
+		}
+		return null;
 	}
 
 	@Override
@@ -159,8 +179,11 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		String unit = metaParameter.getDisplayUnit() == null ? metaParameter.getUnit() : metaParameter.getDisplayUnit();
-		return String.format("Metric: %s %s - Unit: %s", monitorName, metaParameter.getName(), unit);
+		String paramName = metaParameter.getName();
+		String prometheusParamName = PrometheusSpecificities.getPrometheusParameterName(monitorName.toLowerCase(), paramName.toLowerCase());
+		String paramUnit = metaParameter.getUnit();
+		String prometheusParamUnit = PrometheusSpecificities.getPrometheusParameterUnit(monitorName.toLowerCase(), paramName.toLowerCase());
+		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName == null ? paramName : prometheusParamName, prometheusParamUnit == null ? paramUnit : prometheusParamUnit);
 	}
 
 	/**
