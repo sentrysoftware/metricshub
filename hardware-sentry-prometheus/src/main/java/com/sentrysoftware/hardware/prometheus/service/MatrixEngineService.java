@@ -19,9 +19,8 @@ import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,13 +64,17 @@ public class MatrixEngineService {
 	@Autowired
 	private Engine engine;
 
-	@Getter
-	private final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
+	@Autowired
+	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	/**
-	 * Call the matrix engine to perform detection, discovery and collect strategies
+	 * Calls the matrix engine to perform detection, discovery and collect strategies.
 	 *
-	 * @throws BusinessException
+	 * @param targetId				The ID of the target.<br>
+	 *                              When null, indicates that the strategies
+	 *                              should be performed on all configured targets
+	 *
+	 * @throws BusinessException	If no connectors lookup were found in the store.
 	 */
 	public void performJobs(String targetId) throws BusinessException {
 
@@ -98,6 +101,13 @@ public class MatrixEngineService {
 		}
 	}
 
+	/**
+	 * Calls the matrix engine to perform detection, discovery and collect strategies.
+	 *
+	 * @param hostConfigurationDTO	The configuration for the target currently being processed.
+	 *
+	 * @throws BusinessException	If no connectors lookup were found in the store.
+	 */
 	private void performJobs(HostConfigurationDTO hostConfigurationDTO) throws BusinessException {
 
 		// Set the context for the logger
@@ -132,10 +142,11 @@ public class MatrixEngineService {
 	}
 
 	/**
-	 * Read the user's configuration
+	 * Reads the user's configuration.
 	 * 
-	 * @return {@link HostConfigurationDTO} instance
-	 * @throws BusinessException
+	 * @return						A {@link MultiHostsConfigurationDTO} instance.
+	 *
+	 * @throws BusinessException	If a read error occurred.
 	 */
 	MultiHostsConfigurationDTO readConfiguration(final File targetConfigFile) throws BusinessException {
 
@@ -152,8 +163,9 @@ public class MatrixEngineService {
 
 			multiHostsConfigurationDTO
 				.getTargets()
-				.forEach(hostConfigurationDTO -> hostMonitoringMap.put(hostConfigurationDTO.getTarget().getHostname(),
-					new HostMonitoring()));
+				.forEach(hostConfigurationDTO -> hostMonitoringMap.putIfAbsent(hostConfigurationDTO.getTarget().getHostname(),
+					HostMonitoringFactory.getInstance().createHostMonitoring(
+						hostConfigurationDTO.getTarget().getHostname())));
 
 			return multiHostsConfigurationDTO;
 

@@ -1,15 +1,14 @@
 package com.sentrysoftware.hardware.prometheus.configuration;
 
-import java.util.UUID;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.engine.Engine;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link HostMonitoring}, {@link ConnectorStore} and {@link Engine} as spring beans.
@@ -17,13 +16,11 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 @Configuration
 public class HostMonitoringConfig {
 
-	private static final String HOST_MONITORING_KEY = UUID.randomUUID().toString();
-
 	@Bean
-	public IHostMonitoring hostMonitoring() {
+	public Map<String, IHostMonitoring> hostMonitoring() {
 
 		// The host monitoring is instantiated only once (singleton)
-		return HostMonitoringFactory.getInstance().createHostMonitoring(HOST_MONITORING_KEY);
+		return new HashMap<>();
 	}
 
 	@Bean 

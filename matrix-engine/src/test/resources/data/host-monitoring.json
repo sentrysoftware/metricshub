@@ -8,8 +8,7 @@
       "targetId" : "targetId",
       "extendedType" : null,
       "parameters" : { },
-      "metadata" : { },
-      "fqdn":null
+      "metadata" : { }
     },
     "enclosure-2" : {
       "id" : "enclosure-2",
@@ -19,8 +18,7 @@
       "targetId" : "targetId",
       "extendedType" : null,
       "parameters" : { },
-      "metadata" : { },
-      "fqdn":null
+      "metadata" : { }
     }
   }
 }

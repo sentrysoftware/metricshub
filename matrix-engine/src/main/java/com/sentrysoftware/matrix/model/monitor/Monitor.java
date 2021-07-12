@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.model.monitor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
@@ -100,6 +101,7 @@ public class Monitor {
 		}
 	}
 
+	@JsonIgnore
 	public String getFqdn() {
 
 		String fqdn = metadata.get(FQDN);

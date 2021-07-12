@@ -1,5 +1,6 @@
 package com.sentrysoftware.hardware.prometheus.controller;
 
+import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
 import com.sentrysoftware.hardware.prometheus.service.PrometheusService;
 import io.swagger.annotations.Api;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.springframework.util.Assert.isTrue;
 
 /**
  * REST Controllers for Prometheus operations.
@@ -53,8 +52,15 @@ public class PrometheusController {
 
 	) throws BusinessException {
 
-		isTrue(targetId != null && !targetId.isBlank(), "targetId cannot be empty");
+		try {
 
-		return prometheusService.collectMetrics(targetId);
+			TargetContext.setTargetId(targetId);
+
+			return prometheusService.collectMetrics(targetId);
+
+		} finally {
+
+			TargetContext.clear();
+		}
 	}
 }

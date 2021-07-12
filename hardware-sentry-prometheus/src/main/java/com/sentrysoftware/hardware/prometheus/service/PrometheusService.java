@@ -45,7 +45,6 @@ public class PrometheusService {
 		matrixEngineService.performJobs(targetId);
 
 		// Register the Prometheus collector with the default registry
-		hostMonitoringCollectorService.setHostMonitoringMap(matrixEngineService.getHostMonitoringMap());
 		hostMonitoringCollectorService.register();
 
 		// Create the writer

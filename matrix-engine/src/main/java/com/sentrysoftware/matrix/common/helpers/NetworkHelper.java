@@ -1,15 +1,13 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Class helper to get network information
@@ -86,7 +84,7 @@ public class NetworkHelper {
 		String fqdn = hostname;
 		InetAddress inetAddress = null;
 
-		if (hostname != null && !hostname.isEmpty()) {
+		if (hostname != null && !hostname.isBlank()) {
 			inetAddress = NetworkHelper.getInetAddress(hostname);
 		}
 

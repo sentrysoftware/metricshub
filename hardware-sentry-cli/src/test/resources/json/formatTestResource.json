@@ -20,8 +20,7 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { },
-    "fqdn" : null
+    "metadata" : { }
   }, {
     "id" : "id2",
     "name" : "MS_HW_DellCMC",
@@ -42,8 +41,7 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { },
-    "fqdn" : null
+    "metadata" : { }
   }, {
     "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
@@ -64,7 +62,6 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { },
-    "fqdn" : null
+    "metadata" : { }
   } ]
 }

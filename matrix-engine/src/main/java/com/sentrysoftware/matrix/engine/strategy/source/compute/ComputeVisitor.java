@@ -1,20 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
@@ -50,12 +35,26 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -303,7 +302,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	/**
 	 * Extract separators and split each line with these separators
 	 * keep only values (from the split result) which index matches with the selected column list 
-	 * @param awk
+	 * @param separators
 	 * @param awkResult
 	 * @param selectColumns
 	 * @return
@@ -1383,19 +1382,37 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * @param op2Index			The column holding the value of the second operand in the {@link SourceTable}.
 	 */
 	private void performMathComputeOnTable(final Compute computeOperation, Integer columnIndex, String op2, int op2Index) {
+
 		for (List<String> line : sourceTable.getTable()) {
 
-			if (columnIndex < line.size()) {
-				String op1 = line.get(columnIndex);
+			performMathComputeOnLine(computeOperation, columnIndex, op2, op2Index, line);
+		}
+	}
+
+	/**
+	 * @param computeOperation	The {@link Compute} operation that should be performed.
+	 * @param columnIndex		The index of the column on which the operation should be performed.
+	 * @param op2               The second operand of the operation.
+	 * @param op2Index			The column holding the value of the second operand in the {@link SourceTable}.
+	 * @param line				The line that is being processed.
+	 */
+	private void performMathComputeOnLine(Compute computeOperation, Integer columnIndex, String op2, int op2Index,
+										  List<String> line) {
+
+		if (columnIndex < line.size()) {
+
+			String op1 = line.get(columnIndex);
+			if (!op1.isBlank()) {
 
 				if (op2Index != -1) {
+
 					if (op2Index < line.size()) {
 						performMathComputeOnLine(computeOperation.getClass(), columnIndex, line, op1, line.get(op2Index));
 					}
+
 				} else {
 
 					performMathComputeOnLine(computeOperation.getClass(), columnIndex, line, op1, op2);
-
 				}
 			}
 		}

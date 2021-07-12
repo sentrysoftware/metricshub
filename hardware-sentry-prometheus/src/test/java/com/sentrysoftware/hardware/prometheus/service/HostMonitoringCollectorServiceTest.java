@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,10 +65,10 @@ class HostMonitoringCollectorServiceTest {
 	private static final String FAN_NAME = "Fan 1.1";
 
 	@Mock
-	private IHostMonitoring hostMonitoring;
+	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@InjectMocks
-	private HostMonitoringCollectorService hostMonitoringCollectorService = new HostMonitoringCollectorService();
+	private final HostMonitoringCollectorService hostMonitoringCollectorService = new HostMonitoringCollectorService();
 
 	@Test
 	void testCollect() throws IOException {
@@ -102,7 +103,7 @@ class HostMonitoringCollectorServiceTest {
 			.build();
 		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 
-		Map<String, Monitor> fans = new LinkedHashMap<String, Monitor>(); 
+		Map<String, Monitor> fans = new LinkedHashMap<>();
 		fans.put(FAN_ID + 1, fan1Monitor);
 		fans.put(FAN_ID + 2, fan2Monitor);
 
@@ -110,11 +111,12 @@ class HostMonitoringCollectorServiceTest {
 		monitors.put(MonitorType.ENCLOSURE, enclosures);
 		monitors.put(MonitorType.FAN, fans);
 
-		doReturn(monitors).when(hostMonitoring).getMonitors();
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setMonitors(monitors);
+		doReturn(Collections.singleton(hostMonitoring)).when(hostMonitoringMap).values();
 
 		CollectorRegistry.defaultRegistry.clear();
 
-		hostMonitoringCollectorService.setHostMonitoringMap(Map.of(ECS, hostMonitoring));
 		hostMonitoringCollectorService.register();
 
 		final StringWriter writer = new StringWriter();

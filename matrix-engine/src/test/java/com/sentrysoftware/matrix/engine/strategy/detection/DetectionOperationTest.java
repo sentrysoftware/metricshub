@@ -51,8 +51,8 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
 
-	private static final String target_NAME = "target";
-	private static final String target_ID = "targetId";
+	private static final String TARGET_NAME = "target";
+	private static final String TARGET_ID = "targetId";
 	private static final String COMMUNITY = "public";
 	private static final String BAD_RESULT = "1";
 	private static final String FAILED = "Failed";
@@ -234,7 +234,7 @@ class DetectionOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 
-		final Monitor target = Monitor.builder().id(target_ID).targetId(target_ID).name(target_NAME)
+		final Monitor target = Monitor.builder().id(TARGET_ID).targetId(TARGET_ID).name(TARGET_NAME)
 				.monitorType(MonitorType.TARGET).build();
 
 		hostMonitoring.addMonitor(target);

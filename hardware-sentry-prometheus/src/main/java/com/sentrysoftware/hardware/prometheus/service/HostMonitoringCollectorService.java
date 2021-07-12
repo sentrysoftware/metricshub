@@ -8,8 +8,8 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import io.prometheus.client.Collector;
 import io.prometheus.client.GaugeMetricFamily;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,8 +36,8 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
 
-	@Setter
-	private Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
+	@Autowired
+	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
 
