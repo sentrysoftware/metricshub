@@ -23,7 +23,9 @@ public class HardwareSentryCLIApplication {
 		// Default values for targetId and debugMode and outputDirectory
 		ThreadContext.put("targetId", "no-target-yet");
 		ThreadContext.put("debugMode", "false");
-		ThreadContext.put("outputDirectory", "/tmp/logs");
+
+		// by default, the logs go in a directory "hardware-logs" in the temporary folder
+		ThreadContext.put("outputDirectory", System.getProperty("java.io.tmpdir") + "hardware-logs");
 
 		final String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands.toArray(String[]::new));
 
