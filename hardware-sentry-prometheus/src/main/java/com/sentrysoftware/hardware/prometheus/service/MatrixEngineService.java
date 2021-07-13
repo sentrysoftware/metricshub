@@ -55,7 +55,7 @@ public class MatrixEngineService {
 	@Value("${debugMode:false}")
 	private boolean debugMode;
 
-	@Value("${outputDirectory:/tmp/hardware-logs}")
+	@Value("${outputDirectory}")
 	private String outputDirectory;
 
 	@Value("${server.ssl.enabled:false}")
