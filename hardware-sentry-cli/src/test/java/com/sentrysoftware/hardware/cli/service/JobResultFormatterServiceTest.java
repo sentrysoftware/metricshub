@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.hardware.cli.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -27,7 +28,7 @@ class JobResultFormatterServiceTest {
 
 		String formattedMonitoring = jobFormatter.format(hostMonitoring);
 
-		Assert.assertNull(formattedMonitoring);
+		Assert.assertEquals(StringHelper.EMPTY, formattedMonitoring);
 	}
 
 	@Test
@@ -40,7 +41,7 @@ class JobResultFormatterServiceTest {
 
 		String formattedMonitoring = jobFormatter.format(hostMonitoring);
 
-		Assert.assertNull(formattedMonitoring);
+		Assert.assertEquals(StringHelper.EMPTY, formattedMonitoring);
 	}
 
 	@Test
