@@ -19,8 +19,8 @@
 				<!-- This route is chosen if ThreadContext has debugMode = true. -->
 				<Route key="true">
 					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${baseDir}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd}.log"
-						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+						fileName="${baseDir}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd_hh-mm-ss}.log"
+						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd_hh-mm-ss}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
