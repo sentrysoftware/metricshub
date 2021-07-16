@@ -31,5 +31,8 @@ public class HardwareSentryPrometheusApp {
 		ThreadContext.put("port", "");
 		ThreadContext.put("targetId", "");
 		ThreadContext.put("debugMode", "false");
+
+		// by default, the logs go in a directory "hardware-logs" in the temporary folder
+		ThreadContext.put("outputDirectory", System.getProperty("java.io.tmpdir") + "hardware-logs");
 	}
 }

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-	<Properties>
-		<Property name="baseDir">logs</Property>
-	</Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout disableAnsi="false"
@@ -13,15 +10,15 @@
 				<!-- This route is chosen if ThreadContext has debugMode = true. -->
 				<Route key="true">
 					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${baseDir}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd_hh-mm-ss}.log"
-						filePattern="${baseDir}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd_hh-mm-ss}-%i.log.gz">
+						fileName="${ctx:outputDirectory}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd_hh-mm-ss}.log"
+						filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd_hh-mm-ss}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
 							<SizeBasedTriggeringPolicy size="30 MB" />
 						</Policies>
 						<DefaultRolloverStrategy>
-							<Delete basePath="${baseDir}" maxDepth="3">
+							<Delete basePath="${ctx:outputDirectory}" maxDepth="3">
 								<IfFileName glob="*/*hardware-sentry-prometheus*.log.gz" />
 								<IfLastModified age="2d" />
 							</Delete>
