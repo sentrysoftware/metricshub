@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 @Data
 @AllArgsConstructor
-public class PrometheusParameters {
+public class PrometheusParameter {
 	private String prometheusParameterName;
 	private String prometheusParameterUnit;
 	private Double prometheusParameterFactor;

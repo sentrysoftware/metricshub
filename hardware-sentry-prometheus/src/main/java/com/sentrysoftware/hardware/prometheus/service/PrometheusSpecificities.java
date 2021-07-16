@@ -1,106 +1,86 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameters;
-
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 
 public class PrometheusSpecificities {
-	
+
 	private static final String CURRENTSPEED = "currentspeed";
+	private static final String CURRENT_SPEED = "current_speed";
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
 	private static final String VOLTAGE = "voltage";
 	private static final String FRACTION = "fraction";
-	public static final String PIPE = "\\|";
-	public static final String AMPERSAND = "&";
-	
-	public static Map<String, Map<String, PrometheusParameters>> prometheusParameterSpecificities;
+
+	private PrometheusSpecificities() {
+	}
+
+	private static Map<String, Map<String, PrometheusParameter>> prometheusParameterSpecificities;
 	static {
-		// if a monitor has multiple pramater to redefine, please use Map.ofEntries
-		prometheusParameterSpecificities = new HashMap<>();
-		prometheusParameterSpecificities.put("battery",
-				Map.of("charge", new PrometheusParameters("charge", FRACTION, 0.01)));
-		prometheusParameterSpecificities.put("cpu",
-				Map.of(CURRENTSPEED, new PrometheusParameters(CURRENTSPEED, "hertz", 1000000.0)));
+		prometheusParameterSpecificities = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		prometheusParameterSpecificities.put("cpucore",
-				Map.ofEntries(
-						new AbstractMap.SimpleEntry<String, PrometheusParameters>(CURRENTSPEED,
-								new PrometheusParameters("usedtime", FRACTION, 0.01)),
-						new AbstractMap.SimpleEntry<String, PrometheusParameters>("usedtimepercent",
-								new PrometheusParameters("usedtime", FRACTION, 0.01))));
+		TreeMap<String, PrometheusParameter> parameterMapCharge = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapCharge.put("charge", new PrometheusParameter("charge", FRACTION, 0.01));
+		prometheusParameterSpecificities.put("battery", parameterMapCharge);
 
-		prometheusParameterSpecificities.put("fan",
-				Map.of("speedpercent", new PrometheusParameters("speed", FRACTION, 0.01)));
+		TreeMap<String, PrometheusParameter> parameterMapCpu = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapCpu.put(CURRENTSPEED, new PrometheusParameter(CURRENT_SPEED, "hertz", 1000000.0));
+		prometheusParameterSpecificities.put("cpu", parameterMapCpu);
 
-		prometheusParameterSpecificities.put("logicaldisk",
-				Map.of("unallocatedspace", new PrometheusParameters("unallocatedspace", "bytes", 1073741824.0)));
+		TreeMap<String, PrometheusParameter> parameterMapCpuCore = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapCpuCore.put(CURRENTSPEED, new PrometheusParameter(CURRENT_SPEED, FRACTION, 0.01));
+		parameterMapCpuCore.put("usedtimepercent", new PrometheusParameter("used_time", FRACTION, 0.01));
+		prometheusParameterSpecificities.put("cpucore", parameterMapCpuCore);
 
-		prometheusParameterSpecificities.put("networkCard", Map.ofEntries(
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("bandwidthutilization",
-						new PrometheusParameters("bandwidthutilization", FRACTION, 0.01)),
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("errorpercent",
-						new PrometheusParameters("error", FRACTION, 0.01)),
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("linkspeed",
-						new PrometheusParameters("linkspeed", BYTES_PER_SECOND, 125000.0)),
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("receivedbytesrate",
-						new PrometheusParameters("receivedrate", BYTES_PER_SECOND, 1048576.0)),
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("transmittedbytesrate",
-						new PrometheusParameters("transmittedrate", BYTES_PER_SECOND, 1048576.0)),
-				new AbstractMap.SimpleEntry<String, PrometheusParameters>("zerobuffercreditpercent",
-						new PrometheusParameters("zerobuffercredit", FRACTION, 0.01))));
+		TreeMap<String, PrometheusParameter> parameterMapFan = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapFan.put("speedpercent", new PrometheusParameter("speed_fraction", FRACTION, 0.01));
+		prometheusParameterSpecificities.put("fan", parameterMapFan);
 
-		prometheusParameterSpecificities.put("powersupply",
-				Map.of("usedcapacity", new PrometheusParameters("usedcapacity", FRACTION, 0.01)));
+		TreeMap<String, PrometheusParameter> parameterMapLogicalDisk = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapLogicalDisk.put("unallocatedspace",
+				new PrometheusParameter("unallocated_space", "bytes", 1073741824.0));
+		prometheusParameterSpecificities.put("logicaldisk", parameterMapLogicalDisk);
 
-		prometheusParameterSpecificities.put(VOLTAGE,
-				Map.of(VOLTAGE, new PrometheusParameters(VOLTAGE, "volts", 0.001)));
+		TreeMap<String, PrometheusParameter> parameterMapNetCard = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapNetCard.put("bandwidthutilization",
+				new PrometheusParameter("bandwidth_utilization", FRACTION, 0.01));
+		parameterMapNetCard.put("errorpercent", new PrometheusParameter("error", FRACTION, 0.01));
+		parameterMapNetCard.put("linkspeed", new PrometheusParameter("link_speed", BYTES_PER_SECOND, 125000.0));
+		parameterMapNetCard.put("receivedbytesrate",
+				new PrometheusParameter("received_rate", BYTES_PER_SECOND, 1048576.0));
+		parameterMapNetCard.put("transmittedbytesrate",
+				new PrometheusParameter("transmitted_rate", BYTES_PER_SECOND, 1048576.0));
+		parameterMapNetCard.put("zerobuffercreditpercent",
+				new PrometheusParameter("zero_buffer_credit", FRACTION, 0.01));
+		prometheusParameterSpecificities.put("networkCard", parameterMapNetCard);
+
+		TreeMap<String, PrometheusParameter> parameterMapPowerSupp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		prometheusParameterSpecificities.put("powersupply", parameterMapPowerSupp);
+		parameterMapPowerSupp.put("usedcapacity", new PrometheusParameter("used_capacity", FRACTION, 0.01));
+
+		TreeMap<String, PrometheusParameter> parameterMapVoltage = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		parameterMapVoltage.put(VOLTAGE, new PrometheusParameter(VOLTAGE, "volts", 0.001));
+		prometheusParameterSpecificities.put(VOLTAGE, parameterMapVoltage);
 	}
 
-	public static String getPrometheusParameterName(String monitorType, String matrixParameter) {
+	/**
+	 * get the corresponding PrometheusParameter object that will gives the correct
+	 * syntax for the parameter name and it corresponding unit and conversion factor
+	 * 
+	 * @param monitorType
+	 * @param matrixParameter
+	 * @return
+	 */
+	public static PrometheusParameter getPrometheusParameter(String monitorType, String matrixParameter) {
 
-		if (monitorType != null && matrixParameter != null) {
-			if (prometheusParameterSpecificities.containsKey(monitorType)) {
-				Map<String, PrometheusParameters> map = prometheusParameterSpecificities.get(monitorType);
-				if (map.containsKey(matrixParameter)) {
-					PrometheusParameters prometheusParameters = map.get(matrixParameter);
-					return prometheusParameters.getPrometheusParameterName();
-				}
+		if (prometheusParameterSpecificities.containsKey(monitorType)) {
+			Map<String, PrometheusParameter> map = prometheusParameterSpecificities.get(monitorType);
+			if (map.containsKey(matrixParameter)) {
+				return map.get(matrixParameter);
 			}
 		}
 		return null;
 	}
-
-	public static String getPrometheusParameterUnit(String monitorType, String matrixParameter) {
-
-		if (monitorType != null && matrixParameter != null) {
-			if (prometheusParameterSpecificities.containsKey(monitorType)) {
-				Map<String, PrometheusParameters> map = prometheusParameterSpecificities.get(monitorType);
-				if (map.containsKey(matrixParameter)) {
-					PrometheusParameters prometheusParameters = map.get(matrixParameter);
-					return prometheusParameters.getPrometheusParameterUnit();
-				}
-			}
-		}
-
-		return null;
-	}
-
-	public static Double getPrometheusParameterFactor(String monitorType, String matrixParameter) {
-
-		if (monitorType != null && matrixParameter != null) {
-			if (prometheusParameterSpecificities.containsKey(monitorType)) {
-				Map<String, PrometheusParameters> map = prometheusParameterSpecificities.get(monitorType);
-				if (map.containsKey(matrixParameter)) {
-					PrometheusParameters prometheusParameters = map.get(matrixParameter);
-					return prometheusParameters.getPrometheusParameterFactor();
-				}
-			}
-		}
-		return 1.0;
-	}
-
 
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.CaseFormat;
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -96,11 +97,11 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
 
-		Double prometheusParamFactor = PrometheusSpecificities
-				.getPrometheusParameterFactor(monitor.getName().toLowerCase(), parameterName.toLowerCase());
+		PrometheusParameter prometheusParamFactor = PrometheusSpecificities
+				.getPrometheusParameter(monitor.getName(), parameterName);
 		Number paramValue = getParameterValue(monitor, parameterName);
-		if (paramValue != null) {
-			return paramValue.doubleValue() * prometheusParamFactor;
+		if (paramValue != null && prometheusParamFactor != null ) {
+			return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
 		}
 		return null;
 	}
@@ -154,7 +155,10 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
-		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), metaParameter.getName());
+		String paramName = metaParameter.getName();
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType.getName(), paramName);
+		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
+		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), prometheusParamName);
 
 		final String help = buildHelp(monitorType.getName(), metaParameter);
 
@@ -179,10 +183,11 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		String paramName = metaParameter.getName();
-		String prometheusParamName = PrometheusSpecificities.getPrometheusParameterName(monitorName.toLowerCase(), paramName.toLowerCase());
+		String paramName = buildMetricName(metaParameter.getName());
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorName, paramName);
+		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
 		String paramUnit = metaParameter.getUnit();
-		String prometheusParamUnit = PrometheusSpecificities.getPrometheusParameterUnit(monitorName.toLowerCase(), paramName.toLowerCase());
+		String prometheusParamUnit = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterUnit();
 		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName == null ? paramName : prometheusParamName, prometheusParamUnit == null ? paramUnit : prometheusParamUnit);
 	}
 

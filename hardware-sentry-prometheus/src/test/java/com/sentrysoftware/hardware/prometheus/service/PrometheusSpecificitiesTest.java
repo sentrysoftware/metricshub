@@ -8,33 +8,26 @@ import org.junit.jupiter.api.Test;
 
 class PrometheusSpecificitiesTest {
 
+	private static final String SPEEDPERCENT = "speedpercent";
+
 	@Test
 	void testGetPrometheusParameterName() {
-		assertNotNull(PrometheusSpecificities.getPrometheusParameterName("fan", "speedpercent"));
-		assertEquals("speed", PrometheusSpecificities.getPrometheusParameterName("fan", "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterName(null, "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterName("fan", null));
-		assertNull(PrometheusSpecificities.getPrometheusParameterName("blabla", "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterName("fan", "blabla"));
+		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterName());
+		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fAn", "speedPercent").getPrometheusParameterName());
+		assertEquals("speed_fraction", PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterName());
+		assertNull(PrometheusSpecificities.getPrometheusParameter("blabla", SPEEDPERCENT));
+		assertNull(PrometheusSpecificities.getPrometheusParameter("fan", "blabla"));
 	}
 	
 	@Test
 	void testGetPrometheusParameterUnit() {
-		assertNotNull(PrometheusSpecificities.getPrometheusParameterUnit("fan", "speedpercent"));
-		assertEquals("fraction", PrometheusSpecificities.getPrometheusParameterUnit("fan", "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterUnit(null, "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterUnit("fan", null));
-		assertNull(PrometheusSpecificities.getPrometheusParameterUnit("blabla", "speedpercent"));
-		assertNull(PrometheusSpecificities.getPrometheusParameterUnit("fan", "blabla"));
+		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterUnit());
+		assertEquals("fraction", PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterUnit());
 	}
 	
 	@Test
 	void testGetPrometheusParameterFactor() {
-		assertEquals(0.01, PrometheusSpecificities.getPrometheusParameterFactor("fan", "speedpercent"));
-		assertEquals(1.0, PrometheusSpecificities.getPrometheusParameterFactor(null, "speedpercent"));
-		assertEquals(1.0, PrometheusSpecificities.getPrometheusParameterFactor("fan", null));
-		assertEquals(1.0, PrometheusSpecificities.getPrometheusParameterFactor("blabla", "speedpercent"));
-		assertEquals(1.0, PrometheusSpecificities.getPrometheusParameterFactor("fan", "blabla"));
+		assertEquals(0.01, PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterFactor());
 	}
 
 }
