@@ -97,11 +97,15 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
 
-		PrometheusParameter prometheusParamFactor = PrometheusSpecificities
-				.getPrometheusParameter(monitor.getName(), parameterName);
+		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getName(),
+				parameterName);
 		Number paramValue = getParameterValue(monitor, parameterName);
-		if (paramValue != null && prometheusParamFactor != null ) {
-			return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
+		if (paramValue != null) {
+			if (prometheusParamFactor != null) {
+				return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
+			} else {
+				return paramValue.doubleValue();
+			}
 		}
 		return null;
 	}
@@ -183,12 +187,12 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		String paramName = buildMetricName(metaParameter.getName());
+		String paramName = metaParameter.getName();
 		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorName, paramName);
-		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
+		String prometheusParamName = prometheusParam == null ? buildMetricName(paramName) : prometheusParam.getPrometheusParameterName();
 		String paramUnit = metaParameter.getUnit();
-		String prometheusParamUnit = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterUnit();
-		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName == null ? paramName : prometheusParamName, prometheusParamUnit == null ? paramUnit : prometheusParamUnit);
+		String prometheusParamUnit = prometheusParam == null ? paramUnit : prometheusParam.getPrometheusParameterUnit();
+		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName , prometheusParamUnit);
 	}
 
 	/**

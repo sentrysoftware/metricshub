@@ -213,14 +213,14 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testBuildHelp() {
-		assertEquals("Metric: Enclosure energyUsage - Unit: Joules",
+		assertEquals("Metric: Enclosure energy_usage - Unit: Joules",
 				HostMonitoringCollectorService.buildHelp("Enclosure", Enclosure.ENERGY_USAGE));
 		assertEquals("Metric: Voltage voltage - Unit: volts",
 				HostMonitoringCollectorService.buildHelp("Voltage", Voltage._VOLTAGE));
 		// this should be wrong
 		assertEquals("Metric: logicaldisk voltage - Unit: mV",
 				HostMonitoringCollectorService.buildHelp("logicaldisk", Voltage._VOLTAGE));
-		assertEquals("Metric: logicaldisk unallocatedspace - Unit: bytes",
+		assertEquals("Metric: logicaldisk unallocated_space - Unit: bytes",
 				HostMonitoringCollectorService.buildHelp("logicaldisk", LogicalDisk.UNALLOCATED_SPACE));
 	}
 
