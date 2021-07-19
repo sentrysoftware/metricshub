@@ -302,14 +302,22 @@
 
   ## Enabling the debugging mode
   You can enable the debugging mode by using the _-d_ (or _--debug_) option.
+
+  By default the debug output file goes to the `hardware-logs` directory under the temporary directory of the local machine. Exmaple:  `C:\Users\<username>\AppData\Local\Temp\hardware-logs` on Windows or `/tmp/hardware-logs` on Linux.
+
+  If you want to specify another output directory, start the hardware sentry cli using the _--output_ option:
   
-   ###### Example:
+   ###### Examples:
    ```shell script
    $ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d
    ```
-   or
+  
    ```shell script
    $ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug
+   ```
+
+   ```shell script
+   $ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug --output /path-to-logs
    ```
 
    ###### Result:
