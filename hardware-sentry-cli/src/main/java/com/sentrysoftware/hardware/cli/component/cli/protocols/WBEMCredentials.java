@@ -14,7 +14,7 @@ public class WBEMCredentials {
 	@Option(names = "--wbem-namespace", defaultValue = "root/cimv2", description = "WBEM namespace, default : root/cimv2.")
 	String namespace;
 
-	@Option(names = "--wbem-timeout", defaultValue = "120", description = "WBEM Timeout, unit: milliseconds, default: 120.")
+	@Option(names = "--wbem-timeout", defaultValue = "120", description = "WBEM Timeout, unit: seconds, default: 120.")
 	long timeout;
 
 	@Option(names = "--wbem-username", description = "Username.")

@@ -89,6 +89,22 @@
   ```shell script
   $ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar --server.ssl.enabled=true --server.ssl.redirect-http=true
   ```
+
+  ## Enabling the debug mode
+  To enable the debug mode, run the hardware sentry exporter using the `debugMode` option:
+  
+  ```shell script
+  $ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar --debugMode=true
+  ```
+
+  By default, the debug output file goes to the `hardware-logs` directory under the temporary directory of the local machine. Example:  `C:\Users\<username>\AppData\Local\Temp\hardware-logs` on Windows or `/tmp/hardware-logs` on Linux.
+
+  If you want to specify another output directory, start the hardware sentry prometheus exporter using the `outputDirectory` option:
+
+  ```shell script
+  $ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar --debugMode=true --outputDirectory=/path-to-logs
+  ```
+  
   ## Build Docker Image
   ### Prerequisites
   - *Git* to checkout the code.

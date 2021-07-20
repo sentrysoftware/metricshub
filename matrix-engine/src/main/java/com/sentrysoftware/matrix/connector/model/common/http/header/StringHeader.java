@@ -53,4 +53,8 @@ public class StringHeader implements Header {
 
 		return Map.of(splitHeader[0].trim(), splitHeader[1].trim());
 	}
+
+	public Header copy() {
+		return StringHeader.builder().header(header).build();
+	}
 }

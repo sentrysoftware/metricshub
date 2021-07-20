@@ -6,4 +6,6 @@ import java.util.Map;
 public interface Header extends Serializable {
 
 	Map<String, String> getContent(String username, char[] password, String authenticationToken);
+
+	public Header copy();
 }

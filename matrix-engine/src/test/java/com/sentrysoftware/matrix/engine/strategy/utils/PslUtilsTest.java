@@ -1,11 +1,14 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
-import org.junit.jupiter.api.Test;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 class PslUtilsTest {
 
@@ -122,5 +125,30 @@ class PslUtilsTest {
 		assertEquals("b,c,d", PslUtils.nthArg("a,b,c,d,e,", "2-4", ",", ","));
 		assertEquals("b", PslUtils.nthArg("a,b,c,d,e,", "2", ",", ","));
 		assertEquals("a,b,c,d,e", PslUtils.nthArg("a,b,c,d,e,", "1-50", ",", ","));
+	}
+
+	@Test
+	void testFormatExtendedJSON() {
+		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON(null, null));
+
+		SourceTable sourceTable = SourceTable.builder().build();
+		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON("", null));
+		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON(null, sourceTable));
+		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON("", sourceTable), "Empty row of values");
+
+		String row = "val1,val2,val3";
+		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON(row, sourceTable), "Empty SourceTable data: " + sourceTable);
+
+		sourceTable.setRawData("source table raw data");
+		assertEquals("{\n" +
+				"\"Entry\":{\n" +
+				"\"Full\":\"val1,val2,val3\",\n" +
+				"\"Column(1)\":\"val1\",\n" +
+				"\"Column(2)\":\"val2\",\n" +
+				"\"Column(3)\":\"val3\",\n" +
+				"\"Value\":source table raw data\n" +
+				"}\n" +
+				"}",
+				PslUtils.formatExtendedJSON(row, sourceTable));
 	}
 }

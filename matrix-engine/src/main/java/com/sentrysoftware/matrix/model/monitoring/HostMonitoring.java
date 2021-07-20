@@ -54,6 +54,9 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private Set<String> possibleWmiNamespaces = new TreeSet<>();
 
+	private String automaticWbemNamespace;
+	private Set<String> possibleWbemNamespaces = new TreeSet<>();
+
 	@Override
 	public void clearCurrent() {
 		monitors.clear();

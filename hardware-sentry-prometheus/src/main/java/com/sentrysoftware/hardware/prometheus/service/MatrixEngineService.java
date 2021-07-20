@@ -55,6 +55,9 @@ public class MatrixEngineService {
 	@Value("${debugMode:false}")
 	private boolean debugMode;
 
+	@Value("${outputDirectory}")
+	private String outputDirectory;
+
 	@Value("${server.ssl.enabled:false}")
 	private boolean sslEnabled;
 
@@ -225,7 +228,7 @@ public class MatrixEngineService {
 	}
 
 	/**
-	 * Configure the logger context with the targetId, port and debugMode.
+	 * Configure the logger context with the targetId, port, debugMode and outputDirectory.
 	 *
 	 * @param hostConfigurationDTO
 	 */
@@ -233,6 +236,9 @@ public class MatrixEngineService {
 		ThreadContext.put("targetId", hostConfigurationDTO.getTarget().getHostname());
 		ThreadContext.put("debugMode", String.valueOf(debugMode));
 		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
+		if (outputDirectory != null) {
+			ThreadContext.put("outputDirectory", outputDirectory);
+		}
 	}
 
 }

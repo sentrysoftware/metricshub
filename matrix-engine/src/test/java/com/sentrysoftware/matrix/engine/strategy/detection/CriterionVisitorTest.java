@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -17,6 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +37,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -55,6 +60,7 @@ import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor.NamespaceResult;
@@ -65,6 +71,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,11 +98,16 @@ class CriterionVisitorTest {
 	private static final String PUREM_SAN = "purem-san";
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";
+	private static final String BAZ = "BAZ";
+	private static final String QUX = "QUX";
+	private static final String QUUX = "QUUX";
+	private static final String ROOT = "root";
 	private static final String PC14 = "pc14";
 	
 	private static final String USERNAME = "username";
 	private static final char[] PASSWORD = "password".toCharArray();
 	private static final Long TIME_OUT = 120L;
+	private static final String DEV_HV_01 = "dev-hv-01";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -111,6 +123,7 @@ class CriterionVisitorTest {
 	private CriterionVisitor criterionVisitorSpy;
 
 	private static EngineConfiguration engineConfiguration;
+	private static IHostMonitoring hostMonitoring;
 
 	private void initHTTP() {
 
@@ -149,38 +162,38 @@ class CriterionVisitorTest {
 		// HTTP is not null, protocol is not null, expectedResult is null, result is null
 		initHTTP();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is null, result is empty
-		doReturn(EMPTY).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(3)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(EMPTY, criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is not null, result is null
-		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(null).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		http.setExpectedResult(FOO);
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(4)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(3)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(3)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 
 		// HTTP is not null, protocol is not null, expectedResult is not null, result is not null and does not match
-		doReturn(BAR).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(BAR).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(5)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(4)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(4)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(BAR, criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -194,10 +207,10 @@ class CriterionVisitorTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		// HTTP is not null, protocol is not null, expectedResult is null, result is neither null nor empty
-		doReturn(FOO).when(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		doReturn(FOO).when(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig).getEngineConfiguration();
-		verify(matsyaClientsExecutor).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(FOO, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -206,7 +219,7 @@ class CriterionVisitorTest {
 		http.setExpectedResult(FOO);
 		criterionTestResult = criterionVisitor.visit(http);
 		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), any(), any(), eq(false));
+		verify(matsyaClientsExecutor, times(2)).executeHttp(any(), eq(false));
 		assertNotNull(criterionTestResult);
 		assertEquals(FOO, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -248,7 +261,7 @@ class CriterionVisitorTest {
 				PASSWORD,
 				TIME_OUT,
 				"SELECT Description FROM ComputerSystem",
-				HOST_WIN);
+				"root/hardware");
 
 		criterionTestResult = criterionVisitor.visit(ipmi);
 
@@ -262,7 +275,7 @@ class CriterionVisitorTest {
 				PASSWORD,
 				TIME_OUT,
 				"SELECT Description FROM ComputerSystem",
-				HOST_WIN);
+				"root/hardware");
 
 		criterionTestResult = criterionVisitor.visit(ipmi);
 
@@ -301,7 +314,7 @@ class CriterionVisitorTest {
 				PASSWORD,
 				TIME_OUT,
 				"SELECT Description FROM ComputerSystem",
-				HOST_WIN);
+				"root/hardware");
 
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(IPMI.builder().forceSerialization(true).build());
 
@@ -554,7 +567,45 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitOS() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new OS()));
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		CriterionTestResult successfulTestResult = CriterionTestResult
+				.builder()
+				.message("Successful OS detection operation")
+				.result("Configured OS Type : NT")
+				.success(true)
+				.build();
+
+		CriterionTestResult failedTestResult = CriterionTestResult
+				.builder()
+				.message("Failed OS detection operation")
+				.result("Configured OS Type : NT")
+				.success(false)
+				.build();
+
+		OS os = OS.builder().exclude(Collections.emptySet()).keepOnly(Collections.emptySet()).build();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.NT));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.NT));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		os.setExclude(Set.of(OSType.LINUX));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.LINUX));
+		os.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
 	}
 
 	@Test
@@ -708,14 +759,243 @@ class CriterionVisitorTest {
 		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new UCS()));
 	}
 
-	@Test
-	void testVisitWBEM() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new WBEM()));
+	private void initWBEM() {
+
+		if (engineConfiguration != null
+			&& engineConfiguration.getProtocolConfigurations().get(WBEMProtocol.class) != null) {
+
+			return;
+		}
+
+		WBEMProtocol protocol = WBEMProtocol
+			.builder()
+			.protocol(WBEMProtocol.WBEMProtocols.HTTPS)
+			.port(5989)
+			.timeout(120L)
+			.namespace(QUX)
+			.build();
+
+		engineConfiguration = EngineConfiguration
+			.builder()
+			.target(HardwareTarget.builder().hostname(DEV_HV_01).id(DEV_HV_01).type(TargetType.MS_WINDOWS).build())
+			.protocolConfigurations(Map.of(WBEMProtocol.class, protocol))
+			.build();
+
+		hostMonitoring = new HostMonitoring();
 	}
 
 	@Test
-	void testVisitWMI() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new WMI()));
+	void testVisitWBEMBadConfiguration() {
+
+		// null WBEM
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((WBEM) null));
+
+		// WBEM is not null, query is null
+		WBEM wbem = new WBEM();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(wbem));
+
+		// WBEM is not null, query is not null, protocol is null
+		wbem.setWbemQuery(FOO);
+		engineConfiguration = EngineConfiguration.builder().build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(wbem));
+		verify(strategyConfig).getEngineConfiguration();
+	}
+
+	@Test
+	void testVisitWBEM() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException,
+		MalformedURLException {
+
+		// No namespace found
+		initWBEM();
+		WBEM wbem = WBEM.builder().wbemQuery(FOO).wbemNamespace(AUTOMATIC).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(ROOT));
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(strategyConfig, times(2)).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(ROOT));
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// Namespace found, query execution not necessary
+		List<List<String>> queryResult = Collections.singletonList(Collections.singletonList(BAZ));
+		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig, times(2)).getEngineConfiguration();
+		verify(strategyConfig, times(5)).getHostMonitoring();
+		verify(matsyaClientsExecutor, times(8)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+
+		// Namespace found, query execution throws exception
+		wbem.setWbemNamespace(BAR);
+		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig, times(3)).getEngineConfiguration();
+		verify(strategyConfig, times(5)).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// Namespace found, query execution completes
+		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig, times(4)).getEngineConfiguration();
+		verify(strategyConfig, times(5)).getHostMonitoring();
+		verify(matsyaClientsExecutor, times(2)).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
+		assertNotNull(criterionTestResult);
+		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+	}
+
+	@Test
+	void testVisitWBEMFindNamespace() throws WqlQuerySyntaxException, WBEMException, TimeoutException,
+		InterruptedException, MalformedURLException {
+
+		// WBEM's namespace is automatic, namespace has already detected
+		initWBEM();
+		WBEM wbem = WBEM.builder().wbemQuery(FOO).wbemNamespace(AUTOMATIC).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		hostMonitoring.setAutomaticWbemNamespace(BAR);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(strategyConfig).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// WBEM's namespace is null
+		initWBEM();
+		wbem.setWbemNamespace(null);
+		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig, times(2)).getEngineConfiguration();
+		verify(strategyConfig).getHostMonitoring();
+		verify(matsyaClientsExecutor, times(2)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+	}
+
+	@Test
+	void testVisitWBEMDetectWbemNamespace() throws WqlQuerySyntaxException, WBEMException, TimeoutException,
+		InterruptedException, MalformedURLException {
+
+		// namespaces is empty
+		initWBEM();
+		WBEM wbem = WBEM.builder().wbemQuery(FOO).wbemNamespace(AUTOMATIC).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		hostMonitoring.setAutomaticWbemNamespace(null);
+		hostMonitoring.getPossibleWbemNamespaces().add(BAR);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		List<List<String>> queryResult = Collections.emptyList();
+		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(strategyConfig, times(2)).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// namespaces.size() > 1
+		hostMonitoring.getPossibleWbemNamespaces().add(QUX);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		queryResult = Collections.singletonList(Collections.singletonList(QUUX));
+		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig, times(2)).getEngineConfiguration();
+		verify(strategyConfig, times(5)).getHostMonitoring();
+		verify(matsyaClientsExecutor, times(3)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertEquals(QUUX + SEMICOLON, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+	}
+
+	@Test
+	void testVisitWBEMDetectPossibleWbemNamespaces() throws WqlQuerySyntaxException, WBEMException, TimeoutException,
+		InterruptedException, MalformedURLException {
+
+		// "SELECT Name FROM __NAMESPACE" returned nothing
+		initWBEM();
+		WBEM wbem = WBEM.builder().wbemQuery(FOO).wbemNamespace(AUTOMATIC).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		hostMonitoring.setAutomaticWbemNamespace(null);
+		hostMonitoring.getPossibleWbemNamespaces().clear();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		List<List<String>> queryResult = Collections.emptyList();
+		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(strategyConfig, times(2)).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// "SELECT Name FROM __NAMESPACE" failed with WBEMException.CIM_ERR_INVALID_NAMESPACE
+		WBEMException wbemException = new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE);
+		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(matsyaClientsExecutor, times(7)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// "SELECT Name FROM __NAMESPACE" failed with WBEMException.CIM_ERR_INVALID_CLASS
+		wbemException = new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS);
+		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(matsyaClientsExecutor, times(13)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// "SELECT Name FROM __NAMESPACE" failed with WBEMException.CIM_ERR_NOT_FOUND
+		wbemException = new WBEMException(WBEMException.CIM_ERR_NOT_FOUND);
+		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(matsyaClientsExecutor, times(19)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+
+		// "SELECT Name FROM __NAMESPACE" threw a WqlQuerySyntaxException
+		doThrow(WqlQuerySyntaxException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		criterionTestResult = criterionVisitor.visit(wbem);
+		verify(matsyaClientsExecutor, times(25)).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+	}
+
+	@Test
+	void testVisitWBEMExecuteWbemAndFilterNamespaces() throws WqlQuerySyntaxException, WBEMException, TimeoutException,
+		InterruptedException, MalformedURLException {
+
+		// Exception when running WBEM's query.
+		initWBEM();
+		WBEM wbem = WBEM.builder().wbemQuery(FOO).wbemNamespace(AUTOMATIC).build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		hostMonitoring.setAutomaticWbemNamespace(null);
+		hostMonitoring.getPossibleWbemNamespaces().add(BAR);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
+		verify(strategyConfig).getEngineConfiguration();
+		verify(strategyConfig, times(2)).getHostMonitoring();
+		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
+		assertNotNull(criterionTestResult);
+		assertNull(criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
 	}
 
 	@Test
@@ -851,11 +1131,16 @@ class CriterionVisitorTest {
 
 	@Test
 	void testExtractPossibleNamespaces() {
-		final Set<String> result = CriterionVisitor.extractPossibleNamespaces(Arrays.asList(
-				Collections.emptyList(),
-				Collections.singletonList("hpq"),
-				Collections.singletonList("interop"),
-				Collections.singletonList("SECURITY")));
+		final Set<String> result = CriterionVisitor
+			.extractPossibleNamespaces(
+				Arrays.asList(
+					Collections.emptyList(),
+					Collections.singletonList("hpq"),
+					Collections.singletonList("interop"),
+					Collections.singletonList("SECURITY")),
+				Collections.singleton("SECURITY"),
+				"root\\"
+			);
 
 		assertEquals(Set.of(ROOT_HPQ_NAMESPACE), result);
 

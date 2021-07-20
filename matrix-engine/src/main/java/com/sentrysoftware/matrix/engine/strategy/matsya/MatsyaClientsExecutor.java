@@ -31,8 +31,6 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
@@ -63,7 +61,7 @@ public class MatsyaClientsExecutor {
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
 
-	private long json2CsvTimeout = 60; //seconds
+	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
@@ -274,23 +272,26 @@ public class MatsyaClientsExecutor {
 			return null;
 		};
 
-		return execute(jflatToCSV, json2CsvTimeout);
+		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 	}
-	
+
 	/**
-	 * Execute a WBEM query through Matsya
-	 * @param url
-	 * @param username
-	 * @param password
-	 * @param timeout
-	 * @param query
-	 * @param namespace
-	 * @return
-	 * @throws MalformedURLException
-	 * @throws WqlQuerySyntaxException
-	 * @throws WBEMException
-	 * @throws TimeoutException
-	 * @throws InterruptedException
+	 *
+	 * @param url						The target URL, as a {@link String}.
+	 * @param username					The username to access the host.
+	 * @param password					The password to access the host.
+	 * @param timeout					The timeout, in milliseconds.
+	 * @param query						The query that is being executed.
+	 * @param namespace					The namespace with which the query should be executed.
+	 *
+	 * @return							A table (as a {@link List} of {@link List} of {@link String}s)
+	 * 									resulting from the execution of the query.
+	 *
+	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
+	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
+	 * @throws WBEMException			If there is a WBEM error.
+	 * @throws TimeoutException			If the query did not complete on time.
+	 * @throws InterruptedException		If the current thread was interrupted while waiting.
 	 */
 	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
 			final int timeout, final String query, final String namespace) throws MalformedURLException,
@@ -301,6 +302,22 @@ public class MatsyaClientsExecutor {
 
 		return wbemResult.getValues();
 	}
+
+	/**
+	 * @param hostname		The hostname of the target device.
+	 * @param port			The port used to access the target device.
+	 * @param useEncryption	Indicate whether HTTPS should be used (as opposed to using HTTP).
+	 *
+	 * @return				A url based on the given input, as a {@link String}.
+	 */
+	public static String buildWbemUrl(String hostname, int port, boolean useEncryption) {
+
+		String protocolName = useEncryption ? "https" : "http";
+
+		return String.format("%s://%s:%d", protocolName, hostname, port);
+	}
+
+
 
 	/**
 	 * Execute a WMI query through Matsya
@@ -386,63 +403,62 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param http		The {@link Detection} values.
-	 * @param protocol	The {@link HTTPProtocol} containing the connexion configuration.
-	 * @param hostname	The hostname against which the HTTP request is being executed.
+	 * @param httpRequest		The {@link HTTPRequest} values.
 	 * @param logMode	Whether or not logging is enabled.
 	 *
 	 * @return			The result of the execution of the given HTTP request.
 	 */
-	public String executeHttp(HTTP http, HTTPProtocol protocol, String hostname, boolean logMode) {
+	public String executeHttp(HTTPRequest httpRequest, boolean logMode) {
 
-		notNull(http, "http cannot be null");
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(httpRequest, "httpRequest cannot be null");
 
-		String method = http.getMethod();
+		HTTPProtocol protocol = httpRequest.getHttpProtocol();
+		notNull(httpRequest.getHttpProtocol(), PROTOCOL_CANNOT_BE_NULL);
+		notNull(httpRequest.getHostname(), HOSTNAME_CANNOT_BE_NULL);
+
+		String method = httpRequest.getMethod();
 
 		String username = protocol.getUsername();
 		char[] password = protocol.getPassword();
 
-		Header header = http.getHeader();
+		Header header = httpRequest.getHeader();
 		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, EMPTY);
 
-		Body body = http.getBody();
+		Body body = httpRequest.getBody();
 		String bodyContent = body == null ? null : body.getContent(username, password, EMPTY);
 
 		// Building the full URL
-		String url = http.getUrl();
+		String url = httpRequest.getUrl();
 		notNull(url, "URL cannot be null");
 
 		String fullUrl = (protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP)
-			+ COLON_DOUBLE_SLASH
-			+ hostname
-			+ COLON
-			+ protocol.getPort()
-			+ (url.startsWith(SLASH) ? url : SLASH + url);
+				+ COLON_DOUBLE_SLASH
+				+ httpRequest.getHostname()
+				+ COLON
+				+ protocol.getPort()
+				+ (url.startsWith(SLASH) ? url : SLASH + url);
 
 		try {
 
 			// Sending the request
 			HttpResponse httpResponse = sendHttpRequest(fullUrl, method, username, password, headerContent, bodyContent,
-				protocol.getTimeout().intValue());
+					protocol.getTimeout().intValue());
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
 
 				return "HTTP Error "
-					+ httpResponse.getStatusCode()
-					+ httpResponse;
+						+ httpResponse.getStatusCode()
+						+ httpResponse;
 			}
 
 			// The request has been successful
-			switch (http.getResultContent()) {
-
+			switch (httpRequest.getResultContent()) {
 				case BODY: return httpResponse.getBody();
 				case HEADER: return httpResponse.getHeader();
 				case HTTP_STATUS: return String.valueOf(httpResponse.getStatusCode());
 				case ALL: return httpResponse.toString();
-				default: throw new IllegalArgumentException("Unsupported ResultContent: " + http.getResultContent());
+				default: throw new IllegalArgumentException("Unsupported ResultContent: " + httpRequest.getResultContent());
 			}
 
 		} catch (IOException e) {

@@ -146,4 +146,6 @@ public class HardwareConstants {
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
 
 	public static final String USERNAME = "USERNAME";
+
+	public static final String AUTOMATIC_NAMESPACE = "automatic";
 }
