@@ -219,7 +219,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final OS os) {
-		if (null == os) {
+		if (os == null) {
 			log.error("Malformed os criterion {}. Cannot process OS detection.", os);
 			return CriterionTestResult.empty();
 		}
