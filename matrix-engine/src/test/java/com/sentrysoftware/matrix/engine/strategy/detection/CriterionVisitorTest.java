@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -29,6 +30,7 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -209,7 +211,45 @@ class CriterionVisitorTest {
 
 	@Test
 	void testVisitOS() {
-		assertEquals(CriterionTestResult.empty(), new CriterionVisitor().visit(new OS()));
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		CriterionTestResult successfulTestResult = CriterionTestResult
+				.builder()
+				.message("Successful OS detection operation")
+				.result("Configured OS Type : NT")
+				.success(true)
+				.build();
+
+		CriterionTestResult failedTestResult = CriterionTestResult
+				.builder()
+				.message("Failed OS detection operation")
+				.result("Configured OS Type : NT")
+				.success(false)
+				.build();
+
+		OS os = OS.builder().exclude(Collections.EMPTY_SET).keepOnly(Collections.EMPTY_SET).build();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.NT));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.EMPTY_SET);
+		os.setExclude(Set.of(OSType.NT));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		os.setExclude(Set.of(OSType.LINUX));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.LINUX));
+		os.setExclude(Collections.EMPTY_SET);
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
 	}
 
 	@Test
