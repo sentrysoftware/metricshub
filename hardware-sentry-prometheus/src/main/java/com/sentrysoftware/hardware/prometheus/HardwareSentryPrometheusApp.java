@@ -33,6 +33,11 @@ public class HardwareSentryPrometheusApp {
 		ThreadContext.put("debugMode", "false");
 
 		// by default, the logs go in a directory "hardware-logs" in the temporary folder
-		ThreadContext.put("outputDirectory", System.getProperty("java.io.tmpdir") + "hardware-logs");
+		String outputDirectory = System.getProperty("java.io.tmpdir") + "hardware-logs";
+
+		// Set the default property in system props so that it is always available and spring will be able to auto-wire the value
+		System.setProperty("outputDirectory", outputDirectory);
+
+		ThreadContext.put("outputDirectory", outputDirectory);
 	}
 }
