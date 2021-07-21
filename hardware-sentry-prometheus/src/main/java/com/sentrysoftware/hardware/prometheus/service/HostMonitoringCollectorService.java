@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.CaseFormat;
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -70,7 +71,7 @@ public class HostMonitoringCollectorService extends Collector {
 		gauge.addMetric(
 			// Id, parentId (can be null), label
 			createLabels(monitor),
-			getParameterValue(monitor, parameterName).doubleValue());
+			convertParameterValue(monitor, parameterName));
 	}
 
 	/**
@@ -83,6 +84,30 @@ public class HostMonitoringCollectorService extends Collector {
 	static Number getParameterValue(final Monitor monitor, final String parameterName) {
 
 		return monitor.getParameters().get(parameterName).numberValue();
+	}
+
+	/**
+	 * Convert the parameter number value according to the factor indicated for
+	 * Prometheus
+	 * 
+	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param parameterName The parameter name we want to extract from the given
+	 *                      monitor instance
+	 * @return {@link Number} value
+	 */
+	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
+
+		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getName(),
+				parameterName);
+		Number paramValue = getParameterValue(monitor, parameterName);
+		if (paramValue != null) {
+			if (prometheusParamFactor != null) {
+				return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
+			} else {
+				return paramValue.doubleValue();
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -134,7 +159,10 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
-		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), metaParameter.getName());
+		String paramName = metaParameter.getName();
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType.getName(), paramName);
+		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
+		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), prometheusParamName);
 
 		final String help = buildHelp(monitorType.getName(), metaParameter);
 
@@ -159,7 +187,12 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		return String.format("Metric: %s %s - Unit: %s", monitorName, metaParameter.getName(), metaParameter.getUnit());
+		String paramName = metaParameter.getName();
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorName, paramName);
+		String prometheusParamName = prometheusParam == null ? buildMetricName(paramName) : prometheusParam.getPrometheusParameterName();
+		String paramUnit = metaParameter.getUnit();
+		String prometheusParamUnit = prometheusParam == null ? paramUnit : prometheusParam.getPrometheusParameterUnit();
+		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName , prometheusParamUnit);
 	}
 
 	/**
