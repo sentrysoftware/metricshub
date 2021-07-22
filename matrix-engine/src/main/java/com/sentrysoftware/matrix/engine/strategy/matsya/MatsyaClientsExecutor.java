@@ -633,4 +633,18 @@ public class MatsyaClientsExecutor {
 				ipmiOverLanProtocol.getTimeout());
 	}
 
+	/**
+	 * Run IPMI Over-LAN request in order to get all the sensors
+	 * 
+	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return String output contains FRUs and Sensor states and readings
+	 * @throws TimeoutException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public String executeIpmiGetSensors(String hostname, IPMIOverLanProtocol ipmiOverLanProtocol)
+			throws InterruptedException, ExecutionException, TimeoutException {
+		return MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiOverLanProtocol));
+	}
 }
