@@ -33,6 +33,7 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +101,43 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final IPMI ipmi) {
+		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+
+		if (TargetType.MS_WINDOWS.equals(targetType)) {
+			return processWindowsIpmiSource();
+		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			return processUnixIpmiSource(targetType);
+		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+			return processOutOfBandIpmiSource();
+		}
+
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI source via IPMI Over-LAN
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processOutOfBandIpmiSource() {
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI Source for the Unix system
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processUnixIpmiSource(TargetType targetType) {
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI source for the Windows (NT) system
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processWindowsIpmiSource() {
 		return SourceTable.empty();
 	}
 

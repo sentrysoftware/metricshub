@@ -117,8 +117,12 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new IPMI()));
+	void testVisitIPMISourceStorageTarget() {
+		EngineConfiguration engineConfigurationStorageTarget = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.STORAGE).build())
+				.build();
+		doReturn(engineConfigurationStorageTarget).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new IPMI()));
 	}
 
 	@Test
