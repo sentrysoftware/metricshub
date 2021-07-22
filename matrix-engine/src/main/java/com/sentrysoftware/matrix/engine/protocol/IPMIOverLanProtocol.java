@@ -17,4 +17,6 @@ public class IPMIOverLanProtocol implements IProtocolConfiguration {
 
 	private String username;
 	private char[] password;
+	private byte[] bmcKey;
+	private boolean skipAuth;
 }

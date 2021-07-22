@@ -8,7 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IPMICredentials;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,21 +95,45 @@ public class EngineService {
 		if (hardwareSentryCLI.getSnmpCredentials() != null) {
 
 			protocols.put(SNMPProtocol.class, getSNMPProtocol(hardwareSentryCLI.getSnmpCredentials()));
+		} 
 
-		} else if (hardwareSentryCLI.getWmiCredentials() != null) {
+		if (hardwareSentryCLI.getWmiCredentials() != null) {
 
 			protocols.put(WMIProtocol.class, getWMIProtocol(hardwareSentryCLI.getWmiCredentials()));
+		} 
 
-		} else if (hardwareSentryCLI.getWbemCredentials() != null) {
+		if (hardwareSentryCLI.getWbemCredentials() != null) {
 
 			protocols.put(WBEMProtocol.class, getWBEMProtocol(hardwareSentryCLI.getWbemCredentials()));
+		} 
 
-		} else if (hardwareSentryCLI.getHttpCredentials() != null) {
+		if (hardwareSentryCLI.getHttpCredentials() != null) {
 
 			protocols.put(HTTPProtocol.class, getHTTPProtocol(hardwareSentryCLI.getHttpCredentials()));
 		}
 
+		if (hardwareSentryCLI.getIpmiCredentials() != null) {
+
+			protocols.put(IPMIOverLanProtocol.class, getIPMIOverLanProtocol(hardwareSentryCLI.getIpmiCredentials()));
+		}
+
 		return protocols;
+	}
+
+	/**
+	 * Get {@link IPMIOverLanProtocol} based on HardwareSentryCLi.ipmiCredentials
+	 * 
+	 * @param ipmiCredentials The CLI IPMI credentials input.
+	 * @return new instance of {@link IPMIOverLanProtocol}
+	 */
+	public IProtocolConfiguration getIPMIOverLanProtocol(IPMICredentials ipmiCredentials) {
+		return IPMIOverLanProtocol.builder()
+				.username(ipmiCredentials.getUsername())
+				.password(ipmiCredentials.getPassword() == null ? null : ipmiCredentials.getPassword().toCharArray())
+				.bmcKey(ipmiCredentials.getBmcKey() == null ? null : ipmiCredentials.getBmcKey().getBytes())
+				.timeout(ipmiCredentials.getTimeout())
+				.skipAuth(ipmiCredentials.isSkipAuth())
+				.build();
 	}
 
 	/**
@@ -164,7 +191,7 @@ public class EngineService {
 	private WMIProtocol getWMIProtocol(final WMICredentials wmiCredentials) {
 		return WMIProtocol.builder()
 			.username(wmiCredentials.getUsername())
-			.password(wmiCredentials.getPassword().toCharArray())
+			.password(wmiCredentials.getPassword() == null ? null : wmiCredentials.getPassword().toCharArray())
 			.timeout(wmiCredentials.getTimeout())
 			.namespace(wmiCredentials.getNamespace())
 			.build();
@@ -185,7 +212,7 @@ public class EngineService {
 		wbemInstance.setNamespace(cliWBEMCredentials.getNamespace());
 		wbemInstance.setTimeout(cliWBEMCredentials.getTimeout());
 		wbemInstance.setUsername(cliWBEMCredentials.getUsername());
-		wbemInstance.setPassword(cliWBEMCredentials.getPassword().toCharArray());
+		wbemInstance.setPassword(cliWBEMCredentials.getPassword() == null ? null : cliWBEMCredentials.getPassword().toCharArray());
 
 		return wbemInstance;
 	}
