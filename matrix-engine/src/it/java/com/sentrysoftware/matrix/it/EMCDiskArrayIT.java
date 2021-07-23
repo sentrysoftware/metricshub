@@ -21,9 +21,9 @@ import com.sentrysoftware.matrix.it.job.WbemITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
-class WbemIT {
+class EMCDiskArrayIT {
 
-	private static final String IMAGE = Paths.get("src", "it", "resources", "wbem", "smisV9", "image").toAbsolutePath().toString();
+	private static final String IMAGE = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "image").toAbsolutePath().toString();
 
 	private static final Set<String> CONNECTORS = Set.of("MS_HW_EMCDiskArray.connector");
 
@@ -53,6 +53,6 @@ class WbemIT {
 		.executeStrategy(new DetectionOperation())
 		.executeStrategy(new DiscoveryOperation())
 		.executeStrategy(new CollectOperation())
-		.verifyExpected("wbem/smisV9/result.json");
+		.verifyExpected("wbem/emcDiskArray/result.json");
 	}
 }
