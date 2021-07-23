@@ -44,6 +44,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -122,6 +123,84 @@ class SourceVisitorTest {
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.STORAGE).build())
 				.build();
 		doReturn(engineConfigurationStorageTarget).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMISourceOOBTargetNoIPMIConfig() {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(ECS1_01)
+						.id(ECS1_01)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Collections.emptyMap())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMISourceOOB() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(ECS1_01)
+						.id(ECS1_01)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Collections.emptyMap())
+				.protocolConfigurations(Map.of(IPMIOverLanProtocol.class, IPMIOverLanProtocol
+						.builder()
+						.username("username")
+						.password("password".toCharArray()).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		String ipmiResult = "FRU;IBM;System x3650 M2;KD9098C - 794722G\n"
+				+ "System Board;1;System Board 1;IBM;System x3650 M2;KD9098C - 794722G;Base board 1=Device Present";
+		doReturn(ipmiResult).when(matsyaClientsExecutor).executeIpmiGetSensors(eq(ECS1_01), any(IPMIOverLanProtocol.class));
+		assertEquals(SourceTable.builder().rawData(ipmiResult).build(), sourceVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMISourceOOBNullResult() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(ECS1_01)
+						.id(ECS1_01)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Collections.emptyMap())
+				.protocolConfigurations(Map.of(IPMIOverLanProtocol.class, IPMIOverLanProtocol
+						.builder()
+						.username("username")
+						.password("password".toCharArray()).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(matsyaClientsExecutor).executeIpmiGetSensors(eq(ECS1_01), any(IPMIOverLanProtocol.class));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMISourceOOBException() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(ECS1_01)
+						.id(ECS1_01)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Collections.emptyMap())
+				.protocolConfigurations(Map.of(IPMIOverLanProtocol.class, IPMIOverLanProtocol
+						.builder()
+						.username("username")
+						.password("password".toCharArray()).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doThrow(new ExecutionException(new Exception("Exception from tests")))
+				.when(matsyaClientsExecutor).executeIpmiGetSensors(eq(ECS1_01), any(IPMIOverLanProtocol.class));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new IPMI()));
 	}
 
