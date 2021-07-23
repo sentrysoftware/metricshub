@@ -1,0 +1,136 @@
+name: SmisV9
+info: 
+  port: 5900
+  secured: true
+
+patterns: 
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_StorageSystem\".*")
+    action: 
+      def body = readXml("EMC_StorageSystem.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_DiskDriveView\".*")
+    action: 
+      def body = readXml("EMC_DiskDriveView.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_DiskDrive\".*")
+    action: 
+      def body = readXml("EMC_DiskDrive.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_ComponentCS\".*")
+    action: 
+      def body = readXml("EMC_ComponentCS.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_ArrayChassis\".*")
+    action: 
+      def body = readXml("EMC_ArrayChassis.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_ComputerSystemPackage\".*")
+    action: 
+      def body = readXml("EMC_ComputerSystemPackage.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_SystemPackaging\".*")
+    action: 
+      def body = readXml("EMC_SystemPackaging.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_StorageProcessorSystem\".*")
+    action: 
+      def body = readXml("EMC_StorageProcessorSystem.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_Fan\".*")
+    action: 
+      def body = readXml("EMC_Fan.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_PowerSupply\".*")
+    action: 
+      def body = readXml("EMC_PowerSupply.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_Battery\".*")
+    action: 
+      def body = readXml("EMC_Battery.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_EthernetPort\".*")
+    action: 
+      def body = readXml("EMC_EthernetPort.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
+
+  - predicate: request.getMethod()=="POST" && 
+                request.getHeader("CIMObject")=="root/emc" && 
+                request.getHeader("CIMMethod")=="EnumerateInstances" &&
+                request.getBody().matches("(?is).*<CLASSNAME NAME\\s*=\\s*\"EMC_FrontEndFCPort\".*")
+    action: 
+      def body = readXml("EMC_FrontEndFCPort.xml");
+      def resp = new com.sentrysoftware.emulation.server.content.xml.EmulatorHttpXmlResponse(request);
+      resp.setContent(body);
+      return resp;
