@@ -2,6 +2,7 @@ HELP.md
 target/
 !**/src/main/**/target/
 !**/src/test/**/target/
+image.groovy
 
 ### STS ###
 .apt_generated

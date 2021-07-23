@@ -94,7 +94,6 @@
 		<dependency>
 			<groupId>com.sentrysoftware.emulation</groupId>
 			<artifactId>emulation-framework-http-server</artifactId>
-			<version>${emulation.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -251,7 +250,6 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							<mainClass>com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper</mainClass>
 						</manifest>
 						<manifestSections>
 							<manifestSection>
