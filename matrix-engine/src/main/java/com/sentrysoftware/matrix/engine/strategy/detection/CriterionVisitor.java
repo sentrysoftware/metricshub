@@ -40,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
@@ -143,6 +144,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.get(HTTPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The HTTP Credentials are not configured. Cannot process HTTP detection {}.",
+					criterion);
 			return CriterionTestResult.empty();
 		}
 
@@ -241,10 +244,45 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Process IPMI detection for the Out Of Band device
 	 * 
-	 * @return
+	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
 	 */
 	private CriterionTestResult processOutOfBandIpmiDetection() {
-		return CriterionTestResult.empty();
+
+		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
+
+		if (protocol == null) {
+			log.debug("The IPMI Credentials are not configured. Cannot process IPMI-over-LAN detection.");
+			return CriterionTestResult.empty();
+		}
+
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+			String result = matsyaClientsExecutor.executeIpmiDetection(hostname, protocol);
+			if (result == null) {
+				return CriterionTestResult
+						.builder()
+						.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
+						.build();
+			}
+
+			return CriterionTestResult
+					.builder()
+					.result(result)
+					.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
+					.success(true)
+					.build();
+
+		} catch (Exception e) {
+			String message = String.format("Cannot execute IPMI-over-LAN command to get the chassis status on %s. Exception: %s",
+					hostname, e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult
+						.builder()
+						.message(message)
+						.build();
+		}
 	}
 
 	/**
@@ -299,7 +337,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception: %s",
 					ipmitoolCommand, hostname, e.getMessage());
 			log.debug(message, e);
-			return CriterionTestResult.builder().success(false).result("").message(message).build();
+			return CriterionTestResult.builder().success(false).message(message).build();
 		}
 
 	}
@@ -546,6 +584,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
+					snmpGet);
 			return CriterionTestResult.empty();
 		}
 
@@ -684,8 +724,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.get(WBEMProtocol.class);
 
 		if (protocol == null) {
-
-			log.debug("The WBEM Credentials are not configured. Cannot process WBEM detection {}.", wbem);
+			log.debug("The WBEM Credentials are not configured. Cannot process WBEM detection {}.",
+					wbem);
 			return CriterionTestResult.empty();
 		}
 
@@ -1537,6 +1577,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
+					snmpGetNext);
 			return CriterionTestResult.empty();
 		}
 

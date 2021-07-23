@@ -45,9 +45,12 @@ import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
+import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 
@@ -335,5 +338,37 @@ class MatsyaClientsExecutorTest {
 
 		assertEquals("https://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, true));
 		assertEquals("http://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, false));
+	}
+
+	@Test
+	void testExecuteIpmiDetection() throws Exception {
+
+		IPMIOverLanProtocol ipmiOverLanProtocol = new IPMIOverLanProtocol();
+		assertThrows(IllegalArgumentException.class,
+				() -> matsyaClientsExecutor.executeIpmiDetection(null, ipmiOverLanProtocol));
+
+		assertThrows(IllegalArgumentException.class,
+				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, null));
+
+		ipmiOverLanProtocol.setUsername(null);
+		assertThrows(IllegalArgumentException.class,
+				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
+
+		ipmiOverLanProtocol.setUsername(FOO);
+		ipmiOverLanProtocol.setPassword(null);
+		assertThrows(IllegalArgumentException.class,
+				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
+
+		ipmiOverLanProtocol.setPassword(FOO.toCharArray());
+		ipmiOverLanProtocol.setTimeout(null);
+		assertThrows(IllegalArgumentException.class,
+				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
+
+		try (MockedStatic<MatsyaIpmiClient> mockedMatsyaIpmiClient = mockStatic(MatsyaIpmiClient.class)) {
+			mockedMatsyaIpmiClient.when(() -> MatsyaIpmiClient.getChassisStatusAsStringResult(any(IpmiConfiguration.class)))
+					.thenReturn("System power state is up");
+			ipmiOverLanProtocol.setTimeout(120L);
+			assertEquals("System power state is up", matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
+		}
 	}
 }

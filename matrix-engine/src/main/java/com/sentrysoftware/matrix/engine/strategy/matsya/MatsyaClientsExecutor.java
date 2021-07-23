@@ -32,6 +32,7 @@ import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matsya.awk.AwkException;
@@ -39,6 +40,8 @@ import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
+import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.ssh.SSHClient;
@@ -50,12 +53,16 @@ import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class MatsyaClientsExecutor {
 
+	private static final String TIMEOUT_CANNOT_BE_NULL = "Timeout cannot be null";
+	private static final String PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
+	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
 	private static final String SELECTED_COLUMN_CANNOT_BE_NULL = "selectedColumn cannot be null";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
@@ -522,8 +529,8 @@ public class MatsyaClientsExecutor {
 			String command, int timeout) throws IOException {
 
 		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-		notNull(username, "Username cannot be null.");
-		notNull(command, "Command cannot be null.");
+		notNull(username, USERNAME_CANNOT_BE_NULL);
+		notNull(command, "Command cannot be null");
 
 		if (timeout < 0) {
 			log.error("Invalid value of the specified timeout {} ", timeout);
@@ -588,6 +595,42 @@ public class MatsyaClientsExecutor {
 
 		}
 		return null;
+	}
+
+	/**
+	 * Run the IPMI detection in order to detect the Chassis power state
+	 * 
+	 * @param hostname            The host name or the IP address we wish to query
+	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return String value. E.g. System power state is up
+	 * @throws TimeoutException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public String executeIpmiDetection(String hostname, IPMIOverLanProtocol ipmiOverLanProtocol)
+			throws InterruptedException, ExecutionException, TimeoutException {
+
+		return MatsyaIpmiClient.getChassisStatusAsStringResult(buildIpmiConfiguration(hostname, ipmiOverLanProtocol));
+	}
+
+	/**
+	 * Build MATSYA IPMI configuration
+	 * 
+	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param ipmiOverLanProtocol Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return new instance of MATSYA {@link IpmiConfiguration}
+	 */
+	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol) {
+		notNull(ipmiOverLanProtocol.getUsername(), USERNAME_CANNOT_BE_NULL);
+		notNull(ipmiOverLanProtocol.getPassword(), PASSWORD_CANNOT_BE_NULL);
+		notNull(ipmiOverLanProtocol.getTimeout(), TIMEOUT_CANNOT_BE_NULL);
+
+		return new IpmiConfiguration(hostname,
+				ipmiOverLanProtocol.getUsername(),
+				ipmiOverLanProtocol.getPassword(),
+				ipmiOverLanProtocol.getBmcKey(),
+				ipmiOverLanProtocol.isSkipAuth(),
+				ipmiOverLanProtocol.getTimeout());
 	}
 
 }

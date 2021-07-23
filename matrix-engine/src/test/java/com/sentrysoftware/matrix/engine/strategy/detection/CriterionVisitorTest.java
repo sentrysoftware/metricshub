@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
@@ -546,7 +547,7 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMIOutOfBand() {
+	void testVisitIPMIOutOfBandConfigurationNotFound() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.target(HardwareTarget.builder()
@@ -554,10 +555,58 @@ class CriterionVisitorTest {
 						.id(MANAGEMENT_CARD_HOST)
 						.type(TargetType.MGMT_CARD_BLADE_ESXI)
 						.build())
-				.protocolConfigurations(Map.of(HTTPProtocol.class, IPMIOverLanProtocol.builder().build()))
+				.protocolConfigurations(Collections.emptyMap())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMIOutOfBand() throws InterruptedException, ExecutionException, TimeoutException {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(MANAGEMENT_CARD_HOST)
+						.id(MANAGEMENT_CARD_HOST)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Map.of(IPMIOverLanProtocol.class, IPMIOverLanProtocol
+						.builder()
+						.username("username")
+						.password("password".toCharArray()).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn("System power state is up").when(matsyaClientsExecutor)
+			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IPMIOverLanProtocol.class));
+		assertEquals(CriterionTestResult
+				.builder()
+				.result("System power state is up")
+				.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
+				.success(true)
+				.build(), criterionVisitor.visit(new IPMI()));
+	}
+
+	@Test
+	void testVisitIPMIOutOfBandNullResult() throws InterruptedException, ExecutionException, TimeoutException {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname(MANAGEMENT_CARD_HOST)
+						.id(MANAGEMENT_CARD_HOST)
+						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.build())
+				.protocolConfigurations(Map.of(IPMIOverLanProtocol.class, IPMIOverLanProtocol
+						.builder()
+						.username("username")
+						.password("password".toCharArray()).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(matsyaClientsExecutor)
+			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IPMIOverLanProtocol.class));
+		assertEquals(CriterionTestResult
+				.builder()
+				.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
+				.build(), criterionVisitor.visit(new IPMI()));
 	}
 
 	@Test
