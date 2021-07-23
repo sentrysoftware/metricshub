@@ -1,16 +1,6 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import com.google.common.base.CaseFormat;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import io.prometheus.client.Collector;
-import io.prometheus.client.GaugeMetricFamily;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,10 +9,24 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import com.google.common.base.CaseFormat;
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
+import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import io.prometheus.client.Collector;
+import io.prometheus.client.GaugeMetricFamily;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems, 
@@ -71,7 +75,7 @@ public class HostMonitoringCollectorService extends Collector {
 		gauge.addMetric(
 			// Id, parentId (can be null), label, fqdn
 			createLabels(monitor),
-			getParameterValue(monitor, parameterName).doubleValue());
+			convertParameterValue(monitor, parameterName));
 	}
 
 	/**
@@ -86,18 +90,44 @@ public class HostMonitoringCollectorService extends Collector {
 		return monitor.getParameters().get(parameterName).numberValue();
 	}
 
+	/**
+	 * Convert the parameter number value according to the factor indicated for
+	 * Prometheus
+	 * 
+	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param parameterName The parameter name we want to extract from the given
+	 *                      monitor instance
+	 * @return {@link Number} value
+	 */
+	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
+
+		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getName(),
+				parameterName);
+		Number paramValue = getParameterValue(monitor, parameterName);
+		if (paramValue != null) {
+			if (prometheusParamFactor != null) {
+				return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
+			} else {
+				return paramValue.doubleValue();
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public List<MetricFamilySamples> collect() {
 
 		final List<MetricFamilySamples> metricFamilySamplesList = new ArrayList<>();
 
 		// Loop over all the monitors and create metrics (Prometheus samples)
-		for (IHostMonitoring hostMonitoring : hostMonitoringMap.values()) {
-
-			hostMonitoring
+		hostMonitoringMap.entrySet()
+			.stream()
+			.filter(entry -> TargetContext.getTargetId() == null || entry.getKey().equals(TargetContext.getTargetId()))
+			.map(Entry::getValue)
+			.forEach(hostMonitoring -> hostMonitoring
 				.getMonitors()
-				.forEach((monitorType, monitors) -> processSameTypeMonitors(monitorType, monitors, metricFamilySamplesList));
-		}
+				.forEach((monitorType, monitors) -> processSameTypeMonitors(monitorType, monitors, metricFamilySamplesList)));
+
 
 		return metricFamilySamplesList;
 	}
@@ -140,7 +170,10 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
-		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), metaParameter.getName());
+		String paramName = metaParameter.getName();
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType.getName(), paramName);
+		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
+		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), prometheusParamName);
 
 		final String help = buildHelp(monitorType.getName(), metaParameter);
 
@@ -166,7 +199,12 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return {@link String} value
 	 */
 	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
-		return String.format("Metric: %s %s - Unit: %s", monitorName, metaParameter.getName(), metaParameter.getUnit());
+		String paramName = metaParameter.getName();
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorName, paramName);
+		String prometheusParamName = prometheusParam == null ? buildMetricName(paramName) : prometheusParam.getPrometheusParameterName();
+		String paramUnit = metaParameter.getUnit();
+		String prometheusParamUnit = prometheusParam == null ? paramUnit : prometheusParam.getPrometheusParameterUnit();
+		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName , prometheusParamUnit);
 	}
 
 	/**

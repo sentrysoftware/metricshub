@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="626850" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<IRETURNVALUE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_CS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-BE</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_CS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-BE</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_CS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-01C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_CS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-01C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_CS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FE</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_CS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_CS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_ComponentSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ComponentSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FE</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-IM-1A</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-IM-1A</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-IM-2A</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-IM-2A</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-ED-1B</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-ED-1B</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-ED-2B</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-ED-2B</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-DF-1C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-DF-1C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-DF-2C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-DF-2C</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FA-1D</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FA-1D</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<KEYBINDING NAME="GroupComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+							<KEYBINDING NAME="PartComponent">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FA-2D</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ComponentCS_SS_SPS">
+							<PROPERTY.REFERENCE NAME="GroupComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+							<PROPERTY.REFERENCE NAME="PartComponent" CLASSORIGIN="Symm_ComponentCS_SS_SPS">
+								<VALUE.REFERENCE>
+									<INSTANCEPATH>
+										<NAMESPACEPATH>
+											<HOST>127.0.0.1</HOST>
+											<LOCALNAMESPACEPATH>
+												<NAMESPACE NAME="root"/>
+												<NAMESPACE NAME="emc"/>
+											</LOCALNAMESPACEPATH>
+										</NAMESPACEPATH>
+										<INSTANCENAME CLASSNAME="Symm_StorageProcessorSystem">
+											<KEYBINDING NAME="CreationClassName">
+												<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+											</KEYBINDING>
+											<KEYBINDING NAME="Name">
+												<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620-+-FA-2D</KEYVALUE>
+											</KEYBINDING>
+										</INSTANCENAME>
+									</INSTANCEPATH>
+								</VALUE.REFERENCE>
+							</PROPERTY.REFERENCE>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+				</IRETURNVALUE>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>

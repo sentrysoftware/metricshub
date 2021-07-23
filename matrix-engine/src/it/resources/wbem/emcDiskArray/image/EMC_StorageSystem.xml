@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="733402" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<IRETURNVALUE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_StorageSystem">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="Name">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_StorageSystem">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_System" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_System" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>VMAX3 Storage Array</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="Dedicated" TYPE="uint16" CLASSORIGIN="CIM_ComputerSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>3</VALUE>
+									<VALUE>15</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>SYMMETRIX</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCAutoMetaConfiguration" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>0</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCAutoMetaEnabled" TYPE="boolean" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAutoMetaMemberSize" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAutoMetaMinSize" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-Array-+-0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCCacheHiWatermark" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCCacheLoWatermark" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCEncapsulatedCapacity" TYPE="uint64" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCEnclosureCount" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCisDARE" TYPE="boolean" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLastSyncTime" TYPE="datetime" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>20210721113453.000000+000</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCLastSyncType" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>3</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>6</VALUE>
+									<VALUE>7</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="EMCLastSyncTypeDesc" TYPE="string" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>Adapters</VALUE>
+									<VALUE>Devices</VALUE>
+									<VALUE>Clone</VALUE>
+									<VALUE>Snap</VALUE>
+									<VALUE>Remote</VALUE>
+									<VALUE>Connections</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="EMCLicenseStatus" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>3</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCMaskingEnabled" TYPE="boolean" CLASSORIGIN="Symm_StorageSystem">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCMemorySize" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>475136</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfDisks" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>16</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberofFrontEndPorts" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberofSymDevs" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>989</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfUnconfiguredDisks" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCOverallCompressionRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCOverallEfficiencyRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>1039</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCOverallSnapshotEfficiencyRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCOverallVPEfficiencyRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>1039</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentEffectiveUsedCapacity" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>20</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentReplicationMetadataUsed" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentSubscribed" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>1070</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentSystemMetadataUsed" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>31</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCReadCacheSize" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>475136</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSnapshotCompressionRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSnapshotSavedPercent" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSnapshotSharedRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSubscribedCapacity" TYPE="uint64" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>140688096231424</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCUpTime" TYPE="datetime" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>00001258042236.000000:000</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCUsableCapacity" TYPE="uint64" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>13144747409408</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCVPCompressionRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCVPSavedPercent" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCVPSharedRatio" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCWriteCacheSize" TYPE="uint32" CLASSORIGIN="EMC_StorageSystem" PROPAGATED="true">
+								<VALUE>92163</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_ComputerSystem" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="IdentifyingDescriptions" TYPE="string" CLASSORIGIN="CIM_System" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>T10 Unit Serial Number VPD page</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="NameFormat" TYPE="string" CLASSORIGIN="CIM_ComputerSystem" PROPAGATED="true">
+								<VALUE>Other</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_ComputerSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OtherIdentifyingInfo" TYPE="string" CLASSORIGIN="CIM_System" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>000297800620</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="PowerManagementCapabilities" TYPE="uint16" CLASSORIGIN="CIM_ComputerSystem" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PrimaryOwnerContact" TYPE="string" CLASSORIGIN="EMC_ComputerSystem" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="PrimaryOwnerName" TYPE="string" CLASSORIGIN="EMC_ComputerSystem" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ResetCapability" TYPE="uint16" CLASSORIGIN="CIM_ComputerSystem" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+				</IRETURNVALUE>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>

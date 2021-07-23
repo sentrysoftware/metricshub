@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
@@ -218,8 +219,32 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final OS os) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+		if (os == null) {
+			log.error("Malformed os criterion {}. Cannot process OS detection.", os);
+			return CriterionTestResult.empty();
+		}
+
+		Set<OSType> keepOnly = os.getKeepOnly();
+		Set<OSType> exclude = os.getExclude();
+
+		OSType osType = strategyConfig.getEngineConfiguration().getTarget().getType().getOsType();
+
+		if ((keepOnly != null && !keepOnly.isEmpty() && !keepOnly.contains(osType))
+				|| (exclude != null && !exclude.isEmpty() && exclude.contains(osType))) {
+			return CriterionTestResult
+					.builder()
+					.message("Failed OS detection operation")
+					.result("Configured OS Type : " + osType.name())
+					.success(false)
+					.build();
+		}
+
+		return CriterionTestResult
+				.builder()
+				.message("Successful OS detection operation")
+				.result("Configured OS Type : " + osType.name())
+				.success(true)
+				.build();
 	}
 
 	@Override

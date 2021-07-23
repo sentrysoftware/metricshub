@@ -4,3 +4,4 @@ target:
 server:
   port: 8080
 debugMode: false
+outputDirectory: /tmp/hardware-logs

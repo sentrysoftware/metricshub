@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="${project.name}">
+
+	<skin>
+		<groupId>com.sentrysoftware.doc</groupId>
+		<artifactId>sentry-maven-skin</artifactId>
+		<version>${sentrySkinVersion}</version>
+	</skin>
+
+	<custom>
+		<projectVersion>${project.version}</projectVersion>
+		<bodyClass>sentry-hardware</bodyClass>
+		<keywords>hardware,cli</keywords>
+		<publishDate>${timestamp}</publishDate>
+		<noDefaultLinks>true</noDefaultLinks>
+	</custom>
+
+	<body>
+
+		<menu name="Getting Started">
+			<!--<item name="Release Notes" href="release-notes.html" / -->	
+			<item name="Getting Started" href="index.html"/>
+			<item name="Supported Platforms" href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html"/>
+			<item name="Components Monitored and Metrics" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
+		</menu>
+
+		<menu name="Installing the CLI">
+			<item name="Prerequisites" href="prerequisites.html"/>
+			<item name="Getting the Installation Packages" href="install.html"/>
+		</menu>
+		
+		<menu name="Using the CLI">
+						<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
+			<item name="Configuring Connectors" href="configuring-connectors.html"/>
+			<item name="Getting Help" href="help.html"/>
+		</menu>
+
+		<menu name="Troubleshooting">
+			<item name="Enabling the debug mode" href="debug.html"/>
+		</menu>
+		
+	</body>
+</project>

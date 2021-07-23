@@ -1,35 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
-import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
-import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.http.HttpClient;
-import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.wbem2.WbemExecutor;
-import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
@@ -50,6 +20,36 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
+import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
+import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.http.HttpClient;
+import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 
 @ExtendWith(MockitoExtension.class)
 class MatsyaClientsExecutorTest {

@@ -27,7 +27,7 @@ public class JobResultFormatterService {
 	public String format(final IHostMonitoring hostMonitoring) {
 
 		if (hostMonitoring == null || hostMonitoring.getMonitors() == null || hostMonitoring.getMonitors().isEmpty()) {
-			return null;
+			return StringHelper.EMPTY;
 		}
 
 		Map<MonitorType, Map<String, Monitor>> allMonitors = hostMonitoring.getMonitors();

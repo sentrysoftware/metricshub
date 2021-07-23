@@ -33,7 +33,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -227,8 +229,15 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testBuildHelp() {
-		assertEquals("Metric: Enclosure energyUsage - Unit: Joules",
+		assertEquals("Metric: Enclosure energy_usage - Unit: Joules",
 				HostMonitoringCollectorService.buildHelp("Enclosure", Enclosure.ENERGY_USAGE));
+		assertEquals("Metric: Voltage voltage - Unit: volts",
+				HostMonitoringCollectorService.buildHelp("Voltage", Voltage._VOLTAGE));
+		// this should be wrong
+		assertEquals("Metric: logicaldisk voltage - Unit: mV",
+				HostMonitoringCollectorService.buildHelp("logicaldisk", Voltage._VOLTAGE));
+		assertEquals("Metric: logicaldisk unallocated_space - Unit: bytes",
+				HostMonitoringCollectorService.buildHelp("logicaldisk", LogicalDisk.UNALLOCATED_SPACE));
 	}
 
 	@Test
@@ -348,6 +357,31 @@ class HostMonitoringCollectorServiceTest {
 						.value(3000D).build()))
 				.build();
 		assertEquals(3000D, HostMonitoringCollectorService.getParameterValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER));
+	}
+
+	@Test
+	void testConvertParameterValueNumber() {
+		final String logicalDiskMonitor = "LogicalDisk";
+		final Monitor monitor = Monitor.builder()
+				.id(ID_VALUE)
+				.parentId(PARENT_ID_VALUE)
+				.name(logicalDiskMonitor)
+				.parameters(Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
+						NumberParam.builder().name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
+						.value(100D).build()))
+				.build();
+		// make sure that the conversion is well done : factor 1073741824.0
+		assertEquals(107374182400.0, HostMonitoringCollectorService.convertParameterValue(monitor, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
+
+		final Monitor monitorValueNull = Monitor.builder()
+				.id(ID_VALUE)
+				.parentId(PARENT_ID_VALUE)
+				.name(logicalDiskMonitor)
+				.parameters(Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
+						NumberParam.builder().name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
+						.build()))
+				.build();
+		assertEquals(null, HostMonitoringCollectorService.convertParameterValue(monitorValueNull, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
 	}
 
 	@Test

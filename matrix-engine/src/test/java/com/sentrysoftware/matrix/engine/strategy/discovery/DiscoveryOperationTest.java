@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
