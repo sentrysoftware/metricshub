@@ -87,7 +87,8 @@
 					<groupId>org.testng</groupId>
 					<artifactId>testng</artifactId>
 				</exclusion>
-			</exclusions>		</dependency>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
