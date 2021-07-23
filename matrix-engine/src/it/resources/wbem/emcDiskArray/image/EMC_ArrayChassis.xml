@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="796791" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<IRETURNVALUE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_ArrayChassis">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_ArrayChassis</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="Tag">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_ArrayChassis">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>Symm_ArrayChassis</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Tag" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>VMAX3 Storage Array</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ChassisPackageType" TYPE="uint16" CLASSORIGIN="CIM_Chassis" PROPAGATED="true">
+								<VALUE>22</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>SYMMETRIX</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Manufacturer" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>EMC Corporation</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Model" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>VMAX250F</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_Chassis" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherIdentifyingInfo" TYPE="string" CLASSORIGIN="EMC_Chassis" PROPAGATED="true">
+								<VALUE>000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PackageType" TYPE="uint16" CLASSORIGIN="CIM_PhysicalPackage" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RemovalConditions" TYPE="uint16" CLASSORIGIN="CIM_PhysicalPackage" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SecurityBreach" TYPE="uint16" CLASSORIGIN="CIM_PhysicalFrame" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SerialNumber" TYPE="string" CLASSORIGIN="CIM_PhysicalElement" PROPAGATED="true">
+								<VALUE>000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+				</IRETURNVALUE>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>

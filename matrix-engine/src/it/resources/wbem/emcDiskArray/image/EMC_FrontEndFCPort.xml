@@ -1,0 +1,1505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="225303" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<IRETURNVALUE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-4</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>4574140172</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-5</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B005</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>9148280344</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-6</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B006</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>9148280344</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-7</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B007</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-32</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B020</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-1D-+-33</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-1D-+-33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-1D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>49</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-1D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-1D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B021</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-4</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>8</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B044</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>STARTING</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-5</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B045</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>9148280344</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-6</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B046</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>9148280344</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-7</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>1</VALUE>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B047</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>4574140172</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-32</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B060</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>32</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_FrontEndFCPort">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_FrontEndFCPort</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">FA-2D-+-33</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageProcessorSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_FrontEndFCPort">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_FrontEndFCPort</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>FA-2D-+-33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageProcessorSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="AutoSense" TYPE="boolean" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>false</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Port FA-2D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCAdapterNumber" TYPE="uint32" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>50</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPElementType" TYPE="uint16" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCBSPInstanceID" TYPE="string" CLASSORIGIN="EMC_FrontEndFCPort" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620-+-FEPort-+-FA-2D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIOState" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>SCSI</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNodeWWN" TYPE="string" CLASSORIGIN="Symm_FrontEndFCPort">
+								<VALUE>50000975A809B004</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="EMCPortAttributes" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>13</VALUE>
+									<VALUE>19</VALUE>
+									<VALUE>20</VALUE>
+									<VALUE>4</VALUE>
+									<VALUE>5</VALUE>
+									<VALUE>8</VALUE>
+									<VALUE>21</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="EMCPortName" TYPE="string" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>FA-2D:33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="LinkTechnology" TYPE="uint16" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="NetworkAddresses" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>FFFFFF</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+									<VALUE>32769</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="PermanentAddress" TYPE="string" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>50000975A809B061</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortAvailability" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortNumber" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>33</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="PortType" TYPE="uint16" CLASSORIGIN="CIM_FCPort" PROPAGATED="true">
+								<VALUE>10</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedSpeed" TYPE="uint64" CLASSORIGIN="EMC_FCPort" PROPAGATED="true">
+								<VALUE>18296560688</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Speed" TYPE="uint64" CLASSORIGIN="CIM_NetworkPort" PROPAGATED="true">
+								<VALUE>1143535043</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+									<VALUE>ONLINE</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="StatusInfo" TYPE="uint16" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="UsageRestriction" TYPE="uint16" CLASSORIGIN="CIM_LogicalPort" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+				</IRETURNVALUE>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>

@@ -1,0 +1,2513 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="906000" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<IRETURNVALUE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">0</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A0FKT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">1</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A015T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">2</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96A0A00YT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">3</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A0CZT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">4</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C4</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A061T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>4</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">380</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>380</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 380</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C380</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A044T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>380</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">381</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>381</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 381</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C381</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A04TT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>381</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">382</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>382</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 382</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C382</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A03PT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>382</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">383</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>383</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 383</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0001</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C383</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A0EPT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>383</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">388</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>388</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 388</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>01C:C388</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>SAMSUNG</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>P1633N09</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>NXNA0HB03198</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>388</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">5</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A03WT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">6</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C6</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A074T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>6</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">7</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C7</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96A0A003T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>7</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">8</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>8</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 8</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C8</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A06KT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>8</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">384</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>384</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 384</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C384</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A0E4T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>384</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">385</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>385</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 385</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C385</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A0F8T3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>385</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">386</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>386</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 386</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C386</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96B0A07QT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>386</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+					<VALUE.NAMEDINSTANCE>
+						<INSTANCENAME CLASSNAME="Symm_DiskDrive">
+							<KEYBINDING NAME="CreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_DiskDrive</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="DeviceID">
+								<KEYVALUE VALUETYPE="string" TYPE="string">387</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemCreationClassName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">Symm_StorageSystem</KEYVALUE>
+							</KEYBINDING>
+							<KEYBINDING NAME="SystemName">
+								<KEYVALUE VALUETYPE="string" TYPE="string">SYMMETRIX-+-000297800620</KEYVALUE>
+							</KEYBINDING>
+						</INSTANCENAME>
+						<INSTANCE CLASSNAME="Symm_DiskDrive">
+							<PROPERTY NAME="CreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_DiskDrive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DeviceID" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>387</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemCreationClassName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>Symm_StorageSystem</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="SystemName" TYPE="string" CLASSORIGIN="CIM_LogicalDevice" PROPAGATED="true">
+								<VALUE>SYMMETRIX-+-000297800620</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Caption" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>EFD</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DefaultBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Description" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Disk Drive</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="DiskType" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>3</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="ElementName" TYPE="string" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true">
+								<VALUE>Symmetrix Disk 387</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCActualBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskGroupNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0002</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskName" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>02C:C387</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCDiskState" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCFreeBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCInUse" TYPE="boolean" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCIsSupportedBySpare" TYPE="boolean" CLASSORIGIN="Symm_DiskDrive">
+								<VALUE>true</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCLocality" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCManufacturer" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>TOSHIBA</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCModel" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>5SRB096C</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCNumberOfBlocks" TYPE="uint64" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>1837105152</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCPercentageDrained" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCRevolutionsPerMinute" TYPE="uint32" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EMCSerialNumber" TYPE="string" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>96A0A00WT3GE</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledDefault" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE>2</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="EnabledState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Encryption" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="FormFactor" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="HealthState" TYPE="uint16" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>5</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectSpeed" TYPE="uint64" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="InterconnectType" TYPE="uint16" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>1</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxBlockSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>520</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="MaxMediaSize" TYPE="uint64" CLASSORIGIN="CIM_MediaAccessDevice" PROPAGATED="true">
+								<VALUE>940589056</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="Name" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE>387</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" CLASSORIGIN="EMC_DiskDrive" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>2</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="OtherInterconnectType" TYPE="string" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE/>
+							</PROPERTY>
+							<PROPERTY NAME="RequestedState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+							<PROPERTY NAME="RPM" TYPE="uint32" CLASSORIGIN="CIM_DiskDrive" PROPAGATED="true">
+								<VALUE>0</VALUE>
+							</PROPERTY>
+							<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" CLASSORIGIN="CIM_ManagedSystemElement" PROPAGATED="true">
+								<VALUE.ARRAY>
+									<VALUE>OK</VALUE>
+								</VALUE.ARRAY>
+							</PROPERTY.ARRAY>
+							<PROPERTY NAME="TransitioningToState" TYPE="uint16" CLASSORIGIN="CIM_EnabledLogicalElement" PROPAGATED="true">
+								<VALUE>12</VALUE>
+							</PROPERTY>
+						</INSTANCE>
+					</VALUE.NAMEDINSTANCE>
+				</IRETURNVALUE>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>
