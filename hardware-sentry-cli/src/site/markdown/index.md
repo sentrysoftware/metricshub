@@ -1,4 +1,4 @@
-# Getting Strated
+# Getting Started
 
 ## What is ${project.name}?
 
@@ -21,4 +21,4 @@ With minimal configuration, **${project.name}** can report the hardware health o
 
 **${project.name}** provides detailed information about each monitored component (vendor, model, serial number, part number, FRU number, location in the chassis, etc.).
 
-Refer to the [User Documentation](//www.sentrysoftware.com/library/hc/) for more information about the **Hardware Connector Library**.
+For more information about the **Hardware Connector Library**, refer to the <a href="//www.sentrysoftware.com/library/hc/" target="_blank">User Documentation</a>.

@@ -1,6 +1,6 @@
 # Running ${project.name}
 
-To run the **${project.name}**, use one of these commands:
+To run **${project.name}**, use one of these commands:
 
 ```shell script
    $ java -jar hardware-sentry-cli-<version>.jar -host <hostname> -dt <device-type> <protocol-configuration>
@@ -15,18 +15,18 @@ where:
 * `<version>` corresponds to the version of the **${project.name}**
 * `<hostname>` corresponds to the name of the device, or its IP address
 * `<device-type>` corresponds to the operating system or the type of the device to be monitored. Possible values are:
-    * `HP` 
-    * `LINUX`
-    * `NETWORK`
-    * `NT`
-    * `OOB`
-    * `OSF1`
-    * `RS6000`
-    * `SOLARIS`
-    * `STORAGE`
-    * `VMS`
+    * `HP` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#hp-openvms" target="_blank">HP OpenVMS</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP-UX</a> systems
+    * `LINUX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
+    * `NETWORK` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank"> network devices</a> 
+    * `NT` for <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows</a>
+    * `OOB` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#out-of-band" target="_blank">Out-of-Band systems</a>
+    * `OSF1` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
+    * `RS6000` <a href="" target="_blank"></a>
+    * `SOLARIS` these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#!#network-device" target="_blank">Oracle/Solaris systems</a>
+    * `STORAGE` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
+    * `VMS` for <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX</a>.
 
-* `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the hardware instrumentation layers in order to monitor this device. For more information about the different options available, refer to:
+* `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the hardware instrumentation layers to retrieve hardware information. To know how to set these different options, refer to:
     * [SNMP configuration options](#snmp)
     * [HTTP configuration options](#http)
     * [WMI configuration options](#wmi)
@@ -35,7 +35,7 @@ where:
 ##### Example:
    
    ```shell script
-   $ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1
+   $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1
    ```
    
 ###### Result:
@@ -162,12 +162,12 @@ Here are the available options for the SNMP configuration:
 
 Here are the available options for the WMI configuration:
   
-| Option          | Description                 | Available Values | Default Value | Remark                                                      |
-|-----------------|-----------------------------|------------------|---------------|-------------------------------------------------------------|
-| --wmi-namespace | The WMI namespace           |                  | root/cimv2    | Leave blank to let the solution detect the proper namespace |
-| --wmi-timeout   | The WMI timeout, in seconds |                  | 120           |                                                             |
-| --wmi-username  | The user name               |                  |               |                                                             |
-| --wmi-password  | The user password           |                  |               |                                                             |
+| Option          | Description                 | Available Values | Default Value                                                   |
+|-----------------|-----------------------------|------------------|---------------|
+| --wmi-namespace | The WMI namespace. <br> Leave blank to let the solution detect the proper namespace </br>          |                  | root/cimv2    |
+| --wmi-timeout   | The WMI timeout, in seconds |                  | 120           |
+| --wmi-username  | The user name               |                  |               |
+| --wmi-password  | The user password           |                  |               | 
 
 <a name="wbem"></a>
 
