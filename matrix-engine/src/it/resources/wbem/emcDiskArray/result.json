@@ -1,0 +1,2256 @@
+{
+	"TARGET": {
+		"localhost": {
+			"id": "localhost",
+			"name": "0.0.0.0",
+			"monitorType": "TARGET",
+			"parentId": null,
+			"targetId": "localhost",
+			"extendedType": null,
+			"parameters": {},
+			"metadata": {
+				"location": "localhost",
+				"operatingSystemType": "STORAGE"
+			}
+		}
+	},
+	"CONNECTOR": {
+		"localhost@MS_HW_EMCDiskArray.connector": {
+			"id": "localhost@MS_HW_EMCDiskArray.connector",
+			"name": "MS_HW_EMCDiskArray.connector",
+			"monitorType": "CONNECTOR",
+			"parentId": "localhost",
+			"targetId": "localhost",
+			"extendedType": null,
+			"parameters": {
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "Connector test succeeded",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"testReport": {
+					"name": "testReport",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": null,
+					"value": "Received Result: SYMMETRIX-+-000297800620;3|15|;. The following WBEM query succeeded:\n- SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n- Matching Result:\n\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. The following WBEM query succeeded:\n- SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n- Matching Result:\n\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
+					"type": "TextParam"
+				}
+			},
+			"metadata": {}
+		}
+	},
+	"ENCLOSURE": {
+		"MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"": {
+			"id": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"name": "Storage: 000297800620 (EMC VMAX250F)",
+			"monitorType": "ENCLOSURE",
+			"parentId": "localhost",
+			"targetId": "localhost",
+			"extendedType": "Storage",
+			"parameters": {
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"devicehostname": "000297800620",
+				"deviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"displayid": "000297800620",
+				"idCount": "0",
+				"model": "VMAX250F",
+				"serialnumber": "000297800620",
+				"type": "Storage",
+				"vendor": "EMC"
+			}
+		}
+	},
+	"POWER_SUPPLY": {
+		"MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A": {
+			"id": "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
+			"name": "PowerSupply: SB-1-+-ES-1-+-DIR-1-+-PS-A",
+			"monitorType": "POWER_SUPPLY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PowerSupply",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-PS-A",
+				"idCount": "0"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B": {
+			"id": "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
+			"name": "PowerSupply: SB-1-+-ES-1-+-DIR-1-+-PS-B",
+			"monitorType": "POWER_SUPPLY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PowerSupply",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-PS-B",
+				"idCount": "1"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A": {
+			"id": "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
+			"name": "PowerSupply: SB-1-+-ES-1-+-DIR-2-+-PS-A",
+			"monitorType": "POWER_SUPPLY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PowerSupply",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-PS-A",
+				"idCount": "2"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B": {
+			"id": "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
+			"name": "PowerSupply: SB-1-+-ES-1-+-DIR-2-+-PS-B",
+			"monitorType": "POWER_SUPPLY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PowerSupply",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-PS-B",
+				"idCount": "3"
+			}
+		}
+	},
+	"FAN": {
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-1-+--0",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-FAN-0",
+				"idCount": "0"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-1-+--1",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-FAN-1",
+				"idCount": "1"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-1-+--2",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-FAN-2",
+				"idCount": "2"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-1-+--3",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-FAN-3",
+				"idCount": "3"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-1-+--4",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
+				"displayid": "SB-1-+-ES-1-+-DIR-1-+-FAN-4",
+				"idCount": "4"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-2-+--0",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-FAN-0",
+				"idCount": "5"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-2-+--1",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-FAN-1",
+				"idCount": "6"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-2-+--2",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-FAN-2",
+				"idCount": "7"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-2-+--3",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-FAN-3",
+				"idCount": "8"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4": {
+			"id": "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
+			"name": "Fan: SB-1-+-ES-1-+-DIR-2-+--4",
+			"monitorType": "FAN",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Fan",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
+				"displayid": "SB-1-+-ES-1-+-DIR-2-+-FAN-4",
+				"idCount": "9"
+			}
+		}
+	},
+	"BATTERY": {
+		"MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)": {
+			"id": "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)",
+			"name": "Battery: SB-1-+-SPS-3A (Aggregate)",
+			"monitorType": "BATTERY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Battery",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-SPS-3A (Aggregate)",
+				"displayid": "SB-1-+-SPS-3A (Aggregate)",
+				"idCount": "0"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)": {
+			"id": "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)",
+			"name": "Battery: SB-1-+-SPS-3B (Aggregate)",
+			"monitorType": "BATTERY",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "Battery",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620SB-1-+-SPS-3B (Aggregate)",
+				"displayid": "SB-1-+-SPS-3B (Aggregate)",
+				"idCount": "1"
+			}
+		}
+	},
+	"NETWORK_CARD": {
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-4": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-4",
+			"name": "NetworkCard: FA-1D-+-4",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-4",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-4",
+				"idCount": "0",
+				"physicaladdress": "50000975A809B004",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-5": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-5",
+			"name": "NetworkCard: FA-1D-+-5",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-5",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-5",
+				"idCount": "1",
+				"physicaladdress": "50000975A809B005",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-6": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-6",
+			"name": "NetworkCard: FA-1D-+-6",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-6",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-6",
+				"idCount": "2",
+				"physicaladdress": "50000975A809B006",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-7": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-7",
+			"name": "NetworkCard: FA-1D-+-7",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-7",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-7",
+				"idCount": "3",
+				"physicaladdress": "50000975A809B007",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-32": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-32",
+			"name": "NetworkCard: FA-1D-+-32",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 1000.0,
+					"rawValue": 1000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "1000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-32",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-32",
+				"idCount": "4",
+				"physicaladdress": "50000975A809B020",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-33": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-33",
+			"name": "NetworkCard: FA-1D-+-33",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 1000.0,
+					"rawValue": 1000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "1000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-1D-+-33",
+				"devicetype": "FC Port N",
+				"displayid": "FA-1D-+-33",
+				"idCount": "5",
+				"physicaladdress": "50000975A809B021",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-4": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-4",
+			"name": "NetworkCard: FA-2D-+-4",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "WARN",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 1,
+					"statusInformation": "status: 1 (Starting -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-4",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-4",
+				"idCount": "6",
+				"physicaladdress": "50000975A809B044",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-5": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-5",
+			"name": "NetworkCard: FA-2D-+-5",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-5",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-5",
+				"idCount": "7",
+				"physicaladdress": "50000975A809B045",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-6": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-6",
+			"name": "NetworkCard: FA-2D-+-6",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-6",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-6",
+				"idCount": "8",
+				"physicaladdress": "50000975A809B046",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-7": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-7",
+			"name": "NetworkCard: FA-2D-+-7",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 16000.0,
+					"rawValue": 16000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "16000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-7",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-7",
+				"idCount": "9",
+				"physicaladdress": "50000975A809B047",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-32": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-32",
+			"name": "NetworkCard: FA-2D-+-32",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 1000.0,
+					"rawValue": 1000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "1000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-32",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-32",
+				"idCount": "10",
+				"physicaladdress": "50000975A809B060",
+				"physicaladdresstype": "WWN"
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-33": {
+			"id": "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-33",
+			"name": "NetworkCard: FA-2D-+-33",
+			"monitorType": "NETWORK_CARD",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "NetworkCard",
+			"parameters": {
+				"linkSpeed": {
+					"name": "linkSpeed",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "Mbits/s",
+					"value": 1000.0,
+					"rawValue": 1000.0,
+					"previousRawValue": null,
+					"previousCollectTime": null,
+					"type": "NumberParam"
+				},
+				"linkSTatus": {
+					"name": "linkSTatus",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Plugged ; 1 = Unplugged}",
+					"status": 0,
+					"statusInformation": "linkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				},
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "ALARM",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 2,
+					"statusInformation": "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"bandwidth": "1000.0",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "FA-2D-+-33",
+				"devicetype": "FC Port N",
+				"displayid": "FA-2D-+-33",
+				"idCount": "11",
+				"physicaladdress": "50000975A809B061",
+				"physicaladdresstype": "WWN"
+			}
+		}
+	},
+	"PHYSICAL_DISK": {
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006200": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
+			"name": "PhysicalDisk: 0",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006200",
+				"displayid": "0",
+				"idCount": "0",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006201": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006201",
+			"name": "PhysicalDisk: 1",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006201",
+				"displayid": "1",
+				"idCount": "1",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006202": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006202",
+			"name": "PhysicalDisk: 2",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006202",
+				"displayid": "2",
+				"idCount": "2",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006203": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006203",
+			"name": "PhysicalDisk: 3",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006203",
+				"displayid": "3",
+				"idCount": "3",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006204": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006204",
+			"name": "PhysicalDisk: 4",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006204",
+				"displayid": "4",
+				"idCount": "4",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620380": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620380",
+			"name": "PhysicalDisk: 380",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620380",
+				"displayid": "380",
+				"idCount": "5",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620381": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620381",
+			"name": "PhysicalDisk: 381",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620381",
+				"displayid": "381",
+				"idCount": "6",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620382": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620382",
+			"name": "PhysicalDisk: 382",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620382",
+				"displayid": "382",
+				"idCount": "7",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620383": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620383",
+			"name": "PhysicalDisk: 383",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620383",
+				"displayid": "383",
+				"idCount": "8",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620388": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620388",
+			"name": "PhysicalDisk: 388",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620388",
+				"displayid": "388",
+				"idCount": "9",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006205": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006205",
+			"name": "PhysicalDisk: 5",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006205",
+				"displayid": "5",
+				"idCount": "10",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006206": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006206",
+			"name": "PhysicalDisk: 6",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006206",
+				"displayid": "6",
+				"idCount": "11",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006207": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006207",
+			"name": "PhysicalDisk: 7",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006207",
+				"displayid": "7",
+				"idCount": "12",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006208": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006208",
+			"name": "PhysicalDisk: 8",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-0002978006208",
+				"displayid": "8",
+				"idCount": "13",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620384": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620384",
+			"name": "PhysicalDisk: 384",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620384",
+				"displayid": "384",
+				"idCount": "14",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620385": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620385",
+			"name": "PhysicalDisk: 385",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620385",
+				"displayid": "385",
+				"idCount": "15",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620386": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620386",
+			"name": "PhysicalDisk: 386",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620386",
+				"displayid": "386",
+				"idCount": "16",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		},
+		"MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620387": {
+			"id": "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620387",
+			"name": "PhysicalDisk: 387",
+			"monitorType": "PHYSICAL_DISK",
+			"parentId": "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+			"targetId": "localhost",
+			"extendedType": "PhysicalDisk",
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = Missing ; 1 = Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				},
+				"status": {
+					"name": "status",
+					"collectTime": 1626952977908,
+					"threshold": null,
+					"state": "OK",
+					"unit": "{0 = OK ; 1 = Degraded ; 2 = Failed}",
+					"status": 0,
+					"statusInformation": "status: 0 ( -  - )\npresent: 1 (Present)",
+					"previousState": null,
+					"type": "StatusParam"
+				}
+			},
+			"metadata": {
+				"additionalinformation1": "Disk Type: EFD",
+				"attachedtodeviceid": "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+				"connector": "MS_HW_EMCDiskArray.connector",
+				"deviceid": "SYMMETRIX-+-000297800620387",
+				"displayid": "387",
+				"idCount": "17",
+				"model": "",
+				"serialnumber": "",
+				"size": "9.40589056E11",
+				"vendor": ""
+			}
+		}
+	}
+}

@@ -41,11 +41,13 @@
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<prometheus-client.version>0.10.0</prometheus-client.version>
 		<jackson.version>2.12.3</jackson.version>
+		<jaxb.version>2.4.0-b180830.0359</jaxb.version>
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<snmp4j.version>3.5.1</snmp4j.version>
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>1.7.30</slf4j-simple.version>
+		<emulation.version>2</emulation.version>
 	</properties>
 
 	<modules>
@@ -110,6 +112,18 @@
 				<artifactId>hardware-connectors</artifactId>
 				<version>${hardware-connectors.version}</version>
 				<classifier>matrix</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.emulation</groupId>
+				<artifactId>emulation-framework-http-server</artifactId>
+				<version>${emulation.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>${jaxb.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>

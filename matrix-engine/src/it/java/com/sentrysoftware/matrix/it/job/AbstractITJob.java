@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -36,11 +39,11 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert the expected {@link Monitor} instance and the corresponding actual instance from the given Map of monitors
-	 * 
+	 *
 	 * @param expected
 	 * @param monitors
 	 */
-	private static void assertMonitor(Monitor expected, Map<String, Monitor> monitors) {
+	private static void assertMonitor(final Monitor expected, final Map<String, Monitor> monitors) {
 		final MonitorType monitorType = expected.getMonitorType();
 
 		assertNotNull(monitors, () -> "<null> monitors found for type " + monitorType);
@@ -50,14 +53,14 @@ public abstract class AbstractITJob implements ITJob {
 	}
 
 	/**
-	 * Assert that expected and actual are equal. 
-	 * 
+	 * Assert that expected and actual are equal.
+	 *
 	 * @param expected
 	 * @param actual
 	 */
-	private static void assertMonitor(Monitor expected, final Monitor actual) {
+	private static void assertMonitor(final Monitor expected, final Monitor actual) {
 
-		MonitorType monitorType = expected.getMonitorType();
+		final MonitorType monitorType = expected.getMonitorType();
 
 		assertNotNull(actual, () -> "Cannot find the Monitor with type " + monitorType + " and ID: " + expected.getId());
 
@@ -74,12 +77,12 @@ public abstract class AbstractITJob implements ITJob {
 	/**
 	 * Assert that expected and actual parameters are equal. <br>
 	 * We only test testable/important data, for example the collectTime cannot be tested.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 */
-	private static void assertParameters(Monitor expected, Monitor actual) {
-		for (Entry<String, IParameterValue> expectedEntry : expected.getParameters().entrySet()) {
+	private static void assertParameters(final Monitor expected, final Monitor actual) {
+		for (final Entry<String, IParameterValue> expectedEntry : expected.getParameters().entrySet()) {
 			final IParameterValue expectedParameter = expectedEntry.getValue();
 			final MonitorType monitorType = expected.getMonitorType();
 			final String monitorId = expected.getId();
@@ -103,13 +106,13 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert that expected and actual are equal.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 * @param monitorType
 	 * @param monitorId
 	 */
-	private static void assertNumberParam(NumberParam expected, NumberParam actual, MonitorType monitorType, String monitorId) {
+	private static void assertNumberParam(final NumberParam expected, final NumberParam actual, final MonitorType monitorType, final String monitorId) {
 		assertNotNull(actual,
 				() -> "NumberParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
 		assertEquals(expected.getValue(), actual.getValue(), "NumberParam value doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
@@ -118,13 +121,13 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert that expected and actual are equal.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 * @param monitorType
 	 * @param monitorId
 	 */
-	private static void assertTextParam(TextParam expected, TextParam actual, MonitorType monitorType, String monitorId) {
+	private static void assertTextParam(final TextParam expected, final TextParam actual, final MonitorType monitorType, final String monitorId) {
 		assertNotNull(actual,
 				() -> "TextParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
 		assertEquals(expected.getValue(), actual.getValue(), "TextParam value doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
@@ -132,13 +135,13 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert that expected and actual are equal.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 * @param monitorType
 	 * @param monitorId
 	 */
-	private static void assertStatusParam(StatusParam expected, StatusParam actual, MonitorType monitorType, String monitorId) {
+	private static void assertStatusParam(final StatusParam expected, final StatusParam actual, final MonitorType monitorType, final String monitorId) {
 		assertNotNull(actual,
 				() -> "StatusParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
 		assertEquals(expected.getStatus(), actual.getStatus(), "StatusParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
@@ -147,13 +150,13 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert that expected and actual are equal.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 * @param monitorType
 	 * @param monitorId
 	 */
-	private static void assertPresentParam(PresentParam expected, PresentParam actual, MonitorType monitorType, String monitorId) {
+	private static void assertPresentParam(final PresentParam expected, final PresentParam actual, final MonitorType monitorType, final String monitorId) {
 		assertNotNull(actual,
 				() -> "PresentParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
 		assertEquals(expected.getPresent(), actual.getPresent(), "PresentParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
@@ -161,21 +164,21 @@ public abstract class AbstractITJob implements ITJob {
 
 	/**
 	 * Assert that expected and actual metadata are equal.
-	 * 
+	 *
 	 * @param expected
 	 * @param actual
 	 */
-	private static void assertMetadata(Monitor expected, Monitor actual) {
-		for (Entry<String, String> expectedMetadata : expected.getMetadata().entrySet()) {
+	private static void assertMetadata(final Monitor expected, final Monitor actual) {
+		for (final Entry<String, String> expectedMetadata : expected.getMetadata().entrySet()) {
 			assertEquals(expectedMetadata.getValue(), actual.getMetadata().get(expectedMetadata.getKey()),
 					() -> "metadata doesn't match. metadata key: " + expectedMetadata.getKey() + ". MonitorType: " + expected.getMonitorType()
-							+ ". ID: " + expected.getId());
+					+ ". ID: " + expected.getId());
 		}
 	}
 
 
 	@Override
-	public ITJob verifyExpected(String expectedPath) throws Exception {
+	public ITJob verifyExpected(final String expectedPath) throws Exception {
 
 		stopServer();
 
@@ -191,7 +194,7 @@ public abstract class AbstractITJob implements ITJob {
 	}
 
 	@Override
-	public ITJob executeStrategy(IStrategy strategy) {
+	public ITJob executeStrategy(final IStrategy strategy) {
 		assertTrue(isServerStarted(), "Server not ready.");
 
 		lastEngineResult = new Engine().run(engineConfiguration, hostMonitoring, strategy);
@@ -200,9 +203,23 @@ public abstract class AbstractITJob implements ITJob {
 	}
 
 	@Override
-	public ITJob prepareEngine(EngineConfiguration engineConfiguration, IHostMonitoring hostMonitoring) {
+	public ITJob prepareEngine(final EngineConfiguration engineConfiguration, final IHostMonitoring hostMonitoring) {
 		this.engineConfiguration = engineConfiguration;
 		this.hostMonitoring = hostMonitoring;
+		return this;
+	}
+
+	/**
+	 * Save the hostMonitoring JSON into a file.
+	 *
+	 * @param path path of the saving file.
+	 * @return
+	 * @throws IOException
+	 */
+	public ITJob saveHostMonitoringJson(final Path path) throws IOException {
+
+		Files.write(path, hostMonitoring.toJson().getBytes());
+
 		return this;
 	}
 

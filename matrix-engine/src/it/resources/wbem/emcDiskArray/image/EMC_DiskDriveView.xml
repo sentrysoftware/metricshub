@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+	<MESSAGE ID="853981" PROTOCOLVERSION="1.0">
+		<SIMPLERSP>
+			<IMETHODRESPONSE NAME="EnumerateInstances">
+				<ERROR CODE="5" DESCRIPTION="The specified class does not exist. (EMC_DiskDriveView is not a valid className for namespace root/emc)"/>
+			</IMETHODRESPONSE>
+		</SIMPLERSP>
+	</MESSAGE>
+</CIM>
