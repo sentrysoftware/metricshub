@@ -115,7 +115,7 @@ class HostMonitoringCollectorServiceTest {
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setMonitors(monitors);
-		doReturn(Collections.singleton(hostMonitoring)).when(hostMonitoringMap).values();
+		doReturn(Map.of(ECS, hostMonitoring).entrySet()).when(hostMonitoringMap).entrySet();
 
 		CollectorRegistry.defaultRegistry.clear();
 

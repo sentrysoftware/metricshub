@@ -1,5 +1,25 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -21,23 +41,8 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -79,18 +84,43 @@ public class MatrixEngineService {
 	 *
 	 * @throws BusinessException	If no connectors lookup were found in the store.
 	 */
-	public void performJobs(String targetId) throws BusinessException {
+	public void performJobs(final String targetId) throws BusinessException {
+
+		final Map<String, Connector> connectors = store.getConnectors();
+		if (connectors == null || connectors.isEmpty()) {
+			throw new BusinessException(ErrorCode.BAD_CONNECTOR_STORE, "Could not get the connector lookup for the store.");
+		}
 
 		// Read the configuration
 		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile);
 
 		if (targetId == null) {
 
+			final ExecutorService pool = Executors.newFixedThreadPool(multiHostsConfigurationDTO.getMaxHostThreadsPerExporter());
+
+			// Loop over each host and run a new task
 			for (HostConfigurationDTO hostConfigurationDTO : multiHostsConfigurationDTO.getTargets()) {
 
-				performJobs(hostConfigurationDTO);
+				// run a task for each host
+				pool.execute(() -> {
+					try {
+						performJobs(hostConfigurationDTO, connectors);
+					} catch (BusinessException e) {
+						log.error("Job error detected", e);
+					}
+				});
+
 			}
 
+			// Order the shutdown
+			pool.shutdown();
+
+			try {
+				// Blocks until all tasks have completed execution after a shutdown request
+				pool.awaitTermination(multiHostsConfigurationDTO.getMaxHostThreadsTimeout(), TimeUnit.MINUTES);
+			} catch (Exception e) {
+				log.error("Waiting for threads termination aborted with an error", e);
+			}
 		} else {
 
 			HostConfigurationDTO hostConfigurationDTO = multiHostsConfigurationDTO
@@ -100,7 +130,7 @@ public class MatrixEngineService {
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Invalid target ID: %s", targetId)));
 
-			performJobs(hostConfigurationDTO);
+			performJobs(hostConfigurationDTO, connectors);
 		}
 	}
 
@@ -108,21 +138,17 @@ public class MatrixEngineService {
 	 * Calls the matrix engine to perform detection, discovery and collect strategies.
 	 *
 	 * @param hostConfigurationDTO	The configuration for the target currently being processed.
+	 * @param connectors            The connectors provided by the matrix-engine local store
 	 *
 	 * @throws BusinessException	If no connectors lookup were found in the store.
 	 */
-	private void performJobs(HostConfigurationDTO hostConfigurationDTO) throws BusinessException {
+	private void performJobs(HostConfigurationDTO hostConfigurationDTO,  Map<String, Connector> connectors) throws BusinessException {
 
 		// Set the context for the logger
 		configureLoggerContext(hostConfigurationDTO);
 
 		log.info("MatrixEngineService called for system {}", hostConfigurationDTO.getTarget().getHostname());
 		log.info("Server Port: {}", serverPort);
-
-		final Map<String, Connector> connectors = store.getConnectors();
-		if (connectors == null || connectors.isEmpty()) {
-			throw new BusinessException(ErrorCode.BAD_CONNECTOR_STORE, "Could not get the connector lookup for the store.");
-		}
 
 		final Set<String> selectedConnectors = getSelectedConnectors(connectors.keySet(),
 			hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());

@@ -45,7 +45,7 @@ public class PrometheusController {
 
 		@PathVariable("targetId")
 		@ApiParam(
-			value = "The ID of the target",
+			value = "The target identifier",
 			example = "ecs1-01"
 		)
 			String targetId
