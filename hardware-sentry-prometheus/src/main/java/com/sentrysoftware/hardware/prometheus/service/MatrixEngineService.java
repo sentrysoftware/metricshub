@@ -117,7 +117,7 @@ public class MatrixEngineService {
 
 			try {
 				// Blocks until all tasks have completed execution after a shutdown request
-				pool.awaitTermination(multiHostsConfigurationDTO.getMaxHostThreadsTimeout(), TimeUnit.MINUTES);
+				pool.awaitTermination(multiHostsConfigurationDTO.getMaxHostThreadsTimeout(), TimeUnit.SECONDS);
 			} catch (Exception e) {
 				log.error("Waiting for threads termination aborted with an error", e);
 			}

@@ -25,5 +25,5 @@ public class MultiHostsConfigurationDTO {
 	private int maxHostThreadsPerExporter = 20;
 
 	@Default
-	private int maxHostThreadsTimeout = 15;
+	private int maxHostThreadsTimeout = 15 * 60;
 }

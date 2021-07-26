@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.prometheus.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.CiscoUcsProtocol;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIProtocol;
@@ -28,12 +29,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class HostConfigurationDTO {
 
-	private static final long DEFAULT_JOB_TIMEOUT = 3 * 60 * 60 * 1000L;
-
 	private HardwareTarget target;
 
 	@Default
-	private long operationTimeout = DEFAULT_JOB_TIMEOUT;
+	private int operationTimeout = EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
 	private SNMPProtocol snmp;
 
