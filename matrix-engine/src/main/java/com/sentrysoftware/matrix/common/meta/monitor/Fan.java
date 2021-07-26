@@ -5,6 +5,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +20,19 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 public class Fan implements IMetaMonitor {
+
+	private static final String RECOMMENDED_ACTION_FOR_BAD_FAN = "Check if the fan is no longer cooling the system. If so, replace the fan.";
 
 	public static final MetaParameter SPEED = MetaParameter.builder()
 			.basicCollect(true)
@@ -35,7 +50,26 @@ public class Fan implements IMetaMonitor {
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, FAN_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
+	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Fan::checkMissingCondition,
+			PRESENT_ALARM_CONDITION,
+			ParameterState.ALARM);
+	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Fan::checkStatusWarnCondition,
+			STATUS_WARN_CONDITION,
+			ParameterState.WARN);
+	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Fan::checkStatusAlarmCondition,
+			STATUS_ALARM_CONDITION,
+			ParameterState.ALARM);
+	public static final AlertRule SPEED_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
+			SPEED_ALARM_CONDITION,
+			ParameterState.ALARM);
+	public static final AlertRule SPEED_PERCENT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
+			SPEED_ALARM_CONDITION,
+			ParameterState.ALARM);
+
 	private static final Map<String, MetaParameter> META_PARAMETERS;
+	private static final Map<String, List<AlertRule>> ALERT_RULES;
 
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -47,6 +81,145 @@ public class Fan implements IMetaMonitor {
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
+		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.SPEED_PARAMETER, Collections.singletonList(SPEED_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.SPEED_PERCENT_PARAMETER, Collections.singletonList(SPEED_PERCENT_ALERT_RULE));
+
+		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
+
+	}
+
+	/**
+	 * Check condition when the monitor status is in WARN state.
+	 * 
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("The fan is degraded or about to fail." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.consequence("This may lead to a temperature increase of the device cooled by this fan and therefore, to a system crash or damaged hardware.")
+					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor status is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("The fan has failed and no longer cools down the system." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.consequence("This may lead to a temperature increase of the device cooled by this fan and therefore, to a system crash or damaged hardware.")
+					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor speed is in an abnormal state.
+	 * 
+	 * @param monitor        The monitor we wish to check its speed
+	 * @param parameterName  The name of the parameter to check
+	 * @param conditions     The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
+		if (assertedSpeed.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This fan is reported as not spinning anymore.")
+					.consequence("The temperature of the chip, component or device that was cooled by this fan, may rise rapidly. This could lead to severe hardware damage and system crashes.")
+					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor speed is in an abnormal state (low).
+	 * 
+	 * @param monitor        The monitor we wish to check its speed
+	 * @param parameterName  The name of the parameter to check
+	 * @param conditions     The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkLowSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
+		if (assertedSpeed.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem(String.format("The speed of this fan is critically low (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
+					.consequence("The temperature of the chip, component or device that was cooled down by this fan, may rise rapidly. This could lead to severe hardware damage and system crashes.")
+					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor speed is in an abnormal state (insufficient).
+	 * 
+	 * @param monitor        The monitor we wish to check its speed
+	 * @param parameterName  The name of the parameter to check
+	 * @param conditions     The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkInsufficientSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
+		if (assertedSpeed.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem(String.format("The speed of this fan is insufficient (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
+					.consequence("The temperature of the chip, component or device that was cooled down by this fan, may increase slightly. This could lead to system crashes.")
+					.recommendedAction("Check why the fan is running slow. This may be caused by dust or wear and tear. Replace the fan if needed.")
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
+	 * Check missing Fan condition.
+	 * 
+	 * @param monitor    The monitor we wish to check
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		if (assertedPresent.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This fan is not detected anymore.")
+					.consequence("This could either mean that the fan is no longer powered or that the sensor has failed. If the fan is turned off, it may lead to a temperature increase on the device cooled by this fan, could hence result in a system crash or damaged hardware.")
+					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
+					.build();
+
+		}
+
+		return null;
 	}
 
 	@Override
@@ -67,5 +240,10 @@ public class Fan implements IMetaMonitor {
 	@Override
 	public List<String> getMetadata() {
 		return METADATA;
+	}
+
+	@Override
+	public Map<String, List<AlertRule>> getStaticAlertRules() {
+		return ALERT_RULES;
 	}
 }

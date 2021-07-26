@@ -229,9 +229,9 @@ class CollectOperationTest {
 			assertEquals(strategyTime, parameterAfterReset.getPreviousCollectTime());
 			assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
 			assertEquals(ParameterState.OK, parameterAfterReset.getState());
-			assertNull(parameterAfterReset.getThreshold());
 			assertNull(parameterAfterReset.getValue());
 			assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
+
 		}
 	}
 

@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import com.sentrysoftware.matrix.model.threshold.Threshold;
+import java.util.List;
+
+import com.sentrysoftware.matrix.model.alert.AlertRule;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +21,9 @@ public class TextParam extends AbstractParam {
 	private String value;
 
 	@Builder
-	public TextParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, String unit, String value) {
+	public TextParam(String name, Long collectTime, List<AlertRule> alertRules, ParameterState parameterState, String unit, String value) {
 
-		super(name, collectTime, threshold, parameterState, unit);
+		super(name, collectTime, parameterState, unit);
 		this.value = value;
 	}
 

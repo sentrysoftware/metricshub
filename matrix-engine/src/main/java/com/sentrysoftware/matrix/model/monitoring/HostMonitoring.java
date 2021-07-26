@@ -24,9 +24,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -304,7 +307,22 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public String toJson() {
-		return JsonHelper.serialize(monitors);
+
+		final HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
+
+		final List<MonitorType> monitorTypes = new ArrayList<>(monitors.keySet());
+		Collections.sort(monitorTypes, new MonitorTypeComparator());
+
+		monitorTypes.stream()
+			.filter(monitorType -> monitors.get(monitorType) != null && monitors.get(monitorType).values() != null)
+			.forEach(monitorType ->
+				{
+					final List<Monitor> monitorList = new ArrayList<>(monitors.get(monitorType).values());
+					Collections.sort(monitorList, new MonitorComparator());
+					hostMonitoringVO.addAll(monitorList);
+				});
+
+		return JsonHelper.serialize(hostMonitoringVO);
 	}
 
 	@Override
@@ -498,5 +516,23 @@ public class HostMonitoring implements IHostMonitoring {
 		configContext.getBeanFactory().autowireBean(strategyConfig);
 
 		return configContext;
+	}
+
+	/**
+	 *  These two classes are used to sort monitors and monitorTypes before adding them to a HostMonitoringVO
+	 *  so that the parsing always returns the same value, and not with monitor types and monitors displayed randomly
+	 */
+	class MonitorComparator implements Comparator<Monitor> {
+		@Override
+		public int compare(Monitor a, Monitor b) {
+			return a.getId().compareTo(b.getId());
+		}
+	}
+
+	class MonitorTypeComparator implements Comparator<MonitorType> {
+		@Override
+		public int compare(MonitorType a, MonitorType b) {
+			return a.name().compareTo(b.name());
+		}
 	}
 }

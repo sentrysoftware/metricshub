@@ -2146,7 +2146,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testJson2Csv() {
-		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring.json", ComputeVisitorTest.class).replaceAll("\\s", "");
+		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", ComputeVisitorTest.class).replaceAll("\\s", "");
 		sourceTable.setRawData(rawData);
 
 		Json2CSV json2CSV = null;
@@ -2158,14 +2158,15 @@ class ComputeVisitorTest {
 		assertEquals(rawData, sourceTable.getRawData());
 
 		json2CSV = Json2CSV.builder()
-				.entryKey("/ENCLOSURE/enclosure-1")
+				.entryKey("/monitors")
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
 				.build();
 
 		computeVisitor.visit(json2CSV);
 
-		String rawDataRes = "/ENCLOSURE/enclosure-1;enclosure-1;enclosure-1;ENCLOSURE;targetId;\n";
+		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" + 
+							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
 

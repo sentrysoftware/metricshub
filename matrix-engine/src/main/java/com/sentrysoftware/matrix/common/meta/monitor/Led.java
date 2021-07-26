@@ -16,6 +16,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
 
 public class Led implements IMetaMonitor {
 
@@ -66,5 +67,10 @@ public class Led implements IMetaMonitor {
 	@Override
 	public List<String> getMetadata() {
 		return METADATA;
+	}
+
+	@Override
+	public Map<String, List<AlertRule>> getStaticAlertRules() {
+		return Collections.emptyMap();
 	}
 }

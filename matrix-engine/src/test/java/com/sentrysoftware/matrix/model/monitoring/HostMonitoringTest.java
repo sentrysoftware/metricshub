@@ -386,7 +386,6 @@ class HostMonitoringTest {
 		assertEquals(now, parameterAfterReset.getPreviousCollectTime());
 		assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getThreshold());
 		assertNull(parameterAfterReset.getValue());
 		assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
 	}
@@ -414,7 +413,6 @@ class HostMonitoringTest {
 
 		assertNotNull(parameterAfterReset.getCollectTime());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getThreshold());
 		assertEquals(1, parameterAfterReset.getPresent());
 	}
 
@@ -442,7 +440,6 @@ class HostMonitoringTest {
 		assertNull(parameterAfterReset.getCollectTime());
 		assertEquals(TEST_REPORT, parameterAfterReset.getName());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getThreshold());
 		assertNull(parameterAfterReset.getValue());
 	}
 
@@ -470,7 +467,6 @@ class HostMonitoringTest {
 		assertNull(parameterAfterReset.getCollectTime());
 		assertEquals(STATUS, parameterAfterReset.getName());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getThreshold());
 		assertNull(parameterAfterReset.getStatus());
 		assertNull(parameterAfterReset.getStatusInformation());
 		assertEquals(ParameterState.WARN, parameterAfterReset.getPreviousState());
@@ -490,7 +486,7 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure2);
 		System.out.println();
-		assertEquals(ResourceHelper.getResourceAsString("/data/host-monitoring.json", HostMonitoringTest.class).replaceAll("\\s", ""),
+		assertEquals(ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", HostMonitoringTest.class).replaceAll("\\s", ""),
 				hostMonitoring.toJson().replaceAll("\\s", ""));
 
 	}
@@ -590,4 +586,5 @@ class HostMonitoringTest {
 
 		assertNull(hostMonitoring.selectFromType(ENCLOSURE));
 	}
+
 }

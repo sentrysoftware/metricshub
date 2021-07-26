@@ -9,6 +9,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +22,14 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 public class Enclosure implements IMetaMonitor {
 
@@ -47,7 +57,15 @@ public class Enclosure implements IMetaMonitor {
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION, TYPE,
 			ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
+	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Enclosure::checkMissingCondition,
+			PRESENT_ALARM_CONDITION,
+			ParameterState.ALARM);
+	public static final AlertRule INTRUSION_STATUS_ALERT_RULE = new AlertRule(Enclosure::checkIntrusionStatusAlarmCondition,
+			STATUS_ALARM_CONDITION,
+			ParameterState.ALARM);
+
 	private static final Map<String, MetaParameter> META_PARAMETERS;
+	private static final Map<String, List<AlertRule>> ALERT_RULES;
 
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -60,6 +78,55 @@ public class Enclosure implements IMetaMonitor {
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
+		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, Collections.singletonList(INTRUSION_STATUS_ALERT_RULE));
+
+		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
+
+	}
+
+	/**
+	 * Check missing enclosure condition
+	 * 
+	 * @param monitor    The monitor we wish to check
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		if (assertedPresent.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This enclosure is not detected anymore.")
+					.consequence("This is probably a problem between Hardware Sentry and the hardware agent.")
+					.recommendedAction("Check that the connectors are running properly.")
+					.build();
+
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor intrusion status is in ALARM state.
+	 * 
+	 * @param monitor The monitor we wish to check
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkIntrusionStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER, conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("The enclosure is open or has been removed.")
+					.consequence("This could mean that somebody is accessing the hardware components in the enclosure, including the harddisks which may contain private information.")
+					.recommendedAction("Make sure the enclosure has been opened by authorized personnel only and close it as soon as possible.")
+					.build();
+
+		}
+		return null;
 	}
 
 	@Override
@@ -82,4 +149,8 @@ public class Enclosure implements IMetaMonitor {
 		return METADATA;
 	}
 
+	@Override
+	public Map<String, List<AlertRule>> getStaticAlertRules() {
+		return ALERT_RULES;
+	}
 }

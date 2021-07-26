@@ -5,6 +5,8 @@ public class HardwareConstants {
 	private HardwareConstants() {
 	}
 
+	public static final String FULL_DUPLEX_MODE = "Full";
+	public static final String HALF_DUPLEX_MODE = "Half";
 	public static final String N_A = "N/A";
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
@@ -70,7 +72,7 @@ public class HardwareConstants {
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
-	public static final String BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER = "bandwidthUtilization";
+	public static final String BANDWIDTH_UTILIZATION_PARAMETER = "bandwidthUtilization";
 	public static final String DUPLEX_MODE_PARAMETER = "duplexMode";
 	public static final String ERROR_PERCENT_PARAMETER = "errorPercent";
 	public static final String LINK_SPEED_PARAMETER = "linkSpeed";
@@ -132,6 +134,7 @@ public class HardwareConstants {
 	public static final String ADDITIONAL_INFORMATION2 = "additionalInformation2";
 	public static final String ADDITIONAL_INFORMATION1 = "additionalInformation1";
 	public static final String CHEMISTRY = "chemistry";
+	public static final String POWER = "power";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
