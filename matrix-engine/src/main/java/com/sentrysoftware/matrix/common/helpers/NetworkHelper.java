@@ -33,8 +33,8 @@ public class NetworkHelper {
 		try {
 			inetAddress = InetAddress.getByName(hostname);
 		} catch (UnknownHostException e) {
-			String message = String.format("Error detected on InetAddress.getByName(%s)", hostname);
-			log.error(message, e);
+			String message = String.format("Unknown host: %s", hostname);
+			log.error(message);
 			throw new LocalhostCheckException(message, e);
 		}
 
@@ -76,7 +76,7 @@ public class NetworkHelper {
 			try {
 				inetAddress = InetAddress.getByName(hostname);
 			} catch (UnknownHostException e) {
-				log.error(String.format("Error detected on InetAddress.getByName(%s)", hostname), e);
+				log.error("Unknown host: {}", hostname);
 				throw e;
 			}
 		}
