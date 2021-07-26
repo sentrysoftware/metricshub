@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class NetworkHelperTest {
 		assertEquals(hostname, NetworkHelper.getFqdn(hostname));
 
 		// hostname cannot be resolved
-		assertThrows(LocalhostCheckException.class, () -> NetworkHelper.getFqdn("FOO"));
+		assertThrows(UnknownHostException.class, () -> NetworkHelper.getFqdn(UUID.randomUUID().toString()));
 
 		// hostname can be resolved
 		assertNotNull(NetworkHelper.getFqdn(hostname));

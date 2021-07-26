@@ -29,7 +29,14 @@ public class NetworkHelper {
 		Assert.notNull(hostname, "hostname cannot be null.");
 		Assert.isTrue(!hostname.trim().isEmpty(), "hostname cannot be empty.");
 
-		InetAddress inetAddress = getInetAddress(hostname);
+		InetAddress inetAddress = null;
+		try {
+			inetAddress = InetAddress.getByName(hostname);
+		} catch (UnknownHostException e) {
+			String message = String.format("Error detected on InetAddress.getByName(%s)", hostname);
+			log.error(message, e);
+			throw new LocalhostCheckException(message, e);
+		}
 
 		if (inetAddress != null) {
 			// Check if the address is a valid local or loop back
@@ -55,37 +62,23 @@ public class NetworkHelper {
 
 
 	/**
-	 * Get the InetAddress of the given hostname
-	 * 
-	 * @param hostname
-	 * @return {@link InetAddress} of the given hostname
-	 * @throws LocalhostCheckException when we encounter the {@link UnknownHostException}
-	 */
-	public static InetAddress getInetAddress(final String hostname) throws LocalhostCheckException {
-
-		try {
-			return InetAddress.getByName(hostname);
-		} catch (UnknownHostException e) {
-			final String message = String.format("Error detected on InetAddress.getByName(%s)", hostname);
-			log.error(message, e);
-			throw new LocalhostCheckException(message, e);
-		}
-	}
-
-	/**
 	 * @param hostname					The hostname whose FQDN is being searched for.
 	 *
 	 * @return							The FQDN of the given hostname
-	 *
-	 * @throws LocalhostCheckException	If the given hostname cannot be resolved.
+	 * @throws UnknownHostException		If the given hostname cannot be resolved.
 	 */
-	public static String getFqdn(String hostname) throws LocalhostCheckException {
+	public static String getFqdn(String hostname) throws UnknownHostException  {
 
 		String fqdn = hostname;
 		InetAddress inetAddress = null;
 
 		if (hostname != null && !hostname.isBlank()) {
-			inetAddress = NetworkHelper.getInetAddress(hostname);
+			try {
+				inetAddress = InetAddress.getByName(hostname);
+			} catch (UnknownHostException e) {
+				log.error(String.format("Error detected on InetAddress.getByName(%s)", hostname), e);
+				throw e;
+			}
 		}
 
 		if (inetAddress != null) {

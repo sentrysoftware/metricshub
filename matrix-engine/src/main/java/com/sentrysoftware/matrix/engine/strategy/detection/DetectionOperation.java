@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -122,7 +123,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param target
 	 * @param testedConnectorList
 	 */
-	void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) throws LocalhostCheckException {
+	void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) {
 
 		// Loop over the testedConnectors and create them in the HostMonitoring instance
 		for (TestedConnector testedConnector : testedConnectorList) {
@@ -135,7 +136,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param target
 	 * @param testedConnector
 	 */
-	void createConnector(final Monitor target, final TestedConnector testedConnector) throws LocalhostCheckException {
+	void createConnector(final Monitor target, final TestedConnector testedConnector) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
@@ -163,9 +164,9 @@ public class DetectionOperation extends AbstractStrategy {
 	 *
 	 * @param isLocalhost				Whether the target should be localhost or not.
 	 *
-	 * @throws LocalhostCheckException	If the target's hostname could not be resolved.
+	 * @throws UnknownHostException		If the target's hostname could not be resolved.
 	 */
-	Monitor createTarget(final boolean isLocalhost) throws LocalhostCheckException {
+	Monitor createTarget(final boolean isLocalhost) throws UnknownHostException {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 

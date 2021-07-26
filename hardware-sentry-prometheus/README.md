@@ -13,43 +13,43 @@
      targets:
      
      - target:
-         hostname: "ecs1-01"
-         type: "LINUX"
+         hostname: ecs1-01
+         type: LINUX
        snmp:
-         version: "V1"
-         community: "public"
+         version: V1
+         community: public
          port: 161
          timeout: 120
        selectedConnectors:
-       - "MS_HW_DellOpenManage.hdfs"
+       - MS_HW_DellOpenManage.hdfs
        excludedConnectors: []
-       unknownStatus: "WARN"
+       unknownStatus: WARN
      
      - target:
-         hostname: "ecs1-01"
-         type: "LINUX"
+         hostname: ecs1-01
+         type: LINUX
        snmp:
-         version: "V1"
-         community: "public"
+         version: V1
+         community: public
          port: 161
          timeout: 120
        selectedConnectors:
-         - "MS_HW_DellOpenManage.hdfs"
+         - MS_HW_DellOpenManage.hdfs
        excludedConnectors: []
-       unknownStatus: "WARN"
+       unknownStatus: WARN
      
      - target:
-         hostname: "ecs1-01"
-         type: "LINUX"
+         hostname: ecs1-01
+         type: LINUX
        snmp:
-         version: "V1"
-         community: "public"
+         version: V1
+         community: public
          port: 161
          timeout: 120
        selectedConnectors:
-         - "MS_HW_DellOpenManage.hdfs"
+         - MS_HW_DellOpenManage.hdfs
        excludedConnectors: []
-       unknownStatus: "WARN"
+       unknownStatus: WARN
      ```
 
    ### Execution
