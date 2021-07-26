@@ -19,24 +19,26 @@
 
 		<menu name="Getting Started">
 			<!--<item name="Release Notes" href="release-notes.html" / -->	
-			<item name="Getting Started" href="index.html"/>
-			<item name="Supported Platforms" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
-			<item name="Components Monitored and Metrics" href="https://www.sentrysoftware.com/library/hc/hdf-reference.html" target="_blank"/>	
-		</menu>
-
-		<menu name="Installing the CLI">
+			<item name="What is ${project.name}?" href="index.html"/>
 			<item name="Prerequisites" href="prerequisites.html"/>
 			<item name="Getting the Installation Packages" href="install.html"/>
 		</menu>
-		
-		<menu name="Using the CLI">
-						<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
-			<item name="Configuring Connectors" href="configuring-connectors.html"/>
-			<item name="Getting Help" href="help.html"/>
-		</menu>
 
-		<menu name="Troubleshooting">
-			<item name="Enabling the debug mode" href="debug.html"/>
+		<menu name="Using the CLI">
+			<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli/index.html">
+				<item name="Using the HTTP Protocol" href="running-hardware-sentry-cli/using-http-protocol.html"/>
+				<item name="Using the SNMP Protocol" href="running-hardware-sentry-cli/using-snmp-protocol.html"/>
+				<item name="Using the WBEM Protocol" href="running-hardware-sentry-cli/using-wbem-protocol.html"/>
+				<item name="Using the WMI Protocol" href="running-hardware-sentry-cli/using-wmi-protocol.html"/>
+				<item name="Example" href="running-hardware-sentry-cli/example.html"/>
+			</item>
+			<item name="Configuring Connectors" href="running-hardware-sentry-cli/configuring-connectors.html"/>
+			<item name="Getting Help" href="running-hardware-sentry-cli/help.html"/>
+			<item name="Generating Logs" href="running-hardware-sentry-cli/debug.html"/>
+		</menu>
+		
+		<menu name="Appendix">
+			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
 		</menu>
 		
 	</body>
