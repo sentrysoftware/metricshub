@@ -1,6 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,9 +27,17 @@ class PrometheusControllerTest {
 	@Test
 	void testMetrics() throws BusinessException {
 		final String expected = "enclosure_status{id=\"1\", parentId=\"0\", label=\"encolosure 1\"} 0";
-		doReturn(expected).when(prometheusService).collectMetrics();
+		doReturn(expected).when(prometheusService).collectMetrics(null);
 		assertEquals(expected, prometheusController.metrics());
-		verify(prometheusService, times(1)).collectMetrics();
+		verify(prometheusService, times(1)).collectMetrics(null);
 	}
 
+	@Test
+	void testMetricsWithTargetId() throws BusinessException {
+
+		final String expected = "enclosure_status{id=\"1\", parentId=\"0\", label=\"encolosure 1\"} 0";
+		doReturn(expected).when(prometheusService).collectMetrics(anyString());
+		assertEquals(expected, prometheusController.metrics("1"));
+		verify(prometheusService).collectMetrics(anyString());
+	}
 }

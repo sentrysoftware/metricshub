@@ -2174,4 +2174,43 @@ class ComputeVisitorTest {
 		computeVisitor.visit(extractPropertyFromWbemPath);
 		assertEquals(tableResult, sourceTable.getTable());
 	}
+
+	@Test
+	void testPerformMathComputeOnLine() {
+
+		Divide divide = Divide
+			.builder()
+			.divideBy("2")
+			.build();
+
+		List<List<String>> table = Collections.singletonList(Arrays.asList("   ", FOO, "4.0"));
+		sourceTable.setTable(table);
+
+		// column index > row size
+		divide.setColumn(4);
+		computeVisitor.visit(divide);
+		assertEquals(table, sourceTable.getTable());
+
+		// column index <= row size, op1 is blank
+		divide.setColumn(1);
+		computeVisitor.visit(divide);
+		assertEquals(table, sourceTable.getTable());
+
+		// column index <= row size, op1 is not blank, op2Index == -1
+		table.get(0).set(0, "8.0");
+		List<List<String>> result = Collections.singletonList(Arrays.asList("4.0", FOO, "4.0"));
+		computeVisitor.visit(divide);
+		assertEquals(result, sourceTable.getTable());
+
+		// column index <= row size, op1 is not blank, op2Index != -1, op2Index >= row size
+		divide.setDivideBy("column(4)");
+		computeVisitor.visit(divide);
+		assertEquals(result, sourceTable.getTable());
+
+		// column index <= row size, op1 is not blank, op2Index != -1, op2Index < row size
+		divide.setDivideBy("column(3)");
+		result = Collections.singletonList(Arrays.asList("1.0", FOO, "4.0"));
+		computeVisitor.visit(divide);
+		assertEquals(result, sourceTable.getTable());
+	}
 }

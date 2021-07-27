@@ -1,15 +1,13 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Class helper to get network information
@@ -31,7 +29,14 @@ public class NetworkHelper {
 		Assert.notNull(hostname, "hostname cannot be null.");
 		Assert.isTrue(!hostname.trim().isEmpty(), "hostname cannot be empty.");
 
-		InetAddress inetAddress = getInetAddress(hostname);
+		InetAddress inetAddress = null;
+		try {
+			inetAddress = InetAddress.getByName(hostname);
+		} catch (UnknownHostException e) {
+			String message = String.format("Unknown host: %s", hostname);
+			log.error(message);
+			throw new LocalhostCheckException(message, e);
+		}
 
 		if (inetAddress != null) {
 			// Check if the address is a valid local or loop back
@@ -57,21 +62,29 @@ public class NetworkHelper {
 
 
 	/**
-	 * Get the InetAddress of the given hostname
-	 * 
-	 * @param hostname
-	 * @return {@link InetAddress} of the given hostname
-	 * @throws LocalhostCheckException when we encounter the {@link UnknownHostException}
+	 * @param hostname					The hostname whose FQDN is being searched for.
+	 *
+	 * @return							The FQDN of the given hostname
+	 * @throws UnknownHostException		If the given hostname cannot be resolved.
 	 */
-	private static InetAddress getInetAddress(final String hostname) throws LocalhostCheckException {
+	public static String getFqdn(String hostname) throws UnknownHostException  {
 
-		try {
-			return InetAddress.getByName(hostname);
-		} catch (UnknownHostException e) {
-			final String message = String.format("Error detected on InetAddress.getByName(%s)", hostname);
-			log.error(message, e);
-			throw new LocalhostCheckException(message, e);
+		String fqdn = hostname;
+		InetAddress inetAddress = null;
+
+		if (hostname != null && !hostname.isBlank()) {
+			try {
+				inetAddress = InetAddress.getByName(hostname);
+			} catch (UnknownHostException e) {
+				log.error("Unknown host: {}", hostname);
+				throw e;
+			}
 		}
-	}
 
+		if (inetAddress != null) {
+			fqdn = inetAddress.getCanonicalHostName();
+		}
+
+		return fqdn;
+	}
 }

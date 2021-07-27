@@ -15,8 +15,8 @@ import io.prometheus.client.exporter.common.TextFormat;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This service is used to build outputs in order to serve the Prometheus clients. This service calls the Matrix Engine to collect metrics
- * then 
+ * This service is used to build outputs in order to serve the Prometheus clients.
+ * This service calls the Matrix Engine to collect metrics.
  */
 @Service
 @Slf4j
@@ -35,13 +35,14 @@ public class PrometheusService {
 	 * @return Text version 0.0.4 of the {@link MetricFamilySamples}
 	 * @throws BusinessException
 	 */
-	public String collectMetrics() throws BusinessException {
+	public String collectMetrics(String targetId) throws BusinessException {
+
 		// Need to clear the registry so that we have fresh data, we also avoid errors
 		// metric already set...etc.
 		CollectorRegistry.defaultRegistry.clear();
 
 		// Call the Matrix engine to run the detection, discovery and collect
-		matrixEngineService.performJobs();
+		matrixEngineService.performJobs(targetId);
 
 		// Register the Prometheus collector with the default registry
 		hostMonitoringCollectorService.register();
@@ -63,7 +64,5 @@ public class PrometheusService {
 
 		// Return the String value
 		return writer.toString();
-
 	}
-
 }
