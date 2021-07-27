@@ -21,7 +21,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EngineConfiguration {
 
-	private static final long DEFAULT_JOB_TIMEOUT = 3 * 60 * 60 * 1000L;
+	// 5 minutes
+	public static final int DEFAULT_JOB_TIMEOUT = 5 * 60;
 
 	private HardwareTarget target;
 
@@ -29,7 +30,7 @@ public class EngineConfiguration {
 	private Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
 
 	@Default
-	private long operationTimeout = DEFAULT_JOB_TIMEOUT;
+	private int operationTimeout = DEFAULT_JOB_TIMEOUT;
 
 	@Default
 	private Set<String> selectedConnectors = new HashSet<>();

@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,6 +11,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -42,4 +46,20 @@ class NetworkHelperTest {
 		}
 	}
 
+	@Test
+	void testGetFqdn() throws Exception {
+
+		// hostname is null
+		assertNull(NetworkHelper.getFqdn(null));
+
+		// hostname is blank
+		String hostname = "   ";
+		assertEquals(hostname, NetworkHelper.getFqdn(hostname));
+
+		// hostname cannot be resolved
+		assertThrows(UnknownHostException.class, () -> NetworkHelper.getFqdn(UUID.randomUUID().toString()));
+
+		// hostname can be resolved
+		assertNotNull(NetworkHelper.getFqdn(hostname));
+	}
 }

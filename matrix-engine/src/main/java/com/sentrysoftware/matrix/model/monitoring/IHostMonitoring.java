@@ -1,11 +1,11 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+
+import java.util.Map;
+import java.util.Set;
 
 public interface IHostMonitoring {
 

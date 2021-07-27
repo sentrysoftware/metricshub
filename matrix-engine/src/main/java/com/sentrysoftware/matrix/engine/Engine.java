@@ -38,13 +38,20 @@ public class Engine {
 			return EngineResult.builder().hostMonitoring(hostMonitoring)
 					.operationStatus(result ? OperationStatus.SUCCESS : OperationStatus.ERROR).build();
 		} catch (ExecutionException e) {
+			log.error("Execution error", e);
 			return EngineResult.builder().hostMonitoring(hostMonitoring)
 					.operationStatus(OperationStatus.EXECUTION_EXCEPTION).build();
-		} catch (InterruptedException | TimeoutException e) {
-			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			log.error("Timeout error", e);
 			return EngineResult.builder().hostMonitoring(hostMonitoring)
 					.operationStatus(OperationStatus.TIMEOUT_EXCEPTION).build();
+		} catch(InterruptedException e) {
+			log.error("Interrupted error", e);
+			Thread.currentThread().interrupt();
+			return EngineResult.builder().hostMonitoring(hostMonitoring)
+					.operationStatus(OperationStatus.INTERRUPTED_EXCEPTION).build();
 		} catch (Exception e) {
+			log.error("Unknown exception", e);
 			return EngineResult.builder().hostMonitoring(hostMonitoring).operationStatus(OperationStatus.GENERAL_ERROR)
 					.build();
 		}

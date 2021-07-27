@@ -40,7 +40,7 @@ public class Context {
 
 			final Future<Boolean> handler = executorService.submit(strategy);
 
-			result = handler.get(operationTimeout, TimeUnit.MILLISECONDS);
+			result = handler.get(operationTimeout, TimeUnit.SECONDS);
 
 			strategy.post();
 

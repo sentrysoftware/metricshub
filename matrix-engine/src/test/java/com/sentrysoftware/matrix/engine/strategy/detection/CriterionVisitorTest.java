@@ -230,14 +230,14 @@ class CriterionVisitorTest {
 				.success(false)
 				.build();
 
-		OS os = OS.builder().exclude(Collections.EMPTY_SET).keepOnly(Collections.EMPTY_SET).build();
+		OS os = OS.builder().exclude(Collections.emptySet()).keepOnly(Collections.emptySet()).build();
 		assertEquals(successfulTestResult, criterionVisitor.visit(os));
 
 		os.setKeepOnly(Set.of(OSType.NT));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(successfulTestResult, criterionVisitor.visit(os));
 
-		os.setKeepOnly(Collections.EMPTY_SET);
+		os.setKeepOnly(Collections.emptySet());
 		os.setExclude(Set.of(OSType.NT));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(failedTestResult, criterionVisitor.visit(os));
@@ -247,7 +247,7 @@ class CriterionVisitorTest {
 		assertEquals(successfulTestResult, criterionVisitor.visit(os));
 
 		os.setKeepOnly(Set.of(OSType.LINUX));
-		os.setExclude(Collections.EMPTY_SET);
+		os.setExclude(Collections.emptySet());
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(failedTestResult, criterionVisitor.visit(os));
 	}

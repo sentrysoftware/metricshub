@@ -54,7 +54,7 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	@Option(names = { "--debug", "-d" }, description = "Activate debug mode for logs.")
 	private boolean debug;
 
-	@Option(names = { "--output" }, description = "Output directory for logs.")
+	@Option(names = { "--output", "-o"}, description = "Output directory for logs.")
 	private String outputDirectory;
 
 	@Override
