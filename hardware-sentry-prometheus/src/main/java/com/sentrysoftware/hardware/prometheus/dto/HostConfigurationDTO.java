@@ -6,7 +6,8 @@ import java.util.Set;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.CiscoUcsProtocol;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -38,7 +39,7 @@ public class HostConfigurationDTO {
 
 	private CiscoUcsProtocol ciscoUcs;
 
-	private IPMIProtocol ipmi;
+	private IPMIOverLanProtocol ipmi;
 
 	private SSHProtocol ssh;
 
@@ -47,6 +48,8 @@ public class HostConfigurationDTO {
 	private WMIProtocol wmi;
 
 	private HTTPProtocol http;
+
+	private OSCommandConfig osCommand;
 
 	@Default
 	private Set<String> selectedConnectors = new HashSet<>();

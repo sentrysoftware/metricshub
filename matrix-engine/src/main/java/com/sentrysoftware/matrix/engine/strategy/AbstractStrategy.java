@@ -19,6 +19,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -180,7 +181,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		for (Criterion criterion : criteria) {
-			final CriterionTestResult critetionTestResult = processCriterion(criterion);
+			final CriterionTestResult critetionTestResult = processCriterion(criterion, connector);
 			if (!critetionTestResult.isSuccess()) {
 				log.debug("Detected failed criterion for connector {} on platform: {}. Message: {}.",
 						connector.getCompiledFilename(),
@@ -198,12 +199,13 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * Accept the criterion visitor which implement the logic that needs to be
 	 * executed for each criterion implementation
 	 * 
-	 * @param criterion
+	 * @param criterion The criterion we wish to process
+	 * @param connector The {@link Connector} defining the criterion
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
-	CriterionTestResult processCriterion(final Criterion criterion) {
+	CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
 
-		return criterion.accept(criterionVisitor);
+		return criterion.accept(new CriterionUpdaterVisitor(criterionVisitor, connector));
 	}
 
 	/**

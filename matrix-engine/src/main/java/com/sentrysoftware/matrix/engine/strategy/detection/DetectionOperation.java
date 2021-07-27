@@ -172,6 +172,8 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 
+		hostMonitoring.setLocalhost(isLocalhost);
+
 		String hostname = target.getHostname();
 
 		// Create the target

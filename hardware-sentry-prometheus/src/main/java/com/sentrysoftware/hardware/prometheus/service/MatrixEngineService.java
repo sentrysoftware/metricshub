@@ -205,7 +205,6 @@ public class MatrixEngineService {
 		}
 	}
 
-
 	/**
 	 * Build the {@link EngineConfiguration} instance from the given {@link HostConfigurationDTO}
 	 * 
@@ -229,7 +228,8 @@ public class MatrixEngineService {
 				exporterConfig.getHttp(),
 				exporterConfig.getWbem(),
 				exporterConfig.getWmi(),
-				exporterConfig.getHttp())
+				exporterConfig.getOsCommand(),
+				exporterConfig.getIpmi())
 			.filter(Objects::nonNull)
 			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 

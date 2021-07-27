@@ -52,6 +52,15 @@ public interface IHostMonitoring {
 
 	String getAutomaticWmiNamespace();
 
+	String getIpmitoolCommand();
+	void setIpmitoolCommand(String ipmitoolCommand);
+
+	int getIpmiExecutionCount();
+	void setIpmiExecutionCount(int ipmiExecutionCount);
+
+	boolean isLocalhost();
+	void setLocalhost(boolean isLocalHost);
+
 	Set<String> getPossibleWmiNamespaces();
 
 	void setAutomaticWbemNamespace(String automaticNamespace);

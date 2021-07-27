@@ -32,6 +32,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -46,10 +47,11 @@ import lombok.extern.slf4j.Slf4j;
 public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
-	private static final Pattern EMBEDDEDFILE_REPLACEMENT_PATTERN = Pattern.compile("%EmbeddedFile\\((\\d+)\\)%", Pattern.CASE_INSENSITIVE);
+
 	private static final Pattern SOURCE_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
 			Pattern.CASE_INSENSITIVE);
+
 	private static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile(
 			"%entry.column\\(([1-9]\\d*)\\)%",
 			Pattern.CASE_INSENSITIVE);
@@ -238,30 +240,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			return;
 		}
 
-		final String commandLine = osCommandSource.getCommandLine();
+		osCommandSource.setCommandLine(OsCommandHelper
+				.updateOsCommandEmbeddedFile(osCommandSource.getCommandLine(), connector));
 
-		final Matcher matcher = EMBEDDEDFILE_REPLACEMENT_PATTERN.matcher(commandLine);
-
-		final StringBuilder sb = new StringBuilder();
-		while (matcher.find()) {
-			// EmbeddedFile(embeddedFileIndex)
-			final Integer embeddedFileIndex = Integer.parseInt(matcher.group(1));
-
-			// The embedded file is available in the connector
-			final EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
-
-			// This means there is a design problem or the HDF developer indicated a wrong embedded file
-			Assert.notNull(embeddedFile, () -> "Cannot get the EmbeddedFile from the Connector. EmbeddedFile Index: " + embeddedFileIndex);
-			final String embeddedFileContent = embeddedFile.getContent();
-
-			// This means there is a design problem, the content can never be null
-			Assert.notNull(embeddedFileContent, () -> "EmbeddedFile content is null. EmbeddedFile Index: " + embeddedFileIndex);
-			matcher.appendReplacement(sb, embeddedFileContent);
-		}
-		matcher.appendTail(sb);
-
-		osCommandSource.setCommandLine(sb.toString());
-		
 	}
 
 	/**

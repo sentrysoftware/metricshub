@@ -648,12 +648,5 @@ class SourceVisitorTest {
 					sourceVisitor.getSourceTable("val1;val2;val3;"));
 		}
 	}
-	
-//	@Test
-//	void testBuildHttpUrlString() {
-//		assertEquals("https://hostname:1000", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTPS, "hostname", 1000));
-//		assertEquals("http://xxxxx:5989", SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", 5989));
-//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, "xxxxx", null));
-//		assertEquals(null, SourceVisitor.buildHttpUrlString(WBEMProtocols.HTTP, null, 000));
-//	}
+
 }

@@ -44,6 +44,12 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	private String automaticWmiNamespace;
+
+	private boolean isLocalhost;
+
+	private String ipmitoolCommand;
+	private int ipmiExecutionCount;
+
 	private Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 	private String automaticWbemNamespace;

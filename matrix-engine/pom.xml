@@ -63,6 +63,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-sshclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-wbemclient2</artifactId>
 		</dependency>
 		<dependency>
@@ -75,12 +79,21 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-wbemclient2</artifactId>
+			<artifactId>module-ipmiclient</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.emulation</groupId>
 			<artifactId>emulation-framework-http-server</artifactId>
-			<version>${emulation.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -130,6 +143,11 @@
 		<dependency>
 			<groupId>org.snmp4j</groupId>
 			<artifactId>snmp4j-agent</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -183,7 +201,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.77</minimum>
+											<minimum>0.76</minimum>
 										</limit>
 									</limits>
 								</rule>

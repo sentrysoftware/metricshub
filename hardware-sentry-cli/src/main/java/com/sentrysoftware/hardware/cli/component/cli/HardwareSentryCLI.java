@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IPMICredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
@@ -44,6 +45,9 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 
 	@ArgGroup(validate = false)
 	private HTTPCredentials httpCredentials;
+
+	@ArgGroup(validate = false)
+	private IPMICredentials ipmiCredentials;
 
 	@Option(names = { "-hdfs", "--connectors" }, split = ",", description = "Enter the hdfs to run.")
 	private Set<String> hdfs;

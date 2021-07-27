@@ -1,34 +1,17 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
-import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matsya.awk.AwkException;
-import com.sentrysoftware.matsya.awk.AwkExecutor;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.http.HttpClient;
-import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.jflat.JFlat;
-import com.sentrysoftware.matsya.snmp.SNMPClient;
-import com.sentrysoftware.matsya.tablejoin.TableJoin;
-import com.sentrysoftware.matsya.wbem2.WbemExecutor;
-import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
-import com.sentrysoftware.matsya.wmi.WmiHelper;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
-import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.notNull;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,18 +23,46 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.springframework.util.Assert.notNull;
+import org.springframework.stereotype.Component;
+
+import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
+import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matsya.awk.AwkException;
+import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.http.HttpClient;
+import com.sentrysoftware.matsya.http.HttpResponse;
+import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
+import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
+import com.sentrysoftware.matsya.jflat.JFlat;
+import com.sentrysoftware.matsya.snmp.SNMPClient;
+import com.sentrysoftware.matsya.ssh.SSHClient;
+import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.wbem2.WbemExecutor;
+import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
+import com.sentrysoftware.matsya.wmi.WmiHelper;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
+import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class MatsyaClientsExecutor {
 
+	private static final String TIMEOUT_CANNOT_BE_NULL = "Timeout cannot be null";
+	private static final String PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
+	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
 	private static final String SELECTED_COLUMN_CANNOT_BE_NULL = "selectedColumn cannot be null";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
@@ -501,4 +512,125 @@ public class MatsyaClientsExecutor {
 				null
 			);
 	}
+	
+	/**
+	 * Use Matsya ssh-client in order to run ssh command
+	 * @param hostname
+	 * @param username
+	 * @param password
+	 * @param keyFilePath
+	 * @param command
+	 * @param timeout
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalStateException 
+	 */
+	public String runRemoteSshCommand(String hostname, String username, String password, String keyFilePath,
+			String command, int timeout) throws IOException {
+
+		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+		notNull(username, USERNAME_CANNOT_BE_NULL);
+		notNull(command, "Command cannot be null");
+
+		if (timeout < 0) {
+			log.error("Invalid value of the specified timeout {} ", timeout);
+			return null;
+		}
+
+		// Password
+		if (password == null) {
+			log.warn("Could not read password. Using an empty password instead.");
+			password = "";
+		}
+
+		command = command.trim(); // has already been tested that is not null
+		if (command.isEmpty()) {
+			command = null;
+		}
+
+		// Connect
+		SSHClient client = new SSHClient(hostname, StandardCharsets.UTF_8);
+		boolean authenticated = false;
+		client.connect(timeout * 1000);
+
+		try {
+			if (password.isEmpty()) {
+				authenticated = client.authenticate(username);
+			} else if (keyFilePath == null) {
+				authenticated = client.authenticate(username, password);
+			} else {
+				authenticated = client.authenticate(username, keyFilePath, password);
+			}
+
+		} catch (IOException e) {
+			log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
+			client.disconnect();
+			throw e;
+		}
+
+		if (!authenticated) {
+			log.warn("Failed to authenticate as {} on {}.", username, hostname);
+		}
+
+		// Command or interactive shell?
+		if (command != null) {
+
+			// We have a command: execute it
+			SSHClient.CommandResult result;
+			try {
+				result = client.executeCommand(command, timeout * 1000);
+			} catch (IOException e) {
+				log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
+				throw e;
+			} finally {
+				client.disconnect();
+			}
+
+			if (result.success) {
+				return result.result;
+			} else {
+				// Failure
+				log.error("Execution failed: {}.", result.result);
+			}
+
+		}
+		return null;
+	}
+
+	/**
+	 * Run the IPMI detection in order to detect the Chassis power state
+	 * 
+	 * @param hostname            The host name or the IP address we wish to query
+	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return String value. E.g. System power state is up
+	 * @throws TimeoutException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public String executeIpmiDetection(String hostname, IPMIOverLanProtocol ipmiOverLanProtocol)
+			throws InterruptedException, ExecutionException, TimeoutException {
+
+		return MatsyaIpmiClient.getChassisStatusAsStringResult(buildIpmiConfiguration(hostname, ipmiOverLanProtocol));
+	}
+
+	/**
+	 * Build MATSYA IPMI configuration
+	 * 
+	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param ipmiOverLanProtocol Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return new instance of MATSYA {@link IpmiConfiguration}
+	 */
+	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol) {
+		notNull(ipmiOverLanProtocol.getUsername(), USERNAME_CANNOT_BE_NULL);
+		notNull(ipmiOverLanProtocol.getPassword(), PASSWORD_CANNOT_BE_NULL);
+		notNull(ipmiOverLanProtocol.getTimeout(), TIMEOUT_CANNOT_BE_NULL);
+
+		return new IpmiConfiguration(hostname,
+				ipmiOverLanProtocol.getUsername(),
+				ipmiOverLanProtocol.getPassword(),
+				ipmiOverLanProtocol.getBmcKey(),
+				ipmiOverLanProtocol.isSkipAuth(),
+				ipmiOverLanProtocol.getTimeout());
+	}
+
 }

@@ -1,5 +1,25 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static org.springframework.util.Assert.notNull;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -20,41 +40,36 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @Component
 public class CriterionVisitor implements ICriterionVisitor {
 
+	private static final String IPMI_VERSION = "IPMI Version";
+	private static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
+	private static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
+	private static final String IPMI_TOOL_SUDO_MACRO = "%{SUDO:ipmitool}";
+
+	private static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 	private static final String COLUMN_SEPARATOR = ";";
 
 	private static final String NAMESPACE_MESSAGE = "\n- Namespace: ";
@@ -129,6 +144,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.get(HTTPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The HTTP Credentials are not configured. Cannot process HTTP detection {}.",
+					criterion);
 			return CriterionTestResult.empty();
 		}
 
@@ -207,8 +224,299 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final IPMI ipmi) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+
+		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+
+		if (TargetType.MS_WINDOWS.equals(targetType)) {
+			return processWindowsIpmiDetection();
+		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			return processUnixIpmiDetection(targetType);
+		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+			return processOutOfBandIpmiDetection();
+		}
+
+		return CriterionTestResult.builder()
+				.message("Failed to make an IPMI query on localhost. " + targetType.name() + " is an unsupported OS for IPMI.")
+				.success(false)
+				.build();
+	}
+
+	/**
+	 * Process IPMI detection for the Out Of Band device
+	 * 
+	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
+	 */
+	private CriterionTestResult processOutOfBandIpmiDetection() {
+
+		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
+
+		if (protocol == null) {
+			log.debug("The IPMI Credentials are not configured. Cannot process IPMI-over-LAN detection.");
+			return CriterionTestResult.empty();
+		}
+
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+			String result = matsyaClientsExecutor.executeIpmiDetection(hostname, protocol);
+			if (result == null) {
+				return CriterionTestResult
+						.builder()
+						.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
+						.build();
+			}
+
+			return CriterionTestResult
+					.builder()
+					.result(result)
+					.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
+					.success(true)
+					.build();
+
+		} catch (Exception e) {
+			String message = String.format("Cannot execute IPMI-over-LAN command to get the chassis status on %s. Exception: %s",
+					hostname, e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult
+						.builder()
+						.message(message)
+						.build();
+		}
+	}
+
+	/**
+	 * Process IPMI detection for the Unix system
+	 * 
+	 * @param targetType
+	 * 
+	 * @return
+	 */
+	private CriterionTestResult processUnixIpmiDetection(TargetType targetType) {
+
+		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SSHProtocol.class);
+		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		if (osCommandConfig == null) {
+			final String message = String.format("No OS Command Configuration for %s. Retrun empty result.",
+					hostname);
+			log.error(message);
+			return CriterionTestResult.builder().success(false).result("").message(message).build();
+		}
+		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
+		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
+			ipmitoolCommand = buildIpmiCommand(targetType, hostname, sshProtocol, osCommandConfig, defaultTimeout);
+		}
+
+		// buildIpmiCommand method can either return the actual result of the built command or an error. If it an error we display it in the error message
+		if (!ipmitoolCommand.startsWith("PATH=")) {
+			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
+		}
+		// execute the command
+		try {
+			String result = null;
+			result = runOsCommand(ipmitoolCommand, hostname, sshProtocol, defaultTimeout);
+			if (result != null && !result.contains(IPMI_VERSION)) {
+				// Didn't find what we expected: exit
+				return CriterionTestResult.builder().success(false).result(result)
+						.message("Didn't get the expected result from ipmitool: " + ipmitoolCommand).build();
+			} else {
+				// everything goes well
+				strategyConfig.getHostMonitoring()
+						.setIpmiExecutionCount(strategyConfig.getHostMonitoring().getIpmiExecutionCount() + 1);
+				return CriterionTestResult.builder().success(true).result(result)
+						.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
+						.build();
+			}
+
+		} catch (Exception e) {
+			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception: %s",
+					ipmitoolCommand, hostname, e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().success(false).message(message).build();
+		}
+
+	}
+
+	/**
+	 * Check the OS type and version and build the correct IPMI command. If the
+	 * process fails, return the according error
+	 * 
+	 * @param targetType
+	 * @param hostname
+	 * @param sshProtocol
+	 * @param osCommandConfig
+	 * @param defaultTimeout
+	 * @return
+	 */
+	public String buildIpmiCommand(TargetType targetType, final String hostname, final SSHProtocol sshProtocol,
+			final OSCommandConfig osCommandConfig, final int defaultTimeout) {
+		// do we need to use sudo or not?
+		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
+		// Or if the command is listed in useSudoCommandList (possible only in classic
+		// wizard) --> yes
+		String ipmitoolCommand; // Sonar don't agree with modifying arguments
+		if (osCommandConfig.isUseSudo() || osCommandConfig.getUseSudoCommandList().contains("ipmitool")) {
+			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replace(IPMI_TOOL_SUDO_MACRO, osCommandConfig.getSudoCommand());
+		} else {
+			ipmitoolCommand = IPMI_TOOL_COMMAND;
+		}
+
+		// figure out the version of the Solaris OS
+		if (TargetType.SUN_SOLARIS.equals(targetType)) {
+			String solarisOsVersion = null;
+			try {
+				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
+				// (Solaris)
+				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshProtocol, defaultTimeout);
+			} catch (Exception e) {
+				final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
+						ipmitoolCommand, hostname, e.getMessage());
+				log.debug(message, e);
+				return message;
+			}
+			// Get IPMI command
+			if (solarisOsVersion != null) {
+				try {
+					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
+				} catch (IpmiCommandForSolarisException e) {
+					final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
+							ipmitoolCommand, hostname, e.getMessage());
+					log.debug(message, e);
+					return message;
+				}
+			}
+		} else {
+			// If not Solaris, then we're on Linux
+			// On Linux, the IPMI interface driver is always 'open'
+			ipmitoolCommand = ipmitoolCommand + "open";
+		}
+		strategyConfig.getHostMonitoring().setIpmitoolCommand(ipmitoolCommand);
+
+		// At the very end of the command line, the actual IPMI command
+		ipmitoolCommand = ipmitoolCommand + " bmc info";
+		return ipmitoolCommand;
+	}
+
+	/**
+	 * Run SSH command. Check if we can execute on localhost or remote
+	 * 
+	 * @param ipmitoolCommand
+	 * @param hostname
+	 * @param sshProtocol
+	 * @param timeout
+	 * @return
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public String runOsCommand(String ipmitoolCommand, final String hostname, final SSHProtocol sshProtocol,
+			final int timeout) throws InterruptedException, IOException {
+		String result;
+		if (strategyConfig.getHostMonitoring().isLocalhost()) { // or we can use NetworkHelper.isLocalhost(hostname)
+			result = OsCommandHelper.runLocalCommand(ipmitoolCommand);
+		} else {
+			if (sshProtocol == null) {
+				return null;
+			}
+			String keyFilePath = sshProtocol.getPrivateKey() == null ? null
+					: sshProtocol.getPrivateKey().getAbsolutePath();
+			result = matsyaClientsExecutor.runRemoteSshCommand(hostname, sshProtocol.getUsername(),
+					Arrays.toString(sshProtocol.getPassword()), keyFilePath, ipmitoolCommand, timeout);
+		}
+		return result;
+	}
+
+	/**
+	 * Get IPMI command based on solaris version if version == 9 than use lipmi if
+	 * version > 9 than use bmc else return error
+	 * 
+	 * @param ipmitoolCommand
+	 * @param hostname
+	 * @param solarisOsVersion
+	 * @return
+	 * @throws IpmiCommandForSolarisException
+	 */
+	public String getIpmiCommandForSolaris(String ipmitoolCommand, final String hostname, String solarisOsVersion)
+			throws IpmiCommandForSolarisException {
+		String[] split = solarisOsVersion.split("\\.");
+		if (split.length < 2) {
+			throw new IpmiCommandForSolarisException(String.format(
+					"Unkown Solaris version (%s) for host: %s IPMI cannot be executed, return empty result.",
+					solarisOsVersion, hostname));
+		}
+
+		String solarisVersion = split[1];
+		 try {
+			int versionInt = Integer.parseInt(solarisVersion);
+			if (versionInt == 9) {
+				// On Solaris 9, the IPMI interface drive is 'lipmi'
+				ipmitoolCommand = ipmitoolCommand + "lipmi";
+			} else if (versionInt < 9) {
+
+				throw new IpmiCommandForSolarisException(String.format(
+						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed, return empty result.",
+						solarisOsVersion, hostname));
+
+			} else {
+				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
+				ipmitoolCommand = ipmitoolCommand + "bmc";
+			}
+		} catch (NumberFormatException e) {
+			throw new IpmiCommandForSolarisException("Couldn't identify Solaris version as a valid one.\nThe 'uname -r' command returned: "
+					+ solarisOsVersion);
+		}
+
+		 return ipmitoolCommand;
+	}
+
+	/**
+	 * Process IPMI detection for the Windows (NT) system
+	 * 
+	 * @return
+	 */
+	private CriterionTestResult processWindowsIpmiDetection() {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+
+		if (wmiProtocol == null) {
+			return CriterionTestResult.builder()
+					.message("No WMI credentials provided.")
+					.success(false)
+					.build();
+		}
+
+		String csvTable;
+		String query = "SELECT Description FROM ComputerSystem";
+		try {
+			csvTable = runWmiQueryAndGetCsv(hostname, query, "root/hardware", wmiProtocol);
+		} catch (Exception e) {
+			final String message = String.format(
+					"Ipmi Test Failed - WMI request was unsuccessful due to an exception. Message: %s.",
+					e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().message(message).build();
+		}
+
+		if (csvTable == null || csvTable.isEmpty()) {
+			return CriterionTestResult.builder()
+					.message("The Microsoft IPMI WMI provider did not report the presence of any BMC controller.")
+					.success(false)
+					.build();
+		}
+
+		// Test the result
+		final TestResult testResult = getMatchingResult(query, "root/hardware", EMPTY, csvTable, WMI.class);
+
+		return CriterionTestResult.builder()
+				.success(testResult.isSuccess())
+				.message(testResult.getMessage())
+				.result(csvTable)
+				.build();
 	}
 
 	@Override
@@ -276,6 +584,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
+					snmpGet);
 			return CriterionTestResult.empty();
 		}
 
@@ -414,8 +724,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			.get(WBEMProtocol.class);
 
 		if (protocol == null) {
-
-			log.debug("The WBEM Credentials are not configured. Cannot process WBEM detection {}.", wbem);
+			log.debug("The WBEM Credentials are not configured. Cannot process WBEM detection {}.",
+					wbem);
 			return CriterionTestResult.empty();
 		}
 
@@ -1267,6 +1577,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
+			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
+					snmpGetNext);
 			return CriterionTestResult.empty();
 		}
 
@@ -1416,5 +1728,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 		private boolean success;
 		private String errorMessage;
 		private String csvTable;
+	}
+
+	private class IpmiCommandForSolarisException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public IpmiCommandForSolarisException(String message) {
+			super(message);
+		}
+
 	}
 }
