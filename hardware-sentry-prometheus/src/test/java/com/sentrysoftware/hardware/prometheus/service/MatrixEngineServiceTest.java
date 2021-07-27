@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,7 +52,7 @@ class MatrixEngineServiceTest {
 	private File targetConfigFile;
 
 	@MockBean
-	private IHostMonitoring hostMonitoring;
+	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@MockBean
 	private ConnectorStore store;
@@ -100,18 +103,21 @@ class MatrixEngineServiceTest {
 
 	@Test
 	void testBuildEngineConfiguration() throws BusinessException {
+
 		final Set<String> selectedConnectors = Collections.singleton(MS_HW_DELL_OPEN_MANAGE_CONNECTOR);
 
-		final HostConfigurationDTO hostConfigurationDTO = matrixEngineService.readConfiguration(targetConfigFile);
+		final MultiHostsConfigurationDTO hostsConfigurations = matrixEngineService.readConfiguration(targetConfigFile);
 
-		final EngineConfiguration actual = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO , selectedConnectors);
+		for (HostConfigurationDTO hostConfigurationDTO : hostsConfigurations.getTargets()) {
 
-		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp());
+			EngineConfiguration actual = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
 
-		final HardwareTarget target = hostConfigurationDTO.getTarget();
-		target.setId(target.getHostname());
+			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp());
 
-		final EngineConfiguration expected = EngineConfiguration.builder()
+			HardwareTarget target = hostConfigurationDTO.getTarget();
+			target.setId(target.getHostname());
+
+			EngineConfiguration expected = EngineConfiguration.builder()
 				.operationTimeout(hostConfigurationDTO.getOperationTimeout())
 				.protocolConfigurations(protocolConfigurations)
 				.selectedConnectors(selectedConnectors)
@@ -119,7 +125,8 @@ class MatrixEngineServiceTest {
 				.unknownStatus(hostConfigurationDTO.getUnknownStatus())
 				.build();
 
-		assertEquals(expected, actual);
+			assertEquals(expected, actual);
+		}
 	}
 
 	@Test
@@ -136,29 +143,55 @@ class MatrixEngineServiceTest {
 	void testPerformJobsNoStore() {
 		{
 			doReturn(Collections.emptyMap()).when(store).getConnectors();
-			assertThrows(BusinessException.class, () ->  matrixEngineService.performJobs());
+			assertThrows(BusinessException.class, () ->  matrixEngineService.performJobs(null));
 		}
 
 		{
 			doReturn(null).when(store).getConnectors();
-			assertThrows(BusinessException.class, () ->  matrixEngineService.performJobs());
+			assertThrows(BusinessException.class, () ->  matrixEngineService.performJobs(null));
 		}
 	}
 
 	@Test
-	void testPerformJobs() {
+	void testPerformJobsTargetIsNull() {
+
 		final Map<String, Connector> connectors = Map.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
 		doReturn(connectors).when(store).getConnectors();
 
+		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
+
 		doReturn(EngineResult.builder()
-				.hostMonitoring(hostMonitoring)
+				.hostMonitoring(HostMonitoring.HOST_MONITORING)
 				.operationStatus(OperationStatus.SUCCESS)
 				.build())
 		.when(engine).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
 
-		assertDoesNotThrow(() -> matrixEngineService.performJobs());
+		assertDoesNotThrow(() -> matrixEngineService.performJobs(null));
 
 		// Detection, Discovery and Collect
+		verify(engine, times(9)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+	}
+
+	@Test
+	void testPerformJobsTargetIsNotNull() {
+
+		final Map<String, Connector> connectors = Map.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+		doReturn(connectors).when(store).getConnectors();
+
+		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
+
+		doReturn(EngineResult.builder()
+			.hostMonitoring(HostMonitoring.HOST_MONITORING)
+			.operationStatus(OperationStatus.SUCCESS)
+			.build())
+			.when(engine).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+
+		// Invalid targetId
+		assertThrows(IllegalArgumentException.class, () -> matrixEngineService.performJobs("FOO"));
+		verify(engine, times(0)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+
+		// Valid targetId
+		assertDoesNotThrow(() -> matrixEngineService.performJobs("ecs1-01"));
 		verify(engine, times(3)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
 	}
 }

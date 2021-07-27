@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser.state.compute.extractpropertyfromwbempath;
 
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMMA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;

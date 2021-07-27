@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -23,6 +24,9 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
@@ -120,8 +124,11 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnectorList
 	 */
 	void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) {
-		// Loop over the testedConnecotrs and create them in the HostMonitoring instance
-		testedConnectorList.forEach(testedConnector -> createConnector(target, testedConnector));
+
+		// Loop over the testedConnectors and create them in the HostMonitoring instance
+		for (TestedConnector testedConnector : testedConnectorList) {
+			createConnector(target, testedConnector);
+		}
 	}
 
 	/**
@@ -147,14 +154,19 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addParameter(testReport);
 		monitor.addParameter(statusParam);
 
+		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
+
 		hostMonitoring.addMonitor(monitor);
 	}
 
 	/**
-	 * Create the Target
-	 * @param isLocalhost
+	 * Creates the Target.
+	 *
+	 * @param isLocalhost				Whether the target should be localhost or not.
+	 *
+	 * @throws UnknownHostException		If the target's hostname could not be resolved.
 	 */
-	Monitor createTarget(final boolean isLocalhost) {
+	Monitor createTarget(final boolean isLocalhost) throws UnknownHostException {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
@@ -162,12 +174,16 @@ public class DetectionOperation extends AbstractStrategy {
 
 		hostMonitoring.setLocalhost(isLocalhost);
 
+		String hostname = target.getHostname();
+
 		// Create the target
-		final Monitor targetMonitor = Monitor.builder()
-				.id(target.getId())
-				.targetId(target.getId())
-				.name(target.getHostname())
-				.monitorType(MonitorType.TARGET).build();
+		final Monitor targetMonitor = Monitor
+			.builder()
+			.id(target.getId())
+			.targetId(target.getId())
+			.name(hostname)
+			.monitorType(MonitorType.TARGET)
+			.build();
 
 		// Create the location metadata
 		targetMonitor.addMetadata(HardwareConstants.LOCATION,
@@ -175,6 +191,9 @@ public class DetectionOperation extends AbstractStrategy {
 
 		// Create the operating system type metadata
 		targetMonitor.addMetadata(HardwareConstants.OPERATING_SYSTEM_TYPE, target.getType().name());
+
+		// Create the fqdn metadata
+		targetMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));
 
 		hostMonitoring.addMonitor(targetMonitor);
 

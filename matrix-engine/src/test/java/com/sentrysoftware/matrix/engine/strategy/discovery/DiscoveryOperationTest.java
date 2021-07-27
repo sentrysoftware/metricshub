@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -302,6 +303,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		enclosureMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		enclosureMetadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -320,6 +322,7 @@ class DiscoveryOperationTest {
 		fanMetadata.put(SPEED, SPEED_VALUE);
 		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		fanMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		fanMetadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
@@ -411,6 +414,7 @@ class DiscoveryOperationTest {
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(TARGET_FQDN, null);
 		
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -462,6 +466,7 @@ class DiscoveryOperationTest {
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -657,6 +662,7 @@ class DiscoveryOperationTest {
 		metadata.put(VENDOR, DELL);
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
@@ -721,6 +727,7 @@ class DiscoveryOperationTest {
 		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,8 +52,8 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
 
-	private static final String target_NAME = "target";
-	private static final String target_ID = "targetId";
+	private static final String TARGET_NAME = "target";
+	private static final String TARGET_ID = "targetId";
 	private static final String COMMUNITY = "public";
 	private static final String BAD_RESULT = "1";
 	private static final String FAILED = "Failed";
@@ -227,14 +228,14 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCreatetargetOnExistingtarget() {
+	void testCreatetargetOnExistingtarget() throws LocalhostCheckException, UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 
-		final Monitor target = Monitor.builder().id(target_ID).targetId(target_ID).name(target_NAME)
+		final Monitor target = Monitor.builder().id(TARGET_ID).targetId(TARGET_ID).name(TARGET_NAME)
 				.monitorType(MonitorType.TARGET).build();
 
 		hostMonitoring.addMonitor(target);
@@ -255,14 +256,14 @@ class DetectionOperationTest {
 		{
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Collections.emptyList()).build();
-			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
 			final CriterionTestResult ctr = CriterionTestResult.builder().success(true).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr, ctr).collect(Collectors.toList())).build();
-			assertTrue((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertTrue(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 
 		{
@@ -270,7 +271,7 @@ class DetectionOperationTest {
 			final CriterionTestResult ctr2 = CriterionTestResult.builder().success(false).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr1, ctr2).collect(Collectors.toList())).build();
-			assertFalse((boolean) detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, ECS1_01));
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -118,6 +119,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BATTERY_ID)
@@ -147,6 +149,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BLADE_ID)
@@ -176,6 +179,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_ID)
@@ -205,6 +209,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_CORE_ID)
@@ -234,6 +239,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(DISK_CONTROLLER_ID)
@@ -319,6 +325,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(FAN_ID)
@@ -348,6 +355,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LED_ID)
@@ -376,6 +384,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LOGICAL_DISK_ID)
@@ -404,6 +413,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LUN_ID)
@@ -432,6 +442,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(MEMORY_ID)
@@ -461,6 +472,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
@@ -490,6 +502,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(OTHER_DEVICE_ID)
@@ -519,6 +532,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(PHYSICAL_DISK_ID)
@@ -548,6 +562,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(POWER_SUPPLY_ID)
@@ -577,6 +592,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TAPE_DRIVE_ID)
@@ -606,6 +622,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TEMPERATURE_ID)
@@ -634,6 +651,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(VOLTAGE_ID)
@@ -662,6 +680,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 
 		final Monitor expectedMonitor = Monitor.builder()
@@ -770,6 +789,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DEVICE_ID, ID);
 		metadata.put(HardwareConstants.ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
+		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
