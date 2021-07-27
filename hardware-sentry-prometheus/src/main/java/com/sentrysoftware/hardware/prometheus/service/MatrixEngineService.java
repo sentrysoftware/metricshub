@@ -1,25 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -41,8 +21,26 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -102,14 +100,7 @@ public class MatrixEngineService {
 			for (HostConfigurationDTO hostConfigurationDTO : multiHostsConfigurationDTO.getTargets()) {
 
 				// run a task for each host
-				pool.execute(() -> {
-					try {
-						performJobs(hostConfigurationDTO, connectors);
-					} catch (BusinessException e) {
-						log.error("Job error detected", e);
-					}
-				});
-
+				pool.execute(() -> performJobs(hostConfigurationDTO, connectors));
 			}
 
 			// Order the shutdown
@@ -121,6 +112,7 @@ public class MatrixEngineService {
 			} catch (Exception e) {
 				log.error("Waiting for threads termination aborted with an error", e);
 			}
+
 		} else {
 
 			HostConfigurationDTO hostConfigurationDTO = multiHostsConfigurationDTO
@@ -139,10 +131,8 @@ public class MatrixEngineService {
 	 *
 	 * @param hostConfigurationDTO	The configuration for the target currently being processed.
 	 * @param connectors            The connectors provided by the matrix-engine local store
-	 *
-	 * @throws BusinessException	If no connectors lookup were found in the store.
 	 */
-	private void performJobs(HostConfigurationDTO hostConfigurationDTO,  Map<String, Connector> connectors) throws BusinessException {
+	private synchronized void performJobs(HostConfigurationDTO hostConfigurationDTO, Map<String, Connector> connectors) {
 
 		// Set the context for the logger
 		configureLoggerContext(hostConfigurationDTO);

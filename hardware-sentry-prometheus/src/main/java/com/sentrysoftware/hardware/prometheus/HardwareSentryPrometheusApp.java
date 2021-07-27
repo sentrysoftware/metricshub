@@ -1,10 +1,11 @@
 package com.sentrysoftware.hardware.prometheus;
 
-import java.util.Arrays;
-
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.nio.file.Paths;
+import java.util.Arrays;
 
 @SpringBootApplication
 public class HardwareSentryPrometheusApp {
@@ -33,7 +34,7 @@ public class HardwareSentryPrometheusApp {
 		ThreadContext.put("debugMode", "false");
 
 		// by default, the logs go in a directory "hardware-logs" in the temporary folder
-		String outputDirectory = System.getProperty("java.io.tmpdir") + "hardware-logs";
+		String outputDirectory = Paths.get(System.getProperty("java.io.tmpdir"), "hardware-logs").toString();
 
 		// Set the default property in system props so that it is always available and spring will be able to auto-wire the value
 		System.setProperty("outputDirectory", outputDirectory);
