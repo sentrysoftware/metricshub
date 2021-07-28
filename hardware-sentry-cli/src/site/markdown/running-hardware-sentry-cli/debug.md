@@ -39,8 +39,7 @@ Use the `-o` or `--output` option to specify where the log should be stored.
    $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug --output D:/hardware-logs
 ```
 
-Where path to logs
+###### Result:
 
-   ###### Result:
-   This will run the _MS_HW_DellOpenManage.connector_ connector against _ecs1-01_,
-   and generate a log file in the **logs** directory.
+This will run the _MS_HW_DellOpenManage.connector_ connector against _ecs1-01_,
+and generate a log file in the **D:/hardware-logs** directory.
