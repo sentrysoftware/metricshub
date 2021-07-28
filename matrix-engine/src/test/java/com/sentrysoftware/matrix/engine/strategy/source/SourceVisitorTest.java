@@ -832,4 +832,63 @@ class SourceVisitorTest {
 
 		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
 	}
+
+	@Test
+	void testProcessFruResult() {
+		String fruCommandResult = "FRU Device Description : Builtin FRU Device (ID 0)\r\n"
+				+ " Board Mfg Date        : Mon May 21 14:46:00 2012\r\n"
+				+ " Board Mfg             : FUJITSU\r\n"
+				+ " Board Product         : D2939\r\n"
+				+ " Board Serial          : 39159317\r\n"
+				+ " Board Part Number     : S26361-D2939-A17\r\n"
+				+ " Board Extra           : WGS08 GS02\r\n"
+				+ " Board Extra           : 02\r\n"
+				+ "\n"
+				+ "FRU Device Description : Chassis (ID 2)\r\n"
+				+ " Chassis Type          : Rack Mount Chassis\r\n"
+				+ " Chassis Extra         : RX300S7R4\r\n"
+				+ " Product Manufacturer  : FUJITSU\r\n"
+				+ " Product Name          : PRIMERGY RX300 S7\r\n"
+				+ " Product Part Number   : ABN:K1373-M205-11\r\n"
+				+ " Product Version       : GS01\r\n"
+				+ " Product Serial        : YLAR004219\r\n"
+				+ " Product Asset Tag     : 15\r\n"
+				+ " Product Extra         : 330c84\r\n"
+				+ " Product Extra         : 0316\r\n"
+				+ "\n"
+				+ "FRU Device Description : MainBoard (ID 3)\r\n"
+				+ " Board Mfg Date        : Mon May 21 14:46:00 2012\r\n"
+				+ " Board Mfg             : FUJITSU\r\n"
+				+ " Board Product         : D2939\r\n"
+				+ " Board Serial          : 39159317\r\n"
+				+ " Board Part Number     : S26361-D2939-A17\r\n"
+				+ " Board Extra           : WGS08 GS02\r\n"
+				+ " Board Extra           : 02\r\n"
+				+ "\n"
+				+ "FRU Device Description : PSU1 (ID 18)\r\n"
+				+ " Unknown FRU header version 0x02\r\n"
+				+ "\n"
+				+ "FRU Device Description : PSU2 (ID 19)\r\n"
+				+ " Unknown FRU header version 0x02";
+		Map<String, List<String>> expectedMap = Map.of("goodList", 
+				Arrays.asList("FRU;FUJITSU;PRIMERGY RX300 S7;YLAR004219"), 
+				"poorList", 
+				Arrays.asList("FRU;FUJITSU;D2939;39159317", 
+						"FRU;FUJITSU;D2939;39159317"));
+		assertEquals(expectedMap,
+				sourceVisitor.processFruResult(fruCommandResult));
+		
+	}
+
+	@Test
+	void testcleanSensorCommandResult() {
+		String line = "line1;line1\nBMC req: line 2\nline3\n\nline3\n--ine4\nline5\nB line 6\n- line 7";
+		String expected = "line1,line1\n"
+				+ "line3\n"
+				+ "line3\n"
+				+ "line5;B line 6;- line 7";
+		assertEquals(expected, sourceVisitor.cleanSensorCommandResult(line));
+		assertEquals(null, sourceVisitor.cleanSensorCommandResult(null));
+		assertEquals("", sourceVisitor.cleanSensorCommandResult(""));
+	}
 }

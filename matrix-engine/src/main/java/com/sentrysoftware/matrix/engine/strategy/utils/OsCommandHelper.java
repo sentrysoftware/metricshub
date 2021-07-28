@@ -5,12 +5,15 @@ import static org.springframework.util.Assert.notNull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 public class OsCommandHelper {
 
@@ -68,10 +71,20 @@ public class OsCommandHelper {
 	public static boolean isWindows() {
 		return IS_WINDOWS;
 	}
-	
+
+	/**
+	 * Run the given command on localhost machine
+	 * @param command
+	 * @return
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
 	public static String runLocalCommand(String command)
 			throws InterruptedException, IOException {
 
+		if (command == null) {
+			return null;
+		}
 		Process process = null;
 
 		if (IS_WINDOWS) {
@@ -88,6 +101,36 @@ public class OsCommandHelper {
 		}
 
 		return null;
+	}
+	
+
+	/**
+	 * Run SSH command. Check if we can execute on localhost or remote
+	 * 
+	 * @param ipmitoolCommand
+	 * @param hostname
+	 * @param sshProtocol
+	 * @param timeout
+	 * @param matsyaClientsExecutor 
+	 * @return
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public static String runRemoteCommand(String ipmitoolCommand, 
+			final String hostname, 
+			final SSHProtocol sshProtocol,
+			final int timeout, 
+			MatsyaClientsExecutor matsyaClientsExecutor) throws IOException {
+		String result;
+
+		if (ipmitoolCommand == null || sshProtocol == null || matsyaClientsExecutor == null) {
+			return null;
+		}
+		String keyFilePath = sshProtocol.getPrivateKey() == null ? null : sshProtocol.getPrivateKey().getAbsolutePath();
+		result = matsyaClientsExecutor.runRemoteSshCommand(hostname, sshProtocol.getUsername(),
+				Arrays.toString(sshProtocol.getPassword()), keyFilePath, ipmitoolCommand, timeout);
+
+		return result;
 	}
 
 }

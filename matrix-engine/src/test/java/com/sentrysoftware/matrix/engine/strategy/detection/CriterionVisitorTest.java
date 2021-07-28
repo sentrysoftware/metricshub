@@ -328,20 +328,18 @@ class CriterionVisitorTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testRunOsCommandWindows() throws InterruptedException, IOException {
-		final HostMonitoring hostMonitoring = new HostMonitoring();
+		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		final String version = criterionVisitor.runOsCommand("ver", "localhost", null, 120);
+		String version = OsCommandHelper.runLocalCommand("ver");
 		assertTrue(version.startsWith("Microsoft Windows"));
 	}
 
 	@Test
 	@EnabledOnOs(LINUX)
 	void testRunOsCommandLinux() throws InterruptedException, IOException {
-		final HostMonitoring hostMonitoring = new HostMonitoring();
+		HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		final String version = criterionVisitor.runOsCommand("uname -a", "localhost", null, 120);
+		String version = OsCommandHelper.runLocalCommand("uname -a");
 		assertTrue(version.startsWith("Linux"));
 	}
 
@@ -391,8 +389,10 @@ class CriterionVisitorTest {
 			final HostMonitoring hostMonitoring = new HostMonitoring();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
 			doReturn("PATH=blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(),
 					any(), eq(120));
+
 			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand("PATH=blabla", HOST_LINUX, ssh, 120);
 			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
 
@@ -413,11 +413,20 @@ class CriterionVisitorTest {
 				+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
 				+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
 				+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
+		
+//		try (MockedStatic<MatsyaClientsExecutor> oscmd = mockStatic(MatsyaClientsExecutor.class)) {
+//			oscmd.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(any(), any(), any(), any(), any(),
+//					anyInt())).thenReturn(ipmiResultExample);
+//
+//			assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
+//					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
+//					criterionVisitor.visit(new IPMI()));
+//		}
 		doReturn(ipmiResultExample).when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
-				eq(120));
+				 				anyInt());
 		assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
-				.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
-				criterionVisitor.visit(new IPMI()));
+				 				.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
+				 				criterionVisitor.visit(new IPMI()));
 
 		// run localhost command
 		final EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
@@ -447,20 +456,20 @@ class CriterionVisitorTest {
 	void testRunOsCommand() throws InterruptedException, IOException {
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(false);
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
 
-		String cmdResult = criterionVisitor.runOsCommand(null, "localhost", ssh, 120);
+		String cmdResult = OsCommandHelper.runLocalCommand(null);
+		assertNull(cmdResult);
+		
+		cmdResult = OsCommandHelper.runRemoteCommand(null, "localhost", ssh, 120, matsyaClientsExecutor);
+		assertNull(cmdResult);
+		
+		cmdResult = OsCommandHelper.runRemoteCommand("cmd", "localhost", null, 120, matsyaClientsExecutor);
 		assertNull(cmdResult);
 
-		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", null, 120);
-		assertNull(cmdResult);
-
-		cmdResult = criterionVisitor.runOsCommand("cmd", null, ssh, 120);
-		assertNull(cmdResult);
-
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn("something").when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
-				eq(120));
+				anyInt());
 		cmdResult = criterionVisitor.runOsCommand("cmd", "localhost", ssh, 120);
 		assertEquals("something", cmdResult);
 
