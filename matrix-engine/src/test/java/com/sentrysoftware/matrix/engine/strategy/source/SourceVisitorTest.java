@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -732,4 +733,83 @@ class SourceVisitorTest {
 		}
 	}
 
+	@Test
+	void testProcessWindowsIpmiSource() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.username(PC14 + "\\" + "Administrator")
+						.password("password".toCharArray())
+						.timeout(120L)
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		
+		final List<List<String>> wmiResult1 = Arrays.asList(
+				Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
+		doReturn(wmiResult1).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(),
+				120L,
+				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+				"root/cimv2");
+
+		final List<List<String>> wmiResult2 = Arrays.asList(
+				Arrays.asList("2", "20", "sensorName()sensorId:description for deviceId", "10", "15", "2", "0", "30", "25"));
+		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(), 
+				120L, 
+				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor", 
+				"root/hardware");
+
+		final List<List<String>> wmiResult3 = Arrays.asList(
+				Arrays.asList("state", "sensorName()sensorId:description for deviceType deviceId"));
+		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(), 
+				120L, 
+				"SELECT CurrentState,Description FROM Sensor", 
+				"root/hardware");
+		
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList(
+						"FRU",
+						"Vendor",
+						"Name",
+						"IdentifyingNumber"),
+				Arrays.asList(
+						"Temperature",
+						"sensorId:description for deviceId",
+						"sensorName",
+						"deviceId",
+						"20.0",
+						"25.0",
+						"30.0"),
+				Arrays.asList(
+						"deviceType",
+						"deviceId",
+						"deviceType deviceId",
+						HardwareConstants.EMPTY,
+						HardwareConstants.EMPTY,
+						HardwareConstants.EMPTY,
+						"sensorName=state"));
+		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource());
+	}
+
+	@Test
+	void testProcessWindowsIpmiSource2() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname("morgan").id("morgan").type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.timeout(120L)
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		SourceTable sourceTable = sourceVisitor.visit(IPMI.builder().build());
+		
+		System.out.println("sourceTable : " + sourceTable.getTable());
+	}
 }

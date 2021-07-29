@@ -34,6 +34,7 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -109,12 +110,16 @@ public class SourceVisitor implements ISourceVisitor {
 		final TargetType targetType = target.getType();
 
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
+			System.out.println("windows");
 			return processWindowsIpmiSource();
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			System.out.println("linux");
 			return processUnixIpmiSource(targetType);
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+			System.out.println("OOB");
 			return processOutOfBandIpmiSource();
 		}
+		System.out.println("pas d'OS");
 
 		log.debug("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI.",
 				target.getHostname(), targetType.name());
@@ -170,7 +175,87 @@ public class SourceVisitor implements ISourceVisitor {
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processWindowsIpmiSource() {
-		return SourceTable.empty();
+		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
+		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String nameSpaceRootCimv2 = "root/cimv2";
+		List<List<String>> wmiCollection1;
+		List<List<String>> wmiCollection2;
+		List<List<String>> wmiCollection3;
+
+		try {
+			matsyaClientsExecutor.talk();
+			System.out.println("executeWmi, hostname : " + hostname
+					+ ", Username : " + wmiProtocol.getUsername()
+					+ ", Password : " + wmiProtocol.getPassword().toString()
+					+ ", Timeout : " + wmiProtocol.getTimeout()
+					+ ", Query : " + wmiQuery
+					+ ", nameSpace : " + nameSpaceRootCimv2);
+			wmiCollection1 = matsyaClientsExecutor.executeWmi(
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getPassword(),
+					wmiProtocol.getTimeout(),
+					wmiQuery,
+					nameSpaceRootCimv2);
+			System.out.println("wmiCollection1 : " + wmiCollection1);
+			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
+					hostname,
+					wmiQuery);
+		} catch (Exception e) {
+			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiQuery,
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getTimeout(),
+					nameSpaceRootCimv2);
+			return SourceTable.empty();
+		}
+
+		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
+		final String nameSpaceRootHardware = "root/hardware";
+		try {
+			wmiCollection2 = matsyaClientsExecutor.executeWmi(hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getPassword(),
+					wmiProtocol.getTimeout(),
+					wmiQuery,
+					nameSpaceRootHardware);
+			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
+					hostname,
+					wmiQuery);
+		} catch (Exception e) {
+			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiQuery,
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getTimeout(),
+					nameSpaceRootHardware);
+			return SourceTable.empty();
+		}
+
+		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
+		try {
+			wmiCollection3 = matsyaClientsExecutor.executeWmi(hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getPassword(),
+					wmiProtocol.getTimeout(),
+					wmiQuery,
+					nameSpaceRootHardware);
+			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
+					hostname,
+					wmiQuery);
+		} catch (Exception e) {
+			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiQuery,
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getTimeout(),
+					nameSpaceRootHardware);
+			return SourceTable.empty();
+		}
+
+		return SourceTable.builder().table(PslUtils.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
 
 	@Override
