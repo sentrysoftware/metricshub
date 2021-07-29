@@ -1,6 +1,9 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -68,4 +71,10 @@ public interface IHostMonitoring {
 	String getAutomaticWbemNamespace();
 
 	Set<String> getPossibleWbemNamespaces();
+
+	EngineConfiguration getEngineConfiguration();
+
+	void setEngineConfiguration(EngineConfiguration engineConfiguration);
+
+	EngineResult run(IStrategy... strategies);
 }

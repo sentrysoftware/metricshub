@@ -11,7 +11,6 @@ import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.engine.Engine;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -66,9 +65,6 @@ public class MatrixEngineService {
 
 	@Autowired
 	private ConnectorStore store;
-
-	@Autowired
-	private Engine engine;
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -132,7 +128,7 @@ public class MatrixEngineService {
 	 * @param hostConfigurationDTO	The configuration for the target currently being processed.
 	 * @param connectors            The connectors provided by the matrix-engine local store
 	 */
-	private synchronized void performJobs(HostConfigurationDTO hostConfigurationDTO, Map<String, Connector> connectors) {
+	private void performJobs(HostConfigurationDTO hostConfigurationDTO, Map<String, Connector> connectors) {
 
 		// Set the context for the logger
 		configureLoggerContext(hostConfigurationDTO);
@@ -148,16 +144,9 @@ public class MatrixEngineService {
 		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(hostConfigurationDTO.getTarget().getHostname());
 
 		// Detection
-		final EngineResult detectionResult = engine.run(engineConfiguration, hostMonitoring, new DetectionOperation());
-		log.info("Detection Status {}", detectionResult.getOperationStatus());
-
-		// Discovery
-		final EngineResult discoveryResult = engine.run(engineConfiguration, hostMonitoring, new DiscoveryOperation());
-		log.info("Discovery Status {}", discoveryResult.getOperationStatus());
-
-		// Collect
-		final EngineResult collectResult = engine.run(engineConfiguration, hostMonitoring, new CollectOperation());
-		log.info("Collect Status {}", collectResult.getOperationStatus());
+		hostMonitoring.setEngineConfiguration(engineConfiguration);
+		EngineResult lastEngineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(), new CollectOperation());
+		log.info("Last job status: {}", lastEngineResult.getOperationStatus());
 	}
 
 	/**
@@ -198,9 +187,10 @@ public class MatrixEngineService {
 	/**
 	 * Build the {@link EngineConfiguration} instance from the given {@link HostConfigurationDTO}
 	 * 
-	 * @param exporterConfig     User's configuration
-	 * @param selectedConnectors The connector names, the matrix engine will run
-	 * @return
+	 * @param exporterConfig		User's configuration
+	 * @param selectedConnectors	The connector names, the matrix engine will run
+	 *
+	 * @return						The built {@link EngineConfiguration}.
 	 */
 	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO exporterConfig,
 														final Set<String> selectedConnectors) {
@@ -291,13 +281,14 @@ public class MatrixEngineService {
 	/**
 	 * Configure the logger context with the targetId, port, debugMode and outputDirectory.
 	 *
-	 * @param hostConfigurationDTO
+	 * @param hostConfigurationDTO	The host configuration from which the hostname should be extracted.
 	 */
 	private void configureLoggerContext(HostConfigurationDTO hostConfigurationDTO) {
 
 		ThreadContext.put("targetId", hostConfigurationDTO.getTarget().getHostname());
 		ThreadContext.put("debugMode", String.valueOf(debugMode));
 		ThreadContext.put("port", String.valueOf(sslEnabled ? httpPort : serverPort));
+
 		if (outputDirectory != null) {
 			ThreadContext.put("outputDirectory", outputDirectory);
 		}

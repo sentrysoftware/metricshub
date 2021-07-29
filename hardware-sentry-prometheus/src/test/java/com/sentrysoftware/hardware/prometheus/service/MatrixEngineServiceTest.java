@@ -1,24 +1,16 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,19 +20,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
-import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.engine.Engine;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.EngineResult;
-import com.sentrysoftware.matrix.engine.OperationStatus;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.strategy.IStrategy;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -56,9 +50,6 @@ class MatrixEngineServiceTest {
 
 	@MockBean
 	private ConnectorStore store;
-
-	@MockBean
-	private Engine engine;
 
 	@InjectMocks
 	@Autowired
@@ -155,43 +146,39 @@ class MatrixEngineServiceTest {
 	@Test
 	void testPerformJobsTargetIsNull() {
 
-		final Map<String, Connector> connectors = Map.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+		final Map<String, Connector> connectors = Map
+			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+
 		doReturn(connectors).when(store).getConnectors();
 
 		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
 
-		doReturn(EngineResult.builder()
-				.hostMonitoring(HostMonitoring.HOST_MONITORING)
-				.operationStatus(OperationStatus.SUCCESS)
-				.build())
-		.when(engine).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
-
 		assertDoesNotThrow(() -> matrixEngineService.performJobs(null));
 
-		// Detection, Discovery and Collect
-		verify(engine, times(9)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+		verify(store).getConnectors();
+		verify(hostMonitoringMap, times(3)).get(anyString());
 	}
 
 	@Test
 	void testPerformJobsTargetIsNotNull() {
 
-		final Map<String, Connector> connectors = Map.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+		final Map<String, Connector> connectors = Map
+			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+
 		doReturn(connectors).when(store).getConnectors();
 
 		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
 
-		doReturn(EngineResult.builder()
-			.hostMonitoring(HostMonitoring.HOST_MONITORING)
-			.operationStatus(OperationStatus.SUCCESS)
-			.build())
-			.when(engine).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
-
 		// Invalid targetId
 		assertThrows(IllegalArgumentException.class, () -> matrixEngineService.performJobs("FOO"));
-		verify(engine, times(0)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+		verify(store).getConnectors();
+		verify(hostMonitoringMap, times(0)).get(anyString());
 
 		// Valid targetId
 		assertDoesNotThrow(() -> matrixEngineService.performJobs("ecs1-01"));
-		verify(engine, times(3)).run(any(EngineConfiguration.class), any(IHostMonitoring.class), any(IStrategy.class));
+		verify(store, times(2)).getConnectors();
+		verify(hostMonitoringMap).get(anyString());
 	}
 }

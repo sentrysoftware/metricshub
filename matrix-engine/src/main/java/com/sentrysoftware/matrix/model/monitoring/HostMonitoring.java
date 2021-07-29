@@ -4,6 +4,13 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.OperationStatus;
+import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
+import com.sentrysoftware.matrix.engine.strategy.Context;
+import com.sentrysoftware.matrix.engine.strategy.IStrategy;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -12,9 +19,13 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,11 +34,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 public class HostMonitoring implements IHostMonitoring {
 
 	private static final String MONITOR_ID_CANNOT_BE_NULL = "monitor id cannot be null.";
@@ -36,6 +50,10 @@ public class HostMonitoring implements IHostMonitoring {
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitor type cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
+
+	private static final String STRATEGY_TIME = "strategyTime";
+	private static final String STRATEGY_BEAN_NAME = "strategy";
+	private static final String STRATEGY_CONFIG_BEAN_NAME = "strategyConfig";
 
 	public static final HostMonitoring HOST_MONITORING = new HostMonitoring();
 
@@ -55,6 +73,8 @@ public class HostMonitoring implements IHostMonitoring {
 	private String automaticWbemNamespace;
 	private Set<String> possibleWbemNamespaces = new TreeSet<>();
 
+	private EngineConfiguration engineConfiguration;
+
 	@Override
 	public void clearCurrent() {
 		monitors.clear();
@@ -71,7 +91,7 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void addMonitor(Monitor monitor) {
+	public void addMonitor(Monitor monitor) {
 
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 
@@ -130,7 +150,7 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void addMonitor(final Monitor monitor, final String id,
+	public void addMonitor(final Monitor monitor, final String id,
 			final String connectorName, final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
@@ -230,7 +250,7 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void removeMonitor(Monitor monitor) {
+	public void removeMonitor(Monitor monitor) {
 		if (null == monitor) {
 			return;
 		}
@@ -257,7 +277,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 * Remove the children of the monitor identified by the given
 	 * <code>monitorId</code> recursively
 	 * 
-	 * @param monitorId
+	 * @param monitorId	The monitor's identifier.
 	 */
 	private void removeRelatedChildren(String monitorId) {
 		monitors.values().stream().filter(Objects::nonNull).forEach(instances -> instances.entrySet().removeIf(entry ->
@@ -317,7 +337,7 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public synchronized void addMissingMonitor(Monitor monitor) {
+	public void addMissingMonitor(Monitor monitor) {
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 
 		final String id = monitor.getId();
@@ -338,5 +358,145 @@ public class HostMonitoring implements IHostMonitoring {
 		} else {
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
+	}
+
+	/**
+	 * Executes the given {@link IStrategy} instances and returns the result of the last execution.
+	 *
+	 * @param strategies	The {@link IStrategy} instances that should be executed.
+	 *
+	 * @return				The {@link EngineResult} resulting from the execution of the last given {@link IStrategy}.
+	 */
+	public synchronized EngineResult run(final IStrategy... strategies) {
+
+		log.error("Engine called for thread {}", Thread.currentThread().getName());
+
+		checkEngineConfiguration();
+
+		EngineResult lastEngineResult = null;
+
+		for (IStrategy strategy : strategies) {
+
+			log.info("Calling strategy {}", strategy.getClass().getSimpleName());
+			lastEngineResult = run(strategy);
+			log.info("{} status {}", strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
+		}
+
+		return lastEngineResult;
+	}
+
+	/**
+	 * Executes the given {@link IStrategy} and returns the result of the execution.
+	 *
+	 * @param strategy	The {@link IStrategy} that should be executed.
+	 *
+	 * @return			The {@link EngineResult} resulting from the execution of the given {@link IStrategy}.
+	 */
+	private EngineResult run(final IStrategy strategy) {
+
+		Assert.notNull(strategy, "strategy cannot be null.");
+
+		final ApplicationContext applicationContext = createApplicationContext(strategy);
+
+		try {
+
+			final boolean result = applicationContext.getBean(Context.class).executeStrategy();
+
+			return EngineResult
+				.builder()
+				.hostMonitoring(this)
+				.operationStatus(result ? OperationStatus.SUCCESS : OperationStatus.ERROR)
+				.build();
+
+		} catch (ExecutionException e) {
+
+			log.error("Execution error", e);
+
+			return EngineResult
+				.builder()
+				.hostMonitoring(this)
+				.operationStatus(OperationStatus.EXECUTION_EXCEPTION)
+				.build();
+
+		} catch (TimeoutException e) {
+
+			log.error("Timeout error", e);
+
+			return EngineResult
+				.builder()
+				.hostMonitoring(this)
+				.operationStatus(OperationStatus.TIMEOUT_EXCEPTION)
+				.build();
+
+		} catch(InterruptedException e) {
+
+			log.error("Interrupted error", e);
+
+			Thread.currentThread().interrupt();
+
+			return EngineResult
+				.builder()
+				.hostMonitoring(this)
+				.operationStatus(OperationStatus.INTERRUPTED_EXCEPTION)
+				.build();
+
+		} catch (Exception e) {
+
+			log.error("Unknown exception", e);
+
+			return EngineResult
+				.builder()
+				.hostMonitoring(this)
+				.operationStatus(OperationStatus.GENERAL_ERROR)
+				.build();
+		}
+	}
+
+	/**
+	 * Checks the engine configuration
+	 */
+	private void checkEngineConfiguration() {
+
+		Assert.notNull(engineConfiguration, "engineConfiguration cannot be null.");
+		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "protocolConfigurations cannot be null.");
+		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "protocolConfigurations cannot be empty.");
+		Assert.notNull(engineConfiguration.getSelectedConnectors(), "selectedConnectors cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget(), "target cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getHostname(), "target hostname cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getType(), "target type cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getId(), "target id cannot be null.");
+	}
+
+	/**
+	 * Creates a Spring {@link ApplicationContext} which provides a bean factory for accessing application components.
+	 *
+	 * @param strategy	The {@link IStrategy} for which the {@link ApplicationContext} should be created.
+	 *
+	 * @return {@link ApplicationContext}	The created {@link ApplicationContext}.
+	 */
+	private ApplicationContext createApplicationContext(final IStrategy strategy) {
+
+		log.debug("Creating spring context");
+
+		final StrategyConfig strategyConfig = StrategyConfig
+			.builder()
+			.engineConfiguration(engineConfiguration)
+			.hostMonitoring(this)
+			.build();
+
+		final AnnotationConfigApplicationContext configContext = new AnnotationConfigApplicationContext();
+		configContext.getBeanFactory().destroySingletons();
+		configContext.getBeanFactory().registerSingleton(STRATEGY_CONFIG_BEAN_NAME, strategyConfig);
+		configContext.getBeanFactory().registerSingleton(STRATEGY_BEAN_NAME, strategy);
+		configContext.getBeanFactory().registerSingleton(STRATEGY_TIME, new Date().getTime());
+
+		// Register the configuration and components scan after singleton registrations
+		// so that we can avoid the UnsatisfiedDependencyException
+		configContext.register(ApplicationBeans.class);
+		configContext.refresh();
+		configContext.getBeanFactory().autowireBean(strategy);
+		configContext.getBeanFactory().autowireBean(strategyConfig);
+
+		return configContext;
 	}
 }

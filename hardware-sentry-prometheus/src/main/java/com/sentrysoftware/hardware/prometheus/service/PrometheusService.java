@@ -29,30 +29,30 @@ public class PrometheusService {
 	private HostMonitoringCollectorService hostMonitoringCollectorService;
 
 	/**
-	 * Call the Matrix engine to collect the configured system then register {@link HostMonitoringCollectorService} 
-	 * to parse metrics.
-	 * 
-	 * @return Text version 0.0.4 of the {@link MetricFamilySamples}
-	 * @throws BusinessException
+	 * Call the Matrix engine to collect the configured system then register {@link HostMonitoringCollectorService}
+	 * in a new {@link CollectorRegistry} wrapping the Prometheus metric family samples.
+	 *
+	 * @return						Text version 0.0.4 of the {@link MetricFamilySamples}.
+	 * @throws BusinessException	If an error occurs.
 	 */
 	public String collectMetrics(String targetId) throws BusinessException {
 
-		// Need to clear the registry so that we have fresh data, we also avoid errors
-		// metric already set...etc.
-		CollectorRegistry.defaultRegistry.clear();
+		// Need to create a new registry so that we have fresh data, we also avoid errors
+		// metric already set...etc when using the CollectorRegistry.defaultRegistry
+		CollectorRegistry collectorRegistry = new CollectorRegistry(true);
 
 		// Call the Matrix engine to run the detection, discovery and collect
 		matrixEngineService.performJobs(targetId);
 
-		// Register the Prometheus collector with the default registry
-		hostMonitoringCollectorService.register();
+		// Register the Prometheus collector with the new registry
+		hostMonitoringCollectorService.register(collectorRegistry);
 
 		// Create the writer
 		final StringWriter writer = new StringWriter();
 
 		try {
 			// Write out the text version 0.0.4 of the MetricFamilySamples
-			TextFormat.write004(writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
+			TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
 		} catch (IOException e) {
 			final String message = "IO Error while building Prometheus metrics.";
 			log.error(message, e);
