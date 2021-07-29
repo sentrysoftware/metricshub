@@ -110,16 +110,12 @@ public class SourceVisitor implements ISourceVisitor {
 		final TargetType targetType = target.getType();
 
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
-			System.out.println("windows");
 			return processWindowsIpmiSource();
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			System.out.println("linux");
 			return processUnixIpmiSource(targetType);
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
-			System.out.println("OOB");
 			return processOutOfBandIpmiSource();
 		}
-		System.out.println("pas d'OS");
 
 		log.debug("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI.",
 				target.getHostname(), targetType.name());
@@ -184,13 +180,6 @@ public class SourceVisitor implements ISourceVisitor {
 		List<List<String>> wmiCollection3;
 
 		try {
-			matsyaClientsExecutor.talk();
-			System.out.println("executeWmi, hostname : " + hostname
-					+ ", Username : " + wmiProtocol.getUsername()
-					+ ", Password : " + wmiProtocol.getPassword().toString()
-					+ ", Timeout : " + wmiProtocol.getTimeout()
-					+ ", Query : " + wmiQuery
-					+ ", nameSpace : " + nameSpaceRootCimv2);
 			wmiCollection1 = matsyaClientsExecutor.executeWmi(
 					hostname,
 					wmiProtocol.getUsername(),
@@ -198,7 +187,6 @@ public class SourceVisitor implements ISourceVisitor {
 					wmiProtocol.getTimeout(),
 					wmiQuery,
 					nameSpaceRootCimv2);
-			System.out.println("wmiCollection1 : " + wmiCollection1);
 			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
 					hostname,
 					wmiQuery);

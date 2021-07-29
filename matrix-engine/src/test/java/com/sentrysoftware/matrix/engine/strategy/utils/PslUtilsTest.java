@@ -177,12 +177,12 @@ class PslUtilsTest {
 		assertEquals(expectedResult, PslUtils.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
 		// Temperature sensor in Celsius.
-		String description = "sensorName()sensorId:description for deviceId";
+		String description = "sensorName(sensorId):description for deviceId";
 		wmiNumericSensors.add(Arrays.asList("2", "22.0", description, "LowerThresholdCritical", "LowerThresholdNonCritical", "2", "0", "40", "50"));
 		expectedResult.add(
 				Arrays.asList(
 						"Temperature",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"22.0",
@@ -195,7 +195,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"Temperature",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"10.0",
@@ -208,7 +208,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"Temperature",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"10.0",
@@ -221,7 +221,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"Fan",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"200.0",
@@ -234,7 +234,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"Voltage",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"200000.0",
@@ -247,7 +247,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"Current",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"20.0"));
@@ -258,7 +258,7 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"PowerConsumption",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"20.0",
@@ -271,14 +271,14 @@ class PslUtilsTest {
 		expectedResult.add(
 				Arrays.asList(
 						"EnergyUsage",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"1.0"));
 		assertEquals(expectedResult, PslUtils.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
 		// Discrete sensor.
-		description = "sensorName()sensorId:description for deviceType deviceId";
+		description = "sensorName(sensorId):description for deviceType deviceId";
 		wmiDiscreteSensors.add(Arrays.asList("OEM State,Value=0001", description));
 		expectedResult.add(
 				Arrays.asList(
@@ -291,7 +291,7 @@ class PslUtilsTest {
 						"sensorName=0x0100"));
 		assertEquals(expectedResult, PslUtils.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
-		description = "sensorName()sensorId:description for deviceType deviceId";
+		description = "sensorName(sensorId):description for deviceType deviceId";
 		wmiDiscreteSensors.add(Arrays.asList("OEM State.,Value=State Asserted=State Deasserted=Deasserted", description));
 		expectedResult.set(expectedResult.size() - 1, 
 				Arrays.asList(
@@ -310,12 +310,12 @@ class PslUtilsTest {
 		assertEquals(expectedResult, PslUtils.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
 		// Sensor alone.
-		description = "sensorName()sensorId:description for deviceId";
+		description = "sensorName(sensorId):description for deviceId";
 		wmiNumericSensors = Collections.singletonList(Arrays.asList("2", "22.0", description, "LowerThresholdCritical", "LowerThresholdNonCritical", "2", "0", "40", "50"));
 		expectedResult = Collections.singletonList(
 				Arrays.asList(
 						"Temperature",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"22.0",
@@ -324,7 +324,7 @@ class PslUtilsTest {
 		assertEquals(expectedResult, PslUtils.ipmiTranslateFromWmi(new ArrayList<>(), wmiNumericSensors, new ArrayList<>()));
 
 		// Discrete sensor alone.
-		description = "sensorName()sensorId:description for deviceType deviceId";
+		description = "sensorName(sensorId):description for deviceType deviceId";
 		wmiDiscreteSensors = Collections.singletonList(Arrays.asList("OEM State,Value=0001", description));
 		expectedResult = Collections.singletonList(
 				Arrays.asList(

@@ -13,7 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -346,20 +345,10 @@ public class MatsyaClientsExecutor {
 			final String wbemQuery, final String namespace)
 			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
 
-		log.debug("MatsyaClientsExecutor.executeWmi, hostname : " + hostname 
-									+ ", Username : " + username 
-									+ ", Password : " + password.toString()
-									+ ", Timeout : " + timeout 
-									+ ", Query : " + wbemQuery 
-									+ ", nameSpace : " + namespace);
-
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
-		System.out.println("hostname : " + hostname);
-		System.out.println("namespace : " + namespace);
 		final String networkResource = buildWmiNetworkResource(hostname, namespace);
-		System.out.println("networkResource : " + networkResource);
 		// Go!
 		try (final WmiWbemServicesHandler wbemServices = 
 				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
@@ -379,11 +368,6 @@ public class MatsyaClientsExecutor {
 		}
 	}
 	
-	public void talk() {
-		System.out.println("I'm talking in system.out in matsya");
-		System.err.println("I'm talking in system.err in matsya");
-	}
-
 	/**
 	 * Build the WMI network resource
 	 * @param hostname    The hostname of the device where the WMI service is running

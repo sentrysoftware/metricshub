@@ -756,7 +756,7 @@ class SourceVisitorTest {
 				"root/cimv2");
 
 		final List<List<String>> wmiResult2 = Arrays.asList(
-				Arrays.asList("2", "20", "sensorName()sensorId:description for deviceId", "10", "15", "2", "0", "30", "25"));
+				Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25"));
 		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
 				"password".toCharArray(), 
@@ -765,7 +765,7 @@ class SourceVisitorTest {
 				"root/hardware");
 
 		final List<List<String>> wmiResult3 = Arrays.asList(
-				Arrays.asList("state", "sensorName()sensorId:description for deviceType deviceId"));
+				Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId"));
 		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
 				"password".toCharArray(), 
@@ -781,7 +781,7 @@ class SourceVisitorTest {
 						"IdentifyingNumber"),
 				Arrays.asList(
 						"Temperature",
-						"sensorId:description for deviceId",
+						"sensorId",
 						"sensorName",
 						"deviceId",
 						"20.0",
@@ -796,20 +796,5 @@ class SourceVisitorTest {
 						HardwareConstants.EMPTY,
 						"sensorName=state"));
 		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource());
-	}
-
-	@Test
-	void testProcessWindowsIpmiSource2() throws Exception {
-		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("morgan").id("morgan").type(TargetType.MS_WINDOWS).build())
-				.protocolConfigurations(Map.of(WMIProtocol.class,
-						WMIProtocol.builder()
-						.timeout(120L)
-						.build()))
-				.build();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		SourceTable sourceTable = sourceVisitor.visit(IPMI.builder().build());
-		
-		System.out.println("sourceTable : " + sourceTable.getTable());
 	}
 }
