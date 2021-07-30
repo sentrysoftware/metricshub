@@ -86,7 +86,7 @@ public class MatrixEngineService {
 		}
 
 		// Read the configuration
-		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile);
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile, connectors);
 
 		if (targetId == null) {
 
@@ -96,7 +96,7 @@ public class MatrixEngineService {
 			for (HostConfigurationDTO hostConfigurationDTO : multiHostsConfigurationDTO.getTargets()) {
 
 				// run a task for each host
-				pool.execute(() -> performJobs(hostConfigurationDTO, connectors));
+				pool.execute(() -> performJobs(hostConfigurationDTO));
 			}
 
 			// Order the shutdown
@@ -118,7 +118,7 @@ public class MatrixEngineService {
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Invalid target ID: %s", targetId)));
 
-			performJobs(hostConfigurationDTO, connectors);
+			performJobs(hostConfigurationDTO);
 		}
 	}
 
@@ -126,9 +126,8 @@ public class MatrixEngineService {
 	 * Calls the matrix engine to perform detection, discovery and collect strategies.
 	 *
 	 * @param hostConfigurationDTO	The configuration for the target currently being processed.
-	 * @param connectors            The connectors provided by the matrix-engine local store
 	 */
-	private void performJobs(HostConfigurationDTO hostConfigurationDTO, Map<String, Connector> connectors) {
+	private void performJobs(HostConfigurationDTO hostConfigurationDTO) {
 
 		// Set the context for the logger
 		configureLoggerContext(hostConfigurationDTO);
@@ -136,16 +135,11 @@ public class MatrixEngineService {
 		log.info("MatrixEngineService called for system {}", hostConfigurationDTO.getTarget().getHostname());
 		log.info("Server Port: {}", serverPort);
 
-		final Set<String> selectedConnectors = getSelectedConnectors(connectors.keySet(),
-			hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());
-
-		final EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
-
 		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(hostConfigurationDTO.getTarget().getHostname());
 
 		// Detection
-		hostMonitoring.setEngineConfiguration(engineConfiguration);
-		EngineResult lastEngineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(), new CollectOperation());
+		EngineResult lastEngineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(),
+			new CollectOperation());
 		log.info("Last job status: {}", lastEngineResult.getOperationStatus());
 	}
 
@@ -156,7 +150,8 @@ public class MatrixEngineService {
 	 *
 	 * @throws BusinessException	If a read error occurred.
 	 */
-	MultiHostsConfigurationDTO readConfiguration(final File targetConfigFile) throws BusinessException {
+	MultiHostsConfigurationDTO readConfiguration(final File targetConfigFile, Map<String, Connector> connectors)
+		throws BusinessException {
 
 		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -171,16 +166,24 @@ public class MatrixEngineService {
 
 			multiHostsConfigurationDTO
 				.getTargets()
-				.forEach(hostConfigurationDTO -> hostMonitoringMap.putIfAbsent(hostConfigurationDTO.getTarget().getHostname(),
-					HostMonitoringFactory.getInstance().createHostMonitoring(
-						hostConfigurationDTO.getTarget().getHostname())));
+				.forEach(hostConfigurationDTO -> {
+
+					Set<String> selectedConnectors = getSelectedConnectors(connectors.keySet(),
+						hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());
+
+					EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
+
+					hostMonitoringMap.putIfAbsent(hostConfigurationDTO.getTarget().getHostname(),
+						HostMonitoringFactory.getInstance().createHostMonitoring(
+							hostConfigurationDTO.getTarget().getHostname(), engineConfiguration));
+				});
 
 			return multiHostsConfigurationDTO;
 
 		} catch (IOException e) {
 
 			throw new BusinessException(ErrorCode.CANNOT_READ_CONFIGURATION,
-					"IOException when reading the configuration file: " + targetConfigFile.getAbsolutePath());
+				"IOException when reading the configuration file: " + targetConfigFile.getAbsolutePath());
 		}
 	}
 
@@ -213,14 +216,14 @@ public class MatrixEngineService {
 			.filter(Objects::nonNull)
 			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 
-		return EngineConfiguration.builder()
-				.operationTimeout(exporterConfig.getOperationTimeout())
-				.protocolConfigurations(protocolConfigurations)
-				.selectedConnectors(selectedConnectors)
-				.target(target)
-				.unknownStatus(exporterConfig.getUnknownStatus())
-				.build();
-
+		return EngineConfiguration
+			.builder()
+			.operationTimeout(exporterConfig.getOperationTimeout())
+			.protocolConfigurations(protocolConfigurations)
+			.selectedConnectors(selectedConnectors)
+			.target(target)
+			.unknownStatus(exporterConfig.getUnknownStatus())
+			.build();
 	}
 
 	/**
@@ -231,7 +234,7 @@ public class MatrixEngineService {
 	 *   <li><em>userExclusion</em>: based on the ConnectorStore, filter the connectors
 	 * </ol>
 	 * 
-	 * @param allConnectors      All conncetors from the {@link ConnectorStore}
+	 * @param allConnectors      All connectors from the {@link ConnectorStore}
 	 * @param selectedConnectors User's selected connectors
 	 * @param excludedConnectors User's excluded connectors
 	 * 

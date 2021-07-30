@@ -65,8 +65,8 @@ public class EngineService {
 		}
 
 		// run jobs
-		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname());
-		hostMonitoring.setEngineConfiguration(engineConf);
+		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname(),
+			engineConf);
 		EngineResult engineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(),
 			new CollectOperation());
 		log.info("Jobs status: {}", engineResult.getOperationStatus());

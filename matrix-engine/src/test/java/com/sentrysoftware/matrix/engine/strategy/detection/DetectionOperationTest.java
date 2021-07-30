@@ -143,7 +143,7 @@ class DetectionOperationTest {
 	void testCallAutoDetection() throws Exception {
 
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
+				.createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
@@ -184,7 +184,7 @@ class DetectionOperationTest {
 	void testCallProcessSelectedConnectors() throws Exception {
 
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
+				.createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfigurationSelection).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
@@ -230,7 +230,7 @@ class DetectionOperationTest {
 	@Test
 	void testCreatetargetOnExistingtarget() throws LocalhostCheckException, UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
-				.createHostMonitoring(UUID.randomUUID().toString());
+				.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();

@@ -9,7 +9,8 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,9 +96,13 @@ class MatrixEngineServiceTest {
 	@Test
 	void testBuildEngineConfiguration() throws BusinessException {
 
-		final Set<String> selectedConnectors = Collections.singleton(MS_HW_DELL_OPEN_MANAGE_CONNECTOR);
+		final Map<String, Connector> connectors = Map
+			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
 
-		final MultiHostsConfigurationDTO hostsConfigurations = matrixEngineService.readConfiguration(targetConfigFile);
+		final MultiHostsConfigurationDTO hostsConfigurations = matrixEngineService.readConfiguration(targetConfigFile, connectors);
+
+		final Set<String> selectedConnectors = Collections.singleton(MS_HW_DELL_OPEN_MANAGE_CONNECTOR);
 
 		for (HostConfigurationDTO hostConfigurationDTO : hostsConfigurations.getTargets()) {
 
@@ -122,12 +127,18 @@ class MatrixEngineServiceTest {
 
 	@Test
 	void testReadConfigurationException() {
-		assertThrows(BusinessException.class, () ->  matrixEngineService.readConfiguration(new File("unknownFile.yml")));
+
+		assertThrows(BusinessException.class, () ->  matrixEngineService.readConfiguration(new File("unknownFile.yml"), null));
 	}
 
 	@Test
 	void testReadConfiguration() throws BusinessException {
-		assertNotNull(matrixEngineService.readConfiguration(targetConfigFile));
+
+		final Map<String, Connector> connectors = Map
+			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+
+		assertNotNull(matrixEngineService.readConfiguration(targetConfigFile, connectors));
 	}
 
 	@Test
@@ -152,7 +163,25 @@ class MatrixEngineServiceTest {
 
 		doReturn(connectors).when(store).getConnectors();
 
-		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
+		Set<String> hostnames = Set.of("ecs1-01", "ecs1-02", "ecs1-03");
+
+		for (String hostname: hostnames) {
+
+			HostConfigurationDTO hostConfigurationDTO = HostConfigurationDTO
+				.builder()
+				.target(HardwareTarget.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
+				.snmp(SNMPProtocol.builder().build())
+				.build();
+
+			EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
+				Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR));
+
+			IHostMonitoring hostMonitoring = HostMonitoringFactory
+				.getInstance()
+				.createHostMonitoring(hostname, engineConfiguration);
+
+			doReturn(hostMonitoring).when(hostMonitoringMap).get(hostname);
+		}
 
 		assertDoesNotThrow(() -> matrixEngineService.performJobs(null));
 
@@ -169,15 +198,30 @@ class MatrixEngineServiceTest {
 
 		doReturn(connectors).when(store).getConnectors();
 
-		doReturn(HostMonitoring.HOST_MONITORING).when(hostMonitoringMap).get(anyString());
-
 		// Invalid targetId
 		assertThrows(IllegalArgumentException.class, () -> matrixEngineService.performJobs("FOO"));
 		verify(store).getConnectors();
 		verify(hostMonitoringMap, times(0)).get(anyString());
 
 		// Valid targetId
-		assertDoesNotThrow(() -> matrixEngineService.performJobs("ecs1-01"));
+		String hostname = "ecs1-01";
+
+		HostConfigurationDTO hostConfigurationDTO = HostConfigurationDTO
+			.builder()
+			.target(HardwareTarget.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
+			.snmp(SNMPProtocol.builder().build())
+			.build();
+
+		EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
+			Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR));
+
+		IHostMonitoring hostMonitoring = HostMonitoringFactory
+			.getInstance()
+			.createHostMonitoring(hostname, engineConfiguration);
+
+		doReturn(hostMonitoring).when(hostMonitoringMap).get(anyString());
+
+		assertDoesNotThrow(() -> matrixEngineService.performJobs(hostname));
 		verify(store, times(2)).getConnectors();
 		verify(hostMonitoringMap).get(anyString());
 	}

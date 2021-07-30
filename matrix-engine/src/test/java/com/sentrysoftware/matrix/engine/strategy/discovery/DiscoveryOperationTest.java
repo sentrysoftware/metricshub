@@ -133,7 +133,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCall() throws Exception {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		final Monitor targetMonitor = Monitor
@@ -198,7 +198,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCallNoDetectedConnectors() throws Exception {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		final Monitor targetMonitor = Monitor
@@ -234,7 +234,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCallNoTargetMonitor() throws Exception {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		final Monitor targetMonitor = Monitor
@@ -254,7 +254,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCallNoTargets() throws Exception {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		discoveryOperation.call();
@@ -263,7 +263,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testDiscoverMultiJobs() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
 				.builder()
@@ -379,7 +379,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testDiscover() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
 				.builder()
@@ -437,7 +437,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testDiscoverSameTypeMonitors() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
 				.builder()
@@ -577,7 +577,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCreateSameTypeMonitorsNoSourceKey() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(null).build();
@@ -604,7 +604,7 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCreateSameTypeMonitorsNoSources() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
@@ -632,7 +632,7 @@ class DiscoveryOperationTest {
 	@Test
 	void testCreateSameTypeMonitorsSourceTextTable() {
 
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, DELL_ENCLOSURE,
@@ -680,7 +680,7 @@ class DiscoveryOperationTest {
 	@Test
 	void testCreateSameTypeMonitorsSourceInstanceTable() {
 
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
@@ -787,7 +787,7 @@ class DiscoveryOperationTest {
 	@Test
 	void testProcessSourcesAndComputes() {
 
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString());
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		discoveryOperation.processSourcesAndComputes(Collections.emptyList(), hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
 		assertTrue(hostMonitoring.getSourceTables().isEmpty());
