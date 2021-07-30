@@ -643,7 +643,7 @@ public class PslUtils {
 									String.valueOf(currentValue),
 									threshold1,
 									threshold2));
-				} else if (baseUnit.equals("8")) {
+				} else {
 					currentValue = currentValue / 3600000;
 					ipmiTable.add(
 							Arrays.asList(
@@ -681,16 +681,18 @@ public class PslUtils {
 			String deviceId = entityId.substring(lookupIndex + 1);
 
 			String state = line.get(0);
-			if (state == "" || state == "N/A") {
+			if (state == null || state.isEmpty() || "N/A".equals(state)) {
 				continue;
 			}
 
-			if (state.length() > 18 && state.substring(0, 16).equals("OEM State,Value=")) {
+			if (state.length() > 18 && state.startsWith("OEM State,Value=")) {
 				// Reverse the bytes of the WORD value
 				state = "0x" + state.substring(18, 20) + state.substring(16, 18);
 			}
 
 			boolean entityIdAlreadyRegistered = false;
+
+			state = state.replace(HardwareConstants.DOT + HardwareConstants.COMMA, HardwareConstants.PIPE + sensorName + HardwareConstants.EQUAL);
 
 			// Get the line of this device
 			for (int i = 0; i < deviceList.size(); i++) {
@@ -706,7 +708,7 @@ public class PslUtils {
 							HardwareConstants.PIPE
 							+ sensorName
 							+ HardwareConstants.EQUAL
-							+ state.replace(HardwareConstants.DOT + HardwareConstants.COMMA, HardwareConstants.PIPE + sensorName + HardwareConstants.EQUAL));
+							+ state);
 
 					// Re-add that to the device list
 					deviceList.add(deviceLine);
@@ -725,18 +727,15 @@ public class PslUtils {
 						HardwareConstants.EMPTY,
 						sensorName 
 						+ HardwareConstants.EQUAL 
-						+ state.replace(HardwareConstants.DOT + HardwareConstants.COMMA, HardwareConstants.PIPE + sensorName + HardwareConstants.EQUAL));
+						+ state);
 				deviceList.add(deviceSensorList);
 			}
 
 			// Now, remove devices that are marked as "removed" or "absent"
+			deviceList.removeIf(column -> column.get(6).contains("=Device Removed/Device Absent"));
+			
 			for (int i = 0; i < deviceList.size(); i++) {
 				List<String> deviceLine = deviceList.get(i);
-				if (deviceLine.get(6).contains("=Device Removed/Device Absent")) {
-					deviceList.remove(i);
-					continue;
-				}
-
 				// Replace "State Asserted" and "State Deasserted" by 1 and 0
 				deviceLine.set(6, deviceLine.get(6)
 						.replace("=State Asserted", "=1")

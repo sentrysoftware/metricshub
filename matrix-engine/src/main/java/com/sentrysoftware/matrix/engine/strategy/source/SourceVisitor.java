@@ -171,77 +171,19 @@ public class SourceVisitor implements ISourceVisitor {
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processWindowsIpmiSource() {
-		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
 		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		final String nameSpaceRootCimv2 = "root/cimv2";
-		List<List<String>> wmiCollection1;
-		List<List<String>> wmiCollection2;
-		List<List<String>> wmiCollection3;
-
-		try {
-			wmiCollection1 = matsyaClientsExecutor.executeWmi(
-					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getPassword(),
-					wmiProtocol.getTimeout(),
-					wmiQuery,
-					nameSpaceRootCimv2);
-			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
-					hostname,
-					wmiQuery);
-		} catch (Exception e) {
-			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
-					wmiQuery,
-					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getTimeout(),
-					nameSpaceRootCimv2);
-			return SourceTable.empty();
-		}
-
-		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
 		final String nameSpaceRootHardware = "root/hardware";
-		try {
-			wmiCollection2 = matsyaClientsExecutor.executeWmi(hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getPassword(),
-					wmiProtocol.getTimeout(),
-					wmiQuery,
-					nameSpaceRootHardware);
-			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
-					hostname,
-					wmiQuery);
-		} catch (Exception e) {
-			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
-					wmiQuery,
-					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getTimeout(),
-					nameSpaceRootHardware);
-			return SourceTable.empty();
-		}
 
+		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
+		List<List<String>> wmiCollection1 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
+		
+		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
+		List<List<String>> wmiCollection2 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		try {
-			wmiCollection3 = matsyaClientsExecutor.executeWmi(hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getPassword(),
-					wmiProtocol.getTimeout(),
-					wmiQuery,
-					nameSpaceRootHardware);
-			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
-					hostname,
-					wmiQuery);
-		} catch (Exception e) {
-			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
-					wmiQuery,
-					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getTimeout(),
-					nameSpaceRootHardware);
-			return SourceTable.empty();
-		}
+		List<List<String>> wmiCollection3 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
 		return SourceTable.builder().table(PslUtils.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
@@ -657,4 +599,36 @@ public class SourceVisitor implements ISourceVisitor {
 
 	}
 
+	/**
+	 * Call the matsya client executor to execute a WMI request. 
+	 * @param hostname
+	 * @param wmiProtocol
+	 * @param wmiQuery
+	 * @param namespace
+	 * @return
+	 */
+	private List<List<String>> executeWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
+			final String wmiQuery, final String namespace) {
+		List<List<String>> wmiCollection1 = new ArrayList<>();
+		try {
+			wmiCollection1 = matsyaClientsExecutor.executeWmi(
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getPassword(),
+					wmiProtocol.getTimeout(),
+					wmiQuery,
+					namespace);
+			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
+					hostname,
+					wmiQuery);
+		} catch (Exception e) {
+			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiQuery,
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getTimeout(),
+					namespace);
+		}
+		return wmiCollection1;
+	}
 }
