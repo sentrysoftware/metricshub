@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -98,19 +101,34 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param hostMonitoring   The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname         The system hostname
 	 */
-	void collect(final Connector connector, final Monitor connectorMonitor,
-			final IHostMonitoring hostMonitoring, final String hostname) {
+	void collect(final Connector connector, final Monitor connectorMonitor, final IHostMonitoring hostMonitoring,
+				 final String hostname) {
+
 		log.debug("Collect - Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
 
 		// Re-test the connector and collect the connector monitor
 		collectConnectorMonitor(connector, connectorMonitor, hostname);
 
-		// The parallel stream might need to be disabled, i.e. configured by the user
+		// Now collecting the rest of the monitors in parallel mode
+		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+
 		connector
-		.getHardwareMonitors()
-		.parallelStream()
-		.filter(hardwareMonitor -> validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname))
-		.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
+			.getHardwareMonitors()
+			.stream()
+			.filter(hardwareMonitor ->
+				validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname))
+			.forEach(hardwareMonitor ->
+				threadsPool.execute(() -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname)));
+
+		// Order the shutdown
+		threadsPool.shutdown();
+
+		try {
+			// Blocks until all tasks have completed execution after a shutdown request
+			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			log.error("Waiting for threads termination aborted with an error", e);
+		}
 	}
 
 	/**
@@ -502,8 +520,10 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Refresh the collect time of the {@link PresentParam} in the given monitor instance
-	 * @param monitor
+	 * Refresh the collect time of the {@link PresentParam} in the given monitor instance.
+	 *
+	 * @param monitor		The {@link Monitor} whose {@link PresentParam}'s collect time should be refreshed.
+	 * @param collectTime	The new collect time.
 	 */
 	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
 		final PresentParam presentParam = monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
