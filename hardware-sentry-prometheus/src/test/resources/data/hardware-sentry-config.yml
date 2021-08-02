@@ -2,7 +2,7 @@
 targets:
 
   - target:
-      hostname: ecs1-01
+      hostname: 357306c9-07e9-431b-bc71-b7712daabbbf
       type: LINUX
     snmp:
       version: V1
@@ -15,7 +15,7 @@ targets:
     unknownStatus: WARN
 
   - target:
-      hostname: ecs1-02
+      hostname: 85f8514e-1b4d-4766-87af-09a84ca2a397
       type: LINUX
     snmp:
       version: V1
@@ -28,7 +28,7 @@ targets:
     unknownStatus: WARN
 
   - target:
-      hostname: ecs1-03
+      hostname: 3ba095eb-d5e8-4acd-81f4-dc81e29982e7
       type: LINUX
     snmp:
       version: V1

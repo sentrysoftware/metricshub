@@ -26,7 +26,7 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
@@ -155,6 +155,9 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addParameter(statusParam);
 
 		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
+		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
+		monitor.addMetadata(FILE_NAME, connector.getCompiledFilename());
+		monitor.addMetadata(DESCRIPTION, connector.getComments());
 
 		hostMonitoring.addMonitor(monitor);
 	}

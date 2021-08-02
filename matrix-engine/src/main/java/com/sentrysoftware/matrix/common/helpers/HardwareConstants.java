@@ -101,6 +101,9 @@ public class HardwareConstants {
 	public static final String OPERATING_SYSTEM_TYPE = "operatingSystemType";
 	public static final String ATTACHED_TO_DEVICE_ID = "attachedToDeviceId";
 	public static final String ATTACHED_TO_DEVICE_TYPE = "attachedToDeviceType";
+	public static final String DESCRIPTION = "description";
+	public static final String FILE_NAME = "fileName";
+	public static final String DISPLAY_NAME = "displayName";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

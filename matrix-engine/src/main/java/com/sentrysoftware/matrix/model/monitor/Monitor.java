@@ -61,6 +61,16 @@ public class Monitor {
 	}
 
 	/**
+	 * Get the metadata value identified by the given key
+	 * 
+	 * @param key The metadata key, example: serialNumber
+	 * @return String value
+	 */
+	public String getMetadata(final String key) {
+		return metadata.get(key);
+	}
+
+	/**
 	 * Get a parameter by type
 	 * 
 	 * @param parameterName The unique name of the parameter

@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOSProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.CommentsProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.DisplayNameProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.LocalSupportProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.ReliesOnProcessor;
@@ -34,6 +36,7 @@ class ConnectorSimplePropertyTest {
 	private static final String REMOTE_SUPPORT_KEY = "hdf.RemoteSupport";
 	private static final String LOCAL_SUPPORT_KEY = "hdf.LocalSupport";
 	private static final String APPLIES_TO_OS_KEY = "hdf.AppliesToOS";
+	private static final String COMMENTS_KEY = "hdf.comments";
 
 	private static final String DISPLAY_NAME_VALUE = "Dell OpenManage Server Administrator"; 
 	private static final String SUPERSEDES_VALUE = "MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf";
@@ -47,6 +50,7 @@ class ConnectorSimplePropertyTest {
 	private static final String LOCAL_SUPPORT_VALUE_FALSE = "false";
 	private static final String APPLIES_TO_OS_VALUE = "Linux,NT";
 	private static final String APPLIES_TO_OS_VALUE_SPACED = " Linux , NT ";
+	private static final String  COMMENTS_VALUE = "This the description of the Connector";
 
 	private static final Set<String> SUPERSEDES_VALUE_RESULT = new HashSet<>(
 			Arrays.asList("MS_HW_IpmiTool.hdf","MS_HW_VMwareESX4i.hdf")
@@ -158,7 +162,7 @@ class ConnectorSimplePropertyTest {
 		String value = SPACE.concat(DISPLAY_NAME_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		displayNameProcessor.parse(key, value, connector);
-		assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
+		assertEquals(DISPLAY_NAME_VALUE, connector.getDisplayName());
 	}
 	
 	@Test
@@ -168,7 +172,7 @@ class ConnectorSimplePropertyTest {
 		String value = DISPLAY_NAME_VALUE;
 		Connector connector = new Connector();
 		displayNameProcessor.parse(key, value, connector);
-		assertEquals(connector.getDisplayName(), DISPLAY_NAME_VALUE);
+		assertEquals(DISPLAY_NAME_VALUE, connector.getDisplayName());
 	}
 	
 	// Supersedes tests
@@ -272,7 +276,7 @@ class ConnectorSimplePropertyTest {
 		String value = SUPERSEDES_VALUE_SPACED;
 		Connector connector = new Connector();
 		supersedesProcessor.parse(key, value, connector);
-		assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
+		assertEquals(SUPERSEDES_VALUE_RESULT, connector.getSupersedes());
 	}
 	
 	@Test
@@ -282,7 +286,7 @@ class ConnectorSimplePropertyTest {
 		String value = SUPERSEDES_VALUE;
 		Connector connector = new Connector();
 		supersedesProcessor.parse(key, value, connector);
-		assertEquals(connector.getSupersedes(), SUPERSEDES_VALUE_RESULT);
+		assertEquals(SUPERSEDES_VALUE_RESULT, connector.getSupersedes());
 	}
 	
 	// AppliesToOS tests
@@ -386,7 +390,7 @@ class ConnectorSimplePropertyTest {
 		String value = APPLIES_TO_OS_VALUE_SPACED;
 		Connector connector = new Connector();
 		appliesToOSProcessor.parse(key, value, connector);
-		assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
+		assertEquals(APPLIES_TO_OS_VALUE_RESULT, connector.getAppliesToOS());
 	}
 	
 	@Test
@@ -396,7 +400,7 @@ class ConnectorSimplePropertyTest {
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
 		appliesToOSProcessor.parse(key, value, connector);
-		assertEquals(connector.getAppliesToOS(), APPLIES_TO_OS_VALUE_RESULT);
+		assertEquals(APPLIES_TO_OS_VALUE_RESULT, connector.getAppliesToOS());
 	}
 	
 	// LocalSupport tests
@@ -748,7 +752,7 @@ class ConnectorSimplePropertyTest {
 		String value = SPACE.concat(TYPICAL_PLATFORM_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		typicalPlatformProcessor.parse(key, value, connector);
-		assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
+		assertEquals(TYPICAL_PLATFORM_VALUE, connector.getTypicalPlatform());
 	}
 	
 	@Test
@@ -758,7 +762,7 @@ class ConnectorSimplePropertyTest {
 		String value = TYPICAL_PLATFORM_VALUE;
 		Connector connector = new Connector();
 		typicalPlatformProcessor.parse(key, value, connector);
-		assertEquals(connector.getTypicalPlatform(), TYPICAL_PLATFORM_VALUE);
+		assertEquals(TYPICAL_PLATFORM_VALUE, connector.getTypicalPlatform());
 	}
 	
 	// ReliesOn tests
@@ -862,7 +866,7 @@ class ConnectorSimplePropertyTest {
 		String value = SPACE.concat(RELIES_ON_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		reliesOnProcessor.parse(key, value, connector);
-		assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
+		assertEquals(RELIES_ON_VALUE, connector.getReliesOn());
 	}
 	
 	@Test
@@ -872,7 +876,7 @@ class ConnectorSimplePropertyTest {
 		String value = RELIES_ON_VALUE;
 		Connector connector = new Connector();
 		reliesOnProcessor.parse(key, value, connector);
-		assertEquals(connector.getReliesOn(), RELIES_ON_VALUE);
+		assertEquals(RELIES_ON_VALUE, connector.getReliesOn());
 	}
 	
 	// Version tests
@@ -976,7 +980,7 @@ class ConnectorSimplePropertyTest {
 		String value = SPACE.concat(VERSION_VALUE).concat(SPACE);
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
-		assertEquals(connector.getVersion(), VERSION_VALUE);
+		assertEquals(VERSION_VALUE, connector.getVersion());
 	}
 	
 	@Test
@@ -986,7 +990,7 @@ class ConnectorSimplePropertyTest {
 		String value = VERSION_VALUE;
 		Connector connector = new Connector();
 		versionProcessor.parse(key, value, connector);
-		assertEquals(connector.getVersion(), VERSION_VALUE);
+		assertEquals(VERSION_VALUE, connector.getVersion());
 	}
 
 	@Test
@@ -994,8 +998,45 @@ class ConnectorSimplePropertyTest {
 
 		assertEquals(
 				Stream.of(DisplayNameProcessor.class, TypicalPlatformProcessor.class, ReliesOnProcessor.class, VersionProcessor.class,
-						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class)
+						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class,
+						CommentsProcessor.class)
 						.collect(Collectors.toSet()),
 				ConnectorSimpleProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
+	}
+
+	void testCommentsProcessorDetectOK() {
+		CommentsProcessor commentsProcessor = new CommentsProcessor();
+		Connector connector = new Connector();
+		assertTrue(commentsProcessor.detect(COMMENTS_KEY, COMMENTS_VALUE, connector));
+	}
+
+	@Test
+	void testCommentsProcessorParseConnectorNull() {
+		CommentsProcessor commentsProcessor = new CommentsProcessor();
+		assertDoesNotThrow(() -> commentsProcessor.parse(COMMENTS_KEY, COMMENTS_VALUE, null));
+	}
+
+	@Test
+	void testCommentsProcessorParseValueNull() {
+		CommentsProcessor commentsProcessor = new CommentsProcessor();
+		Connector connector = new Connector();
+		commentsProcessor.parse(COMMENTS_KEY, null, connector);
+		assertNull(connector.getComments());
+	}
+
+	@Test
+	void testCommentsProcessorParseTrimOK() {
+		CommentsProcessor commentsProcessor = new CommentsProcessor();
+		Connector connector = new Connector();
+		commentsProcessor.parse(COMMENTS_KEY, SPACE.concat(COMMENTS_VALUE).concat(SPACE), connector);
+		assertEquals(COMMENTS_VALUE, connector.getComments());
+	}
+
+	@Test
+	void testCommentsProcessorParseOK() {
+		CommentsProcessor commentsProcessor = new CommentsProcessor();
+		Connector connector = new Connector();
+		commentsProcessor.parse(COMMENTS_KEY, COMMENTS_VALUE, connector);
+		assertEquals(COMMENTS_VALUE, connector.getComments());
 	}
 }

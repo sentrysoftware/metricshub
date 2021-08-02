@@ -41,12 +41,12 @@ class DellOpenManageIT {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		itJob
-			.withServerRecordData("DellOpenManage/input/input.snmp")
+			.withServerRecordData("snmp/DellOpenManage/input/input.snmp")
 			.prepareEngine(engineConfiguration, hostMonitoring)
 			.executeStrategy(new DetectionOperation())
 			.executeStrategy(new DiscoveryOperation())
 			.executeStrategy(new CollectOperation())
-			.verifyExpected("DellOpenManage/expected/expected.json");
+			.verifyExpected("snmp/DellOpenManage/expected/expected.json");
 	}
 
 }
