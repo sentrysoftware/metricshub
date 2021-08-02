@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.Engine;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
@@ -195,9 +194,12 @@ public abstract class AbstractITJob implements ITJob {
 
 	@Override
 	public ITJob executeStrategy(final IStrategy strategy) {
+
 		assertTrue(isServerStarted(), "Server not ready.");
 
-		lastEngineResult = new Engine().run(engineConfiguration, hostMonitoring, strategy);
+		hostMonitoring.setEngineConfiguration(engineConfiguration);
+
+		lastEngineResult = hostMonitoring.run(strategy);
 
 		return this;
 	}

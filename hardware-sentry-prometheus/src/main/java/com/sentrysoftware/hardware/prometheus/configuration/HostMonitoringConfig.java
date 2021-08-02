@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.prometheus.configuration;
 
 import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.engine.Engine;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link HostMonitoring}, {@link ConnectorStore} and {@link Engine} as spring beans.
+ * {@link HostMonitoring}, {@link ConnectorStore} as spring beans.
  */
 @Configuration
 public class HostMonitoringConfig {
@@ -26,10 +25,5 @@ public class HostMonitoringConfig {
 	@Bean 
 	public ConnectorStore store() {
 		return ConnectorStore.getInstance();
-	}
-
-	@Bean
-	public Engine engine() {
-		return new Engine();
 	}
 }

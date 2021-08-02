@@ -21,7 +21,6 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.engine.Engine;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -65,18 +64,12 @@ public class EngineService {
 					getSelectedConnectors(allConnectors.keySet(), data.getHdfs(), data.getHdfsExclusion()));
 		}
 
-		// run detection
-		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname());
-		EngineResult detectionResult = new Engine().run(engineConf, hostMonitoring, new DetectionOperation());
-		log.info("Detection Status {}", detectionResult.getOperationStatus());
-
-		// run discovery
-		EngineResult discoveryResult = new Engine().run(engineConf, hostMonitoring, new DiscoveryOperation());
-		log.info("Discovery Status {}", discoveryResult.getOperationStatus());
-
-		// run collect
-		EngineResult collectResult = new Engine().run(engineConf, hostMonitoring, new CollectOperation());
-		log.info("Collect Status {}", collectResult.getOperationStatus());
+		// run jobs
+		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(data.getHostname(),
+			engineConf);
+		EngineResult engineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(),
+			new CollectOperation());
+		log.info("Jobs status: {}", engineResult.getOperationStatus());
 
 		// Call the formatter with the HostMonitoring object
 		return jobResultFormatterService.format(hostMonitoring);

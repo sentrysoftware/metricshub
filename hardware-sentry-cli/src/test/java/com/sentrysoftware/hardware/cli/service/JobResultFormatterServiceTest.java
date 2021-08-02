@@ -22,7 +22,7 @@ class JobResultFormatterServiceTest {
 	void formatTestNullMonitoring() {
 		JobResultFormatterService jobFormatter = new JobResultFormatterService();
 
-		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId");
+		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId", null);
 		Map<MonitorType, Map<String, Monitor>> monitoring = null;
 		hostMonitoring.setMonitors(monitoring);
 
@@ -35,7 +35,7 @@ class JobResultFormatterServiceTest {
 	void formatTestEmptyMonitoring() {
 		JobResultFormatterService jobFormatter = new JobResultFormatterService();
 
-		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId");
+		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId", null);
 		Map<MonitorType, Map<String, Monitor>> monitoring = new HashMap<>();
 		hostMonitoring.setMonitors(monitoring);
 
@@ -48,7 +48,7 @@ class JobResultFormatterServiceTest {
 	void formatTestOK() {
 		JobResultFormatterService jobFormatter = new JobResultFormatterService();
 
-		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId");
+		IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring("hostMonitoringId", null);
 		Map<MonitorType, Map<String, Monitor>> monitoring = new HashMap<>();
 
 		Map<String, Monitor> map = new HashMap<>();
