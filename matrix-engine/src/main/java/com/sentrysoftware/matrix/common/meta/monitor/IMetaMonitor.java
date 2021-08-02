@@ -36,6 +36,19 @@ public interface IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	MetaParameter ENERGY = MetaParameter.builder()
+		.basicCollect(true)
+		.name(HardwareConstants.ENERGY_PARAMETER)
+		.unit(HardwareConstants.ENERGY_PARAMETER_UNIT)
+		.type(ParameterType.NUMBER)
+		.build();
+
+	MetaParameter HEATING_MARGIN = MetaParameter.builder()
+		.basicCollect(true)
+		.name(HardwareConstants.HEATING_MARGIN_PARAMETER)
+		.unit(HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT)
+		.type(ParameterType.NUMBER)
+		.build();
 
 	void accept(IMonitorVisitor monitorVisitor);
 

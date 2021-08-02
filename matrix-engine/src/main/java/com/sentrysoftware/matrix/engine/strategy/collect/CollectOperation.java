@@ -1,15 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -22,13 +15,30 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -502,8 +512,9 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Refresh the collect time of the {@link PresentParam} in the given monitor instance
-	 * @param monitor
+	 * Refresh the collect time of the {@link PresentParam} in the given {@link Monitor} instance.
+	 *
+	 * @param monitor	The {@link Monitor} whose {@link PresentParam} should be updated.
 	 */
 	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
 		final PresentParam presentParam = monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
@@ -526,6 +537,162 @@ public class CollectOperation extends AbstractStrategy {
 		.forEach(monitor -> refreshPresentCollectTime(monitor, strategyTime));
 	}
 
+	/**
+	 * @param array1	The first array. Cannot be null.
+	 * @param array2	The second array. Cannot be null. Must be the same size as <em>array1</em>.
+	 *
+	 * @return			A new array with element at index i being the sum of <em>array1[i]</em> and <em>array2[i]</em>.
+	 * 					<br>If any of <em>array1[i]</em> and <em>array2[i]</em> is null, then the resulting sum is null.
+	 */
+	private Double[] sumArrayValues(Double[] array1, Double[] array2) {
+
+		Double[] result = new Double[array1.length];
+
+		for (int i = 0; i < array1.length; i++) {
+
+			result[i] = array1[i] != null && array2[i] != null
+				? array1[i] + array2[i]
+				: null;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Setting the target energy value as the sum of all the {@link Enclosure}s' energy values.
+	 */
+	private void aggregateTargetEnergy() {
+
+		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		notNull(hostMonitoring, "hostMonitoring cannot be null.");
+
+		// Getting the target monitor
+		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		notNull(targetMonitors, "targetMonitors cannot be null.");
+
+		Monitor targetMonitor = targetMonitors
+			.values()
+			.stream()
+			.findFirst()
+			.orElseThrow();
+
+		// Getting the enclosure monitors
+		Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
+
+		// Getting the sums of the enclosures' energy converted values and raw values
+		// totalEnergyValues[0] is the total converted value
+		// totalEnergyValues[1] is the total raw value
+		Double[] totalEnergyValues = enclosureMonitors == null
+			? null
+			: enclosureMonitors
+			.values()
+			.stream()
+			.map(monitor -> monitor.getParameter(ENERGY_PARAMETER, NumberParam.class))
+			.filter(Objects::nonNull)
+			.map(numberParam -> new Double[] {numberParam.getValue(), numberParam.getRawValue()})
+			.reduce(this::sumArrayValues)
+			.orElse(null);
+
+		// Building the parameter
+		NumberParam targetEnergy = NumberParam
+			.builder()
+			.name(ENERGY_PARAMETER)
+			.unit(ENERGY_PARAMETER_UNIT)
+			.collectTime(strategyTime)
+			.value(totalEnergyValues != null ? totalEnergyValues[0] : null)
+			.rawValue(totalEnergyValues != null ? totalEnergyValues[1] : null)
+			.build();
+
+		// Adding the parameter to the target monitor
+		targetMonitor.addParameter(targetEnergy);
+	}
+
+	/**
+	 * @param metadata		The {@link Monitor}'s metadata.
+	 * @param temperature	The {@link Temperature} parameter.
+	 *
+	 * @return				The difference between the {@link Monitor}'s temperature threshold
+	 * 						and the given {@link Temperature}'s value.
+	 */
+	private Double computeTemperatureHeatingMargin(Map<String, String> metadata, NumberParam temperature) {
+
+		notNull(metadata, "metadata cannot be null.");
+		String warningThreshold = metadata.get(WARNING_THRESHOLD);
+
+		String threshold = warningThreshold != null
+			? warningThreshold
+			: metadata.get(ALARM_THRESHOLD);
+
+		if (threshold == null) {
+			return null;
+		}
+
+		double thresholdValue;
+		try {
+
+			thresholdValue = Double.parseDouble(threshold);
+
+		} catch (NumberFormatException e) {
+
+			log.warn("Invalid threshold value: {}.", threshold);
+			return null;
+		}
+
+		notNull(temperature, "temperature cannot be null.");
+		Double temperatureValue = temperature.getValue();
+
+		return temperatureValue != null
+			? thresholdValue - temperatureValue
+			: null;
+	}
+
+	/**
+	 * Setting the target heating margin value as the minimum value of all the {@link Temperature}s' heating margins.
+	 */
+	private void computeTargetHeatingMargin() {
+
+		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		notNull(hostMonitoring, "hostMonitoring cannot be null.");
+
+		// Getting the target monitor
+		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		notNull(targetMonitors, "targetMonitors cannot be null.");
+
+		Monitor targetMonitor = targetMonitors
+			.values()
+			.stream()
+			.findFirst()
+			.orElseThrow();
+
+		// Getting the temperature monitors
+		Map<String, Monitor> temperatureMonitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
+
+		// Getting the minimum heating margin among all the temperatures' heating margin values
+		Double minimumHeatingMargin = temperatureMonitors == null
+			? null
+			: temperatureMonitors
+			.values()
+			.stream()
+			.map(monitor -> computeTemperatureHeatingMargin(monitor.getMetadata(),
+				monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class)))
+			.filter(Objects::nonNull)
+			.reduce(Double::min)
+			.orElse(null);
+
+		// Building the parameter
+		NumberParam targetHeatingMargin = NumberParam
+			.builder()
+			.name(HEATING_MARGIN_PARAMETER)
+			.unit(HEATING_MARGIN_PARAMETER_UNIT)
+			.collectTime(strategyTime)
+			.value(minimumHeatingMargin)
+			.rawValue(minimumHeatingMargin)
+			.build();
+
+		// Adding the parameter to the target monitor
+		targetMonitor.addParameter(targetHeatingMargin);
+	}
+
 	@Override
 	public void release() {
 		// Not implemented yet
@@ -533,10 +700,14 @@ public class CollectOperation extends AbstractStrategy {
 
 	@Override
 	public void post() {
+
 		// Refresh present parameters
 		refreshPresentParameters();
+
+		// Setting the target total energy
+		aggregateTargetEnergy();
+
+		// Setting the target heating margin
+		computeTargetHeatingMargin();
 	}
-
-
-
 }

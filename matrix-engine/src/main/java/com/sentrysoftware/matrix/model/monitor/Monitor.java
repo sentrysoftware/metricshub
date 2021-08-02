@@ -52,7 +52,7 @@ public class Monitor {
 	 * Add the given metadata key-value to the internal map of metadata
 	 * 
 	 * @param key   The metadata key, example: serialNumber
-	 * @param value the metadata value we wish to add
+	 * @param value The metadata value we wish to add
 	 */
 	public void addMetadata(final String key, final String value) {
 		Assert.notNull(key, "key cannot be null");

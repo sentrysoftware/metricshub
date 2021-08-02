@@ -1,22 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -48,6 +31,22 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonitorCollectVisitorTest {
 
@@ -708,7 +707,7 @@ class MonitorCollectVisitorTest {
 
 	@Test
 	void testStatusParamFirstComparatorCompare() {
-		assertEquals(Arrays.asList("status", "energyUsage", "intrusionStatus", "powerConsumption"),
+		assertEquals(Arrays.asList("status", "energy", "energyUsage", "intrusionStatus", "powerConsumption"),
 				new Enclosure()
 				.getMetaParameters()
 				.values()
@@ -901,9 +900,25 @@ class MonitorCollectVisitorTest {
 
 		powerConsumption.reset();
 
-		final Monitor monitor = Monitor.builder().monitorType(MonitorType.ENCLOSURE).parameters(new HashMap<>(
-				Map.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, powerConsumption)))
-				.build();
+		final NumberParam energyUsage = NumberParam
+			.builder()
+			.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
+			.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+			.collectTime(collectTime)
+			.value(null)
+			.rawValue(999.0)
+			.build();
+
+		energyUsage.reset();
+
+		final Monitor monitor = Monitor
+			.builder()
+			.monitorType(MonitorType.ENCLOSURE)
+			.parameters(new HashMap<>(
+				Map
+					.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, powerConsumption,
+						HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+			.build();
 
 		MonitorCollectVisitor.collectEnergyUsageWithPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
 
@@ -911,7 +926,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 
 		assertEquals(27648.0, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-
+		assertEquals(27651.5964, monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
 	@Test
