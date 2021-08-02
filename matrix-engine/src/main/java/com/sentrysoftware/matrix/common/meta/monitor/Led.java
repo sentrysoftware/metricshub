@@ -1,6 +1,13 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -26,6 +33,7 @@ public class Led implements IMetaMonitor {
 			.type(ParameterType.STATUS)
 			.build();
 
+	private static final List<String> METADATA = List.of(DEVICE_ID, NAME, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -53,5 +61,10 @@ public class Led implements IMetaMonitor {
 	@Override
 	public MonitorType getMonitorType() {
 		return MonitorType.LED;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
 	}
 }

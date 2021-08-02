@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.google.common.base.CaseFormat;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
@@ -40,7 +41,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	private static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
+	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -168,8 +169,9 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static void processMonitorMetricInfo(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
 
-		final List<String> specificLabels = PrometheusSpecificities.getSpecificLabels(monitorType);
-		final List<String> labels = specificLabels != null ? specificLabels : LABELS;
+		final List<String> labels = PrometheusSpecificities.getLabels(monitorType);
+
+		Assert.state(labels != null && !labels.isEmpty(), () -> "No Labels defined for the monitor type: " + monitorType.getName());
 
 		String monitorTypeName = MONITOR_TYPE_NAMES.get(monitorType);
 		String metricName = buildMetricName(monitorTypeName, "info");

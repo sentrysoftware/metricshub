@@ -3,18 +3,18 @@ package com.sentrysoftware.hardware.prometheus.service;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.DEVICE_ID;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.FAN_TYPE;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.MODEL;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.SERIAL_NUMBER;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.TYPE;
-import static com.sentrysoftware.hardware.prometheus.service.PrometheusSpecificities.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
@@ -173,10 +173,18 @@ class HostMonitoringCollectorServiceTest {
 		doReturn(Map.of(ECS, hostMonitoring).entrySet()).when(hostMonitoringMap).entrySet();
 
 		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
-			prometheusSpecificities.when(() -> PrometheusSpecificities.getSpecificLabels(MonitorType.ENCLOSURE)).thenReturn(null);
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(null);
 			CollectorRegistry.defaultRegistry.clear();
 
-			assertDoesNotThrow(() -> hostMonitoringCollectorService.register());
+			assertThrows(IllegalStateException.class, () -> hostMonitoringCollectorService.register());
+
+		}
+
+		try (MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)) {
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(Collections.emptyList());
+			CollectorRegistry.defaultRegistry.clear();
+
+			assertThrows(IllegalStateException.class, () -> hostMonitoringCollectorService.register());
 
 		}
 

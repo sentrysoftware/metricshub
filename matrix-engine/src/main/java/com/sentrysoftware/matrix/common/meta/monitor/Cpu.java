@@ -1,6 +1,15 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -25,6 +34,9 @@ public class Cpu implements IMetaMonitor {
 			.unit(HardwareConstants.CURRENT_SPEED_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
+
+	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, MAXIMUM_SPEED, ADDITIONAL_INFORMATION1,
+			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -54,5 +66,10 @@ public class Cpu implements IMetaMonitor {
 	@Override
 	public MonitorType getMonitorType() {
 		return MonitorType.CPU;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
 	}
 }

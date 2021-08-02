@@ -1,56 +1,19 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
-import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
-import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABELS;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 public class PrometheusSpecificities {
 
-	public static final String FAN_TYPE = "fanType";
-	public static final String VOLTAGE_TYPE = "voltageType";
-	public static final String TEMPERATURE_TYPE = "temperatureType";
-	public static final String ROBOTIC_TYPE = "roboticType";
-	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
-	public static final String LOCATION = "location";
-	public static final String BIOS_VERSION = "biosVersion";
-	public static final String DEVICE_TYPE = "deviceType";
-	public static final String LOGICAL_ADDRESS = "logicalAddress";
-	public static final String PHYSICAL_ADDRESS = "physicalAddress";
-	public static final String BANDWIDTH = "bandwidth";
-	public static final String REMOTE_PHYSICAL_ADDRESS = "remotePhysicalAddress";
-	public static final String WWN = "wwn";
-	public static final String ARRAY_NAME = "arrayName";
-	public static final String REMOTE_DEVICE_NAME = "remoteDeviceName";
-	public static final String SIZE = "size";
-	public static final String RAID_LEVEL = "raidLevel";
-	public static final String LOCAL_DEVICE_NAME = "localDeviceName";
-	public static final String EXPECTED_PATH_COUNT = "expectedPathCount";
-	public static final String NAME = "Name";
-	public static final String DRIVER_VERSION = "driverVersion";
-	public static final String FIRMWARE_VERSION = "firmwareVersion";
-	public static final String MAXIMUM_SPEED = "maximumSpeed";
-	public static final String BLADE_NAME = "bladeName";
-	public static final String SERIAL_NUMBER = "serialNumber";
-	public static final String ADDITIONAL_INFORMATION3 = "additionalInformation3";
-	public static final String ADDITIONAL_INFORMATION2 = "additionalInformation2";
-	public static final String ADDITIONAL_INFORMATION1 = "additionalInformation1";
-	public static final String CHEMISTRY = "chemistry";
-	public static final String TYPE = "type";
-	public static final String MODEL = "model";
-	public static final String VENDOR = "vendor";
-	public static final String DEVICE_ID = "deviceId";
 	private static final String CURRENTSPEED = "currentspeed";
 	private static final String CURRENT_SPEED = "current_speed";
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
@@ -106,47 +69,27 @@ public class PrometheusSpecificities {
 
 		metricInfoLabels = new EnumMap<>(MonitorType.class);
 
-		metricInfoLabels.put(MonitorType.BATTERY, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, VENDOR, MODEL, TYPE, CHEMISTRY, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.BLADE, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, MODEL, BLADE_NAME, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.CPU_CORE,
-				List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.CPU, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, VENDOR, MODEL, MAXIMUM_SPEED, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.DISK_CONTROLLER, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION,
-				FIRMWARE_VERSION, DRIVER_VERSION, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.ENCLOSURE, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION, TYPE,
-				ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.FAN,
-				List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, FAN_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.LED,
-				List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, NAME, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.LOGICAL_DISK, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, RAID_LEVEL, SIZE, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.LUN, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, LOCAL_DEVICE_NAME, REMOTE_DEVICE_NAME, ARRAY_NAME, WWN,
-				EXPECTED_PATH_COUNT, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.TARGET, List.of(ID, PARENT, LABEL, FQDN, LOCATION));
-		metricInfoLabels.put(MonitorType.MEMORY, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, TYPE, SIZE, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.NETWORK_CARD, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BANDWIDTH, PHYSICAL_ADDRESS,
-				LOGICAL_ADDRESS, REMOTE_PHYSICAL_ADDRESS, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.OTHER_DEVICE,
-				List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, DEVICE_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.PHYSICAL_DISK, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, FIRMWARE_VERSION, SIZE,
-				ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.POWER_SUPPLY, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, POWER_SUPPLY_TYPE, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.ROBOTIC, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, ROBOTIC_TYPE, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.TAPE_DRIVE, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.TEMPERATURE, List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, TEMPERATURE_TYPE, ADDITIONAL_INFORMATION1,
-				ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.VOLTAGE,
-				List.of(ID, PARENT, LABEL, FQDN, DEVICE_ID, VOLTAGE_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3));
-		metricInfoLabels.put(MonitorType.CONNECTOR,
-				List.of(ID, PARENT, LABEL, FQDN, DISPLAY_NAME, FILE_NAME, DESCRIPTION));
+		metricInfoLabels.put(MonitorType.BATTERY, concatLabelsWithMetadata(MonitorType.BATTERY));
+		metricInfoLabels.put(MonitorType.BLADE, concatLabelsWithMetadata(MonitorType.BLADE));
+		metricInfoLabels.put(MonitorType.CPU_CORE, concatLabelsWithMetadata(MonitorType.CPU_CORE));
+		metricInfoLabels.put(MonitorType.CPU, concatLabelsWithMetadata(MonitorType.CPU));
+		metricInfoLabels.put(MonitorType.DISK_CONTROLLER, concatLabelsWithMetadata(MonitorType.DISK_CONTROLLER));
+		metricInfoLabels.put(MonitorType.ENCLOSURE, concatLabelsWithMetadata(MonitorType.ENCLOSURE));
+		metricInfoLabels.put(MonitorType.FAN, concatLabelsWithMetadata(MonitorType.FAN));
+		metricInfoLabels.put(MonitorType.LED, concatLabelsWithMetadata(MonitorType.LED));
+		metricInfoLabels.put(MonitorType.LOGICAL_DISK, concatLabelsWithMetadata(MonitorType.LOGICAL_DISK));
+		metricInfoLabels.put(MonitorType.LUN, concatLabelsWithMetadata(MonitorType.LUN));
+		metricInfoLabels.put(MonitorType.TARGET, concatLabelsWithMetadata(MonitorType.TARGET));
+		metricInfoLabels.put(MonitorType.MEMORY, concatLabelsWithMetadata(MonitorType.BATTERY));
+		metricInfoLabels.put(MonitorType.NETWORK_CARD, concatLabelsWithMetadata(MonitorType.NETWORK_CARD));
+		metricInfoLabels.put(MonitorType.OTHER_DEVICE, concatLabelsWithMetadata(MonitorType.OTHER_DEVICE));
+		metricInfoLabels.put(MonitorType.PHYSICAL_DISK, concatLabelsWithMetadata(MonitorType.PHYSICAL_DISK));
+		metricInfoLabels.put(MonitorType.POWER_SUPPLY, concatLabelsWithMetadata(MonitorType.POWER_SUPPLY));
+		metricInfoLabels.put(MonitorType.ROBOTIC, concatLabelsWithMetadata(MonitorType.ROBOTIC));
+		metricInfoLabels.put(MonitorType.TAPE_DRIVE, concatLabelsWithMetadata(MonitorType.TAPE_DRIVE));
+		metricInfoLabels.put(MonitorType.TEMPERATURE, concatLabelsWithMetadata(MonitorType.TEMPERATURE));
+		metricInfoLabels.put(MonitorType.VOLTAGE, concatLabelsWithMetadata(MonitorType.VOLTAGE));
+		metricInfoLabels.put(MonitorType.CONNECTOR, concatLabelsWithMetadata(MonitorType.CONNECTOR));
 	}
 
 	/**
@@ -169,12 +112,22 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Get the specific labels used for the given monitor type
+	 * Get the monitor type predefined labels
 	 * 
 	 * @param monitorType The type of monitor
 	 * @return List of string values
 	 */
-	public static List<String> getSpecificLabels(MonitorType monitorType) {
+	public static List<String> getLabels(MonitorType monitorType) {
 		return metricInfoLabels.get(monitorType);
+	}
+
+	/**
+	 * Concatenate the Prometheus predefined labels with the specific monitor metadata
+	 * 
+	 * @param monitorType The monitor type we want to get its metadata
+	 * @return List of String values
+	 */
+	private static List<String> concatLabelsWithMetadata(MonitorType monitorType) {
+		return Stream.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream()).collect(Collectors.toList());
 	}
 }

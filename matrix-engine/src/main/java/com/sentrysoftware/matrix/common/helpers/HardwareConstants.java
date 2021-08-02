@@ -88,7 +88,6 @@ public class HardwareConstants {
 	public static final String NEEDS_CLEANING_PARAMETER = "needsCleaning";
 	public static final String USED_TIME_PERCENT_PARAMETER = "usedTimePercent";
 
-
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -104,6 +103,33 @@ public class HardwareConstants {
 	public static final String DESCRIPTION = "description";
 	public static final String FILE_NAME = "fileName";
 	public static final String DISPLAY_NAME = "displayName";
+	public static final String FAN_TYPE = "fanType";
+	public static final String VOLTAGE_TYPE = "voltageType";
+	public static final String TEMPERATURE_TYPE = "temperatureType";
+	public static final String ROBOTIC_TYPE = "roboticType";
+	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
+	public static final String BIOS_VERSION = "biosVersion";
+	public static final String DEVICE_TYPE = "deviceType";
+	public static final String LOGICAL_ADDRESS = "logicalAddress";
+	public static final String PHYSICAL_ADDRESS = "physicalAddress";
+	public static final String BANDWIDTH = "bandwidth";
+	public static final String REMOTE_PHYSICAL_ADDRESS = "remotePhysicalAddress";
+	public static final String WWN = "wwn";
+	public static final String ARRAY_NAME = "arrayName";
+	public static final String REMOTE_DEVICE_NAME = "remoteDeviceName";
+	public static final String SIZE = "size";
+	public static final String RAID_LEVEL = "raidLevel";
+	public static final String LOCAL_DEVICE_NAME = "localDeviceName";
+	public static final String EXPECTED_PATH_COUNT = "expectedPathCount";
+	public static final String NAME = "Name";
+	public static final String DRIVER_VERSION = "driverVersion";
+	public static final String FIRMWARE_VERSION = "firmwareVersion";
+	public static final String MAXIMUM_SPEED = "maximumSpeed";
+	public static final String BLADE_NAME = "bladeName";
+	public static final String ADDITIONAL_INFORMATION3 = "additionalInformation3";
+	public static final String ADDITIONAL_INFORMATION2 = "additionalInformation2";
+	public static final String ADDITIONAL_INFORMATION1 = "additionalInformation1";
+	public static final String CHEMISTRY = "chemistry";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

@@ -1,6 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,6 +22,8 @@ public class MetaConnector implements IMetaMonitor {
 			.name(HardwareConstants.TEST_REPORT_PARAMETER)
 			.type(ParameterType.TEXT)
 			.build();
+
+	private static final List<String> METADATA = List.of(DISPLAY_NAME, FILE_NAME, DESCRIPTION);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -44,5 +51,10 @@ public class MetaConnector implements IMetaMonitor {
 	@Override
 	public MonitorType getMonitorType() {
 		return MonitorType.CONNECTOR;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
 	}
 }
