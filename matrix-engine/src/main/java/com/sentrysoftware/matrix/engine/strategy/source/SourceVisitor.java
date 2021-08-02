@@ -34,7 +34,7 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -172,20 +172,24 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable processWindowsIpmiSource() {
 		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		if (wmiProtocol == null) {
+			return SourceTable.empty();
+		}
+
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		final String nameSpaceRootCimv2 = "root/cimv2";
 		final String nameSpaceRootHardware = "root/hardware";
 
 		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
 		List<List<String>> wmiCollection1 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
-		
+
 		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
 		List<List<String>> wmiCollection2 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
-		
+
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
 		List<List<String>> wmiCollection3 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
-		return SourceTable.builder().table(PslUtils.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
+		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
 
 	@Override

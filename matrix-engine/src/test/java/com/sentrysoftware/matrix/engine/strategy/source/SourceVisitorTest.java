@@ -56,6 +56,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class SourceVisitorTest {
@@ -745,7 +746,7 @@ class SourceVisitorTest {
 						.build()))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		
+
 		final List<List<String>> wmiResult1 = Arrays.asList(
 				Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
 		doReturn(wmiResult1).when(matsyaClientsExecutor).executeWmi(PC14,
@@ -772,7 +773,7 @@ class SourceVisitorTest {
 				120L, 
 				"SELECT CurrentState,Description FROM Sensor", 
 				"root/hardware");
-		
+
 		final List<List<String>> expected = Arrays.asList(
 				Arrays.asList(
 						"FRU",
@@ -796,5 +797,39 @@ class SourceVisitorTest {
 						HardwareConstants.EMPTY,
 						"sensorName=state"));
 		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource());
+	}
+
+	@Test
+	void testProcessWindowsIpmiSourceWmiException() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WMIProtocol.class,
+						WMIProtocol.builder()
+						.username(PC14 + "\\" + "Administrator")
+						.password("password".toCharArray())
+						.timeout(120L)
+						.build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doThrow(WmiComException.class).when(matsyaClientsExecutor).executeWmi(PC14,
+				PC14 + "\\" + "Administrator",
+				"password".toCharArray(),
+				120L,
+				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+				"root/cimv2");
+		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
+	}
+
+	@Test
+	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class,
+						HTTPProtocol.builder().username("username").password("password".toCharArray()).port(161).timeout(120L).build()))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
 	}
 }
