@@ -7,6 +7,7 @@ import static org.springframework.util.Assert.notNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -532,13 +533,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		Set<OSType> keepOnly = os.getKeepOnly();
-		Set<OSType> exclude = os.getExclude();
-
 		OSType osType = strategyConfig.getEngineConfiguration().getTarget().getType().getOsType();
 
-		if ((keepOnly != null && !keepOnly.isEmpty() && !keepOnly.contains(osType))
-				|| (exclude != null && !exclude.isEmpty() && exclude.contains(osType))) {
+		if (OSType.SOLARIS.equals(osType) && !isOsTypeIncluded(Arrays.asList(OSType.SOLARIS, OSType.SUNOS), os)
+				|| !OSType.SOLARIS.equals(osType) && !isOsTypeIncluded(Collections.singletonList(osType), os)) {
 			return CriterionTestResult
 					.builder()
 					.message("Failed OS detection operation")
@@ -553,6 +551,30 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.result("Configured OS Type : " + osType.name())
 				.success(true)
 				.build();
+	}
+
+	/**
+	 * Return true if on of the osType in the osTypeList is included in the OS detection.
+	 * @param osType
+	 * @param os
+	 * @return
+	 */
+	public boolean isOsTypeIncluded(List<OSType> osTypeList, final OS os) {
+		Set<OSType> keepOnly = os.getKeepOnly();
+		Set<OSType> exclude = os.getExclude();
+
+		for (OSType osType : osTypeList) {
+			if (keepOnly != null && keepOnly.contains(osType)) {
+				return true;
+			}
+
+			if (exclude != null && exclude.contains(osType)) {
+				return false;
+			}
+		}
+
+		// If no osType is in KeepOnly or Exclude, then return true if KeepOnly is null or empty.
+		return keepOnly == null || keepOnly.isEmpty();
 	}
 
 	@Override
