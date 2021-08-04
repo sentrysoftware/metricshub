@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import lombok.NonNull;
 
 public class IpmiHelper {
 
+	private IpmiHelper() {}
 
 	/**
 	 * Process what we got from the IPMI WMI provider and return a pretty table.
@@ -29,20 +31,48 @@ public class IpmiHelper {
 		List<List<String>> ipmiTable = new ArrayList<>();
 
 		// Process compute system data
+		List<String> wmiComputerSystemTranslated = translateWmiComputerSystem(wmiComputerSystem);
+		if (wmiComputerSystemTranslated != null) {
+			ipmiTable.add(wmiComputerSystemTranslated);
+		}
+
+		// Process numeric sensors
+		ipmiTable.addAll(translateWmiNumericSensors(wmiNumericSensors));
+
+		// Process discrete sensors
+		ipmiTable.addAll(translateWmiDiscreteSensors(wmiDiscreteSensors));
+
+		return ipmiTable;
+	}
+
+	/**
+	 * Process the wmiComputerSystem request result into a pretty table.
+	 * @param wmiComputerSystem
+	 * @return
+	 */
+	private static List<String> translateWmiComputerSystem(final List<List<String>> wmiComputerSystem) {
 		if (!wmiComputerSystem.isEmpty()) {
 			List<String> wmiComputerSystemLine = wmiComputerSystem.get(0);
 
 			if (wmiComputerSystemLine.size() > 2) {
-				ipmiTable.add(
-						Arrays.asList(
-								"FRU",
-								wmiComputerSystemLine.get(2),
-								wmiComputerSystemLine.get(1),
-								wmiComputerSystemLine.get(0)));
+				return Arrays.asList(
+						"FRU",
+						wmiComputerSystemLine.get(2),
+						wmiComputerSystemLine.get(1),
+						wmiComputerSystemLine.get(0));
 			}
 		}
+		return null;
+	}
 
-		// Process numeric sensors
+	/**
+	 * Process the wmiNumericSensors request result into a pretty table.
+	 * @param wmiNumericSensors
+	 * @return
+	 */
+	private static List<List<String>> translateWmiNumericSensors(final List<List<String>> wmiNumericSensors) {
+		List<List<String>> result = new ArrayList<>();
+
 		// BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical
 		for (List<String> line : wmiNumericSensors) {
 			// Process the 'Description' field which contains everything about how to identify the sensor
@@ -79,7 +109,7 @@ public class IpmiHelper {
 			// 2 -> Celsius, 3 -> Farenheit, 4 -> Kelvin
 			if (sensorType.equals("2") && currentValue != 0 && (baseUnit.equals("2") || baseUnit.equals("3") || baseUnit.equals("4"))) {
 				List<String> temperatureList = temperatureRow(unitModifier, currentValue, baseUnit, line);
-				ipmiTable.add(
+				result.add(
 						Arrays.asList(
 								"Temperature",
 								sensorId,
@@ -89,9 +119,9 @@ public class IpmiHelper {
 								temperatureList.get(1),
 								temperatureList.get(2)));
 			} else if (sensorType.equals("5") && baseUnit.equals("19") && currentValue != 0) { // Fans
-				List<String> fanList = fanRow(unitModifier, currentValue, baseUnit, line);
+				List<String> fanList = fanRow(unitModifier, currentValue, line);
 
-				ipmiTable.add(
+				result.add(
 						Arrays.asList(
 								"Fan",
 								sensorId,
@@ -101,10 +131,10 @@ public class IpmiHelper {
 								fanList.get(1),
 								fanList.get(2)));
 			} else if (sensorType.equals("3") && baseUnit.equals("5") && currentValue != 0) { // Voltage
-				List<String> voltageList = voltageRow(unitModifier, currentValue, baseUnit, line);
+				List<String> voltageList = voltageRow(unitModifier, currentValue, line);
 
 				// Add the sensor to the table
-				ipmiTable.add(
+				result.add(
 						Arrays.asList(
 								"Voltage",
 								sensorId,
@@ -117,7 +147,7 @@ public class IpmiHelper {
 				// Convert values based on unitModifier
 				currentValue = currentValue * Math.pow(10, unitModifier);
 				// Add the sensor to the table
-				ipmiTable.add(
+				result.add(
 						Arrays.asList(
 								"Current",
 								sensorId,
@@ -128,8 +158,8 @@ public class IpmiHelper {
 
 				// Depending on the unit, convert it to watts or not
 				if (baseUnit.equals("7")) {
-					List<String> powerList = powerRow(unitModifier, currentValue, baseUnit, line);
-					ipmiTable.add(
+					List<String> powerList = powerRow(unitModifier, currentValue, line);
+					result.add(
 							Arrays.asList(
 									"PowerConsumption",
 									sensorId,
@@ -139,7 +169,7 @@ public class IpmiHelper {
 									powerList.get(1),
 									powerList.get(2)));
 				} else {
-					ipmiTable.add(
+					result.add(
 							Arrays.asList(
 									"EnergyUsage",
 									sensorId,
@@ -149,6 +179,16 @@ public class IpmiHelper {
 				}
 			}
 		}
+
+		return result;
+	}
+
+	/**
+	 * Process the wmiDiscreteSensors request result into a pretty table.
+	 * @param wmiDiscreteSensors
+	 * @return
+	 */
+	private static Collection<List<String>> translateWmiDiscreteSensors(final List<List<String>> wmiDiscreteSensors) {
 
 		Map<String, List<String>> deviceMap = new HashMap<>();
 
@@ -235,8 +275,6 @@ public class IpmiHelper {
 			}
 
 			// Replace "State Asserted" and "State Deasserted" by 1 and 0
-
-
 			deviceLine.set(6, deviceLine.get(6)
 					.replace("=State Asserted", "=1")
 					.replace("=State Deasserted", "=0")
@@ -244,12 +282,7 @@ public class IpmiHelper {
 			deviceMap.put(key, deviceLine);
 		}
 
-		// Add that to the ipmiTable
-		if (!deviceMap.isEmpty()) {
-			ipmiTable.addAll(deviceMap.values());
-		}
-
-		return ipmiTable;
+		return deviceMap.values();
 	}
 
 	/**
@@ -258,7 +291,7 @@ public class IpmiHelper {
 	 * @return
 	 */
 	public static double convertFromFahrenheitToCelsius(double fahrenheit) {
-		return Math.round((fahrenheit - 32) * 55.56) / 100;
+		return Math.round((fahrenheit - 32) * 55.56) / 100D;
 	}
 
 	/**
@@ -332,11 +365,10 @@ public class IpmiHelper {
 	 * Calculate the current value and thresholds for the fan row.
 	 * @param unitModifier
 	 * @param currentValue
-	 * @param baseUnit
 	 * @param line
 	 * @return
 	 */
-	private static List<String> fanRow(final int unitModifier, double currentValue, final String baseUnit, final List<String> line) {
+	private static List<String> fanRow(final int unitModifier, double currentValue, final List<String> line) {
 		String threshold1 = ListHelper.getValueAtIndex(line, 4, "0.0");
 		String threshold2 = ListHelper.getValueAtIndex(line, 3, "0.0");
 
@@ -367,11 +399,10 @@ public class IpmiHelper {
 	 * Calculate the current value and thresholds for the voltage row.
 	 * @param unitModifier
 	 * @param currentValue
-	 * @param baseUnit
 	 * @param line
 	 * @return
 	 */
-	private static List<String> voltageRow(final int unitModifier, double currentValue, final String baseUnit, final List<String> line) {
+	private static List<String> voltageRow(final int unitModifier, double currentValue, final List<String> line) {
 		// Convert values based on unitModifier and then from Volts to milliVolts
 		currentValue = currentValue * Math.pow(10, unitModifier) * 1000;
 
@@ -415,11 +446,10 @@ public class IpmiHelper {
 	 * Calculate the current value and thresholds for the power row.
 	 * @param unitModifier
 	 * @param currentValue
-	 * @param baseUnit
 	 * @param line
 	 * @return
 	 */
-	private static List<String> powerRow(final int unitModifier, double currentValue, final String baseUnit, final List<String> line) {
+	private static List<String> powerRow(final int unitModifier, double currentValue, final List<String> line) {
 		String threshold1 = ListHelper.getValueAtIndex(line, 8, "0.0");
 		String threshold2 = ListHelper.getValueAtIndex(line, 7, "0.0");
 

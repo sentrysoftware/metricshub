@@ -4,6 +4,8 @@ import java.util.List;
 
 public class ListHelper {
 
+	private ListHelper() {}
+
 	/**
 	 * Returns the element at the specified position in this list.
 	 * @param <T>

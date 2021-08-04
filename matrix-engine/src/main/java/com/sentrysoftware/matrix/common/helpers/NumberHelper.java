@@ -1,6 +1,9 @@
 package com.sentrysoftware.matrix.common.helpers;
 
 public class NumberHelper {
+
+	private NumberHelper() {}
+
 	/**
 	 * Parse the given double value, if the parsing fails return the default value
 	 * 

@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.common.helpers;
 
 public class ArrayHelper {
 
+	private ArrayHelper() {}
+
 	/**
 	 * Returns the element at the specified position in this array.
 	 * @param <T>
