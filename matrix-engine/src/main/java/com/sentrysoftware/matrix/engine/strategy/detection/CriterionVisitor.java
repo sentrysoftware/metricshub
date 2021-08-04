@@ -563,14 +563,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 		Set<OSType> keepOnly = os.getKeepOnly();
 		Set<OSType> exclude = os.getExclude();
 
-		for (OSType osType : osTypeList) {
-			if (keepOnly != null && keepOnly.contains(osType)) {
-				return true;
-			}
+		if (keepOnly != null && osTypeList.stream().anyMatch(keepOnly::contains)) {
+			return true;
+		}
 
-			if (exclude != null && exclude.contains(osType)) {
-				return false;
-			}
+		if (exclude != null && osTypeList.stream().anyMatch(exclude::contains)) {
+			return false;
 		}
 
 		// If no osType is in KeepOnly or Exclude, then return true if KeepOnly is null or empty.

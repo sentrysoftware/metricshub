@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
 
-public class OsProcessorTest {
+class OsProcessorTest {
 
 	@Test
 	void testGetType() {

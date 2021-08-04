@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
 
-public class KeepOnlyProcessorTest {
+class KeepOnlyProcessorTest {
 
 	private final KeepOnlyProcessor keepOnlyProcessor = new KeepOnlyProcessor();
 
@@ -34,7 +34,7 @@ public class KeepOnlyProcessorTest {
 	void testParse() {
 
 		// Key does not match
-		assertThrows(IllegalStateException.class, () -> keepOnlyProcessor.parse(FOO, FOO, connector));
+		assertThrows(IllegalArgumentException.class, () -> keepOnlyProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, type is OS, detection is initially null
 		OS os = OS.builder().index(1).build();

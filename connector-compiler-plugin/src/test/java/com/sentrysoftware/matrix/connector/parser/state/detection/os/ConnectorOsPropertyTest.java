@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.TypeProcessor;
 
-public class ConnectorOsPropertyTest {
+class ConnectorOsPropertyTest {
 
 	@Test
 	void testGetConnectorProperties() {

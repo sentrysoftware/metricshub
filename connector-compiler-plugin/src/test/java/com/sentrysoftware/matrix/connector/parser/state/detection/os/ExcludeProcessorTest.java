@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
 
-public class ExcludeProcessorTest {
+class ExcludeProcessorTest {
 
 	private final ExcludeProcessor excludeProcessor = new ExcludeProcessor();
 
@@ -34,7 +34,7 @@ public class ExcludeProcessorTest {
 	void testParse() {
 
 		// Key does not match
-		assertThrows(IllegalStateException.class, () -> excludeProcessor.parse(FOO, FOO, connector));
+		assertThrows(IllegalArgumentException.class, () -> excludeProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, type is OS, detection is initially null
 		OS os = OS.builder().index(1).build();
