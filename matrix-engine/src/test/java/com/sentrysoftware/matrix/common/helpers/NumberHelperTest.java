@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class NumberHelperTest {
+class NumberHelperTest {
 	@Test
 	void parseDoubleTest() {
 		assertEquals(5.0, NumberHelper.parseDouble("not a number", 5.0));

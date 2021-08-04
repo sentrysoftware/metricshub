@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 
-public class IpmiHelperTest {
+class IpmiHelperTest {
 
 
 	@Test

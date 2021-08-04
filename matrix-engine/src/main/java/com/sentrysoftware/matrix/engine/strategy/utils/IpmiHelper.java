@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -37,10 +38,16 @@ public class IpmiHelper {
 		}
 
 		// Process numeric sensors
-		ipmiTable.addAll(translateWmiNumericSensors(wmiNumericSensors));
+		List<List<String>> wmiNumericSensorsTranslated = translateWmiNumericSensors(wmiNumericSensors);
+		if (!wmiNumericSensorsTranslated.isEmpty()) {
+			ipmiTable.addAll(wmiNumericSensorsTranslated);
+		}
 
 		// Process discrete sensors
-		ipmiTable.addAll(translateWmiDiscreteSensors(wmiDiscreteSensors));
+		Collection<List<String>> wmiDiscreteSensorsTranslated = translateWmiDiscreteSensors(wmiDiscreteSensors);
+		if (!wmiDiscreteSensorsTranslated.isEmpty()) {
+			ipmiTable.addAll(wmiDiscreteSensorsTranslated);
+		}
 
 		return ipmiTable;
 	}
@@ -76,15 +83,15 @@ public class IpmiHelper {
 		// BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical
 		for (List<String> line : wmiNumericSensors) {
 			// Process the 'Description' field which contains everything about how to identify the sensor
-			String description = ListHelper.getValueAtIndex(line, 2, "");
+			String description = ListHelper.getValueAtIndex(line, 2, HardwareConstants.EMPTY);
 			if (description.isEmpty()) {
 				continue;
 			}
 
 			String[] sensorSplit = description.split("\\(");
-			String sensorId = ArrayHelper.getValueAtIndex(sensorSplit, 1, "").split("\\)")[0];
+			String sensorId = ArrayHelper.getValueAtIndex(sensorSplit, 1, HardwareConstants.EMPTY).split("\\)")[0];
 			String sensorName = sensorSplit[0];
-			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, "");
+			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, HardwareConstants.EMPTY);
 
 			String deviceId;
 
@@ -92,7 +99,7 @@ public class IpmiHelper {
 			if (lookupIndex != -1) {
 				deviceId = description.substring(lookupIndex + 5);
 			} else {
-				deviceId = "";
+				deviceId = HardwareConstants.EMPTY;
 			}
 
 			String baseUnit = ListHelper.getValueAtIndex(line, 0, "0");
@@ -193,13 +200,13 @@ public class IpmiHelper {
 		Map<String, List<String>> deviceMap = new HashMap<>();
 
 		for (List<String> line : wmiDiscreteSensors) {
-			String description = ListHelper.getValueAtIndex(line, 1, "");
+			String description = ListHelper.getValueAtIndex(line, 1, HardwareConstants.EMPTY);
 			if (description.isEmpty()) {
 				continue;
 			}
 
 			String sensorName = description.split("\\(")[0];
-			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, "");
+			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, HardwareConstants.EMPTY);
 
 			String entityId;
 
@@ -261,28 +268,19 @@ public class IpmiHelper {
 			}
 		}
 
-		for (String key : deviceMap.keySet()) {
-			List<String> deviceLine = deviceMap.get(key);
+		final List<List<String>> devices = deviceMap.values().stream()
+				.filter(line -> line.size() >= 7 && !ListHelper.getValueAtIndex(line, 6, "").contains("=Device Removed/Device Absent"))
+				.map(line ->
+				{
+					line.set(6, line.get(6)
+							.replace("=State Asserted", "=1")
+							.replace("=State Deasserted", "=0")
+							.replace("=Deasserted", "=0"));
+					return line;
+				})
+				.collect(Collectors.toList());
 
-			if (deviceLine.size() < 7) {
-				continue;
-			}
-
-			// Now, remove devices that are marked as "removed" or "absent"
-			if (deviceLine.get(6).contains("=Device Removed/Device Absent")) {
-				deviceMap.remove(key);
-				continue;
-			}
-
-			// Replace "State Asserted" and "State Deasserted" by 1 and 0
-			deviceLine.set(6, deviceLine.get(6)
-					.replace("=State Asserted", "=1")
-					.replace("=State Deasserted", "=0")
-					.replace("=Deasserted", "=0"));
-			deviceMap.put(key, deviceLine);
-		}
-
-		return deviceMap.values();
+		return devices;
 	}
 
 	/**
@@ -336,7 +334,7 @@ public class IpmiHelper {
 
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = "";
+			threshold1 = HardwareConstants.EMPTY;
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
@@ -352,7 +350,7 @@ public class IpmiHelper {
 
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = "";
+			threshold2 = HardwareConstants.EMPTY;
 		}
 
 		return Arrays.asList(
@@ -379,14 +377,14 @@ public class IpmiHelper {
 		if (threshold1Double != null) {
 			threshold1 = String.valueOf(threshold1Double * Math.pow(10, unitModifier)); 
 		} else { 
-			threshold1 = ""; 
+			threshold1 = HardwareConstants.EMPTY; 
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
 		if (threshold2Double != null) {
 			threshold2 = String.valueOf(threshold2Double * Math.pow(10, unitModifier)); 
 		} else { 
-			threshold2 = ""; 
+			threshold2 = HardwareConstants.EMPTY; 
 		}
 
 		return Arrays.asList(
@@ -418,7 +416,7 @@ public class IpmiHelper {
 			threshold1Double = threshold1Double * Math.pow(10, unitModifier) * 1000;
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = "";
+			threshold1 = HardwareConstants.EMPTY;
 		}
 
 		String threshold2 = ListHelper.getValueAtIndex(line, 8, "0.0");
@@ -433,7 +431,7 @@ public class IpmiHelper {
 			threshold2Double = threshold2Double * Math.pow(10, unitModifier) * 1000;
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = "";
+			threshold2 = HardwareConstants.EMPTY;
 		}
 
 		return Arrays.asList(
@@ -459,7 +457,7 @@ public class IpmiHelper {
 			threshold1Double = threshold1Double * Math.pow(10, unitModifier);
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = "";
+			threshold1 = HardwareConstants.EMPTY;
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
@@ -468,7 +466,7 @@ public class IpmiHelper {
 			threshold2Double = threshold2Double * Math.pow(10, unitModifier);
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = "";
+			threshold2 = HardwareConstants.EMPTY;
 		}
 
 		// Convert values based on unitModifier
