@@ -11,6 +11,7 @@ public enum OSType {
 	NT,
 	NETWORK,
 	STORAGE,
-	SOLARIS;
+	SOLARIS,
+	SUNOS;
 
 }

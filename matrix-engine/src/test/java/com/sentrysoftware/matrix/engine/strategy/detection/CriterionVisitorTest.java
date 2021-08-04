@@ -635,7 +635,7 @@ class CriterionVisitorTest {
 				.success(false)
 				.build();
 
-		OS os = OS.builder().exclude(Collections.emptySet()).keepOnly(Collections.emptySet()).build();
+		OS os = OS.builder().build();
 		assertEquals(successfulTestResult, criterionVisitor.visit(os));
 
 		os.setKeepOnly(Set.of(OSType.NT));
@@ -654,7 +654,72 @@ class CriterionVisitorTest {
 		os.setKeepOnly(Set.of(OSType.LINUX));
 		os.setExclude(Collections.emptySet());
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		criterionVisitor.visit(os);
 		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		successfulTestResult.setResult("Configured OS Type : SOLARIS");
+		failedTestResult.setResult("Configured OS Type : SOLARIS");
+		engineConfiguration.setTarget(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.SUN_SOLARIS).build());
+
+		os.setKeepOnly(Set.of(OSType.LINUX));
+		os.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.SOLARIS));
+		os.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.SUNOS));
+		os.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Set.of(OSType.SUNOS, OSType.SOLARIS));
+		os.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.LINUX));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(successfulTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.SOLARIS));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.SUNOS));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.SUNOS, OSType.SOLARIS));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		assertEquals(failedTestResult, criterionVisitor.visit(os));
+	}
+
+	@Test
+	void testIsOsTypeIncluded() {
+		OS os = OS.builder().build();
+		List<OSType> osTypeList = Arrays.asList(OSType.STORAGE, OSType.NETWORK, OSType.LINUX);
+		assertTrue(criterionVisitor.isOsTypeIncluded(osTypeList, os));
+
+		os.setKeepOnly(Set.of(OSType.NT));
+		assertFalse(criterionVisitor.isOsTypeIncluded(osTypeList, os));
+
+		os.setKeepOnly(Set.of(OSType.LINUX));
+		assertTrue(criterionVisitor.isOsTypeIncluded(osTypeList, os));
+
+		os.setKeepOnly(Collections.emptySet());
+		os.setExclude(Set.of(OSType.NT));
+		assertTrue(criterionVisitor.isOsTypeIncluded(osTypeList, os));
+
+		os.setExclude(Set.of(OSType.LINUX));
+		assertFalse(criterionVisitor.isOsTypeIncluded(osTypeList, os));
 	}
 
 	@Test
