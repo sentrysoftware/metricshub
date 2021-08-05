@@ -349,7 +349,6 @@ public class MatsyaClientsExecutor {
 		// Local: namespace
 		// Remote: hostname\namespace
 		final String networkResource = buildWmiNetworkResource(hostname, namespace);
-
 		// Go!
 		try (final WmiWbemServicesHandler wbemServices = 
 				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
@@ -368,7 +367,7 @@ public class MatsyaClientsExecutor {
 
 		}
 	}
-
+	
 	/**
 	 * Build the WMI network resource
 	 * @param hostname    The hostname of the device where the WMI service is running
