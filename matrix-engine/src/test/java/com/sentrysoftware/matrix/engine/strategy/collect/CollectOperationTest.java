@@ -1100,6 +1100,58 @@ class CollectOperationTest {
 	}
 
 	@Test
+	void testComputeTargetHeatingMarginViaPost() {
+
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// No temperature parameter
+
+		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		localMetadata.clear();
+		localMetadata.put(WARNING_THRESHOLD, "10.0");
+
+		Monitor temperature1 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature1", localMetadata);
+
+		hostMonitoring.addMonitor(temperature1);
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// OK
+
+		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature2", localMetadata);
+
+		hostMonitoring.addMonitor(temperature2);
+
+		temperature1.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
+		temperature2.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(2.0).rawValue(2.0).build());
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		NumberParam heatingMarginParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
+		assertNotNull(heatingMarginParameter);
+		assertEquals(8.0, heatingMarginParameter.getValue());
+		assertEquals(8.0, heatingMarginParameter.getRawValue());
+	}
+
+	@Test
 	void testComputeTemperatureHeatingMarginViaPost() {
 
 		final Monitor target = Monitor.builder()

@@ -637,7 +637,6 @@ public class CollectOperation extends AbstractStrategy {
 	private Double computeTemperatureHeatingMargin(Map<String, String> metadata, NumberParam temperature) {
 
 		notNull(metadata, "metadata cannot be null.");
-		notNull(temperature, "temperature cannot be null.");
 
 		String warningThreshold = metadata.get(WARNING_THRESHOLD);
 
@@ -688,6 +687,7 @@ public class CollectOperation extends AbstractStrategy {
 		Double minimumHeatingMargin = temperatureMonitors
 			.values()
 			.stream()
+			.filter(monitor -> monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class) != null)
 			.map(monitor -> computeTemperatureHeatingMargin(monitor.getMetadata(),
 				monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class)))
 			.filter(Objects::nonNull)
