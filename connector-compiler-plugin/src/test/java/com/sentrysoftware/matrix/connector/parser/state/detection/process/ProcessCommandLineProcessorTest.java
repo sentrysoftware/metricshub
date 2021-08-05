@@ -11,7 +11,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.process.Process;
 
-public class ProcessCommandLineProcessorTest {
+class ProcessCommandLineProcessorTest {
+
 	private final ProcessCommandLineProcessor processCommandLineProcessor = new ProcessCommandLineProcessor();
 
 	private final Connector connector = new Connector();
@@ -28,5 +29,17 @@ public class ProcessCommandLineProcessorTest {
 		assertNull(process.getProcessCommandLine());
 		processCommandLineProcessor.parse(KEY, FOO, connector);
 		assertEquals(FOO, process.getProcessCommandLine());
+	}
+
+	@Test
+	void testGetType() {
+
+		assertEquals(com.sentrysoftware.matrix.connector.model.detection.criteria.process.Process.class, new ProcessCommandLineProcessor().getType());
+	}
+
+	@Test
+	void testGetTypeValue() {
+
+		assertEquals(ProcessCommandLineProcessor.PROCESS_TYPE_VALUE, new ProcessCommandLineProcessor().getTypeValue());
 	}
 }

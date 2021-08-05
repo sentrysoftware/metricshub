@@ -17,8 +17,8 @@ public class ConnectorProcessProperty {
 
 		return Stream
 				.of(
-						new TypeProcessor(Process.class, ProcessProcessor.PROCESS_TYPE_VALUE),
-						new ForceSerializationProcessor(Process.class, ProcessProcessor.PROCESS_TYPE_VALUE),
+						new TypeProcessor(Process.class, ProcessCommandLineProcessor.PROCESS_TYPE_VALUE),
+						new ForceSerializationProcessor(Process.class, ProcessCommandLineProcessor.PROCESS_TYPE_VALUE),
 						new ProcessCommandLineProcessor())
 				.collect(Collectors.toSet());
 	}
