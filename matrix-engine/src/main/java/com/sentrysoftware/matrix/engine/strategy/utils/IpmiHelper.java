@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,11 @@ public class IpmiHelper {
 
 	/**
 	 * Process what we got from the IPMI WMI provider and return a pretty table.
-	 * @param wmiComputerSystem
-	 * @param wmiNumericSensors
-	 * @param wmiDiscreteSensors
-	 * @return
+	 * 
+	 * @param wmiComputerSystem  The WMI computer system result table
+	 * @param wmiNumericSensors  The WMI numeric sensors result table
+	 * @param wmiDiscreteSensors The WMI discrete sensors result table
+	 * @return List of List (Table)
 	 */
 	public static List<List<String>> ipmiTranslateFromWmi(@NonNull List<List<String>> wmiComputerSystem,
 			@NonNull List<List<String>> wmiNumericSensors,
@@ -33,7 +35,7 @@ public class IpmiHelper {
 
 		// Process compute system data
 		List<String> wmiComputerSystemTranslated = translateWmiComputerSystem(wmiComputerSystem);
-		if (wmiComputerSystemTranslated != null) {
+		if (!wmiComputerSystemTranslated.isEmpty()) {
 			ipmiTable.add(wmiComputerSystemTranslated);
 		}
 
@@ -54,8 +56,9 @@ public class IpmiHelper {
 
 	/**
 	 * Process the wmiComputerSystem request result into a pretty table.
-	 * @param wmiComputerSystem
-	 * @return
+	 * 
+	 * @param wmiComputerSystem The WMI computer system result table
+	 * @return Single row as a {@link List} for the computer system
 	 */
 	private static List<String> translateWmiComputerSystem(final List<List<String>> wmiComputerSystem) {
 		if (!wmiComputerSystem.isEmpty()) {
@@ -69,13 +72,14 @@ public class IpmiHelper {
 						wmiComputerSystemLine.get(0));
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	/**
 	 * Process the wmiNumericSensors request result into a pretty table.
-	 * @param wmiNumericSensors
-	 * @return
+	 * 
+	 * @param wmiNumericSensors  The WMI numeric sensors result table
+	 * @return List of List (Table)
 	 */
 	private static List<List<String>> translateWmiNumericSensors(final List<List<String>> wmiNumericSensors) {
 		List<List<String>> result = new ArrayList<>();
@@ -192,10 +196,11 @@ public class IpmiHelper {
 
 	/**
 	 * Process the wmiDiscreteSensors request result into a pretty table.
-	 * @param wmiDiscreteSensors
-	 * @return
+	 * 
+	 * @param wmiDiscreteSensors The WMI discrete sensors result table
+	 * @return List of List (Table)
 	 */
-	private static Collection<List<String>> translateWmiDiscreteSensors(final List<List<String>> wmiDiscreteSensors) {
+	private static List<List<String>> translateWmiDiscreteSensors(final List<List<String>> wmiDiscreteSensors) {
 
 		Map<String, List<String>> deviceMap = new HashMap<>();
 
@@ -268,7 +273,7 @@ public class IpmiHelper {
 			}
 		}
 
-		final List<List<String>> devices = deviceMap.values().stream()
+		return deviceMap.values().stream()
 				.filter(line -> line.size() >= 7 && !ListHelper.getValueAtIndex(line, 6, "").contains("=Device Removed/Device Absent"))
 				.map(line ->
 				{
@@ -279,14 +284,13 @@ public class IpmiHelper {
 					return line;
 				})
 				.collect(Collectors.toList());
-
-		return devices;
 	}
 
 	/**
 	 * Convert from Fahrenheit to Celsius, rounded to two decimals.
-	 * @param fahrenheit
-	 * @return
+	 * 
+	 * @param fahrenheit The value we wish to convert
+	 * @return double value
 	 */
 	public static double convertFromFahrenheitToCelsius(double fahrenheit) {
 		return Math.round((fahrenheit - 32) * 55.56) / 100D;
@@ -294,8 +298,8 @@ public class IpmiHelper {
 
 	/**
 	 * Convert from Kelvin to Celsius.
-	 * @param kelvin
-	 * @return
+	 * @param kelvin The value we wish to convert
+	 * @return double value
 	 */
 	public static double convertFromKelvinToCelsius(double kelvin) {
 		return kelvin - 273.15;
@@ -303,11 +307,12 @@ public class IpmiHelper {
 
 	/**
 	 * Calculate the current value and thresholds for the temperature row.
-	 * @param unitModifier
-	 * @param currentValue
-	 * @param baseUnit
-	 * @param line
-	 * @return
+	 * 
+	 * @param unitModifier The modifier used to convert the current value and thresholds
+	 * @param currentValue The current reading value
+	 * @param baseUnit     The base unit unit to convert the value and the thresholds in case of Kelvin or Fahrenheit units
+	 * @param line         The line used to extract the threshold values
+	 * @return List of values
 	 */
 	private static List<String> temperatureRow(final int unitModifier, double currentValue, final String baseUnit, final List<String> line) {
 		// Convert values based on unitModifier
@@ -361,10 +366,11 @@ public class IpmiHelper {
 
 	/**
 	 * Calculate the current value and thresholds for the fan row.
-	 * @param unitModifier
-	 * @param currentValue
-	 * @param line
-	 * @return
+	 * 
+	 * @param unitModifier The modifier used to convert the current value and thresholds
+	 * @param currentValue The current reading value
+	 * @param line         The results from which we want to extract the thresholds
+	 * @return List of values 
 	 */
 	private static List<String> fanRow(final int unitModifier, double currentValue, final List<String> line) {
 		String threshold1 = ListHelper.getValueAtIndex(line, 4, "0.0");
@@ -395,9 +401,10 @@ public class IpmiHelper {
 
 	/**
 	 * Calculate the current value and thresholds for the voltage row.
-	 * @param unitModifier
-	 * @param currentValue
-	 * @param line
+	 * 
+	 * @param unitModifier The modifier used to convert the current value and thresholds
+	 * @param currentValue The current reading value
+	 * @param line         The results from which we want to extract the thresholds
 	 * @return
 	 */
 	private static List<String> voltageRow(final int unitModifier, double currentValue, final List<String> line) {
@@ -442,10 +449,10 @@ public class IpmiHelper {
 
 	/**
 	 * Calculate the current value and thresholds for the power row.
-	 * @param unitModifier
-	 * @param currentValue
-	 * @param line
-	 * @return
+	 * @param unitModifier The modifier used to convert the current value and thresholds
+	 * @param currentValue The current reading value
+	 * @param line         The results from which we want to extract the thresholds
+	 * @return List of values
 	 */
 	private static List<String> powerRow(final int unitModifier, double currentValue, final List<String> line) {
 		String threshold1 = ListHelper.getValueAtIndex(line, 8, "0.0");
@@ -480,9 +487,10 @@ public class IpmiHelper {
 
 	/**
 	 * Calculate the current value for the energy row.
-	 * @param unitModifier
-	 * @param currentValue
-	 * @return
+	 * 
+	 * @param unitModifier The modifier used to convert the current value
+	 * @param currentValue The current reading value
+	 * @return String value
 	 */
 	private static String energyRow(final int unitModifier, double currentValue) {
 		// Convert values based on unitModifier
