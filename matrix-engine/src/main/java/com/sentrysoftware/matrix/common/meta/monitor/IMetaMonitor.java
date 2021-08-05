@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import java.util.List;
 import java.util.Map;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -42,6 +43,8 @@ public interface IMetaMonitor {
 	Map<String, MetaParameter> getMetaParameters();
 
 	MonitorType getMonitorType();
+
+	List<String> getMetadata();
 
 	default boolean hasPresentParameter() {
 

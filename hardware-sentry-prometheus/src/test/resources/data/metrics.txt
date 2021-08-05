@@ -4,8 +4,15 @@ enclosure_energy_usage{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",
 # HELP enclosure_status Metric: Enclosure status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE enclosure_status gauge
 enclosure_status{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",} 0.0
+# HELP enclosure_info Metric: enclosure info
+# TYPE enclosure_info gauge
+enclosure_info{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",deviceId="1.1",serialNumber="XXX888",vendor="Dell",model="PowerEdge R630",biosVersion="",type="Computer",additionalInformation1="Additional info test",additionalInformation2="",additionalInformation3="",} 1.0
 # HELP fan_status Metric: Fan status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE fan_status gauge
 fan_status{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",fqdn="targetFqdn",} 0.0
 fan_status{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",fqdn="targetFqdn",} 0.0
+# HELP fan_info Metric: fan info
+# TYPE fan_info gauge
+fan_info{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",fqdn="targetFqdn",deviceId="1.11",fanType="default cooling",additionalInformation1="",additionalInformation2="",additionalInformation3="",} 1.0
+fan_info{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",fqdn="targetFqdn",deviceId="1.12",fanType="default cooling",additionalInformation1="",additionalInformation2="",additionalInformation3="",} 1.0
 

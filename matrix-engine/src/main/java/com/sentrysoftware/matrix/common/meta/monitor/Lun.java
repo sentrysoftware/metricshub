@@ -1,6 +1,17 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ARRAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WWN;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,6 +35,9 @@ public class Lun implements IMetaMonitor {
 			.name(HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER)
 			.type(ParameterType.TEXT)
 			.build();
+
+	private static final List<String> METADATA = List.of(DEVICE_ID, LOCAL_DEVICE_NAME, REMOTE_DEVICE_NAME, ARRAY_NAME, WWN,
+			EXPECTED_PATH_COUNT, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -51,5 +65,10 @@ public class Lun implements IMetaMonitor {
 	@Override
 	public MonitorType getMonitorType() {
 		return MonitorType.LUN;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
 	}
 }

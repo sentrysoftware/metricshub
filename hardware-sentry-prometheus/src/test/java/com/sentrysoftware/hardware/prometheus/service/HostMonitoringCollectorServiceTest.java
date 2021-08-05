@@ -3,12 +3,21 @@ package com.sentrysoftware.hardware.prometheus.service;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mockStatic;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -23,11 +32,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -38,6 +47,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
@@ -87,6 +97,12 @@ class HostMonitoringCollectorServiceTest {
 				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
 			.build();
 		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		enclosureMonitor.addMetadata(DEVICE_ID, "1.1");
+		enclosureMonitor.addMetadata(SERIAL_NUMBER, "XXX888");
+		enclosureMonitor.addMetadata(VENDOR, "Dell");
+		enclosureMonitor.addMetadata(MODEL, "PowerEdge R630");
+		enclosureMonitor.addMetadata(TYPE, "Computer");
+		enclosureMonitor.addMetadata(ADDITIONAL_INFORMATION1, "Additional info test");
 		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
 
 		Monitor fan1Monitor = Monitor.builder()
@@ -96,6 +112,8 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
 			.build();
 		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		fan1Monitor.addMetadata(DEVICE_ID, "1.11");
+		fan1Monitor.addMetadata(FAN_TYPE, "default cooling");
 
 		Monitor fan2Monitor = Monitor.builder()
 			.id(FAN_ID + 2)
@@ -104,6 +122,8 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
 			.build();
 		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		fan2Monitor.addMetadata(DEVICE_ID, "1.12");
+		fan2Monitor.addMetadata(FAN_TYPE, "default cooling");
 
 		Map<String, Monitor> fans = new LinkedHashMap<>();
 		fans.put(FAN_ID + 1, fan1Monitor);
@@ -126,6 +146,48 @@ class HostMonitoringCollectorServiceTest {
 		writer.flush();
 
 		assertEquals(ResourceHelper.getResourceAsString("/data/metrics.txt", HostMonitoringCollectorService.class), writer.toString());
+	}
+
+	@Test
+	void testCollectNoSpecificInfo() throws IOException {
+
+		final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
+		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER).value(3000D).build();
+
+		Monitor enclosureMonitor = Monitor.builder()
+			.id(ENCLOSURE_ID)
+			.parentId(ECS)
+			.name(ENCLOSURE_NAME)
+			.parameters(Map.of(
+				HardwareConstants.STATUS_PARAMETER, statusParam,
+				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+			.build();
+		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
+
+		Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();
+		monitors.put(MonitorType.ENCLOSURE, enclosures);
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setMonitors(monitors);
+		doReturn(Map.of(ECS, hostMonitoring).entrySet()).when(hostMonitoringMap).entrySet();
+
+		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(null);
+			CollectorRegistry.defaultRegistry.clear();
+
+			assertThrows(IllegalStateException.class, () -> hostMonitoringCollectorService.register());
+
+		}
+
+		try (MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)) {
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(Collections.emptyList());
+			CollectorRegistry.defaultRegistry.clear();
+
+			assertThrows(IllegalStateException.class, () -> hostMonitoringCollectorService.register());
+
+		}
+
 	}
 
 	@Test

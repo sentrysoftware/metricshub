@@ -163,7 +163,9 @@ class MatrixEngineServiceTest {
 
 		doReturn(connectors).when(store).getConnectors();
 
-		Set<String> hostnames = Set.of("ecs1-01", "ecs1-02", "ecs1-03");
+		Set<String> hostnames = Set.of("357306c9-07e9-431b-bc71-b7712daabbbf",
+				"85f8514e-1b4d-4766-87af-09a84ca2a397",
+				"3ba095eb-d5e8-4acd-81f4-dc81e29982e7");
 
 		for (String hostname: hostnames) {
 
@@ -204,7 +206,7 @@ class MatrixEngineServiceTest {
 		verify(hostMonitoringMap, times(0)).get(anyString());
 
 		// Valid targetId
-		String hostname = "ecs1-01";
+		String hostname = "357306c9-07e9-431b-bc71-b7712daabbbf";
 
 		HostConfigurationDTO hostConfigurationDTO = HostConfigurationDTO
 			.builder()

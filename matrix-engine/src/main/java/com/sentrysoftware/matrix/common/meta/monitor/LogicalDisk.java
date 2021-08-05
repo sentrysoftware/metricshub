@@ -1,6 +1,14 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RAID_LEVEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,6 +26,9 @@ public class LogicalDisk implements IMetaMonitor {
 			.unit(HardwareConstants.SPACE_GB_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
+
+	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, ADDITIONAL_INFORMATION1,
+			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -45,5 +56,10 @@ public class LogicalDisk implements IMetaMonitor {
 	@Override
 	public MonitorType getMonitorType() {
 		return MonitorType.LOGICAL_DISK;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
 	}
 }

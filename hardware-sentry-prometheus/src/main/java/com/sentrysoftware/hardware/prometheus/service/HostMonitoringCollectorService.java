@@ -10,10 +10,12 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.google.common.base.CaseFormat;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
@@ -39,6 +41,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
+	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -153,6 +156,61 @@ public class HostMonitoringCollectorService extends Collector {
 		.sorted(Comparator.comparing(MetaParameter::getName))
 		.forEach(metaParameter -> processMonitorsMetric(metaParameter, monitorType, monitors, mfs));
 
+		processMonitorMetricInfo(monitorType, monitors, mfs);
+
+	}
+
+	/**
+	 * Process info metrics (*_info) for the given map of monitors
+	 * 
+	 * @param monitorType The {@link MonitorType} of the given <code>monitors</code>
+	 * @param monitors    The monitors we wish to extract the discovered metadata
+	 * @param mfs         {@link List} of {@link MetricFamilySamples} provided by the Prometheus Client library
+	 */
+	static void processMonitorMetricInfo(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
+
+		final List<String> labels = PrometheusSpecificities.getLabels(monitorType);
+
+		Assert.state(labels != null && !labels.isEmpty(), () -> "No Labels defined for the monitor type: " + monitorType.getName());
+
+		String monitorTypeName = MONITOR_TYPE_NAMES.get(monitorType);
+		String metricName = buildMetricName(monitorTypeName, "info");
+		final String help = String.format("Metric: %s info", buildMetricName(monitorTypeName));
+
+		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(metricName, help, labels);
+
+		monitors.values()
+			.stream()
+			.filter(Objects::nonNull)
+			.forEach(monitor -> addInfoMetric(labeledGauge, monitor, labels));
+
+		mfs.add(labeledGauge);
+	}
+
+	/**
+	 * Add the info metric for the given monitor
+	 * 
+	 * @param gauge   Prometheus {@link GaugeMetricFamily}
+	 * @param monitor Collected {@link Monitor} instance
+	 * @param labels  List of the specific labels to be
+	 */
+	static void addInfoMetric(final GaugeMetricFamily gauge, final Monitor monitor, final List<String> labels) {
+		final List<String> labelValues = new ArrayList<>();
+		for (String label : labels) {
+			if (ID.equals(label)) {
+				labelValues.add(monitor.getId());
+			} else if (PARENT.equals(label)) {
+				labelValues.add(getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY));
+			} else if (LABEL.equals(label)) {
+				labelValues.add(monitor.getName());
+			} else if (FQDN.equals(label)) {
+				labelValues.add(monitor.getFqdn());
+			} else {
+				labelValues.add(getValueOrElse(monitor.getMetadata(label), HardwareConstants.EMPTY));
+			}
+		}
+
+		gauge.addMetric(labelValues, 1);
 	}
 
 	/**
@@ -180,7 +238,7 @@ public class HostMonitoringCollectorService extends Collector {
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(
 				metricName,
 				help,
-				Arrays.asList(ID, PARENT, LABEL, FQDN));
+				LABELS);
 
 		monitors
 			.values()

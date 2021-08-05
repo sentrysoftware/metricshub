@@ -24,7 +24,8 @@ public class ConnectorSimpleProperty {
 					new RemoteSupportProcessor(),
 					new LocalSupportProcessor(),
 					new AppliesToOSProcessor(),
-					new SupersedesProcessor())
+					new SupersedesProcessor(),
+					new CommentsProcessor())
 				.collect(Collectors.toSet());
 	}
 
@@ -158,6 +159,21 @@ public class ConnectorSimpleProperty {
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
 				connector.setVersion(value.trim());
+			}
+		}
+	}
+
+	public static class CommentsProcessor implements IConnectorStateParser {
+
+		@Override
+		public boolean detect(final String key, final String value, final Connector connector) {
+			return ConnectorSimpleProperty.detect(key, value, "hdf.comments");
+		}
+
+		@Override
+		public void parse(final String key, final String value, final Connector connector) {
+			if (connector != null && value != null) {
+				connector.setComments(value.trim());
 			}
 		}
 	}

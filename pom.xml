@@ -32,7 +32,7 @@
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
 		<jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
-		<hardware-connectors.version>24-SNAPSHOT</hardware-connectors.version>
+		<hardware-connectors.version>25-SNAPSHOT</hardware-connectors.version>
 		<maven-filtering.version>3.1.1</maven-filtering.version>
 		<spring.version>5.3.5</spring.version>
 		<matsya.version>3.14.00-SNAPSHOT</matsya.version>
