@@ -39,6 +39,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -538,6 +539,23 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
+	 * @param hostMonitoring The {@link IHostMonitoring} instance.
+	 *
+	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
+	 */
+	private Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
+
+		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		state(targetMonitors != null && !targetMonitors.isEmpty(), "targetMonitors should not be null or empty.");
+
+		return targetMonitors
+			.values()
+			.stream()
+			.findFirst()
+			.orElseThrow();
+	}
+
+	/**
 	 * @param array1	The first array. Cannot be null.
 	 * @param array2	The second array. Cannot be null. Must be the same size as <em>array1</em>.
 	 *
@@ -564,27 +582,22 @@ public class CollectOperation extends AbstractStrategy {
 	private void aggregateTargetEnergy() {
 
 		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		notNull(hostMonitoring, "hostMonitoring cannot be null.");
+		state(hostMonitoring != null, "hostMonitoring should not be null.");
 
 		// Getting the target monitor
-		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
-		notNull(targetMonitors, "targetMonitors cannot be null.");
-
-		Monitor targetMonitor = targetMonitors
-			.values()
-			.stream()
-			.findFirst()
-			.orElseThrow();
+		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
 		// Getting the enclosure monitors
 		Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 
+		if (enclosureMonitors == null || enclosureMonitors.isEmpty()) {
+			return;
+		}
+
 		// Getting the sums of the enclosures' energy converted values and raw values
 		// totalEnergyValues[0] is the total converted value
 		// totalEnergyValues[1] is the total raw value
-		Double[] totalEnergyValues = enclosureMonitors == null
-			? null
-			: enclosureMonitors
+		Double[] totalEnergyValues = enclosureMonitors
 			.values()
 			.stream()
 			.map(monitor -> monitor.getParameter(ENERGY_PARAMETER, NumberParam.class))
@@ -593,14 +606,21 @@ public class CollectOperation extends AbstractStrategy {
 			.reduce(this::sumArrayValues)
 			.orElse(null);
 
+		if (totalEnergyValues == null || totalEnergyValues[0] == null || totalEnergyValues[1] == null) {
+
+			// totalEnergyValues[0] != null and totalEnergyValues[1] == null should never happen...
+
+			return;
+		}
+
 		// Building the parameter
 		NumberParam targetEnergy = NumberParam
 			.builder()
 			.name(ENERGY_PARAMETER)
 			.unit(ENERGY_PARAMETER_UNIT)
 			.collectTime(strategyTime)
-			.value(totalEnergyValues != null ? totalEnergyValues[0] : null)
-			.rawValue(totalEnergyValues != null ? totalEnergyValues[1] : null)
+			.value(totalEnergyValues[0])
+			.rawValue(totalEnergyValues[1])
 			.build();
 
 		// Adding the parameter to the target monitor
@@ -617,6 +637,8 @@ public class CollectOperation extends AbstractStrategy {
 	private Double computeTemperatureHeatingMargin(Map<String, String> metadata, NumberParam temperature) {
 
 		notNull(metadata, "metadata cannot be null.");
+		notNull(temperature, "temperature cannot be null.");
+
 		String warningThreshold = metadata.get(WARNING_THRESHOLD);
 
 		String threshold = warningThreshold != null
@@ -638,7 +660,6 @@ public class CollectOperation extends AbstractStrategy {
 			return null;
 		}
 
-		notNull(temperature, "temperature cannot be null.");
 		Double temperatureValue = temperature.getValue();
 
 		return temperatureValue != null
@@ -652,25 +673,19 @@ public class CollectOperation extends AbstractStrategy {
 	private void computeTargetHeatingMargin() {
 
 		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		notNull(hostMonitoring, "hostMonitoring cannot be null.");
+		state(hostMonitoring != null, "hostMonitoring should not be null.");
 
 		// Getting the target monitor
-		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
-		notNull(targetMonitors, "targetMonitors cannot be null.");
-
-		Monitor targetMonitor = targetMonitors
-			.values()
-			.stream()
-			.findFirst()
-			.orElseThrow();
+		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
 		// Getting the temperature monitors
 		Map<String, Monitor> temperatureMonitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
+		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
+			return;
+		}
 
 		// Getting the minimum heating margin among all the temperatures' heating margin values
-		Double minimumHeatingMargin = temperatureMonitors == null
-			? null
-			: temperatureMonitors
+		Double minimumHeatingMargin = temperatureMonitors
 			.values()
 			.stream()
 			.map(monitor -> computeTemperatureHeatingMargin(monitor.getMetadata(),
@@ -678,6 +693,10 @@ public class CollectOperation extends AbstractStrategy {
 			.filter(Objects::nonNull)
 			.reduce(Double::min)
 			.orElse(null);
+
+		if (minimumHeatingMargin == null) {
+			return;
+		}
 
 		// Building the parameter
 		NumberParam targetHeatingMargin = NumberParam

@@ -62,6 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -906,6 +907,7 @@ class CollectOperationTest {
 
 	@Test
 	void testPost() {
+
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor target = Monitor.builder()
@@ -939,13 +941,16 @@ class CollectOperationTest {
 			.monitorType(TEMPERATURE)
 			.build();
 
+
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(target);
 		hostMonitoring.addMonitor(fan1);
 		hostMonitoring.addMonitor(fan2);
 		hostMonitoring.addMonitor(temperature);
-		fan2.setParameters(Collections.emptyMap());
 		hostMonitoring.addMonitor(enclosure);
+
+		fan2.setParameters(Collections.emptyMap());
+		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -960,6 +965,24 @@ class CollectOperationTest {
 		final Monitor weirdFan2 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN2");
 
 		assertNull(weirdFan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class));
+	}
+
+	@Test
+	void testGetTargetMonitorViaPost() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// targetMonitors is null
+		assertThrows(IllegalStateException.class, () -> collectOperation.post());
+		verify(strategyConfig, times(2)).getHostMonitoring();
+
+		// targetMonitors is empty
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(TARGET, new LinkedHashMap<>());
+		assertThrows(IllegalStateException.class, () -> collectOperation.post());
+		verify(strategyConfig, times(4)).getHostMonitoring();
 	}
 
 	@Test
@@ -991,13 +1014,8 @@ class CollectOperationTest {
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-
 		verify(strategyConfig, times(3)).getHostMonitoring();
-
-		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
-		assertNotNull(energyParameter);
-		assertNull(energyParameter.getValue());
-		assertNull(energyParameter.getRawValue());
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// Non-null sum
 
@@ -1009,10 +1027,8 @@ class CollectOperationTest {
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-
 		verify(strategyConfig, times(6)).getHostMonitoring();
-
-		energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
+		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
 		assertNotNull(energyParameter);
 		assertEquals(10800000.0, energyParameter.getValue());
 		assertEquals(3.0, energyParameter.getRawValue());
@@ -1020,8 +1036,6 @@ class CollectOperationTest {
 
 	@Test
 	void testAggregateTargetEnergyViaPost() {
-
-		// No enclosures
 
 		final Monitor target = Monitor.builder()
 			.id("TARGET")
@@ -1037,20 +1051,56 @@ class CollectOperationTest {
 
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
+		// enclosureMonitors is null
+
 		collectOperation.post();
-
 		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
-		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
-		assertNotNull(energyParameter);
-		assertNull(energyParameter.getValue());
-		assertNull(energyParameter.getRawValue());
+		// enclosureMonitors is empty
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(ENCLOSURE, new LinkedHashMap<>());
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues is null
+
+		final Monitor enclosure1 = buildEnclosure(metadata);
+
+		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
+			ENCLOSURE_NAME, metadata);
+
+		hostMonitoring.addMonitor(enclosure1);
+		hostMonitoring.addMonitor(enclosure2);
+
+		collectOperation.post();
+		verify(strategyConfig, times(9)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues[0] is null
+
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+
+		collectOperation.post();
+		verify(strategyConfig, times(12)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues[0] is not null && totalEnergyValues[1] is null (should never happen...)
+
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(1.0).rawValue(null).build());
+		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
+
+		collectOperation.post();
+		verify(strategyConfig, times(15)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
 	@Test
 	void testComputeTemperatureHeatingMarginViaPost() {
-
-		// Invalid threshold
 
 		final Monitor target = Monitor.builder()
 			.id("TARGET")
@@ -1059,6 +1109,28 @@ class CollectOperationTest {
 			.monitorType(TARGET)
 			.build();
 
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// temperatureMonitors is null
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// temperatureMonitors is empty
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(TEMPERATURE, new LinkedHashMap<>());
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// Invalid threshold
+
 		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		localMetadata.put(WARNING_THRESHOLD, " ");
 
@@ -1066,22 +1138,13 @@ class CollectOperationTest {
 			"temperature", localMetadata);
 		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
 
-		IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
 		hostMonitoring.addMonitor(temperature);
-
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-
-		verify(strategyConfig, times(3)).getHostMonitoring();
-
-		NumberParam energyParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
-		assertNotNull(energyParameter);
-		assertNull(energyParameter.getValue());
-		assertNull(energyParameter.getRawValue());
+		verify(strategyConfig, times(9)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// Temperature value is null
 
@@ -1101,13 +1164,8 @@ class CollectOperationTest {
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-
-		verify(strategyConfig, times(6)).getHostMonitoring();
-
-		energyParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
-		assertNotNull(energyParameter);
-		assertNull(energyParameter.getValue());
-		assertNull(energyParameter.getRawValue());
+		verify(strategyConfig, times(12)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
 	@Test

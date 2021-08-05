@@ -33,14 +33,6 @@ public class Enclosure implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter ENERGY = MetaParameter
-		.builder()
-		.basicCollect(false)
-		.name(HardwareConstants.ENERGY_PARAMETER)
-		.unit(HardwareConstants.ENERGY_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
-		.build();
-
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
 	static {
