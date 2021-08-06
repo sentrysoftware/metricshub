@@ -22,9 +22,10 @@ public class Target implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.HEATING_MARGIN_PARAMETER, HEATING_MARGIN);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
-
 	}
 
 	@Override

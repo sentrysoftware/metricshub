@@ -1,35 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.ArgumentMatchers.any;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -60,6 +30,44 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TEMPERATURE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
@@ -706,6 +714,20 @@ class CollectOperationTest {
 				.build();
 	}
 
+	private static Monitor buildMonitor(final MonitorType monitorType, final String id, final String name,
+										final Map<String, String> metadata) {
+
+		return Monitor.builder()
+			.id(id)
+			.name(name)
+			.parentId(ECS1_01)
+			.targetId(ECS1_01)
+			.metadata(metadata)
+			.monitorType(monitorType)
+			.extendedType(HardwareConstants.COMPUTER)
+			.build();
+	}
+
 	@Test
 	void testProcessMonoInstanceValueTableSourceTableNotFound() {
 
@@ -885,29 +907,50 @@ class CollectOperationTest {
 
 	@Test
 	void testPost() {
+
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
 		final Monitor fan1 = Monitor.builder()
-				.id("FAN1")
-				.name("FAN1")
-				.targetId(ECS1_01)
-				.parentId(ENCLOSURE_ID)
-				.monitorType(FAN)
-				.build();
+			.id("FAN1")
+			.name("FAN1")
+			.targetId(ECS1_01)
+			.parentId(ENCLOSURE_ID)
+			.monitorType(FAN)
+			.build();
 
 		final Monitor fan2 = Monitor.builder()
-				.id("FAN2")
-				.name("FAN2")
-				.targetId(ECS1_01)
-				.parentId(ENCLOSURE_ID)
-				.monitorType(FAN)
-				.build();
+			.id("FAN2")
+			.name("FAN2")
+			.targetId(ECS1_01)
+			.parentId(ENCLOSURE_ID)
+			.monitorType(FAN)
+			.build();
+
+		final Monitor temperature = Monitor.builder()
+			.id("TEMPERATURE")
+			.name("TEMPERATURE")
+			.targetId(ECS1_01)
+			.parentId(ENCLOSURE_ID)
+			.monitorType(TEMPERATURE)
+			.build();
+
 
 		final Monitor enclosure = buildEnclosure(metadata);
+		hostMonitoring.addMonitor(target);
 		hostMonitoring.addMonitor(fan1);
 		hostMonitoring.addMonitor(fan2);
-		fan2.setParameters(Collections.emptyMap());
+		hostMonitoring.addMonitor(temperature);
 		hostMonitoring.addMonitor(enclosure);
+
+		fan2.setParameters(Collections.emptyMap());
+		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -922,7 +965,259 @@ class CollectOperationTest {
 		final Monitor weirdFan2 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN2");
 
 		assertNull(weirdFan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class));
+	}
 
+	@Test
+	void testGetTargetMonitorViaPost() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// targetMonitors is null
+		assertThrows(IllegalStateException.class, () -> collectOperation.post());
+		verify(strategyConfig, times(2)).getHostMonitoring();
+
+		// targetMonitors is empty
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(TARGET, new LinkedHashMap<>());
+		assertThrows(IllegalStateException.class, () -> collectOperation.post());
+		verify(strategyConfig, times(4)).getHostMonitoring();
+	}
+
+	@Test
+	void testSumArrayValuesViaPost() {
+
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
+		// Null sum
+
+		final Monitor enclosure1 = buildEnclosure(metadata);
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+
+		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
+			ENCLOSURE_NAME, metadata);
+		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(7200000.0).rawValue(2.0).build());
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(enclosure1);
+		hostMonitoring.addMonitor(enclosure2);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// Non-null sum
+
+		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+
+		enclosure1.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(3600000.0).rawValue(1.0).build());
+
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
+		assertNotNull(energyParameter);
+		assertEquals(10800000.0, energyParameter.getValue());
+		assertEquals(3.0, energyParameter.getRawValue());
+	}
+
+	@Test
+	void testAggregateTargetEnergyViaPost() {
+
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// enclosureMonitors is null
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// enclosureMonitors is empty
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(ENCLOSURE, new LinkedHashMap<>());
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues is null
+
+		final Monitor enclosure1 = buildEnclosure(metadata);
+
+		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
+			ENCLOSURE_NAME, metadata);
+
+		hostMonitoring.addMonitor(enclosure1);
+		hostMonitoring.addMonitor(enclosure2);
+
+		collectOperation.post();
+		verify(strategyConfig, times(9)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues[0] is null
+
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+
+		collectOperation.post();
+		verify(strategyConfig, times(12)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// totalEnergyValues[0] is not null && totalEnergyValues[1] is null (should never happen...)
+
+		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(1.0).rawValue(null).build());
+		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
+
+		collectOperation.post();
+		verify(strategyConfig, times(15)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+	}
+
+	@Test
+	void testComputeTargetHeatingMarginViaPost() {
+
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// No temperature parameter
+
+		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		localMetadata.clear();
+		localMetadata.put(WARNING_THRESHOLD, "10.0");
+
+		Monitor temperature1 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature1", localMetadata);
+
+		hostMonitoring.addMonitor(temperature1);
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// OK
+
+		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature2", localMetadata);
+
+		hostMonitoring.addMonitor(temperature2);
+
+		temperature1.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
+		temperature2.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(2.0).rawValue(2.0).build());
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		NumberParam heatingMarginParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
+		assertNotNull(heatingMarginParameter);
+		assertEquals(8.0, heatingMarginParameter.getValue());
+		assertEquals(8.0, heatingMarginParameter.getRawValue());
+	}
+
+	@Test
+	void testComputeTemperatureHeatingMarginViaPost() {
+
+		final Monitor target = Monitor.builder()
+			.id("TARGET")
+			.name("TARGET")
+			.targetId(ECS1_01)
+			.monitorType(TARGET)
+			.build();
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// temperatureMonitors is null
+
+		collectOperation.post();
+		verify(strategyConfig, times(3)).getHostMonitoring();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// temperatureMonitors is empty
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(TEMPERATURE, new LinkedHashMap<>());
+
+		collectOperation.post();
+		verify(strategyConfig, times(6)).getHostMonitoring();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// Invalid threshold
+
+		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		localMetadata.put(WARNING_THRESHOLD, " ");
+
+		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature", localMetadata);
+		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
+
+		hostMonitoring.addMonitor(temperature);
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(9)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+
+		// Temperature value is null
+
+		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+
+		localMetadata.clear();
+		localMetadata.put(WARNING_THRESHOLD, "10.0");
+
+		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+			"temperature1", localMetadata);
+		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(null).build());
+
+		hostMonitoring.setMonitors(new LinkedHashMap<>());
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(temperature);
+
+		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+
+		collectOperation.post();
+		verify(strategyConfig, times(12)).getHostMonitoring();
+		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
 	@Test

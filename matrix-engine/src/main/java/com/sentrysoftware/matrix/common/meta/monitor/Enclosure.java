@@ -54,6 +54,7 @@ public class Enclosure implements IMetaMonitor {
 
 		map.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
 		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
 		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 
