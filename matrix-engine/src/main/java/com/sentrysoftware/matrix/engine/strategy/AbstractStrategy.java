@@ -60,7 +60,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	@Autowired
 	protected ICriterionVisitor criterionVisitor;
 
-	protected static final int MAX_THREADS_COUNT = 500;
+	protected static final int MAX_THREADS_COUNT = 50;
 	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 
 	@Override
