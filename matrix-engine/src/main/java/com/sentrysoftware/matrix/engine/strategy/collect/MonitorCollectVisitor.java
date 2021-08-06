@@ -1,14 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -41,8 +32,15 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -625,6 +623,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * </ol>
 	 */
 	void collectPowerConsumption() {
+
 		checkCollectInfo(monitorCollectInfo);
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
@@ -658,6 +657,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param hostname         The system host name used for debug purpose
 	 */
 	static void collectEnergyUsageWithPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
+
 		updateNumberParameter(monitor,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
@@ -673,14 +673,30 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				powerConsumption, deltaTime);
 
 		if (energyUsage != null) {
-			energyUsage =  energyUsage / 1000D / (1000D / 3600D);
+
+			Double energy = energyUsage;
+
+			Double previousEnergyUsage = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+
+			if (previousEnergyUsage != null) {
+				energy +=  previousEnergyUsage;
+			}
 
 			updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime,
-					energyUsage,
-					energyUsage);
+				HardwareConstants.ENERGY_PARAMETER,
+				HardwareConstants.ENERGY_PARAMETER_UNIT,
+				collectTime,
+				energy / 1000D / (1000D / 3600D),
+				energy);
+
+			updateNumberParameter(monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				energyUsage  / 1000D / (1000D / 3600D),
+				energyUsage);
+
 		} else {
 			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
 					monitor.getId(), hostname, powerConsumption, collectTime, collectTimePrevious);
@@ -746,6 +762,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					+ "Current raw energy usage {}, previous raw energy usage {}, current time {}, previous time {}",
 					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious, collectTimeDouble, collectTimePrevious);
 		}
+
+		// Updating the monitor's energy parameter
+		updateNumberParameter(monitor,
+			HardwareConstants.ENERGY_PARAMETER,
+			HardwareConstants.ENERGY_PARAMETER_UNIT,
+			collectTime,
+			energyUsageRaw * 3600 * 1000, // value
+			energyUsageRaw); // raw value
 	}
 
 	public static class StatusParamFirstComparator implements Comparator<MetaParameter> {

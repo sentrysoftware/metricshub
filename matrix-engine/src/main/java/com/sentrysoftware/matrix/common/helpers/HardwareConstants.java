@@ -43,6 +43,7 @@ public class HardwareConstants {
 	public static final String CONTROLLER_STATUS_PARAMETER = "controllerStatus";
 	public static final String INTRUSION_STATUS_PARAMETER = "intrusionStatus";
 	public static final String ENERGY_USAGE_PARAMETER = "energyUsage";
+	public static final String ENERGY_PARAMETER = "energy";
 	public static final String POWER_CONSUMPTION_PARAMETER = "powerConsumption";
 	public static final String POWER_STATE_PARAMETER = "powerState";
 	public static final String SPEED_PARAMETER = "speed";
@@ -50,6 +51,7 @@ public class HardwareConstants {
 	public static final String SPEED_PERCENT_PARAMETER = "speedPercent";
 	public static final String VOLTAGE_PARAMETER = "voltage";
 	public static final String TEMPERATURE_PARAMETER = "temperature";
+	public static final String HEATING_MARGIN_PARAMETER = "heatingMargin";
 	public static final String ERROR_COUNT_PARAMETER = "errorCount";
 	public static final String HARD_ERROR_COUNT_PARAMETER = "hardErrorCount";
 	public static final String ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER = "illegalRequestErrorCount";
@@ -135,6 +137,7 @@ public class HardwareConstants {
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
 	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
+	public static final String ENERGY_PARAMETER_UNIT = "Joules";
 	public static final String POWER_CONSUMPTION_PARAMETER_UNIT = "Watts";
 	public static final String POWER_STATE_PARAMETER_UNIT = "{0 = Off ; 2 = On}";
 	public static final String LINK_STATUS_PARAMETER_UNIT = "{0 = Plugged ; 1 = Unplugged}";
@@ -144,6 +147,7 @@ public class HardwareConstants {
 	public static final String PERCENT_PARAMETER_UNIT = "%";
 	public static final String VOLTAGE_PARAMETER_UNIT = "mV";
 	public static final String TEMPERATURE_PARAMETER_UNIT = "degrees Celsius";
+	public static final String HEATING_MARGIN_PARAMETER_UNIT = "degrees Celsius";
 	public static final String ERROR_COUNT_PARAMETER_UNIT = "errors";
 	public static final String ERROR_STATUS_PARAMETER_UNIT = "{0 = No Errors ; 1 = Detected Errors ; 2 = Too Many Errors}";
 	public static final String PREDICTED_FAILURE_PARAMETER_UNIT  = "{0 = OK ; 1 = Failure Predicted}";
@@ -180,4 +184,7 @@ public class HardwareConstants {
 
 	public static final String FQDN = "fqdn";
 	public static final String TARGET_FQDN = "targetFqdn";
+
+	public static final String WARNING_THRESHOLD = "warningthreshold";
+	public static final String ALARM_THRESHOLD = "alarmthreshold";
 }
