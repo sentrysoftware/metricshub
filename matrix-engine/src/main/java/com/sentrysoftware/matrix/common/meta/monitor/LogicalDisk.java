@@ -13,6 +13,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -79,12 +80,12 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @param conditions The condition used to determine if the alarm is reached
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkErrorCountCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> correctedErrorCountAsserted = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
 		if (correctedErrorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The logical disk encountered errors (%f)", correctedErrorCountAsserted.getParameter().getValue()))
+					.problem(String.format("The logical disk encountered errors (%f).", correctedErrorCountAsserted.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this logical disk may be in jeopardy.")
 					.recommendedAction("Check whether a physical disk is in degraded state or predicts failure, and if so, replace it.")
 					.build();
@@ -100,12 +101,12 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to determine if the alarm is reached
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> correctedErrorCountAsserted = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
 		if (correctedErrorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The logical disk encountered too many errors (%f)", correctedErrorCountAsserted.getParameter().getValue()))
+					.problem(String.format("The logical disk encountered too many errors (%f).", correctedErrorCountAsserted.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this logical disk is affected (possible data corruption).")
 					.recommendedAction("Check whether a physical disk is in degraded state or predicts failure, and if so, replace it.")
 					.build();
@@ -121,7 +122,7 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -142,7 +143,7 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 

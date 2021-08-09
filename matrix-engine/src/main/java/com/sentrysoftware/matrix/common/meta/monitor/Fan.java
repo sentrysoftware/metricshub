@@ -7,12 +7,16 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -59,14 +63,22 @@ public class Fan implements IMetaMonitor {
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Fan::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
-	public static final AlertRule SPEED_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
+	public static final AlertRule SPEED_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkZeroSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
 			SPEED_ALARM_CONDITION,
 			ParameterState.ALARM);
-	public static final AlertRule SPEED_PERCENT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
-			SPEED_ALARM_CONDITION,
+	public static final AlertRule SPEED_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkOutOfRangeSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
+			SPEED_WARN_CONDITION,
+			ParameterState.WARN);
+	public static final AlertRule SPEED_PERCENT_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkZeroSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
+			SPEED_PERCENT_ALARM_CONDITION,
 			ParameterState.ALARM);
+	public static final AlertRule SPEED_PERCENT_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+			checkOutOfRangeSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
+			SPEED_PERCENT_WARN_CONDITION,
+			ParameterState.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -85,8 +97,8 @@ public class Fan implements IMetaMonitor {
 
 		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
 		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.SPEED_PARAMETER, Collections.singletonList(SPEED_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.SPEED_PERCENT_PARAMETER, Collections.singletonList(SPEED_PERCENT_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.SPEED_PARAMETER, List.of(SPEED_ALARM_ALERT_RULE, SPEED_WARN_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.SPEED_PERCENT_PARAMETER, List.of(SPEED_PERCENT_ALARM_ALERT_RULE, SPEED_PERCENT_WARN_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -99,7 +111,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -120,7 +132,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -142,7 +154,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions     The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+	public static AlertDetails checkZeroSpeedCondition(Monitor monitor, String parameterName, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
 		if (assertedSpeed.isAbnormal()) {
 
@@ -157,6 +169,28 @@ public class Fan implements IMetaMonitor {
 	}
 
 	/**
+	 * Check condition when the monitor speed is in an abnormal state. (out of range)
+	 * 
+	 * @param monitor        The monitor we wish to check its speed
+	 * @param parameterName  The name of the parameter to check
+	 * @param conditions     The conditions used to check the parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkOutOfRangeSpeedCondition(Monitor monitor, String parameterName, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
+		if (assertedSpeed.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem(String.format("The speed of this fan is out of normal range (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
+					.consequence("The fan is not behaving as expected and probably not properly cooling down the system. This could lead to severe hardware damage and system crashes")
+					.recommendedAction("Check if the fan is not working as expected. If so, replace the fan.")
+					.build();
+
+		}
+		return null;
+	}
+
+	/**
 	 * Check condition when the monitor speed is in an abnormal state (low).
 	 * 
 	 * @param monitor        The monitor we wish to check its speed
@@ -164,7 +198,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions     The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkLowSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+	public static AlertDetails checkLowSpeedCondition(Monitor monitor, String parameterName, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
 		if (assertedSpeed.isAbnormal()) {
 
@@ -186,7 +220,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions     The conditions used to check the parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkInsufficientSpeedCondition(Monitor monitor, String parameterName, List<AlertCondition> conditions) {
+	public static AlertDetails checkInsufficientSpeedCondition(Monitor monitor, String parameterName, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedSpeed = monitor.assertNumberParameter(parameterName, conditions);
 		if (assertedSpeed.isAbnormal()) {
 
@@ -207,7 +241,7 @@ public class Fan implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 

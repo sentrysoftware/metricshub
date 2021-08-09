@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -62,7 +63,7 @@ public class MetaConnector implements IMetaMonitor {
 	 * @param conditions The conditions used to determine abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 

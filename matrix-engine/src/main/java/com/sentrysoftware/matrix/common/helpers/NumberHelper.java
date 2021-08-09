@@ -35,4 +35,21 @@ public class NumberHelper {
 			return defaultValue;
 		}
 	}
+
+	/**
+	 * Round the given double value using the specified decimal places
+	 * 
+	 * @param value   The value we wish to round
+	 * @param places  The required decimal places expected as positive
+	 * @return double value
+	 */
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
 }

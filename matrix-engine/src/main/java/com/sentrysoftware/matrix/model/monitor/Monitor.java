@@ -3,9 +3,13 @@ package com.sentrysoftware.matrix.model.monitor;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
@@ -25,6 +29,7 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @Builder
@@ -50,12 +55,75 @@ public class Monitor {
 	private Map<String, List<AlertRule>> alertRules = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	/**
+	 * Collect the given parameter to the internal map of parameters
+	 * 
+	 * @param parameter The parameter we wish to collect
+	 */
+	public void collectParameter(IParameterValue parameter) {
+		addParameter(parameter);
+
+		// Evaluate the alert rules
+		this.alertRules.getOrDefault(parameter.getName(), Collections.emptyList())
+			.stream()
+			.forEach(rule -> rule.evaluate(this));
+	}
+
+	/**
 	 * Add the given parameter to the internal map of parameters
 	 * 
 	 * @param parameter The parameter we wish to add
 	 */
 	public void addParameter(IParameterValue parameter) {
 		parameters.put(parameter.getName(), parameter);
+	}
+
+	/**
+	 * Add the given alert rules to the internal map of alert rules
+	 * 
+	 * @param parameterName The parameter on which we want to the alert rules
+	 * @param alertRules    The alert rules we wish to add
+	 */
+	public void addAlertRules(@NonNull final String parameterName, @NonNull List<AlertRule> alertRules) {
+
+		if (this.alertRules.containsKey(parameterName)) {
+			alertRules = mergeAlertRules(this.alertRules.get(parameterName), alertRules);
+		}
+
+		this.alertRules.put(parameterName, new ArrayList<>(alertRules));
+	}
+
+	/**
+	 * Merge the given two list of alert rules, keep not updated alert rules and add the new ones
+	 * 
+	 * @param existingAlertRules The existing alert rules
+	 * @param newAlertRules      The new alert rules we wish to merge
+	 * @return new {@link List} of {@link AlertRule} instances
+	 */
+	private static List<AlertRule> mergeAlertRules(final List<AlertRule> existingAlertRules, final List<AlertRule> newAlertRules) {
+		if (existingAlertRules == null || existingAlertRules.isEmpty()) {
+			return newAlertRules;
+		}
+
+		final List<AlertRule> existingAlertRulesToKeep = new ArrayList<>();
+
+		// Filter alert rules and remove existing alert rules if they are the same
+		// If the alert rule exists and it is the same, it means we aren't in the first discovery
+		// so we must keep the same alert rule as it may be active and contains lot of information about the problem
+		final List<AlertRule> alertRulesToAdd = newAlertRules.stream()
+				.filter(alertRule -> existingAlertRules
+						.stream().noneMatch(existingAlertRule -> {
+							boolean same = alertRule.same(existingAlertRule);
+							// If we are adding the same rule then we keep the existing one
+							if (same) {
+								existingAlertRulesToKeep.add(existingAlertRule);
+							}
+							return same;
+						}))
+				.collect(Collectors.toList());
+
+		alertRulesToAdd.addAll(existingAlertRulesToKeep);
+
+		return alertRulesToAdd;
 	}
 
 	/**
@@ -107,7 +175,7 @@ public class Monitor {
 			presentParam.setPresent(0);
 			presentParam.setState(ParameterState.ALARM);
 		} else {
-			addParameter(PresentParam.missing());
+			collectParameter(PresentParam.missing());
 		}
 
 	}
@@ -118,7 +186,7 @@ public class Monitor {
 	public void setAsPresent() {
 
 		if (monitorType.getMetaMonitor().hasPresentParameter()) {
-			addParameter(PresentParam.present());
+			collectParameter(PresentParam.present());
 		}
 	}
 
@@ -136,7 +204,7 @@ public class Monitor {
 	 * @param conditions The conditions used to check abnormality
 	 * @return {@link AssertedParameter} instance, never null but internal parameter can be null
 	 */
-	public AssertedParameter<PresentParam> assertPresentParameter(final List<AlertCondition> conditions) {
+	public AssertedParameter<PresentParam> assertPresentParameter(final Set<AlertCondition> conditions) {
 		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
 			return AssertedParameter.<PresentParam>builder().abnormal(false).build();
 		}
@@ -159,7 +227,7 @@ public class Monitor {
 	 * @param conditions    The conditions used to check abnormality
 	 * @return {@link AssertedParameter} instance, never null but internal parameter can be null
 	 */
-	public AssertedParameter<StatusParam> assertStatusParameter(final String parameterName, final List<AlertCondition> conditions) {
+	public AssertedParameter<StatusParam> assertStatusParameter(final String parameterName, final Set<AlertCondition> conditions) {
 		final StatusParam status = getParameter(parameterName, StatusParam.class);
 		final ParameterState state = status != null ? status.getState() : null;
 		final Double statusValue = state != null ? (double) state.ordinal() : null;
@@ -176,7 +244,7 @@ public class Monitor {
 	 * @param value
 	 * @return
 	 */
-	private static boolean allConditionsMatched(final List<AlertCondition> conditions, final Double value) {
+	private static boolean allConditionsMatched(final Set<AlertCondition> conditions, final Double value) {
 		return value != null && conditions != null && !conditions.isEmpty() 
 				&& conditions.stream()
 					.allMatch(condition -> condition
@@ -192,7 +260,7 @@ public class Monitor {
 	 * @param conditions    The conditions used to check abnormality
 	 * @return {@link AssertedParameter} instance, never null
 	 */
-	public AssertedParameter<NumberParam> assertNumberParameter(final String parameterName, final List<AlertCondition> conditions) {
+	public AssertedParameter<NumberParam> assertNumberParameter(final String parameterName, final Set<AlertCondition> conditions) {
 		final NumberParam parameter = getParameter(parameterName, NumberParam.class);
 		final Double value = parameter != null ? parameter.getValue() : null;
 		return AssertedParameter.<NumberParam>builder()

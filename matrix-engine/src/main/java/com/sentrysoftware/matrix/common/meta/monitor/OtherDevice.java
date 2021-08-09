@@ -12,6 +12,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -24,6 +25,7 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
@@ -85,7 +87,7 @@ public class OtherDevice implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
@@ -106,12 +108,96 @@ public class OtherDevice implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
 					.problem("This device is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.consequence(UNKNOWN)
+					.recommendedAction(UNKNOWN)
+					.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor value is in WARN state.
+	 * 
+	 * @param monitor    The monitor we wish to check its value
+	 * @param conditions The conditions used to detect the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkValueWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedValue = monitor.assertNumberParameter(HardwareConstants.VALUE_PARAMETER, conditions);
+		if (assertedValue.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This device value is in warning range.")
+					.consequence(UNKNOWN)
+					.recommendedAction(UNKNOWN)
+					.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor value is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its value
+	 * @param conditions The conditions used to detect the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkValueAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedValue = monitor.assertNumberParameter(HardwareConstants.VALUE_PARAMETER, conditions);
+		if (assertedValue.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This device value is in alarm range.")
+					.consequence(UNKNOWN)
+					.recommendedAction(UNKNOWN)
+					.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor usage count is in WARN state.
+	 * 
+	 * @param monitor    The monitor we wish to check its usage count
+	 * @param conditions The conditions used to detect the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkUsageCountWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedValue = monitor.assertNumberParameter(HardwareConstants.USAGE_COUNT_PARAMETER, conditions);
+		if (assertedValue.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This usage count is in warn range.")
+					.consequence(UNKNOWN)
+					.recommendedAction(UNKNOWN)
+					.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor usage count is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its usage count
+	 * @param conditions The conditions used to detect the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkUsageCountAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedValue = monitor.assertNumberParameter(HardwareConstants.USAGE_COUNT_PARAMETER, conditions);
+		if (assertedValue.isAbnormal()) {
+
+			return AlertDetails.builder()
+					.problem("This usage count is in alarm range.")
 					.consequence(UNKNOWN)
 					.recommendedAction(UNKNOWN)
 					.build();
@@ -127,7 +213,7 @@ public class OtherDevice implements IMetaMonitor {
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 

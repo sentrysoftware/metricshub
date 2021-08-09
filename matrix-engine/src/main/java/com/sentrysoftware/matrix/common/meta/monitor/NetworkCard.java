@@ -11,7 +11,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PHYSICA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_PHYSICAL_ADDRESS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.BANDWIDTH_UTILIZATION_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.BANDWIDTH_UTILIZATION_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_PERCENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_PERCENT_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
@@ -21,6 +21,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -130,11 +131,11 @@ public class NetworkCard implements IMetaMonitor {
 	public static final AlertRule ERROR_PERCENT_WARN_ALART_RULE = new AlertRule(NetworkCard::checkErrorPercentWarnCondition,
 			ERROR_PERCENT_WARN_CONDITION,
 			ParameterState.WARN);
-	public static final AlertRule ERROR_PERCENT_ALARM_ALERT_RULE = new AlertRule(NetworkCard::checkErrorPercentWarnCondition,
+	public static final AlertRule ERROR_PERCENT_ALARM_ALERT_RULE = new AlertRule(NetworkCard::checkErrorPercentAlarmCondition,
 			ERROR_PERCENT_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule BANDWIDTH_UTILIZATION_HIGH_ALERT_RULE = new AlertRule(NetworkCard::checkHighBandwidthUtilizationCondition,
-			BANDWIDTH_UTILIZATION_ALARM_CONDITION,
+			BANDWIDTH_UTILIZATION_WARN_CONDITION,
 			ParameterState.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
@@ -175,7 +176,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
@@ -196,7 +197,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the bandwidth utilization
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkHighBandwidthUtilizationCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkHighBandwidthUtilizationCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedBandwidthUtilization = monitor.assertNumberParameter(HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, conditions);
 
 		if (assertedBandwidthUtilization.isAbnormal()) {
@@ -230,7 +231,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the bandwidth utilization
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkLowBandwidthUtilizationCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkLowBandwidthUtilizationCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedBandwidthUtilization = monitor.assertNumberParameter(HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, conditions);
 		if (assertedBandwidthUtilization.isAbnormal()) {
 
@@ -251,7 +252,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The condition used to check the zero buffer credit parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkZeroBufferCreditCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkZeroBufferCreditCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedZeroBufferCreditPercent = monitor.assertNumberParameter(HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER, conditions);
 
 		if (assertedZeroBufferCreditPercent.isAbnormal()) {
@@ -273,7 +274,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the error percent
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkErrorPercentWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkErrorPercentWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorPercent = monitor.assertNumberParameter(HardwareConstants.ERROR_PERCENT_PARAMETER, conditions);
 		if (assertedErrorPercent.isAbnormal()) {
 
@@ -295,7 +296,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the error percent
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkErrorPercentAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkErrorPercentAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorPercent = monitor.assertNumberParameter(HardwareConstants.ERROR_PERCENT_PARAMETER, conditions);
 		if (assertedErrorPercent.isAbnormal()) {
 
@@ -317,7 +318,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -338,7 +339,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -359,7 +360,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkLinkStatusCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkLinkStatusCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		AssertedParameter<StatusParam> assertedlinkStatus = monitor.assertStatusParameter(HardwareConstants.LINK_STATUS_PARAMETER, conditions);
 		if (assertedlinkStatus.isAbnormal()) {
 
@@ -380,7 +381,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the link speed
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkLinkSpeedCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkLinkSpeedCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		AssertedParameter<NumberParam> assertedLinkSpeed = monitor.assertNumberParameter(HardwareConstants.LINK_SPEED_PARAMETER, conditions);
 		if (assertedLinkSpeed.isAbnormal()) {
 
@@ -402,7 +403,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @param conditions The conditions used to check the duplex mode
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkDuplexModeCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkDuplexModeCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedDuplexMode = monitor.assertNumberParameter(HardwareConstants.DUPLEX_MODE_PARAMETER, conditions);
 		if (assertedDuplexMode.isAbnormal()) {
 

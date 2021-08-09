@@ -1,39 +1,59 @@
 package com.sentrysoftware.matrix.model.alert;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class AlertRule {
-	private BiFunction<Monitor, List<AlertCondition>, AlertDetails> conditionsChecker;
+	private BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker;
 	private long period;
-	private List<AlertCondition> conditions;
+	private Set<AlertCondition> conditions;
 	private ParameterState severity;
 	private Long firstTriggerTimestamp;
 	private AlertDetails details;
 	private AlertRuleState active = AlertRuleState.INACTIVE;
+	private AlertRuleType type;
 
-	public AlertRule(BiFunction<Monitor, List<AlertCondition>, AlertDetails> conditionsChecker, List<AlertCondition> conditions, long period,
-			ParameterState severity) {
+	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
+			long period, @NonNull ParameterState severity, @NonNull AlertRuleType type) {
 		this.conditionsChecker = conditionsChecker;
 		this.conditions = conditions;
 		this.period = period;
 		this.severity = severity;
+		this.type = type;
 	}
 
-	public AlertRule(BiFunction<Monitor, List<AlertCondition>, AlertDetails> conditionsChecker, List<AlertCondition> conditions,
-			ParameterState severity) {
-		this.conditionsChecker = conditionsChecker;
-		this.conditions = conditions;
-		this.severity = severity;
+	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
+			@NonNull ParameterState severity, @NonNull AlertRuleType type) {
+		this(conditionsChecker, conditions, 0, severity, type);
 	}
 
-	public enum AlertRuleState { INACTIVE, PENDING, ACTIVE }
+	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
+			long period, @NonNull ParameterState severity) {
+		this(conditionsChecker, conditions, period, severity, AlertRuleType.STATIC);
+	}
+
+	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
+			@NonNull ParameterState severity) {
+		this(conditionsChecker, conditions, 0, severity, AlertRuleType.STATIC);
+	}
+
+	public enum AlertRuleState {
+		INACTIVE, PENDING, ACTIVE
+	}
+
+	public enum AlertRuleType {
+		STATIC, INSTANCE, USER
+	}
 
 	/**
 	 * Evaluate the current {@link AlertRule}
@@ -81,7 +101,51 @@ public class AlertRule {
 			} else {
 				active = AlertRuleState.PENDING;
 			}
+		} else {
+			firstTriggerTimestamp = null;
 		}
+	}
+
+	/**
+	 * Copy the current alert rule and build a new one
+	 * 
+	 * @return a new alert rule
+	 */
+	public AlertRule copy() {
+
+		return new AlertRule(conditionsChecker, conditions.stream()
+					.filter(Objects::nonNull)
+					.map(AlertCondition::copy)
+					.collect(Collectors.toCollection(HashSet::new)),
+				period,
+				severity,
+				type);
+
+	}
+
+	/**
+	 * Check if the given object is the same as the current AlertRule instance. <br>
+	 * Must match the three fields <em>conditions</em>, <em>period</em> and <em>severity</em>
+	 * 
+	 * @param obj The object we wish to compare
+	 * @return true or false
+	 */
+	public boolean same(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AlertRule other = (AlertRule) obj;
+		if (conditions == null) {
+			if (other.conditions != null)
+				return false;
+		} else if (!conditions.equals(other.conditions))
+			return false;
+		if (period != other.period)
+			return false;
+		return severity == other.severity;
 	}
 
 }

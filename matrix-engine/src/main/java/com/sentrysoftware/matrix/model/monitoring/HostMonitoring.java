@@ -118,8 +118,13 @@ public class HostMonitoring implements IHostMonitoring {
 
 			Map<String, Monitor> map = monitors.get(monitorType);
 
+			final Monitor previousMonitor = map.get(id);
+
 			// Copy the parameters from the monitor instance previously collected
-			copyParameters(map.get(id), monitor);
+			copyParameters(previousMonitor, monitor);
+
+			// Copy the alert rules from the monitor instance previously collected
+			copyAlertRules(previousMonitor, monitor);
 
 			map.put(id, monitor);
 
@@ -150,6 +155,27 @@ public class HostMonitoring implements IHostMonitoring {
 			.map(Entry::getValue)
 			.forEach(current::addParameter);
 
+	}
+
+	/**
+	 * Copy alert rules from previous to current monitor.
+	 * 
+	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
+	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
+	 */
+	static void copyAlertRules(Monitor previous, Monitor current) {
+		// This means that we are in the first discovery or a new monitor has been discovered
+		// Nothing to copy, just return
+		if (previous == null) {
+			return;
+		}
+
+		// Copy the alert rules from previous, skip alert rules already created
+		previous.getAlertRules()
+			.entrySet()
+			.stream()
+			.filter(entry -> !current.getAlertRules().containsKey(entry.getKey()))
+			.forEach(entry -> current.addAlertRules(entry.getKey(), entry.getValue()));
 	}
 
 	@Override
@@ -311,9 +337,9 @@ public class HostMonitoring implements IHostMonitoring {
 		final HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
 
 		final List<MonitorType> monitorTypes = new ArrayList<>(monitors.keySet());
-		Collections.sort(monitorTypes, new MonitorTypeComparator());
 
 		monitorTypes.stream()
+			.sorted(new MonitorTypeComparator())
 			.filter(monitorType -> monitors.get(monitorType) != null && monitors.get(monitorType).values() != null)
 			.forEach(monitorType ->
 				{

@@ -129,6 +129,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.BATTERY)
 				.extendedType(MonitorType.BATTERY.getName())
+				.alertRules(MonitorType.BATTERY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -159,6 +160,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.BLADE)
 				.extendedType(MonitorType.BLADE.getName())
+				.alertRules(MonitorType.BLADE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -189,6 +191,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU)
 				.extendedType(MonitorType.CPU.getName())
+				.alertRules(MonitorType.CPU.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -219,6 +222,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU_CORE)
 				.extendedType(MonitorType.CPU_CORE.getName())
+				.alertRules(MonitorType.CPU_CORE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -249,6 +253,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.DISK_CONTROLLER)
 				.extendedType(MonitorType.DISK_CONTROLLER.getName())
+				.alertRules(MonitorType.DISK_CONTROLLER.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -307,6 +312,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
@@ -335,6 +341,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
+				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -365,6 +372,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.LED)
 				.extendedType(MonitorType.LED.getName())
+				.alertRules(MonitorType.LED.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LED);
@@ -394,6 +402,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.LOGICAL_DISK)
 				.extendedType(MonitorType.LOGICAL_DISK.getName())
+				.alertRules(MonitorType.LOGICAL_DISK.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LOGICAL_DISK);
@@ -423,6 +432,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.LUN)
 				.extendedType(MonitorType.LUN.getName())
+				.alertRules(MonitorType.LUN.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LUN);
@@ -452,6 +462,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.MEMORY)
 				.extendedType(MonitorType.MEMORY.getName())
+				.alertRules(MonitorType.MEMORY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -482,6 +493,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.NETWORK_CARD)
 				.extendedType(MonitorType.NETWORK_CARD.getName())
+				.alertRules(MonitorType.NETWORK_CARD.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -512,6 +524,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.OTHER_DEVICE)
 				.extendedType(MonitorType.OTHER_DEVICE.getName())
+				.alertRules(MonitorType.OTHER_DEVICE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -542,6 +555,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.extendedType(MonitorType.PHYSICAL_DISK.getName())
+				.alertRules(MonitorType.PHYSICAL_DISK.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -572,6 +586,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.POWER_SUPPLY)
 				.extendedType(MonitorType.POWER_SUPPLY.getName())
+				.alertRules(MonitorType.POWER_SUPPLY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -602,6 +617,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.TAPE_DRIVE)
 				.extendedType(MonitorType.TAPE_DRIVE.getName())
+				.alertRules(MonitorType.TAPE_DRIVE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -632,6 +648,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.TEMPERATURE)
 				.extendedType(MonitorType.TEMPERATURE.getName())
+				.alertRules(MonitorType.TEMPERATURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
@@ -661,6 +678,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.VOLTAGE)
 				.extendedType(MonitorType.VOLTAGE.getName())
+				.alertRules(MonitorType.VOLTAGE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.VOLTAGE);
@@ -691,6 +709,7 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ROBOTIC)
 				.extendedType(MonitorType.ROBOTIC.getName())
+				.alertRules(MonitorType.ROBOTIC.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
@@ -1226,6 +1245,31 @@ class MonitorDiscoveryVisitorTest {
 		assertFalse(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.LOCATION, HardwareConstants.REMOTE)));
 		assertTrue(MonitorDiscoveryVisitor.isLocalhost(Map.of(HardwareConstants.LOCATION,  HardwareConstants.LOCALHOST)));
 
+	}
+
+	@Test
+	void testIsTargetType() {
+		assertTrue(MonitorDiscoveryVisitor.isTargetType(MonitorBuildingInfo.builder().monitorType(MonitorType.TARGET).build()));
+		assertFalse(MonitorDiscoveryVisitor.isTargetType(MonitorBuildingInfo.builder().monitorType(MonitorType.ENCLOSURE).build()));
+	}
+
+	@Test
+	void testHasConnectorName() {
+		assertTrue(MonitorDiscoveryVisitor.hasConnectorName(MonitorBuildingInfo.builder().monitorType(MonitorType.TARGET)
+				.connectorName(null).build()));
+		assertTrue(MonitorDiscoveryVisitor.hasConnectorName(MonitorBuildingInfo.builder().monitorType(MonitorType.ENCLOSURE)
+				.connectorName(MY_CONNECTOR_NAME).build()));
+		assertFalse(MonitorDiscoveryVisitor.hasConnectorName(MonitorBuildingInfo.builder().monitorType(MonitorType.ENCLOSURE)
+				.connectorName(null).build()));
+	}
+
+	@Test
+	void testHasTargetMonitor() {
+		assertTrue(MonitorDiscoveryVisitor.hasTargetMonitor(MonitorBuildingInfo.builder().monitorType(MonitorType.TARGET).build()));
+		assertTrue(MonitorDiscoveryVisitor.hasTargetMonitor(MonitorBuildingInfo.builder().monitorType(MonitorType.ENCLOSURE)
+				.targetMonitor(new Monitor()).build()));		
+		assertFalse(MonitorDiscoveryVisitor.hasTargetMonitor(MonitorBuildingInfo.builder().monitorType(MonitorType.ENCLOSURE)
+				.targetMonitor(null).build()));
 	}
 
 }

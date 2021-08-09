@@ -5,14 +5,17 @@ import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,8 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
@@ -587,4 +593,45 @@ class HostMonitoringTest {
 		assertNull(hostMonitoring.selectFromType(ENCLOSURE));
 	}
 
+	@Test
+	void testCopyAlertRules() {
+
+		{
+			final Monitor currentMonitor = Monitor.builder()
+					.id(FAN_ID)
+					.build();
+
+			final Map<String, List<AlertRule>> staticAlertRules = new Fan().getStaticAlertRules();
+
+			final Monitor previousMonitor = Monitor.builder()
+					.id(FAN_ID)
+					.alertRules(staticAlertRules)
+					.build();
+
+			HostMonitoring.copyAlertRules(previousMonitor, currentMonitor);
+
+			assertEquals(staticAlertRules, currentMonitor.getAlertRules());
+		}
+
+		{
+			final AlertRule alertRule = new AlertRule((monitor, conditions) -> null, AlertConditionsBuilder.newInstance().gte((double) Integer.MAX_VALUE).build() , ParameterState.ALARM);
+			final Monitor currentMonitor = Monitor.builder()
+					.alertRules(new HashMap<>(Map.of(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(alertRule))))
+					.id(FAN_ID)
+					.build();
+
+			final Map<String, List<AlertRule>> staticAlertRules = new Fan().getStaticAlertRules();
+
+			final Monitor previousMonitor = Monitor.builder()
+					.id(FAN_ID)
+					.alertRules(staticAlertRules)
+					.build();
+
+			HostMonitoring.copyAlertRules(previousMonitor, currentMonitor);
+
+			assertNotEquals(currentMonitor.getAlertRules().get(HardwareConstants.PRESENT_PARAMETER),
+					staticAlertRules.get(HardwareConstants.PRESENT_PARAMETER));
+		}
+
+	}
 }

@@ -15,6 +15,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -111,7 +112,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
@@ -132,7 +133,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -155,7 +156,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -177,7 +178,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkNeedsCleaningWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkNeedsCleaningWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.NEEDS_CLEANING_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -198,7 +199,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkNeedsCleaningAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkNeedsCleaningAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.NEEDS_CLEANING_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -219,7 +220,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The condition used to check the error count parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkErrorCountCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
@@ -242,7 +243,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @param conditions The condition used to check the error count parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 

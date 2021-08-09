@@ -14,6 +14,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -87,7 +88,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
@@ -108,7 +109,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -129,7 +130,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -150,7 +151,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @param conditions The conditions used to check the used capacity parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkAbnormalHighUsedCapacityWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkAbnormalHighUsedCapacityWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(HardwareConstants.USED_CAPACITY_PARAMETER, conditions);
 		if (assertedUsedCapacity.isAbnormal()) {
 
@@ -173,7 +174,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @param conditions The condition used to check the used capacity parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkUsedCapacityCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkUsedCapacityCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(HardwareConstants.USED_CAPACITY_PARAMETER, conditions);
 		if (assertedUsedCapacity.isAbnormal()) {
 

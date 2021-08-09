@@ -213,7 +213,7 @@ class CollectOperationTest {
 					.value(100.0)
 					.rawValue(100.0)
 					.build();
-			enclosure.addParameter(parameter);
+			enclosure.collectParameter(parameter);
 
 			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
 
@@ -678,7 +678,7 @@ class CollectOperationTest {
 				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
 				.statusInformation(statusInformation)
 				.build();
-		expected.addParameter(statusParam);
+		expected.collectParameter(statusParam);
 
 		final IParameterValue intructionStatusParam = StatusParam
 				.builder()
@@ -688,7 +688,7 @@ class CollectOperationTest {
 				.unit(HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT)
 				.statusInformation("intrusionStatus: 0 (No Intrusion Detected)")
 				.build();
-		expected.addParameter(intructionStatusParam);
+		expected.collectParameter(intructionStatusParam);
 
 		final IParameterValue powerConsumption = NumberParam
 				.builder()
@@ -698,7 +698,7 @@ class CollectOperationTest {
 				.value(150D)
 				.rawValue(150D)
 				.build();
-		expected.addParameter(powerConsumption);
+		expected.collectParameter(powerConsumption);
 		return expected;
 	}
 
@@ -950,7 +950,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 
 		fan2.setParameters(Collections.emptyMap());
-		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
+		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -998,11 +998,11 @@ class CollectOperationTest {
 		// Null sum
 
 		final Monitor enclosure1 = buildEnclosure(metadata);
-		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
 
 		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
 			ENCLOSURE_NAME, metadata);
-		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(7200000.0).rawValue(2.0).build());
+		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(7200000.0).rawValue(2.0).build());
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1022,7 +1022,7 @@ class CollectOperationTest {
 		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
 		enclosure1.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
-		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(3600000.0).rawValue(1.0).build());
+		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(3600000.0).rawValue(1.0).build());
 
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
@@ -1082,8 +1082,8 @@ class CollectOperationTest {
 
 		// totalEnergyValues[0] is null
 
-		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
-		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
 
 		collectOperation.post();
 		verify(strategyConfig, times(12)).getHostMonitoring();
@@ -1091,8 +1091,8 @@ class CollectOperationTest {
 
 		// totalEnergyValues[0] is not null && totalEnergyValues[1] is null (should never happen...)
 
-		enclosure1.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(1.0).rawValue(null).build());
-		enclosure2.addParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
+		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(1.0).rawValue(null).build());
+		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
 
 		collectOperation.post();
 		verify(strategyConfig, times(15)).getHostMonitoring();
@@ -1138,8 +1138,8 @@ class CollectOperationTest {
 
 		hostMonitoring.addMonitor(temperature2);
 
-		temperature1.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
-		temperature2.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(2.0).rawValue(2.0).build());
+		temperature1.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
+		temperature2.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(2.0).rawValue(2.0).build());
 
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
@@ -1188,7 +1188,7 @@ class CollectOperationTest {
 
 		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
 			"temperature", localMetadata);
-		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
+		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
 
 		hostMonitoring.addMonitor(temperature);
 
@@ -1207,7 +1207,7 @@ class CollectOperationTest {
 
 		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
 			"temperature1", localMetadata);
-		temperature.addParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(null).build());
+		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(null).build());
 
 		hostMonitoring.setMonitors(new LinkedHashMap<>());
 		hostMonitoring.addMonitor(target);

@@ -19,6 +19,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -197,7 +198,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkMissingCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
@@ -218,7 +219,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -242,7 +243,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -266,13 +267,13 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions           The conditions used to check the error count parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, String errorCountParamName, List<AlertCondition> conditions) {
+	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, String errorCountParamName, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(errorCountParamName, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
 			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The physical disk encountered too many errors (%f)", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The physical disk encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk may be in jeopardy.")
 					.recommendedAction("Replace this physical disk as soon as possible to avoid data corruption."
 						+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
@@ -290,13 +291,13 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions           The condition used to check the error count parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkErrorCountCondition(Monitor monitor, String errorCountParamName, List<AlertCondition> conditions) {
+	public static AlertDetails checkErrorCountCondition(Monitor monitor, String errorCountParamName, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(errorCountParamName, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
 			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The physical disk encountered errors (%f)", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The physical disk encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk is not assured.")
 					.recommendedAction("Replace this physical disk as soon as possible to avoid data corruption."
 							+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
@@ -313,7 +314,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, conditions);
 		if (assertedPredictedFailure.isAbnormal()) {
 
@@ -337,7 +338,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to check the endurance remaining parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkEnduranceRemainingWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkEnduranceRemainingWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, conditions);
 		if (assertedEnduranceRemaining.isAbnormal()) {
 
@@ -358,7 +359,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @param conditions The conditions used to check the endurance remaining parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkEnduranceRemainingAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkEnduranceRemainingAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, conditions);
 		if (assertedEnduranceRemaining.isAbnormal()) {
 

@@ -11,6 +11,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -74,7 +75,7 @@ public class Voltage implements IMetaMonitor {
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusWarnCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -95,7 +96,7 @@ public class Voltage implements IMetaMonitor {
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
@@ -111,13 +112,13 @@ public class Voltage implements IMetaMonitor {
 	}
 
 	/**
-	 * Check condition when the monitor voltage is high.
+	 * Check condition when the monitor voltage is out of range.
 	 * 
 	 * @param monitor    The monitor we wish to check
 	 * @param conditions The conditions used to check the voltage
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
-	public static AlertDetails checkVoltageHighCondition(Monitor monitor, List<AlertCondition> conditions) {
+	public static AlertDetails checkVoltageOutOfRangeCondition(Monitor monitor, Set<AlertCondition> conditions) {
 		final AssertedParameter<NumberParam> assertedVoltage = monitor.assertNumberParameter(HardwareConstants.VOLTAGE_PARAMETER, conditions);
 		if (assertedVoltage.isAbnormal()) {
 

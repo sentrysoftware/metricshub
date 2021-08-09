@@ -539,7 +539,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		numberParam.setCollectTime(collectTime);
 		numberParam.setRawValue(rawValue);
 
-		monitor.addParameter(numberParam);
+		monitor.collectParameter(numberParam);
 	}
 
 	/**
@@ -573,7 +573,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				statusInformation));
 		statusParam.setCollectTime(collectTime);
 
-		monitor.addParameter(statusParam);
+		monitor.collectParameter(statusParam);
 	}
 
 	/**

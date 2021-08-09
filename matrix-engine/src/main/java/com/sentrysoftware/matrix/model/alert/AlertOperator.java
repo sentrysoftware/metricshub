@@ -10,12 +10,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AlertOperator {
 
-	EQ((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue == threshold),
-	GT((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue > threshold),
-	GTE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue >= threshold),
-	LT((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue < threshold),
-	LTE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue <= threshold),
-	NE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue != threshold);
+	EQ((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() == threshold.doubleValue()),
+	GT((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() > threshold.doubleValue()),
+	GTE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() >= threshold.doubleValue()),
+	LT((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() < threshold.doubleValue()),
+	LTE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() <= threshold.doubleValue()),
+	NE((paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() != threshold.doubleValue());
 
 	@Getter
 	private BiFunction<Double, Double, Boolean> function;
