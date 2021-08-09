@@ -60,6 +60,9 @@ public abstract class AbstractStrategy implements IStrategy {
 	@Autowired
 	protected ICriterionVisitor criterionVisitor;
 
+	protected static final int MAX_THREADS_COUNT = 50;
+	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
+
 	@Override
 	public void prepare() {
 
@@ -153,12 +156,13 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * Run the given connector detection criteria and return true if all the
-	 * criterion are successfully executed.
+	 * Run the given {@link Connector}'s detection criteria
+	 * and return true if all the criteria are successfully executed.
 	 * 
-	 * @param connector
-	 * @param hostname
-	 * @return <code>true</code> if the connector matches the platform
+	 * @param connector	The {@link Connector} that should be tested.
+	 * @param hostname	The hostname against which the {@link Connector} should be tested.
+	 *
+	 * @return			<code>true</code> if the connector matches the platform.
 	 */
 	public TestedConnector testConnector(final Connector connector, final String hostname) {
 
@@ -218,9 +222,11 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * Build status parameter for the given {@link TestedConnector} 
-	 * @param testedConnector
-	 * @return {@link StatusParam} instance
+	 * Build status parameter for the given {@link TestedConnector}.
+	 *
+	 * @param testedConnector	The {@link TestedConnector} whose status should be created.
+	 *
+	 * @return					A {@link StatusParam} instance built from the given {@link TestedConnector}.
 	 */
 	protected StatusParam buildStatusParamForConnector(final TestedConnector testedConnector) {
 		boolean success = testedConnector.isSuccess();
@@ -235,10 +241,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * Build test report parameter for the given {@link TestedConnector}
-	 * @param targetName
-	 * @param testedConnector
-	 * @return {@link TextParam} instance
+	 * Build test report parameter for the given {@link TestedConnector}.
+	 *
+	 * @param targetName		The name of the target against which the test has been performed.
+	 * @param testedConnector	The {@link TestedConnector} whose test report parameter should be created.
+	 *
+	 * @return					A {@link TextParam} instance built from the given {@link TestedConnector}.
 	 */
 	protected TextParam buildTestReportParameter(final String targetName, final TestedConnector testedConnector) {
 		final TextParam testReport = TextParam

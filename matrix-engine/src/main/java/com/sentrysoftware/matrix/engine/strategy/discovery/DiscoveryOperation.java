@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -123,33 +126,39 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// The order is important so that each monitor can be attached to its parent correctly
 		// Start the discovery of the first order in serial mode
 		connector
-		.getHardwareMonitors()
-		.stream()
-		.sorted(new HardwareMonitorComparator())
-		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+			.getHardwareMonitors()
+			.stream()
+			.sorted(new HardwareMonitorComparator())
+			.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
 				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 				&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
-		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
-				hardwareMonitor,
-				connector,
-				hostMonitoring,
-				targetMonitor,
-				hostname));
+			.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring,
+				targetMonitor, hostname));
+
 
 		// Now discover the rest of the monitors in parallel mode
 		// This might depend on a user configuration
+		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+
 		connector
 		.getHardwareMonitors()
-		.parallelStream()
+		.stream()
 		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
 				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 				&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
-		.forEach(hardwareMonitor -> discoverSameTypeMonitors(
-				hardwareMonitor,
-				connector,
-				hostMonitoring,
-				targetMonitor,
-				hostname));
+		.forEach(hardwareMonitor ->
+			threadsPool.execute(() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor,
+				hostname)));
+
+		// Order the shutdown
+		threadsPool.shutdown();
+
+		try {
+			// Blocks until all tasks have completed execution after a shutdown request
+			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			log.error("Waiting for threads termination aborted with an error", e);
+		}
 	}
 
 	/**
