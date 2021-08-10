@@ -652,7 +652,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			final String message = running ?
 					String.format("Windows Service check: the %s Windows service is currently running.", serviceName) :
-						String.format("Windows Service check: the %s Windows service is not reported as running.\n %s", serviceName, state);
+						String.format("Windows Service check: the %s Windows service is not reported as running.\n %s", serviceName, state); // NOSONAR on %n
 
 			log.debug("Service Criterion, {}", message);
 			return CriterionTestResult.builder()
