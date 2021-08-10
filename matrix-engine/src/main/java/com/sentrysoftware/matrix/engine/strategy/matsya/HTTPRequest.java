@@ -22,4 +22,5 @@ public class HTTPRequest {
 	private Header header;
 	private Body body;
 	private ResultContent resultContent;
+	private String authenticationToken;
 }

@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.matsya;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -427,12 +426,13 @@ public class MatsyaClientsExecutor {
 
 		String username = protocol.getUsername();
 		char[] password = protocol.getPassword();
+		String authenticationToken = httpRequest.getAuthenticationToken();
 
 		Header header = httpRequest.getHeader();
-		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, EMPTY);
+		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, authenticationToken);
 
 		Body body = httpRequest.getBody();
-		String bodyContent = body == null ? null : body.getContent(username, password, EMPTY);
+		String bodyContent = body == null ? null : body.getContent(username, password, authenticationToken);
 
 		// Building the full URL
 		String url = httpRequest.getUrl();
