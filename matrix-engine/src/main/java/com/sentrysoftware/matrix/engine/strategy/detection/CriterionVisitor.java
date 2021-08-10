@@ -589,20 +589,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final Service service) {
-		if (service==null || service.getServiceName()==null) {
+		if (service == null  ||  service.getServiceName() == null) {
 			log.error("Malformed Service Criterion {}. Cannot process service detection.", service);
-			return CriterionTestResult.empty();
-		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		if (hostname == null) {
-			log.error("Service Criterion, no hostname found. Cannot process service detection {}.", service);
 			return CriterionTestResult.empty();
 		}
 
 		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
 		if (protocol == null) {
-			log.error("Service Criterion, the WMI Credentials are not configured. Cannot process service detection {}.", service);
+			log.debug("Service Criterion, the WMI Credentials are not configured. Cannot process service detection {}.", service);
 			return CriterionTestResult.empty();
 		}
 
@@ -619,18 +613,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 		if (serviceName.isEmpty()) {
 			log.debug("Service Criterion, service name is empty.");
 			return CriterionTestResult.builder()
-					.success(false)
+					.success(true)
 					.message("Windows Service check: actually no test were performed.")
 					.result(null)
 					.build();
 		}
 
-		// Find the namespace
-		final Set<String> possibleWmiNamespaces = strategyConfig.getHostMonitoring().getPossibleWmiNamespaces();
-		final String namespace =
-				possibleWmiNamespaces==null || possibleWmiNamespaces.isEmpty() ?
-						DEFAULT_NAMESPACE_WMI :
-							possibleWmiNamespaces.stream().findFirst().get();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		final String query = String.format("select name, state from win32_service where name = '%s'", serviceName);
 
@@ -640,9 +629,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 					hostname,
 					protocol.getUsername(),
 					protocol.getPassword(),
-					protocol.getTimeout() * 1000,
+					protocol.getTimeout(),
 					query,
-					namespace);
+					DEFAULT_NAMESPACE_WMI);
 
 			if (queryResult.isEmpty()) {
 				log.debug("Service Criterion, no {} service found.", service);
@@ -681,7 +670,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 					hostname,
 					e.getMessage());
 			log.error(message, e);
-			return CriterionTestResult.empty();
+			return CriterionTestResult.builder()
+					.message(message)
+					.build();
 		}
 
 	}

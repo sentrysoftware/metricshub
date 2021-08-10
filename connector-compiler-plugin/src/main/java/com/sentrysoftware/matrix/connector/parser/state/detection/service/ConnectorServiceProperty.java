@@ -16,7 +16,8 @@ public class ConnectorServiceProperty {
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 		return Stream.of(
 				new TypeProcessor(Service.class, ServiceNameProcessor.SERVICE_TYPE_VALUE),
-				new ForceSerializationProcessor(Service.class, ServiceNameProcessor.SERVICE_TYPE_VALUE))
+				new ForceSerializationProcessor(Service.class, ServiceNameProcessor.SERVICE_TYPE_VALUE),
+				new ServiceNameProcessor())
 				.collect(Collectors.toSet());
 	}
 

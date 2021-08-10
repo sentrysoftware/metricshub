@@ -2,12 +2,10 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.service;
 
 import static org.springframework.util.Assert.notNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
@@ -41,20 +39,7 @@ public class ServiceNameProcessor extends AbstractStateParser {
 
 		super.parse(key, value, connector);
 
-		try {
-			final Criterion criterion = getCriterion(key, connector);
-
-			criterion.getClass()
-			.getMethod("setServiceName", String.class)
-			.invoke(criterion, value);
-
-		} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new IllegalStateException(String.format(
-					"ServiceNameProcessor parse: Cannot invoke setServiceName(%s) on %s Criterion: %s",
-					value,
-					getType().getSimpleName(),
-					e.getMessage()));
-		}
+		((Service) getCriterion(key, connector)).setServiceName(value);
 	}
 
 }

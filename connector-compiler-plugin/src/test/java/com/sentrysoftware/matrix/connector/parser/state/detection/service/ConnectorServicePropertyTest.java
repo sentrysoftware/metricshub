@@ -16,7 +16,7 @@ class ConnectorServicePropertyTest {
 	@Test
 	void testGetConnectorProperties() {
 		assertEquals(
-				Stream.of(TypeProcessor.class,ForceSerializationProcessor.class).collect(Collectors.toSet()),
+				Stream.of(TypeProcessor.class,ForceSerializationProcessor.class, ServiceNameProcessor.class).collect(Collectors.toSet()),
 				ConnectorServiceProperty.getConnectorProperties().stream()
 				.map(IConnectorStateParser::getClass)
 				.collect(Collectors.toSet()));

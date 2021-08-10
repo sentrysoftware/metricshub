@@ -744,21 +744,6 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckHostnameNull() {
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.target(HardwareTarget.builder().build())
-				.build();
-
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-		final Service service = new Service();
-		service.setServiceName("TWGIPC");
-
-		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(service));
-	}
-
-	@Test
 	void testVisitServiceCheckProtocolNull() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
@@ -860,7 +845,7 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(service);
 
 		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.isSuccess());
 		assertEquals("Windows Service check: actually no test were performed.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
@@ -885,20 +870,23 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
-
 		doThrow(new WmiComException("Error")).when(matsyaClientsExecutor).executeWmi(
 				HOST_WIN,
 				USERNAME,
 				PASSWORD,
-				TIME_OUT * 1000,
+				TIME_OUT,
 				"select name, state from win32_service where name = 'TWGIPC'",
 				"root\\cimv2");
 
 		final Service service = new Service();
 		service.setServiceName("TWGIPC");
 
-		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(service));
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(service);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals("Service Criterion, WMI query select name, state from win32_service where name = 'TWGIPC' on host-win was unsuccessful due to an exception. Message: Error.", criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
@@ -921,13 +909,11 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
-
 		doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(
 				HOST_WIN,
 				USERNAME,
 				PASSWORD,
-				TIME_OUT * 1000,
+				TIME_OUT,
 				"select name, state from win32_service where name = 'TWGIPC'",
 				"root\\cimv2");
 
@@ -962,13 +948,11 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
-
 		doReturn(List.of(List.of("TWGIPC", "Stopped"))).when(matsyaClientsExecutor).executeWmi(
 				HOST_WIN,
 				USERNAME,
 				PASSWORD,
-				TIME_OUT * 1000,
+				TIME_OUT,
 				"select name, state from win32_service where name = 'TWGIPC'",
 				"root\\cimv2");
 
@@ -1003,13 +987,11 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
-
 		doReturn(List.of(List.of("TWGIPC", "Running"))).when(matsyaClientsExecutor).executeWmi(
 				HOST_WIN,
 				USERNAME,
 				PASSWORD,
-				TIME_OUT * 1000,
+				TIME_OUT,
 				"select name, state from win32_service where name = 'TWGIPC'",
 				"root\\cimv2");
 
