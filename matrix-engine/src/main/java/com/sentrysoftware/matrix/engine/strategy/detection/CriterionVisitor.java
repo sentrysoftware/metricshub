@@ -646,9 +646,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.map(row -> row.get(1))
 					.collect(Collectors.joining());
 
-			final String result = queryResult.stream()
-					.map(row -> row.stream().collect(Collectors.joining(COLUMN_SEPARATOR, "", COLUMN_SEPARATOR)))
-					.collect(Collectors.joining());
+			final String result = SourceTable.tableToCsv(queryResult, COLUMN_SEPARATOR, false);
 
 			final boolean running = "Running".equalsIgnoreCase(state);
 
