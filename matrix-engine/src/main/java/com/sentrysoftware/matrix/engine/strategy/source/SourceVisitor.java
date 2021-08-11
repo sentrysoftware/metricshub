@@ -27,12 +27,16 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCS
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class SourceVisitor implements ISourceVisitor {
+
+	private static final String EXCEPTION = "Exception";
 
 	private static final String WBEM = "wbem";
 
@@ -100,7 +106,90 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final IPMI ipmi) {
+		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
+		final TargetType targetType = target.getType();
+
+		if (TargetType.MS_WINDOWS.equals(targetType)) {
+			return processWindowsIpmiSource();
+		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			return processUnixIpmiSource(targetType);
+		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+			return processOutOfBandIpmiSource();
+		}
+
+		log.debug("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI.",
+				target.getHostname(), targetType.name());
+
 		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI source via IPMI Over-LAN
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processOutOfBandIpmiSource() {
+
+		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
+
+		if (protocol == null) {
+			log.warn("The IPMI Credentials are not configured. Cannot process IPMI-over-LAN source.");
+			return SourceTable.empty();
+		}
+
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+			String result = matsyaClientsExecutor.executeIpmiGetSensors(hostname, protocol);
+
+			if (result != null) {
+				return SourceTable.builder().rawData(result).build();
+			} else {
+				log.error("IPMI-over-LAN request on system {} returned <null> result.", hostname);
+			}
+		} catch (Exception e) {
+			log.error("IPMI-over-LAN request on system {} was unsuccessful due to an exception.", hostname);
+			log.error(EXCEPTION, e);
+		}
+
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI Source for the Unix system
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processUnixIpmiSource(TargetType targetType) {
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI source for the Windows (NT) system
+	 * 
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processWindowsIpmiSource() {
+		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		if (wmiProtocol == null) {
+			return SourceTable.empty();
+		}
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String nameSpaceRootCimv2 = "root/cimv2";
+		final String nameSpaceRootHardware = "root/hardware";
+
+		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
+		List<List<String>> wmiCollection1 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
+
+		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
+		List<List<String>> wmiCollection2 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+
+		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
+		List<List<String>> wmiCollection3 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+
+		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
 
 	@Override
@@ -440,7 +529,7 @@ public class SourceVisitor implements ISourceVisitor {
 			log.error("Error detected when running WBEM Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wbemSource.getWbemQuery(), hostname, protocol.getUsername(), protocol.getTimeout(),
 					wbemSource.getWbemNamespace());
-			log.error("Exception", e);
+			log.error(EXCEPTION, e);
 			return SourceTable.empty();
 		}
 	}
@@ -487,7 +576,7 @@ public class SourceVisitor implements ISourceVisitor {
 					wmiSource.getWbemQuery(), hostname,
 					protocol.getUsername(), protocol.getTimeout(),
 					wmiSource.getWbemNamespace());
-			log.error("Exception", e);
+			log.error(EXCEPTION, e);
 			return SourceTable.empty();
 		}
 
@@ -514,4 +603,36 @@ public class SourceVisitor implements ISourceVisitor {
 
 	}
 
+	/**
+	 * Call the matsya client executor to execute a WMI request. 
+	 * @param hostname
+	 * @param wmiProtocol
+	 * @param wmiQuery
+	 * @param namespace
+	 * @return
+	 */
+	private List<List<String>> executeWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
+			final String wmiQuery, final String namespace) {
+		List<List<String>> wmiCollection1 = new ArrayList<>();
+		try {
+			wmiCollection1 = matsyaClientsExecutor.executeWmi(
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getPassword(),
+					wmiProtocol.getTimeout(),
+					wmiQuery,
+					namespace);
+			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
+					hostname,
+					wmiQuery);
+		} catch (Exception e) {
+			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
+					wmiQuery,
+					hostname,
+					wmiProtocol.getUsername(),
+					wmiProtocol.getTimeout(),
+					namespace);
+		}
+		return wmiCollection1;
+	}
 }

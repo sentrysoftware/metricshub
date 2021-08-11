@@ -349,7 +349,6 @@ public class MatsyaClientsExecutor {
 		// Local: namespace
 		// Remote: hostname\namespace
 		final String networkResource = buildWmiNetworkResource(hostname, namespace);
-
 		// Go!
 		try (final WmiWbemServicesHandler wbemServices = 
 				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
@@ -368,7 +367,7 @@ public class MatsyaClientsExecutor {
 
 		}
 	}
-
+	
 	/**
 	 * Build the WMI network resource
 	 * @param hostname    The hostname of the device where the WMI service is running
@@ -633,4 +632,18 @@ public class MatsyaClientsExecutor {
 				ipmiOverLanProtocol.getTimeout());
 	}
 
+	/**
+	 * Run IPMI Over-LAN request in order to get all the sensors
+	 * 
+	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @return String output contains FRUs and Sensor states and readings
+	 * @throws TimeoutException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public String executeIpmiGetSensors(String hostname, IPMIOverLanProtocol ipmiOverLanProtocol)
+			throws InterruptedException, ExecutionException, TimeoutException {
+		return MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiOverLanProtocol));
+	}
 }

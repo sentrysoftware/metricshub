@@ -53,6 +53,7 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
@@ -226,7 +227,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final IPMI ipmi) {
 
-		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
+		final TargetType targetType = target.getType();
 
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
 			return processWindowsIpmiDetection();
@@ -236,8 +238,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return processOutOfBandIpmiDetection();
 		}
 
+		String message = String.format("Failed to perform IPMI detection on system: %s. %s is an unsupported OS for IPMI.", target.getHostname(),
+				targetType.name());
+
 		return CriterionTestResult.builder()
-				.message("Failed to make an IPMI query on localhost. " + targetType.name() + " is an unsupported OS for IPMI.")
+				.message(message)
 				.success(false)
 				.build();
 	}
