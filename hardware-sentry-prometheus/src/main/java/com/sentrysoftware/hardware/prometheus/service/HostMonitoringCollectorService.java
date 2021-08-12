@@ -104,7 +104,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
 
-		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getName(),
+		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getMonitorType().getName(),
 				parameterName);
 		Number paramValue = getParameterValue(monitor, parameterName);
 		if (paramValue != null) {
@@ -252,17 +252,17 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Build help for metric using format: <em>Metric: $monitorName $parameterName - Unit: $parameterUnit</em>
 	 * 
-	 * @param monitorName   The name of the monitor
+	 * @param monitorType   The type of the monitor as string
 	 * @param metaParameter {@link MetaParameter} information
 	 * @return {@link String} value
 	 */
-	static String buildHelp(final String monitorName, final MetaParameter metaParameter) {
+	static String buildHelp(final String monitorType, final MetaParameter metaParameter) {
 		String paramName = metaParameter.getName();
-		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorName, paramName);
+		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType, paramName);
 		String prometheusParamName = prometheusParam == null ? buildMetricName(paramName) : prometheusParam.getPrometheusParameterName();
 		String paramUnit = metaParameter.getUnit();
 		String prometheusParamUnit = prometheusParam == null ? paramUnit : prometheusParam.getPrometheusParameterUnit();
-		return String.format("Metric: %s %s - Unit: %s", monitorName, prometheusParamName , prometheusParamUnit);
+		return String.format("Metric: %s %s - Unit: %s", monitorType, prometheusParamName , prometheusParamUnit);
 	}
 
 	/**
