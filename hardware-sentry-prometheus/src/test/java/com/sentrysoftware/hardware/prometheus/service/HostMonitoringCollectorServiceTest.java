@@ -95,6 +95,7 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(
 				HardwareConstants.STATUS_PARAMETER, statusParam,
 				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+			.monitorType(MonitorType.ENCLOSURE)
 			.build();
 		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 		enclosureMonitor.addMetadata(DEVICE_ID, "1.1");
@@ -110,6 +111,7 @@ class HostMonitoringCollectorServiceTest {
 			.parentId(ENCLOSURE_ID)
 			.name(FAN_NAME + 1)
 			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+			.monitorType(MonitorType.FAN)
 			.build();
 		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 		fan1Monitor.addMetadata(DEVICE_ID, "1.11");
@@ -120,6 +122,7 @@ class HostMonitoringCollectorServiceTest {
 			.parentId(ENCLOSURE_ID)
 			.name(FAN_NAME + 2)
 			.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+			.monitorType(MonitorType.FAN)
 			.build();
 		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 		fan2Monitor.addMetadata(DEVICE_ID, "1.12");
@@ -161,6 +164,7 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(
 				HardwareConstants.STATUS_PARAMETER, statusParam,
 				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+			.monitorType(MonitorType.ENCLOSURE)
 			.build();
 		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
 		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
@@ -198,12 +202,14 @@ class HostMonitoringCollectorServiceTest {
 				.parentId(PARENT_ID_VALUE)
 				.name(LABEL_VALUE + 1)
 				.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		final Monitor monitor2 = Monitor.builder()
 				.id(ID_VALUE  + 2)
 				.parentId(PARENT_ID_VALUE)
 				.name(LABEL_VALUE + 2)
 				.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		final Map<String, Monitor> monitors = Map.of(
 				monitor1.getId(), monitor1,
@@ -241,12 +247,14 @@ class HostMonitoringCollectorServiceTest {
 					.parentId(PARENT_ID_VALUE)
 					.name(LABEL_VALUE)
 					.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam))
+					.monitorType(MonitorType.ENCLOSURE)
 					.build();
 		final Monitor monitor2 = Monitor.builder()
 				.id(ID_VALUE  + 2)
 				.parentId(PARENT_ID_VALUE)
 				.name(LABEL_VALUE)
 				.parameters(Collections.emptyMap())
+				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		final Map<String, Monitor> monitors = Map.of(
 				monitor1.getId(), monitor1,
@@ -431,6 +439,7 @@ class HostMonitoringCollectorServiceTest {
 				.parameters(Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
 						NumberParam.builder().name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
 						.value(100D).build()))
+				.monitorType(MonitorType.LOGICAL_DISK)
 				.build();
 		// make sure that the conversion is well done : factor 1073741824.0
 		assertEquals(107374182400.0, HostMonitoringCollectorService.convertParameterValue(monitor, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
@@ -442,6 +451,7 @@ class HostMonitoringCollectorServiceTest {
 				.parameters(Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
 						NumberParam.builder().name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
 						.build()))
+				.monitorType(MonitorType.LOGICAL_DISK)
 				.build();
 		assertEquals(null, HostMonitoringCollectorService.convertParameterValue(monitorValueNull, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
 	}
@@ -501,6 +511,7 @@ class HostMonitoringCollectorServiceTest {
 						StatusParam.builder()
 						.name(HardwareConstants.STATUS_PARAMETER)
 						.state(ParameterState.OK).build()))
+				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
@@ -520,6 +531,7 @@ class HostMonitoringCollectorServiceTest {
 				.parameters(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER,
 						NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER)
 						.value(3000D).build()))
+				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER);
 		final Sample actual = gauge.samples.get(0);
