@@ -81,7 +81,7 @@ public class MonitorNameBuilder {
 		if (name == null) {
 			return null;
 		} else if (checkNotBlankDataValue(fanType)) {
-			name = name + "(" + fanType + ")";
+			name = name + " (" + fanType + ")";
 		}
 
 		return name;
