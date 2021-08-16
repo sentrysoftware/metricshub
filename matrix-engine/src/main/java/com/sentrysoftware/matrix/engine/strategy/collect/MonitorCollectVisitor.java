@@ -35,6 +35,8 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -139,7 +141,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(CpuCore cpuCore) {
+
 		collectBasicParameters(cpuCore);
+
+		collectCpuCoreUsedTimePercent();
 
 		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
@@ -810,7 +815,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		final Double timeLeftRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.TIME_LEFT_PARAMETER);
+		final Double timeLeftRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.TIME_LEFT_PARAMETER);
+
 		if (timeLeftRaw != null) {
 
 			updateNumberParameter(monitor,
@@ -820,5 +827,52 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				timeLeftRaw * 60.0, // minutes to seconds
 				timeLeftRaw);
 		}
+	}
+
+	void collectCpuCoreUsedTimePercent() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (collectTimePrevious == null) {
+			return;
+		}
+
+		Double usedTimePercentPrevious = CollectHelper.getNumberParamRawValue(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (usedTimePercentPrevious == null) {
+			return;
+		}
+
+		final Double usedTimePercentCurrent = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER);
+
+		if (usedTimePercentCurrent == null) {
+			return;
+		}
+
+		Long collectTime = monitorCollectInfo.getCollectTime();
+
+		final double deltaTimeInSeconds = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			collectTime.doubleValue(), collectTimePrevious) / 1000.0;
+
+		if (deltaTimeInSeconds == 0.0) {
+			return;
+		}
+
+		final Double deltaUsedTimePercent = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			usedTimePercentCurrent, usedTimePercentPrevious);
+
+		double rawRatio = deltaUsedTimePercent / deltaTimeInSeconds;
+
+		updateNumberParameter(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			HardwareConstants.PERCENT_PARAMETER_UNIT,
+			collectTime,
+			100.0 * rawRatio,
+			rawRatio);
 	}
 }
