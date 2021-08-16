@@ -53,6 +53,8 @@ class MonitorCollectVisitorTest {
 	private static final String POWER_CONSUMPTION = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
+	private static final String CHARGE = "39";
+	private static final String TIME_LEFT = "60";
 	private static final String VALUETABLE_COLUMN_1 = "Valuetable.Column(1)";
 	private static final String VALUETABLE_COLUMN_2 = "Valuetable.Column(2)";
 	private static final String VALUETABLE_COLUMN_3 = "Valuetable.Column(3)";
@@ -139,7 +141,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitBattery() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Battery());
@@ -1153,5 +1155,70 @@ class MonitorCollectVisitorTest {
 		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
 
+	}
+
+	@Test
+	void testCollectBatteryCharge() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No charge value
+		monitorCollectVisitor.collectBatteryCharge();
+		NumberParam chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNull(chargeParameter);
+
+		// Charge value collected, value is lower than 100
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(CHARGE))
+		);
+		monitorCollectVisitor.collectBatteryCharge();
+		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNotNull(chargeParameter);
+		assertEquals(39.0, chargeParameter.getRawValue());
+		assertEquals(39.0, chargeParameter.getValue());
+
+		// Charge value collected, value is greter than 100
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("125"))
+		);
+		monitorCollectVisitor.collectBatteryCharge();
+		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNotNull(chargeParameter);
+		assertEquals(125.0, chargeParameter.getRawValue());
+		assertEquals(100.0, chargeParameter.getValue());
+	}
+
+	@Test
+	void testCollectBatteryTimeLeft() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No time left value
+		monitorCollectVisitor.collectBatteryTimeLeft();
+		NumberParam timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		assertNull(timeLeftParameter);
+
+		// Time left value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.TIME_LEFT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(TIME_LEFT))
+		);
+		monitorCollectVisitor.collectBatteryTimeLeft();
+		timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		assertNotNull(timeLeftParameter);
+		assertEquals(60.0, timeLeftParameter.getRawValue());
+		assertEquals(3600.0, timeLeftParameter.getValue());
 	}
 }

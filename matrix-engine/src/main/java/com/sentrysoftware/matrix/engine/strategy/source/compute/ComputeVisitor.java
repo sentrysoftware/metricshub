@@ -1088,7 +1088,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					replacement.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
 					replacement.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
 
-			if (replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
 				sourceTable.getTable()
 				.forEach(column -> column.set(
 						columnIndex, 

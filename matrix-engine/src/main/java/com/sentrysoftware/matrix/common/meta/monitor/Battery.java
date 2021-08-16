@@ -23,9 +23,16 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 public class Battery implements IMetaMonitor {
 
 	public static final MetaParameter CHARGE = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.CHARGE_PARAMETER)
-			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+		.basicCollect(false)
+		.name(HardwareConstants.CHARGE_PARAMETER)
+		.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+		.type(ParameterType.NUMBER)
+		.build();
+
+	public static final MetaParameter TIME_LEFT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.TIME_LEFT_PARAMETER)
+			.unit(HardwareConstants.TIME_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -40,9 +47,9 @@ public class Battery implements IMetaMonitor {
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.CHARGE_PARAMETER, CHARGE);
+		map.put(HardwareConstants.TIME_LEFT_PARAMETER, TIME_LEFT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
-
 	}
 
 	@Override

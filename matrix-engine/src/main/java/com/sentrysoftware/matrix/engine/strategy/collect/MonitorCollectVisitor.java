@@ -104,12 +104,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Battery battery) {
+
 		collectBasicParameters(battery);
 
+		collectBatteryCharge();
+		collectBatteryTimeLeft();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
-				HardwareConstants.CHARGE_PARAMETER
-				);
+			HardwareConstants.PRESENT_PARAMETER,
+			HardwareConstants.CHARGE_PARAMETER,
+			HardwareConstants.TIME_LEFT_PARAMETER
+			);
 	}
 
 	@Override
@@ -785,4 +790,35 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 	}
 
+	void collectBatteryCharge() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double chargeRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.CHARGE_PARAMETER);
+		if (chargeRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.CHARGE_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				Math.min(chargeRaw, 100.0),
+				chargeRaw);
+		}
+	}
+
+	void collectBatteryTimeLeft() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double timeLeftRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.TIME_LEFT_PARAMETER);
+		if (timeLeftRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.TIME_LEFT_PARAMETER,
+				HardwareConstants.TIME_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				timeLeftRaw * 60.0, // minutes to seconds
+				timeLeftRaw);
+		}
+	}
 }
