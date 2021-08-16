@@ -103,7 +103,7 @@ public class MonitorNameBuilder {
 		
 		// Add the fan type, if available
 		if (checkNotBlankDataValue(fanType)) {
-			name = name + " (" + fanType + ")";
+			return name + " (" + fanType + ")";
 		} 
 
 		return name;
