@@ -4,6 +4,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_MAXLENGTH;
 
 import java.util.List;
 import java.util.Map;
@@ -39,50 +40,71 @@ public class MonitorNameBuilder {
 	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 	private static final String MONITOR_BUILDING_INFO_CANNOT_BE_NULL = "monitorBuildingInfo cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
-	private static final String TWO_STRINGS_FORMAT = "Ramassh: %s: %s";
+	private static final String TWO_STRINGS_FORMAT = "%s: %s";
 
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
 	}
 	
+	/**
+	 * Trims known/given words off the phrase to return only the unknown part of the content
+	 * @param phrase    The {@link String} phrase to be trimmed
+	 * @param words     The {@link List} of words (case-insensitive) to be trimmed off the phrase  
+	 * 
+	 * @return {@link String} trimmedPhrase   The trimmed phrase 
+	 */
 	private static String trimKnownWords(final String phrase, final List<String> words) {
 		String lowerCasePhrase = phrase.toLowerCase();
 		String trimmedPhrase = phrase;
 		for (String word : words) {
-			if (word != null && word.toLowerCase().contains(lowerCasePhrase)) {
+			if (word != null && lowerCasePhrase.contains(word.toLowerCase())) {
 				trimmedPhrase = trimmedPhrase.replaceAll("(?i)\\s*" + word + "\\s*", "");
 			}
 		}
 		return trimmedPhrase;
 	}
 	
+	/**
+	 * Build the fan name based on the current implementation in Hardware Sentry KM
+	 * @param monitorBuildingInfo   The {@link MonitorBuildingInfo} of the monitor instance 
+	 * 
+	 * @return {@link String} name  The label of the fan to be displayed
+	 */
 	public static String buildFanName(final MonitorBuildingInfo monitorBuildingInfo) {
+		
+		// Check the metadata
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
-		final MonitorType monitorType = monitorBuildingInfo.getMonitorType();
-		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
-
+		// Check the ID count
+		final String idCount = metadata.get(ID_COUNT);
+		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
+		
+		// Read the metadata fields needed to build the name
 		final String deviceId = metadata.get(DEVICE_ID);
 		final String displayId = metadata.get(DISPLAY_ID);
 		final String fanType = metadata.get(FAN_TYPE);
-		final String idCount = metadata.get(ID_COUNT);
-		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
 
+		// Build the name
 		String name = null;
 		if (checkNotBlankDataValue(displayId)) {
 			name = displayId;
 		} else if (checkNotBlankDataValue(deviceId)) {
 			name = trimKnownWords(deviceId, Arrays.asList("fan"));
-		} else if (checkNotBlankDataValue(idCount)) {
+			if (name.length() > ID_MAXLENGTH) {
+				name = idCount;
+			}
+		} 
+		
+		// Use the ID count as name, if we couldn't build one from display ID or device ID 
+		if (!checkNotBlankDataValue(name)) {
 			name = idCount;
 		}
-
-		if (name == null) {
-			return null;
-		} else if (checkNotBlankDataValue(fanType)) {
+		
+		// Add the fan type, if available
+		if (checkNotBlankDataValue(fanType)) {
 			name = name + " (" + fanType + ")";
-		}
+		} 
 
 		return name;
 	}

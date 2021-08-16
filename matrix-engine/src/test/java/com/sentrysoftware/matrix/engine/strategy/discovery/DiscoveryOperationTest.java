@@ -59,15 +59,15 @@ import com.sentrysoftware.matrix.model.parameter.PresentParam;
 class DiscoveryOperationTest {
 
 	private static final String ID_COUNT_0 = "0";
-	private static final String FAN_NAME = "Fan: 1";
-	private static final String FAN_ID = "myConnecctor1.connector_fan_ecs1-01_1.1";
+	private static final String FAN_NAME = "Fan 1";
+	private static final String FAN_ID = "myConnector1.connector_fan_ecs1-01_1.1";
 	private static final String SPEED = "speed";
 	private static final String SPEED_VALUE = "1000";
 	private static final String FAN_1 = "Fan 1";
 	private static final String ENCLOSURE_DELL = "Enclosure: Dell";
-	private static final String HARD_CODED_ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_DellEnclosure";
+	private static final String HARD_CODED_ENCLOSURE_ID = "myConnector1.connector_enclosure_ecs1-01_DellEnclosure";
 	private static final String ENCLOSURE_NAME = "Computer: PowerEdge 54dsf (Dell 2200)";
-	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
+	private static final String ENCLOSURE_ID = "myConnector1.connector_enclosure_ecs1-01_1.1";
 	private static final String TYPE = "type";
 	private static final String DELL_ENCLOSURE = "Dell Enclosure";
 	private static final String OUT_OF_RANGE = "OutOfRangeParam";
@@ -92,7 +92,7 @@ class DiscoveryOperationTest {
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String OID1 = "1.2.3.4.5";
 	private static final String OID2 = "1.2.3.4.6";
-	private static final String MY_CONNECTOR_1_NAME = "myConnecctor1.connector";
+	private static final String MY_CONNECTOR_1_NAME = "myConnector1.connector";
 	private static final String ENCLOSURE_SOURCE_KEY = "Enclosure.discovery.Source(1)";
 	private static final String FAN_SOURCE_KEY = "Fan.discovery.Source(1)";
 	private static final String MY_CONNECTOR_2_NAME = "myConnecctor2.connector";

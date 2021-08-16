@@ -42,8 +42,8 @@ class MonitorDiscoveryVisitorTest {
 
 	private static final String _0 = "0";
 	private static final String ROBOTIC_MONITOR_X = "Robotic: Monitor x";
-	private static final String FAN_ID = "myConnecctor.connector_fan_ecs1-01_1.1";
-	private static final String ROBOTIC_ID = "myConnecctor.connector_robotic_ecs1-01_1.1";
+	private static final String FAN_ID = "myConnector.connector_fan_ecs1-01_1.1";
+	private static final String ROBOTIC_ID = "myConnector.connector_robotic_ecs1-01_1.1";
 	private static final String ENCLOSURE_NAME_MODEL_WITH_VENDOR = "Computer: PowerEdge 54dsf (2200 Dell)";
 	private static final String STORAGE_NAME = "Storage: PowerEdge 54dsf";
 	private static final String OTHER = "Other:";
@@ -57,10 +57,7 @@ class MonitorDiscoveryVisitorTest {
 	private static final String LINUX_COMPUTER = "Linux computer";
 	private static final String WINDOWS_COMPUTER = "Windows computer";
 	private static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
-	private static final String FAN_0 = "Fan: 0";
-	private static final String FAN_1_1 = "Fan: 1.1";
-	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
-	private static final String FAN_NAME = "Fan: Monitor x";
+	private static final String MY_CONNECTOR_NAME = "myConnector.connector";
 	private static final String MONITOR_NAME = "Monitor x";
 	private static final String ENCLOSURE_NAME = "Computer: PowerEdge 54dsf (Dell 2200)";
 	private static final String MODEL_VALUE = "2200";
@@ -73,40 +70,40 @@ class MonitorDiscoveryVisitorTest {
 	private static final String DISPLAY_ID = "displayId";
 	private static final String DEVICE_ID = "deviceId";
 	private static final String ECS1_01 = "ecs1-01";
-	private static final String VOLTAGE_ID = "myConnecctor.connector_voltage_ecs1-01_1.1";
+	private static final String VOLTAGE_ID = "myConnector.connector_voltage_ecs1-01_1.1";
 	private static final String VOLTAGE_MONITOR_X = "Voltage: Monitor x";
-	private static final String TEMPERATURE_ID = "myConnecctor.connector_temperature_ecs1-01_1.1";
+	private static final String TEMPERATURE_ID = "myConnector.connector_temperature_ecs1-01_1.1";
 	private static final String TEMPERATURE_MONITOR_X = "Temperature: Monitor x";
-	private static final String TAPE_DRIVE_ID = "myConnecctor.connector_tapedrive_ecs1-01_1.1";
+	private static final String TAPE_DRIVE_ID = "myConnector.connector_tapedrive_ecs1-01_1.1";
 	private static final String TAPE_DRIVE_MONITOR_X = "TapeDrive: Monitor x";
-	private static final String POWER_SUPPLY_ID = "myConnecctor.connector_powersupply_ecs1-01_1.1";
+	private static final String POWER_SUPPLY_ID = "myConnector.connector_powersupply_ecs1-01_1.1";
 	private static final String POWER_SUPPLY_MONITOR_X = "PowerSupply: Monitor x";
-	private static final String PHYSICAL_DISK_ID = "myConnecctor.connector_physicaldisk_ecs1-01_1.1";
+	private static final String PHYSICAL_DISK_ID = "myConnector.connector_physicaldisk_ecs1-01_1.1";
 	private static final String PHYSICAL_DISK_MONITOR_X = "PhysicalDisk: Monitor x";
-	private static final String OTHER_DEVICE_ID = "myConnecctor.connector_otherdevice_ecs1-01_1.1";
+	private static final String OTHER_DEVICE_ID = "myConnector.connector_otherdevice_ecs1-01_1.1";
 	private static final String OTHER_DEVICE_MONITOR_X = "OtherDevice: Monitor x";
-	private static final String NETWORK_CARD_ID = "myConnecctor.connector_networkcard_ecs1-01_1.1";
+	private static final String NETWORK_CARD_ID = "myConnector.connector_networkcard_ecs1-01_1.1";
 	private static final String NETWORK_CARD_MONITOR_X = "NetworkCard: Monitor x";
-	private static final String MEMORY_ID = "myConnecctor.connector_memory_ecs1-01_1.1";
+	private static final String MEMORY_ID = "myConnector.connector_memory_ecs1-01_1.1";
 	private static final String MEMORY_MONITOR_X = "Memory: Monitor x";
-	private static final String BATTERY_ID = "myConnecctor.connector_battery_ecs1-01_1.1";
+	private static final String BATTERY_ID = "myConnector.connector_battery_ecs1-01_1.1";
 	private static final String BATTERY_MONITOR_X = "Battery: Monitor x";
-	private static final String BLADE_ID = "myConnecctor.connector_blade_ecs1-01_1.1";
+	private static final String BLADE_ID = "myConnector.connector_blade_ecs1-01_1.1";
 	private static final String BLADE_MONITOR_X = "Blade: Monitor x";
-	private static final String CPU_ID = "myConnecctor.connector_cpu_ecs1-01_1.1";
+	private static final String CPU_ID = "myConnector.connector_cpu_ecs1-01_1.1";
 	private static final String CPU_MONITOR_X = "CPU: Monitor x";
-	private static final String CPU_CORE_ID = "myConnecctor.connector_cpucore_ecs1-01_1.1";
+	private static final String CPU_CORE_ID = "myConnector.connector_cpucore_ecs1-01_1.1";
 	private static final String CPU_CORE_MONITOR_X = "CpuCore: Monitor x";
-	private static final String DISK_CONTROLLER_ID = "myConnecctor.connector_diskcontroller_ecs1-01_1.1";
+	private static final String DISK_CONTROLLER_ID = "myConnector.connector_diskcontroller_ecs1-01_1.1";
 	private static final String DISK_CONTROLLER_MONITOR_X = "DiskController: Monitor x";
-	private static final String FAN_MONITOR_X = "Fan: Monitor x";
-	private static final String LED_ID = "myConnecctor.connector_led_ecs1-01_1.1";
+	private static final String FAN_MONITOR_X = "Monitor x";
+	private static final String LED_ID = "myConnector.connector_led_ecs1-01_1.1";
 	private static final String LED_MONITOR_X = "LED: Monitor x";
-	private static final String LOGICAL_DISK_ID = "myConnecctor.connector_logicaldisk_ecs1-01_1.1";
+	private static final String LOGICAL_DISK_ID = "myConnector.connector_logicaldisk_ecs1-01_1.1";
 	private static final String LOGICAL_DISK_MONITOR_X = "LogicalDisk: Monitor x";
-	private static final String LUN_ID = "myConnecctor.connector_lun_ecs1-01_1.1";
+	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";
 	private static final String LUN_MONITOR_X = "Lun: Monitor x";
-	private static final String ENCLOSURE_ID = "myConnecctor.connector_enclosure_ecs1-01_1.1";
+	private static final String ENCLOSURE_ID = "myConnector.connector_enclosure_ecs1-01_1.1";
 
 	@Test
 	void testVisitBattery() {
@@ -1103,104 +1100,6 @@ class MonitorDiscoveryVisitorTest {
 				.build();
 
 		assertEquals(ENCLOSURE_NAME, new MonitorDiscoveryVisitor(buildingInfo).buildEnclosureName());
-
-	}
-
-	@Test
-	void testBuildGenericName() {
-
-		{
-			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(DEVICE_ID, ID);
-			metadata.put(DISPLAY_ID, MONITOR_NAME);
-
-			final Monitor monitor = Monitor
-					.builder()
-					.metadata(metadata)
-					.build();
-
-			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
-					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.FAN)
-					.monitor(monitor)
-					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
-					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
-					.build();
-			assertEquals(FAN_NAME, new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
-		}
-
-		{
-			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(DEVICE_ID, ID);
-
-			final Monitor monitor = Monitor
-					.builder()
-					.metadata(metadata)
-					.build();
-
-			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
-					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.FAN)
-					.monitor(monitor)
-					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
-					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
-					.build();
-
-			assertEquals(FAN_1_1, new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
-		}
-
-		{
-			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-
-			final Monitor monitor = Monitor
-					.builder()
-					.metadata(metadata)
-					.build();
-
-			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
-					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.FAN)
-					.monitor(monitor)
-					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
-					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
-					.build();
-			assertEquals(FAN_0, new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
-		}
-
-		{
-			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, " ");
-
-			final Monitor monitor = Monitor
-					.builder()
-					.metadata(metadata)
-					.build();
-
-			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
-					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.ENCLOSURE)
-					.monitor(monitor)
-					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
-					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
-					.build();
-
-			assertNull(new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
-		}
 
 	}
 
