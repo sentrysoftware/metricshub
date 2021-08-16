@@ -84,6 +84,7 @@ public class SourceVisitor implements ISourceVisitor {
 					.url(httpSource.getUrl())
 					.header(httpSource.getHeader())
 					.body(httpSource.getBody())
+					.authenticationToken(httpSource.getAuthenticationToken())
 					.build(),
 					true);
 

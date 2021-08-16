@@ -66,74 +66,166 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
 
-		String entries = httpSource.getExecuteForEachEntryOf();
+		if (httpSource == null) {
+			log.error("HTTPSource cannot be null, the HTTPSource operation will return an empty result.");
+			return SourceTable.empty();
+		}
 
-		if (entries != null && !entries.isEmpty()) {
-			SourceTable sourceTable = getSourceTable(entries);
-			if (sourceTable != null) {
-				SourceTable result = SourceTable.builder().rawData("").build();
+		// Very important! otherwise we will overlap in multi-host mode
+		final HTTPSource copy = httpSource.copy();
 
-				for  (List<String> row : sourceTable.getTable()) {
-					final HTTPSource copy = httpSource.copy();
+		// Replace HTTP Authentication token
+		copy.setAuthenticationToken(getValueFromForeignSource(
+				copy.getKey(),
+				copy.getAuthenticationToken(),
+				"authenticationToken"));
 
-					try {
-						replaceDynamicEntriesInHttpSource(copy, row);
-					} catch (NumberFormatException e) {
-						log.warn("The dynamic key from HTTPSource is badly formatted : {}", copy);
-						continue;
-					}
+		final String sourceTableKey = copy.getExecuteForEachEntryOf();
 
-					if (monitor != null) {
-						replaceDeviceIdsInHttpSource(copy, monitor);
-					}
-
-					SourceTable thisSourceTable = copy.accept(sourceVisitor);
-
-					if (httpSource.getEntryConcatMethod() == null) {
-						result.setRawData(
-								result.getRawData()
-								.concat(thisSourceTable.getRawData()));
-					} else {
-						switch (httpSource.getEntryConcatMethod()) {
-						case JSON_ARRAY:
-							result.setRawData(
-									(result.getRawData().isEmpty() ? result.getRawData() : result.getRawData().concat(",\n"))
-									.concat(thisSourceTable.getRawData()));
-							break;
-						case JSON_ARRAY_EXTENDED:
-							result.setRawData(
-									(result.getRawData().isEmpty() ? "" : result.getRawData().concat(",\n"))
-									.concat(PslUtils.formatExtendedJSON(rowToCsv(row, ","), thisSourceTable)));
-							break;
-						case CUSTOM:
-							result.setRawData(
-									result.getRawData()
-									.concat(httpSource.getEntryConcatStart())
-									.concat(thisSourceTable.getRawData())
-									.concat(httpSource.getEntryConcatEnd()));
-							break;
-						default: // LIST or empty
-							result.setRawData(
-									result.getRawData()
-									.concat(thisSourceTable.getRawData()));
-							break;
-						}
-					}
-				}
-				return result;
-			} else {
-				log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", entries);
-				return SourceTable.empty();
-			}
+		if (sourceTableKey != null && !sourceTableKey.isEmpty()) {
+			return processExecuteForEachEntryOf(copy, sourceTableKey);
 		}
 
 		if (monitor != null) {
-			final HTTPSource copy = httpSource.copy();
 			replaceDeviceIdsInHttpSource(copy, monitor);
 			return copy.accept(sourceVisitor);
 		}
 
-		return httpSource.accept(sourceVisitor);
+		return copy.accept(sourceVisitor);
+	}
+
+	/**
+	 * Process the given {@link HTTPSource} for the source table entries identified by the <em>sourceTableKey</em>
+	 * 
+	 * @param httpSource     The {@link HTTPSource} we wish to process
+	 * @param sourceTableKey The key of the source table defining the entries
+	 * @return {@link SourceTable} containing all the result concatenated using the EntryConcatMethod defined in the original {@link HTTPSource}
+	 */
+	private SourceTable processExecuteForEachEntryOf(final HTTPSource httpSource, final String sourceTableKey) {
+		final SourceTable sourceTable = getSourceTable(sourceTableKey);
+		if (sourceTable == null) {
+			log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", sourceTableKey);
+			return SourceTable.empty();
+		}
+
+		final SourceTable result = SourceTable.builder().rawData("").build();
+
+		for  (List<String> row : sourceTable.getTable()) {
+			final HTTPSource copy = httpSource.copy();
+
+			try {
+				replaceDynamicEntriesInHttpSource(copy, row);
+			} catch (NumberFormatException e) {
+				log.warn("The dynamic key from HTTPSource is badly formatted : {}", copy);
+				continue;
+			}
+
+			if (monitor != null) {
+				replaceDeviceIdsInHttpSource(copy, monitor);
+			}
+
+			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
+
+			if (httpSource.getEntryConcatMethod() == null) {
+				result.setRawData(
+						result.getRawData()
+						.concat(thisSourceTable.getRawData()));
+			} else {
+				concatHttpResult(httpSource, result, row, thisSourceTable);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Based on the EntryConcatMethod, concatenate the <em>sourceTableToConcat</em> in the <em>result</em> source table
+	 * 
+	 * @param httpSource           The http source used to get the entry concat start/end
+	 * @param result               The result we wish to update
+	 * @param row                  The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
+	 * @param sourceTableToConcat  The current source table result
+	 */
+	private void concatHttpResult(final HTTPSource httpSource, final SourceTable result, final List<String> row,
+			final SourceTable sourceTableToConcat) {
+		switch (httpSource.getEntryConcatMethod()) {
+		case JSON_ARRAY:
+			result.setRawData(
+					(result.getRawData().isEmpty() ? result.getRawData() : result.getRawData().concat(",\n"))
+					.concat(sourceTableToConcat.getRawData()));
+			break;
+		case JSON_ARRAY_EXTENDED:
+			result.setRawData(
+					(result.getRawData().isEmpty() ? "" : result.getRawData().concat(",\n"))
+					.concat(PslUtils.formatExtendedJSON(rowToCsv(row, ","), sourceTableToConcat)));
+			break;
+		case CUSTOM:
+			result.setRawData(
+					result.getRawData()
+					.concat(httpSource.getEntryConcatStart())
+					.concat(sourceTableToConcat.getRawData())
+					.concat(httpSource.getEntryConcatEnd()));
+			break;
+		default: // LIST or empty
+			result.setRawData(
+					result.getRawData()
+					.concat(sourceTableToConcat.getRawData()));
+			break;
+		}
+	}
+
+	/**
+	 * Get the value of the field from the foreign source identified by <em>foreignSourceKey</em>.
+	 * 
+	 * @param originalSourceKey The original source key used for debug purpose
+	 * @param foreignSourceKey  The foreign source key used to extract the field value
+	 * @param fieldLabel        The field label used for debug purpose
+	 * @return {@link String} value
+	 */
+	String getValueFromForeignSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
+
+		// No token to replace
+		if (foreignSourceKey == null) {
+			return null;
+		}
+
+		if (foreignSourceKey.isEmpty()) {
+			return EMPTY;
+		}
+
+		// Get the source table defining where we are going to fetch the value
+		final SourceTable sourceTable = getSourceTable(foreignSourceKey);
+		if (sourceTable == null) {
+			log.error("Couldn't extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
+					foreignSourceKey, originalSourceKey, fieldLabel);
+			return null;
+		}
+
+		// Try the table
+		final List<List<String>> table = sourceTable.getTable();
+		String value = null;
+		if (table != null && !table.isEmpty()) {
+			log.debug("Get {} defined in source {} from list table.", fieldLabel, foreignSourceKey);
+			final List<String> firstRow = table.get(0);
+			if (firstRow != null && !firstRow.isEmpty()) {
+				// First column
+				value = firstRow.get(0);
+			}
+		}
+
+		// Try raw data
+		final String rawData = sourceTable.getRawData();
+		if (value == null && rawData != null) {
+			log.debug("Get {} defined in source {} from raw data.", fieldLabel, foreignSourceKey);
+			// First column
+			value = rawData.split(";")[0];
+		}
+
+		if (value == null) {
+			log.error("Couldn't extract the {} defined in source {}.", fieldLabel, originalSourceKey);
+		}
+
+		return value;
 	}
 
 	@Override
