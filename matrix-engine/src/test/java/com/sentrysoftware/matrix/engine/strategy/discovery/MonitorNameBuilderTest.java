@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

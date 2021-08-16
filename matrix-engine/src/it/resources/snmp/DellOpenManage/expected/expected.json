@@ -338,7 +338,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.1",
-    "name" : "Fan: 1.1",
+    "name" : "1.1 (System Board1A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -471,7 +471,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.10",
-    "name" : "Fan: 1.10",
+    "name" : "1.10 (System Board3B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -604,7 +604,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.11",
-    "name" : "Fan: 1.11",
+    "name" : "1.11 (System Board4B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -737,7 +737,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.12",
-    "name" : "Fan: 1.12",
+    "name" : "1.12 (System Board5B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -870,7 +870,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.13",
-    "name" : "Fan: 1.13",
+    "name" : "1.13 (System Board6B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1003,7 +1003,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.14",
-    "name" : "Fan: 1.14",
+    "name" : "1.14 (System Board7B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1136,7 +1136,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.2",
-    "name" : "Fan: 1.2",
+    "name" : "1.2 (System Board2A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1269,7 +1269,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.3",
-    "name" : "Fan: 1.3",
+    "name" : "1.3 (System Board3A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1402,7 +1402,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.4",
-    "name" : "Fan: 1.4",
+    "name" : "1.4 (System Board4A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1535,7 +1535,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.5",
-    "name" : "Fan: 1.5",
+    "name" : "1.5 (System Board5A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1668,7 +1668,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.6",
-    "name" : "Fan: 1.6",
+    "name" : "1.6 (System Board6A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1801,7 +1801,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.7",
-    "name" : "Fan: 1.7",
+    "name" : "1.7 (System Board7A)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -1934,7 +1934,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.8",
-    "name" : "Fan: 1.8",
+    "name" : "1.8 (System Board1B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
@@ -2067,7 +2067,7 @@
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.9",
-    "name" : "Fan: 1.9",
+    "name" : "1.9 (System Board2B)",
     "monitorType" : "FAN",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",
