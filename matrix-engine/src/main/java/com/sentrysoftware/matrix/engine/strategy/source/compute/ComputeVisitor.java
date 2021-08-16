@@ -1312,6 +1312,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		boolean needSerialization = false;
+
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
@@ -1320,11 +1322,20 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
+
+					needSerialization = needSerialization || newValue.contains(HardwareConstants.SEMICOLON);
 				} else {
 					log.warn("The Translation Map {} does not contain the following value {}.",
 							translationTable.getName(), valueToBeReplaced);
 				}
 			}
+		}
+
+		if (needSerialization) {
+			sourceTable.setTable(
+					SourceTable.csvToTable(
+							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
+							HardwareConstants.SEMICOLON));
 		}
 	}
 
