@@ -2044,7 +2044,7 @@ class ComputeVisitorTest {
 
 		List<List<String>> result = Arrays.asList(
 			Arrays.asList("ID1", "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", "TYPE1"),
-			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22||NO_VALUE", "TYPE2"),
+			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22", "TYPE2"),
 			Arrays.asList("ID3", "TRANSLATED_STATUS31", "TYPE3")
 		);
 

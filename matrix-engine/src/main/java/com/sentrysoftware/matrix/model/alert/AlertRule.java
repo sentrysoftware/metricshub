@@ -6,14 +6,18 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Data
+@NoArgsConstructor
 public class AlertRule {
+	@JsonIgnore
 	private BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker;
 	private long period;
 	private Set<AlertCondition> conditions;

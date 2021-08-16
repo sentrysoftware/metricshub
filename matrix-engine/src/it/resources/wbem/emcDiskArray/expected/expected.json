@@ -10,7 +10,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -19,11 +19,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -36,7 +36,69 @@
       "idCount" : "0",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "charge" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 50.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)",
     "name" : "Battery: SB-1-+-SPS-3B (Aggregate)",
@@ -47,7 +109,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -56,11 +118,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -73,7 +135,69 @@
       "idCount" : "1",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "charge" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 50.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "localhost@MS_HW_EMCDiskArray.connector",
     "name" : "MS_HW_EMCDiskArray.connector",
@@ -84,7 +208,7 @@
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
@@ -94,7 +218,7 @@
       },
       "testReport" : {
         "name" : "testReport",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : null,
         "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. The following WBEM query succeeded:\n- SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n- Matching Result:\n\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. The following WBEM query succeeded:\n- SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n- Matching Result:\n\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
@@ -107,7 +231,20 @@
       "fileName" : "MS_HW_EMCDiskArray.connector",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "name" : "Storage: 000297800620 (EMC VMAX250F)",
@@ -118,11 +255,11 @@
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -139,7 +276,32 @@
       "type" : "Storage",
       "vendor" : "EMC"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "intrusionStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-1-+--0",
@@ -150,7 +312,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -159,11 +321,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -176,7 +338,95 @@
       "idCount" : "0",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-1-+--1",
@@ -187,7 +437,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -196,11 +446,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -213,7 +463,95 @@
       "idCount" : "1",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-1-+--2",
@@ -224,7 +562,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -233,11 +571,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -250,7 +588,95 @@
       "idCount" : "2",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-1-+--3",
@@ -261,7 +687,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -270,11 +696,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -287,7 +713,95 @@
       "idCount" : "3",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-1-+--4",
@@ -298,7 +812,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -307,11 +821,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -324,7 +838,95 @@
       "idCount" : "4",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-2-+--0",
@@ -335,7 +937,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -344,11 +946,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -361,7 +963,95 @@
       "idCount" : "5",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-2-+--1",
@@ -372,7 +1062,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -381,11 +1071,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -398,7 +1088,95 @@
       "idCount" : "6",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-2-+--2",
@@ -409,7 +1187,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -418,11 +1196,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -435,7 +1213,95 @@
       "idCount" : "7",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-2-+--3",
@@ -446,7 +1312,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -455,11 +1321,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -472,7 +1338,95 @@
       "idCount" : "8",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
     "name" : "Fan: SB-1-+-ES-1-+-DIR-2-+--4",
@@ -483,7 +1437,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -492,11 +1446,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -509,7 +1463,95 @@
       "idCount" : "9",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 500.0
+        }, {
+          "operator" : "GT",
+          "threshold" : 0.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-32",
     "name" : "NetworkCard: FA-1D-+-32",
@@ -520,7 +1562,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
@@ -531,7 +1573,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -541,7 +1583,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -550,11 +1592,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -571,7 +1613,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-33",
     "name" : "NetworkCard: FA-1D-+-33",
@@ -582,7 +1710,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
@@ -593,7 +1721,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -603,7 +1731,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -612,11 +1740,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -633,7 +1761,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-4",
     "name" : "NetworkCard: FA-1D-+-4",
@@ -644,7 +1858,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -655,7 +1869,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -665,7 +1879,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -674,11 +1888,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -695,7 +1909,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-5",
     "name" : "NetworkCard: FA-1D-+-5",
@@ -706,7 +2006,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -717,7 +2017,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -727,7 +2027,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -736,11 +2036,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -757,7 +2057,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-6",
     "name" : "NetworkCard: FA-1D-+-6",
@@ -768,7 +2154,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -779,7 +2165,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -789,7 +2175,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -798,11 +2184,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -819,7 +2205,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-7",
     "name" : "NetworkCard: FA-1D-+-7",
@@ -830,7 +2302,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -841,7 +2313,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -851,7 +2323,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -860,11 +2332,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -881,7 +2353,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-32",
     "name" : "NetworkCard: FA-2D-+-32",
@@ -892,7 +2450,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
@@ -903,7 +2461,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -913,7 +2471,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -922,11 +2480,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -943,7 +2501,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-33",
     "name" : "NetworkCard: FA-2D-+-33",
@@ -954,7 +2598,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
@@ -965,7 +2609,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -975,7 +2619,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -984,11 +2628,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1005,7 +2649,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-4",
     "name" : "NetworkCard: FA-2D-+-4",
@@ -1016,7 +2746,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -1027,7 +2757,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -1037,7 +2767,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1046,11 +2776,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "WARN",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 1,
-        "statusInformation" : "status: 1 (Starting -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 1 (Starting)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1067,7 +2797,97 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : 1629129126347,
+        "details" : {
+          "problem" : "This network adapter is degraded.",
+          "consequence" : "The network traffic handled by this adapter may be slowed down and this may affect other systems communicating with this computer.",
+          "recommendedAction" : "If possible, try to fix the problem through the network driver settings. Otherwise, replace the network adapter."
+        },
+        "active" : "ACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-5",
     "name" : "NetworkCard: FA-2D-+-5",
@@ -1078,7 +2898,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -1089,7 +2909,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -1099,7 +2919,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1108,11 +2928,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1129,7 +2949,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-6",
     "name" : "NetworkCard: FA-2D-+-6",
@@ -1140,7 +3046,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -1151,7 +3057,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -1161,7 +3067,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1170,11 +3076,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1191,7 +3097,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-7",
     "name" : "NetworkCard: FA-2D-+-7",
@@ -1202,7 +3194,7 @@
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
@@ -1213,7 +3205,7 @@
       },
       "linkSTatus" : {
         "name" : "linkSTatus",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
@@ -1223,7 +3215,7 @@
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1232,11 +3224,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 ( -  - Degraded -  - Non-Recoverable Error - Error - Stopping -  - )\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1253,7 +3245,93 @@
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "bandwidthUtilization" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 80.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 10.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "linkSTatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
     "name" : "PhysicalDisk: 0",
@@ -1264,7 +3342,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1273,11 +3351,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1295,7 +3373,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006201",
     "name" : "PhysicalDisk: 1",
@@ -1306,7 +3530,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1315,11 +3539,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1337,7 +3561,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006202",
     "name" : "PhysicalDisk: 2",
@@ -1348,7 +3718,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1357,11 +3727,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1379,7 +3749,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006203",
     "name" : "PhysicalDisk: 3",
@@ -1390,7 +3906,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1399,11 +3915,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1421,7 +3937,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620380",
     "name" : "PhysicalDisk: 380",
@@ -1432,7 +4094,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1441,11 +4103,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1463,7 +4125,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620381",
     "name" : "PhysicalDisk: 381",
@@ -1474,7 +4282,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1483,11 +4291,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1505,7 +4313,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620382",
     "name" : "PhysicalDisk: 382",
@@ -1516,7 +4470,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1525,11 +4479,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1547,7 +4501,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620383",
     "name" : "PhysicalDisk: 383",
@@ -1558,7 +4658,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1567,11 +4667,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1589,7 +4689,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620384",
     "name" : "PhysicalDisk: 384",
@@ -1600,7 +4846,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1609,11 +4855,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1631,7 +4877,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620385",
     "name" : "PhysicalDisk: 385",
@@ -1642,7 +5034,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1651,11 +5043,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1673,7 +5065,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620386",
     "name" : "PhysicalDisk: 386",
@@ -1684,7 +5222,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1693,11 +5231,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1715,7 +5253,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620387",
     "name" : "PhysicalDisk: 387",
@@ -1726,7 +5410,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1735,11 +5419,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1757,7 +5441,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620388",
     "name" : "PhysicalDisk: 388",
@@ -1768,7 +5598,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1777,11 +5607,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1799,7 +5629,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006204",
     "name" : "PhysicalDisk: 4",
@@ -1810,7 +5786,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1819,11 +5795,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1841,7 +5817,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006205",
     "name" : "PhysicalDisk: 5",
@@ -1852,7 +5974,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1861,11 +5983,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1883,7 +6005,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006206",
     "name" : "PhysicalDisk: 6",
@@ -1894,7 +6162,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1903,11 +6171,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1925,7 +6193,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006207",
     "name" : "PhysicalDisk: 7",
@@ -1936,7 +6350,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1945,11 +6359,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1967,7 +6381,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006208",
     "name" : "PhysicalDisk: 8",
@@ -1978,7 +6538,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -1987,11 +6547,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 ( -  - )\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2009,7 +6569,153 @@
       "targetFqdn" : "0.0.0.0",
       "vendor" : ""
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "deviceNotReadyErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "enduranceRemaining" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 2.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "hardErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "mediaErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "noDeviceErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "transportErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
     "name" : "PowerSupply: SB-1-+-ES-1-+-DIR-1-+-PS-A",
@@ -2020,7 +6726,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -2029,11 +6735,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2046,7 +6752,69 @@
       "idCount" : "0",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 99.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
     "name" : "PowerSupply: SB-1-+-ES-1-+-DIR-1-+-PS-B",
@@ -2057,7 +6825,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -2066,11 +6834,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2083,7 +6851,69 @@
       "idCount" : "1",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 99.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
     "name" : "PowerSupply: SB-1-+-ES-1-+-DIR-2-+-PS-A",
@@ -2094,7 +6924,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -2103,11 +6933,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2120,7 +6950,69 @@
       "idCount" : "2",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 99.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
     "name" : "PowerSupply: SB-1-+-ES-1-+-DIR-2-+-PS-B",
@@ -2131,7 +7023,7 @@
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1628184069431,
+        "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Missing ; 1 = Present}",
         "present" : 1,
@@ -2140,11 +7032,11 @@
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1628184069431,
-        "state" : "ALARM",
+        "collectTime" : 1629129125956,
+        "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 2,
-        "statusInformation" : "status: 2 (Degraded -  - Non-Recoverable Error - Error - Stopping -  -  -  - )\npresent: 1 (Present)",
+        "status" : 0,
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2157,7 +7049,69 @@
       "idCount" : "3",
       "targetFqdn" : "0.0.0.0"
     },
-    "alertRules" : { }
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 99.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
   }, {
     "id" : "localhost",
     "name" : "0.0.0.0",

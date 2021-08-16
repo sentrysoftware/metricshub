@@ -42,15 +42,15 @@ class MonitorTest {
 	@Test
 	void testAddAlertRules() {
 		final Monitor monitor = Monitor.builder().build();
-		final List<AlertRule> alertRulesToAdd = MonitorType.FAN
+		final List<AlertRule> firstAlertRulesToAdd = MonitorType.FAN
 				.getMetaMonitor()
 				.getStaticAlertRules()
 				.get(SPEED_PARAMETER)
 				.stream().map(AlertRule::copy).collect(Collectors.toList());
-		monitor.addAlertRules(SPEED_PARAMETER, alertRulesToAdd);
+		monitor.addAlertRules(SPEED_PARAMETER, firstAlertRulesToAdd);
 
 		List<AlertRule> lastAlertRules = monitor.getAlertRules().get(SPEED_PARAMETER);
-		assertEquals(lastAlertRules, alertRulesToAdd);
+		assertEquals(lastAlertRules, firstAlertRulesToAdd);
 
 		// The alert rule shape changed ?
 		AlertRule alarmOrigin = lastAlertRules.stream().filter(rule -> rule.getConditions().equals(SPEED_ALARM_CONDITION))
@@ -71,7 +71,9 @@ class MonitorTest {
 
 		monitor.addAlertRules(SPEED_PARAMETER, Arrays.asList(sameSpeedAlert, newWarnAlert));
 
-		assertNotEquals(lastAlertRules, alertRulesToAdd);
+		lastAlertRules = monitor.getAlertRules().get(SPEED_PARAMETER);
+
+		assertNotEquals(lastAlertRules, firstAlertRulesToAdd);
 		AlertRule warnAlertRule = lastAlertRules.stream().filter(rule -> rule.getConditions().equals(warnConditions))
 				.findFirst().orElse(null);
 		AlertRule alarmAlertRule = lastAlertRules.stream().filter(rule -> rule.getConditions().equals(SPEED_ALARM_CONDITION))

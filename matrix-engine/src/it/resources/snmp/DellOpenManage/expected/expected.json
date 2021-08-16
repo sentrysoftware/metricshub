@@ -35,6 +35,69 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "type" : "System Board CMOS Battery"
+    },
+    "alertRules" : {
+      "charge" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 30.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 50.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LTE",
+          "threshold" : 30.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "localhost@MS_HW_DellOpenManage.connector",
@@ -69,6 +132,20 @@
         "displayName": "Dell OpenManage Server Administrator",
         "fileName": "MS_HW_DellOpenManage.connector",
         "description": "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_cpu_localhost_1.1",
@@ -120,6 +197,67 @@
       "maximumspeed" : "4000",
       "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
       "vendor" : "Intel"
+    },
+    "alertRules" : {
+      "correctedErrorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
@@ -173,6 +311,32 @@
       "model" : "PowerEdge R630",
       "type" : "Computer",
       "vendor" : "Dell"
+    },
+    "alertRules" : {
+      "intrusionStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.1",
@@ -223,6 +387,98 @@
       "fantype" : "System Board1A",
       "idCount" : "0",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.10",
@@ -273,6 +529,98 @@
       "fantype" : "System Board3B",
       "idCount" : "9",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.11",
@@ -323,6 +671,98 @@
       "fantype" : "System Board4B",
       "idCount" : "10",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.12",
@@ -373,6 +813,98 @@
       "fantype" : "System Board5B",
       "idCount" : "11",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.13",
@@ -423,6 +955,98 @@
       "fantype" : "System Board6B",
       "idCount" : "12",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.14",
@@ -473,6 +1097,98 @@
       "fantype" : "System Board7B",
       "idCount" : "13",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.2",
@@ -523,6 +1239,98 @@
       "fantype" : "System Board2A",
       "idCount" : "1",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.3",
@@ -573,6 +1381,98 @@
       "fantype" : "System Board3A",
       "idCount" : "2",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.4",
@@ -623,6 +1523,98 @@
       "fantype" : "System Board4A",
       "idCount" : "3",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.5",
@@ -673,6 +1665,98 @@
       "fantype" : "System Board5A",
       "idCount" : "4",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.6",
@@ -723,6 +1807,98 @@
       "fantype" : "System Board6A",
       "idCount" : "5",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.7",
@@ -773,6 +1949,98 @@
       "fantype" : "System Board7A",
       "idCount" : "6",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.8",
@@ -823,6 +2091,98 @@
       "fantype" : "System Board1B",
       "idCount" : "7",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.9",
@@ -873,6 +2233,98 @@
       "fantype" : "System Board2B",
       "idCount" : "8",
       "warningthreshold" : "840"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "speed" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 600.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 840.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 600.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ],
+      "speedPercent" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GT",
+          "threshold" : 0.0
+        }, {
+          "operator" : "LTE",
+          "threshold" : 5.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.1",
@@ -927,6 +2379,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.10",
@@ -981,6 +2517,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.11",
@@ -1035,6 +2655,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.12",
@@ -1089,6 +2793,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.2",
@@ -1143,6 +2931,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.3",
@@ -1197,6 +3069,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.4",
@@ -1251,6 +3207,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.5",
@@ -1305,6 +3345,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.6",
@@ -1359,6 +3483,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.7",
@@ -1413,6 +3621,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.8",
@@ -1467,6 +3759,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.9",
@@ -1521,6 +3897,90 @@
       "size" : "16384.0",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
+    },
+    "alertRules" : {
+      "errorCount" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 1.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "errorStatus" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "predictedFailure" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_1",
@@ -1559,6 +4019,43 @@
       "devicetype" : "ESM",
       "displayid" : "1",
       "idCount" : "0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_SDCardDevice-1.1",
@@ -1598,6 +4095,43 @@
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
       "idCount" : "1"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.1",
@@ -1635,6 +4169,69 @@
       "idCount" : "0",
       "powersupplypower" : "750.0",
       "powersupplytype" : "AC"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 99.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.2",
@@ -1672,6 +4269,69 @@
       "idCount" : "1",
       "powersupplypower" : "750.0",
       "powersupplytype" : "AC"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "usedCapacity" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "LT",
+          "threshold" : 99.0
+        }, {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "localhost",
@@ -1684,7 +4344,8 @@
     "metadata" : {
       "location" : "localhost",
       "operatingSystemType" : "LINUX"
-    }
+    },
+    "alertRules" : { }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.1",
     "name" : "Temperature: 1.1",
@@ -1724,6 +4385,57 @@
       "idCount" : "0",
       "temperaturetype" : "System Board Inlet",
       "warningthreshold" : "42.0"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "temperature" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 42.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 47.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 47.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.2",
@@ -1764,6 +4476,57 @@
       "idCount" : "1",
       "temperaturetype" : "System Board Exhaust",
       "warningthreshold" : "70.0"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "temperature" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 70.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 75.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 75.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.3",
@@ -1804,6 +4567,57 @@
       "idCount" : "2",
       "temperaturetype" : "CPU1",
       "warningthreshold" : "85.0"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "temperature" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 85.0
+        }, {
+          "operator" : "LT",
+          "threshold" : 90.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 90.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "INSTANCE"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.1",
@@ -1832,6 +4646,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 VCORE PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.10",
@@ -1860,6 +4699,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board DIMM PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.11",
@@ -1888,6 +4752,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board VCCIO PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.12",
@@ -1916,6 +4805,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VDDQ PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.13",
@@ -1944,6 +4858,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board NDC PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.14",
@@ -1972,6 +4911,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VPP PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.15",
@@ -2000,6 +4964,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.16",
@@ -2028,6 +5017,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V AUX PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.17",
@@ -2056,6 +5070,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 FIVR PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.18",
@@ -2084,6 +5123,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS2 PG Fail"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.19",
@@ -2112,6 +5176,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS1 PG Fail"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.2",
@@ -2140,6 +5229,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 3.3V PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.20",
@@ -2168,6 +5282,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP1 5V PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.21",
@@ -2196,6 +5335,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP2 5V PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.22",
@@ -2224,6 +5388,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VTT PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.23",
@@ -2264,6 +5453,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "PS1 Voltage 1"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.24",
@@ -2304,6 +5518,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "PS2 Voltage 2"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.3",
@@ -2332,6 +5571,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V AUX PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.4",
@@ -2360,6 +5624,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VPP PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.5",
@@ -2388,6 +5677,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 2.5V AUX PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.6",
@@ -2416,6 +5730,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.05V PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.7",
@@ -2444,6 +5783,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VDDQ PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.8",
@@ -2472,6 +5836,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VTT PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   }, {
     "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.9",
@@ -2500,6 +5889,31 @@
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V SWITCH PG"
+    },
+    "alertRules" : {
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
     }
   } ]
 }

@@ -35,6 +35,7 @@ public class HardwareConstants {
 	public static final String CARET = "^";
 	public static final String PLUS = "+";
 	public static final String PIPE = "|";
+	public static final String PIPE_PROTECTED = "\\|";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
 

@@ -574,7 +574,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Process the physical disk instance alert rules
+	 * Process the error count instance alert rules
 	 * 
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
