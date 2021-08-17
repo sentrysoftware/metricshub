@@ -193,10 +193,27 @@ public class MonitorNameBuilder {
 		return trimUnwantedCharacters(name);
 	}
 
-	public static String buildCpuCoreName(final Monitor monitor) {
-		return "";
-	}
 
+	/**
+	 * Build the COU core name based on the current implementation in Hardware Sentry KM
+	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
+	 * 
+	 * @return {@link String} name  Label of the CPU core to be displayed
+	 */
+	public static String buildCpuCoreName(final MonitorBuildingInfo monitorBuildingInfo) {
+		
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
+				Arrays.asList("cpu", "processor", "core", "proc"));
+
+		return trimUnwantedCharacters(name);
+	}
+	
 	public static String buildBatteryName(final Monitor monitor) {
 		return "";
 	}

@@ -166,5 +166,33 @@ class MonitorNameBuilderTest {
 			assertEquals("11 (Intel - 999 MHz)", MonitorNameBuilder.buildCpuName(buildingInfo));
 		}
 	}
+	
+	@Test
+	void testBuildCpuCoreName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " core  1,1 ");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.CPU_CORE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+			
+			assertEquals("11", MonitorNameBuilder.buildCpuCoreName(buildingInfo));
+		}
+	}
 
 }
