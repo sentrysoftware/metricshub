@@ -11,7 +11,6 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "threshold" : null,
         "state" : "OK",
         "unit" : null,
         "status" : 0,
@@ -20,7 +19,8 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { }
+    "metadata" : { },
+    "alertRules" : { }
   }, {
     "id" : "id2",
     "name" : "MS_HW_DellCMC",
@@ -32,7 +32,6 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "threshold" : null,
         "state" : "WARN",
         "unit" : null,
         "status" : 1,
@@ -41,7 +40,8 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { }
+    "metadata" : { },
+    "alertRules" : { }
   }, {
     "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
@@ -53,7 +53,6 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "threshold" : null,
         "state" : "OK",
         "unit" : null,
         "status" : 0,
@@ -62,6 +61,7 @@
         "type" : "StatusParam"
       }
     },
-    "metadata" : { }
+    "metadata" : { },
+    "alertRules" : { }
   } ]
 }

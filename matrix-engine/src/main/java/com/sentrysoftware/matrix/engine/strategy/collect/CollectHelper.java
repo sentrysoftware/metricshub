@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -28,6 +29,7 @@ public class CollectHelper {
 
 	private static final String UNKNOWN_STATUS_LOG_MSG = "For host {}, unexpected status value for instance {}. {} = {}";
 
+	private static final Map<String, ParameterState> PREDICTED_FAILURE_MAP;
 	private static final Map<String, ParameterState> STATUS_MAP;
 	private static final List<String> MAYBE_NEGATIVE_PARAMETERS;
 
@@ -44,6 +46,12 @@ public class CollectHelper {
 		map.put("ON", ParameterState.ALARM);
 
 		STATUS_MAP = Collections.unmodifiableMap(map);
+
+		final Map<String, ParameterState> predictedFailureMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		map.put("TRUE", ParameterState.WARN);
+		map.put("FALSE", ParameterState.OK);
+
+		PREDICTED_FAILURE_MAP = Collections.unmodifiableMap(predictedFailureMap);
 
 		// Update this list when you collect a parameter accepting a negative value
 		MAYBE_NEGATIVE_PARAMETERS = Collections.unmodifiableList(Collections.emptyList());
@@ -72,8 +80,15 @@ public class CollectHelper {
 		Assert.notNull(hostname, "hostname cannot be null.");
 		Assert.notNull(parameterName, "parameterName cannot be null.");
 
-		// Get the parameter state from our STATUS_MAP
-		final ParameterState parameterState = STATUS_MAP.get(status.trim());
+		final ParameterState parameterState;
+		// Get the parameter state from our PREDICTED_FAILURE_MAP
+		if (HardwareConstants.PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
+			parameterState = PREDICTED_FAILURE_MAP.get(status.trim());
+		} else {
+			// Get the parameter state from our STATUS_MAP
+			parameterState = STATUS_MAP.get(status.trim());
+		}
+		
 
 		// Means it is an unknown status
 		if (parameterState == null) {

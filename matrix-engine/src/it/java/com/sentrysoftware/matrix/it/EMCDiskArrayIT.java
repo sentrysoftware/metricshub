@@ -23,13 +23,20 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 class EMCDiskArrayIT {
 
-	private static final String IMAGE = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "image").toAbsolutePath().toString();
+	private static final String INPUT = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
 
 	private static final Set<String> CONNECTORS = Set.of("MS_HW_EMCDiskArray.connector");
 
 	private static final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> PROTOCOL_CONFIGURATIONS = Map.of(
 			WBEMProtocol.class,
-			WBEMProtocol.builder().protocol(WBEMProtocols.HTTPS).port(5900).namespace("root/emc").username("username").password("password".toCharArray()).timeout(120L).build());
+			WBEMProtocol.builder()
+				.protocol(WBEMProtocols.HTTPS)
+				.port(5900)
+				.namespace("root/emc")
+				.username("username")
+				.password("password".toCharArray())
+				.timeout(120L)
+				.build());
 
 	private static EngineConfiguration engineConfiguration;
 
@@ -48,11 +55,11 @@ class EMCDiskArrayIT {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		itJob
-		.withServerRecordData(IMAGE)
-		.prepareEngine(engineConfiguration, hostMonitoring)
-		.executeStrategy(new DetectionOperation())
-		.executeStrategy(new DiscoveryOperation())
-		.executeStrategy(new CollectOperation())
-		.verifyExpected("wbem/emcDiskArray/result.json");
+			.withServerRecordData(INPUT)
+			.prepareEngine(engineConfiguration, hostMonitoring)
+			.executeStrategy(new DetectionOperation())
+			.executeStrategy(new DiscoveryOperation())
+			.executeStrategy(new CollectOperation())
+			.verifyExpected("wbem/emcDiskArray/expected/expected.json");
 	}
 }
