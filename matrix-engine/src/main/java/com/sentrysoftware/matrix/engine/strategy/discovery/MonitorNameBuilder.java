@@ -1,19 +1,13 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_MAXLENGTH;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 public class MonitorNameBuilder {
@@ -45,13 +39,16 @@ public class MonitorNameBuilder {
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
 	}
-	
+
 	/**
-	 * Trims known/given words off the phrase to return only the unknown part of the content
-	 * @param phrase    The {@link String} phrase to be trimmed
-	 * @param words     The {@link List} of words (case-insensitive) to be trimmed off the phrase  
+	 * Trims known/given words off the phrase to return only the unknown part of the
+	 * content
 	 * 
-	 * @return {@link String} trimmedPhrase   The trimmed phrase 
+	 * @param phrase {@link String} phrase to be trimmed
+	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the
+	 *               phrase
+	 * 
+	 * @return {@link String} trimmedPhrase Trimmed phrase
 	 */
 	private static String trimKnownWords(final String phrase, final List<String> words) {
 		String lowerCasePhrase = phrase.toLowerCase();
@@ -63,12 +60,73 @@ public class MonitorNameBuilder {
 		}
 		return trimmedPhrase;
 	}
-	
+
+	/**
+	 * Trims known/given words off the phrase to return only the unknown part of the
+	 * content
+	 * 
+	 * @param phrase {@link String} phrase to be trimmed
+	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the
+	 *               phrase
+	 * 
+	 * @return {@link String} trimmedPhrase Trimmed phrase
+	 */
+	private static String trimUnwantedCharacters(final String name) {
+
+		// Trim any comma
+		String trimmedName = name.replaceAll(",", "");
+
+		// Trim redundant blank spaces
+		trimmedName = trimmedName.replaceAll(" +", " ");
+
+		// Trim leading and trailing white spaces
+		trimmedName = trimmedName.trim();
+
+		return trimmedName;
+	}
+
+	/**
+	 * Build a generic name common to all hardware devices
+	 * 
+	 * @param deviceId       {@link String} containing the device ID
+	 * @param displayId      {@link String} containing the display ID
+	 * @param idCount        {@link String} containing the ID count
+	 * @param trimmableWords {@link List} of words (case-insensitive) to be trimmed
+	 *                       off the device ID
+	 * 
+	 * @return {@link String} name Generic label based on the inputs
+	 */
+	public static String buildGenericName(final String deviceId, final String displayId, final String idCount,
+			List<String> trimmableWords) {
+
+		// Make sure the ID count is set
+		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
+
+		// Build the name
+		String name = null;
+		if (checkNotBlankDataValue(displayId)) {
+			name = displayId;
+		} else if (checkNotBlankDataValue(deviceId)) {
+			name = trimKnownWords(deviceId, trimmableWords);
+			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
+				name = idCount;
+			}
+		}
+
+		// Use the ID count as name, if we couldn't build one from display ID or device
+		// ID
+		if (!checkNotBlankDataValue(name)) {
+			return idCount;
+		}
+
+		return name;
+	}
+
 	/**
 	 * Build the fan name based on the current implementation in Hardware Sentry KM
-	 * @param monitorBuildingInfo   The {@link MonitorBuildingInfo} of the monitor instance 
+	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
 	 * 
-	 * @return {@link String} name  The label of the fan to be displayed
+	 * @return {@link String} name  Label of the fan to be displayed
 	 */
 	public static String buildFanName(final MonitorBuildingInfo monitorBuildingInfo) {
 		
@@ -76,41 +134,63 @@ public class MonitorNameBuilder {
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
-		// Check the ID count
-		final String idCount = metadata.get(ID_COUNT);
-		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
-		
-		// Read the metadata fields needed to build the name
-		final String deviceId = metadata.get(DEVICE_ID);
-		final String displayId = metadata.get(DISPLAY_ID);
-		final String fanType = metadata.get(FAN_TYPE);
+		// Build the generic name
+		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
+				Arrays.asList("fan"));
 
-		// Build the name
-		String name = null;
-		if (checkNotBlankDataValue(displayId)) {
-			name = displayId;
-		} else if (checkNotBlankDataValue(deviceId)) {
-			name = trimKnownWords(deviceId, Arrays.asList("fan"));
-			if (name.length() > ID_MAXLENGTH) {
-				name = idCount;
-			}
-		} 
-		
-		// Use the ID count as name, if we couldn't build one from display ID or device ID 
-		if (!checkNotBlankDataValue(name)) {
-			name = idCount;
-		}
-		
-		// Add the fan type, if available
+		// Get any additional info to be included in the label
+		final String fanType = metadata.get(HardwareConstants.FAN_TYPE);
 		if (checkNotBlankDataValue(fanType)) {
-			return name + " (" + fanType + ")";
+			name = name + " (" + fanType + ")";
 		} 
 
-		return name;
+		return trimUnwantedCharacters(name);
 	}
 
-	public static String buildCpuName(final Monitor monitor) {
-		return "";
+	/**
+	 * Build the CPU name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the CPU to be displayed
+	 */
+	public static String buildCpuName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
+				Arrays.asList("cpu", "processor", "proc"));
+
+		// Get any additional info to be included in the label
+		List<String> additionalInfo = new LinkedList<>();
+		final String cpuVendor = metadata.get(HardwareConstants.VENDOR);
+		if (checkNotBlankDataValue(cpuVendor)) {
+			additionalInfo.add(cpuVendor);
+		}
+		final String cpuModel = metadata.get(HardwareConstants.MODEL);
+		if (checkNotBlankDataValue(cpuModel)) {
+			additionalInfo.add(cpuModel);
+		}
+		final String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
+		if (checkNotBlankDataValue(cpuMaxSpeed)) {
+			Integer cpuMaxSpeedAsInt = Integer.parseInt(cpuMaxSpeed);
+			if (cpuMaxSpeedAsInt < 1000) {
+				additionalInfo.add(String.format("%d MHz", cpuMaxSpeedAsInt));
+			} else {
+				additionalInfo.add(String.format("%.2f GHz", (cpuMaxSpeedAsInt / 1000D)));
+			}
+		}
+		
+		if (!additionalInfo.isEmpty()) {
+			name = name + " (" + String.join(" - ", additionalInfo)+ ")";
+		}
+
+		return trimUnwantedCharacters(name);
 	}
 
 	public static String buildCpuCoreName(final Monitor monitor) {

@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,29 +18,28 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 class MonitorNameBuilderTest {
 	
-	private static final String MY_CONNECTOR_NAME = "myConnector.connector";
-	private static final String ECS1_01 = "ecs1-01";
-	private static final String _0 = "0";
-	
-	// Fan
-	private static final String FAN_DEVICE_ID = "FAN1.1";
-	private static final String FAN_DEVICE_ID_LONG = "12345678901";
-	private static final String FAN_DISPLAY_ID = "Fan 1A 1.1 XYZ";
-	private static final String FAN_TYPE = "1A";
-	private static final String FAN_NAME_1 = "Fan 1A 1.1 XYZ (1A)";
-	private static final String FAN_NAME_2 = "1.1";
-	private static final String FAN_NAME_3 = "0 (1A)";
-	private static final String FAN_NAME_4 = "0";
+	@Test
+	void testBuildGenericName() {
 
+		assertEquals("display 12345", MonitorNameBuilder.buildGenericName("dev 12345", "display 12345", "0",
+					Arrays.asList("dev", "device")));
+		assertEquals("12345", MonitorNameBuilder.buildGenericName("dev 12345", " ", "0",
+				Arrays.asList("dev", "device")));
+		assertEquals("0", MonitorNameBuilder.buildGenericName("dev 12345678901234567890", " ", "0",
+				Arrays.asList("dev", "device")));
+		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", " ", "0",
+				Arrays.asList("dev", "device")));
+	}
+	
 	@Test
 	void testBuildFanName() {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(HardwareConstants.DEVICE_ID, FAN_DEVICE_ID);
-			metadata.put(HardwareConstants.DISPLAY_ID, FAN_DISPLAY_ID);
-			metadata.put(HardwareConstants.FAN_TYPE, FAN_TYPE);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "FAN1.1");
+			metadata.put(HardwareConstants.DISPLAY_ID, "Fan 1A 1.1 XYZ");
+			metadata.put(HardwareConstants.FAN_TYPE, "1A");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -47,21 +48,22 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
+					.connectorName("myConnector.connector")
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
 					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
+					.hostname("ecs1-01")
 					.build();
-			assertEquals(FAN_NAME_1, MonitorNameBuilder.buildFanName(buildingInfo));
+			
+			assertEquals("Fan 1A 1.1 XYZ (1A)", MonitorNameBuilder.buildFanName(buildingInfo));
 		}
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(HardwareConstants.DEVICE_ID, FAN_DEVICE_ID);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "FAN1.1");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -70,22 +72,22 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
+					.connectorName("myConnector.connector")
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
 					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
+					.hostname("ecs1-01")
 					.build();
 
-			assertEquals(FAN_NAME_2, MonitorNameBuilder.buildFanName(buildingInfo));
+			assertEquals("1.1", MonitorNameBuilder.buildFanName(buildingInfo));
 		}
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(HardwareConstants.FAN_TYPE, FAN_TYPE);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.FAN_TYPE, "1A");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -94,21 +96,30 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
+					.connectorName("myConnector.connector")
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
 					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
+					.hostname("ecs1-01")
 					.build();
-			assertEquals(FAN_NAME_3, MonitorNameBuilder.buildFanName(buildingInfo));
+			
+			assertEquals("0 (1A)", MonitorNameBuilder.buildFanName(buildingInfo));
 		}
-		
+	}
+	
+	@Test
+	void testBuildCpuName() {
+
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, _0);
-			metadata.put(HardwareConstants.DEVICE_ID, FAN_DEVICE_ID_LONG);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "CPU1.1");
+			metadata.put(HardwareConstants.DISPLAY_ID, "CPU #1");
+			metadata.put(HardwareConstants.VENDOR, "Intel");
+			metadata.put(HardwareConstants.MODEL, "Xeon");
+			metadata.put(HardwareConstants.MAXIMUM_SPEED, "3600");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -117,21 +128,24 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.FAN)
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
 					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
+					.hostname("ecs1-01")
 					.build();
-
-			assertEquals(FAN_NAME_4, MonitorNameBuilder.buildFanName(buildingInfo));
+			
+			assertEquals("CPU #1 (Intel - Xeon - 3.60 GHz)", MonitorNameBuilder.buildCpuName(buildingInfo));
 		}
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, " ");
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "CPU1,1");
+			metadata.put(HardwareConstants.VENDOR, "Intel");
+			metadata.put(HardwareConstants.MAXIMUM_SPEED, "999");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -140,18 +154,17 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName(MY_CONNECTOR_NAME)
-					.monitorType(MonitorType.ENCLOSURE)
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
 					.targetMonitor(new Monitor())
-					.hostname(ECS1_01)
+					.hostname("ecs1-01")
 					.build();
-
-			assertNull(new MonitorDiscoveryVisitor(buildingInfo).buildGenericName());
+			
+			assertEquals("11 (Intel - 999 MHz)", MonitorNameBuilder.buildCpuName(buildingInfo));
 		}
-
 	}
 
 }
