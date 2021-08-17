@@ -4,21 +4,19 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.google.common.base.CaseFormat;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
 import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
@@ -27,6 +25,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import io.prometheus.client.Collector;
+import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,39 +45,28 @@ public class HostMonitoringCollectorService extends Collector {
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
-	private static final Map<MonitorType, String> MONITOR_TYPE_NAMES;
-
-	static {
-
-		final Map<MonitorType, String> monitorTypeNames = new EnumMap<>(MonitorType.class);
-		for (MonitorType monitorType : MonitorType.values()) {
-			switch (monitorType) {
-			case CPU:
-				monitorTypeNames.put(monitorType, "cpu");
-				break;
-			case LED:
-				monitorTypeNames.put(monitorType, "led");
-				break;
-			default:
-				monitorTypeNames.put(monitorType, monitorType.getName());
-			}
-		}
-		MONITOR_TYPE_NAMES = Collections.unmodifiableMap(monitorTypeNames);
-	}
-
 	/**
 	 * Add a metric sample in the given Gauge metric
 	 * 
-	 * @param gauge         Prometheus {@link GaugeMetricFamily}
+	 * @param labeledMetric Prometheus {@link MetricFamilySamples}
 	 * @param monitor       Collected {@link Monitor} instance
 	 * @param parameterName The parameter name we wish to add
 	 */
-	static void addMetric(final GaugeMetricFamily gauge, final Monitor monitor, final String parameterName) {
+	static void addMetric(final MetricFamilySamples labeledMetric, final Monitor monitor, final String parameterName, final double factor) {
 
-		gauge.addMetric(
-			// Id, parentId (can be null), label, fqdn
-			createLabels(monitor),
-			convertParameterValue(monitor, parameterName));
+		// The add metric is not defined in the MetricFamilySamples (super class of CounterMetricFamily and GaugeMetricFamily)
+		// that's why the following code looks a bit ugly...
+		if (labeledMetric.getClass().isAssignableFrom(CounterMetricFamily.class)) {
+			((CounterMetricFamily) labeledMetric).addMetric(
+					// Id, parentId (can be null), label, fqdn
+					createLabels(monitor),
+					convertParameterValue(monitor, parameterName, factor));
+		} else {
+			((GaugeMetricFamily) labeledMetric).addMetric(
+					// Id, parentId (can be null), label, fqdn
+					createLabels(monitor),
+					convertParameterValue(monitor, parameterName, factor));
+		}
 	}
 
 	/**
@@ -94,27 +82,18 @@ public class HostMonitoringCollectorService extends Collector {
 	}
 
 	/**
-	 * Convert the parameter number value according to the factor indicated for
-	 * Prometheus
+	 * Convert the parameter number value according to the factor indicated for Prometheus
 	 * 
 	 * @param monitor       The monitor we wish to extract the parameter value
-	 * @param parameterName The parameter name we want to extract from the given
-	 *                      monitor instance
+	 * @param parameterName The parameter name we want to extract from the given monitor instance
+	 * @param factor        The factor used to convert the metric value
 	 * @return {@link Number} value
 	 */
-	static Double convertParameterValue(final Monitor monitor, final String parameterName) {
+	static Double convertParameterValue(final Monitor monitor, final String parameterName, double factor) {
 
-		PrometheusParameter prometheusParamFactor = PrometheusSpecificities.getPrometheusParameter(monitor.getMonitorType().getName(),
-				parameterName);
-		Number paramValue = getParameterValue(monitor, parameterName);
-		if (paramValue != null) {
-			if (prometheusParamFactor != null) {
-				return paramValue.doubleValue() * prometheusParamFactor.getPrometheusParameterFactor();
-			} else {
-				return paramValue.doubleValue();
-			}
-		}
-		return null;
+		// getParameterValue can never return null when the current method convertParameterValue is called
+		// Because a first check is done in isParameterAvailable
+		return getParameterValue(monitor, parameterName).doubleValue() * factor;
 	}
 
 	@Override
@@ -169,13 +148,16 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static void processMonitorMetricInfo(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
 
+		final String metricName = PrometheusSpecificities.getInfoMetricName(monitorType);
+		if (metricName == null || metricName.isBlank()) {
+			log.warn("The metric name is not defined for monitor type {}. Received: {}", monitorType, metricName);
+			return;
+		}
+
 		final List<String> labels = PrometheusSpecificities.getLabels(monitorType);
+		Assert.state(labels != null && !labels.isEmpty(), () -> "The labels are not defined for the monitor type: " + monitorType.getName());
 
-		Assert.state(labels != null && !labels.isEmpty(), () -> "No Labels defined for the monitor type: " + monitorType.getName());
-
-		String monitorTypeName = MONITOR_TYPE_NAMES.get(monitorType);
-		String metricName = buildMetricName(monitorTypeName, "info");
-		final String help = String.format("Metric: %s info", buildMetricName(monitorTypeName));
+		final String help = String.format("Metric: %s", metricName);
 
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(metricName, help, labels);
 
@@ -224,63 +206,64 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static void processMonitorsMetric(final MetaParameter metaParameter, final MonitorType monitorType,
 			final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
-		if (!isParameterFamilyAvailableOnMonitors(metaParameter, monitors)) {
+		// Get the prometheus parameter, some parameters are not reported in the hardware sentry exporter for prometheus
+		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
+				.getPrometheusParameter(monitorType, metaParameter.getName());
+
+		// Check if the parameter is reported and if it is available at least in one monitor
+		if (!maybePrometheusParameter.isPresent() || !isParameterFamilyAvailableOnMonitors(metaParameter, monitors)) {
 			return;
 		}
 
-		String paramName = metaParameter.getName();
-		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType.getName(), paramName);
-		String prometheusParamName = prometheusParam == null ? paramName : prometheusParam.getPrometheusParameterName();
-		final String metricName = buildMetricName(MONITOR_TYPE_NAMES.get(monitorType), prometheusParamName);
+		// Ok, now we can get the prometheus parameter
+		final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
 
-		final String help = buildHelp(monitorType.getName(), metaParameter);
+		// Create the help section
+		final String help = buildHelp(prometheusParameter);
 
-		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily(
-				metricName,
-				help,
-				LABELS);
+		// Create the MetricFamily, Gauge or Counter
+		final MetricFamilySamples labeledMetric;
+		if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
+			labeledMetric = new GaugeMetricFamily(
+					prometheusParameter.getName(),
+					help,
+					LABELS);
+		} else {
+			labeledMetric = new CounterMetricFamily(
+					prometheusParameter.getName(),
+					help,
+					LABELS);
+		}
 
+
+		// For each monitor, check if the parameter is available then add the metric value
 		monitors
 			.values()
 			.stream()
 			.filter(monitor -> isParameterAvailable(monitor, metaParameter.getName()))
-			.forEach(monitor -> addMetric(labeledGauge, monitor, metaParameter.getName()));
+			.forEach(monitor -> addMetric(labeledMetric, monitor, metaParameter.getName(), prometheusParameter.getFactor()));
 
-		mfs.add(labeledGauge);
+		mfs.add(labeledMetric);
 	}
 
 	/**
-	 * Build help for metric using format: <em>Metric: $monitorName $parameterName - Unit: $parameterUnit</em>
+	 * Build help for metric using format: <em>Metric: $metricName - Unit: $metricUnit</em> or 
+	 * <em>Metric: $metricName</em> if the unit is not available
 	 * 
-	 * @param monitorType   The type of the monitor as string
-	 * @param metaParameter {@link MetaParameter} information
+	 * @param prometheusParameter {@link PrometheusParameter} prometheus parameter information
 	 * @return {@link String} value
 	 */
-	static String buildHelp(final String monitorType, final MetaParameter metaParameter) {
-		String paramName = metaParameter.getName();
-		PrometheusParameter prometheusParam = PrometheusSpecificities.getPrometheusParameter(monitorType, paramName);
-		String prometheusParamName = prometheusParam == null ? buildMetricName(paramName) : prometheusParam.getPrometheusParameterName();
-		String paramUnit = metaParameter.getUnit();
-		String prometheusParamUnit = prometheusParam == null ? paramUnit : prometheusParam.getPrometheusParameterUnit();
-		return String.format("Metric: %s %s - Unit: %s", monitorType, prometheusParamName , prometheusParamUnit);
-	}
+	static String buildHelp(final PrometheusParameter prometheusParameter) {
 
-	/**
-	 * Build a Prometheus metric name. E.g. <em>fan_status</em>, <em>enclosure_energy_status</em>, <em>voltage_voltage</em>
-	 * 
-	 * @param names {@link String} values to concatenate
-	 * @return {@link String} value
-	 */
-	static String buildMetricName(final String... names) {
-		return Arrays.stream(names)
-				.map(name -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name.trim()))
-				.map(String::toLowerCase)
-				.collect(Collectors.joining(HardwareConstants.ID_SEPARATOR));
+		if (!prometheusParameter.getUnit().isEmpty()) {
+			return String.format("Metric: %s - Unit: %s", prometheusParameter.getName(), prometheusParameter.getUnit());
+		}
+
+		return String.format("Metric: %s", prometheusParameter.getName());
 	}
 
 	/**
 	 * Check if the parameter defined in the passed {@link MetaParameter} is collected on the given monitors lookup
-	 * 
 	 * @param metaParameter The {@link MetaParameter} defined by the matrix engine
 	 * @param monitors      The monitors we wish to check the parameter
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>

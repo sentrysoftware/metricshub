@@ -69,7 +69,7 @@ public class HardwareConstants {
 	public static final String PRESENT_PARAMETER = "present";
 	public static final String CHARGE_PARAMETER = "charge";
 	public static final String COLOR_PARAMETER = "color";
-	public static final String LED_INDICATOR_PARAMETER = "LEDIndicator";
+	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
@@ -77,12 +77,12 @@ public class HardwareConstants {
 	public static final String DUPLEX_MODE_PARAMETER = "duplexMode";
 	public static final String ERROR_PERCENT_PARAMETER = "errorPercent";
 	public static final String LINK_SPEED_PARAMETER = "linkSpeed";
-	public static final String LINK_STATUS_PARAMETER = "linkSTatus";
-	public static final String RECEIVED_BYTES_RATE_PARAMETER = "ReceivedBytesRate";
-	public static final String RECEIVED_PACKETS_RATE_PARAMETER = "ReceivedPacketsRate";
-	public static final String TRANSMITTED_BYTES_RATE_PARAMETER = "TransmittedBytesRate";
-	public static final String TRANSMITTED_PACKETS_RATE_PARAMETER = "TransmittedPacketsRate";
-	public static final String ZERO_BUFFER_CREDIT_PERCENT_PARAMETER = "ZeroBufferCreditPercent";
+	public static final String LINK_STATUS_PARAMETER = "linkStatus";
+	public static final String RECEIVED_BYTES_RATE_PARAMETER = "receivedBytesRate";
+	public static final String RECEIVED_PACKETS_RATE_PARAMETER = "receivedPacketsRate";
+	public static final String TRANSMITTED_BYTES_RATE_PARAMETER = "transmittedBytesRate";
+	public static final String TRANSMITTED_PACKETS_RATE_PARAMETER = "transmittedPacketsRate";
+	public static final String ZERO_BUFFER_CREDIT_PERCENT_PARAMETER = "zeroBufferCreditPercent";
 	public static final String USAGE_COUNT_PARAMETER = "usageCount";
 	public static final String VALUE_PARAMETER = "value";
 	public static final String ENDURANCE_REMAINING_PARAMETER = "enduranceRemaining";
@@ -92,6 +92,11 @@ public class HardwareConstants {
 	public static final String UNMOUNT_COUNT_PARAMETER = "unmountCount";
 	public static final String NEEDS_CLEANING_PARAMETER = "needsCleaning";
 	public static final String USED_TIME_PERCENT_PARAMETER = "usedTimePercent";
+	public static final String RECEIVED_BYTES_PARAMETER = "receivedBytes";
+	public static final String TRANSMITTED_BYTES_PARAMETER = "transmittedBytes";
+	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
+	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
+	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
 
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
@@ -184,6 +189,9 @@ public class HardwareConstants {
 	public static final String PACKETS_RATE_PARAMETER_UNIT = "packets/s";
 	public static final String DUPLEX_MODE_PARAMETER_UNIT = "{0 =  Half-duplex ; 1 = Full-duplex}";
 	public static final String NEEDS_CLEANING_PARAMETER_UNIT = "{0 =  OK ; 1 = Cleaning Needed ; 2 = Cleaning Needed Immediately}";
+	public static final String BYTES_PARAMETER_UNIT = "Bytes";
+	public static final String PACKETS_PARAMETER_UNIT = "Packets";
+	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 
 	public static final String ONE = "1";
 	public static final String ZERO = "0";
