@@ -30,6 +30,8 @@
 		</menu>
 		
 		<menu name="Using">
+			<item name="Configuring the Exporter" href="configure.html"/>
+			<item name="Collecting Metrics" href="collect.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">
