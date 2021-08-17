@@ -428,7 +428,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				.build();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gt(alarmThreshold)
 				.lte(warningThreshold)
 				.build();
 
@@ -488,7 +487,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			if (warningThreshold > 0) {
 				warningConditions = AlertConditionsBuilder.newInstance()
 						.gte(warningThreshold)
-						.lt(alarmThreshold)
 						.build();
 				alarmConditions = AlertConditionsBuilder.newInstance()
 						.gte(alarmThreshold)
@@ -496,7 +494,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			} else {
 				warningConditions = AlertConditionsBuilder.newInstance()
 						.lte(warningThreshold)
-						.gt(alarmThreshold)
 						.build();
 				alarmConditions = AlertConditionsBuilder.newInstance()
 						.lte(alarmThreshold)
@@ -517,17 +514,17 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 			if (warningThreshold > 0) {
 				warningConditions = AlertConditionsBuilder.newInstance()
+						.lte(warningThreshold)
 						.gte(0D)
-						.lt(alarmThreshold)
 						.build();
 				alarmConditions = AlertConditionsBuilder.newInstance()
-						.gte(alarmThreshold)
-						.lte(warningThreshold)
+						.lte(alarmThreshold)
+						.gte(0D)
 						.build();
 			} else {
 				warningConditions = AlertConditionsBuilder.newInstance()
 						.gte(warningThreshold)
-						.lt(alarmThreshold)
+						.lte(0D)
 						.build();
 				alarmConditions = AlertConditionsBuilder.newInstance()
 						.gte(alarmThreshold)
@@ -740,7 +737,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(warningThreshold)
-				.lt(alarmThreshold)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(alarmThreshold)
@@ -798,7 +794,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 					.gte(warningThreshold)
-					.lt(alarmThreshold)
 					.build();
 			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 					.gte(alarmThreshold)

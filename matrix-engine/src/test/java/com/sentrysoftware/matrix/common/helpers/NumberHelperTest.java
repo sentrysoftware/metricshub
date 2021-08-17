@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.math.RoundingMode;
+
 import org.junit.jupiter.api.Test;
 
 class NumberHelperTest {
@@ -22,11 +24,11 @@ class NumberHelperTest {
 	@Test
 	void testRound() {
 
-		assertEquals(20D, NumberHelper.round(20.000001, 2));
-		assertEquals(20, NumberHelper.round(20.000001, 0));
-		assertEquals(20D, NumberHelper.round(20.00, 1));
-		assertEquals(20.1112, NumberHelper.round(20.11125, 4));
-		assertEquals(5, NumberHelper.round(4.5, 0));
-		assertEquals(4.5, NumberHelper.round(4.5, 1));
+		assertEquals(20D, NumberHelper.round(20.000001, 2, RoundingMode.HALF_UP));
+		assertEquals(20, NumberHelper.round(20.000001, 0, RoundingMode.HALF_UP));
+		assertEquals(20D, NumberHelper.round(20.00, 1, RoundingMode.HALF_UP));
+		assertEquals(20.1113, NumberHelper.round(20.11125, 4, RoundingMode.HALF_UP));
+		assertEquals(5, NumberHelper.round(4.5, 0, RoundingMode.HALF_UP));
+		assertEquals(4.5, NumberHelper.round(4.5, 1, RoundingMode.HALF_UP));
 	}
 }

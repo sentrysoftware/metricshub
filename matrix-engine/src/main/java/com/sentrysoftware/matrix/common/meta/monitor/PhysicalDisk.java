@@ -39,9 +39,6 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 public class PhysicalDisk implements IMetaMonitor {
 
-
-	private static final String PHYSICAL_DISK_SERIAL_FORMAT = " Please note this physical disk's serial number: %s.";
-
 	public static final MetaParameter INTRUSION_STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(HardwareConstants.INTRUSION_STATUS_PARAMETER)
@@ -228,8 +225,7 @@ public class PhysicalDisk implements IMetaMonitor {
 					.problem("Although still working and available, this physical disk is degraded or about to fail."
 							+ IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
 					.consequence("If degraded, the performance of the system may be affected. If about to fail, the disk may crash soon, possibly causing a loss of data.")
-					.recommendedAction("You may need to replace this physical disk."
-						+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
+					.recommendedAction(buildRecommendedActionString("You may need to replace this physical disk.", serialNumber))
 					.build();
 		}
 
@@ -251,8 +247,7 @@ public class PhysicalDisk implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem("This physical disk is in critical/unrecoverable state." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
 					.consequence("If part of a RAID subsystem, a missing disk affects the performance but filesystems should still be up and running. Otherwise, the filesystems of this disk are no longer available (data loss).")
-					.recommendedAction("Replace this physical disk as soon as possible."
-						+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
+					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible.", serialNumber))
 					.build();
 		}
 
@@ -275,8 +270,7 @@ public class PhysicalDisk implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem(String.format("The physical disk encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk may be in jeopardy.")
-					.recommendedAction("Replace this physical disk as soon as possible to avoid data corruption."
-						+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
+					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible to avoid data corruption.", serialNumber))
 					.build();
 		}
 
@@ -299,8 +293,7 @@ public class PhysicalDisk implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem(String.format("The physical disk encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk is not assured.")
-					.recommendedAction("Replace this physical disk as soon as possible to avoid data corruption."
-							+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
+					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible to avoid data corruption.", serialNumber))
 					.build();
 		}
 
@@ -322,8 +315,9 @@ public class PhysicalDisk implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem("An imminent failure is predicted on this physical disk (SMART report).")
 					.consequence("A disk crash or data corruption is very likely to occur soon.")
-					.recommendedAction("Replace this physical disk as soon as possible to prevent a disk crash or data corruption."
-							+ ((serialNumber != null) ? String.format(PHYSICAL_DISK_SERIAL_FORMAT, serialNumber) : ""))
+					.recommendedAction(
+							buildRecommendedActionString("Replace this physical disk as soon as possible to prevent a disk crash or data corruption.",
+									serialNumber))
 					.build();
 
 		}
@@ -371,6 +365,17 @@ public class PhysicalDisk implements IMetaMonitor {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Concatenate the given action to the physical disk serial number text information
+	 * 
+	 * @param action       The action text our sentence starts with
+	 * @param serialNumber The serial number to include in the final string result
+	 * @return String result
+	 */
+	private static String buildRecommendedActionString(final String action, final String serialNumber) {
+		return action + ((serialNumber != null) ? String.format(" Please note this physical disk's serial number: %s.", serialNumber) : "");
 	}
 
 	@Override

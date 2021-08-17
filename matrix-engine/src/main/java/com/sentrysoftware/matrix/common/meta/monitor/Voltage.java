@@ -123,7 +123,7 @@ public class Voltage implements IMetaMonitor {
 		if (assertedVoltage.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The voltage has reached an abnormal level (%f).", assertedVoltage.getParameter().getValue()))
+					.problem(String.format("The voltage has reached an abnormal level (%f V).", assertedVoltage.getParameter().getValue() / 1000))
 					.consequence(OUT_OF_RANGE_VOLTAGE_CONSEQUENCE)
 					.recommendedAction(OUT_OF_RANGE_VOLTAGE_RECOMMENDED_ACTION)
 					.build();

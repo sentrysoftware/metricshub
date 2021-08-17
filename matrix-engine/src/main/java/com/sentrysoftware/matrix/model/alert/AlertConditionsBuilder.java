@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.model.alert;
 
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class AlertConditionsBuilder {
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(30D).build());
 
 	public static final Set<AlertCondition> CHARGE_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gt(30D).lte(50D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(50D).build());
 
 	public static final Set<AlertCondition> CORRECTED_ERROR_COUNT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(1D).build());
@@ -35,37 +36,37 @@ public class AlertConditionsBuilder {
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().eq(0D).build());
 
 	public static final Set<AlertCondition> SPEED_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gt(0D).lte(500D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(500D).build());
 
 	public static final Set<AlertCondition> SPEED_PERCENT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().eq(0D).build());
 
 	public static final Set<AlertCondition> SPEED_PERCENT_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gt(0D).lte(5D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(5D).build());
 
 	public static final Set<AlertCondition> AVAILABLE_PATH_COUNT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().lt(1D).build());
 
 	public static final Set<AlertCondition> BANDWIDTH_UTILIZATION_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gt(80D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(80D).build());
 
 	public static final Set<AlertCondition> ERROR_PERCENT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(30D).build());
 
 	public static final Set<AlertCondition> ERROR_PERCENT_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(10D).lt(30D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(10D).build());
 
 	public static final Set<AlertCondition> ENDURANCE_REMAINING_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(2D).build());
 
 	public static final Set<AlertCondition> ENDURANCE_REMAINING_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(5D).gt(2D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(5D).build());
 
 	public static final Set<AlertCondition> USED_CAPACITY_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(99D).build());
 
 	public static final Set<AlertCondition> USED_CAPACITY_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).lt(99D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());
 
 	private Set<AlertCondition> alertConditions = new HashSet<>();
 
@@ -80,7 +81,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder eq(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.EQ).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.EQ).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 
@@ -91,7 +92,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder ne(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.NE).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.NE).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 
@@ -102,7 +103,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder gt(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.GT).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.GT).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 
@@ -113,7 +114,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder gte(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.GTE).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.GTE).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 
@@ -124,7 +125,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder lt(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.LT).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.LT).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 
@@ -135,7 +136,7 @@ public class AlertConditionsBuilder {
 	 * @return the current builder
 	 */
 	public AlertConditionsBuilder lte(@NonNull final Double threshold) {
-		alertConditions.add(AlertCondition.builder().operator(AlertOperator.LTE).threshold(NumberHelper.round(threshold, 1)).build());
+		alertConditions.add(AlertCondition.builder().operator(AlertOperator.LTE).threshold(NumberHelper.round(threshold, 1, RoundingMode.HALF_UP)).build());
 		return this;
 	}
 

@@ -126,7 +126,7 @@ public class Temperature implements IMetaMonitor {
 		if (assertedTemperature.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("Although not yet critical, the temperature is abnormally high (%f).", assertedTemperature.getParameter().getValue()))
+					.problem(String.format("Although not yet critical, the temperature is abnormally high (%f °C).", assertedTemperature.getParameter().getValue()))
 					.consequence(HIGH_TEMPERATURE_CONSEQUENCE)
 					.recommendedAction(HIGH_TEMPERATURE_RECOMMENDED_ACTION)
 					.build();
@@ -147,7 +147,7 @@ public class Temperature implements IMetaMonitor {
 		if (assertedTemperature.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The temperature is critically high (%f).", assertedTemperature.getParameter().getValue()))
+					.problem(String.format("The temperature is critically high (%f °C).", assertedTemperature.getParameter().getValue()))
 					.consequence(HIGH_TEMPERATURE_CONSEQUENCE)
 					.recommendedAction(HIGH_TEMPERATURE_RECOMMENDED_ACTION)
 					.build();

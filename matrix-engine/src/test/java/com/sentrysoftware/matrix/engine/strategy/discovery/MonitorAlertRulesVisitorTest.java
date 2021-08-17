@@ -62,7 +62,6 @@ class MonitorAlertRulesVisitorTest {
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gt(0D)
 				.lte(500D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
@@ -84,7 +83,6 @@ class MonitorAlertRulesVisitorTest {
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gt(5D)
 				.lte(500D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
@@ -106,7 +104,6 @@ class MonitorAlertRulesVisitorTest {
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gt(5D)
 				.lte(5.5)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
@@ -128,7 +125,6 @@ class MonitorAlertRulesVisitorTest {
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gt(4.5)
 				.lte(5D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
@@ -172,7 +168,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(50D)
-				.lt(60D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(60D)
@@ -201,7 +196,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(50D)
-				.lt(60D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(60D)
@@ -337,7 +331,6 @@ class MonitorAlertRulesVisitorTest {
 
 		Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(1000D)
-				.lt(1100D)
 				.build();
 		Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(1100D)
@@ -360,7 +353,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.lte(-50D)
-				.gt(-55D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.lte(-55D)
@@ -382,12 +374,12 @@ class MonitorAlertRulesVisitorTest {
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
+				.lte(50D)
 				.gte(0D)
-				.lt(45D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(45D)
-				.lte(50D)
+				.lte(45D)
+				.gte(0D)
 				.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
@@ -407,7 +399,7 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(-50D)
-				.lt(-45D)
+				.lte(0D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(-45D)
@@ -446,7 +438,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(100D)
-				.lt(200D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(200D)
@@ -471,7 +462,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(100D)
-				.lt(200D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(200D)
@@ -496,7 +486,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(90D)
-				.lt(100D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(100D)
@@ -521,7 +510,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(90D)
-				.lt(99D)
 				.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 				.gte(99D)
@@ -655,7 +643,6 @@ class MonitorAlertRulesVisitorTest {
 	private void assertErrorPercentDefault(final Monitor monitor) {
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(20D)
-				.lt(30D)
 				.build();
 
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
@@ -677,7 +664,6 @@ class MonitorAlertRulesVisitorTest {
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 				.gte(80D)
-				.lt(90D)
 				.build();
 
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()

@@ -160,7 +160,7 @@ public class PowerSupply implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem(String.format("The power used by the system is abnormally high for the capacity of the power supply %s", information))
 					.consequence("Overloading a power supply may lead to voltage unstability and system crashes. It can also cause severe damage to the power supply.")
-					.recommendedAction("Find out why the power used by the system has risen that high (typically: new hard-drives). Upgrade to a power supply that can support such a power demand.")
+					.recommendedAction("Find out why the power used by the system has increased this much (typically: new hard-drives). Upgrade to a power supply that can support such a power demand.")
 					.build();
 		}
 
@@ -183,7 +183,7 @@ public class PowerSupply implements IMetaMonitor {
 			return AlertDetails.builder()
 					.problem(String.format("The power consumed by the system is critically high for the capacity of the power supply %s.", information))
 					.consequence("Overloading a power supply may lead to voltage unstability and system crashes. It can also cause severe damage to the power supply.")
-					.recommendedAction("Find out why the power used by the system has risen that high (typically: new hard-drives). Upgrade to a power supply that can support such a power demand.")
+					.recommendedAction("Find out why the power used by the system has increased this much (typically: new hard-drives). Upgrade to a power supply that can support such a power demand.")
 					.build();
 		}
 

@@ -389,7 +389,7 @@ public class NetworkCard implements IMetaMonitor {
 					.problem(String.format("The network link is operating at an improper speed (%f %s).",
 							assertedLinkSpeed.getParameter().getValue(), HardwareConstants.SPEED_MBITS_PARAMETER_UNIT))
 					.consequence("If the network link has negotiated too low, it may not be able to carry all of the traffic, leading to delayed response times for the applications relying on it. On the opposite, if negotiated too high, it can (rarely though) generate a unacceptable amount of errors, leading to response time delays and even data corruption.")
-					.recommendedAction("A baldy negotiated link speed may be caused by a problem with the cable (defective, poor quality). It can also be caused by bugs in the firmware of the network cards themselves. If configured to automatically negotiate the link speed (as it is often the case), try configuring the adapter with a fixed speed.")
+					.recommendedAction("A badly negotiated link speed may be caused by a problem with the cable (defective, poor quality). It can also be caused by bugs in the firmware of the network cards themselves. If configured to automatically negotiate the link speed (as it is often the case), try configuring the adapter with a fixed speed.")
 					.build();
 		}
 
@@ -409,7 +409,7 @@ public class NetworkCard implements IMetaMonitor {
 
 			return AlertDetails.builder()
 					.problem("The network link is, unexpectedly, in half-duplex mode.")
-					.consequence("In half-duplex mode, a network adapter can carry less than 50% of the traffic it could at the adverised speed, which can lead to a network congestion on this link. If you get this alarm repeatedly, it probably means that the network cable is at fault and that the network adapters encounter difficulties to negotiate the link speed and duplex mode.")
+					.consequence("In half-duplex mode, a network adapter can carry less than 50% of the traffic it could at the advertised speed, which can lead to a network congestion on this link. If you get this alarm repeatedly, it probably means that the network cable is at fault and that the network adapters encounter difficulties to negotiate the link speed and duplex mode.")
 					.recommendedAction("If the half-duplex mode was not desired, check the quality of the cable. You can also try forcing the full-duplex mode in the driver of the adapter. If that works without generating a high volume of errors, it could be that the firmware (or driver) of the adapter is at fault because it failed to automatically negotiate a duplex mode that it can actually handle.")
 					.build();
 		}
