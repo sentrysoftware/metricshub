@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.springframework.util.Assert;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 public class MonitorNameBuilder {
 
@@ -84,6 +83,31 @@ public class MonitorNameBuilder {
 
 		return trimmedName;
 	}
+	
+	/**
+	 * Joins the given non-empty words using the separator
+	 * 
+	 * @param words     {@link String[]} of words to be joined
+	 * @param separator {@link String} one or more characters to be used as separator
+	 * 
+	 * @return {@link String} joinedWords Joined words
+	 */
+	private static String joinWords(final String[] words, final String separator) {
+
+		// Check the words and add them to a string buffer if set
+		StringBuilder buffer = new StringBuilder();
+		String nextSeparator = "";
+		for (String word: words)
+		{
+			if (checkNotBlankDataValue(word)) {
+				buffer.append(nextSeparator);
+				nextSeparator = separator;
+				buffer.append(word);
+			}
+		}
+		
+		return buffer.toString();
+	}
 
 	/**
 	 * Build a generic name common to all hardware devices
@@ -97,7 +121,7 @@ public class MonitorNameBuilder {
 	 * @return {@link String} name Generic label based on the inputs
 	 */
 	public static String buildGenericName(final String deviceId, final String displayId, final String idCount,
-			List<String> trimmableWords) {
+			final List<String> trimmableWords) {
 
 		// Make sure the ID count is set
 		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
@@ -137,7 +161,7 @@ public class MonitorNameBuilder {
 		// Build the generic name
 		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				Arrays.asList("fan"));
+				List.of("fan"));
 
 		// Get any additional info to be included in the label
 		final String fanType = metadata.get(HardwareConstants.FAN_TYPE);
@@ -164,38 +188,33 @@ public class MonitorNameBuilder {
 		// Build the generic name
 		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				Arrays.asList("cpu", "processor", "proc"));
-
-		// Get any additional info to be included in the label
-		List<String> additionalInfo = new LinkedList<>();
-		final String cpuVendor = metadata.get(HardwareConstants.VENDOR);
-		if (checkNotBlankDataValue(cpuVendor)) {
-			additionalInfo.add(cpuVendor);
-		}
-		final String cpuModel = metadata.get(HardwareConstants.MODEL);
-		if (checkNotBlankDataValue(cpuModel)) {
-			additionalInfo.add(cpuModel);
-		}
-		final String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
+				List.of("cpu", "processor", "proc"));
+		
+		// Format the maximum speed
+		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
 		if (checkNotBlankDataValue(cpuMaxSpeed)) {
 			Integer cpuMaxSpeedAsInt = Integer.parseInt(cpuMaxSpeed);
 			if (cpuMaxSpeedAsInt < 1000) {
-				additionalInfo.add(String.format("%d MHz", cpuMaxSpeedAsInt));
+				cpuMaxSpeed = String.format("%d MHz", cpuMaxSpeedAsInt);
 			} else {
-				additionalInfo.add(String.format("%.2f GHz", (cpuMaxSpeedAsInt / 1000D)));
+				cpuMaxSpeed = String.format("%.2f GHz", (cpuMaxSpeedAsInt / 1000D));
 			}
 		}
+
+		// Prepare the additional info to be included in the label
+		String additionalInfo = joinWords(new String[] {
+				metadata.get(HardwareConstants.VENDOR), 
+				metadata.get(HardwareConstants.MODEL), cpuMaxSpeed}, " - ");
 		
-		if (!additionalInfo.isEmpty()) {
-			name = name + " (" + String.join(" - ", additionalInfo)+ ")";
+		if (checkNotBlankDataValue(additionalInfo)) {
+			name = name + " (" + additionalInfo + ")";
 		}
 
 		return trimUnwantedCharacters(name);
 	}
 
-
 	/**
-	 * Build the COU core name based on the current implementation in Hardware Sentry KM
+	 * Build the CPU core name based on the current implementation in Hardware Sentry KM
 	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
 	 * 
 	 * @return {@link String} name  Label of the CPU core to be displayed
@@ -209,12 +228,41 @@ public class MonitorNameBuilder {
 		// Build the generic name
 		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				Arrays.asList("cpu", "processor", "core", "proc"));
-
+				List.of("cpu", "processor", "core", "proc"));
+		
 		return trimUnwantedCharacters(name);
 	}
 	
-	public static String buildBatteryName(final Monitor monitor) {
-		return "";
+
+	/**
+	 * Build the battery name based on the current implementation in Hardware Sentry KM
+	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
+	 * 
+	 * @return {@link String} name  Label of the battery to be displayed
+	 */
+	public static String buildBatteryName(final MonitorBuildingInfo monitorBuildingInfo) {
+		
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
+				List.of("battery"));
+		
+		// Prepare the additional info to be included in the label
+		String additionalInfo = joinWords(new String[] {
+				metadata.get(HardwareConstants.VENDOR), 
+				metadata.get(HardwareConstants.MODEL)}, " ");
+		additionalInfo = joinWords(new String[] {additionalInfo, metadata.get(HardwareConstants.TYPE)}, " - ");
+		
+		if (checkNotBlankDataValue(additionalInfo)) {
+			name = name + " (" + additionalInfo + ")";
+		}
+		
+		return trimUnwantedCharacters(name);
 	}
+	
+
 }

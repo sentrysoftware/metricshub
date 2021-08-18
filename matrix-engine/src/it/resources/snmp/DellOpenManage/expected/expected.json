@@ -2,7 +2,7 @@
   "total" : 62,
   "monitors" : [ {
     "id" : "MS_HW_DellOpenManage.connector_battery_localhost_1.1",
-    "name" : "Battery: 1.1",
+    "name" : "1.1",
     "monitorType" : "BATTERY",
     "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
     "targetId" : "localhost",

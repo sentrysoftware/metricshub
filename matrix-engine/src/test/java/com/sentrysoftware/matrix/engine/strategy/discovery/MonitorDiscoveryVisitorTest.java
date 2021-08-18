@@ -87,7 +87,7 @@ class MonitorDiscoveryVisitorTest {
 	private static final String MEMORY_ID = "myConnector.connector_memory_ecs1-01_1.1";
 	private static final String MEMORY_MONITOR_X = "Memory: Monitor x";
 	private static final String BATTERY_ID = "myConnector.connector_battery_ecs1-01_1.1";
-	private static final String BATTERY_MONITOR_X = "Battery: Monitor x";
+	private static final String BATTERY_MONITOR_X = "Monitor x";
 	private static final String BLADE_ID = "myConnector.connector_blade_ecs1-01_1.1";
 	private static final String BLADE_MONITOR_X = "Blade: Monitor x";
 	private static final String CPU_ID = "myConnector.connector_cpu_ecs1-01_1.1";

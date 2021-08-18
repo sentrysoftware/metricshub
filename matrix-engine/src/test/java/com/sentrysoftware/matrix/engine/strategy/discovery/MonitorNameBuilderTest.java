@@ -194,5 +194,61 @@ class MonitorNameBuilderTest {
 			assertEquals("11", MonitorNameBuilder.buildCpuCoreName(buildingInfo));
 		}
 	}
+	
+	@Test
+	void testBuildBatteryName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " battery,  1,1 ");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.BATTERY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+			
+			assertEquals("11", MonitorNameBuilder.buildBatteryName(buildingInfo));
+		}
+		
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " battery,  1,1 ");
+			metadata.put(HardwareConstants.DISPLAY_ID, "1.1");
+			metadata.put(HardwareConstants.VENDOR, "Intel");
+			metadata.put(HardwareConstants.MODEL, "CMOS");
+			metadata.put(HardwareConstants.TYPE, "System Board CMOS Battery");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.BATTERY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+			
+			assertEquals("1.1 (Intel CMOS - System Board CMOS Battery)", MonitorNameBuilder.buildBatteryName(buildingInfo));
+		}
+	}
 
 }
