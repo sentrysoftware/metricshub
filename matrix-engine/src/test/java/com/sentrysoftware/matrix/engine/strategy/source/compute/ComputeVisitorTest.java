@@ -867,7 +867,7 @@ class ComputeVisitorTest {
 
 		// test index out of bounds
 		initializeSourceTable();
-		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
@@ -876,7 +876,7 @@ class ComputeVisitorTest {
 				sourceTable.getTable());
 
 		initializeSourceTable();
-		translate = Translate.builder().column(10).index(10).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(10).index(10).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
@@ -886,7 +886,7 @@ class ComputeVisitorTest {
 
 		// test 1st index
 		initializeSourceTable();
-		translate = Translate.builder().column(1).index(1).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(1).index(1).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
@@ -896,7 +896,7 @@ class ComputeVisitorTest {
 
 		// test intermediate index
 		initializeSourceTable();
-		translate = Translate.builder().column(2).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(2).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
@@ -906,7 +906,7 @@ class ComputeVisitorTest {
 
 		// test last index
 		initializeSourceTable();
-		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"), 
@@ -917,13 +917,30 @@ class ComputeVisitorTest {
 		// test unknown value
 		initializeSourceTable();
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")));
-		translate = Translate.builder().column(1).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap ).build()).build();
+		translate = Translate.builder().column(1).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
 				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
 				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
 				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")),
+				sourceTable.getTable());
+
+		// test with semi colon
+		final Map<String, String> translationMapSemiColon = Stream.of(new String[][] {
+			{ "NAME1", "NAME1_resolved" }, { "NAME2", "NAME2_resolved" }, { "NAME3", "NAME3_resolved" },
+			{ "ID1", "ID1_resolved" }, { "ID2", "ID2_resolved" }, { "ID3", "ID3_resolved" },
+			{ "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1_resolved;new_column_1" }, { "NUMBER_OF_DISKS2", "NUMBER_OF_DISKS2_resolved;new_column_2" }, { "NUMBER_OF_DISKS3", "NUMBER_OF_DISKS3_resolved;new_column_3" },
+		})
+				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+		initializeSourceTable();
+		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMapSemiColon).build()).build();
+		computeVisitor.visit(translate);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved", "new_column_1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved", "new_column_2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved", "new_column_3")),
 				sourceTable.getTable());
 	}
 	
@@ -2027,7 +2044,7 @@ class ComputeVisitorTest {
 
 		List<List<String>> result = Arrays.asList(
 			Arrays.asList("ID1", "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", "TYPE1"),
-			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22||NO_VALUE", "TYPE2"),
+			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22", "TYPE2"),
 			Arrays.asList("ID3", "TRANSLATED_STATUS31", "TYPE3")
 		);
 
@@ -2129,7 +2146,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testJson2Csv() {
-		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring.json", ComputeVisitorTest.class).replaceAll("\\s", "");
+		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", ComputeVisitorTest.class).replaceAll("\\s", "");
 		sourceTable.setRawData(rawData);
 
 		Json2CSV json2CSV = null;
@@ -2141,14 +2158,15 @@ class ComputeVisitorTest {
 		assertEquals(rawData, sourceTable.getRawData());
 
 		json2CSV = Json2CSV.builder()
-				.entryKey("/ENCLOSURE/enclosure-1")
+				.entryKey("/monitors")
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
 				.build();
 
 		computeVisitor.visit(json2CSV);
 
-		String rawDataRes = "/ENCLOSURE/enclosure-1;enclosure-1;enclosure-1;ENCLOSURE;targetId;\n";
+		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" + 
+							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
 

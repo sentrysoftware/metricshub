@@ -568,8 +568,8 @@ class MonitorCollectVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = new Monitor();
-		monitor.addParameter(intructionStatusParam);
-		monitor.addParameter(powerConsumptionParam);
+		monitor.collectParameter(intructionStatusParam);
+		monitor.collectParameter(powerConsumptionParam);
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 		monitorCollectVisitor.appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER,
@@ -590,9 +590,9 @@ class MonitorCollectVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = new Monitor();
-		monitor.addParameter(statusParam);
-		monitor.addParameter(intructionStatusParam);
-		monitor.addParameter(powerConsumptionParam);
+		monitor.collectParameter(statusParam);
+		monitor.collectParameter(intructionStatusParam);
+		monitor.collectParameter(powerConsumptionParam);
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 

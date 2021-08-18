@@ -216,7 +216,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER, 
-				HardwareConstants.BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER, 
+				HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, 
 				HardwareConstants.DUPLEX_MODE_PARAMETER, 
 				HardwareConstants.ERROR_PERCENT_PARAMETER, 
 				HardwareConstants.LINK_SPEED_PARAMETER, 
@@ -539,7 +539,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		numberParam.setCollectTime(collectTime);
 		numberParam.setRawValue(rawValue);
 
-		monitor.addParameter(numberParam);
+		monitor.collectParameter(numberParam);
 	}
 
 	/**
@@ -573,7 +573,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				statusInformation));
 		statusParam.setCollectTime(collectTime);
 
-		monitor.addParameter(statusParam);
+		monitor.collectParameter(statusParam);
 	}
 
 	/**

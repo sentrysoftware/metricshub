@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -18,6 +19,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -71,6 +73,55 @@ public abstract class AbstractITJob implements ITJob {
 		assertMetadata(expected, actual);
 
 		assertParameters(expected, actual);
+
+		assertAlertRules(expected, actual);
+	}
+
+	/**
+	 * Assert that expected and actual alert rules are equal. <br>
+	 * We only test testable/important data. For example the {@link AlertRule} conditionsChecker cannot be checked as it is a function
+	 *
+	 * @param expected
+	 * @param actual
+	 */
+	private static void assertAlertRules(final Monitor expected, final Monitor actual) {
+		for (final Entry<String, List<AlertRule>> expectedEntry : expected.getAlertRules().entrySet()) {
+			final List<AlertRule> expectedAlertRules = expectedEntry.getValue();
+			final String parameterName = expectedEntry.getKey();
+
+			assertNotNull(expectedAlertRules, () -> "Expected alert rules cannot be null for monitor identifier: " + expected.getId());
+			for (AlertRule expectedAlertRule : expectedAlertRules) {
+				final AlertRule actualAlertRule = actual.getAlertRules().get(expectedEntry.getKey()).stream()
+						.filter(rule -> rule.same(expectedAlertRule)).findFirst().orElse(null);
+
+				assertNotNull(actualAlertRule,
+						() -> "Cannot find actual alert rule on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				assertEquals(expectedAlertRule.getActive(), actualAlertRule.getActive(),
+						() -> "Alert Rule Active doesn’t match actual value on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				assertEquals(expectedAlertRule.getConditions(), actualAlertRule.getConditions(),
+						() -> "Alert Rule Conditions doesn’t match actual conditions on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				assertEquals(expectedAlertRule.getSeverity(), actualAlertRule.getSeverity(),
+						() -> "Alert Rule Severity doesn’t match actual severity on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				assertEquals(expectedAlertRule.getDetails(), actualAlertRule.getDetails(),
+						() -> "Alert Rule Details don't match actual details on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+				assertEquals(expectedAlertRule.getType(), actualAlertRule.getType(),
+						() -> "Alert Rule Type doesn't match actual type on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				assertEquals(expectedAlertRule.getPeriod(), actualAlertRule.getPeriod(),
+						() -> "Alert Rule Period doesn't match actual type on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+			}
+		}
 	}
 
 	/**

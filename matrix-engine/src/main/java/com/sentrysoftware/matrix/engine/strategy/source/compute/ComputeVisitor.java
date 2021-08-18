@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE_PROTECTED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
 
 @AllArgsConstructor
@@ -165,8 +166,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		int columnIndex = column - 1;
 
 		String arraySeparator = arrayTranslate.getArraySeparator();
-		if (arraySeparator == null) {
-			arraySeparator = PIPE;
+		if (arraySeparator == null || PIPE.equals(arraySeparator)) {
+			arraySeparator = PIPE_PROTECTED;
 		}
 
 		String resultSeparator = arrayTranslate.getResultSeparator();
@@ -191,11 +192,12 @@ public class ComputeVisitor implements IComputeVisitor {
 			String arrayValue = row.get(columnIndex);
 			if (arrayValue != null) {
 
-				String[] splitArrayValue = arrayValue.split(arraySeparator, -1);
+				String[] splitArrayValue = arrayValue.split(arraySeparator);
 
 				String translatedArrayValue = Arrays
 					.stream(splitArrayValue)
 					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, EMPTY))
+					.filter(value -> !value.isEmpty())
 					.collect(Collectors.joining(resultSeparator));
 
 				resultRow.set(columnIndex, translatedArrayValue);
@@ -1312,6 +1314,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		boolean needSerialization = false;
+
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
@@ -1320,11 +1324,20 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
+
+					needSerialization = needSerialization || newValue.contains(HardwareConstants.SEMICOLON);
 				} else {
 					log.warn("The Translation Map {} does not contain the following value {}.",
 							translationTable.getName(), valueToBeReplaced);
 				}
 			}
+		}
+
+		if (needSerialization) {
+			sourceTable.setTable(
+					SourceTable.csvToTable(
+							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
+							HardwareConstants.SEMICOLON));
 		}
 	}
 
