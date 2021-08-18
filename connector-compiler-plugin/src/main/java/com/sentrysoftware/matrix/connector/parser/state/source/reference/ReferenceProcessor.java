@@ -11,7 +11,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
@@ -23,6 +22,11 @@ public class ReferenceProcessor extends AbstractStateParser {
 	@Override
 	public Matcher getMatcher(String key) {
 		return REFERENCE_KEY_PATTERN.matcher(key);
+	}
+
+	@Override
+	public boolean detect(String key, String value, Connector connector) {
+		return getMatcher(key).matches();
 	}
 
 	@Override
@@ -57,8 +61,8 @@ public class ReferenceProcessor extends AbstractStateParser {
 	}
 
 	@Override
-	public Class<SNMPGetSource> getType() {
-		return SNMPGetSource.class;
+	public Class<ReferenceSource> getType() {
+		return ReferenceSource.class;
 	}
 
 	@Override
