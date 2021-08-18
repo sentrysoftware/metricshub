@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.helpers.LocalOSEnum;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -227,7 +229,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final IPMI ipmi) {
 
-		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
+		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 		final TargetType targetType = target.getType();
 
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
@@ -238,7 +240,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return processOutOfBandIpmiDetection();
 		}
 
-		String message = String.format("Failed to perform IPMI detection on system: %s. %s is an unsupported OS for IPMI.", target.getHostname(),
+		final String message = String.format("Failed to perform IPMI detection on system: %s. %s is an unsupported OS for IPMI.", target.getHostname(),
 				targetType.name());
 
 		return CriterionTestResult.builder()
@@ -588,8 +590,45 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final Process process) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+		if (process == null || process.getProcessCommandLine() == null) {
+			log.error("Malformed Process Criterion {}. Cannot process Process detection.", process);
+			return CriterionTestResult.empty();
+		}
+
+		if (process.getProcessCommandLine().isEmpty()) {
+			log.debug("Service Criterion, Process Command Line is empty.");
+			return CriterionTestResult.builder()
+					.success(true)
+					.message("Process presence check: actually no test were performed.")
+					.result(null)
+					.build();
+		}
+
+		if (!strategyConfig.getHostMonitoring().isLocalhost()) {
+			log.debug("Service Criterion, Not Localhost.");
+			return CriterionTestResult.builder()
+					.success(true)
+					.message("Process presence check: no test will be performed remotely.")
+					.result(null)
+					.build();
+		}
+
+		final Optional<LocalOSEnum> maybeLocalOS = LocalOSEnum.getOS();
+		if (maybeLocalOS.isEmpty()) {
+			log.debug("Service Criterion, Unknown Local OS.");
+			return CriterionTestResult.builder()
+					.success(true)
+					.message("Process presence check: OS unknown, no test will be performed.")
+					.result(null)
+					.build();
+		}
+
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		final long timeout = protocol != null ? protocol.getTimeout() : EngineConfiguration.DEFAULT_JOB_TIMEOUT;
+
+		final CriterionProcessVisitorImpl localOSVisitor = new CriterionProcessVisitorImpl(process.getProcessCommandLine(), matsyaClientsExecutor, timeout) ;
+		maybeLocalOS.get().accept(localOSVisitor);
+		return localOSVisitor.getCriterionTestResult();
 	}
 
 	@Override
@@ -659,12 +698,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 					String.format("Windows Service check: the %s Windows service is currently running.", serviceName) :
 						String.format("Windows Service check: the %s Windows service is not reported as running.\n %s", serviceName, state); // NOSONAR on %n
 
-			log.debug("Service Criterion, {}", message);
-			return CriterionTestResult.builder()
-					.success(running)
-					.message(message)
-					.result(result)
-					.build();
+					log.debug("Service Criterion, {}", message);
+					return CriterionTestResult.builder()
+							.success(running)
+							.message(message)
+							.result(result)
+							.build();
 
 		} catch (final Exception e) {
 			final String message = String.format(
