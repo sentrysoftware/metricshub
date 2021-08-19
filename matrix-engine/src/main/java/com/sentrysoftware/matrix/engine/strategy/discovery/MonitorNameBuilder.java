@@ -1,24 +1,29 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+
 public class MonitorNameBuilder {
 
-	private MonitorNameBuilder() {	}
-	
-	private static final String UNKNOWN_COMPUTER = "Unknown computer";
-	private static final String HP_TRU64_COMPUTER = "HP Tru64 computer";
-	private static final String LINUX_COMPUTER = "Linux computer";
-	private static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS computer";
-	private static final String WINDOWS_COMPUTER = "Windows computer";
-	private static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
+	private MonitorNameBuilder() {
+	}
+
+	public static final String UNKNOWN_COMPUTER = "Unknown computer";
+	public static final String HP_TRU64_COMPUTER = "HP Tru64 computer";
+	public static final String LINUX_COMPUTER = "Linux computer";
+	public static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS computer";
+	public static final String WINDOWS_COMPUTER = "Windows computer";
+	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
+
 	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Cannot create monitor {} with null name. Connector {}. System {}.";
 	private static final String NAME_SEPARATOR = ": ";
 	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
@@ -33,7 +38,33 @@ public class MonitorNameBuilder {
 	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 	private static final String MONITOR_BUILDING_INFO_CANNOT_BE_NULL = "monitorBuildingInfo cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
-	private static final String TWO_STRINGS_FORMAT = "%s: %s";
+
+	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES;
+	static {
+		final Map<TargetType, String> map = new EnumMap<>(TargetType.class);
+		for (TargetType targetType : TargetType.values()) {
+			final String value;
+			switch (targetType) {
+			case MS_WINDOWS:
+				value = WINDOWS_COMPUTER;
+				break;
+			case HP_OPEN_VMS:
+				value = HP_OPEN_VMS_COMPUTER;
+				break;
+			case LINUX:
+				value = LINUX_COMPUTER;
+				break;
+			case HP_TRU64_UNIX:
+				value = HP_TRU64_COMPUTER;
+				break;
+			default:
+				value = UNKNOWN_COMPUTER;
+			}
+			map.put(targetType, value);
+		}
+
+		COMPUTE_DISPLAY_NAMES = Collections.unmodifiableMap(map);
+	}
 
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
@@ -75,6 +106,9 @@ public class MonitorNameBuilder {
 		// Trim any comma
 		String trimmedName = name.replaceAll(",", "");
 
+		// Trim empty parenthesis
+		trimmedName = trimmedName.replace("()", "");
+
 		// Trim redundant blank spaces
 		trimmedName = trimmedName.replaceAll(" +", " ");
 
@@ -83,7 +117,7 @@ public class MonitorNameBuilder {
 
 		return trimmedName;
 	}
-	
+
 	/**
 	 * Joins the given non-empty words using the separator
 	 * 
@@ -95,18 +129,75 @@ public class MonitorNameBuilder {
 	private static String joinWords(final String[] words, final String separator) {
 
 		// Check the words and add them to a string buffer if set
-		StringBuilder buffer = new StringBuilder();
+		final StringBuilder buffer = new StringBuilder();
 		String nextSeparator = "";
-		for (String word: words)
-		{
+		for (String word : words) {
 			if (checkNotBlankDataValue(word)) {
 				buffer.append(nextSeparator);
 				nextSeparator = separator;
 				buffer.append(word);
 			}
 		}
-		
+
 		return buffer.toString();
+	}
+
+	/**
+	 * Joins vendor and model; if model includes vendor, returns the model
+	 * 
+	 * @param metadata {@link Map} of metadata containing vendor and model info
+	 * 
+	 * @return {@link String} joinedVendorAndModel Joined vendor and model
+	 */
+	private static String joinVendorAndModel(final Map<String, String> metadata) {
+
+		String vendor = metadata.get(HardwareConstants.VENDOR);
+		String model = metadata.get(HardwareConstants.MODEL);
+
+		if (vendor != null && model != null) {
+			if (model.toLowerCase().contains(vendor.toLowerCase())) {
+				// Model includes the vendor, so no need to join them
+				return model;
+			}
+		}
+
+		return joinWords(new String[] { vendor, model }, " ");
+	}
+
+	/**
+	 * Try to get the {@value HardwareConstants#LOCATION} metadata and return <code>true</code> for localhost value 
+	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
+	 * 
+	 * @param metadata
+	 * @return {@link boolean} value
+	 */
+	static boolean isLocalhost(final Map<String, String> metadata) {
+		if (metadata != null) {
+			final String location = metadata.get(HardwareConstants.LOCATION);
+			if (location != null) {
+				return location.equalsIgnoreCase(HardwareConstants.LOCALHOST);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Handle the computer display name based on the target location. I.e. local or remote
+	 * 
+	 * @param targetMonitor Monitor with type {@link MonitorType#TARGET}
+	 * @param targetType    The type of the target monitor
+	 * @return {@link String} value to append with the full monitor name
+	 */
+	static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
+		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
+		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
+
+		if (isLocalhost(targetMonitor.getMetadata())) {
+			// TODO Handle localhost machine type, processor architecture detection
+			return LOCALHOST_ENCLOSURE;
+		} else {
+			return COMPUTE_DISPLAY_NAMES.get(targetType);
+		}
 	}
 
 	/**
@@ -115,8 +206,7 @@ public class MonitorNameBuilder {
 	 * @param deviceId       {@link String} containing the device ID
 	 * @param displayId      {@link String} containing the display ID
 	 * @param idCount        {@link String} containing the ID count
-	 * @param trimmableWords {@link List} of words (case-insensitive) to be trimmed
-	 *                       off the device ID
+	 * @param trimmableWords {@link List} of words (case-insensitive) to be trimmed off the device ID
 	 * 
 	 * @return {@link String} name Generic label based on the inputs
 	 */
@@ -147,66 +237,60 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Build the battery name based on the current implementation in Hardware Sentry KM
+	 * Build the battery name based on the current implementation in Hardware Sentry
+	 * KM
 	 * 
-	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
 	 * 
-	 * @return {@link String} name  Label of the battery to be displayed
+	 * @return {@link String} name Label of the battery to be displayed
 	 */
 	public static String buildBatteryName(final MonitorBuildingInfo monitorBuildingInfo) {
-		
+
 		// Check the metadata
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name
-		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				List.of("battery"));
-		
-		// Prepare the additional info to be included in the label
-		String additionalInfo = joinWords(new String[] {
-				metadata.get(HardwareConstants.VENDOR), 
-				metadata.get(HardwareConstants.MODEL)}, " ");
-		additionalInfo = joinWords(new String[] {additionalInfo, metadata.get(HardwareConstants.TYPE)}, " - ");
-		
-		if (checkNotBlankDataValue(additionalInfo)) {
-			name = name + " (" + additionalInfo + ")";
-		}
-		
-		return trimUnwantedCharacters(name);
+		final StringBuilder name = new StringBuilder();
+		name.append(
+				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
+						metadata.get(HardwareConstants.ID_COUNT), List.of("battery")));
+
+		// Add the additional info to the label
+		name.append(" ("
+				+ joinWords(new String[] { joinVendorAndModel(metadata), metadata.get(HardwareConstants.TYPE) }, " - ")
+				+ ")");
+
+		return trimUnwantedCharacters(name.toString());
 	}
-	
+
 	/**
 	 * Build the blade name based on the current implementation in Hardware Sentry KM
 	 * 
-	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
 	 * 
-	 * @return {@link String} name  Label of the blade to be displayed
+	 * @return {@link String} name Label of the blade to be displayed
 	 */
 	public static String buildBladeName(final MonitorBuildingInfo monitorBuildingInfo) {
-		
+
 		// Check the metadata
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name
-		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				List.of("blade"));
-		
-		// Prepare the additional info to be included in the label
-		String additionalInfo = joinWords(new String[] {
-				metadata.get(HardwareConstants.BLADE_NAME), 
-				metadata.get(HardwareConstants.MODEL)}, " - ");
-		
-		if (checkNotBlankDataValue(additionalInfo)) {
-			name = name + " (" + additionalInfo + ")";
-		}
-		
-		return trimUnwantedCharacters(name);
+		final StringBuilder name = new StringBuilder();
+		name.append(
+				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
+						metadata.get(HardwareConstants.ID_COUNT), List.of("blade")));
+
+		// Add the additional info to the label
+		name.append(" (" + joinWords(
+				new String[] { metadata.get(HardwareConstants.BLADE_NAME), metadata.get(HardwareConstants.MODEL) },
+				" - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
 	}
-	
+
 	/**
 	 * Build the CPU name based on the current implementation in Hardware Sentry KM
 	 * 
@@ -221,10 +305,11 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name
-		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				List.of("cpu", "processor", "proc"));
-		
+		final StringBuilder name = new StringBuilder();
+		name.append(
+				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
+						metadata.get(HardwareConstants.ID_COUNT), List.of("cpu", "processor", "proc")));
+
 		// Format the maximum speed
 		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
 		if (checkNotBlankDataValue(cpuMaxSpeed)) {
@@ -236,27 +321,22 @@ public class MonitorNameBuilder {
 			}
 		}
 
-		// Prepare the additional info to be included in the label
-		String additionalInfo = joinWords(new String[] {
-				metadata.get(HardwareConstants.VENDOR), 
-				metadata.get(HardwareConstants.MODEL), cpuMaxSpeed}, " - ");
-		
-		if (checkNotBlankDataValue(additionalInfo)) {
-			name = name + " (" + additionalInfo + ")";
-		}
+		// Add the additional info to the label
+		name.append(" (" + joinWords(new String[] { metadata.get(HardwareConstants.VENDOR),
+				metadata.get(HardwareConstants.MODEL), cpuMaxSpeed }, " - ") + ")");
 
-		return trimUnwantedCharacters(name);
+		return trimUnwantedCharacters(name.toString());
 	}
 
 	/**
 	 * Build the CPU core name based on the current implementation in Hardware Sentry KM
 	 * 
-	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
 	 * 
-	 * @return {@link String} name  Label of the CPU core to be displayed
+	 * @return {@link String} name Label of the CPU core to be displayed
 	 */
 	public static String buildCpuCoreName(final MonitorBuildingInfo monitorBuildingInfo) {
-		
+
 		// Check the metadata
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
@@ -265,14 +345,16 @@ public class MonitorNameBuilder {
 		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
 				List.of("cpu", "processor", "core", "proc"));
-		
+
 		return trimUnwantedCharacters(name);
 	}
-	
+
 	/**
-	 * Build the disk controller name based on the current implementation in Hardware Sentry KM
+	 * Build the disk controller name based on the current implementation in
+	 * Hardware Sentry KM
 	 * 
-	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor
+	 *                            instance
 	 * 
 	 * @return {@link String} name Label of the disk controller to be displayed
 	 */
@@ -283,51 +365,109 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name with prefix
-		String name = "Disk Controller: " + buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				null);
-		
-		// Prepare the additional info to be included in the label
-		String additionalInfo = null;
-		String diskControllerVendor = metadata.get(HardwareConstants.VENDOR);
-		String diskControllerModel = metadata.get(HardwareConstants.MODEL);
-		if (diskControllerModel.toLowerCase().contains(diskControllerVendor.toLowerCase())) {
-			// Model includes the vendor, so no need to join them
-			additionalInfo = diskControllerModel;
+		final StringBuilder name = new StringBuilder("Disk Controller: ");
+		name.append(buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT), null));
+
+		// Add the additional info to the label
+		name.append(" (" + joinVendorAndModel(metadata) + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+
+	/**
+	 * Build the enclosure name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the enclosure to be displayed
+	 */
+	public static String buildEnclosureName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		final TargetType targetType = monitorBuildingInfo.getTargetType();
+		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
+
+		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
+		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
+
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Find the enclosure type
+		String enclosureType = metadata.get(HardwareConstants.TYPE);
+		if (enclosureType != null) {
+			switch (enclosureType.toLowerCase()) {
+			case "computer":
+				enclosureType = HardwareConstants.COMPUTER;
+				break;
+			case "storage":
+				enclosureType = HardwareConstants.STORAGE;
+				break;
+			case "blade":
+				enclosureType = HardwareConstants.BLADE_ENCLOSURE;
+				break;
+			case "":
+				enclosureType = HardwareConstants.COMPUTER;
+				break;
+			default:
+				enclosureType = HardwareConstants.ENCLOSURE;
+			}
 		} else {
-			additionalInfo = joinWords(new String[] {diskControllerVendor, diskControllerModel}, " ");
-		}
-		
-		if (checkNotBlankDataValue(additionalInfo)) {
-			name = name + " (" + additionalInfo + ")";
+			enclosureType = HardwareConstants.ENCLOSURE;
 		}
 
-		return trimUnwantedCharacters(name);
+		// Build the generic name with prefix
+		final StringBuilder name = new StringBuilder(enclosureType + ": ");
+
+		// If enclosureDisplayID is specified, use it and put the rest in parenthesis
+		String enclosureDisplayId = metadata.get(HardwareConstants.DISPLAY_ID);
+		boolean parenthesisOpened = false;
+		if (checkNotBlankDataValue(enclosureDisplayId)) {
+			name.append(enclosureDisplayId + " (");
+			parenthesisOpened = true;
+		}
+
+		// Find the vendor/model details
+		final String vendorModel = joinVendorAndModel(metadata);
+
+		if (checkNotBlankDataValue(vendorModel)) {
+			name.append(vendorModel);
+		} else if (HardwareConstants.COMPUTER.equals(enclosureType)) {
+			name.append(handleComputerDisplayName(targetMonitor, targetType));
+		} else if (HardwareConstants.STORAGE.equals(enclosureType) && !parenthesisOpened) {
+			name.append("(" + metadata.get(HardwareConstants.ID_COUNT) + ")");
+		}
+
+		// At the end, close the parenthesis, if opened
+		if (parenthesisOpened) {
+			name.append(")");
+		}
+
+		return trimUnwantedCharacters(name.toString());
+
 	}
-	
+
 	/**
 	 * Build the fan name based on the current implementation in Hardware Sentry KM
-	 * @param monitorBuildingInfo   {@link MonitorBuildingInfo} of the monitor instance 
 	 * 
-	 * @return {@link String} name  Label of the fan to be displayed
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the fan to be displayed
 	 */
 	public static String buildFanName(final MonitorBuildingInfo monitorBuildingInfo) {
-		
+
 		// Check the metadata
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name
-		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
-				List.of("fan"));
+		final StringBuilder name = new StringBuilder();
+		name.append(buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT), List.of("fan")));
 
-		// Get any additional info to be included in the label
-		final String fanType = metadata.get(HardwareConstants.FAN_TYPE);
-		if (checkNotBlankDataValue(fanType)) {
-			name = name + " (" + fanType + ")";
-		} 
+		// Add the additional info to the label
+		name.append(" (" + joinWords(new String[] { metadata.get(HardwareConstants.FAN_TYPE) }, " - ") + ")");
 
-		return trimUnwantedCharacters(name);
+		return trimUnwantedCharacters(name.toString());
 	}
 }
