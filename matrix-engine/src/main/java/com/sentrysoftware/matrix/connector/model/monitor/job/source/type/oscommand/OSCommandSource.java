@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscomm
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -29,7 +30,7 @@ public class OSCommandSource extends Source {
 	private String keepOnlyRegExp;
 	private Integer removeHeader;
 	private Integer removeFooter;
-	private String separators;
+	private String separators = HardwareConstants.WHITE_SPACE_TAB;
 	private List<String> selectColumns = new ArrayList<>();
 
 	@Builder
@@ -46,7 +47,7 @@ public class OSCommandSource extends Source {
 		this.keepOnlyRegExp = keepOnlyRegExp;
 		this.removeHeader = removeHeader;
 		this.removeFooter = removeFooter;
-		this.separators = separators;
+		this.separators = separators == null ? HardwareConstants.WHITE_SPACE_TAB : separators;
 		this.selectColumns = selectColumns;
 	}
 

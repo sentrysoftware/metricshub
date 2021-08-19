@@ -32,7 +32,7 @@ public class HTTPSource extends Source {
 	private Body body;
 	private String authenticationToken;
 	private String executeForEachEntryOf;
-	private ResultContent resultContent;
+	private ResultContent resultContent = ResultContent.BODY;
 	private EntryConcatMethod entryConcatMethod;
 	private String entryConcatStart;
 	private String entryConcatEnd;
@@ -49,7 +49,7 @@ public class HTTPSource extends Source {
 		this.body = body;
 		this.authenticationToken = authenticationToken;
 		this.executeForEachEntryOf = executeForEachEntryOf;
-		this.resultContent = resultContent;
+		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
 		this.entryConcatMethod = entryConcatMethod;
 		this.entryConcatStart = entryConcatStart;
 		this.entryConcatEnd = entryConcatEnd;

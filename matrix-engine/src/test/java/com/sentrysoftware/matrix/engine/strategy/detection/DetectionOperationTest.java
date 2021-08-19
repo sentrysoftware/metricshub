@@ -370,4 +370,21 @@ class DetectionOperationTest {
 		}
 
 	}
+
+	@Test
+	void testFilterExcludedConnectors() {
+		Set<Connector> localStore = Stream.of(connector1, connector2, connector3, connector4)
+				.collect(Collectors.toSet());
+
+		// exclude set is empty
+		assertEquals(localStore, 
+				DetectionOperation.filterExcludedConnectors(Collections.emptySet(), localStore)
+				.collect(Collectors.toSet()));
+
+		// Excludes connector4
+		assertEquals(Stream.of(connector1, connector2, connector3).collect(Collectors.toSet()),
+				DetectionOperation.filterExcludedConnectors(
+				Collections.singleton(connector4.getCompiledFilename()), localStore)
+				.collect(Collectors.toSet()));
+	}
 }

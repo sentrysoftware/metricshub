@@ -63,34 +63,29 @@ class MatrixEngineServiceTest {
 	}
 
 	@Test
-	void testGetSelectedConnectors() {
+	void testGetConnectors() {
 
-		final Set<String> allConnectors = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs"));
-		final Set<String> selected = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs"));
-		final Set<String> excluded = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs"));
+		final Set<String> allConnectors = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs");
+		final Set<String> selected = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs");
+		final Set<String> excluded = Set.of("aa.hdfs", "bb.hdfs");
 
 		final Set<String> expectedInclusion = new HashSet<>(Arrays.asList("aa.connector", "bb.connector", "cc.connector"));
-		Set<String> actual = MatrixEngineService.getSelectedConnectors(allConnectors, selected, excluded);
+		Set<String> actual = MatrixEngineService.getConnectors(allConnectors, selected);
 		assertEquals(expectedInclusion, actual);
 
-		actual = MatrixEngineService.getSelectedConnectors(allConnectors, selected, Collections.emptySet());
-		assertEquals(expectedInclusion, actual);
+		actual = MatrixEngineService.getConnectors(allConnectors, Collections.emptySet());
+		assertEquals(Collections.emptySet(), actual);
 
-		final Set<String> expectedExclusion = new HashSet<>(Arrays.asList("cc.connector", "dd.connector", "ee.connector"));
-		actual = MatrixEngineService.getSelectedConnectors(allConnectors, Collections.emptySet(), excluded);
+		final Set<String> expectedExclusion = Set.of("aa.connector", "bb.connector");
+		actual = MatrixEngineService.getConnectors(allConnectors, excluded);
 		assertEquals(expectedExclusion, actual);
 
-		actual = MatrixEngineService.getSelectedConnectors(allConnectors, Collections.emptySet(), Collections.emptySet());
+		actual = MatrixEngineService.getConnectors(allConnectors, Collections.emptySet());
 		assertEquals(Collections.emptySet(), actual);
 
-		actual = MatrixEngineService.getSelectedConnectors(Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+		actual = MatrixEngineService.getConnectors(allConnectors, null);
 		assertEquals(Collections.emptySet(), actual);
 
-		actual = MatrixEngineService.getSelectedConnectors(Collections.emptySet(), null, Collections.emptySet());
-		assertEquals(Collections.emptySet(), actual);
-
-		actual = MatrixEngineService.getSelectedConnectors(Collections.emptySet(), Collections.emptySet(), null);
-		assertEquals(Collections.emptySet(), actual);
 	}
 
 	@Test
@@ -106,7 +101,7 @@ class MatrixEngineServiceTest {
 
 		for (HostConfigurationDTO hostConfigurationDTO : hostsConfigurations.getTargets()) {
 
-			EngineConfiguration actual = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
+			EngineConfiguration actual = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO, selectedConnectors, Collections.emptySet());
 
 			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp());
 
@@ -176,7 +171,7 @@ class MatrixEngineServiceTest {
 				.build();
 
 			EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
-				Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR));
+				Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
 
 			IHostMonitoring hostMonitoring = HostMonitoringFactory
 				.getInstance()
@@ -215,7 +210,7 @@ class MatrixEngineServiceTest {
 			.build();
 
 		EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
-			Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR));
+			Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
 
 		IHostMonitoring hostMonitoring = HostMonitoringFactory
 			.getInstance()
