@@ -1,41 +1,38 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor (access=AccessLevel.PRIVATE)
-public enum LocalOSEnum {
+@NoArgsConstructor (access=AccessLevel.PRIVATE)
+public class LocalOSHandler {
 
-	WINDOWS ("windows", new Windows()),
-	LINUX ("linux", new Linux()),
-	SUN_OS ("sunos", new Sun()),
-	HP ("hp-ux", new Hp()),
-	SOLARIS ("solaris", new Solaris()),
-	OS2 ("os/2", new Os2()),
-	AIX ("aix", new Aix()),
-	FREE_BSD ("freebsd", new FreeBSD()),
-	OPEN_BSD ("openbsd", new OpenBSD()),
-	NET_BSD ("netbsd", new NetBSD()),
-	IRIX ("irix", new Irix()),
-	MAC_OS_X ("mac os x", new MacOSX());
+	public static final ILocalOS WINDOWS = new Windows();
+	public static final ILocalOS LINUX = new Linux();
+	public static final ILocalOS SUN = new Sun();
+	public static final ILocalOS HP = new Hp();
+	public static final ILocalOS SOLARIS = new Solaris();
+	public static final ILocalOS OS2 = new Os2();
+	public static final ILocalOS AIX = new Aix();
+	public static final ILocalOS FREE_BSD = new FreeBSD();
+	public static final ILocalOS OPEN_BSD = new OpenBSD();
+	public static final ILocalOS NET_BSD = new NetBSD();
+	public static final ILocalOS IRIX = new Irix();
+	public static final ILocalOS MAC_OS_X = new MacOSX();
 
-	private static final Set<LocalOSEnum> UNIX_SET = Set.of(AIX, HP, IRIX, LINUX, MAC_OS_X, SOLARIS, SUN_OS, FREE_BSD, OPEN_BSD, NET_BSD);
-
-	private final String startTag;
-	private final ILocalOS localOS;
+	private static final List<ILocalOS> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, IRIX, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD, OS2);
 
 	/**
 	 * Get the current Local OS.
 	 * @return An optional with the current local OS. Empty if not determined.
 	 */
-	public static Optional<LocalOSEnum> getOS() {
+	public static Optional<ILocalOS> getOS() {
 		return getSystemOSName()
 				.map(String::toLowerCase)
-				.map(name -> Stream.of(values()).filter(os -> name.startsWith(os.startTag)).findFirst().orElse(null));
+				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
 	}
 
 	/**
@@ -54,20 +51,6 @@ public enum LocalOSEnum {
 		return Optional.ofNullable(System.getProperty("os.version"));
 	}
 
-	/**
-	 * Indicate if the Local OS is an UNIX OS.
-	 * @return true if the OS is an UNIX OS, false Otherwise.
-	 */
-	public boolean isUnix() {
-		return UNIX_SET.contains(this);
-	}
-
-	public void accept(final ILocalOSVisitor visitor) {
-		if (visitor != null) {
-			localOS.accept(visitor);
-		}
-	}
-
 	public static interface ILocalOSVisitor {
 		void visit(final Windows os);
 		void visit(final Linux os);
@@ -83,88 +66,153 @@ public enum LocalOSEnum {
 		void visit(final MacOSX os);
 	}
 
-	private static interface ILocalOS {
+	@Getter
+	public abstract static class ILocalOS {
+
+		protected String osTag;
+		protected boolean unix;
+
 		public abstract void accept(final ILocalOSVisitor visitor);
 	}
 
-	public static class Windows implements ILocalOS {
+	public static class Windows extends ILocalOS {
+		Windows() {
+			osTag = "windows";
+			unix = false;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Linux implements ILocalOS {
+	public static class Linux extends ILocalOS {
+		Linux() {
+			osTag = "linux";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Sun implements ILocalOS {
+	public static class Sun extends ILocalOS {
+		Sun() {
+			osTag = "sunos";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Hp implements ILocalOS {
+	public static class Hp extends ILocalOS {
+		Hp() {
+			osTag = "hp-ux";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Solaris implements ILocalOS {
+	public static class Solaris extends ILocalOS {
+		Solaris() {
+			osTag = "solaris";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Os2 implements ILocalOS {
+	public static class Os2 extends ILocalOS {
+		Os2() {
+			osTag = "os/2";
+			unix = false;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Aix implements ILocalOS {
+	public static class Aix extends ILocalOS {
+		Aix() {
+			osTag = "aix";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class FreeBSD implements ILocalOS {
+	public static class FreeBSD extends ILocalOS {
+		FreeBSD() {
+			osTag = "freebsd";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class OpenBSD implements ILocalOS {
+	public static class OpenBSD extends ILocalOS {
+		OpenBSD() {
+			osTag = "openbsd";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class NetBSD implements ILocalOS {
+	public static class NetBSD extends ILocalOS {
+		NetBSD() {
+			osTag = "netbsd";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Irix implements ILocalOS {
+	public static class Irix extends ILocalOS {
+		Irix() {
+			osTag = "irix";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class MacOSX implements ILocalOS {
+	public static class MacOSX extends ILocalOS {
+		MacOSX() {
+			osTag = "mac os x";
+			unix = true;
+		}
+
 		@Override
 		public void accept(final ILocalOSVisitor visitor) {
 			visitor.visit(this);

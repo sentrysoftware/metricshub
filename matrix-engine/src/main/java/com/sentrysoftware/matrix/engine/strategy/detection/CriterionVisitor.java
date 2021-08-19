@@ -24,7 +24,8 @@ import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -596,7 +597,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		if (process.getProcessCommandLine().isEmpty()) {
-			log.debug("Service Criterion, Process Command Line is empty.");
+			log.debug("Process Criterion, Process Command Line is empty.");
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: actually no test were performed.")
@@ -605,7 +606,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		if (!strategyConfig.getHostMonitoring().isLocalhost()) {
-			log.debug("Service Criterion, Not Localhost.");
+			log.debug("Process Criterion, Not Localhost.");
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: no test will be performed remotely.")
@@ -613,9 +614,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 		}
 
-		final Optional<LocalOSEnum> maybeLocalOS = LocalOSEnum.getOS();
+		final Optional<ILocalOS> maybeLocalOS = LocalOSHandler.getOS();
 		if (maybeLocalOS.isEmpty()) {
-			log.debug("Service Criterion, Unknown Local OS.");
+			log.debug("Process Criterion, Unknown Local OS.");
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: OS unknown, no test will be performed.")
@@ -626,7 +627,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
 		final long timeout = protocol != null ? protocol.getTimeout() : EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
-		final CriterionProcessVisitorImpl localOSVisitor = new CriterionProcessVisitorImpl(process.getProcessCommandLine(), matsyaClientsExecutor, timeout) ;
+		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(process.getProcessCommandLine(), matsyaClientsExecutor, timeout) ;
 		maybeLocalOS.get().accept(localOSVisitor);
 		return localOSVisitor.getCriterionTestResult();
 	}
@@ -698,12 +699,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 					String.format("Windows Service check: the %s Windows service is currently running.", serviceName) :
 						String.format("Windows Service check: the %s Windows service is not reported as running.\n %s", serviceName, state); // NOSONAR on %n
 
-					log.debug("Service Criterion, {}", message);
-					return CriterionTestResult.builder()
-							.success(running)
-							.message(message)
-							.result(result)
-							.build();
+			log.debug("Service Criterion, {}", message);
+			return CriterionTestResult.builder()
+					.success(running)
+					.message(message)
+					.result(result)
+					.build();
 
 		} catch (final Exception e) {
 			final String message = String.format(

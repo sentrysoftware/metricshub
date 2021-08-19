@@ -40,7 +40,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
@@ -780,8 +780,8 @@ class CriterionVisitorTest {
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.empty());
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.empty());
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
 
@@ -812,9 +812,9 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSEnum::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doThrow(new TimeoutException("over")).when(matsyaClientsExecutor).executeWmi(
 					"localhost",
@@ -855,9 +855,9 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSEnum::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(
 					"localhost",
@@ -898,9 +898,9 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSEnum::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(
 					List.of(
@@ -949,9 +949,9 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSEnum::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(
 					List.of(
@@ -997,10 +997,10 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class);
-				final MockedStatic<CriterionProcessVisitorImpl> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitorImpl.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitorImpl::listAllProcesses).thenReturn(
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class);
+				final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
 					List.of(
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("10564","eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
@@ -1040,10 +1040,10 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class);
-				final MockedStatic<CriterionProcessVisitorImpl> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitorImpl.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitorImpl::listAllProcesses).thenReturn(
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class);
+				final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
 					List.of(
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("2", "MBM[5-9]\\.exe", "user", "0", "MBM[5-9]\\.exe arg1 arg2"),
@@ -1080,14 +1080,14 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSEnum> mockedLocalOSEnum = mockStatic(LocalOSEnum.class)) {
-			mockedLocalOSEnum.when(LocalOSEnum::getOS).thenReturn(Optional.of(LocalOSEnum.AIX));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.AIX));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals("AIX not implemented.", criterionTestResult.getMessage());
+			assertEquals("aix not implemented.", criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
 	}

@@ -3,19 +3,19 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.FreeBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Hp;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Irix;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Os2;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Solaris;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Sun;
-import com.sentrysoftware.matrix.common.helpers.LocalOSEnum.Windows;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Irix;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Os2;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 import lombok.Getter;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CriterionProcessVisitorImpl implements LocalOSEnum.ILocalOSVisitor {
+public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
 	private static final String SERVICE_CRITERION = "Service Criterion, ";
 	private static final String VISIT = "visit ";
@@ -44,7 +44,7 @@ public class CriterionProcessVisitorImpl implements LocalOSEnum.ILocalOSVisitor 
 
 	@Override
 	public void visit(final Windows os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.WINDOWS + DOT);
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.WINDOWS.getOsTag() + DOT);
 
 		if (matsyaClientsExecutor == null) {
 			throw new IllegalArgumentException("matsyaClientsExecutor nust not been null.");
@@ -75,74 +75,74 @@ public class CriterionProcessVisitorImpl implements LocalOSEnum.ILocalOSVisitor 
 
 	@Override
 	public void visit(final Linux os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.LINUX + DOT);
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.LINUX.getOsTag() + DOT);
 		final List<List<String>> result = listAllProcesses();
 		processResult(result);
 	}
 
 	@Override
 	public void visit(final Hp os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.HP + DOT);
-		notImplemented(LocalOSEnum.HP.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.HP.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.HP.getOsTag());
 	}
 
 	@Override
 	public void visit(final Sun os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.SUN_OS + DOT);
-		notImplemented(LocalOSEnum.SUN_OS.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.SUN.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.SUN.getOsTag());
 	}
 
 	@Override
 	public void visit(final Solaris os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.SOLARIS + DOT);
-		notImplemented(LocalOSEnum.SOLARIS.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.SOLARIS.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.SOLARIS.getOsTag());
 	}
 
 	@Override
 	public void visit(final Os2 os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.OS2 + DOT);
-		notImplemented(LocalOSEnum.OS2.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.OS2.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.OS2.getOsTag());
 	}
 
 	@Override
 	public void visit(final Aix os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.AIX + DOT);
-		notImplemented(LocalOSEnum.AIX.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.AIX.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.AIX.getOsTag());
 	}
 
 	@Override
 	public void visit(final FreeBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.FREE_BSD + DOT);
-		notImplemented(LocalOSEnum.FREE_BSD.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.FREE_BSD.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.FREE_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final OpenBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.OPEN_BSD + DOT);
-		notImplemented(LocalOSEnum.OPEN_BSD.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.OPEN_BSD.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.OPEN_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final NetBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.NET_BSD + DOT);
-		notImplemented(LocalOSEnum.NET_BSD.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.NET_BSD.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.NET_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final Irix os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.IRIX + DOT);
-		notImplemented(LocalOSEnum.IRIX.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.IRIX.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.IRIX.getOsTag());
 	}
 
 	@Override
 	public void visit(final MacOSX os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSEnum.MAC_OS_X + DOT);
-		notImplemented(LocalOSEnum.MAC_OS_X.toString());
+		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.MAC_OS_X.getOsTag() + DOT);
+		notImplemented(LocalOSHandler.MAC_OS_X.getOsTag());
 	}
 
 	static List<List<String>> listAllProcesses() {
 		return ProcessHandle.allProcesses()
-				.map(CriterionProcessVisitorImpl::getInformations)
+				.map(CriterionProcessVisitor::getInformations)
 				.collect(Collectors.toList());
 	}
 
