@@ -92,10 +92,10 @@ class MonitorDiscoveryVisitorTest {
 	private static final String CPU_CORE_ID = "myConnector.connector_cpucore_ecs1-01_1.1";
 	private static final String CPU_CORE_MONITOR_X = "Monitor x";
 	private static final String DISK_CONTROLLER_ID = "myConnector.connector_diskcontroller_ecs1-01_1.1";
-	private static final String DISK_CONTROLLER_MONITOR_X = "DiskController: Monitor x";
+	private static final String DISK_CONTROLLER_MONITOR_X = "Disk Controller: Monitor x";
 	private static final String FAN_MONITOR_X = "Monitor x";
 	private static final String LED_ID = "myConnector.connector_led_ecs1-01_1.1";
-	private static final String LED_MONITOR_X = "LED: Monitor x";
+	private static final String LED_MONITOR_X = "Monitor x";
 	private static final String LOGICAL_DISK_ID = "myConnector.connector_logicaldisk_ecs1-01_1.1";
 	private static final String LOGICAL_DISK_MONITOR_X = "LogicalDisk: Monitor x";
 	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";

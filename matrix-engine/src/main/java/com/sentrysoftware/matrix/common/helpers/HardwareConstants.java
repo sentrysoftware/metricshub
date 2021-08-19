@@ -160,6 +160,8 @@ public class HardwareConstants {
 	public static final String USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
 	public static final String UPPER_THRESHOLD = "upperthreshold";
 	public static final String LOWER_THRESHOLD= "lowerthreshold";
+	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
+	public static final String COLOR = "color";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

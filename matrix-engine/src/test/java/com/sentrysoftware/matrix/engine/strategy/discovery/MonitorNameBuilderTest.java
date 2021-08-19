@@ -75,10 +75,10 @@ class MonitorNameBuilderTest {
 	void testBuildGenericName() {
 
 		assertEquals("display 12345",
-				MonitorNameBuilder.buildGenericName("dev 12345", "display 12345", "0", Arrays.asList("dev", "device")));
+				MonitorNameBuilder.buildGenericName("display 12345", "dev 12345", "0", Arrays.asList("dev", "device")));
 		assertEquals("12345",
-				MonitorNameBuilder.buildGenericName("dev 12345", " ", "0", Arrays.asList("dev", "device")));
-		assertEquals("0", MonitorNameBuilder.buildGenericName("dev 12345678901234567890", " ", "0",
+				MonitorNameBuilder.buildGenericName(" ", "dev 12345", "0", Arrays.asList("dev", "device")));
+		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", "dev 12345678901234567890", "0",
 				Arrays.asList("dev", "device")));
 		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", " ", "0", Arrays.asList("dev", "device")));
 	}
@@ -461,7 +461,7 @@ class MonitorNameBuilderTest {
 					MonitorNameBuilder.buildEnclosureName(buildingInfo));
 		}
 
-		// Storage: no model, no vendor
+		// Storage: no model, no vendor, no display ID
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -485,7 +485,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("Storage: (0)", MonitorNameBuilder.buildEnclosureName(buildingInfo));
+			assertEquals("Storage: 1.1", MonitorNameBuilder.buildEnclosureName(buildingInfo));
 		}
 
 		// Storage: no model, no vendor, but with display ID
@@ -540,7 +540,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("Enclosure:", MonitorNameBuilder.buildEnclosureName(buildingInfo));
+			assertEquals("Enclosure: 1.1", MonitorNameBuilder.buildEnclosureName(buildingInfo));
 		}
 	}
 
@@ -619,6 +619,62 @@ class MonitorNameBuilderTest {
 					.build();
 
 			assertEquals("0 (1A)", MonitorNameBuilder.buildFanName(buildingInfo));
+		}
+	}
+	
+	@Test
+	void testBuildLedName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "LED1.1");
+			metadata.put(HardwareConstants.DISPLAY_ID, "LED #1");
+			metadata.put(HardwareConstants.NAME, "Network");
+			metadata.put(HardwareConstants.COLOR, "RED");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.LED)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("LED #1 (Red - Network)", MonitorNameBuilder.buildLedName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "LED1,1");
+			metadata.put(HardwareConstants.COLOR, "green");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.CPU)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("11 (Green)", MonitorNameBuilder.buildLedName(buildingInfo));
 		}
 	}
 

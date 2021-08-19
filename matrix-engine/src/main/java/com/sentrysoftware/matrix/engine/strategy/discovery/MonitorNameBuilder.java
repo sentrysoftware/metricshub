@@ -71,12 +71,10 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Trims known/given words off the phrase to return only the unknown part of the
-	 * content
+	 * Trims known/given words off the phrase to return only the unknown part of the content
 	 * 
 	 * @param phrase {@link String} phrase to be trimmed
-	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the
-	 *               phrase
+	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the phrase
 	 * 
 	 * @return {@link String} trimmedPhrase Trimmed phrase
 	 */
@@ -92,12 +90,10 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Trims known/given words off the phrase to return only the unknown part of the
-	 * content
+	 * Trims known/given words off the phrase to return only the unknown part of the content
 	 * 
 	 * @param phrase {@link String} phrase to be trimmed
-	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the
-	 *               phrase
+	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the phrase
 	 * 
 	 * @return {@link String} trimmedPhrase Trimmed phrase
 	 */
@@ -169,6 +165,7 @@ public class MonitorNameBuilder {
 	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
 	 * 
 	 * @param metadata
+	 * 
 	 * @return {@link boolean} value
 	 */
 	static boolean isLocalhost(final Map<String, String> metadata) {
@@ -186,6 +183,7 @@ public class MonitorNameBuilder {
 	 * 
 	 * @param targetMonitor Monitor with type {@link MonitorType#TARGET}
 	 * @param targetType    The type of the target monitor
+	 * 
 	 * @return {@link String} value to append with the full monitor name
 	 */
 	static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
@@ -203,14 +201,14 @@ public class MonitorNameBuilder {
 	/**
 	 * Build a generic name common to all hardware devices
 	 * 
-	 * @param deviceId       {@link String} containing the device ID
 	 * @param displayId      {@link String} containing the display ID
+	 * @param deviceId       {@link String} containing the device ID
 	 * @param idCount        {@link String} containing the ID count
 	 * @param trimmableWords {@link List} of words (case-insensitive) to be trimmed off the device ID
 	 * 
 	 * @return {@link String} name Generic label based on the inputs
 	 */
-	public static String buildGenericName(final String deviceId, final String displayId, final String idCount,
+	public static String buildGenericName(final String displayId, final String deviceId, final String idCount,
 			final List<String> trimmableWords) {
 
 		// Make sure the ID count is set
@@ -227,8 +225,40 @@ public class MonitorNameBuilder {
 			}
 		}
 
-		// Use the ID count as name, if we couldn't build one from display ID or device
-		// ID
+		// Use the ID count as name, if we couldn't build one from display ID or device ID
+		if (!checkNotBlankDataValue(name)) {
+			return idCount;
+		}
+
+		return name;
+	}
+	
+	/**
+	 * Build a generic name common to all hardware devices without any word trimming
+	 * 
+	 * @param displayId      {@link String} containing the display ID
+	 * @param deviceId       {@link String} containing the device ID
+	 * @param idCount        {@link String} containing the ID count
+	 * 
+	 * @return {@link String} name Generic label based on the inputs
+	 */
+	public static String buildGenericName(final String displayId, final String deviceId, final String idCount) {
+
+		// Make sure the ID count is set
+		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
+
+		// Build the name
+		String name = null;
+		if (checkNotBlankDataValue(displayId)) {
+			name = displayId;
+		} else if (checkNotBlankDataValue(deviceId)) {
+			name = deviceId;
+			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
+				name = idCount;
+			}
+		}
+
+		// Use the ID count as name, if we couldn't build one from display ID or device ID
 		if (!checkNotBlankDataValue(name)) {
 			return idCount;
 		}
@@ -252,9 +282,11 @@ public class MonitorNameBuilder {
 
 		// Build the generic name
 		final StringBuilder name = new StringBuilder();
-		name.append(
-				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
-						metadata.get(HardwareConstants.ID_COUNT), List.of("battery")));
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID), 
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("battery")));
 
 		// Add the additional info to the label
 		name.append(" ("
@@ -279,9 +311,11 @@ public class MonitorNameBuilder {
 
 		// Build the generic name
 		final StringBuilder name = new StringBuilder();
-		name.append(
-				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
-						metadata.get(HardwareConstants.ID_COUNT), List.of("blade")));
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("blade")));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(
@@ -306,9 +340,11 @@ public class MonitorNameBuilder {
 
 		// Build the generic name
 		final StringBuilder name = new StringBuilder();
-		name.append(
-				buildGenericName(metadata.get(HardwareConstants.DEVICE_ID), metadata.get(HardwareConstants.DISPLAY_ID),
-						metadata.get(HardwareConstants.ID_COUNT), List.of("cpu", "processor", "proc")));
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID), 
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("cpu", "processor", "proc")));
 
 		// Format the maximum speed
 		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
@@ -342,19 +378,19 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Build the generic name
-		String name = buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT),
+		String name = buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID), 
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT),
 				List.of("cpu", "processor", "core", "proc"));
 
 		return trimUnwantedCharacters(name);
 	}
 
 	/**
-	 * Build the disk controller name based on the current implementation in
-	 * Hardware Sentry KM
+	 * Build the disk controller name based on the current implementation in Hardware Sentry KM
 	 * 
-	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor
-	 *                            instance
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
 	 * 
 	 * @return {@link String} name Label of the disk controller to be displayed
 	 */
@@ -364,10 +400,12 @@ public class MonitorNameBuilder {
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
-		// Build the generic name with prefix
+		// Build the generic name with prefix (controllerNumber is used for deviceId)
 		final StringBuilder name = new StringBuilder("Disk Controller: ");
-		name.append(buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT), null));
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID), 
+				metadata.get(HardwareConstants.DISK_CONTROLLER_NUMBER),
+				metadata.get(HardwareConstants.ID_COUNT)));
 
 		// Add the additional info to the label
 		name.append(" (" + joinVendorAndModel(metadata) + ")");
@@ -434,8 +472,11 @@ public class MonitorNameBuilder {
 			name.append(vendorModel);
 		} else if (HardwareConstants.COMPUTER.equals(enclosureType)) {
 			name.append(handleComputerDisplayName(targetMonitor, targetType));
-		} else if (HardwareConstants.STORAGE.equals(enclosureType) && !parenthesisOpened) {
-			name.append("(" + metadata.get(HardwareConstants.ID_COUNT) + ")");
+		} else if (!parenthesisOpened) {
+			name.append(buildGenericName(
+					null, 
+					metadata.get(HardwareConstants.DEVICE_ID),
+					metadata.get(HardwareConstants.ID_COUNT)));
 		}
 
 		// At the end, close the parenthesis, if opened
@@ -444,7 +485,6 @@ public class MonitorNameBuilder {
 		}
 
 		return trimUnwantedCharacters(name.toString());
-
 	}
 
 	/**
@@ -462,11 +502,45 @@ public class MonitorNameBuilder {
 
 		// Build the generic name
 		final StringBuilder name = new StringBuilder();
-		name.append(buildGenericName(metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.DISPLAY_ID), metadata.get(HardwareConstants.ID_COUNT), List.of("fan")));
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID), 
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("fan")));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(new String[] { metadata.get(HardwareConstants.FAN_TYPE) }, " - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+	
+	/**
+	 * Build the LED name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the LED to be displayed
+	 */
+	public static String buildLedName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		final StringBuilder name = new StringBuilder();
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("led")));
+
+		// Add the additional info to the label
+		String ledColor = metadata.get(HardwareConstants.COLOR);
+		if (checkNotBlankDataValue(ledColor)) {
+			ledColor = ledColor.substring(0, 1).toUpperCase() + ledColor.substring(1).toLowerCase();
+		}
+		name.append(" (" + joinWords(new String[] { ledColor, metadata.get(HardwareConstants.NAME) }, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}
