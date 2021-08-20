@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ResultContentProcessorTest {
@@ -32,7 +31,7 @@ class ResultContentProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> resultContentProcessor.parse(KEY, FOO, connector));
 
 		// Valid ResultContent value
-		assertNull(http.getResultContent());
+		assertEquals(ResultContent.BODY, http.getResultContent());
 		resultContentProcessor.parse(KEY, ALL, connector);
 		assertEquals(ResultContent.ALL, http.getResultContent());
 	}

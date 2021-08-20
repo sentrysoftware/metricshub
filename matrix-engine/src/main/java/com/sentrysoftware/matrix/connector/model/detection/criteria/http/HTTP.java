@@ -28,7 +28,7 @@ public class HTTP extends Criterion {
 	private Body body;
 	private String expectedResult;
 	private String errorMessage;
-	private ResultContent resultContent;
+	private ResultContent resultContent = ResultContent.BODY;
 
 	@Builder
 	public HTTP(boolean forceSerialization, String method, String url, Header header, Body body,
@@ -41,7 +41,7 @@ public class HTTP extends Criterion {
 		this.body = body;
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
-		this.resultContent = resultContent;
+		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
 	}
 
 	@Override

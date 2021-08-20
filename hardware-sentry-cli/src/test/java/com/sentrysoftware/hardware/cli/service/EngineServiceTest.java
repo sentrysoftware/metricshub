@@ -27,30 +27,31 @@ class EngineServiceTest {
 	EngineService engineService = new EngineService();
 
 	@Test
-	void getSelectedConnectorsTest() {
-		
-		Set<String> allHdfs = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs"));
-		Set<String> hdfs = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs", "cc.hdfs"));
-		Set<String> hdfsToConnectors = new HashSet<>(Arrays.asList("aa.connector", "bb.connector", "cc.connector"));
-		Set<String> hdfsExclusion = new HashSet<>(Arrays.asList("aa.hdfs", "bb.hdfs"));
-		Set<String> hdfsExclusionConnectors = new HashSet<>(Arrays.asList("cc.connector", "dd.connector", "ee.connector"));
-		
-		Set<String> selectedHdfs = engineService.getSelectedConnectors(allHdfs, hdfs, hdfsExclusion);
-		assertTrue(hdfsToConnectors.size() == selectedHdfs.size() && hdfsToConnectors.containsAll(selectedHdfs) && selectedHdfs.containsAll(hdfsToConnectors));
-		
-		Set<String> selectedHdfs2 = engineService.getSelectedConnectors(allHdfs, hdfs, null);
-		assertTrue(hdfsToConnectors.size() == selectedHdfs2.size() && hdfsToConnectors.containsAll(selectedHdfs2) && selectedHdfs2.containsAll(hdfsToConnectors));
-		
-		Set<String> excludeHdfs = engineService.getSelectedConnectors(allHdfs, null, hdfsExclusion);
-		assertTrue(excludeHdfs.size() == hdfsExclusionConnectors.size() && excludeHdfs.containsAll(hdfsExclusionConnectors) && hdfsExclusionConnectors.containsAll(excludeHdfs));
-		
-		Set<String> noSelectedHdfs = engineService.getSelectedConnectors(allHdfs, null, null);
-		assertEquals(Collections.emptySet(), noSelectedHdfs);
-		noSelectedHdfs = engineService.getSelectedConnectors(null, null, null);
-		assertEquals(Collections.emptySet(), noSelectedHdfs);
-		
+	void testGetConnectors() {
+
+		final Set<String> allConnectors = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs");
+		final Set<String> selected = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs");
+		final Set<String> excluded = Set.of("aa.hdfs", "bb.hdfs");
+
+		final Set<String> expectedInclusion = new HashSet<>(Arrays.asList("aa.connector", "bb.connector", "cc.connector"));
+		Set<String> actual = EngineService.getConnectors(allConnectors, selected);
+		assertEquals(expectedInclusion, actual);
+
+		actual = EngineService.getConnectors(allConnectors, Collections.emptySet());
+		assertEquals(Collections.emptySet(), actual);
+
+		final Set<String> expectedExclusion = Set.of("aa.connector", "bb.connector");
+		actual = EngineService.getConnectors(allConnectors, excluded);
+		assertEquals(expectedExclusion, actual);
+
+		actual = EngineService.getConnectors(allConnectors, Collections.emptySet());
+		assertEquals(Collections.emptySet(), actual);
+
+		actual = EngineService.getConnectors(allConnectors, null);
+		assertEquals(Collections.emptySet(), actual);
+
 	}
-	
+
 	@Test
 	void getSNMPCredentialsTest() {
 	

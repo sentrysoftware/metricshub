@@ -31,6 +31,8 @@ public class PslUtils {
 	private static final String FIRST_MATCHING_GROUP = "$1";
 	private static final String CLOSING_OPENING_PARENTHESIS = ")(";
 	private static final String CLOSING_PARENTHESIS_PLUS = ")+";
+	private static final String DOT_PLUS = ".+";
+	private static final String DOT = ".";
 	private static final char BACKSLASH_CHAR = '\\';
 	private static final char OPENING_PARENTHESIS_CHAR = '(';
 	private static final char CLOSING_PARENTHESIS_CHAR = ')';
@@ -56,6 +58,10 @@ public class PslUtils {
 
 		if (pslRegex == null || pslRegex.isEmpty()) {
 			return EMPTY;
+		}
+
+		if (DOT.equals(pslRegex)) {
+			return DOT_PLUS;
 		}
 
 		// We 're going to build the regex char by char

@@ -673,34 +673,46 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
 
-		final Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+		Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				collectTime.doubleValue(), collectTimePrevious);
-		Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+
+		// Convert deltaTime from milliseconds (ms) to seconds
+		if (deltaTime != null) {
+			deltaTime /= 1000.0; 
+		}
+
+		// Calculate energy usage from Power Consumption: E = P * T
+		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				powerConsumption, deltaTime);
 
 		if (energyUsage != null) {
 
+			// The energy will start from the energy usage delta
 			Double energy = energyUsage;
 
-			Double previousEnergyUsage = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+			// The previous value is needed to get the total energy in joules
+			Double previousEnergy = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.ENERGY_PARAMETER, true);
 
-			if (previousEnergyUsage != null) {
-				energy +=  previousEnergyUsage;
+			// Ok, we have the previous energy value ? sum the previous energy and the current delta energy usage
+			if (previousEnergy != null) {
+				energy +=  previousEnergy;
 			}
 
+			// Everything is good update the energy parameter in the HostMonitoring
 			updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_PARAMETER,
 				HardwareConstants.ENERGY_PARAMETER_UNIT,
 				collectTime,
-				energy / 1000D / (1000D / 3600D),
+				energy,
 				energy);
 
+			// Update the energy usage delta parameter in the HostMonitoring
 			updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
 				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
-				energyUsage  / 1000D / (1000D / 3600D),
+				energyUsage,
 				energyUsage);
 
 		} else {
