@@ -2044,7 +2044,7 @@ class ComputeVisitorTest {
 
 		List<List<String>> result = Arrays.asList(
 			Arrays.asList("ID1", "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", "TYPE1"),
-			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22||NO_VALUE", "TYPE2"),
+			Arrays.asList("ID2", "NO_VALUE|TRANSLATED_STATUS22", "TYPE2"),
 			Arrays.asList("ID3", "TRANSLATED_STATUS31", "TYPE3")
 		);
 
@@ -2146,7 +2146,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testJson2Csv() {
-		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring.json", ComputeVisitorTest.class).replaceAll("\\s", "");
+		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", ComputeVisitorTest.class).replaceAll("\\s", "");
 		sourceTable.setRawData(rawData);
 
 		Json2CSV json2CSV = null;
@@ -2158,14 +2158,15 @@ class ComputeVisitorTest {
 		assertEquals(rawData, sourceTable.getRawData());
 
 		json2CSV = Json2CSV.builder()
-				.entryKey("/ENCLOSURE/enclosure-1")
+				.entryKey("/monitors")
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
 				.build();
 
 		computeVisitor.visit(json2CSV);
 
-		String rawDataRes = "/ENCLOSURE/enclosure-1;enclosure-1;enclosure-1;ENCLOSURE;targetId;\n";
+		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" + 
+							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
 

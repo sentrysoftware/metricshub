@@ -313,6 +313,7 @@ class DiscoveryOperationTest {
 				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		final Map<String, String> fanMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -335,6 +336,7 @@ class DiscoveryOperationTest {
 				.parameters(Map.of(
 						HardwareConstants.PRESENT_PARAMETER,
 						PresentParam.builder().state(ParameterState.OK).build()))
+				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
@@ -424,8 +426,8 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
-
 
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
@@ -476,8 +478,8 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
-
 
 		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
 
@@ -672,6 +674,7 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.ENCLOSURE)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
@@ -737,6 +740,7 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(HardwareConstants.COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());

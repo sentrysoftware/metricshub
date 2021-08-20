@@ -201,7 +201,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.75</minimum>
+											<minimum>0.77</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -215,9 +215,9 @@
 						<exclude>com/sentrysoftware/matrix/connector/model/**</exclude>
 						<exclude>com/sentrysoftware/matrix/model/monitor/Monitor.*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/monitor/*MonitorBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/model/monitor/*AssertedParameter*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/parameter/*Param*</exclude>
-						<exclude>com/sentrysoftware/matrix/model/threshold/Threshold.*</exclude>
-						<exclude>com/sentrysoftware/matrix/model/threshold/*ThresholdBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/model/alert/**</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/target/HardwareTarget.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/target/*HardwareTargetBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/target/TargetType.*</exclude>

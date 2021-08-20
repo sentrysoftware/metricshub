@@ -162,8 +162,8 @@ public class CollectOperation extends AbstractStrategy {
 		final StatusParam status = super.buildStatusParamForConnector(testedConnector);
 		final TextParam testReport = super.buildTestReportParameter(hostname, testedConnector);
 
-		connectorMonitor.addParameter(status);
-		connectorMonitor.addParameter(testReport);
+		connectorMonitor.collectParameter(status);
+		connectorMonitor.collectParameter(testReport);
 
 		log.debug("End of the Connector Monitor {} Collect. Status: {}", connectorMonitor.getId(), status.getStatus());
 	}
@@ -643,7 +643,7 @@ public class CollectOperation extends AbstractStrategy {
 			.build();
 
 		// Adding the parameter to the target monitor
-		targetMonitor.addParameter(targetEnergy);
+		targetMonitor.collectParameter(targetEnergy);
 	}
 
 	/**
@@ -728,7 +728,7 @@ public class CollectOperation extends AbstractStrategy {
 			.build();
 
 		// Adding the parameter to the target monitor
-		targetMonitor.addParameter(targetHeatingMargin);
+		targetMonitor.collectParameter(targetHeatingMargin);
 	}
 
 	@Override

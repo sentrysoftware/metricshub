@@ -1,0 +1,27 @@
+{
+    "total": 2,
+    "monitors": [
+        {
+            "id": "enclosure-1",
+            "name": "enclosure-1",
+            "monitorType": "ENCLOSURE",
+            "parentId": "targetId",
+            "targetId": "targetId",
+            "extendedType": null,
+            "parameters": {},
+            "metadata": {},
+            "alertRules": {}
+        },
+        {
+            "id": "enclosure-2",
+            "name": "enclosure-2",
+            "monitorType": "ENCLOSURE",
+            "parentId": "targetId",
+            "targetId": "targetId",
+            "extendedType": null,
+            "parameters": {},
+            "metadata": {},
+            "alertRules": {}
+        }
+    ]
+}

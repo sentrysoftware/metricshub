@@ -8,6 +8,8 @@ import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -44,6 +46,10 @@ public class DetectionOperation extends AbstractStrategy {
 		// Localhost check 
 		final boolean isLocalhost = NetworkHelper.isLocalhost(strategyConfig.getEngineConfiguration().getTarget().getHostname());
 
+		// Create the target
+		log.debug("Create the Target");
+		final Monitor target = createTarget(isLocalhost);
+
 		// No selectedConnectors then perform auto detection
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 		final List<TestedConnector> testedConnectorList;
@@ -62,10 +68,6 @@ public class DetectionOperation extends AbstractStrategy {
 		} catch (Exception e) {
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
-
-		// Create the target
-		log.debug("Create the Target");
-		final Monitor target = createTarget(isLocalhost);
 
 		// Create the connector instances
 		createConnectors(target, testedConnectorList);
@@ -174,15 +176,24 @@ public class DetectionOperation extends AbstractStrategy {
 		final TextParam testReport = buildTestReportParameter(target.getName(), testedConnector);
 		final StatusParam statusParam = buildStatusParamForConnector(testedConnector);
 
-		monitor.addParameter(testReport);
-		monitor.addParameter(statusParam);
+		monitor.collectParameter(testReport);
+		monitor.collectParameter(statusParam);
 
 		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
 		monitor.addMetadata(FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
 
-		hostMonitoring.addMonitor(monitor);
+		monitor.getMonitorType().getMetaMonitor()
+				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()
+						.connectorName(connector.getCompiledFilename())
+						.hostMonitoring(hostMonitoring)
+						.hostname(target.getName())
+						.monitor(monitor)
+						.monitorType(MonitorType.CONNECTOR)
+						.targetMonitor(target)
+						.targetType(strategyConfig.getEngineConfiguration().getTarget().getType())
+						.build()));
 	}
 
 	/**
@@ -221,7 +232,15 @@ public class DetectionOperation extends AbstractStrategy {
 		// Create the fqdn metadata
 		targetMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));
 
-		hostMonitoring.addMonitor(targetMonitor);
+		// This will create the monitor then set the alert rules
+		targetMonitor.getMonitorType().getMetaMonitor().accept(
+				new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()
+						.hostMonitoring(hostMonitoring)
+						.hostname(hostname)
+						.monitor(targetMonitor)
+						.monitorType(MonitorType.TARGET)
+						.targetType(target.getType())
+						.build()));
 
 		log.debug("Created Target: {} ID: {} ", target.getHostname(), target.getId());
 

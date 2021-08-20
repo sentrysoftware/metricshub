@@ -570,8 +570,8 @@ class MonitorCollectVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = new Monitor();
-		monitor.addParameter(intructionStatusParam);
-		monitor.addParameter(powerConsumptionParam);
+		monitor.collectParameter(intructionStatusParam);
+		monitor.collectParameter(powerConsumptionParam);
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 		monitorCollectVisitor.appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER,
@@ -592,9 +592,9 @@ class MonitorCollectVisitorTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = new Monitor();
-		monitor.addParameter(statusParam);
-		monitor.addParameter(intructionStatusParam);
-		monitor.addParameter(powerConsumptionParam);
+		monitor.collectParameter(statusParam);
+		monitor.collectParameter(intructionStatusParam);
+		monitor.collectParameter(powerConsumptionParam);
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -837,7 +837,7 @@ class MonitorCollectVisitorTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 
-		MonitorCollectVisitor.collectPowerWithEnergyUsage(monitor, collectTime, 3138.358D, ECS1_01);
+		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime, 3138.358D, ECS1_01);
 
 		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue());
 		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
@@ -862,7 +862,7 @@ class MonitorCollectVisitorTest {
 				Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
 				.build();
 
-		MonitorCollectVisitor.collectPowerWithEnergyUsage(monitor, collectTime + (2 * 60 * 1000), 3138.360, ECS1_01);
+		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime + (2 * 60 * 1000), 3138.360, ECS1_01);
 
 		Double joules = monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
 		joules  = Math.round(joules * 100000D) / 100000D;
@@ -881,7 +881,7 @@ class MonitorCollectVisitorTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 
-		MonitorCollectVisitor.collectEnergyUsageWithPower(monitor, collectTime, 60D, ECS1_01);
+		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime, 60D, ECS1_01);
 
 		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
 		assertEquals(60, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
@@ -922,7 +922,7 @@ class MonitorCollectVisitorTest {
 						HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
 			.build();
 
-		MonitorCollectVisitor.collectEnergyUsageWithPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
+		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
 
 		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
 		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());

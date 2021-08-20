@@ -221,8 +221,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER, 
-				HardwareConstants.BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER, 
-				HardwareConstants.DUPLEX_MODE_PARAMETER, 
+				HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, 
+				HardwareConstants.DUPLEX_MODE_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_PERCENT_PARAMETER, 
 				HardwareConstants.LINK_SPEED_PARAMETER, 
 				HardwareConstants.LINK_STATUS_PARAMETER, 
@@ -544,7 +545,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		numberParam.setCollectTime(collectTime);
 		numberParam.setRawValue(rawValue);
 
-		monitor.addParameter(numberParam);
+		monitor.collectParameter(numberParam);
 	}
 
 	/**
@@ -578,7 +579,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				statusInformation));
 		statusParam.setCollectTime(collectTime);
 
-		monitor.addParameter(statusParam);
+		monitor.collectParameter(statusParam);
 	}
 
 	/**
@@ -640,7 +641,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double energyUsageRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.ENERGY_USAGE_PARAMETER);
 		if (energyUsageRaw != null && energyUsageRaw >= 0) {
 
-			collectPowerWithEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
+			collectPowerFromEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
 			return;
 		}
 
@@ -648,7 +649,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double powerConsumption = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
 		if (powerConsumption != null && powerConsumption >= 0) {
-			collectEnergyUsageWithPower(monitor, collectTime, powerConsumption, hostname);
+			collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 		}
 
 	}
@@ -661,7 +662,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param powerConsumption The power consumption value. Never null
 	 * @param hostname         The system host name used for debug purpose
 	 */
-	static void collectEnergyUsageWithPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
+	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
 
 		updateNumberParameter(monitor,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
@@ -715,7 +716,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param energyUsageRaw    The energy usage value. Never null
 	 * @param hostname          The system host name used for debug purpose
 	 */
-	static void collectPowerWithEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
+	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
 
 		updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
@@ -790,6 +791,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 	}
 
+	/**
+	 * Collects the percentage of charge, if the current {@link Monitor} is a {@link Battery}.
+	 */
 	void collectBatteryCharge() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
@@ -801,11 +805,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.CHARGE_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
-				Math.min(chargeRaw, 100.0),
+				Math.min(chargeRaw, 100.0), // In case the raw value is greater than 100%
 				chargeRaw);
 		}
 	}
 
+	/**
+	 * Collects the remaining time, in seconds, before the {@link Battery} runs out of power.
+	 */
 	void collectBatteryTimeLeft() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
