@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
 import lombok.Builder;
@@ -21,14 +22,14 @@ public class Json2CSV extends Compute {
 
 	private String entryKey;
 	private List<String> properties = new ArrayList<>();
-	private String separator;
+	private String separator = HardwareConstants.SEMICOLON;
 
 	@Builder
 	public Json2CSV(Integer index, String entryKey, List<String> properties, String separator) {
 		super(index);
 		this.entryKey = entryKey;
 		this.properties = properties == null ? new ArrayList<>() : properties;
-		this.separator = separator;
+		this.separator = separator == null ? HardwareConstants.SEMICOLON : separator;
 	}
 	@Override
 	public void accept(final IComputeVisitor computeVisitor) {

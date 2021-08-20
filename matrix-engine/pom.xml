@@ -201,7 +201,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.77</minimum>
+											<minimum>0.78</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -239,6 +239,8 @@
 						<exclude>com/sentrysoftware/matrix/engine/strategy/discovery/*MonitorBuildingInfoBuilder.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/collect/MonitorCollectInfo.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/collect/*MonitorCollectInfoBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/matsya/HTTPRequest.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/strategy/matsya/*HTTPRequestBuilder.*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

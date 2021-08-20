@@ -36,6 +36,9 @@ public class EngineConfiguration {
 	private Set<String> selectedConnectors = new HashSet<>();
 
 	@Default
+	private Set<String> excludedConnectors = new HashSet<>();
+
+	@Default
 	private ParameterState unknownStatus = ParameterState.WARN;
 
 }

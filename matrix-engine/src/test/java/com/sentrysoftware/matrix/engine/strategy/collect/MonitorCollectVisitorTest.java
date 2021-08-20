@@ -862,7 +862,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectPowerWithEnergyUsage() {
+	void testCollectPowerFromEnergyUsage() {
 
 		final NumberParam energyUsage = NumberParam
 				.builder()
@@ -891,7 +891,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectEnergyUsageWithPowerFirstCollect() {
+	void testCollectEnergyUsageFromPowerFirstCollect() {
 
 		final Monitor monitor = Monitor.builder()
 				.monitorType(MonitorType.ENCLOSURE)
@@ -905,7 +905,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectEnergyUsageWithPower() {
+	void testCollectEnergyUsageFromPower() {
 
 		final NumberParam powerConsumption = NumberParam
 				.builder()
@@ -943,12 +943,12 @@ class MonitorCollectVisitorTest {
 		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
 		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 
-		assertEquals(27648.0, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(27651.5964, monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7680.0, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7680.0, monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
 	@Test
-	void testCollectPowerConsumptionViaEnergyUsageFirstCollect() {
+	void testCollectPowerConsumptionFromEnergyUsageFirstCollect() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor
 				.builder()
@@ -971,7 +971,41 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectPowerConsumptionViaEnergyUsage() {
+	void testCollectEnergyUsageFromPowerManyCollects() {
+
+		// Collect 1
+		final Monitor monitor = Monitor
+			.builder()
+			.monitorType(MonitorType.ENCLOSURE)
+			.build();
+
+		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime , 64D, ECS1_01);
+
+		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class)); // Joules
+		assertNull(monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class)); // Joules
+
+		// Collect 2 (first collect time + 2 minutes)
+		monitor.getParameters().values().forEach(IParameterValue::reset);
+
+		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
+
+		assertEquals(60D, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7200.0,monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7200.0,monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+
+		// Collect 3  (first collect time + 4 minutes)
+		monitor.getParameters().values().forEach(IParameterValue::reset);
+
+		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
+
+		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7680.0,monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(14880.0,monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+	}
+
+	@Test
+	void testCollectPowerConsumptionFromEnergyUsage() {
 		final NumberParam energyUsage = NumberParam
 				.builder()
 				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
@@ -1033,7 +1067,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectPowerConsumptionViaPower() {
+	void testCollectPowerConsumptionFromPower() {
 		final NumberParam powerConsumption = NumberParam
 				.builder()
 				.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
@@ -1066,7 +1100,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(60.2, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
 		assertEquals(60.2, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 
-		assertEquals(26006, Math.round(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()));
+		assertEquals(7224, Math.round(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()));
 	}
 
 	@Test
