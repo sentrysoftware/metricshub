@@ -743,6 +743,10 @@ public class PrometheusSpecificities {
 				.unit(Battery.CHARGE.getUnit())
 				.factor(0.01)
 				.build());
+		map.put(Battery.TIME_LEFT.getName(), PrometheusParameter.builder()
+			.name("battery_time_left")
+			.unit(Battery.TIME_LEFT.getUnit())
+			.build());
 
 		return map;
 	}
