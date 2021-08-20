@@ -56,7 +56,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 		// The add metric is not defined in the MetricFamilySamples (super class of CounterMetricFamily and GaugeMetricFamily)
 		// that's why the following code looks a bit ugly...
-		if (labeledMetric.getClass().isAssignableFrom(CounterMetricFamily.class)) {
+		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
 					// Id, parentId (can be null), label, fqdn
 					createLabels(monitor),
