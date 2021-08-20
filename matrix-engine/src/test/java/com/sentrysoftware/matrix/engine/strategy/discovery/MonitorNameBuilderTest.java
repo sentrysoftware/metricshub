@@ -183,7 +183,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.BATTERY)
+					.monitorType(MonitorType.BLADE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -487,6 +487,33 @@ class MonitorNameBuilderTest {
 
 			assertEquals("Storage: 1.1", MonitorNameBuilder.buildEnclosureName(buildingInfo));
 		}
+		
+		// Storage: no model, no vendor, no display ID, and device ID too long
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+			metadata.put(HardwareConstants.DEVICE_ID, "12345678901234567890");
+			metadata.put(HardwareConstants.ID_COUNT, "1");
+			metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.ENCLOSURE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("Storage: 1", MonitorNameBuilder.buildEnclosureName(buildingInfo));
+		}
 
 		// Storage: no model, no vendor, but with display ID
 		{
@@ -666,7 +693,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.CPU)
+					.monitorType(MonitorType.LED)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -677,5 +704,119 @@ class MonitorNameBuilderTest {
 			assertEquals("11 (Green)", MonitorNameBuilder.buildLedName(buildingInfo));
 		}
 	}
+
+	@Test
+	void testBuildLogicalDiskName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
+			metadata.put(HardwareConstants.DISPLAY_ID, "disk-01");
+			metadata.put(HardwareConstants.SIZE, "10995116277760");
+			metadata.put(HardwareConstants.RAID_LEVEL, "5");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.LOGICAL_DISK)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("disk-01 (RAID 5 - 10 TB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
+		}
+		
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
+			metadata.put(HardwareConstants.SIZE, "1073741824");
+			metadata.put(HardwareConstants.RAID_LEVEL, "Raid 2");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.LOGICAL_DISK)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("01 (Raid 2 - 1 GB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
+		}
+	}
+	
+
+	@Test
+	void testBuildLunName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " LUN,1,1 ");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.LUN)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("11", MonitorNameBuilder.buildLunName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " LUN,  1 ");
+			metadata.put(HardwareConstants.DISPLAY_ID, "LUN 1");
+			metadata.put(HardwareConstants.LOCAL_DEVICE_NAME, "local 123");
+			metadata.put(HardwareConstants.REMOTE_DEVICE_NAME, "remote 123");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.LUN)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("LUN 1 (local 123 - remote 123)", MonitorNameBuilder.buildLunName(buildingInfo));
+		}
+	}
+
 
 }

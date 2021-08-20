@@ -164,11 +164,11 @@ public class MonitorNameBuilder {
 	 * Try to get the {@value HardwareConstants#LOCATION} metadata and return <code>true</code> for localhost value 
 	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
 	 * 
-	 * @param metadata
+	 * @param metadata         Metadata containing location and localhost constants
 	 * 
-	 * @return {@link boolean} value
+	 * @return {@link boolean} true/false whether it is a localhost or not
 	 */
-	static boolean isLocalhost(final Map<String, String> metadata) {
+	public static boolean isLocalhost(final Map<String, String> metadata) {
 		if (metadata != null) {
 			final String location = metadata.get(HardwareConstants.LOCATION);
 			if (location != null) {
@@ -186,7 +186,7 @@ public class MonitorNameBuilder {
 	 * 
 	 * @return {@link String} value to append with the full monitor name
 	 */
-	static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
+	public static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
 		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
 
@@ -198,6 +198,58 @@ public class MonitorNameBuilder {
 		}
 	}
 
+	/**
+	 * Check whether the string contains only integer or not
+	 * 
+	 * @param string        {@link String} to be checked for integer
+	 * 
+	 * @return {@link boolean} true/false whether it is an integer or not
+	 */
+	private static boolean isInteger(final String string) {
+		try { 
+			Integer.parseInt(string); 
+		} catch (Exception e) { 
+			return false; 
+		}
+		
+		// Must be a good integer
+		return true;
+	}
+	
+	/**
+	 * Converts a number in the string to readable bytes format
+	 * 
+	 * @param string        {@link String} to be formatted
+	 * 
+	 * @return {@link String} formatted bytes
+	 */
+	private static String formatByteNumber(final String string) {
+		
+		long bytes;
+		try { 
+			bytes = Long.parseLong(string); 
+		} catch (Exception e) { 
+			return string; 
+		}
+		
+		if (bytes < 0) {
+			bytes = bytes * -1;
+		}
+		
+		long divider = 1125899906842624L; //
+
+		for (String unit : new String[] {"PB", "TB", "GB", "MB", "KB"}) {
+			if (bytes >= divider) {
+				return String.format("%d %s", bytes/divider, unit);
+			}
+			
+			divider = divider/1024;
+		}
+		
+		return String.format("%d Bytes", bytes);
+
+	}
+	
 	/**
 	 * Build a generic name common to all hardware devices
 	 * 
@@ -289,9 +341,10 @@ public class MonitorNameBuilder {
 				List.of("battery")));
 
 		// Add the additional info to the label
-		name.append(" ("
-				+ joinWords(new String[] { joinVendorAndModel(metadata), metadata.get(HardwareConstants.TYPE) }, " - ")
-				+ ")");
+		name.append(" (" + joinWords(new String[] { 
+				joinVendorAndModel(metadata), 
+				metadata.get(HardwareConstants.TYPE) 
+			}, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}
@@ -318,9 +371,10 @@ public class MonitorNameBuilder {
 				List.of("blade")));
 
 		// Add the additional info to the label
-		name.append(" (" + joinWords(
-				new String[] { metadata.get(HardwareConstants.BLADE_NAME), metadata.get(HardwareConstants.MODEL) },
-				" - ") + ")");
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.BLADE_NAME), 
+				metadata.get(HardwareConstants.MODEL) 
+			}, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}
@@ -348,7 +402,7 @@ public class MonitorNameBuilder {
 
 		// Format the maximum speed
 		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
-		if (checkNotBlankDataValue(cpuMaxSpeed)) {
+		if (isInteger(cpuMaxSpeed)) {
 			Integer cpuMaxSpeedAsInt = Integer.parseInt(cpuMaxSpeed);
 			if (cpuMaxSpeedAsInt < 1000) {
 				cpuMaxSpeed = String.format("%d MHz", cpuMaxSpeedAsInt);
@@ -358,8 +412,11 @@ public class MonitorNameBuilder {
 		}
 
 		// Add the additional info to the label
-		name.append(" (" + joinWords(new String[] { metadata.get(HardwareConstants.VENDOR),
-				metadata.get(HardwareConstants.MODEL), cpuMaxSpeed }, " - ") + ")");
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.VENDOR),
+				metadata.get(HardwareConstants.MODEL), 
+				cpuMaxSpeed 
+			}, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}
@@ -454,36 +511,49 @@ public class MonitorNameBuilder {
 			enclosureType = HardwareConstants.ENCLOSURE;
 		}
 
-		// Build the generic name with prefix
-		final StringBuilder name = new StringBuilder(enclosureType + ": ");
-
 		// If enclosureDisplayID is specified, use it and put the rest in parenthesis
 		String enclosureDisplayId = metadata.get(HardwareConstants.DISPLAY_ID);
-		boolean parenthesisOpened = false;
-		if (checkNotBlankDataValue(enclosureDisplayId)) {
-			name.append(enclosureDisplayId + " (");
-			parenthesisOpened = true;
-		}
+		String additionalInfo = "";
 
 		// Find the vendor/model details
-		final String vendorModel = joinVendorAndModel(metadata);
-
+		String vendorModel = joinVendorAndModel(metadata);
 		if (checkNotBlankDataValue(vendorModel)) {
-			name.append(vendorModel);
+			
+			// We will use vendor/model as enclosureDisplayId, if it is not set
+			if (checkNotBlankDataValue(enclosureDisplayId)) {
+				// Add vendor/model as additionalInfo in parenthesis
+				additionalInfo = vendorModel;
+			} else {
+				// Use it as enclosureDisplayId
+				enclosureDisplayId = vendorModel;
+			}
+			
 		} else if (HardwareConstants.COMPUTER.equals(enclosureType)) {
-			name.append(handleComputerDisplayName(targetMonitor, targetType));
-		} else if (!parenthesisOpened) {
-			name.append(buildGenericName(
-					null, 
-					metadata.get(HardwareConstants.DEVICE_ID),
-					metadata.get(HardwareConstants.ID_COUNT)));
+			
+			// Find the computer display name
+			String computerDisplayName = handleComputerDisplayName(targetMonitor, targetType);
+			if (checkNotBlankDataValue(computerDisplayName)) {
+				// We will use computer display name as enclosureDisplayId, if it is still not set
+				if (checkNotBlankDataValue(enclosureDisplayId)) {
+					// Add computerDisplayName as additionalInfo in parenthesis
+					additionalInfo = computerDisplayName;
+				} else {
+					// Use it as enclosureDisplayId
+					enclosureDisplayId = computerDisplayName;
+				}
+			}
 		}
+		
+		// Build the generic name with prefix
+		final StringBuilder name = new StringBuilder(enclosureType + ": ");
+		name.append(buildGenericName(
+				enclosureDisplayId, 
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT)));
 
-		// At the end, close the parenthesis, if opened
-		if (parenthesisOpened) {
-			name.append(")");
-		}
-
+		// Add the additional info to the label
+		name.append(" (" + additionalInfo + ")");
+		
 		return trimUnwantedCharacters(name.toString());
 	}
 
@@ -509,7 +579,9 @@ public class MonitorNameBuilder {
 				List.of("fan")));
 
 		// Add the additional info to the label
-		name.append(" (" + joinWords(new String[] { metadata.get(HardwareConstants.FAN_TYPE) }, " - ") + ")");
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.FAN_TYPE) 
+			}, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}
@@ -540,7 +612,80 @@ public class MonitorNameBuilder {
 		if (checkNotBlankDataValue(ledColor)) {
 			ledColor = ledColor.substring(0, 1).toUpperCase() + ledColor.substring(1).toLowerCase();
 		}
-		name.append(" (" + joinWords(new String[] { ledColor, metadata.get(HardwareConstants.NAME) }, " - ") + ")");
+		name.append(" (" + joinWords(new String[] { 
+				ledColor, 
+				metadata.get(HardwareConstants.NAME) 
+			}, " - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+	
+	/**
+	 * Build the logical disk name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the logical disk to be displayed
+	 */
+	public static String buildLogicalDiskName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name with prefix
+		final StringBuilder name = new StringBuilder();
+		final String logicalDiskType = metadata.get(HardwareConstants.TYPE);
+		if (checkNotBlankDataValue(logicalDiskType)) {
+			name.append(logicalDiskType + ": ");
+		}
+
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("disk", "drive", "logical")));
+
+		// Add the additional info to the label
+		String logicalDiskRaidLevel = metadata.get(HardwareConstants.RAID_LEVEL);
+		if (checkNotBlankDataValue(logicalDiskRaidLevel) && isInteger(logicalDiskRaidLevel)) {
+			logicalDiskRaidLevel = "RAID " + logicalDiskRaidLevel;
+		}
+		
+		name.append(" (" + joinWords(new String[] { 
+				logicalDiskRaidLevel, 
+				formatByteNumber(metadata.get(HardwareConstants.SIZE)) 
+			}, " - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+	
+	/**
+	 * Build the LUN name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the LUN to be displayed
+	 */
+	public static String buildLunName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		final StringBuilder name = new StringBuilder();
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				List.of("LUN")));
+
+		// Add the additional info to the label
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.LOCAL_DEVICE_NAME), 
+				metadata.get(HardwareConstants.REMOTE_DEVICE_NAME) 
+			}, " - ") + ")");
 
 		return trimUnwantedCharacters(name.toString());
 	}

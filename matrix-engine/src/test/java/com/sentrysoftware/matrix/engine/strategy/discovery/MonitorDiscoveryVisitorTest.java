@@ -97,9 +97,9 @@ class MonitorDiscoveryVisitorTest {
 	private static final String LED_ID = "myConnector.connector_led_ecs1-01_1.1";
 	private static final String LED_MONITOR_X = "Monitor x";
 	private static final String LOGICAL_DISK_ID = "myConnector.connector_logicaldisk_ecs1-01_1.1";
-	private static final String LOGICAL_DISK_MONITOR_X = "LogicalDisk: Monitor x";
+	private static final String LOGICAL_DISK_MONITOR_X = "Monitor x";
 	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";
-	private static final String LUN_MONITOR_X = "Lun: Monitor x";
+	private static final String LUN_MONITOR_X = "Monitor x";
 	private static final String ENCLOSURE_ID = "myConnector.connector_enclosure_ecs1-01_1.1";
 
 	@Test
