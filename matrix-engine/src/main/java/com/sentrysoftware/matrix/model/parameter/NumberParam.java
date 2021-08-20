@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import com.sentrysoftware.matrix.model.threshold.Threshold;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,9 +20,9 @@ public class NumberParam extends AbstractParam {
 	private Long previousCollectTime;
 
 	@Builder
-	public NumberParam(String name, Long collectTime, Threshold threshold, ParameterState parameterState, Double value, Double rawValue, String unit) {
+	public NumberParam(String name, Long collectTime, ParameterState parameterState, Double value, Double rawValue, String unit) {
 
-		super(name, collectTime, threshold, parameterState, unit);
+		super(name, collectTime, parameterState, unit);
 		this.value = value;
 		this.rawValue = rawValue;
 	}

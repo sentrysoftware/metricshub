@@ -8,6 +8,8 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 public interface IMetaMonitor {
 
@@ -59,8 +61,29 @@ public interface IMetaMonitor {
 
 	List<String> getMetadata();
 
+	Map<String, List<AlertRule>> getStaticAlertRules();
+
 	default boolean hasPresentParameter() {
 
 		return getMetaParameters().containsKey(HardwareConstants.PRESENT_PARAMETER);
 	}
+
+	/**
+	 * 
+	 * @param status {@link StatusParam} instance we wish to extract its status information
+	 * @return {@link String} value if the status information is available otherwise null
+	 */
+	/**
+	 * 
+	 * @param status {@link StatusParam} instance we wish to extract its status information
+	 * @return {@link String} value if the status information is available otherwise null
+	 */
+	static String getStatusInformationMessage(StatusParam status) {
+		String statusInformation = status.getStatusInformation();
+		if (statusInformation != null && statusInformation.isBlank()) {
+			return String.format(" Reported status: %s.", statusInformation);
+		}
+		return "";
+	}
+
 }

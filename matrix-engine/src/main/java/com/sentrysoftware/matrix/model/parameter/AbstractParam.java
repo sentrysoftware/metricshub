@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.model.parameter;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.model.threshold.Threshold;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,14 +11,12 @@ public abstract class AbstractParam implements IParameterValue {
 
 	private String name;
 	private Long collectTime;
-	private Threshold threshold;
 	private ParameterState state = ParameterState.OK;
 	private String unit;
 
-	protected AbstractParam(String name, Long collectTime, Threshold threshold, ParameterState state, String unit) {
+	protected AbstractParam(String name, Long collectTime, ParameterState state, String unit) {
 		this.name = name;
 		this.collectTime = collectTime;
-		this.threshold = threshold;
 		this.state = state != null ? state :  ParameterState.OK;
 		this.unit = unit;
 	}
