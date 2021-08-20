@@ -9,18 +9,31 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Builder.Default;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class HTTPRequest {
+	@NonNull
 	private HTTPProtocol httpProtocol;
+
+	@NonNull
 	private String hostname;
+
 	private String method;
+
 	private String url;
+
 	private Header header;
+
 	private Body body;
-	private ResultContent resultContent;
+
+	@Default
+	@NonNull
+	private ResultContent resultContent = ResultContent.BODY;
+
 	private String authenticationToken;
 }

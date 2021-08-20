@@ -159,10 +159,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getHostname();
 
 		final String result = matsyaClientsExecutor.executeHttp(HTTPRequest.builder()
+				.hostname(hostname)
 				.method(criterion.getMethod())
 				.url(criterion.getUrl())
 				.header(criterion.getHeader())
 				.body(criterion.getBody())
+				.httpProtocol(protocol)
+				.resultContent(criterion.getResultContent())
 				.build(),
 				false);
 

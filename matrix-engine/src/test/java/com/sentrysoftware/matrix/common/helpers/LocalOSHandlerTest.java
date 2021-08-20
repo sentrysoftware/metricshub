@@ -11,7 +11,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
