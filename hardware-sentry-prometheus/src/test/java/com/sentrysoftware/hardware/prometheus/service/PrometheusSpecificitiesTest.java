@@ -1,33 +1,36 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+
 class PrometheusSpecificitiesTest {
 
-	private static final String SPEEDPERCENT = "speedpercent";
+	@Test
+	void testGetInfoMetricName() {
+		MonitorType.MONITOR_TYPES.stream().forEach(monitorType -> assertNotNull(PrometheusSpecificities.getInfoMetricName(monitorType)));
+	}
 
 	@Test
-	void testGetPrometheusParameterName() {
-		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterName());
-		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fAn", "speedPercent").getPrometheusParameterName());
-		assertEquals("speed_fraction", PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterName());
-		assertNull(PrometheusSpecificities.getPrometheusParameter("blabla", SPEEDPERCENT));
-		assertNull(PrometheusSpecificities.getPrometheusParameter("fan", "blabla"));
-	}
-	
-	@Test
-	void testGetPrometheusParameterUnit() {
-		assertNotNull(PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterUnit());
-		assertEquals("fraction", PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterUnit());
-	}
-	
-	@Test
-	void testGetPrometheusParameterFactor() {
-		assertEquals(0.01, PrometheusSpecificities.getPrometheusParameter("fan", SPEEDPERCENT).getPrometheusParameterFactor());
+	void testGetPrometheusParameter() {
+
+		for (MonitorType monitorType : MonitorType.MONITOR_TYPES) {
+
+			final Map<String, PrometheusParameter> prometheusSpecificities = PrometheusSpecificities.getPrometheusParameters()
+					.get(monitorType);
+			if (prometheusSpecificities != null) {
+				for (Entry<String, PrometheusParameter> entry : prometheusSpecificities.entrySet())  {
+					assertNotNull(entry.getValue());
+				}
+			}
+		}
+
 	}
 
 }

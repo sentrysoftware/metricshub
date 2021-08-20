@@ -1505,13 +1505,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -1530,7 +1530,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1583,7 +1583,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -1650,13 +1650,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -1675,7 +1675,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1728,7 +1728,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -1795,13 +1795,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -1820,7 +1820,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1873,7 +1873,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -1940,13 +1940,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -1965,7 +1965,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2018,7 +2018,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2085,13 +2085,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2110,7 +2110,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2163,7 +2163,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2230,13 +2230,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2255,7 +2255,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2308,7 +2308,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2375,13 +2375,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2400,7 +2400,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2453,7 +2453,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2520,13 +2520,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2545,7 +2545,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2598,7 +2598,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2665,13 +2665,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2690,7 +2690,7 @@
         "state" : "WARN",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 1,
-        "statusInformation" : "status: 1 (Starting)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 1 (Starting)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2743,7 +2743,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2814,13 +2814,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2839,7 +2839,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2892,7 +2892,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -2959,13 +2959,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -2984,7 +2984,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3037,7 +3037,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",
@@ -3104,13 +3104,13 @@
         "previousCollectTime" : null,
         "type" : "NumberParam"
       },
-      "linkSTatus" : {
-        "name" : "linkSTatus",
+      "linkStatus" : {
+        "name" : "linkStatus",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = Plugged ; 1 = Unplugged}",
         "status" : 0,
-        "statusInformation" : "linkSTatus: 0 (OK)",
+        "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -3129,7 +3129,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkSTatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3182,7 +3182,7 @@
         "active" : "INACTIVE",
         "type" : "STATIC"
       } ],
-      "linkSTatus" : [ {
+      "linkStatus" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "EQ",

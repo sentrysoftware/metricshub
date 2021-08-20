@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.monitor;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.util.Assert;
@@ -57,6 +59,8 @@ public enum MonitorType {
 	TEMPERATURE("Temperature", new Temperature()),
 	VOLTAGE("Voltage", new Voltage());
 
+	public static final List<MonitorType> MONITOR_TYPES = Collections.unmodifiableList(Arrays.asList(MonitorType.values()));
+
 	private String name;
 	private IMetaMonitor metaMonitor;
 
@@ -67,7 +71,7 @@ public enum MonitorType {
 	 */
 	public static MonitorType getByName(final String name) {
 		Assert.notNull(name, "name cannot be null.");
-		return Arrays.stream(MonitorType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
+		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
 	}
 
@@ -80,7 +84,7 @@ public enum MonitorType {
 		if (name == null) {
 			return Optional.empty();
 		}
-		return Arrays.stream(MonitorType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst();
+		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst();
 	}
 
 	/**

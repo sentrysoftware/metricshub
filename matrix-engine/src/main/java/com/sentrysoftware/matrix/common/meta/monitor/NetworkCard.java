@@ -107,9 +107,44 @@ public class NetworkCard implements IMetaMonitor {
 			.build();
 
 	public static final MetaParameter ZERO_BUFFER_CREDIT_PERCENT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter ZERO_BUFFER_CREDIT_COUNT = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER)
+			.unit(HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter TRANSMITTED_BYTES = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.TRANSMITTED_BYTES_PARAMETER)
+			.unit(HardwareConstants.BYTES_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter RECEIVED_BYTES = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.RECEIVED_BYTES_PARAMETER)
+			.unit(HardwareConstants.BYTES_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter TRANSMITTED_PACKETS = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.TRANSMITTED_PACKETS_PARAMETER)
+			.unit(HardwareConstants.PACKETS_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter RECEIVED_PACKETS = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.RECEIVED_PACKETS_PARAMETER)
+			.unit(HardwareConstants.PACKETS_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -156,6 +191,13 @@ public class NetworkCard implements IMetaMonitor {
 		map.put(HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER, TRANSMITTED_BYTES_RATE);
 		map.put(HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER, TRANSMITTED_PACKETS_RATE);
 		map.put(HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER, ZERO_BUFFER_CREDIT_PERCENT);
+		map.put(HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER, ZERO_BUFFER_CREDIT_COUNT);
+		map.put(HardwareConstants.TRANSMITTED_BYTES_PARAMETER, TRANSMITTED_BYTES);
+		map.put(HardwareConstants.RECEIVED_BYTES_PARAMETER, RECEIVED_BYTES);
+		map.put(HardwareConstants.TRANSMITTED_PACKETS_PARAMETER, TRANSMITTED_PACKETS);
+		map.put(HardwareConstants.RECEIVED_PACKETS_PARAMETER, RECEIVED_PACKETS);
+		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
+
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
