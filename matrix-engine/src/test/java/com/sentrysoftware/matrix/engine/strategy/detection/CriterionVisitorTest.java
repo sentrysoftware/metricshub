@@ -780,8 +780,8 @@ class CriterionVisitorTest {
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.empty());
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.empty());
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
 
@@ -812,16 +812,16 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doThrow(new TimeoutException("over")).when(matsyaClientsExecutor).executeWmi(
 					"localhost",
 					null,
 					null,
 					120L,
-					"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+					"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 					"root\\cimv2");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -829,7 +829,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
 			assertEquals(
-					"Unable to perform WMI query \"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process\". TimeoutException: over",
+					"Unable to perform WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\". TimeoutException: over",
 					criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
@@ -855,16 +855,16 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(
 					"localhost",
 					null,
 					null,
 					120L,
-					"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+					"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 					"root\\cimv2");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -872,7 +872,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
 			assertEquals(
-					"WMI query \"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process\" return empty value.",
+					"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" returned empty value.",
 					criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
@@ -898,9 +898,9 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(
 					List.of(
@@ -911,7 +911,7 @@ class CriterionVisitorTest {
 					null,
 					null,
 					120L,
-					"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+					"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 					"root\\cimv2");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -949,21 +949,21 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
-			mockedLocalOSEnum.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOSHandler::getSystemOSVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(
 					List.of(
 							List.of("0","System Idle Process", "0", ""),
-							List.of("2", "MBM[5-9]\\.exe", "0", "MBM[5-9]\\.exe arg1 arg2"),
+							List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
 							List.of("10564","eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")))
 			.when(matsyaClientsExecutor).executeWmi(
 					"localhost",
 					null,
 					null,
 					120L,
-					"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+					"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 					"root\\cimv2");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -982,25 +982,15 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(TIME_OUT)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.build();
-
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class);
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
 				final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("10564","eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
@@ -1025,28 +1015,18 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(TIME_OUT)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.build();
-
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class);
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
 				final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
-							List.of("2", "MBM[5-9]\\.exe", "user", "0", "MBM[5-9]\\.exe arg1 arg2"),
+							List.of("2", "MBM6.exe", "user", "0", "MBM6.exe arg1 arg2"),
 							List.of("10564","eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -1065,29 +1045,19 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(TIME_OUT)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.build();
-
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		try (final MockedStatic<LocalOSHandler> mockedLocalOSEnum = mockStatic(LocalOSHandler.class)) {
-			mockedLocalOSEnum.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.AIX));
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
+			mockedLocalOSHandler.when(LocalOSHandler::getOS).thenReturn(Optional.of(LocalOSHandler.AIX));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals("aix not implemented.", criterionTestResult.getMessage());
+			assertEquals("Process presence check: no test will be performed for OS: aix.", criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
 	}

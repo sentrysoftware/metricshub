@@ -624,10 +624,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 		}
 
-		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
-		final long timeout = protocol != null ? protocol.getTimeout() : EngineConfiguration.DEFAULT_JOB_TIMEOUT;
-
-		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(process.getProcessCommandLine(), matsyaClientsExecutor, timeout) ;
+		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(process.getProcessCommandLine(), strategyConfig, matsyaClientsExecutor) ;
 		maybeLocalOS.get().accept(localOSVisitor);
 		return localOSVisitor.getCriterionTestResult();
 	}

@@ -3,19 +3,23 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.util.Assert;
+
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Irix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Os2;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 import lombok.Getter;
@@ -27,28 +31,23 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
-	private static final String SERVICE_CRITERION = "Service Criterion, ";
-	private static final String VISIT = "visit ";
-	private static final String PROCESS_COMMAND_LINE_QUERY = "select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process";
-	private static final String EMPTY = "";
-	private static final String DOT = ".";
-	private static final int COMMAND_INDEX = 1;
+	private static final String PROCESS_COMMAND_LINE_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
 
 	@NonNull
 	private final String command;
+	private final StrategyConfig strategyConfig;
 	private final MatsyaClientsExecutor matsyaClientsExecutor;
-	private final long timeout;
 
 	@Getter
 	private CriterionTestResult criterionTestResult;
 
 	@Override
 	public void visit(final Windows os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.WINDOWS.getOsTag() + DOT);
+		Assert.state(strategyConfig != null, "strategyConfig mustn't be null.");
+		Assert.state(matsyaClientsExecutor != null, "matsyaClientsExecutor mustn't be null.");
 
-		if (matsyaClientsExecutor == null) {
-			throw new IllegalArgumentException("matsyaClientsExecutor nust not been null.");
-		}
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		final long timeout = protocol != null ? protocol.getTimeout() : EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
 		try {
 			final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(
@@ -59,7 +58,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 					PROCESS_COMMAND_LINE_QUERY,
 					"root\\cimv2");
 			if (queryResult.isEmpty()) {
-				fail(String.format("WMI query \"%s\" return empty value.", PROCESS_COMMAND_LINE_QUERY));
+				fail(String.format("WMI query \"%s\" returned empty value.", PROCESS_COMMAND_LINE_QUERY));
 			} else {
 				processResult(queryResult);
 			}
@@ -75,74 +74,57 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
 	@Override
 	public void visit(final Linux os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.LINUX.getOsTag() + DOT);
-		final List<List<String>> result = listAllProcesses();
+		final List<List<String>> result = listAllLinuxProcesses();
 		processResult(result);
 	}
 
 	@Override
 	public void visit(final Hp os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.HP.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.HP.getOsTag());
 	}
 
 	@Override
 	public void visit(final Sun os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.SUN.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.SUN.getOsTag());
 	}
 
 	@Override
 	public void visit(final Solaris os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.SOLARIS.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.SOLARIS.getOsTag());
 	}
 
 	@Override
-	public void visit(final Os2 os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.OS2.getOsTag() + DOT);
-		notImplemented(LocalOSHandler.OS2.getOsTag());
-	}
-
-	@Override
-	public void visit(final Aix os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.AIX.getOsTag() + DOT);
-		notImplemented(LocalOSHandler.AIX.getOsTag());
-	}
-
-	@Override
 	public void visit(final FreeBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.FREE_BSD.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.FREE_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final OpenBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.OPEN_BSD.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.OPEN_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final NetBSD os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.NET_BSD.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.NET_BSD.getOsTag());
 	}
 
 	@Override
-	public void visit(final Irix os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.IRIX.getOsTag() + DOT);
-		notImplemented(LocalOSHandler.IRIX.getOsTag());
+	public void visit(final Aix os) {
+		notImplemented(LocalOSHandler.AIX.getOsTag());
 	}
 
 	@Override
 	public void visit(final MacOSX os) {
-		log.debug(SERVICE_CRITERION + VISIT + LocalOSHandler.MAC_OS_X.getOsTag() + DOT);
 		notImplemented(LocalOSHandler.MAC_OS_X.getOsTag());
 	}
 
-	static List<List<String>> listAllProcesses() {
+	/**
+	 * List all Linux process.
+	 * @return
+	 */
+	static List<List<String>> listAllLinuxProcesses() {
 		return ProcessHandle.allProcesses()
-				.map(CriterionProcessVisitor::getInformations)
+				.map(CriterionProcessVisitor::getProcessDetails)
 				.collect(Collectors.toList());
 	}
 
@@ -151,18 +133,22 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	 * @param processHandle
 	 * @return
 	 */
-	static List<String> getInformations(final ProcessHandle processHandle) {
+	static List<String> getProcessDetails(final ProcessHandle processHandle) {
 		return List.of(
 				String.valueOf(processHandle.pid()),
-				processHandle.info().command().orElse(EMPTY),
-				processHandle.info().user().orElse(EMPTY),
-				processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(EMPTY),
-				processHandle.info().commandLine().orElse(EMPTY));
+				processHandle.info().command().orElse(HardwareConstants.EMPTY),
+				processHandle.info().user().orElse(HardwareConstants.EMPTY),
+				processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(HardwareConstants.EMPTY),
+				processHandle.info().commandLine().orElse(HardwareConstants.EMPTY));
 	}
 
+	/**
+	 * Process the command pocess list result.
+	 * @param result
+	 */
 	private void processResult(final List<List<String>> result) {
 		result.stream()
-		.filter(line -> line.get(COMMAND_INDEX).contains(command))
+		.filter(line -> line.get(1).matches(command))
 		.findFirst()
 		.ifPresentOrElse(
 				line -> success(
@@ -173,22 +159,34 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 						String.format(
 								"No currently running processes matches the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
 								command,
-								result.stream().map(line -> line.stream().collect(Collectors.joining( ";"))).collect(Collectors.joining("\n")))));
+								result.stream().map(line -> line.stream().collect(Collectors.joining(HardwareConstants.SEMICOLON))).collect(Collectors.joining(HardwareConstants.NEW_LINE)))));
 	}
 
+	/**
+	 * Not implemented OS case.
+	 * @param os
+	 */
 	private void notImplemented(final String os) {
-		success(String.format("%s not implemented.", os));
+		success(String.format("Process presence check: no test will be performed for OS: %s.", os));
 	}
 
+	/**
+	 * Create a failed criterionTestResult.
+	 * @param message error message.
+	 */
 	private void fail(final String message) {
-		log.error(SERVICE_CRITERION + message);
+		log.error("Process Criterion, {}", message);
 		criterionTestResult = CriterionTestResult.builder()
 				.message(message)
 				.build();
 	}
 
+	/**
+	 * Create a success criterionTestResult.
+	 * @param message success message.
+	 */
 	private void success(final String message) {
-		log.debug(SERVICE_CRITERION + message);
+		log.debug("Process Criterion, {}", message);
 		criterionTestResult = CriterionTestResult.builder()
 				.success(true)
 				.message(message)

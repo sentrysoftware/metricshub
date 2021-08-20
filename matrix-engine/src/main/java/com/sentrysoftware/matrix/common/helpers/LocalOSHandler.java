@@ -15,21 +15,22 @@ public class LocalOSHandler {
 	public static final ILocalOS SUN = new Sun();
 	public static final ILocalOS HP = new Hp();
 	public static final ILocalOS SOLARIS = new Solaris();
-	public static final ILocalOS OS2 = new Os2();
 	public static final ILocalOS AIX = new Aix();
 	public static final ILocalOS FREE_BSD = new FreeBSD();
 	public static final ILocalOS OPEN_BSD = new OpenBSD();
 	public static final ILocalOS NET_BSD = new NetBSD();
-	public static final ILocalOS IRIX = new Irix();
 	public static final ILocalOS MAC_OS_X = new MacOSX();
 
-	private static final List<ILocalOS> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, IRIX, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD, OS2);
+	private static final List<ILocalOS> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD);
+
+	@Getter
+	private static final Optional<ILocalOS> OS = detectOS();
 
 	/**
-	 * Get the current Local OS.
+	 * Detect the current Local OS.
 	 * @return An optional with the current local OS. Empty if not determined.
 	 */
-	public static Optional<ILocalOS> getOS() {
+	static Optional<ILocalOS> detectOS() {
 		return getSystemOSName()
 				.map(String::toLowerCase)
 				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
@@ -57,12 +58,10 @@ public class LocalOSHandler {
 		void visit(final Sun os);
 		void visit(final Hp os);
 		void visit(final Solaris os);
-		void visit(final Os2 os);
 		void visit(final Aix os);
 		void visit(final FreeBSD os);
 		void visit(final OpenBSD os);
 		void visit(final NetBSD os);
-		void visit(final Irix os);
 		void visit(final MacOSX os);
 	}
 
@@ -135,18 +134,6 @@ public class LocalOSHandler {
 		}
 	}
 
-	public static class Os2 extends ILocalOS {
-		Os2() {
-			osTag = "os/2";
-			unix = false;
-		}
-
-		@Override
-		public void accept(final ILocalOSVisitor visitor) {
-			visitor.visit(this);
-		}
-	}
-
 	public static class Aix extends ILocalOS {
 		Aix() {
 			osTag = "aix";
@@ -159,10 +146,22 @@ public class LocalOSHandler {
 		}
 	}
 
-	public static class FreeBSD extends ILocalOS {
+	@Getter
+	private abstract static class BsdOS extends ILocalOS {
+
+		private final boolean bsd;
+
+		BsdOS() {
+			bsd = true;
+			unix = true;
+		}
+	}
+
+	public static class FreeBSD extends BsdOS {
+
 		FreeBSD() {
+			super();
 			osTag = "freebsd";
-			unix = true;
 		}
 
 		@Override
@@ -171,10 +170,10 @@ public class LocalOSHandler {
 		}
 	}
 
-	public static class OpenBSD extends ILocalOS {
+	public static class OpenBSD extends BsdOS {
 		OpenBSD() {
+			super();
 			osTag = "openbsd";
-			unix = true;
 		}
 
 		@Override
@@ -183,22 +182,10 @@ public class LocalOSHandler {
 		}
 	}
 
-	public static class NetBSD extends ILocalOS {
+	public static class NetBSD extends BsdOS {
 		NetBSD() {
+			super();
 			osTag = "netbsd";
-			unix = true;
-		}
-
-		@Override
-		public void accept(final ILocalOSVisitor visitor) {
-			visitor.visit(this);
-		}
-	}
-
-	public static class Irix extends ILocalOS {
-		Irix() {
-			osTag = "irix";
-			unix = true;
 		}
 
 		@Override

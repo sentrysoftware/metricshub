@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.lang.ProcessHandle.Info;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
@@ -27,39 +28,59 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Irix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Os2;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionProcessVisitorTest {
 
 	@Mock
+	private StrategyConfig strategyConfig;
+	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@Test
 	void testVisitWindowsMatsyaClientsExecutorKO() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
-		assertThrows(IllegalArgumentException.class, () -> visitor.visit((Windows) null));
+		{
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, matsyaClientsExecutor);
+			assertThrows(IllegalStateException.class, () -> visitor.visit((Windows) null));
+		}
+		{
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, null);
+			assertThrows(IllegalStateException.class, () -> visitor.visit((Windows) null));
+		}
 	}
 
 	@Test
 	void testVisitWindowsExecuteWMIFailed() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", matsyaClientsExecutor, 120L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.timeout(120L)
+				.build();
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doThrow(new TimeoutException("over")).when(matsyaClientsExecutor).executeWmi(
 				"localhost",
 				null,
 				null,
 				120L,
-				"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
 		visitor.visit((Windows) null);
@@ -69,21 +90,32 @@ class CriterionProcessVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"Unable to perform WMI query \"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process\". TimeoutException: over",
+				"Unable to perform WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\". TimeoutException: over",
 				criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitWindowsEmptyResult() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", matsyaClientsExecutor, 120L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.timeout(120L)
+				.build();
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(
 				"localhost",
 				null,
 				null,
 				120L,
-				"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
 		visitor.visit((Windows) null);
@@ -93,14 +125,25 @@ class CriterionProcessVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"WMI query \"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process\" return empty value.",
+				"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" returned empty value.",
 				criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitWindowsResultWithoutSearchedProcess() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", matsyaClientsExecutor, 120L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.timeout(120L)
+				.build();
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(
 				List.of(
@@ -111,7 +154,7 @@ class CriterionProcessVisitorTest {
 				null,
 				null,
 				120L,
-				"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
 		visitor.visit((Windows) null);
@@ -132,7 +175,18 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitWindowsOK() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", matsyaClientsExecutor, 120L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.timeout(120L)
+				.build();
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(
 				List.of(
@@ -144,7 +198,7 @@ class CriterionProcessVisitorTest {
 				null,
 				null,
 				120L,
-				"select ProcessId,Name,ParentProcessId,CommandLine from Win32_Process",
+				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
 		visitor.visit((Windows) null);
@@ -162,10 +216,10 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitLinuxNoResult() {
 		try (final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -185,12 +239,12 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitLinuxOK() {
 		try (final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllProcesses).thenReturn(
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("2", "cimserver", "root", "0", "cimserver args1 args2")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -206,138 +260,110 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedSunOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((Sun) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("sunos not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: sunos.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedSolarisOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((Solaris) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("solaris not implemented.", criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitNotImplementedOs2OK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
-		visitor.visit((Os2) null);
-
-		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-				"os/2 not implemented.",
-				criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: solaris.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedHpOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((Hp) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("hp-ux not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: hp-ux.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedAixOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((Aix) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("aix not implemented.", criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitNotImplementedOpenBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
-		visitor.visit((OpenBSD) null);
-
-		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("openbsd not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: aix.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedFreeBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((FreeBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("freebsd not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: freebsd.", criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitNotImplementedOpenBsdOK() {
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		visitor.visit((OpenBSD) null);
+
+		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals("Process presence check: no test will be performed for OS: openbsd.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedNetBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((NetBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("netbsd not implemented.", criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitNotImplementedIrixOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
-		visitor.visit((Irix) null);
-
-		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("irix not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: netbsd.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitNotImplementedMacOsxOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, 0L);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 		visitor.visit((MacOSX) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("mac os x not implemented.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: no test will be performed for OS: mac os x.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
-	void testGetInformations() {
+	void testGetProcessDetails() {
 		{
 			final ProcessHandle processHandle = Mockito.mock(ProcessHandle.class);
 			final Info info = Mockito.mock(Info.class);
@@ -351,7 +377,7 @@ class CriterionProcessVisitorTest {
 
 			Assertions.assertEquals(
 					List.of("1", "", "", "", ""),
-					CriterionProcessVisitor.getInformations(processHandle));
+					CriterionProcessVisitor.getProcessDetails(processHandle));
 		}
 
 		{
@@ -369,7 +395,7 @@ class CriterionProcessVisitorTest {
 
 			Assertions.assertEquals(
 					List.of("2", "ps", "root", "1", "ps -A -o pid,comm,ruser,ppid,args"),
-					CriterionProcessVisitor.getInformations(processHandle));
+					CriterionProcessVisitor.getProcessDetails(processHandle));
 		}
 	}
 }
