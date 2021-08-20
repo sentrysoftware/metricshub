@@ -857,6 +857,15 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
 
 		if (usedTimePercentPrevious == null) {
+
+			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
+			updateNumberParameter(monitor,
+				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				collectTime,
+				null,
+				usedTimePercentRaw);
+
 			return;
 		}
 
@@ -865,6 +874,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
 
 		if (collectTimePrevious == null) {
+
+			// This should never happen
+			log.warn("Found previous usedTimePercent value, but could not find previous collect time.");
+
 			return;
 		}
 

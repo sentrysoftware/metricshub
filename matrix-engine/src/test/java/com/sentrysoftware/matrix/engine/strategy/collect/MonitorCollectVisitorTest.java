@@ -1256,16 +1256,17 @@ class MonitorCollectVisitorTest {
 			buildCollectMonitorInfo(hostMonitoring,
 				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
-				Collections.singletonList("42"))
+				Collections.singletonList("12"))
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
 		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
-		assertNull(usedTimePercentParameter);
+		assertNotNull(usedTimePercentParameter);
+		assertEquals(12.0, usedTimePercentParameter.getRawValue());
+		assertNull(usedTimePercentParameter.getValue());
 
 		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is null
-		usedTimePercentParameter = NumberParam.builder().name(HardwareConstants.USED_TIME_PERCENT_PARAMETER).build();
-		usedTimePercentParameter.setPreviousRawValue(12.0);
-		monitor.addParameter(usedTimePercentParameter);
+		usedTimePercentParameter.reset();
+		usedTimePercentParameter.setPreviousCollectTime(null);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
