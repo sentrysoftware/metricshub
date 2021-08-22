@@ -66,29 +66,35 @@ public class MonitorNameBuilder {
 		COMPUTE_DISPLAY_NAMES = Collections.unmodifiableMap(map);
 	}
 
-	private static boolean checkNotBlankDataValue(final String data) {
-		return data != null && !data.trim().isEmpty();
-	}
-
 	/**
-	 * Trims known/given words off the phrase to return only the unknown part of the content
+	 * Check whether the string is blank, empty or null
 	 * 
-	 * @param phrase {@link String} phrase to be trimmed
-	 * @param words  {@link List} of words (case-insensitive) to be trimmed off the phrase
+	 * @param data        {@link String} to be checked
+	 * 
+	 * @return {@link boolean} true/false whether it is blank or not
+	 */
+	private static boolean isBlankDataValue(final String data) {
+		return data == null || data.trim().isEmpty();
+	}
+	
+	/**
+	 * Trims matching regular expression off the phrase to return only the unknown part of the content
+	 * 
+	 * @param phrase      {@link String} phrase to be trimmed
+	 * @param regexp      {@link String} of regex (case-insensitive) to be trimmed off the phrase
 	 * 
 	 * @return {@link String} trimmedPhrase Trimmed phrase
 	 */
-	private static String trimKnownWords(final String phrase, final List<String> words) {
-		String lowerCasePhrase = phrase.toLowerCase();
-		String trimmedPhrase = phrase;
-		for (String word : words) {
-			if (word != null && lowerCasePhrase.contains(word.toLowerCase())) {
-				trimmedPhrase = trimmedPhrase.replaceAll("(?i)\\s*" + word + "\\s*", "");
-			}
+	private static String trimKnownWords(final String phrase, final String regexp) {
+		
+		if (isBlankDataValue(regexp)) {
+			return phrase;
 		}
-		return trimmedPhrase;
+		
+		String pattern = "(?i)\\s*" + regexp + "\\s*";
+		return phrase.replaceAll(pattern, "");
 	}
-
+	
 	/**
 	 * Trims known/given words off the phrase to return only the unknown part of the content
 	 * 
@@ -113,7 +119,7 @@ public class MonitorNameBuilder {
 
 		return trimmedName;
 	}
-
+	
 	/**
 	 * Joins the given non-empty words using the separator
 	 * 
@@ -128,7 +134,7 @@ public class MonitorNameBuilder {
 		final StringBuilder buffer = new StringBuilder();
 		String nextSeparator = "";
 		for (String word : words) {
-			if (checkNotBlankDataValue(word)) {
+			if (!isBlankDataValue(word)) {
 				buffer.append(nextSeparator);
 				nextSeparator = separator;
 				buffer.append(word);
@@ -256,62 +262,29 @@ public class MonitorNameBuilder {
 	 * @param displayId      {@link String} containing the display ID
 	 * @param deviceId       {@link String} containing the device ID
 	 * @param idCount        {@link String} containing the ID count
-	 * @param trimmableWords {@link List} of words (case-insensitive) to be trimmed off the device ID
+	 * @param trimmableRegex {@link String} of regex words (case-insensitive) to be trimmed off the device ID
 	 * 
 	 * @return {@link String} name Generic label based on the inputs
 	 */
 	public static String buildGenericName(final String displayId, final String deviceId, final String idCount,
-			final List<String> trimmableWords) {
+			final String trimmableRegex) {
 
 		// Make sure the ID count is set
 		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
 
 		// Build the name
 		String name = null;
-		if (checkNotBlankDataValue(displayId)) {
+		if (!isBlankDataValue(displayId)) {
 			name = displayId;
-		} else if (checkNotBlankDataValue(deviceId)) {
-			name = trimKnownWords(deviceId, trimmableWords);
+		} else if (!isBlankDataValue(deviceId)) {
+			name = trimKnownWords(deviceId, trimmableRegex);
 			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
 				name = idCount;
 			}
 		}
 
 		// Use the ID count as name, if we couldn't build one from display ID or device ID
-		if (!checkNotBlankDataValue(name)) {
-			return idCount;
-		}
-
-		return name;
-	}
-	
-	/**
-	 * Build a generic name common to all hardware devices without any word trimming
-	 * 
-	 * @param displayId      {@link String} containing the display ID
-	 * @param deviceId       {@link String} containing the device ID
-	 * @param idCount        {@link String} containing the ID count
-	 * 
-	 * @return {@link String} name Generic label based on the inputs
-	 */
-	public static String buildGenericName(final String displayId, final String deviceId, final String idCount) {
-
-		// Make sure the ID count is set
-		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
-
-		// Build the name
-		String name = null;
-		if (checkNotBlankDataValue(displayId)) {
-			name = displayId;
-		} else if (checkNotBlankDataValue(deviceId)) {
-			name = deviceId;
-			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
-				name = idCount;
-			}
-		}
-
-		// Use the ID count as name, if we couldn't build one from display ID or device ID
-		if (!checkNotBlankDataValue(name)) {
+		if (isBlankDataValue(name)) {
 			return idCount;
 		}
 
@@ -338,7 +311,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID), 
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("battery")));
+				"battery"));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(new String[] { 
@@ -368,7 +341,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("blade")));
+				"blade"));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(new String[] { 
@@ -398,7 +371,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID), 
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("cpu", "processor", "proc")));
+				"cpu|processor|proc"));
 
 		// Format the maximum speed
 		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
@@ -439,7 +412,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID), 
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT),
-				List.of("cpu", "processor", "core", "proc"));
+				"cpu|processor|core|proc");
 
 		return trimUnwantedCharacters(name);
 	}
@@ -462,7 +435,8 @@ public class MonitorNameBuilder {
 		name.append(buildGenericName(
 				metadata.get(HardwareConstants.DISPLAY_ID), 
 				metadata.get(HardwareConstants.DISK_CONTROLLER_NUMBER),
-				metadata.get(HardwareConstants.ID_COUNT)));
+				metadata.get(HardwareConstants.ID_COUNT),
+				""));
 
 		// Add the additional info to the label
 		name.append(" (" + joinVendorAndModel(metadata) + ")");
@@ -517,10 +491,10 @@ public class MonitorNameBuilder {
 
 		// Find the vendor/model details
 		String vendorModel = joinVendorAndModel(metadata);
-		if (checkNotBlankDataValue(vendorModel)) {
+		if (!isBlankDataValue(vendorModel)) {
 			
 			// We will use vendor/model as enclosureDisplayId, if it is not set
-			if (checkNotBlankDataValue(enclosureDisplayId)) {
+			if (!isBlankDataValue(enclosureDisplayId)) {
 				// Add vendor/model as additionalInfo in parenthesis
 				additionalInfo = vendorModel;
 			} else {
@@ -532,9 +506,9 @@ public class MonitorNameBuilder {
 			
 			// Find the computer display name
 			String computerDisplayName = handleComputerDisplayName(targetMonitor, targetType);
-			if (checkNotBlankDataValue(computerDisplayName)) {
+			if (!isBlankDataValue(computerDisplayName)) {
 				// We will use computer display name as enclosureDisplayId, if it is still not set
-				if (checkNotBlankDataValue(enclosureDisplayId)) {
+				if (!isBlankDataValue(enclosureDisplayId)) {
 					// Add computerDisplayName as additionalInfo in parenthesis
 					additionalInfo = computerDisplayName;
 				} else {
@@ -549,7 +523,8 @@ public class MonitorNameBuilder {
 		name.append(buildGenericName(
 				enclosureDisplayId, 
 				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT)));
+				metadata.get(HardwareConstants.ID_COUNT),
+				""));
 
 		// Add the additional info to the label
 		name.append(" (" + additionalInfo + ")");
@@ -576,7 +551,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID), 
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("fan")));
+				"fan"));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(new String[] { 
@@ -605,11 +580,11 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("led")));
+				"led"));
 
 		// Add the additional info to the label
 		String ledColor = metadata.get(HardwareConstants.COLOR);
-		if (checkNotBlankDataValue(ledColor)) {
+		if (!isBlankDataValue(ledColor)) {
 			ledColor = ledColor.substring(0, 1).toUpperCase() + ledColor.substring(1).toLowerCase();
 		}
 		name.append(" (" + joinWords(new String[] { 
@@ -636,7 +611,7 @@ public class MonitorNameBuilder {
 		// Build the generic name with prefix
 		final StringBuilder name = new StringBuilder();
 		final String logicalDiskType = metadata.get(HardwareConstants.TYPE);
-		if (checkNotBlankDataValue(logicalDiskType)) {
+		if (!isBlankDataValue(logicalDiskType)) {
 			name.append(logicalDiskType + ": ");
 		}
 
@@ -644,11 +619,11 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("disk", "drive", "logical")));
+				"disk|drive|logical"));
 
 		// Add the additional info to the label
 		String logicalDiskRaidLevel = metadata.get(HardwareConstants.RAID_LEVEL);
-		if (checkNotBlankDataValue(logicalDiskRaidLevel) && isInteger(logicalDiskRaidLevel)) {
+		if (!isBlankDataValue(logicalDiskRaidLevel) && isInteger(logicalDiskRaidLevel)) {
 			logicalDiskRaidLevel = "RAID " + logicalDiskRaidLevel;
 		}
 		
@@ -679,7 +654,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				List.of("LUN")));
+				"lun"));
 
 		// Add the additional info to the label
 		name.append(" (" + joinWords(new String[] { 
@@ -689,4 +664,96 @@ public class MonitorNameBuilder {
 
 		return trimUnwantedCharacters(name.toString());
 	}
+	
+	/**
+	 * Build the memory name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the memory to be displayed
+	 */
+	public static String buildMemoryName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		final StringBuilder name = new StringBuilder();
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				"memory|module"));
+		
+		// Format the memory size
+		String memorySize = metadata.get(HardwareConstants.SIZE);
+		if (isInteger(memorySize)) {
+			Integer memorySizeAsInt = Integer.parseInt(memorySize);
+			if (memorySizeAsInt > 50) {
+				memorySize = String.format("%d MB", memorySizeAsInt);
+			} else {
+				memorySize = "";
+			}
+		} else {
+			memorySize = "";
+		}
+
+		// Add the additional info to the label
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.VENDOR), 
+				metadata.get(HardwareConstants.TYPE),
+				memorySize
+			}, " - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+	
+	/**
+	 * Build the network card name based on the current implementation in Hardware Sentry KM
+	 * 
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 * 
+	 * @return {@link String} name Label of the network card to be displayed
+	 */
+	public static String buildNetworkCardName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Build the generic name
+		final StringBuilder name = new StringBuilder();
+		name.append(buildGenericName(
+				metadata.get(HardwareConstants.DISPLAY_ID),
+				metadata.get(HardwareConstants.DEVICE_ID),
+				metadata.get(HardwareConstants.ID_COUNT), 
+				"network"));
+		
+		// Find the network card vendor without unwanted words
+		final String unwantedWords = "network|ndis|client|server|adapter|ethernet|interface|controller|miniport|scheduler|packet|connection|multifunction|(1([0]+[/]*))*(base[\\-tx]*)*";
+		String networkCardVendor = metadata.get(HardwareConstants.VENDOR);
+		if (!isBlankDataValue(networkCardVendor)) {
+			networkCardVendor = trimKnownWords(networkCardVendor, unwantedWords);
+		}
+		
+		// Find the network card model without unwanted words and up to 30 characters
+		String networkCardModel = metadata.get(HardwareConstants.MODEL);
+		if (!isBlankDataValue(networkCardModel)) {
+			networkCardModel = trimKnownWords(networkCardModel, unwantedWords);
+			if (networkCardModel.length() > 30) {
+				networkCardModel = networkCardModel.substring(0, 30);
+			}
+		}
+		
+		// Add the additional info to the label
+		name.append(" (" + joinWords(new String[] { 
+				metadata.get(HardwareConstants.TYPE),
+				networkCardVendor,
+				networkCardModel
+			}, " - ") + ")");
+
+		return trimUnwantedCharacters(name.toString());
+	}
+	
 }

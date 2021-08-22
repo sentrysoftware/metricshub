@@ -80,9 +80,9 @@ class MonitorDiscoveryVisitorTest {
 	private static final String OTHER_DEVICE_ID = "myConnector.connector_otherdevice_ecs1-01_1.1";
 	private static final String OTHER_DEVICE_MONITOR_X = "OtherDevice: Monitor x";
 	private static final String NETWORK_CARD_ID = "myConnector.connector_networkcard_ecs1-01_1.1";
-	private static final String NETWORK_CARD_MONITOR_X = "NetworkCard: Monitor x";
+	private static final String NETWORK_CARD_MONITOR_X = "Monitor x";
 	private static final String MEMORY_ID = "myConnector.connector_memory_ecs1-01_1.1";
-	private static final String MEMORY_MONITOR_X = "Memory: Monitor x";
+	private static final String MEMORY_MONITOR_X = "Monitor x";
 	private static final String BATTERY_ID = "myConnector.connector_battery_ecs1-01_1.1";
 	private static final String BATTERY_MONITOR_X = "Monitor x";
 	private static final String BLADE_ID = "myConnector.connector_blade_ecs1-01_1.1";

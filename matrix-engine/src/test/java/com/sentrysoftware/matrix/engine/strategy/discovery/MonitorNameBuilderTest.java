@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -75,12 +74,11 @@ class MonitorNameBuilderTest {
 	void testBuildGenericName() {
 
 		assertEquals("display 12345",
-				MonitorNameBuilder.buildGenericName("display 12345", "dev 12345", "0", Arrays.asList("dev", "device")));
+				MonitorNameBuilder.buildGenericName("display 12345", "dev 12345", "0", "dev(ice)*"));
 		assertEquals("12345",
-				MonitorNameBuilder.buildGenericName(" ", "dev 12345", "0", Arrays.asList("dev", "device")));
-		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", "dev 12345678901234567890", "0",
-				Arrays.asList("dev", "device")));
-		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", " ", "0", Arrays.asList("dev", "device")));
+				MonitorNameBuilder.buildGenericName(" ", "dev device 12345", "0", "dev(ice)*"));
+		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", "device 12345678901234567890", "0", "dev(ice)*"));
+		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", " ", "0", "dev(ice)*"));
 	}
 
 	@Test
@@ -762,7 +760,6 @@ class MonitorNameBuilderTest {
 		}
 	}
 	
-
 	@Test
 	void testBuildLunName() {
 
@@ -818,5 +815,114 @@ class MonitorNameBuilderTest {
 		}
 	}
 
+	@Test
+	void testBuildMemoryName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " memory module 11 ");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.MEMORY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("11", MonitorNameBuilder.buildMemoryName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "0");
+			metadata.put(HardwareConstants.VENDOR, "HP USA");
+			metadata.put(HardwareConstants.TYPE, "19");
+			metadata.put(HardwareConstants.SIZE, "500");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.MEMORY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("0 (HP USA - 19 - 500 MB)", MonitorNameBuilder.buildMemoryName(buildingInfo));
+		}
+	}
+	
+	@Test
+	void testBuildNetworkCardName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "network 11");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.NETWORK_CARD)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("11", MonitorNameBuilder.buildNetworkCardName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "0");
+			metadata.put(HardwareConstants.VENDOR, "HP Ethernet Controller Interface 10/100 base-t");
+			metadata.put(HardwareConstants.TYPE, "NIC");
+			metadata.put(HardwareConstants.MODEL, "1234");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.MEMORY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("0 (NIC - HP - 1234)", MonitorNameBuilder.buildNetworkCardName(buildingInfo));
+		}
+	}
 
 }
