@@ -2,7 +2,7 @@
   "total" : 49,
   "monitors" : [ {
     "id" : "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)",
-    "name" : "Battery: SB-1-+-SPS-3A (Aggregate)",
+    "name" : "SB-1-+-SPS-3A (Aggregate)",
     "monitorType" : "BATTERY",
     "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -98,7 +98,7 @@
     }
   }, {
     "id" : "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)",
-    "name" : "Battery: SB-1-+-SPS-3B (Aggregate)",
+    "name" : "SB-1-+-SPS-3B (Aggregate)",
     "monitorType" : "BATTERY",
     "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
