@@ -73,14 +73,14 @@ class MonitorNameBuilderTest {
 	@Test
 	void testBuildGenericName() {
 
-		assertEquals("display 12345",
-				MonitorNameBuilder.buildGenericName("display 12345", "dev 12345", "0", "dev(ice)*"));
+		assertEquals("type A: display 12345",
+				MonitorNameBuilder.buildName("type A", "display 12345", "dev 12345", "0", "dev(ice)*", ""));
 		assertEquals("12345",
-				MonitorNameBuilder.buildGenericName(" ", "dev device 12345", "0", "dev(ice)*"));
-		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", "device 12345678901234567890", "0", "dev(ice)*"));
-		assertEquals("0", MonitorNameBuilder.buildGenericName(" ", " ", "0", "dev(ice)*"));
+				MonitorNameBuilder.buildName("", " ", "dev device 12345", "0", "dev(ice)*", ""));
+		assertEquals("0 (info)", MonitorNameBuilder.buildName("", " ", "device 12345678901234567890", "0", "dev(ice)*", "info"));
+		assertEquals("type Z: 0 (info)", MonitorNameBuilder.buildName("type Z", " ", " ", "0", "dev(ice)*", "info"));
 	}
-
+	
 	@Test
 	void testBuildBatteryName() {
 
@@ -913,7 +913,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.MEMORY)
+					.monitorType(MonitorType.NETWORK_CARD)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -924,5 +924,321 @@ class MonitorNameBuilderTest {
 			assertEquals("0 (NIC - HP - 1234)", MonitorNameBuilder.buildNetworkCardName(buildingInfo));
 		}
 	}
+	
 
+	@Test
+	void testBuildOtherDeviceName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "other device 11");
+			metadata.put(HardwareConstants.ADDITIONAL_LABEL, "additional details");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.OTHER_DEVICE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("0 (additional details)", MonitorNameBuilder.buildOtherDeviceName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "01");
+			metadata.put(HardwareConstants.TYPE, "type C");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.OTHER_DEVICE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("type C: 01", MonitorNameBuilder.buildOtherDeviceName(buildingInfo));
+		}
+	}
+	
+
+	@Test
+	void testBuildPhysicalDiskName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
+			metadata.put(HardwareConstants.DISPLAY_ID, "disk-01");
+			metadata.put(HardwareConstants.SIZE, "1000000000000");
+			metadata.put(HardwareConstants.VENDOR, "HP");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("disk-01 (HP - 1 TB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
+		}
+		
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
+			metadata.put(HardwareConstants.SIZE, "1000000000");
+			metadata.put(HardwareConstants.VENDOR, "HP");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("01 (HP - 1 GB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
+		}
+	}
+	
+	@Test
+	void testBuildPowerSupplyName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "power01");
+			metadata.put(HardwareConstants.POWER_SUPPLY_POWER, "1000");
+			metadata.put(HardwareConstants.POWER_SUPPLY_TYPE, "Dell");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.POWER_SUPPLY)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("01 (Dell - 1000 W)", MonitorNameBuilder.buildPowerSupplyName(buildingInfo));
+		}
+	}
+	
+	@Test
+	void testBuildRoboticsName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " robotics,  1,1,1 ");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.ROBOTIC)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("111", MonitorNameBuilder.buildRoboticsName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, " robotics,  1,1,1 ");
+			metadata.put(HardwareConstants.DISPLAY_ID, "1.1.1");
+			metadata.put(HardwareConstants.VENDOR, "Quantum");
+			metadata.put(HardwareConstants.MODEL, "Quantum 123");
+			metadata.put(HardwareConstants.ROBOTIC_TYPE, "Tape Library");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.ROBOTIC)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("1.1.1 (Quantum 123 - Tape Library)",
+					MonitorNameBuilder.buildRoboticsName(buildingInfo));
+		}
+	}
+
+	@Test
+	void testBuildTapeDriveName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "tape drive, 01");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.TAPE_DRIVE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("01", MonitorNameBuilder.buildTapeDriveName(buildingInfo));
+		}
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "drive 12");
+			metadata.put(HardwareConstants.DISPLAY_ID, "drive 12");
+			metadata.put(HardwareConstants.VENDOR, "Quantum");
+			metadata.put(HardwareConstants.MODEL, "Quantum 123");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.TAPE_DRIVE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("drive 12 (Quantum 123)",
+					MonitorNameBuilder.buildTapeDriveName(buildingInfo));
+		}
+	}
+
+	@Test
+	void testBuildTemperatureName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "temp sensor 101");
+			metadata.put(HardwareConstants.TEMPERATURE_TYPE, "fan temperature");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.TEMPERATURE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("101 (fan temperature)",
+					MonitorNameBuilder.buildTemperatureName(buildingInfo));
+		}
+	}
+	
+	@Test
+	void testBuildVoltageName() {
+
+		{
+			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			metadata.put(HardwareConstants.ID_COUNT, "0");
+			metadata.put(HardwareConstants.DEVICE_ID, "voltage 101");
+			metadata.put(HardwareConstants.VOLTAGE_TYPE, "fan voltage");
+
+			final Monitor monitor = Monitor
+					.builder()
+					.metadata(metadata)
+					.build();
+
+			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
+					.builder()
+					.connectorName("myConnector.connector")
+					.monitorType(MonitorType.VOLTAGE)
+					.monitor(monitor)
+					.hostMonitoring(new HostMonitoring())
+					.targetType(TargetType.LINUX)
+					.targetMonitor(new Monitor())
+					.hostname("ecs1-01")
+					.build();
+
+			assertEquals("101 (fan voltage)",
+					MonitorNameBuilder.buildVoltageName(buildingInfo));
+		}
+	}
+	
 }

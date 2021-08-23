@@ -42,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Cannot create monitor {} with null name. Connector {}. System {}.";
-	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null.";
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -56,8 +55,6 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
 
 	private MonitorBuildingInfo monitorBuildingInfo;
-
-	private static final String TWO_STRINGS_FORMAT = "%s: %s";
 
 	public MonitorDiscoveryVisitor(MonitorBuildingInfo monitorBuildingInfo) {
 		Assert.notNull(monitorBuildingInfo, MONITOR_BUILDING_INFO_CANNOT_BE_NULL);
@@ -296,61 +293,6 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
-	}
-
-	/**
-	 * Build a Generic name to be set in the {@link Monitor} name
-	 * <br>Try to get the displayId otherwise check the DeviceID or the idCount metadata
-	 * <br>Refine the result before returning the final generic name result
-	 * @return {@link String} value
-	 */
-	String buildGenericName() {
-		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
-		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
-
-		final MonitorType monitorType = monitorBuildingInfo.getMonitorType();
-		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
-
-		final String id = metadata.get(DEVICE_ID);
-		final String displayId = metadata.get(DISPLAY_ID);
-		final String idCount = metadata.get(ID_COUNT);
-		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
-
-		String name = null;
-		if (checkNotBlankDataValue(displayId)) {
-			name = displayId;
-		} else if (checkNotBlankDataValue(id)) {
-			name = id;
-		} else if (checkNotBlankDataValue(idCount)) {
-			name = idCount;
-		}
-
-		if (name != null && name.toLowerCase().contains(monitorType.getName().toLowerCase())) {
-			name = name.replaceAll("(?i)\\s*" + monitorType.getName() + "\\s*", "");
-		}
-
-		if (name == null) {
-			return null;
-		}
-
-		return String.format(TWO_STRINGS_FORMAT, monitorType.getName(), name);
-	}
-
-	/**
-	/**
-	 * Try to get the {@value HardwareConstants#LOCATION} metadata and return <code>true</code> for localhost value
-	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
-	 * @param metadata
-	 * @return {@link boolean} value
-	 */
-	static boolean isLocalhost(final Map<String, String> metadata) {
-		if (metadata != null) {
-			final String location = metadata.get(LOCATION);
-			if (location != null) {
-				return location.equalsIgnoreCase(LOCALHOST);
-			}
-		}
-		return false;
 	}
 
 	/**

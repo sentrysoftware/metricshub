@@ -120,6 +120,7 @@ public class HardwareConstants {
 	public static final String TEMPERATURE_TYPE = "temperatureType";
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
+	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
@@ -162,6 +163,7 @@ public class HardwareConstants {
 	public static final String LOWER_THRESHOLD= "lowerthreshold";
 	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
 	public static final String COLOR = "color";
+	public static final String ADDITIONAL_LABEL = "additionalLabel";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

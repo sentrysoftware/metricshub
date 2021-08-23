@@ -38,22 +38,6 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 class MonitorDiscoveryVisitorTest {
 
 	private static final String _0 = "0";
-	private static final String ROBOTIC_MONITOR_X = "Robotic: Monitor x";
-	private static final String FAN_ID = "myConnector.connector_fan_ecs1-01_1.1";
-	private static final String ROBOTIC_ID = "myConnector.connector_robotic_ecs1-01_1.1";
-	private static final String ENCLOSURE_NAME_MODEL_WITH_VENDOR = "Computer: PowerEdge 54dsf (2200 Dell)";
-	private static final String STORAGE_NAME = "Storage: PowerEdge 54dsf";
-	private static final String OTHER = "Other:";
-	private static final String STORAGE_0 = "Storage:  (0)";
-	private static final String ENCLOSURE_NAME_NO_MODEL_NO_VENDOR = "Computer: PowerEdge 54dsf (Linux computer)";
-	private static final String ENCLOSURE_NAME_NO_MODEL = "Computer: PowerEdge 54dsf (Dell)";
-	private static final String ENCLOSURE_NAME_NO_VENDOR = "Computer: PowerEdge 54dsf (2200)";
-	private static final String UNKNOWN_COMPUTER = "Unknown computer";
-	private static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS computer";
-	private static final String HP_TRU64_COMPUTER = "HP Tru64 computer";
-	private static final String LINUX_COMPUTER = "Linux computer";
-	private static final String WINDOWS_COMPUTER = "Windows computer";
-	private static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
 	private static final String MY_CONNECTOR_NAME = "myConnector.connector";
 	private static final String MONITOR_NAME = "Monitor x";
 	private static final String ENCLOSURE_NAME = "Computer: PowerEdge 54dsf (Dell 2200)";
@@ -61,46 +45,32 @@ class MonitorDiscoveryVisitorTest {
 	private static final String POWER_EDGE_54DSF = "PowerEdge 54dsf";
 	private static final String ID = "1.1";
 	private static final String DELL = "Dell";
-	private static final String MODEL_WITH_VENDOR = MODEL_VALUE + " " + DELL;
 	private static final String MODEL = "model";
 	private static final String VENDOR = "vendor";
 	private static final String DISPLAY_ID = "displayId";
 	private static final String DEVICE_ID = "deviceId";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String VOLTAGE_ID = "myConnector.connector_voltage_ecs1-01_1.1";
-	private static final String VOLTAGE_MONITOR_X = "Voltage: Monitor x";
 	private static final String TEMPERATURE_ID = "myConnector.connector_temperature_ecs1-01_1.1";
-	private static final String TEMPERATURE_MONITOR_X = "Temperature: Monitor x";
 	private static final String TAPE_DRIVE_ID = "myConnector.connector_tapedrive_ecs1-01_1.1";
-	private static final String TAPE_DRIVE_MONITOR_X = "TapeDrive: Monitor x";
 	private static final String POWER_SUPPLY_ID = "myConnector.connector_powersupply_ecs1-01_1.1";
-	private static final String POWER_SUPPLY_MONITOR_X = "PowerSupply: Monitor x";
 	private static final String PHYSICAL_DISK_ID = "myConnector.connector_physicaldisk_ecs1-01_1.1";
-	private static final String PHYSICAL_DISK_MONITOR_X = "PhysicalDisk: Monitor x";
 	private static final String OTHER_DEVICE_ID = "myConnector.connector_otherdevice_ecs1-01_1.1";
-	private static final String OTHER_DEVICE_MONITOR_X = "OtherDevice: Monitor x";
 	private static final String NETWORK_CARD_ID = "myConnector.connector_networkcard_ecs1-01_1.1";
-	private static final String NETWORK_CARD_MONITOR_X = "Monitor x";
 	private static final String MEMORY_ID = "myConnector.connector_memory_ecs1-01_1.1";
-	private static final String MEMORY_MONITOR_X = "Monitor x";
 	private static final String BATTERY_ID = "myConnector.connector_battery_ecs1-01_1.1";
-	private static final String BATTERY_MONITOR_X = "Monitor x";
 	private static final String BLADE_ID = "myConnector.connector_blade_ecs1-01_1.1";
-	private static final String BLADE_MONITOR_X = "Monitor x";
 	private static final String CPU_ID = "myConnector.connector_cpu_ecs1-01_1.1";
-	private static final String CPU_MONITOR_X = "Monitor x";
 	private static final String CPU_CORE_ID = "myConnector.connector_cpucore_ecs1-01_1.1";
-	private static final String CPU_CORE_MONITOR_X = "Monitor x";
 	private static final String DISK_CONTROLLER_ID = "myConnector.connector_diskcontroller_ecs1-01_1.1";
 	private static final String DISK_CONTROLLER_MONITOR_X = "Disk Controller: Monitor x";
-	private static final String FAN_MONITOR_X = "Monitor x";
 	private static final String LED_ID = "myConnector.connector_led_ecs1-01_1.1";
-	private static final String LED_MONITOR_X = "Monitor x";
 	private static final String LOGICAL_DISK_ID = "myConnector.connector_logicaldisk_ecs1-01_1.1";
-	private static final String LOGICAL_DISK_MONITOR_X = "Monitor x";
 	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";
-	private static final String LUN_MONITOR_X = "Monitor x";
 	private static final String ENCLOSURE_ID = "myConnector.connector_enclosure_ecs1-01_1.1";
+	private static final String FAN_ID = "myConnector.connector_fan_ecs1-01_1.1";
+	private static final String ROBOTIC_ID = "myConnector.connector_robotic_ecs1-01_1.1";
+
 
 	@Test
 	void testVisitBattery() {
@@ -117,7 +87,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BATTERY_ID)
-				.name(BATTERY_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -148,7 +118,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BLADE_ID)
-				.name(BLADE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -179,7 +149,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_ID)
-				.name(CPU_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -210,7 +180,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_CORE_ID)
-				.name(CPU_CORE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -329,7 +299,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(FAN_ID)
-				.name(FAN_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -360,7 +330,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LED_ID)
-				.name(LED_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -390,7 +360,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LOGICAL_DISK_ID)
-				.name(LOGICAL_DISK_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -420,7 +390,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LUN_ID)
-				.name(LUN_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -450,7 +420,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(MEMORY_ID)
-				.name(MEMORY_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -481,7 +451,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
-				.name(NETWORK_CARD_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -512,7 +482,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(OTHER_DEVICE_ID)
-				.name(OTHER_DEVICE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -543,7 +513,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(PHYSICAL_DISK_ID)
-				.name(PHYSICAL_DISK_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -574,7 +544,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(POWER_SUPPLY_ID)
-				.name(POWER_SUPPLY_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -605,7 +575,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TAPE_DRIVE_ID)
-				.name(TAPE_DRIVE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -636,7 +606,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TEMPERATURE_ID)
-				.name(TEMPERATURE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -666,7 +636,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(VOLTAGE_ID)
-				.name(VOLTAGE_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
@@ -697,7 +667,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(ROBOTIC_ID)
-				.name(ROBOTIC_MONITOR_X)
+				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
