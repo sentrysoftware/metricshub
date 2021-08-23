@@ -220,8 +220,5 @@ public class HardwareConstants {
 	public static final String FQDN = "fqdn";
 	public static final String TARGET_FQDN = "targetFqdn";
 
-	public static final String WARNING_THRESHOLD = "warningthreshold";
-	public static final String ALARM_THRESHOLD = "alarmthreshold";
-	
 	public static final int ID_MAXLENGTH = 10;
 }

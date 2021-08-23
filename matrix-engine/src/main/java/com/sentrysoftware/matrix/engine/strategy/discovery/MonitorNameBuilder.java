@@ -15,8 +15,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 public class MonitorNameBuilder {
 
-	private MonitorNameBuilder() {
-	}
+	private MonitorNameBuilder() {}
 
 	public static final String UNKNOWN_COMPUTER = "Unknown computer";
 	public static final String HP_TRU64_COMPUTER = "HP Tru64 computer";
@@ -24,6 +23,7 @@ public class MonitorNameBuilder {
 	public static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS computer";
 	public static final String WINDOWS_COMPUTER = "Windows computer";
 	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
+	
 	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
