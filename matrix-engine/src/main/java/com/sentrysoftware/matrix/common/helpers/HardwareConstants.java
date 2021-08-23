@@ -69,6 +69,7 @@ public class HardwareConstants {
 	public static final String PREDICTED_FAILURE_PARAMETER = "predictedFailure";
 	public static final String PRESENT_PARAMETER = "present";
 	public static final String CHARGE_PARAMETER = "charge";
+	public static final String TIME_LEFT_PARAMETER = "timeLeft";
 	public static final String COLOR_PARAMETER = "color";
 	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
@@ -190,6 +191,7 @@ public class HardwareConstants {
 	public static final String PACKETS_RATE_PARAMETER_UNIT = "packets/s";
 	public static final String DUPLEX_MODE_PARAMETER_UNIT = "{0 =  Half-duplex ; 1 = Full-duplex}";
 	public static final String NEEDS_CLEANING_PARAMETER_UNIT = "{0 =  OK ; 1 = Cleaning Needed ; 2 = Cleaning Needed Immediately}";
+	public static final String TIME_PARAMETER_UNIT = "seconds";
 	public static final String BYTES_PARAMETER_UNIT = "Bytes";
 	public static final String PACKETS_PARAMETER_UNIT = "Packets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";

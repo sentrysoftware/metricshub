@@ -39,7 +39,7 @@ public class CpuCore implements IMetaMonitor {
 			.build();
 
 	public static final MetaParameter USED_TIME_PERCENT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.USED_TIME_PERCENT_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)

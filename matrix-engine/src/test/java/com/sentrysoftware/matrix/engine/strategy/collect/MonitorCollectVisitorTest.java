@@ -53,6 +53,8 @@ class MonitorCollectVisitorTest {
 	private static final String POWER_CONSUMPTION = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
+	private static final String CHARGE = "39";
+	private static final String TIME_LEFT = "60";
 	private static final String VALUETABLE_COLUMN_1 = "Valuetable.Column(1)";
 	private static final String VALUETABLE_COLUMN_2 = "Valuetable.Column(2)";
 	private static final String VALUETABLE_COLUMN_3 = "Valuetable.Column(3)";
@@ -139,7 +141,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitBattery() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Battery());
@@ -178,7 +180,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitCpuCore() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.CPU_CORE).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new CpuCore());
@@ -698,6 +700,22 @@ class MonitorCollectVisitorTest {
 		.build();
 	}
 
+	private static MonitorCollectInfo buildCollectMonitorInfo(final IHostMonitoring hostMonitoring, final Map<String, String> mapping,
+															  Monitor monitor, final List<String> row, Long collectTime) {
+		return MonitorCollectInfo
+			.builder()
+			.collectTime(collectTime)
+			.connectorName(MY_CONNECTOR_NAME)
+			.hostMonitoring(hostMonitoring)
+			.hostname(ECS1_01)
+			.mapping(mapping)
+			.monitor(monitor)
+			.row(row)
+			.unknownStatus(UNKNOWN_STATUS_WARN)
+			.valueTable(VALUE_TABLE)
+			.build();
+	}
+
 	@Test
 	void testGetIntrusionStatusInformation() {
 		assertNotNull(MonitorCollectVisitor.getIntrusionStatusInformation(ParameterState.OK));
@@ -1189,4 +1207,147 @@ class MonitorCollectVisitorTest {
 
 	}
 
+	@Test
+	void testCollectBatteryCharge() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No charge value
+		monitorCollectVisitor.collectBatteryCharge();
+		NumberParam chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNull(chargeParameter);
+
+		// Charge value collected, value is lower than 100
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(CHARGE))
+		);
+		monitorCollectVisitor.collectBatteryCharge();
+		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNotNull(chargeParameter);
+		assertEquals(39.0, chargeParameter.getRawValue());
+		assertEquals(39.0, chargeParameter.getValue());
+
+		// Charge value collected, value is greter than 100
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("125"))
+		);
+		monitorCollectVisitor.collectBatteryCharge();
+		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		assertNotNull(chargeParameter);
+		assertEquals(125.0, chargeParameter.getRawValue());
+		assertEquals(100.0, chargeParameter.getValue());
+	}
+
+	@Test
+	void testCollectBatteryTimeLeft() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.BATTERY).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No time left value
+		monitorCollectVisitor.collectBatteryTimeLeft();
+		NumberParam timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		assertNull(timeLeftParameter);
+
+		// Time left value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.TIME_LEFT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(TIME_LEFT))
+		);
+		monitorCollectVisitor.collectBatteryTimeLeft();
+		timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		assertNotNull(timeLeftParameter);
+		assertEquals(60.0, timeLeftParameter.getRawValue());
+		assertEquals(3600.0, timeLeftParameter.getValue());
+	}
+
+	@Test
+	void testCollectCpuCoreUsedTimePercent() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.CPU_CORE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// usedTimePercentRaw is null
+		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		NumberParam usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			NumberParam.class);
+		assertNull(usedTimePercentParameter);
+
+		// usedTimePercentRaw is not null, usedTimePercentPrevious is null
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("12"))
+		);
+		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		assertNotNull(usedTimePercentParameter);
+		assertEquals(12.0, usedTimePercentParameter.getRawValue());
+		assertNull(usedTimePercentParameter.getValue());
+
+		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is null
+		usedTimePercentParameter.reset();
+		usedTimePercentParameter.setPreviousCollectTime(null);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("42"))
+		);
+		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		assertNotNull(usedTimePercentParameter);
+		assertNull(usedTimePercentParameter.getRawValue());
+		assertNull(usedTimePercentParameter.getValue());
+
+		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is not null
+		// timeDeltaInSeconds == 0.0
+		usedTimePercentParameter = NumberParam.builder().name(HardwareConstants.USED_TIME_PERCENT_PARAMETER).build();
+		usedTimePercentParameter.setPreviousRawValue(12.0);
+		usedTimePercentParameter.setPreviousCollectTime(System.currentTimeMillis() - 120000L); // 2 minutes ago
+		monitor.addParameter(usedTimePercentParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("42"),
+				usedTimePercentParameter.getPreviousCollectTime())
+		);
+		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		assertNotNull(usedTimePercentParameter);
+		assertNull(usedTimePercentParameter.getRawValue());
+		assertNull(usedTimePercentParameter.getValue());
+
+		// OK
+		usedTimePercentParameter = NumberParam.builder().name(HardwareConstants.USED_TIME_PERCENT_PARAMETER).build();
+		usedTimePercentParameter.setPreviousRawValue(12.0);
+		usedTimePercentParameter.setPreviousCollectTime(System.currentTimeMillis() - 120000L); // 2 minutes ago
+		monitor.addParameter(usedTimePercentParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("42"),
+				usedTimePercentParameter.getPreviousCollectTime() + 120000L)
+		);
+		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		assertNotNull(usedTimePercentParameter);
+		assertEquals(42.0, usedTimePercentParameter.getRawValue());
+		assertEquals(25.0, usedTimePercentParameter.getValue());
+	}
 }

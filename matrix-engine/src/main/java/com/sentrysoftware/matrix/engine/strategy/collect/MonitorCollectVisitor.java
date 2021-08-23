@@ -104,12 +104,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Battery battery) {
+
 		collectBasicParameters(battery);
 
+		collectBatteryCharge();
+		collectBatteryTimeLeft();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
-				HardwareConstants.CHARGE_PARAMETER
-				);
+			HardwareConstants.PRESENT_PARAMETER,
+			HardwareConstants.CHARGE_PARAMETER,
+			HardwareConstants.TIME_LEFT_PARAMETER
+			);
 	}
 
 	@Override
@@ -134,7 +139,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(CpuCore cpuCore) {
+
 		collectBasicParameters(cpuCore);
+
+		collectCpuCoreUsedTimePercent();
 
 		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
@@ -798,4 +806,111 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 	}
 
+	/**
+	 * Collects the percentage of charge, if the current {@link Monitor} is a {@link Battery}.
+	 */
+	void collectBatteryCharge() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double chargeRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.CHARGE_PARAMETER);
+		if (chargeRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.CHARGE_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				Math.min(chargeRaw, 100.0), // In case the raw value is greater than 100%
+				chargeRaw);
+		}
+	}
+
+	/**
+	 * Collects the remaining time, in seconds, before the {@link Battery} runs out of power.
+	 */
+	void collectBatteryTimeLeft() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double timeLeftRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.TIME_LEFT_PARAMETER);
+
+		if (timeLeftRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.TIME_LEFT_PARAMETER,
+				HardwareConstants.TIME_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				timeLeftRaw * 60.0, // minutes to seconds
+				timeLeftRaw);
+		}
+	}
+
+	/**
+	 * Collects the percentage of used time, if the current {@link Monitor} is a {@link CpuCore}.
+	 */
+	void collectCpuCoreUsedTimePercent() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double usedTimePercentRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER);
+
+		if (usedTimePercentRaw == null) {
+			return;
+		}
+
+		// Getting the current value's collect time
+		Long collectTime = monitorCollectInfo.getCollectTime();
+
+		// Getting the previous value
+		Double usedTimePercentPrevious = CollectHelper.getNumberParamRawValue(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (usedTimePercentPrevious == null) {
+
+			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
+			updateNumberParameter(monitor,
+				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				collectTime,
+				null,
+				usedTimePercentRaw);
+
+			return;
+		}
+
+		// Getting the previous value's collect time
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (collectTimePrevious == null) {
+
+			// This should never happen
+			log.warn("Found previous usedTimePercent value, but could not find previous collect time.");
+
+			return;
+		}
+
+		// Computing the value delta
+		final Double usedTimePercentDelta = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			usedTimePercentRaw, usedTimePercentPrevious);
+
+		// Computing the time delta
+		final double timeDeltaInSeconds = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			collectTime.doubleValue(), collectTimePrevious) / 1000.0;
+
+		if (timeDeltaInSeconds == 0.0) {
+			return;
+		}
+
+		// Setting the parameter
+		updateNumberParameter(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			HardwareConstants.PERCENT_PARAMETER_UNIT,
+			collectTime,
+			100.0 * usedTimePercentDelta / timeDeltaInSeconds,
+			usedTimePercentRaw);
+	}
 }
