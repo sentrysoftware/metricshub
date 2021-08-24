@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -69,18 +70,51 @@ class MonitorNameBuilderTest {
 		assertTrue(MonitorNameBuilder.isLocalhost(Map.of(HardwareConstants.LOCATION, HardwareConstants.LOCALHOST)));
 
 	}
-	
-	@Test
-	void testBuildGenericName() {
 
-		assertEquals("type A: display 12345",
-				MonitorNameBuilder.buildName("type A", "display 12345", "dev 12345", "0", "dev(ice)*", ""));
-		assertEquals("12345",
-				MonitorNameBuilder.buildName("", " ", "dev device 12345", "0", "dev(ice)*", ""));
-		assertEquals("0 (info)", MonitorNameBuilder.buildName("", " ", "device 12345678901234567890", "0", "dev(ice)*", "info"));
-		assertEquals("type Z: 0 (info)", MonitorNameBuilder.buildName("type Z", " ", " ", "0", "dev(ice)*", "info"));
+	@Test
+	void testBuildName() {
+
+		assertEquals("type A: display 12345", MonitorNameBuilder
+			.buildName(
+				"type A",
+				"display 12345",
+				"dev 12345",
+				"0",
+				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
+				""
+			));
+
+		assertEquals("12345", MonitorNameBuilder
+			.buildName(
+				"",
+				" ",
+				"Dev DEVICE 12345",
+				"0",
+				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
+				""
+			));
+
+		assertEquals("0 (info)", MonitorNameBuilder
+			.buildName(
+				"",
+				" ",
+				"device 12345678901234567890",
+				"0",
+				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
+				"info"
+			));
+
+		assertEquals("type Z: 0 (info)", MonitorNameBuilder
+			.buildName(
+				"type Z",
+				" ",
+				" ",
+				"0",
+				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
+				"info"
+			));
 	}
-	
+
 	@Test
 	void testBuildBatteryName() {
 
@@ -257,7 +291,7 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " core  1,1 ");
+			metadata.put(HardwareConstants.DEVICE_ID, " proc  1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -485,7 +519,7 @@ class MonitorNameBuilderTest {
 
 			assertEquals("Storage: 1.1", MonitorNameBuilder.buildEnclosureName(buildingInfo));
 		}
-		
+
 		// Storage: no model, no vendor, no display ID, and device ID too long
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -646,7 +680,7 @@ class MonitorNameBuilderTest {
 			assertEquals("0 (1A)", MonitorNameBuilder.buildFanName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildLedName() {
 
@@ -732,7 +766,7 @@ class MonitorNameBuilderTest {
 
 			assertEquals("disk-01 (RAID 5 - 10 TB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
 		}
-		
+
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			metadata.put(HardwareConstants.ID_COUNT, "0");
@@ -759,7 +793,7 @@ class MonitorNameBuilderTest {
 			assertEquals("01 (Raid 2 - 1 GB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildLunName() {
 
@@ -868,7 +902,7 @@ class MonitorNameBuilderTest {
 
 			assertEquals("1.1 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)", MonitorNameBuilder.buildMemoryName(buildingInfo));
 		}
-		
+
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			metadata.put(HardwareConstants.ID_COUNT, "0");
@@ -896,7 +930,7 @@ class MonitorNameBuilderTest {
 			assertEquals("1.1 (Hynix Semiconductor (00AD00B300AD) - DDR4)", MonitorNameBuilder.buildMemoryName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildNetworkCardName() {
 
@@ -951,7 +985,7 @@ class MonitorNameBuilderTest {
 			assertEquals("0 (NIC - HP - 1234)", MonitorNameBuilder.buildNetworkCardName(buildingInfo));
 		}
 	}
-	
+
 
 	@Test
 	void testBuildOtherDeviceName() {
@@ -1006,7 +1040,7 @@ class MonitorNameBuilderTest {
 			assertEquals("type C: 01", MonitorNameBuilder.buildOtherDeviceName(buildingInfo));
 		}
 	}
-	
+
 
 	@Test
 	void testBuildPhysicalDiskName() {
@@ -1037,7 +1071,7 @@ class MonitorNameBuilderTest {
 
 			assertEquals("disk-01 (HP - 1 TB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
 		}
-		
+
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			metadata.put(HardwareConstants.ID_COUNT, "0");
@@ -1064,7 +1098,7 @@ class MonitorNameBuilderTest {
 			assertEquals("01 (HP - 1 GB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildPowerSupplyName() {
 
@@ -1094,7 +1128,7 @@ class MonitorNameBuilderTest {
 			assertEquals("01 (Dell - 1000 W)", MonitorNameBuilder.buildPowerSupplyName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildRoboticsName() {
 
@@ -1214,7 +1248,7 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "temp sensor 101");
+			metadata.put(HardwareConstants.DEVICE_ID, "temperature sensor 101");
 			metadata.put(HardwareConstants.TEMPERATURE_TYPE, "fan temperature");
 
 			final Monitor monitor = Monitor
@@ -1237,7 +1271,7 @@ class MonitorNameBuilderTest {
 					MonitorNameBuilder.buildTemperatureName(buildingInfo));
 		}
 	}
-	
+
 	@Test
 	void testBuildVoltageName() {
 
@@ -1267,5 +1301,5 @@ class MonitorNameBuilderTest {
 					MonitorNameBuilder.buildVoltageName(buildingInfo));
 		}
 	}
-	
+
 }

@@ -20,6 +20,7 @@ public class HardwareConstants {
 	public static final String ENCLOSURE = "Enclosure";
 	public static final String COMPUTER = "Computer";
 	public static final String STORAGE = "Storage";
+	public static final String SWITCH = "Switch";
 	public static final String PARENTHESIS_EMPTY = "()";
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
@@ -41,8 +42,6 @@ public class HardwareConstants {
 	public static final String PIPE_PROTECTED = "\\|";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
-	public static final String NAME_SEPARATOR = ": ";
-	public static final String ADDITIONAL_DETAILS_SEPARATOR = " (";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
