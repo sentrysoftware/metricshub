@@ -12,12 +12,15 @@ public class HardwareConstants {
 	public static final String TAB = "\t";
 	public static final String WHITE_SPACE = " ";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
+	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
 	public static final String DASH = "-";
 	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
+	public static final String BLADE_ENCLOSURE = "Blade Enclosure";
 	public static final String ENCLOSURE = "Enclosure";
 	public static final String COMPUTER = "Computer";
 	public static final String STORAGE = "Storage";
+	public static final String SWITCH = "Switch";
 	public static final String PARENTHESIS_EMPTY = "()";
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
@@ -120,6 +123,7 @@ public class HardwareConstants {
 	public static final String TEMPERATURE_TYPE = "temperatureType";
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
+	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
@@ -160,6 +164,9 @@ public class HardwareConstants {
 	public static final String USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
 	public static final String UPPER_THRESHOLD = "upperthreshold";
 	public static final String LOWER_THRESHOLD= "lowerthreshold";
+	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
+	public static final String COLOR = "color";
+	public static final String ADDITIONAL_LABEL = "additionalLabel";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
@@ -217,4 +224,5 @@ public class HardwareConstants {
 	public static final String FQDN = "fqdn";
 	public static final String TARGET_FQDN = "targetFqdn";
 
+	public static final int ID_MAXLENGTH = 10;
 }
