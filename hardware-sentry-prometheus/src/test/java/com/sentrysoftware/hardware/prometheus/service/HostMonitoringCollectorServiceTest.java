@@ -153,7 +153,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCollectNoSpecificInfo() throws IOException {
+	void testCollectNoSpecificInfo() {
 
 		final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
 		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER).value(3000D).build();
@@ -223,9 +223,9 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, monitors, mfs);
 
 		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
-		final Sample sample1 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample sample1 = new Sample("hw_enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName(), null), ParameterState.OK.ordinal());
-		final Sample sample2 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample sample2 = new Sample("hw_enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName(), null), ParameterState.OK.ordinal());
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
@@ -268,8 +268,8 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
 
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
-				"enclosure_status",
-				"Metric: enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
+				"hw_enclosure_status",
+				"Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
 				Arrays.asList(ID, PARENT, LABEL, FQDN));
 		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 0);
 
@@ -302,12 +302,12 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testBuildHelp() {
-		assertEquals("Metric: enclosure_energy_joules - Unit: joules",
+		assertEquals("Metric: hw_enclosure_energy_joules - Unit: joules",
 				HostMonitoringCollectorService.buildHelp(PrometheusSpecificities.getPrometheusParameter(MonitorType.ENCLOSURE, Enclosure.ENERGY.getName()).get()));
-		assertEquals("Metric: voltage_volts - Unit: volts",
+		assertEquals("Metric: hw_voltage_volts - Unit: volts",
 				HostMonitoringCollectorService.buildHelp(PrometheusSpecificities.getPrometheusParameter(MonitorType.VOLTAGE, Voltage._VOLTAGE.getName()).get()));
-		assertEquals("Metric: metric_bytes", HostMonitoringCollectorService
-				.buildHelp(PrometheusParameter.builder().name("metric_bytes").build()));
+		assertEquals("Metric: hw_metric_bytes", HostMonitoringCollectorService
+				.buildHelp(PrometheusParameter.builder().name("hw_metric_bytes").build()));
 	}
 
 	@Test
