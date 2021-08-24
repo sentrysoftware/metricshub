@@ -113,27 +113,27 @@ public class PrometheusSpecificities {
 
 		final Map<MonitorType, String> infoMetricsMap = new EnumMap<>(MonitorType.class);
 
-		infoMetricsMap.put(MonitorType.BATTERY, "battery_info");
-		infoMetricsMap.put(MonitorType.BLADE, "blade_info");
-		infoMetricsMap.put(MonitorType.CONNECTOR, "connector_info");
-		infoMetricsMap.put(MonitorType.CPU, "cpu_info");
-		infoMetricsMap.put(MonitorType.CPU_CORE, "cpu_core_info");
-		infoMetricsMap.put(MonitorType.DISK_CONTROLLER, "disk_controller_info");
-		infoMetricsMap.put(MonitorType.ENCLOSURE, "enclosure_info");
-		infoMetricsMap.put(MonitorType.FAN, "fan_info");
-		infoMetricsMap.put(MonitorType.LED, "led_info");
-		infoMetricsMap.put(MonitorType.LOGICAL_DISK, "logical_disk_info");
-		infoMetricsMap.put(MonitorType.LUN, "lun_info");
-		infoMetricsMap.put(MonitorType.MEMORY, "memory_info");
-		infoMetricsMap.put(MonitorType.NETWORK_CARD, "network_card_info");
-		infoMetricsMap.put(MonitorType.OTHER_DEVICE, "other_device_info");
-		infoMetricsMap.put(MonitorType.PHYSICAL_DISK, "physical_disk_info");
-		infoMetricsMap.put(MonitorType.POWER_SUPPLY, "power_supply_info");
-		infoMetricsMap.put(MonitorType.ROBOTIC, "robotic_info");
-		infoMetricsMap.put(MonitorType.TAPE_DRIVE, "tape_drive_info");
-		infoMetricsMap.put(MonitorType.TEMPERATURE, "temperature_info");
-		infoMetricsMap.put(MonitorType.VOLTAGE, "voltage_info");
-		infoMetricsMap.put(MonitorType.TARGET, "target_info");
+		infoMetricsMap.put(MonitorType.BATTERY, "hw_battery_info");
+		infoMetricsMap.put(MonitorType.BLADE, "hw_blade_info");
+		infoMetricsMap.put(MonitorType.CONNECTOR, "hw_connector_info");
+		infoMetricsMap.put(MonitorType.CPU, "hw_cpu_info");
+		infoMetricsMap.put(MonitorType.CPU_CORE, "hw_cpu_core_info");
+		infoMetricsMap.put(MonitorType.DISK_CONTROLLER, "hw_disk_controller_info");
+		infoMetricsMap.put(MonitorType.ENCLOSURE, "hw_enclosure_info");
+		infoMetricsMap.put(MonitorType.FAN, "hw_fan_info");
+		infoMetricsMap.put(MonitorType.LED, "hw_led_info");
+		infoMetricsMap.put(MonitorType.LOGICAL_DISK, "hw_logical_disk_info");
+		infoMetricsMap.put(MonitorType.LUN, "hw_lun_info");
+		infoMetricsMap.put(MonitorType.MEMORY, "hw_memory_info");
+		infoMetricsMap.put(MonitorType.NETWORK_CARD, "hw_network_card_info");
+		infoMetricsMap.put(MonitorType.OTHER_DEVICE, "hw_other_device_info");
+		infoMetricsMap.put(MonitorType.PHYSICAL_DISK, "hw_physical_disk_info");
+		infoMetricsMap.put(MonitorType.POWER_SUPPLY, "hw_power_supply_info");
+		infoMetricsMap.put(MonitorType.ROBOTIC, "hw_robotic_info");
+		infoMetricsMap.put(MonitorType.TAPE_DRIVE, "hw_tape_drive_info");
+		infoMetricsMap.put(MonitorType.TEMPERATURE, "hw_temperature_info");
+		infoMetricsMap.put(MonitorType.VOLTAGE, "hw_voltage_info");
+		infoMetricsMap.put(MonitorType.TARGET, "hw_target_info");
 
 		infoMetricNames = Collections.unmodifiableMap(infoMetricsMap);
 	}
@@ -147,16 +147,16 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("target_status")
+				.name("hw_target_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
-				.name("target_energy_joules")
+				.name("hw_target_energy_joules")
 				.unit(JOULES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), PrometheusParameter.builder()
-				.name("target_heating_margin_celsius")
+				.name("hw_target_heating_margin_celsius")
 				.unit("celsius")
 				.build());
 
@@ -172,11 +172,11 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("voltage_status")
+				.name("hw_voltage_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(Voltage._VOLTAGE.getName(), PrometheusParameter.builder()
-				.name("voltage_volts")
+				.name("hw_voltage_volts")
 				.unit("volts")
 				.factor(0.001)
 				.build());
@@ -193,11 +193,11 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("temperature_status")
+				.name("hw_temperature_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(Temperature._TEMPERATURE.getName(), PrometheusParameter.builder()
-				.name("temperature_celsius")
+				.name("hw_temperature_celsius")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 
@@ -213,29 +213,29 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("tape_drive_status")
+				.name("hw_tape_drive_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("tape_drive_present")
+				.name("hw_tape_drive_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("tape_drive_errors")
+				.name("hw_tape_drive_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(TapeDrive.MOUNT_COUNT.getName(), PrometheusParameter.builder()
-				.name("tape_drive_mounts")
+				.name("hw_tape_drive_mounts")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(TapeDrive.NEEDS_CLEANING.getName(), PrometheusParameter.builder()
-				.name("tape_drive_needs_cleaning")
+				.name("hw_tape_drive_needs_cleaning")
 				.unit(TapeDrive.NEEDS_CLEANING.getUnit())
 				.build());
 		map.put(TapeDrive.UNMOUNT_COUNT.getName(), PrometheusParameter.builder()
-				.name("tape_drive_unmounts")
+				.name("hw_tape_drive_unmounts")
 				.unit("unmounts")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
@@ -252,20 +252,20 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("robotic_status")
+				.name("hw_robotic_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("robotic_present")
+				.name("hw_robotic_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("robotic_errors")
+				.name("hw_robotic_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(Robotic.MOVE_COUNT.getName(), PrometheusParameter.builder()
-				.name("robotic_moves")
+				.name("hw_robotic_moves")
 				.unit("moves")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
@@ -282,15 +282,15 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("power_supply_status")
+				.name("hw_power_supply_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("power_supply_present")
+				.name("hw_power_supply_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(PowerSupply.USED_CAPACITY.getName(), PrometheusParameter.builder()
-				.name("power_supply_used_capacity_ratio")
+				.name("hw_power_supply_used_capacity_ratio")
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
@@ -307,29 +307,29 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("physical_disk_status")
+				.name("hw_physical_disk_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("physical_disk_present")
+				.name("hw_physical_disk_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(PhysicalDisk.INTRUSION_STATUS.getName(), PrometheusParameter.builder()
-				.name("physical_disk_intrusion_status")
+				.name("hw_physical_disk_intrusion_status")
 				.unit(PhysicalDisk.INTRUSION_STATUS.getUnit())
 				.build());
 		map.put(PhysicalDisk.ENDURANCE_REMAINING.getName(), PrometheusParameter.builder()
-				.name("physical_disk_endurance_remaining_ratio")
+				.name("hw_physical_disk_endurance_remaining_ratio")
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("physical_disk_errors")
+				.name("hw_physical_disk_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
-				.name("physical_disk_predicted_failure")
+				.name("hw_physical_disk_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
 
@@ -345,20 +345,20 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("other_device_status")
+				.name("hw_other_device_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("other_device_present")
+				.name("hw_other_device_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(OtherDevice.USAGE_COUNT.getName(), PrometheusParameter.builder()
-				.name("other_device_usage_times")
+				.name("hw_other_device_usage_times")
 				.unit("times")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(OtherDevice.VALUE.getName(), PrometheusParameter.builder()
-				.name("other_device_value")
+				.name("hw_other_device_value")
 				.build());
 
 		return map;
@@ -373,58 +373,58 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("network_card_status")
+				.name("hw_network_card_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("network_card_present")
+				.name("hw_network_card_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(NetworkCard.BANDWIDTH_UTILIZATION.getName(), PrometheusParameter.builder()
-				.name("network_card_bandwidth_utilization_ratio")
+				.name("hw_network_card_bandwidth_utilization_ratio")
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
 		map.put(NetworkCard.DUPLEX_MODE.getName(), PrometheusParameter.builder()
-				.name("network_card_duplex_mode")
+				.name("hw_network_card_duplex_mode")
 				.unit(NetworkCard.DUPLEX_MODE.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("network_card_errors")
+				.name("hw_network_card_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(NetworkCard.LINK_SPEED.getName(), PrometheusParameter.builder()
-				.name("network_card_link_speed_bytes_per_second")
+				.name("hw_network_card_link_speed_bytes_per_second")
 				.unit(BYTES_PER_SECOND)
 				.factor(125000.0)
 				.build());
 		map.put(NetworkCard.LINK_STATUS.getName(), PrometheusParameter.builder()
-				.name("network_card_link_status")
+				.name("hw_network_card_link_status")
 				.unit(NetworkCard.LINK_STATUS.getUnit())
 				.build());
 		map.put(NetworkCard.RECEIVED_BYTES.getName(), PrometheusParameter.builder()
-				.name("network_card_received_bytes")
+				.name("hw_network_card_received_bytes")
 				.unit(BYTES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(NetworkCard.RECEIVED_PACKETS.getName(), PrometheusParameter.builder()
-				.name("network_card_received_packets")
+				.name("hw_network_card_received_packets")
 				.unit(PACKETS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(NetworkCard.TRANSMITTED_BYTES.getName(), PrometheusParameter.builder()
-				.name("network_card_transmitted_bytes")
+				.name("hw_network_card_transmitted_bytes")
 				.unit(BYTES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(NetworkCard.TRANSMITTED_PACKETS.getName(), PrometheusParameter.builder()
-				.name("network_card_transmitted_packets")
+				.name("hw_network_card_transmitted_packets")
 				.unit(PACKETS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(NetworkCard.ZERO_BUFFER_CREDIT_COUNT.getName(), PrometheusParameter.builder()
-				.name("network_card_zero_buffer_credits")
+				.name("hw_network_card_zero_buffer_credits")
 				.unit("buffer_credits")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
@@ -441,24 +441,24 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("memory_status")
+				.name("hw_memory_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("memory_present")
+				.name("hw_memory_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("memory_errors")
+				.name("hw_memory_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(Memory.ERROR_STATUS.getName(),  PrometheusParameter.builder()
-				.name("memory_error_status")
+				.name("hw_memory_error_status")
 				.unit(Memory.ERROR_STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
-				.name("memory_predicted_failure")
+				.name("hw_memory_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
 
@@ -474,11 +474,11 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("lun_status")
+				.name("hw_lun_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(Lun.AVAILABLE_PATH_COUNT.getName(), PrometheusParameter.builder()
-				.name("lun_available_paths")
+				.name("hw_lun_available_paths")
 				.unit(Lun.AVAILABLE_PATH_COUNT.getUnit())
 				.build());
 
@@ -494,16 +494,16 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("logical_disk_status")
+				.name("hw_logical_disk_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("logical_disk_errors")
+				.name("hw_logical_disk_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(LogicalDisk.UNALLOCATED_SPACE.getName(), PrometheusParameter.builder()
-				.name("logical_disk_unallocated_space_bytes")
+				.name("hw_logical_disk_unallocated_space_bytes")
 				.unit(BYTES)
 				.factor(1073741824.0)
 				.build());
@@ -520,15 +520,15 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("led_status")
+				.name("hw_led_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(Led.COLOR.getName(), PrometheusParameter.builder()
-				.name("led_color_status")
+				.name("hw_led_color_status")
 				.unit(Led.COLOR.getUnit())
 				.build());
 		map.put(Led.LED_INDICATOR.getName(), PrometheusParameter.builder()
-				.name("led_indicator_status")
+				.name("hw_led_indicator_status")
 				.unit(Led.LED_INDICATOR.getUnit())
 				.build());
 
@@ -544,19 +544,19 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("fan_status")
+				.name("hw_fan_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("fan_present")
+				.name("hw_fan_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(Fan.SPEED.getName(), PrometheusParameter.builder()
-				.name("fan_speed_rpm")
+				.name("hw_fan_speed_rpm")
 				.unit("rpm")
 				.build());
 		map.put(Fan.SPEED_PERCENT.getName(), PrometheusParameter.builder()
-				.name("fan_speed_ratio")
+				.name("hw_fan_speed_ratio")
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
@@ -573,15 +573,15 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("enclosure_status")
+				.name("hw_enclosure_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(Enclosure.INTRUSION_STATUS.getName(), PrometheusParameter.builder()
-				.name("enclosure_intrusion_status")
+				.name("hw_enclosure_intrusion_status")
 				.unit(Enclosure.INTRUSION_STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
-				.name("enclosure_energy_joules")
+				.name("hw_enclosure_energy_joules")
 				.unit(JOULES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
@@ -598,19 +598,19 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("disk_controller_status")
+				.name("hw_disk_controller_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("disk_controller_present")
+				.name("hw_disk_controller_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(DiskController.BATTERY_STATUS.getName(), PrometheusParameter.builder()
-				.name("disk_controller_battery_status")
+				.name("hw_disk_controller_battery_status")
 				.unit(DiskController.BATTERY_STATUS.getUnit())
 				.build());
 		map.put(DiskController.CONTROLLER_STATUS.getName(), PrometheusParameter.builder()
-				.name("disk_controller_controller_status")
+				.name("hw_disk_controller_controller_status")
 				.unit(DiskController.CONTROLLER_STATUS.getUnit())
 				.build());
 
@@ -626,20 +626,20 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("cpu_core_status")
+				.name("hw_cpu_core_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("cpu_core_present")
+				.name("hw_cpu_core_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(CpuCore.CURRENT_SPEED.getName(), PrometheusParameter.builder()
-				.name("cpu_core_current_speed_hertz")
+				.name("hw_cpu_core_current_speed_hertz")
 				.unit("hertz")
 				.factor(1000000.0)
 				.build());
 		map.put(CpuCore.USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
-				.name("cpu_core_used_time_ratio")
+				.name("hw_cpu_core_used_time_ratio")
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
@@ -656,25 +656,25 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("cpu_status")
+				.name("hw_cpu_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("cpu_present")
+				.name("hw_cpu_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(Cpu.CORRECTED_ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("cpu_corrected_errors")
+				.name("hw_cpu_corrected_errors")
 				.unit(Cpu.CORRECTED_ERROR_COUNT.getUnit())
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(Cpu.CURRENT_SPEED.getName(), PrometheusParameter.builder()
-				.name("cpu_current_speed_hertz")
+				.name("hw_cpu_current_speed_hertz")
 				.unit("hertz")
 				.factor(1000000.0)
 				.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
-				.name("cpu_predicted_failure")
+				.name("hw_cpu_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
 
@@ -691,7 +691,7 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("connector_status")
+				.name("hw_connector_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 
@@ -707,15 +707,15 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("blade_status")
+				.name("hw_blade_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("blade_present")
+				.name("hw_blade_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(Blade.POWER_STATE.getName(), PrometheusParameter.builder()
-				.name("blade_power_state")
+				.name("hw_blade_power_state")
 				.unit(Blade.POWER_STATE.getUnit())
 				.build());
 
@@ -731,20 +731,20 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("battery_status")
+				.name("hw_battery_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("battery_present")
+				.name("hw_battery_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(Battery.CHARGE.getName(), PrometheusParameter.builder()
-				.name("battery_charge_ratio")
+				.name("hw_battery_charge_ratio")
 				.unit(Battery.CHARGE.getUnit())
 				.factor(0.01)
 				.build());
 		map.put(Battery.TIME_LEFT.getName(), PrometheusParameter.builder()
-			.name("battery_time_left")
+			.name("hw_battery_time_left")
 			.unit(Battery.TIME_LEFT.getUnit())
 			.build());
 
