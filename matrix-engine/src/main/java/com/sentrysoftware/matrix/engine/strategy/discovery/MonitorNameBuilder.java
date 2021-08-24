@@ -2,9 +2,11 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
@@ -17,11 +19,16 @@ public class MonitorNameBuilder {
 
 	private MonitorNameBuilder() {}
 
-	public static final String UNKNOWN_COMPUTER = "Unknown computer";
-	public static final String HP_TRU64_COMPUTER = "HP Tru64 computer";
-	public static final String LINUX_COMPUTER = "Linux computer";
-	public static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS computer";
-	public static final String WINDOWS_COMPUTER = "Windows computer";
+	public static final String HP_OPEN_VMS_COMPUTER = "HP Open-VMS Computer";
+	public static final String HP_TRU64_UNIX_COMPUTER = "HP Tru64 Computer";
+	public static final String HP_UX_COMPUTER = "HP-UX Computer";
+	public static final String IBM_AIX_COMPUTER = "IBM AIX Computer";
+	public static final String LINUX_COMPUTER = "Linux Computer";
+	public static final String MGMT_CARD_ENCLOSURE = "Management Card";
+	public static final String WINDOWS_COMPUTER = "Windows Computer";
+	public static final String NETWORK_SWITCH_ENCLOSURE = "Network Switch";
+	public static final String STORAGE_ENCLOSURE = "Storage System";
+	public static final String SUN_SOLARIS_COMPUTER = "Oracle Solaris Computer";
 	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
 	
 	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
@@ -33,23 +40,54 @@ public class MonitorNameBuilder {
 	static {
 		final Map<TargetType, String> map = new EnumMap<>(TargetType.class);
 		for (TargetType targetType : TargetType.values()) {
+			
 			final String value;
+			
 			switch (targetType) {
-			case MS_WINDOWS:
-				value = WINDOWS_COMPUTER;
-				break;
-			case HP_OPEN_VMS:
-				value = HP_OPEN_VMS_COMPUTER;
-				break;
-			case LINUX:
-				value = LINUX_COMPUTER;
-				break;
-			case HP_TRU64_UNIX:
-				value = HP_TRU64_COMPUTER;
-				break;
-			default:
-				value = UNKNOWN_COMPUTER;
+				case HP_OPEN_VMS:
+					value = HP_OPEN_VMS_COMPUTER;
+					break;
+
+				case HP_TRU64_UNIX:
+					value = HP_TRU64_UNIX_COMPUTER;
+					break;
+
+				case HP_UX:
+					value = HP_UX_COMPUTER;
+					break;
+
+				case IBM_AIX:
+					value = IBM_AIX_COMPUTER;
+					break;
+
+				case LINUX:
+					value = LINUX_COMPUTER;
+					break;
+
+				case MGMT_CARD_BLADE_ESXI:
+					value = MGMT_CARD_ENCLOSURE;
+					break;
+
+				case MS_WINDOWS:
+					value = WINDOWS_COMPUTER;
+					break;
+	
+				case NETWORK_SWITCH:
+					value = NETWORK_SWITCH_ENCLOSURE;
+					break;
+
+				case STORAGE:
+					value = STORAGE_ENCLOSURE;
+					break;
+	
+				case SUN_SOLARIS:
+					value = SUN_SOLARIS_COMPUTER;
+					break;
+
+				default:
+					value = null;
 			}
+
 			map.put(targetType, value);
 		}
 
@@ -57,14 +95,14 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Check whether the string is blank, empty or null
+	 * Check whether the string has meaningful content: not just white spaces, empty or null
 	 * 
 	 * @param data        {@link String} to be checked
 	 * 
-	 * @return {@link boolean} true/false whether it is blank or not
+	 * @return {@link boolean} true/false whether it has meaningful content or not
 	 */
-	private static boolean isBlankDataValue(final String data) {
-		return data == null || data.trim().isEmpty();
+	private static boolean hasMeaningfulContent(final String data) {
+		return data != null && !data.trim().isEmpty();
 	}
 	
 	/**
@@ -77,11 +115,11 @@ public class MonitorNameBuilder {
 	 */
 	private static String trimKnownWords(final String phrase, final String regexp) {
 		
-		if (isBlankDataValue(regexp)) {
+		if (!hasMeaningfulContent(regexp)) {
 			return phrase;
 		}
 		
-		return phrase.replaceAll("(?i)\\s*" + regexp + "\\s*", "");
+		return phrase.replaceAll("(?i)\\b" + regexp + "\\b", HardwareConstants.EMPTY);
 	}
 	
 	/**
@@ -95,13 +133,13 @@ public class MonitorNameBuilder {
 	private static String trimUnwantedCharacters(final String name) {
 
 		// Trim any comma
-		String trimmedName = name.replaceAll(",", "");
+		String trimmedName = name.replaceAll(HardwareConstants.COMMA, HardwareConstants.EMPTY);
 
 		// Trim empty parenthesis
-		trimmedName = trimmedName.replace("()", "");
+		trimmedName = trimmedName.replace(HardwareConstants.PARENTHESIS_EMPTY, HardwareConstants.EMPTY);
 
 		// Trim redundant blank spaces
-		trimmedName = trimmedName.replaceAll(" +", " ");
+		trimmedName = trimmedName.replaceAll(HardwareConstants.WHITE_SPACE_REPEAT_REGEX, HardwareConstants.WHITE_SPACE);
 
 		// Trim leading and trailing white spaces
 		trimmedName = trimmedName.trim();
@@ -120,17 +158,9 @@ public class MonitorNameBuilder {
 	private static String joinWords(final String[] words, final String separator) {
 
 		// Check the words and add them to a string buffer if set
-		final StringBuilder buffer = new StringBuilder();
-		String nextSeparator = "";
-		for (String word : words) {
-			if (!isBlankDataValue(word)) {
-				buffer.append(nextSeparator);
-				nextSeparator = separator;
-				buffer.append(word);
-			}
-		}
-
-		return buffer.toString();
+		return Arrays.stream(words)
+				.filter(MonitorNameBuilder::hasMeaningfulContent)
+				.collect(Collectors.joining(separator));
 	}
 	
 	/**
@@ -163,7 +193,7 @@ public class MonitorNameBuilder {
 			}
 		}
 
-		return joinWords(new String[] { vendor, model }, " ");
+		return joinWords(new String[] { vendor, model }, HardwareConstants.WHITE_SPACE);
 	}
 
 	/**
@@ -176,10 +206,7 @@ public class MonitorNameBuilder {
 	 */
 	public static boolean isLocalhost(final Map<String, String> metadata) {
 		if (metadata != null) {
-			final String location = metadata.get(HardwareConstants.LOCATION);
-			if (location != null) {
-				return location.equalsIgnoreCase(HardwareConstants.LOCALHOST);
-			}
+			return HardwareConstants.LOCALHOST.equalsIgnoreCase(metadata.get(HardwareConstants.LOCATION));
 		}
 		
 		return false;
@@ -206,24 +233,6 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Check whether the string contains only integer or not
-	 * 
-	 * @param string        {@link String} to be checked for integer
-	 * 
-	 * @return {@link boolean} true/false whether it is an integer or not
-	 */
-	private static boolean isInteger(final String string) {
-		try { 
-			Integer.parseInt(string); 
-		} catch (Exception e) { 
-			return false; 
-		}
-		
-		// Must be a good integer
-		return true;
-	}
-
-	/**
 	 * Converts a number in the string to readable bytes format using binary divisor
 	 * 
 	 * @param string        {@link String} to be formatted
@@ -232,19 +241,25 @@ public class MonitorNameBuilder {
 	 */
 	private static String humanReadableByteCountBin(final String string) {
 		
-		long bytes;
+		if (string == null) {
+			return string;
+		}
+		
+		Double bytesD;
 		try { 
-			bytes = Long.parseLong(string); 
-		} catch (Exception e) { 
+			bytesD = Double.parseDouble(string); 
+		} catch (NumberFormatException e) { 
 			return string; 
 		}
 		
+		long bytes = bytesD.longValue();
 		long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
 		if (absB < 1024) {
 			return bytes + " B";
 		}
 		
 		long value = absB;
+		
 		CharacterIterator ci = new StringCharacterIterator("KMGTPE");
 		for (int i = 40; i >= 0 && absB > 0xfffccccccccccccL >> i; i -= 10) {
 			value >>= 10;
@@ -265,10 +280,14 @@ public class MonitorNameBuilder {
 	 */
 	private static String humanReadableByteCountSI(final String string) {
 		
-		long bytes;
+		if (string == null) {
+			return string;
+		}
+		
+		Double bytes;
 		try { 
-			bytes = Long.parseLong(string); 
-		} catch (Exception e) { 
+			bytes = Double.parseDouble(string); 
+		} catch (NumberFormatException e) { 
 			return string; 
 		}
 		
@@ -307,15 +326,15 @@ public class MonitorNameBuilder {
 		final StringBuilder fullName = new StringBuilder();
 		
 		// Add the type
-		if (!isBlankDataValue(type)) {
-			fullName.append(type + ": ");
+		if (hasMeaningfulContent(type)) {
+			fullName.append(type + HardwareConstants.NAME_SEPARATOR);
 		}
 
 		// Add the name
 		String name = null;
-		if (!isBlankDataValue(displayId)) {
+		if (hasMeaningfulContent(displayId)) {
 			name = displayId;
-		} else if (!isBlankDataValue(deviceId)) {
+		} else if (hasMeaningfulContent(deviceId)) {
 			name = trimKnownWords(deviceId, trimmableRegex);
 			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
 				name = idCount;
@@ -323,7 +342,7 @@ public class MonitorNameBuilder {
 		}
 
 		// Use the ID count as name, if we couldn't build one from display ID or device ID
-		if (isBlankDataValue(name)) {
+		if (!hasMeaningfulContent(name)) {
 			name = idCount;
 		}
 		
@@ -331,8 +350,9 @@ public class MonitorNameBuilder {
 		
 		// Add the additional label in parenthesis
 		final String additionalLabel = joinWords(additionalLabelFields);
-		if (!isBlankDataValue(additionalLabel)) {
-			fullName.append(" (" + additionalLabel + ")");
+		if (hasMeaningfulContent(additionalLabel)) {
+			fullName.append(HardwareConstants.ADDITIONAL_DETAILS_SEPARATOR + 
+					additionalLabel + HardwareConstants.CLOSING_PARENTHESIS);
 		}
 
 		return trimUnwantedCharacters(fullName.toString());
@@ -356,7 +376,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID),
@@ -387,7 +407,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID),
@@ -416,12 +436,16 @@ public class MonitorNameBuilder {
 		
 		// Format the maximum speed
 		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
-		if (isInteger(cpuMaxSpeed)) {
-			Integer cpuMaxSpeedAsInt = Integer.parseInt(cpuMaxSpeed);
-			if (cpuMaxSpeedAsInt < 1000) {
-				cpuMaxSpeed = String.format("%d MHz", cpuMaxSpeedAsInt);
-			} else {
-				cpuMaxSpeed = String.format("%.2f GHz", (cpuMaxSpeedAsInt / 1000D));
+		if (cpuMaxSpeed != null) {
+			try {
+				double cpuMaxSpeedD = Double.parseDouble(cpuMaxSpeed);
+				if (cpuMaxSpeedD < 1000D) {
+					cpuMaxSpeed = String.format("%.0f MHz", cpuMaxSpeedD);
+				} else {
+					cpuMaxSpeed = String.format("%.2f GHz", (cpuMaxSpeedD / 1000D));
+				}
+			} catch (NumberFormatException nfe) {
+				cpuMaxSpeed = null;
 			}
 		}
 
@@ -429,7 +453,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID),
@@ -461,7 +485,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID),
@@ -494,7 +518,7 @@ public class MonitorNameBuilder {
 				metadata.get(HardwareConstants.DISPLAY_ID),
 				metadata.get(HardwareConstants.DISK_CONTROLLER_NUMBER), 
 				metadata.get(HardwareConstants.ID_COUNT), 
-				"",
+				null,
 
 				// Additional label
 				joinVendorAndModel(metadata)
@@ -544,14 +568,14 @@ public class MonitorNameBuilder {
 
 		// If enclosureDisplayID is specified, use it and put the rest in parenthesis
 		String enclosureDisplayId = metadata.get(HardwareConstants.DISPLAY_ID);
-		String additionalInfo = "";
+		String additionalInfo = null;
 
 		// Find the vendor/model details
 		String vendorModel = joinVendorAndModel(metadata);
-		if (!isBlankDataValue(vendorModel)) {
+		if (hasMeaningfulContent(vendorModel)) {
 			
 			// We will use vendor/model as enclosureDisplayId, if it is not set
-			if (!isBlankDataValue(enclosureDisplayId)) {
+			if (hasMeaningfulContent(enclosureDisplayId)) {
 				// Add vendor/model as additionalInfo in parenthesis
 				additionalInfo = vendorModel;
 			} else {
@@ -563,9 +587,9 @@ public class MonitorNameBuilder {
 			
 			// Find the computer display name
 			String computerDisplayName = handleComputerDisplayName(targetMonitor, targetType);
-			if (!isBlankDataValue(computerDisplayName)) {
+			if (hasMeaningfulContent(computerDisplayName)) {
 				// We will use computer display name as enclosureDisplayId, if it is still not set
-				if (!isBlankDataValue(enclosureDisplayId)) {
+				if (hasMeaningfulContent(enclosureDisplayId)) {
 					// Add computerDisplayName as additionalInfo in parenthesis
 					additionalInfo = computerDisplayName;
 				} else {
@@ -585,7 +609,7 @@ public class MonitorNameBuilder {
 				enclosureDisplayId,
 				metadata.get(HardwareConstants.DEVICE_ID), 
 				metadata.get(HardwareConstants.ID_COUNT), 
-				"",
+				null,
 
 				// Additional label
 				additionalInfo
@@ -609,7 +633,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -637,7 +661,7 @@ public class MonitorNameBuilder {
 		
 		// Format the LED color
 		String ledColor = metadata.get(HardwareConstants.COLOR);
-		if (!isBlankDataValue(ledColor)) {
+		if (hasMeaningfulContent(ledColor)) {
 			ledColor = ledColor.substring(0, 1).toUpperCase() + ledColor.substring(1).toLowerCase();
 		}
 		
@@ -645,7 +669,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -674,15 +698,18 @@ public class MonitorNameBuilder {
 		
 		// Format the RAID level
 		String logicalDiskRaidLevel = metadata.get(HardwareConstants.RAID_LEVEL);
-		if (!isBlankDataValue(logicalDiskRaidLevel) && isInteger(logicalDiskRaidLevel)) {
-			logicalDiskRaidLevel = "RAID " + logicalDiskRaidLevel;
+		if (logicalDiskRaidLevel != null) {
+			try {
+				int logicalDiskRaidLevelD = Integer.parseInt(logicalDiskRaidLevel);
+				logicalDiskRaidLevel = String.format("RAID %d", logicalDiskRaidLevelD);
+			} catch (NumberFormatException nfe) {}
 		}
 		
 		// Build the name
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.TYPE),
+				metadata.get(HardwareConstants.DEVICE_TYPE),
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -713,7 +740,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -742,22 +769,24 @@ public class MonitorNameBuilder {
 		
 		// Format the memory size
 		String memorySize = metadata.get(HardwareConstants.SIZE);
-		if (isInteger(memorySize)) {
-			Integer memorySizeAsInt = Integer.parseInt(memorySize);
-			if (memorySizeAsInt > 50) {
-				memorySize = String.format("%d MB", memorySizeAsInt);
-			} else {
-				memorySize = "";
+		if (memorySize != null) {
+			try {
+				double memorySizeD = Double.parseDouble(memorySize);
+				if (memorySizeD > 50D) {
+					memorySize = String.format("%.0f MB", memorySizeD);
+				} else {
+					memorySize = null;
+				}
+			} catch (NumberFormatException nfe) {
+				memorySize = null;
 			}
-		} else {
-			memorySize = "";
 		}
 
 		// Build the name
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -788,13 +817,13 @@ public class MonitorNameBuilder {
 		// Network card vendor without unwanted words
 		final String unwantedWords = "network|ndis|client|server|adapter|ethernet|interface|controller|miniport|scheduler|packet|connection|multifunction|(1([0]+[/]*))*(base[\\-tx]*)*";
 		String networkCardVendor = metadata.get(HardwareConstants.VENDOR);
-		if (!isBlankDataValue(networkCardVendor)) {
+		if (hasMeaningfulContent(networkCardVendor)) {
 			networkCardVendor = trimKnownWords(networkCardVendor, unwantedWords);
 		}
 		
 		// Network card model without unwanted words and up to 30 characters
 		String networkCardModel = metadata.get(HardwareConstants.MODEL);
-		if (!isBlankDataValue(networkCardModel)) {
+		if (hasMeaningfulContent(networkCardModel)) {
 			networkCardModel = trimKnownWords(networkCardModel, unwantedWords);
 			if (networkCardModel.length() > 30) {
 				networkCardModel = networkCardModel.substring(0, 30);
@@ -805,7 +834,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -814,7 +843,7 @@ public class MonitorNameBuilder {
 				"network",
 
 				// Additional label
-				metadata.get(HardwareConstants.TYPE),
+				metadata.get(HardwareConstants.DEVICE_TYPE),
 				networkCardVendor,
 				networkCardModel
 		);
@@ -838,13 +867,13 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.TYPE), 
+				metadata.get(HardwareConstants.DEVICE_TYPE), 
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
 				metadata.get(HardwareConstants.DEVICE_ID),
 				metadata.get(HardwareConstants.ID_COUNT), 
-				"",
+				null,
 
 				// Additional label
 				metadata.get(HardwareConstants.ADDITIONAL_LABEL)
@@ -868,7 +897,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.TYPE),
+				metadata.get(HardwareConstants.DEVICE_TYPE),
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -897,7 +926,7 @@ public class MonitorNameBuilder {
 		
 		// Format the power 
 		String powerSupplyPower = metadata.get(HardwareConstants.POWER_SUPPLY_POWER);
-		if (!isBlankDataValue(powerSupplyPower)) {
+		if (hasMeaningfulContent(powerSupplyPower)) {
 			powerSupplyPower = powerSupplyPower + " W";
 		}
 		
@@ -905,7 +934,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -936,7 +965,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -967,7 +996,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -997,7 +1026,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 
@@ -1027,7 +1056,7 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				"",
+				null,
 
 				// Name
 				metadata.get(HardwareConstants.DISPLAY_ID), 

@@ -12,6 +12,7 @@ public class HardwareConstants {
 	public static final String TAB = "\t";
 	public static final String WHITE_SPACE = " ";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
+	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
 	public static final String DASH = "-";
 	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
@@ -40,6 +41,8 @@ public class HardwareConstants {
 	public static final String PIPE_PROTECTED = "\\|";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
+	public static final String NAME_SEPARATOR = ": ";
+	public static final String ADDITIONAL_DETAILS_SEPARATOR = " (";
 
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
