@@ -15,7 +15,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
 import static org.springframework.util.Assert.notNull;
 
@@ -47,7 +46,7 @@ public class EmbeddedFileBody implements Body {
 			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? EMPTY : authenticationToken)
 			.replace(PASSWORD_MACRO, passwordAsString)
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
-			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((USERNAME + COLON + passwordAsString).getBytes()));
+			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((username + COLON + passwordAsString).getBytes()));
 	}
 
 	public Body copy() {
