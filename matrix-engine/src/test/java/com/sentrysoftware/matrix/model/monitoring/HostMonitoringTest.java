@@ -1,5 +1,28 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
@@ -11,30 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class HostMonitoringTest {
 
@@ -632,6 +631,27 @@ class HostMonitoringTest {
 			assertNotEquals(currentMonitor.getAlertRules().get(HardwareConstants.PRESENT_PARAMETER),
 					staticAlertRules.get(HardwareConstants.PRESENT_PARAMETER));
 		}
+	}
 
+	@Test
+	void testFindById() {
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		// monitorIdentifier is null
+		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.findById(null));
+
+		// monitorIdentifier is not null, monitor not found
+		hostMonitoring.setMonitors(Collections.emptyMap());
+		assertNull(hostMonitoring.findById(FAN_ID));
+
+		// monitorIdentifier is not null, monitor found
+		Monitor expected = Monitor
+			.builder()
+			.id(FAN_ID)
+			.monitorType(FAN)
+			.build();
+		hostMonitoring.setMonitors(Map.of(FAN, Map.of(FAN_ID, expected)));
+		assertEquals(expected, hostMonitoring.findById(FAN_ID));
 	}
 }

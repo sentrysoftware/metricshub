@@ -1,14 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-
-import java.util.Map;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -35,8 +26,16 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.util.Map;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
@@ -266,8 +265,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		}
 
 		final String extendedType = getTextDataValueOrElse(metadata.get(TYPE), monitorType.getName());
-		final String attachedToDeviceId = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
-		final String attachedToDeviceType = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
+		final Monitor parent = resolveParent(metadata, hostMonitoring, targetMonitor);
 
 		monitor.setName(monitorName);
 		monitor.setParentId(parentId);
@@ -280,8 +278,8 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 			id,
 			connectorName,
 			monitorType,
-			attachedToDeviceId,
-			attachedToDeviceType);
+			parent.getFqdn(),
+			parent.getMonitorType().getName());
 
 		return monitor;
 	}
@@ -292,6 +290,57 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
+	}
+
+
+	/**
+	 * Resolves the parent of a {@link Monitor}.
+	 *
+	 * @param metadata			The {@link Monitor}'s metadata.
+	 * @param hostMonitoring	The {@link IHostMonitoring} instance wrapping source tables and monitors.
+	 * @param targetMonitor		The target {@link Monitor}.
+	 *
+	 * @return					The parent of the {@link Monitor}.
+	 */
+	Monitor resolveParent(Map<String, String> metadata, IHostMonitoring hostMonitoring, Monitor targetMonitor) {
+
+		String rawAttachedToDeviceId = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
+		if (rawAttachedToDeviceId != null) {
+
+			Monitor monitor = hostMonitoring.findById(rawAttachedToDeviceId);
+			if (monitor != null) {
+				return monitor;
+			}
+		}
+
+		Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
+		if (enclosures != null && !enclosures.isEmpty()) {
+
+			// Finding the first COMPUTER-type enclosure
+			Monitor firstComputerEnclosure = enclosures
+				.values()
+				.stream()
+				.filter(monitor -> COMPUTER.equals(monitor.getExtendedType()))
+				.findFirst()
+				.orElse(null);
+
+			if (firstComputerEnclosure != null) {
+				return firstComputerEnclosure;
+			}
+
+			// No COMPUTER-type enclosure found. Checking if there is a unique enclosure.
+			if (enclosures.size() == 1) {
+
+				return enclosures
+					.values()
+					.stream()
+					.findFirst()
+					.orElseThrow();
+			}
+		}
+
+		// In any other case, the parent will be the host
+		return targetMonitor;
 	}
 
 	/**

@@ -25,6 +25,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -329,6 +330,21 @@ public class HostMonitoring implements IHostMonitoring {
 	public Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType) {
 
 		return Collections.emptySet();
+	}
+
+	@Override
+	public Monitor findById(String monitorIdentifier) {
+
+		Assert.notNull(monitorIdentifier, "monitorIdentifier cannot be null.");
+
+		return monitors
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> monitorIdentifier.equals(monitor.getId()))
+			.findFirst()
+			.orElse(null);
 	}
 
 	@Override
