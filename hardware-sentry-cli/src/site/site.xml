@@ -25,16 +25,9 @@
 		</menu>
 
 		<menu name="Using the CLI">
-			<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli/index.html">
-				<item name="Using the HTTP Protocol" href="running-hardware-sentry-cli/using-http-protocol.html"/>
-				<item name="Using the SNMP Protocol" href="running-hardware-sentry-cli/using-snmp-protocol.html"/>
-				<item name="Using the WBEM Protocol" href="running-hardware-sentry-cli/using-wbem-protocol.html"/>
-				<item name="Using the WMI Protocol" href="running-hardware-sentry-cli/using-wmi-protocol.html"/>
-				<item name="Example" href="running-hardware-sentry-cli/example.html"/>
-			</item>
-			<item name="Configuring Connectors" href="running-hardware-sentry-cli/configuring-connectors.html"/>
-			<item name="Getting Help" href="running-hardware-sentry-cli/help.html"/>
-			<item name="Generating Logs" href="running-hardware-sentry-cli/debug.html"/>
+			<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
+			<item name="Getting Help" href="help.html"/>
+			<item name="Generating Logs" href="debug.html"/>
 		</menu>
 		
 		<menu name="Appendix">

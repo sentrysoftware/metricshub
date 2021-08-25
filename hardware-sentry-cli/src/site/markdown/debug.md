@@ -11,13 +11,13 @@ Use the `-d` or `--debug` option to enable the debug mode.
 
 ###### Example:
 
-```shell script
+```batch
 $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d
 ```
 
    or
 
-```shell script
+```batch
 $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug
 ```
 
@@ -31,11 +31,11 @@ Use the `-o` or `--output` option to specify where the log should be stored.
 
 ###### Examples:
 
-```shell script
+```batch
    $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d -o D:/hardware-logs
 ```
   
-```shell script
+```batch
    $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug --output D:/hardware-logs
 ```
 
