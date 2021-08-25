@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -32,15 +41,8 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -283,13 +285,19 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
 
+		collectTapeDriveMountCount();
+		collectTapeDriveUnmountCount();
+		collectTapeDriveErrorCount();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.PRESENT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
+				HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 
 				HardwareConstants.NEEDS_CLEANING_PARAMETER,
 				HardwareConstants.UNMOUNT_COUNT_PARAMETER);
-
 	}
 
 	@Override
@@ -913,4 +921,136 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			100.0 * usedTimePercentDelta / timeDeltaInSeconds,
 			usedTimePercentRaw);
 	}
+	
+	/**
+	 * Collects the {@link TapeDrive} mount count.
+	 */
+	void collectTapeDriveMountCount() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double tapeDriveMountCount  = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.MOUNT_COUNT_PARAMETER);
+
+		if (tapeDriveMountCount != null) {
+
+			// Getting the previous value
+			Double tapeDriveMountCountPrevious = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER, true);
+			
+			updateNumberParameter(monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				(tapeDriveMountCountPrevious != null && tapeDriveMountCountPrevious < tapeDriveMountCount) ? 
+					(tapeDriveMountCount - tapeDriveMountCountPrevious) : 0,
+				tapeDriveMountCount);
+		}
+	}
+	
+	/**
+	 * Collects the {@link TapeDrive} unmount count.
+	 */
+	void collectTapeDriveUnmountCount() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double tapeDriveUnmountCount  = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.UNMOUNT_COUNT_PARAMETER);
+
+		if (tapeDriveUnmountCount != null) {
+
+			// Getting the previous value
+			Double tapeDriveUnmountCountPrevious = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER, true);
+			
+			updateNumberParameter(monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				(tapeDriveUnmountCountPrevious != null && tapeDriveUnmountCountPrevious < tapeDriveUnmountCount) ? 
+					(tapeDriveUnmountCount - tapeDriveUnmountCountPrevious) : 0,
+				tapeDriveUnmountCount);
+		}
+	}
+	
+	/**
+	 * Collects the {@link TapeDrive} error counts.
+	 */
+	void collectTapeDriveErrorCount() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		Double errorCount = null;
+
+		Double tapeDriveErrorCount = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.ERROR_COUNT_PARAMETER);
+
+		if (tapeDriveErrorCount != null) {
+
+			// Getting the previous error count
+			Double previousErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER);
+
+			// Getting the starting error count
+			Double startingErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.STARTING_ERROR_COUNT_PARAMETER);
+			
+			if (startingErrorCount != null) {
+				
+				// Remove existing error count from the current value
+				errorCount = tapeDriveErrorCount - startingErrorCount;
+
+				// If we obtain a negative number, that's impossible: set everything to 0
+				if (errorCount < 0)
+				{
+					errorCount = 0.0;
+
+					// Reset the starting error count
+					updateNumberParameter(monitor,
+						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+						HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						0.0,
+						0.0);
+				} 
+
+			} else {
+				
+				// First polling
+				errorCount = 0.0;
+				
+				if (tapeDriveErrorCount < 0.0) {
+					tapeDriveErrorCount = 0.0;
+				}
+				
+				// Record as the starting error count
+				updateNumberParameter(monitor,
+					HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+					HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					tapeDriveErrorCount,
+					tapeDriveErrorCount);
+				
+				// Record the previous error count
+				previousErrorCount = tapeDriveErrorCount;
+			}
+			
+			// Update the previous error count
+			updateNumberParameter(monitor,
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				previousErrorCount,
+				previousErrorCount);
+
+			// Update the error count
+			updateNumberParameter(monitor,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				errorCount,
+				tapeDriveErrorCount);
+		}
+	}
+	
 }
