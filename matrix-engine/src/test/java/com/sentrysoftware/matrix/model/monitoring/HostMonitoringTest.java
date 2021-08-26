@@ -285,7 +285,7 @@ class HostMonitoringTest {
 			assertNotNull(fanResult);
 			assertEquals(FULL_FAN_ID, fanResult.getId());
 			// The Fan is attached to the target id because we haven't a "Computer" enclosure and AttachedTotargetId is not set
-			assertEquals(TARGET_ID, fanResult.getParentId());
+			assertEquals(enclosure.getId(), fanResult.getParentId());
 			assertEquals(TARGET_ID, fanResult.getTargetId());
 		}
 
@@ -301,7 +301,7 @@ class HostMonitoringTest {
 			assertNotNull(fanResult);
 			assertEquals(FULL_FAN_ID, fanResult.getId());
 			// The Fan is attached to the target id because there is no enclosure
-			assertEquals(TARGET_ID, fanResult.getParentId());
+			assertEquals("targetId", fanResult.getParentId());
 			assertEquals(TARGET_ID, fanResult.getTargetId());
 		}
 	}

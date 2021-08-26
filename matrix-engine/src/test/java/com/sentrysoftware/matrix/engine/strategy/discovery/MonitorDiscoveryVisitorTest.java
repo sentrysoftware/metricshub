@@ -27,12 +27,9 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -793,101 +790,6 @@ class MonitorDiscoveryVisitorTest {
 
 		assertEquals(expectedFan, fans.values().stream().findFirst().get());
 
-	}
-	@Test
-	void testResolveParent() {
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		final Monitor monitor = Monitor
-			.builder()
-			.monitorType(MonitorType.FAN)
-			.metadata(metadata)
-			.build();
-
-		final Monitor targetMonitor = Monitor
-			.builder()
-			.id(ECS1_01)
-			.parentId(null)
-			.targetId(ECS1_01)
-			.name(ECS1_01)
-			.monitorType(MonitorType.TARGET)
-			.build();
-
-		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
-			.builder()
-			.connectorName(MY_CONNECTOR_NAME)
-			.monitorType(MonitorType.FAN)
-			.monitor(monitor)
-			.hostMonitoring(hostMonitoring)
-			.targetType(TargetType.LINUX)
-			.targetMonitor(targetMonitor)
-			.hostname(ECS1_01)
-			.build();
-
-		MonitorDiscoveryVisitor monitorDiscoveryVisitor = new MonitorDiscoveryVisitor(buildingInfo);
-
-		// rawAttachedToDeviceId != null, monitor != null
-		metadata.put(ATTACHED_TO_DEVICE_ID, DEVICE_ID);
-		Monitor expected = Monitor
-			.builder()
-			.id(DEVICE_ID)
-			.monitorType(MonitorType.ENCLOSURE)
-			.parentId(targetMonitor.getId())
-			.targetId(ECS1_01)
-			.name(ECS1_01)
-			.extendedType(COMPUTER)
-			.build();
-		hostMonitoring.addMonitor(expected);
-		assertEquals(expected, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId != null, monitor == null
-		hostMonitoring.removeMonitor(expected);
-		assertEquals(targetMonitor, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null
-		metadata.clear();
-		assertEquals(targetMonitor, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null, enclosures == null
-		hostMonitoring.setMonitors(Map.of(MonitorType.TARGET, Map.of(targetMonitor.getId(), targetMonitor)));
-		assertEquals(targetMonitor, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null, enclosures is empty
-		hostMonitoring.setMonitors(Map.of(MonitorType.ENCLOSURE, Collections.emptyMap()));
-		assertEquals(targetMonitor, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null, enclosures != null, enclosures is not empty
-		// one COMPUTER-type enclosure found
-		hostMonitoring.setMonitors(Map.of(MonitorType.ENCLOSURE, Map.of(DEVICE_ID, expected)));
-		assertEquals(expected, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null, enclosures != null, enclosures is not empty
-		// no COMPUTER-type enclosure found, enclosures.size() == 1
-		expected.setExtendedType(null);
-		assertEquals(expected, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
-
-		// rawAttachedToDeviceId == null, enclosures != null, enclosures is not empty
-		// no COMPUTER-type enclosure found, enclosures.size() != 1
-		Monitor enclosure1 = Monitor
-			.builder()
-			.id(DEVICE_ID1)
-			.monitorType(MonitorType.ENCLOSURE)
-			.parentId(targetMonitor.getId())
-			.targetId(ECS1_01)
-			.name(ECS1_01)
-			.build();
-		Monitor enclosure2 = Monitor
-			.builder()
-			.id(DEVICE_ID2)
-			.monitorType(MonitorType.ENCLOSURE)
-			.parentId(targetMonitor.getId())
-			.targetId(ECS1_01)
-			.name(ECS1_01)
-			.build();
-		hostMonitoring.setMonitors(Map.of(MonitorType.ENCLOSURE, Map.of(DEVICE_ID1, enclosure1, DEVICE_ID2, enclosure2)));
-		assertEquals(targetMonitor, monitorDiscoveryVisitor.resolveParent(metadata, hostMonitoring, targetMonitor));
 	}
 
 	private MonitorBuildingInfo createBuildingInfo(final IHostMonitoring hostMonitoring, final MonitorType monitorType) {
