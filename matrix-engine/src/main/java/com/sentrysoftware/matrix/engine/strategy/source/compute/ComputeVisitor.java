@@ -1443,6 +1443,9 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathComputeOnLine(final Class<? extends Compute> computeOperation, final Integer columnIndex,
 			final List<String> line, final String op1, final String op2) {
+		if (op1.isBlank() || op2.isBlank()) {
+			return;
+		}
 		try {
 			if(MATH_FUNCTIONS_MAP.containsKey(computeOperation)) {
 				String resultFunction = MATH_FUNCTIONS_MAP.get(computeOperation).apply(op1, op2);
