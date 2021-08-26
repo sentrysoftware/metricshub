@@ -1005,6 +1005,19 @@ class ComputeVisitorTest {
 			Arrays.asList("ID2", "1515.0", "5", "val2"),
 			Arrays.asList("ID1", "212.0", "2", "val3")),
 			sourceTable.getTable());
+
+		Add emptyAdd = Add.builder().column(4).add("5").build();
+		table = Arrays.asList(
+				Arrays.asList("ID1", "500", "2", ""),
+				Arrays.asList("ID2", "1500", "5", ""),
+				Arrays.asList("ID1", "200", "2", ""));
+		sourceTable.setTable(table);
+		computeVisitor.visit(emptyAdd);
+		assertEquals(table, sourceTable.getTable());
+
+		emptyAdd = Add.builder().column(2).add("column(4)").build();
+		computeVisitor.visit(emptyAdd);
+		assertEquals(table, sourceTable.getTable());
 	}
 
 	@Test
