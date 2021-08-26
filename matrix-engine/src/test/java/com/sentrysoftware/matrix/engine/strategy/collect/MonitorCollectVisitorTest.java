@@ -67,6 +67,9 @@ class MonitorCollectVisitorTest {
 	private static final String VALUE_TABLE = "MonitorType.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
 	private static final ParameterState UNKNOWN_STATUS_WARN = ParameterState.WARN;
+	private static final String VOLTAGE = "50000";
+	private static final String VOLTAGE_LOW = "-200000";
+	private static final String VOLTAGE_HIGH = "460000";
 
 	private static Long collectTime = new Date().getTime();
 
@@ -383,7 +386,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitVoltage() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.VOLTAGE).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Voltage());
@@ -1349,5 +1352,55 @@ class MonitorCollectVisitorTest {
 		assertNotNull(usedTimePercentParameter);
 		assertEquals(42.0, usedTimePercentParameter.getRawValue());
 		assertEquals(25.0, usedTimePercentParameter.getValue());
+	}
+
+	@Test
+	void testCollectVoltage() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.VOLTAGE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No voltage value
+		monitorCollectVisitor.collectVoltage();
+		NumberParam voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		assertNull(voltageParameter);
+
+		// Voltage value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(VOLTAGE))
+		);
+		monitorCollectVisitor.collectVoltage();
+		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		assertNotNull(voltageParameter);
+		assertEquals(50000.0, voltageParameter.getRawValue());
+		assertEquals(50000.0, voltageParameter.getValue());
+
+		// Voltage value collected < -100000
+		monitor.setParameters(new HashMap<>());
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(VOLTAGE_LOW))
+		);
+		monitorCollectVisitor.collectVoltage();
+		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		assertNull(voltageParameter);
+
+		// Voltage value collected > 450000
+		monitor.setParameters(new HashMap<>());
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(VOLTAGE_HIGH))
+		);
+		monitorCollectVisitor.collectVoltage();
+		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		assertNull(voltageParameter);
 	}
 }

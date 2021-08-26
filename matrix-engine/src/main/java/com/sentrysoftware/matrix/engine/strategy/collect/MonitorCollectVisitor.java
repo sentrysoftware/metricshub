@@ -303,6 +303,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Voltage voltage) {
 		collectBasicParameters(voltage);
 
+		collectVoltage();
+
 		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
 	}
 
@@ -912,5 +914,27 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			collectTime,
 			100.0 * usedTimePercentDelta / timeDeltaInSeconds,
 			usedTimePercentRaw);
+	}
+
+	/**
+	 * Collect the voltage value, if the current {@link Monitor} is a {@link Voltage}.
+	 */
+	void collectVoltage() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double voltageValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.VOLTAGE_PARAMETER);
+
+		final Double computedVoltage = (voltageValue != null && voltageValue >= -100000 && voltageValue <= 450000) ? voltageValue : null;
+
+		if (computedVoltage != null ) {
+			updateNumberParameter(monitor,
+					HardwareConstants.VOLTAGE_PARAMETER,
+					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					computedVoltage,
+					computedVoltage);
+		}
 	}
 }
