@@ -18,6 +18,8 @@ Only a few options are required to run the **${project.name}**:
 * the protocol to be used. The **${project.name}** currently supports:
 
     * HTTP
+    * IPMI
+    * SSH
     * SNMP
     * WBEM
     * WMI.

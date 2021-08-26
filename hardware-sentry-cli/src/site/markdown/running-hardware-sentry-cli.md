@@ -5,7 +5,7 @@ description: How to run the Hardware Sentry CLI: commands and options available.
 
 # Running ${project.name}
 
-The **Hardware Monitoring** solutions developed by Sentry Software come with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors (*.hdf files) that describe how to discover hardware components and detect failures.
+The **Hardware Monitoring** solutions developed by Sentry Software come with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors (\*.hdf files) that describe how to discover hardware components and detect failures.
 
 When running the **${project.name}**, the connectors are automatically selected based on the device type provided and the protocol enabled [(automatic mode)](#automatic). You can however indicate to the **${project.name}** which connectors should be used or excluded [(manual mode)](#manual).
 
