@@ -291,9 +291,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER,
-				HardwareConstants.ERROR_COUNT_PARAMETER,
-				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
-				HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 
 				HardwareConstants.NEEDS_CLEANING_PARAMETER,
