@@ -38,7 +38,7 @@ public class TapeDrive implements IMetaMonitor {
 	static final String TAPE_LIBRARY_CONSEQUENCE = "The tape library may no longer be able to perform backups.";
 
 	public static final MetaParameter MOUNT_COUNT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.MOUNT_COUNT_PARAMETER)
 			.unit(HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
@@ -52,9 +52,16 @@ public class TapeDrive implements IMetaMonitor {
 			.build();
 
 	public static final MetaParameter UNMOUNT_COUNT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.UNMOUNT_COUNT_PARAMETER)
 			.unit(HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+	
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 

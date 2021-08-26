@@ -68,6 +68,8 @@ public class HardwareConstants {
 	public static final String CORRECTED_ERROR_COUNT_PARAMETER = "correctedErrorCount";
 	public static final String RECOVERABLE_ERROR_COUNT_PARAMETER = "recoverableErrorCount";
 	public static final String TRANSPORT_ERROR_COUNT_PARAMETER = "transportErrorCount";
+	public static final String STARTING_ERROR_COUNT_PARAMETER = "startingErrorCount";
+	public static final String PREVIOUS_ERROR_COUNT_PARAMETER = "previousErrorCount";
 	public static final String ERROR_STATUS_PARAMETER = "errorStatus";
 	public static final String PREDICTED_FAILURE_PARAMETER = "predictedFailure";
 	public static final String PRESENT_PARAMETER = "present";
