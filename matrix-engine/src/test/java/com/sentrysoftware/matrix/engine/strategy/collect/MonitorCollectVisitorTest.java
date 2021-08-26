@@ -1,5 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -31,22 +48,6 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonitorCollectVisitorTest {
 
@@ -360,7 +361,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitTapeDrive() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TAPE_DRIVE).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new TapeDrive());
@@ -1235,7 +1236,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(39.0, chargeParameter.getRawValue());
 		assertEquals(39.0, chargeParameter.getValue());
 
-		// Charge value collected, value is greter than 100
+		// Charge value collected, value is greater than 100
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
@@ -1403,4 +1404,172 @@ class MonitorCollectVisitorTest {
 		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
 		assertNull(voltageParameter);
 	}
+	
+	@Test
+	void testCollectTapeDriveMountCount() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TAPE_DRIVE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No mount count set
+		monitorCollectVisitor.collectTapeDriveMountCount();
+		NumberParam mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertNull(mountCountParameter);
+
+		// Mount count value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("10"))
+		);
+		
+		monitorCollectVisitor.collectTapeDriveMountCount();
+		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(10.0, mountCountParameter.getRawValue());
+		assertEquals(0.0, mountCountParameter.getValue());
+		
+		// Both current and previous mount counts are set (previous = 12, current = 20)
+		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
+		mountCountParameter.setPreviousRawValue(12.0);
+		monitor.addParameter(mountCountParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("20"))
+		);
+		monitorCollectVisitor.collectTapeDriveMountCount();
+		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(20.0, mountCountParameter.getRawValue());
+		assertEquals(8.0, mountCountParameter.getValue());
+		
+		// Both current and previous mount counts are set (previous = 32, current = 20)
+		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
+		mountCountParameter.setPreviousRawValue(32.0);
+		monitor.addParameter(mountCountParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("20"))
+		);
+		monitorCollectVisitor.collectTapeDriveMountCount();
+		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(20.0, mountCountParameter.getRawValue());
+		assertEquals(0.0, mountCountParameter.getValue());
+	}
+	
+	@Test
+	void testCollectTapeDriveUnmountCount() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TAPE_DRIVE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No unmount count set
+		monitorCollectVisitor.collectTapeDriveUnmountCount();
+		NumberParam unmountCountParameter = monitor.getParameter(HardwareConstants.UNMOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertNull(unmountCountParameter);
+
+		// Mount count value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.UNMOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("10"))
+		);
+		
+		monitorCollectVisitor.collectTapeDriveUnmountCount();
+		unmountCountParameter = monitor.getParameter(HardwareConstants.UNMOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(10.0, unmountCountParameter.getRawValue());
+		assertEquals(0.0, unmountCountParameter.getValue());
+		
+		// Both current and previous mount counts are set (previous = 12, current = 20)
+		unmountCountParameter = NumberParam.builder().name(HardwareConstants.UNMOUNT_COUNT_PARAMETER).build();
+		unmountCountParameter.setPreviousRawValue(12.0);
+		monitor.addParameter(unmountCountParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.UNMOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("20"))
+		);
+		monitorCollectVisitor.collectTapeDriveUnmountCount();
+		unmountCountParameter = monitor.getParameter(HardwareConstants.UNMOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(20.0, unmountCountParameter.getRawValue());
+		assertEquals(8.0, unmountCountParameter.getValue());
+		
+		// Both current and previous mount counts are set (previous = 32, current = 20)
+		unmountCountParameter = NumberParam.builder().name(HardwareConstants.UNMOUNT_COUNT_PARAMETER).build();
+		unmountCountParameter.setPreviousRawValue(32.0);
+		monitor.addParameter(unmountCountParameter);
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.UNMOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("20"))
+		);
+		monitorCollectVisitor.collectTapeDriveUnmountCount();
+		unmountCountParameter = monitor.getParameter(HardwareConstants.UNMOUNT_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(20.0, unmountCountParameter.getRawValue());
+		assertEquals(0.0, unmountCountParameter.getValue());
+	}
+	
+	@Test
+	void testCollectTapeDriveCount() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TAPE_DRIVE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No error count set
+		monitorCollectVisitor.collectTapeDriveErrorCount();
+		NumberParam errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
+		NumberParam previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		NumberParam startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		assertNull(errorCountParameter);
+		assertNull(previousErrorCountParameter);
+		assertNull(startingErrorCountParameter);
+
+		// Error count value collected for the first time
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("10"))
+		);
+		
+		monitorCollectVisitor.collectTapeDriveErrorCount();
+		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
+		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(10.0, errorCountParameter.getRawValue());
+		assertEquals(0.0, errorCountParameter.getValue());
+		assertEquals(10.0, previousErrorCountParameter.getValue());
+		assertEquals(10.0, startingErrorCountParameter.getValue());
+		
+		// Error count value collected with an increased count
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map
+					.of(HardwareConstants.ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1,
+						HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_3),
+				monitor,
+				Arrays.asList("25", "15", "15"))
+		);
+		
+		monitorCollectVisitor.collectTapeDriveErrorCount();
+		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
+		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		assertEquals(25.0, errorCountParameter.getRawValue());
+		assertEquals(10.0, errorCountParameter.getValue());
+		assertEquals(15.0, previousErrorCountParameter.getValue());
+		assertEquals(10.0, startingErrorCountParameter.getValue());
+		
+	}
+	
 }
