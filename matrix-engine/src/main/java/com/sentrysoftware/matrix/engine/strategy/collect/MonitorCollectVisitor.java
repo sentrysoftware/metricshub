@@ -939,7 +939,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
 					computedVoltage,
-					computedVoltage);
+					voltageValue);
 		}
 	}
 	
