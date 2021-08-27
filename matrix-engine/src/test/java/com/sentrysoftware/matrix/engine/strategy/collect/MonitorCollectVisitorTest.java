@@ -348,7 +348,11 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitPowerSupply() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor
+				.builder().
+				id(MONITOR_ID)
+				.monitorType(MonitorType.POWER_SUPPLY)
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new PowerSupply());
@@ -1523,6 +1527,44 @@ class MonitorCollectVisitorTest {
 		assertEquals(20.0, mountCountParameter.getRawValue());
 		assertEquals(0.0, mountCountParameter.getValue());
 	}
+	
+	@Test
+	void testCollectPowerSupplyUsedCapacity() {
 
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.POWER_SUPPLY).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No parameter set
+		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
+		NumberParam usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		assertNull(usedCapacityParameter);
+
+		// Used capacity set
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.POWER_SUPPLY_USED_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("10"))
+		);
+		
+		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
+		usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		assertEquals(10.0, usedCapacityParameter.getValue());
+		
+		// No used capacity, derive from used & total power
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map
+					.of(HardwareConstants.POWER_SUPPLY_USED_WATTS, VALUETABLE_COLUMN_1,
+						HardwareConstants.POWER_SUPPLY_POWER, VALUETABLE_COLUMN_2),
+				monitor,
+				Arrays.asList("25", "50"))
+		);
+		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
+		usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		assertEquals(null, usedCapacityParameter.getRawValue());
+		assertEquals(50.0, usedCapacityParameter.getValue());
+	}
 
 }
