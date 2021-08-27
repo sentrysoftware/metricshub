@@ -36,9 +36,16 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 public class Robotic implements IMetaMonitor {
 
 	public static final MetaParameter MOVE_COUNT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.MOVE_COUNT_PARAMETER)
 			.unit(HardwareConstants.MOVE_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+	
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
