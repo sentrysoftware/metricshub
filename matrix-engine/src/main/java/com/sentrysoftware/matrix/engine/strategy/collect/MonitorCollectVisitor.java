@@ -280,14 +280,26 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.MOVE_COUNT_PARAMETER, 
 				HardwareConstants.ERROR_COUNT_PARAMETER);
 	}
-
+	
+	@Override
+	public void visit(Robotic robotic) {
+		collectBasicParameters(robotic);
+		
+		collectIncrementCount(HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.MOVE_COUNT_PARAMETER);
+	}
+	
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
 
-		collectTapeDriveMountCount();
-		collectTapeDriveUnmountCount();
-		collectTapeDriveErrorCount();
+		collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT); 
+		collectIncrementCount(HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
 
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER,
@@ -309,11 +321,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(voltage);
 
 		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
-	}
-
-	@Override
-	public void visit(Robotic robotic) {
-		collectBasicParameters(robotic);
 	}
 
 	/**
@@ -920,69 +927,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 	
 	/**
-	 * Collects the {@link TapeDrive} mount count.
+	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
 	 */
-	void collectTapeDriveMountCount() {
-
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-
-		final Double tapeDriveMountCount  = extractParameterValue(monitor.getMonitorType(),
-			HardwareConstants.MOUNT_COUNT_PARAMETER);
-
-		if (tapeDriveMountCount != null) {
-
-			// Getting the previous value
-			Double tapeDriveMountCountPrevious = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.MOUNT_COUNT_PARAMETER, true);
-			
-			updateNumberParameter(monitor,
-				HardwareConstants.MOUNT_COUNT_PARAMETER,
-				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				(tapeDriveMountCountPrevious != null && tapeDriveMountCountPrevious < tapeDriveMountCount) ? 
-					(tapeDriveMountCount - tapeDriveMountCountPrevious) : 0,
-				tapeDriveMountCount);
-		}
-	}
-	
-	/**
-	 * Collects the {@link TapeDrive} unmount count.
-	 */
-	void collectTapeDriveUnmountCount() {
-
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-
-		final Double tapeDriveUnmountCount  = extractParameterValue(monitor.getMonitorType(),
-			HardwareConstants.UNMOUNT_COUNT_PARAMETER);
-
-		if (tapeDriveUnmountCount != null) {
-
-			// Getting the previous value
-			Double tapeDriveUnmountCountPrevious = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.UNMOUNT_COUNT_PARAMETER, true);
-			
-			updateNumberParameter(monitor,
-				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
-				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				(tapeDriveUnmountCountPrevious != null && tapeDriveUnmountCountPrevious < tapeDriveUnmountCount) ? 
-					(tapeDriveUnmountCount - tapeDriveUnmountCountPrevious) : 0,
-				tapeDriveUnmountCount);
-		}
-	}
-	
-	/**
-	 * Collects the {@link TapeDrive} error counts.
-	 */
-	void collectTapeDriveErrorCount() {
+	void collectErrorCount() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 		Double errorCount = null;
 
-		Double tapeDriveErrorCount = extractParameterValue(monitor.getMonitorType(),
+		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
 			HardwareConstants.ERROR_COUNT_PARAMETER);
 
-		if (tapeDriveErrorCount != null) {
+		if (rawErrorCount != null) {
 
 			// Getting the previous error count
 			Double previousErrorCount = extractParameterValue(monitor.getMonitorType(),
@@ -995,7 +950,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			if (startingErrorCount != null) {
 				
 				// Remove existing error count from the current value
-				errorCount = tapeDriveErrorCount - startingErrorCount;
+				errorCount = rawErrorCount - startingErrorCount;
 
 				// If we obtain a negative number, that's impossible: set everything to 0
 				if (errorCount < 0)
@@ -1016,8 +971,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				// First polling
 				errorCount = 0.0;
 				
-				if (tapeDriveErrorCount < 0.0) {
-					tapeDriveErrorCount = 0.0;
+				if (rawErrorCount < 0.0) {
+					rawErrorCount = 0.0;
 				}
 				
 				// Record as the starting error count
@@ -1025,11 +980,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
 					HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					tapeDriveErrorCount,
-					tapeDriveErrorCount);
+					rawErrorCount,
+					rawErrorCount);
 				
 				// Record the previous error count
-				previousErrorCount = tapeDriveErrorCount;
+				previousErrorCount = rawErrorCount;
 			}
 			
 			// Update the previous error count
@@ -1046,8 +1001,33 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				errorCount,
-				tapeDriveErrorCount);
+				rawErrorCount);
 		}
 	}
 	
+	/**
+	 * Collects the incremental parameters, namely 
+	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 */
+	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final Double rawCount  = extractParameterValue(monitor.getMonitorType(), countParameter);
+
+		if (rawCount != null) {
+
+			// Getting the previous value
+			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
+			
+			updateNumberParameter(
+				monitor, 
+				countParameter, 
+				countParameterUnit,
+				monitorCollectInfo.getCollectTime(),
+				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
+				rawCount
+			);
+		}
+	}
+
 }
