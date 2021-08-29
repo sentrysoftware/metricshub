@@ -49,8 +49,8 @@ import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
-import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
+import com.sentrysoftware.matsya.wmi.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -349,14 +349,10 @@ public class MatsyaClientsExecutor {
 		// Remote: hostname\namespace
 		final String networkResource = buildWmiNetworkResource(hostname, namespace);
 		// Go!
-		try (final WmiWbemServicesHandler wbemServices = 
-				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
-
-			// Connect
-			wbemServices.connect();
+		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(networkResource, username, password)) {
 
 			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery);
+			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, timeout.intValue() * 1000);
 
 			// Extract the exact property names (case sensitive), in the right order
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
@@ -391,13 +387,11 @@ public class MatsyaClientsExecutor {
 		final WmiStringConverter stringConverter = new WmiStringConverter();
 
 		// Transform the result to a list of list
-		result.forEach(row ->
-			{
+		result.forEach(row -> {
 				final List<String> line = new ArrayList<>();
 
 				// loop over the right order
-				properties.forEach(property -> line.add(stringConverter.convert(row.get(property))
-								.replace(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY)));
+				properties.forEach(property -> line.add(stringConverter.convert(row.get(property))));
 
 				// We have a line?
 				if (!line.isEmpty()) {
@@ -437,12 +431,14 @@ public class MatsyaClientsExecutor {
 		String url = httpRequest.getUrl();
 		notNull(url, "URL cannot be null");
 
-		String fullUrl = (protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP)
-				+ COLON_DOUBLE_SLASH
-				+ httpRequest.getHostname()
-				+ COLON
-				+ protocol.getPort()
-				+ (url.startsWith(SLASH) ? url : SLASH + url);
+		String fullUrl = String.format(
+				"%s://%s:%d%s%s",
+				protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP,
+				httpRequest.getHostname(),
+				protocol.getPort(),
+				url.startsWith(SLASH) ? "" : SLASH,
+				url
+		);
 
 		try {
 
