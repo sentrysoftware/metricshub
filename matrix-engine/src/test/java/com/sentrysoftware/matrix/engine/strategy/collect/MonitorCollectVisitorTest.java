@@ -56,6 +56,7 @@ class MonitorCollectVisitorTest {
 	private static final String OPERABLE = "Operable";
 	private static final String CHARGE = "39";
 	private static final String TIME_LEFT = "60";
+	private static final String UNALLOCATED_SPACE = "10737418240";
 	private static final String VALUETABLE_COLUMN_1 = "Valuetable.Column(1)";
 	private static final String VALUETABLE_COLUMN_2 = "Valuetable.Column(2)";
 	private static final String VALUETABLE_COLUMN_3 = "Valuetable.Column(3)";
@@ -271,7 +272,11 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitLogicalDisk() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor
+				.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.LOGICAL_DISK)
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new LogicalDisk());
@@ -1610,6 +1615,32 @@ class MonitorCollectVisitorTest {
 			assertEquals(expected, actual);
 
 		}
+	}
+	
+	@Test
+	void testCollectLogicalDiskUnallocatedSpace() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.LOGICAL_DISK).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No unallocated space value
+		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
+		NumberParam unallocatedSpaceParameter = monitor.getParameter(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
+		assertNull(unallocatedSpaceParameter);
+
+		// Unallocated space value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList(UNALLOCATED_SPACE))
+		);
+		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
+		unallocatedSpaceParameter = monitor.getParameter(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
+		assertNotNull(unallocatedSpaceParameter);
+		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
+		assertEquals(10.0, unallocatedSpaceParameter.getValue());
 	}
 
 }
