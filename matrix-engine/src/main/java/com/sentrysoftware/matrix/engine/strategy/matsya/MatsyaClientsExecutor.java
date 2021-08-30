@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
@@ -433,10 +429,10 @@ public class MatsyaClientsExecutor {
 
 		String fullUrl = String.format(
 				"%s://%s:%d%s%s",
-				protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP,
+				protocol.getHttps() != null && protocol.getHttps() ? HardwareConstants.HTTPS : HardwareConstants.HTTP,
 				httpRequest.getHostname(),
 				protocol.getPort(),
-				url.startsWith(SLASH) ? "" : SLASH,
+				url.startsWith(HardwareConstants.SLASH) ? HardwareConstants.EMPTY : HardwareConstants.SLASH,
 				url
 		);
 
