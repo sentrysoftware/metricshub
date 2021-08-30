@@ -858,8 +858,7 @@ class SourceVisitorTest {
 		hostMonitoring.setLocalhost(true);
 		hostMonitoring.setIpmitoolCommand("ipmiCommand");
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-
-
+		// local
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru")).thenReturn("impiResultFru");
 			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all")).thenReturn("impiResultSdr");
@@ -881,6 +880,17 @@ class SourceVisitorTest {
 			List<List<String>> result = new ArrayList<>();
 			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
 			assertEquals(result, ipmiResult.getTable());
+		}
+
+		// remote
+		hostMonitoring.setLocalhost(false);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd.when(() -> OsCommandHelper.runRemoteCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runRemoteCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultSdr");
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			assertEquals(SourceTable.empty(), ipmiResult);
 		}
 
 		// ipmiToolCommand is empty
