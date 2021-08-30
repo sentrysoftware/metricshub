@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import com.sentrysoftware.matrix.model.threshold.Threshold;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,10 +19,9 @@ public class StatusParam extends AbstractParam {
 	private ParameterState previousState;
 
 	@Builder
-	public StatusParam(String name, Long collectTime, Threshold threshold, ParameterState state,
-			String unit, String statusInformation) {
+	public StatusParam(String name, Long collectTime, ParameterState state, String unit, String statusInformation) {
 
-		super(name, collectTime, threshold, state, unit);
+		super(name, collectTime, state, unit);
 		this.status = state != null ? state.ordinal() : null;
 		this.statusInformation = statusInformation;
 	}

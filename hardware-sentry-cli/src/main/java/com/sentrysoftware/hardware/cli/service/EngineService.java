@@ -19,6 +19,7 @@ import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -43,9 +44,6 @@ import static org.springframework.util.Assert.notNull;
 @Service
 public class EngineService {
 
-	private static final String DOT_CONNECTOR = ".connector";
-	private static final String DOT_SEPARATOR = "\\.";
-
 	@Autowired
 	private JobResultFormatterService jobResultFormatterService;
 
@@ -59,9 +57,9 @@ public class EngineService {
 
 		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
 		if (allConnectors != null) {
-
-			engineConf.setSelectedConnectors(
-					getSelectedConnectors(allConnectors.keySet(), data.getHdfs(), data.getHdfsExclusion()));
+			final Set<String> allConnectorNames = allConnectors.keySet();
+			engineConf.setSelectedConnectors(getConnectors(allConnectorNames, data.getHdfs()));
+			engineConf.setExcludedConnectors(getConnectors(allConnectorNames, data.getHdfsExclusion()));
 		}
 
 		// run jobs
@@ -211,49 +209,47 @@ public class EngineService {
 	}
 
 	/**
-	 * Return selected connectors, this can be:
-	 * <ol>
-	 *   <li><em>automatic</em>: this method will return an empty set, the engine will then proceed to the automatic detection</li>
-	 *   <li><em>userSelection</em>: replace .hdfs by .connector and return the selected connectors
-	 *   <li><em>userExclusion</em>: based on the ConnectorStore, filter the connectors to keep only connectors not in <code>cliHdfsExclusion</code>
-	 * </ol>
+	 * Return configured connector names with the .connector extension. This method excludes badly configured connectors.
 	 * 
-	 * @param allConnectors     The {@link Set} of all {@link Connector} names (with a .hdfs extension).
-	 * @param cliHdfs			The user-selected {@link Set} of {@link Connector} names (with a .hdfs extension).
-	 * @param cliHdfsExclusion	The {@link Set} of {@link Connector} names (with a .hdfs extension) to exclude.
-	 *
-	 * @return					The selected {@link Connector} names, with a .connector extension.
-	 * 							If <em>allConnectors</em> is null,
-	 * 							an empty {@link Set} is returned to trigger the automatic selection.
+	 * @param allConnectors      All connectors from the {@link ConnectorStore}
+	 * @param configConnectors   User's selected or excluded connectors
+	 * 
+	 * @return {@link Set} containing the selected connector names
 	 */
-	public Set<String> getSelectedConnectors(Set<String> allConnectors, Set<String> cliHdfs,
-			Set<String> cliHdfsExclusion) {
+	static Set<String> getConnectors(final Set<String> allConnectors, final Set<String> configConnectors) {
 
-		Set<String> selectedConnectors = new HashSet<>();
-		if (null == allConnectors) {
-			log.info("Cannot get connectors from the Connector Store, we trigger the automatic selection.");
-			return selectedConnectors;
-		}
+		final Set<String> result = new HashSet<>();
+
 		// In connector Store, the filename extension = .connector
-		List<String> connectorStore = allConnectors.stream().map(f -> f.split(DOT_SEPARATOR)[0])
-				.collect(Collectors.toList());
-		List<String> hdfs = null;
-		// In CLI, the filename extension = .hdfs
-		if (null != cliHdfs) {
-			hdfs = cliHdfs.stream().map(f -> f.split(DOT_SEPARATOR)[0]).collect(Collectors.toList());
-		} else {
-			if (null != cliHdfsExclusion) {
-				List<String> hdfsExclusion = cliHdfsExclusion.stream().map(f -> f.split(DOT_SEPARATOR)[0])
-						.collect(Collectors.toList());
-				hdfs = connectorStore.stream().filter(f -> !hdfsExclusion.contains(f)).collect(Collectors.toList());
-			}
-		}
-		// add the correct extension (.connector)
-		if (null != hdfs) {
-			hdfs.replaceAll(x -> x + DOT_CONNECTOR);
-			selectedConnectors = new HashSet<>(hdfs);
+		final List<String> connectorStore = getConnectorsWithoutExtension(allConnectors);
+		List<String> connectors = null;
+
+		// In the configuration, the filename extension = .hdfs
+		if (configConnectors != null && !configConnectors.isEmpty()) {
+			connectors = getConnectorsWithoutExtension(configConnectors);
 		}
 
-		return selectedConnectors;
+		// add the correct extension (.connector)
+		if (connectors != null) {
+			// Send only known connectors
+			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
+			connectors.replaceAll(f -> f + HardwareConstants.DOT + HardwareConstants.CONNECTOR);
+			result.addAll(connectors);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Remove the extension from the given set of connector names and return a new list
+	 * 
+	 * @param connectors The connector names we wish to process
+	 * @return {@link List} of String elements
+	 */
+	static List<String> getConnectorsWithoutExtension(final Set<String> connectors) {
+		return connectors
+				.stream()
+				.map(f -> f.substring(0, f.lastIndexOf('.')))
+				.collect(Collectors.toList());
 	}
 }

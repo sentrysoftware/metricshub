@@ -5,16 +5,22 @@ public class HardwareConstants {
 	private HardwareConstants() {
 	}
 
+	public static final String FULL_DUPLEX_MODE = "Full";
+	public static final String HALF_DUPLEX_MODE = "Half";
 	public static final String N_A = "N/A";
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
 	public static final String WHITE_SPACE = " ";
+	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
+	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
 	public static final String DASH = "-";
 	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
+	public static final String BLADE_ENCLOSURE = "Blade Enclosure";
 	public static final String ENCLOSURE = "Enclosure";
 	public static final String COMPUTER = "Computer";
 	public static final String STORAGE = "Storage";
+	public static final String SWITCH = "Switch";
 	public static final String PARENTHESIS_EMPTY = "()";
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
@@ -33,6 +39,7 @@ public class HardwareConstants {
 	public static final String CARET = "^";
 	public static final String PLUS = "+";
 	public static final String PIPE = "|";
+	public static final String PIPE_PROTECTED = "\\|";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
 
@@ -61,25 +68,28 @@ public class HardwareConstants {
 	public static final String CORRECTED_ERROR_COUNT_PARAMETER = "correctedErrorCount";
 	public static final String RECOVERABLE_ERROR_COUNT_PARAMETER = "recoverableErrorCount";
 	public static final String TRANSPORT_ERROR_COUNT_PARAMETER = "transportErrorCount";
+	public static final String STARTING_ERROR_COUNT_PARAMETER = "startingErrorCount";
+	public static final String PREVIOUS_ERROR_COUNT_PARAMETER = "previousErrorCount";
 	public static final String ERROR_STATUS_PARAMETER = "errorStatus";
 	public static final String PREDICTED_FAILURE_PARAMETER = "predictedFailure";
 	public static final String PRESENT_PARAMETER = "present";
 	public static final String CHARGE_PARAMETER = "charge";
+	public static final String TIME_LEFT_PARAMETER = "timeLeft";
 	public static final String COLOR_PARAMETER = "color";
-	public static final String LED_INDICATOR_PARAMETER = "LEDIndicator";
+	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
-	public static final String BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER = "bandwidthUtilization";
+	public static final String BANDWIDTH_UTILIZATION_PARAMETER = "bandwidthUtilization";
 	public static final String DUPLEX_MODE_PARAMETER = "duplexMode";
 	public static final String ERROR_PERCENT_PARAMETER = "errorPercent";
 	public static final String LINK_SPEED_PARAMETER = "linkSpeed";
-	public static final String LINK_STATUS_PARAMETER = "linkSTatus";
-	public static final String RECEIVED_BYTES_RATE_PARAMETER = "ReceivedBytesRate";
-	public static final String RECEIVED_PACKETS_RATE_PARAMETER = "ReceivedPacketsRate";
-	public static final String TRANSMITTED_BYTES_RATE_PARAMETER = "TransmittedBytesRate";
-	public static final String TRANSMITTED_PACKETS_RATE_PARAMETER = "TransmittedPacketsRate";
-	public static final String ZERO_BUFFER_CREDIT_PERCENT_PARAMETER = "ZeroBufferCreditPercent";
+	public static final String LINK_STATUS_PARAMETER = "linkStatus";
+	public static final String RECEIVED_BYTES_RATE_PARAMETER = "receivedBytesRate";
+	public static final String RECEIVED_PACKETS_RATE_PARAMETER = "receivedPacketsRate";
+	public static final String TRANSMITTED_BYTES_RATE_PARAMETER = "transmittedBytesRate";
+	public static final String TRANSMITTED_PACKETS_RATE_PARAMETER = "transmittedPacketsRate";
+	public static final String ZERO_BUFFER_CREDIT_PERCENT_PARAMETER = "zeroBufferCreditPercent";
 	public static final String USAGE_COUNT_PARAMETER = "usageCount";
 	public static final String VALUE_PARAMETER = "value";
 	public static final String ENDURANCE_REMAINING_PARAMETER = "enduranceRemaining";
@@ -89,6 +99,11 @@ public class HardwareConstants {
 	public static final String UNMOUNT_COUNT_PARAMETER = "unmountCount";
 	public static final String NEEDS_CLEANING_PARAMETER = "needsCleaning";
 	public static final String USED_TIME_PERCENT_PARAMETER = "usedTimePercent";
+	public static final String RECEIVED_BYTES_PARAMETER = "receivedBytes";
+	public static final String TRANSMITTED_BYTES_PARAMETER = "transmittedBytes";
+	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
+	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
+	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
 
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
@@ -110,6 +125,7 @@ public class HardwareConstants {
 	public static final String TEMPERATURE_TYPE = "temperatureType";
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
+	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
@@ -132,6 +148,27 @@ public class HardwareConstants {
 	public static final String ADDITIONAL_INFORMATION2 = "additionalInformation2";
 	public static final String ADDITIONAL_INFORMATION1 = "additionalInformation1";
 	public static final String CHEMISTRY = "chemistry";
+	public static final String POWER = "power";
+	public static final String CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
+	public static final String CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String WARNING_THRESHOLD = "warningthreshold";
+	public static final String ALARM_THRESHOLD = "alarmthreshold";
+	public static final String PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
+	public static final String PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
+	public static final String ERROR_COUNT_WARNING_THRESHOLD =  "errorcountwarningthreshold";
+	public static final String ERROR_COUNT_ALARM_THRESHOLD =  "errorcountalarmthreshold";
+	public static final String AVAILABLE_PATH_WARNING = "availablepathwarning";
+	public static final String ERROR_PERCENT_WARNING_THRESHOLD = "errorpercentwarningthreshold";
+	public static final String ERROR_PERCENT_ALARM_THRESHOLD ="errorpercentalarmthreshold";
+	public static final String VALUE_WARNING_THRESHOLD = "valuewarningthreshold";
+	public static final String VALUE_ALARM_THRESHOLD = "valuealarmthreshold";
+	public static final String USAGE_COUNT_WARNING_THRESHOLD = "usagecountwarningthreshold";
+	public static final String USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
+	public static final String UPPER_THRESHOLD = "upperthreshold";
+	public static final String LOWER_THRESHOLD= "lowerthreshold";
+	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
+	public static final String COLOR = "color";
+	public static final String ADDITIONAL_LABEL = "additionalLabel";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
@@ -163,6 +200,10 @@ public class HardwareConstants {
 	public static final String PACKETS_RATE_PARAMETER_UNIT = "packets/s";
 	public static final String DUPLEX_MODE_PARAMETER_UNIT = "{0 =  Half-duplex ; 1 = Full-duplex}";
 	public static final String NEEDS_CLEANING_PARAMETER_UNIT = "{0 =  OK ; 1 = Cleaning Needed ; 2 = Cleaning Needed Immediately}";
+	public static final String TIME_PARAMETER_UNIT = "seconds";
+	public static final String BYTES_PARAMETER_UNIT = "Bytes";
+	public static final String PACKETS_PARAMETER_UNIT = "Packets";
+	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 
 	public static final String ONE = "1";
 	public static final String ZERO = "0";
@@ -185,6 +226,5 @@ public class HardwareConstants {
 	public static final String FQDN = "fqdn";
 	public static final String TARGET_FQDN = "targetFqdn";
 
-	public static final String WARNING_THRESHOLD = "warningthreshold";
-	public static final String ALARM_THRESHOLD = "alarmthreshold";
+	public static final int ID_MAXLENGTH = 10;
 }

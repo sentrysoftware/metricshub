@@ -84,10 +84,14 @@ public class SourceVisitor implements ISourceVisitor {
 		try {
 			final String result = matsyaClientsExecutor.executeHttp(
 					HTTPRequest.builder()
+					.hostname(strategyConfig.getEngineConfiguration().getTarget().getHostname())
 					.method(httpSource.getMethod())
 					.url(httpSource.getUrl())
 					.header(httpSource.getHeader())
 					.body(httpSource.getBody())
+					.resultContent(httpSource.getResultContent())
+					.authenticationToken(httpSource.getAuthenticationToken())
+					.httpProtocol(protocol)
 					.build(),
 					true);
 

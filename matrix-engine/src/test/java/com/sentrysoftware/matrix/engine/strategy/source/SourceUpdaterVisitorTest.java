@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -17,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
@@ -40,6 +42,9 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 @ExtendWith(MockitoExtension.class)
 class SourceUpdaterVisitorTest {
 
+	private static final String AUTHENTICATION_TOKEN_FIELD = "authenticationToken";
+	private static final String ENCLOSURE_DISCOVERY_SOURCE_2_KEY = "Enclosure.Discovery.Source(2)";
+	private static final String ENCLOSURE_DISCOVERY_SOURCE_1_KEY = "Enclosure.Discovery.Source(1)";
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
 	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String DEVICE_ID = "deviceId";
@@ -366,6 +371,95 @@ class SourceUpdaterVisitorTest {
 
 	}
 
+	@Test
+	void testGetValueFromForeignSource() {
+
+		{ 
+			assertNull(sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					null,
+					AUTHENTICATION_TOKEN_FIELD));
+			assertEquals(HardwareConstants.EMPTY, sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					HardwareConstants.EMPTY,
+					AUTHENTICATION_TOKEN_FIELD));
+		}
+
+		{
+			// No foreign source table
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertNull(value);
+		}
+
+		{
+			// Foreign source table empty
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.empty()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertNull(value);
+		}
+
+		{
+			// Foreign source table not empty but null list table
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.builder().table(null).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertNull(value);
+		}
+
+		{
+			// Foreign source table not empty but empty first line
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.builder().table(List.of(Collections.emptyList(), List.of("val1", "val2"))).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertNull(value);
+		}
+
+		{
+			// Foreign source table not empty but null first line
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.builder().table(Arrays.asList((List<String>) null)).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertNull(value);
+		}
+	
+		{
+			// Foreign source table present via the list table
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.builder().table(List.of(List.of("token", "unwanted", "unwanted"))).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertEquals("token", value);
+		}
+
+		{
+			// Foreign source table present via the raw data table
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(SourceTable.builder().rawData("token;unwanted;unwanted;").build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+
+			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+					AUTHENTICATION_TOKEN_FIELD);
+			assertEquals("token", value);
+		}
+	}
+
 	private static OSCommandSource buildOSCommandSource(final String commandLine) {
 		return OSCommandSource
 				.builder()
@@ -383,4 +477,5 @@ class SourceUpdaterVisitorTest {
 				.computes(Collections.emptyList())
 				.build();
 	}
+
 }

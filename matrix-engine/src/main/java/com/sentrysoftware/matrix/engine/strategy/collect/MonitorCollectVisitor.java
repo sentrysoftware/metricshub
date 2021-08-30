@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -32,15 +41,8 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -104,12 +106,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Battery battery) {
+
 		collectBasicParameters(battery);
 
+		collectBatteryCharge();
+		collectBatteryTimeLeft();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER,
-				HardwareConstants.CHARGE_PARAMETER
-				);
+			HardwareConstants.PRESENT_PARAMETER,
+			HardwareConstants.CHARGE_PARAMETER,
+			HardwareConstants.TIME_LEFT_PARAMETER
+			);
 	}
 
 	@Override
@@ -134,7 +141,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(CpuCore cpuCore) {
+
 		collectBasicParameters(cpuCore);
+
+		collectCpuCoreUsedTimePercent();
 
 		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
@@ -216,8 +226,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER, 
-				HardwareConstants.BANDWIDTH_UTILIZATION_INFORMATION_PARAMETER, 
-				HardwareConstants.DUPLEX_MODE_PARAMETER, 
+				HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, 
+				HardwareConstants.DUPLEX_MODE_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_PERCENT_PARAMETER, 
 				HardwareConstants.LINK_SPEED_PARAMETER, 
 				HardwareConstants.LINK_STATUS_PARAMETER, 
@@ -269,18 +280,33 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.MOVE_COUNT_PARAMETER, 
 				HardwareConstants.ERROR_COUNT_PARAMETER);
 	}
-
+	
+	@Override
+	public void visit(Robotic robotic) {
+		collectBasicParameters(robotic);
+		
+		collectIncrementCount(HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.MOVE_COUNT_PARAMETER);
+	}
+	
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
 
+		collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT); 
+		collectIncrementCount(HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 
 				HardwareConstants.NEEDS_CLEANING_PARAMETER,
 				HardwareConstants.UNMOUNT_COUNT_PARAMETER);
-
 	}
 
 	@Override
@@ -294,12 +320,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Voltage voltage) {
 		collectBasicParameters(voltage);
 
-		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
-	}
+		collectVoltage();
 
-	@Override
-	public void visit(Robotic robotic) {
-		collectBasicParameters(robotic);
+		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
 	}
 
 	/**
@@ -539,7 +562,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		numberParam.setCollectTime(collectTime);
 		numberParam.setRawValue(rawValue);
 
-		monitor.addParameter(numberParam);
+		monitor.collectParameter(numberParam);
 	}
 
 	/**
@@ -573,7 +596,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				statusInformation));
 		statusParam.setCollectTime(collectTime);
 
-		monitor.addParameter(statusParam);
+		monitor.collectParameter(statusParam);
 	}
 
 	/**
@@ -635,7 +658,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double energyUsageRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.ENERGY_USAGE_PARAMETER);
 		if (energyUsageRaw != null && energyUsageRaw >= 0) {
 
-			collectPowerWithEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
+			collectPowerFromEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
 			return;
 		}
 
@@ -643,7 +666,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double powerConsumption = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
 		if (powerConsumption != null && powerConsumption >= 0) {
-			collectEnergyUsageWithPower(monitor, collectTime, powerConsumption, hostname);
+			collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 		}
 
 	}
@@ -656,7 +679,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param powerConsumption The power consumption value. Never null
 	 * @param hostname         The system host name used for debug purpose
 	 */
-	static void collectEnergyUsageWithPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
+	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
 
 		updateNumberParameter(monitor,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
@@ -667,34 +690,46 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
 
-		final Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+		Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				collectTime.doubleValue(), collectTimePrevious);
-		Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+
+		// Convert deltaTime from milliseconds (ms) to seconds
+		if (deltaTime != null) {
+			deltaTime /= 1000.0; 
+		}
+
+		// Calculate energy usage from Power Consumption: E = P * T
+		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				powerConsumption, deltaTime);
 
 		if (energyUsage != null) {
 
+			// The energy will start from the energy usage delta
 			Double energy = energyUsage;
 
-			Double previousEnergyUsage = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+			// The previous value is needed to get the total energy in joules
+			Double previousEnergy = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.ENERGY_PARAMETER, true);
 
-			if (previousEnergyUsage != null) {
-				energy +=  previousEnergyUsage;
+			// Ok, we have the previous energy value ? sum the previous energy and the current delta energy usage
+			if (previousEnergy != null) {
+				energy +=  previousEnergy;
 			}
 
+			// Everything is good update the energy parameter in the HostMonitoring
 			updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_PARAMETER,
 				HardwareConstants.ENERGY_PARAMETER_UNIT,
 				collectTime,
-				energy / 1000D / (1000D / 3600D),
+				energy,
 				energy);
 
+			// Update the energy usage delta parameter in the HostMonitoring
 			updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
 				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
-				energyUsage  / 1000D / (1000D / 3600D),
+				energyUsage,
 				energyUsage);
 
 		} else {
@@ -710,7 +745,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param energyUsageRaw    The energy usage value. Never null
 	 * @param hostname          The system host name used for debug purpose
 	 */
-	static void collectPowerWithEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
+	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
 
 		updateNumberParameter(monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
@@ -782,6 +817,240 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 
 			return metaParam1.getName().compareTo(metaParam2.getName());
+		}
+	}
+
+	/**
+	 * Collects the percentage of charge, if the current {@link Monitor} is a {@link Battery}.
+	 */
+	void collectBatteryCharge() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double chargeRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.CHARGE_PARAMETER);
+		if (chargeRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.CHARGE_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				Math.min(chargeRaw, 100.0), // In case the raw value is greater than 100%
+				chargeRaw);
+		}
+	}
+
+	/**
+	 * Collects the remaining time, in seconds, before the {@link Battery} runs out of power.
+	 */
+	void collectBatteryTimeLeft() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double timeLeftRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.TIME_LEFT_PARAMETER);
+
+		if (timeLeftRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.TIME_LEFT_PARAMETER,
+				HardwareConstants.TIME_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				timeLeftRaw * 60.0, // minutes to seconds
+				timeLeftRaw);
+		}
+	}
+
+	/**
+	 * Collects the percentage of used time, if the current {@link Monitor} is a {@link CpuCore}.
+	 */
+	void collectCpuCoreUsedTimePercent() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double usedTimePercentRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER);
+
+		if (usedTimePercentRaw == null) {
+			return;
+		}
+
+		// Getting the current value's collect time
+		Long collectTime = monitorCollectInfo.getCollectTime();
+
+		// Getting the previous value
+		Double usedTimePercentPrevious = CollectHelper.getNumberParamRawValue(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (usedTimePercentPrevious == null) {
+
+			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
+			updateNumberParameter(monitor,
+				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				collectTime,
+				null,
+				usedTimePercentRaw);
+
+			return;
+		}
+
+		// Getting the previous value's collect time
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER, true);
+
+		if (collectTimePrevious == null) {
+
+			// This should never happen
+			log.warn("Found previous usedTimePercent value, but could not find previous collect time.");
+
+			return;
+		}
+
+		// Computing the value delta
+		final Double usedTimePercentDelta = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			usedTimePercentRaw, usedTimePercentPrevious);
+
+		// Computing the time delta
+		final double timeDeltaInSeconds = CollectHelper.subtract(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			collectTime.doubleValue(), collectTimePrevious) / 1000.0;
+
+		if (timeDeltaInSeconds == 0.0) {
+			return;
+		}
+
+		// Setting the parameter
+		updateNumberParameter(monitor,
+			HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+			HardwareConstants.PERCENT_PARAMETER_UNIT,
+			collectTime,
+			100.0 * usedTimePercentDelta / timeDeltaInSeconds,
+			usedTimePercentRaw);
+	}
+
+	/**
+	 * Collect the voltage value, if the current {@link Monitor} is a {@link Voltage}.
+	 */
+	void collectVoltage() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double voltageValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.VOLTAGE_PARAMETER);
+
+		final Double computedVoltage = (voltageValue != null && voltageValue >= -100000 && voltageValue <= 450000) ? voltageValue : null;
+
+		if (computedVoltage != null ) {
+			updateNumberParameter(monitor,
+					HardwareConstants.VOLTAGE_PARAMETER,
+					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					computedVoltage,
+					voltageValue);
+		}
+	}
+	
+	/**
+	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
+	 */
+	void collectErrorCount() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		Double errorCount = null;
+
+		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.ERROR_COUNT_PARAMETER);
+
+		if (rawErrorCount != null) {
+
+			// Getting the previous error count
+			Double previousErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER);
+
+			// Getting the starting error count
+			Double startingErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.STARTING_ERROR_COUNT_PARAMETER);
+			
+			if (startingErrorCount != null) {
+				
+				// Remove existing error count from the current value
+				errorCount = rawErrorCount - startingErrorCount;
+
+				// If we obtain a negative number, that's impossible: set everything to 0
+				if (errorCount < 0)
+				{
+					errorCount = 0.0;
+
+					// Reset the starting error count
+					updateNumberParameter(monitor,
+						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+						HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						0.0,
+						0.0);
+				} 
+
+			} else {
+				
+				// First polling
+				errorCount = 0.0;
+				
+				if (rawErrorCount < 0.0) {
+					rawErrorCount = 0.0;
+				}
+				
+				// Record as the starting error count
+				updateNumberParameter(monitor,
+					HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+					HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					rawErrorCount,
+					rawErrorCount);
+				
+				// Record the previous error count
+				previousErrorCount = rawErrorCount;
+			}
+			
+			// Update the previous error count
+			updateNumberParameter(monitor,
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				previousErrorCount,
+				previousErrorCount);
+
+			// Update the error count
+			updateNumberParameter(monitor,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				errorCount,
+				rawErrorCount);
+		}
+	}
+	
+	/**
+	 * Collects the incremental parameters, namely 
+	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 */
+	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final Double rawCount  = extractParameterValue(monitor.getMonitorType(), countParameter);
+
+		if (rawCount != null) {
+
+			// Getting the previous value
+			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
+			
+			updateNumberParameter(
+				monitor, 
+				countParameter, 
+				countParameterUnit,
+				monitorCollectInfo.getCollectTime(),
+				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
+				rawCount
+			);
 		}
 	}
 

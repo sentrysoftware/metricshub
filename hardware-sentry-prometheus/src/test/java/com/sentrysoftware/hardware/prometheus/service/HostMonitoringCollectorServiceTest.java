@@ -39,10 +39,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
-import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -58,6 +58,7 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import io.prometheus.client.exporter.common.TextFormat;
 
@@ -69,7 +70,7 @@ class HostMonitoringCollectorServiceTest {
 	private static final String ENCLOSURE_ID = "connector1.connector_enclosure_ecs_1.1";
 	private static final String HELP_DEFAULT = "help";
 	private static final String MONITOR_STATUS_METRIC = "monitor_status";
-	private static final String MONITOR_ENERGY_USAGE_METRIC = "monitor_energy_usage";
+	private static final String MONITOR_ENERGY_METRIC = "monitor_energy_total";
 	private static final String LABEL_VALUE = "monitor";
 	private static final String PARENT_ID_VALUE = "parentId";
 	private static final String ID_VALUE = "id";
@@ -86,7 +87,7 @@ class HostMonitoringCollectorServiceTest {
 	void testCollect() throws IOException {
 
 		final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
-		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER).value(3000D).build();
+		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_PARAMETER).value(3000D).build();
 
 		Monitor enclosureMonitor = Monitor.builder()
 			.id(ENCLOSURE_ID)
@@ -94,7 +95,7 @@ class HostMonitoringCollectorServiceTest {
 			.name(ENCLOSURE_NAME)
 			.parameters(Map.of(
 				HardwareConstants.STATUS_PARAMETER, statusParam,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+				HardwareConstants.ENERGY_PARAMETER, numberParam))
 			.monitorType(MonitorType.ENCLOSURE)
 			.build();
 		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
@@ -152,7 +153,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCollectNoSpecificInfo() throws IOException {
+	void testCollectNoSpecificInfo() {
 
 		final StatusParam statusParam = StatusParam.builder().name(HardwareConstants.STATUS_PARAMETER).state(ParameterState.OK).build();
 		final NumberParam numberParam = NumberParam.builder().name(HardwareConstants.ENERGY_USAGE_PARAMETER).value(3000D).build();
@@ -177,6 +178,7 @@ class HostMonitoringCollectorServiceTest {
 		doReturn(Map.of(ECS, hostMonitoring).entrySet()).when(hostMonitoringMap).entrySet();
 
 		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn("enclosure_info");
 			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(null);
 			CollectorRegistry.defaultRegistry.clear();
 
@@ -185,6 +187,7 @@ class HostMonitoringCollectorServiceTest {
 		}
 
 		try (MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)) {
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn("enclosure_info");
 			prometheusSpecificities.when(() -> PrometheusSpecificities.getLabels(MonitorType.ENCLOSURE)).thenReturn(Collections.emptyList());
 			CollectorRegistry.defaultRegistry.clear();
 
@@ -220,9 +223,9 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, monitors, mfs);
 
 		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
-		final Sample sample1 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample sample1 = new Sample("hw_enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName(), null), ParameterState.OK.ordinal());
-		final Sample sample2 = new Sample("enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample sample2 = new Sample("hw_enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName(), null), ParameterState.OK.ordinal());
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
@@ -265,8 +268,8 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
 
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
-				"enclosure_status",
-				"Metric: Enclosure status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
+				"hw_enclosure_status",
+				"Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
 				Arrays.asList(ID, PARENT, LABEL, FQDN));
 		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 0);
 
@@ -299,22 +302,12 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testBuildHelp() {
-		assertEquals("Metric: Enclosure energy_usage - Unit: Joules",
-				HostMonitoringCollectorService.buildHelp("Enclosure", Enclosure.ENERGY_USAGE));
-		assertEquals("Metric: Voltage voltage - Unit: volts",
-				HostMonitoringCollectorService.buildHelp("Voltage", Voltage._VOLTAGE));
-		// this should be wrong
-		assertEquals("Metric: logicaldisk voltage - Unit: mV",
-				HostMonitoringCollectorService.buildHelp("logicaldisk", Voltage._VOLTAGE));
-		assertEquals("Metric: logicaldisk unallocated_space - Unit: bytes",
-				HostMonitoringCollectorService.buildHelp("logicaldisk", LogicalDisk.UNALLOCATED_SPACE));
-	}
-
-	@Test
-	void testBuildMetricName() {
-		assertEquals("enclosure_status", HostMonitoringCollectorService.buildMetricName("Enclosure", "status"));
-		assertEquals("enclosure_status", HostMonitoringCollectorService.buildMetricName("Enclosure", "Status"));
-		assertEquals("enclosure_energy_usage", HostMonitoringCollectorService.buildMetricName("Enclosure", "energyUsage"));
+		assertEquals("Metric: hw_enclosure_energy_joules - Unit: joules",
+				HostMonitoringCollectorService.buildHelp(PrometheusSpecificities.getPrometheusParameter(MonitorType.ENCLOSURE, Enclosure.ENERGY.getName()).get()));
+		assertEquals("Metric: hw_voltage_volts - Unit: volts",
+				HostMonitoringCollectorService.buildHelp(PrometheusSpecificities.getPrometheusParameter(MonitorType.VOLTAGE, Voltage._VOLTAGE.getName()).get()));
+		assertEquals("Metric: hw_metric_bytes", HostMonitoringCollectorService
+				.buildHelp(PrometheusParameter.builder().name("hw_metric_bytes").build()));
 	}
 
 	@Test
@@ -442,18 +435,11 @@ class HostMonitoringCollectorServiceTest {
 				.monitorType(MonitorType.LOGICAL_DISK)
 				.build();
 		// make sure that the conversion is well done : factor 1073741824.0
-		assertEquals(107374182400.0, HostMonitoringCollectorService.convertParameterValue(monitor, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
+		// Note that the monitor parameter value can never be null when the convertParameterValue is called
+		assertEquals(107374182400.0, HostMonitoringCollectorService.convertParameterValue(monitor, HardwareConstants.UNALLOCATED_SPACE_PARAMETER, 1073741824.0));
 
-		final Monitor monitorValueNull = Monitor.builder()
-				.id(ID_VALUE)
-				.parentId(PARENT_ID_VALUE)
-				.name(logicalDiskMonitor)
-				.parameters(Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
-						NumberParam.builder().name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
-						.build()))
-				.monitorType(MonitorType.LOGICAL_DISK)
-				.build();
-		assertEquals(null, HostMonitoringCollectorService.convertParameterValue(monitorValueNull, HardwareConstants.UNALLOCATED_SPACE_PARAMETER));
+		final Monitor monitor2 = new Monitor();
+		assertThrows(NullPointerException.class, () -> HostMonitoringCollectorService.convertParameterValue(monitor2, HardwareConstants.UNALLOCATED_SPACE_PARAMETER, 1073741824.0));
 	}
 
 	@Test
@@ -513,7 +499,7 @@ class HostMonitoringCollectorServiceTest {
 						.state(ParameterState.OK).build()))
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
-		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER);
+		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.STATUS_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_STATUS_METRIC, Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), ParameterState.OK.ordinal());
@@ -523,7 +509,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testAddMetricNumber() {
-		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_ENERGY_USAGE_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL, FQDN));
+		final CounterMetricFamily gauge = new CounterMetricFamily(MONITOR_ENERGY_METRIC, HELP_DEFAULT, Arrays.asList(ID, PARENT, LABEL, FQDN));
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -533,9 +519,9 @@ class HostMonitoringCollectorServiceTest {
 						.value(3000D).build()))
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
-		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER);
+		HostMonitoringCollectorService.addMetric(gauge, monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
-		final Sample expected = new Sample(MONITOR_ENERGY_USAGE_METRIC, Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample expected = new Sample(MONITOR_ENERGY_METRIC, Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 3000D);
 
 		assertEquals(expected, actual);
@@ -599,7 +585,7 @@ class HostMonitoringCollectorServiceTest {
 		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily("monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", Arrays.asList(ID, PARENT, LABEL, FQDN));
 
-		HostMonitoringCollectorService.addMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER);
+		HostMonitoringCollectorService.addMetric(labeledGauge, monitor, HardwareConstants.PRESENT_PARAMETER, 1D);
 
 		final GaugeMetricFamily expected = new GaugeMetricFamily(
 				"monitor_present",
@@ -608,5 +594,25 @@ class HostMonitoringCollectorServiceTest {
 		expected.addMetric(Arrays.asList(monitor.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 1);
 
 		assertEquals(expected, labeledGauge);
+	}
+
+	@Test
+	void testProcessMonitorMetricInfoNoMetricName() {
+		final List<MetricFamilySamples> mfs = new ArrayList<>();
+
+		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn(null);
+			assertTrue(mfs.isEmpty());
+		}
+
+		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn("");
+			assertTrue(mfs.isEmpty());
+		}
+
+		try(MockedStatic<PrometheusSpecificities> prometheusSpecificities = mockStatic(PrometheusSpecificities.class)){
+			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn(" 	");
+			assertTrue(mfs.isEmpty());
+		}
 	}
 }

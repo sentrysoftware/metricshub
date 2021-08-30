@@ -1,24 +1,25 @@
-# Getting Strated
+keywords: command-line tool, hardware monitoring
+description: The Hardware Sentry CLI is a free command-line tool to check the platform prerequisites of the Sentry Software's Hardware Monitoring solutions.
 
-## What is ${project.name}?
+# What is ${project.name}?
 
-The **${project.name}** is an open source tool that enables you to monitor the hardware of almost **any server** (physical, virtual, and blade servers) and **external storage device** (disk arrays, fiber switches, and tape libraries) available in datacenters using commands in your command-line shell.
+The **${project.name}** is the core Hardware Sentry engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
 
-With minimal configuration, **${project.name}** can report the hardware health of your systems. You just have to specify:
+The **${project.name}** can be used to troubleshoot the monitoring performed by other Hardware Sentry products such as the KM for PATROL, or the Exporter for Prometheus.
+
+As the  **${project.name}** runs on Java, it can be used similarly on Windows or Linux to monitor the local system or any remote host.
+
+![The ${project.name}](./images/running-hardware-sentry-cli.png)
+
+Only a few options are required to run the **${project.name}**:
 
 * the hostname or IP address of the device to be monitored
-* its type
-* the protocol to be used.
+* the device type
+* the protocol to be used. The **${project.name}** currently supports:
 
-## How does it work?
-
-**${project.name}** relies on the **Hardware Connector Library** which consists of several hardware connectors (*.hdf files) that describe how to discover hardware components and detect failures. The connectors are automatically selected based on the device type and enabled protocols. The protocols currently supported are:  
-
-* HTTP
-* SNMP
-* WBEM
-* WMI
-
-**${project.name}** provides detailed information about each monitored component (vendor, model, serial number, part number, FRU number, location in the chassis, etc.).
-
-Refer to the [User Documentation](//www.sentrysoftware.com/library/hc/) for more information about the **Hardware Connector Library**.
+    * HTTP
+    * IPMI
+    * SSH
+    * SNMP
+    * WBEM
+    * WMI.

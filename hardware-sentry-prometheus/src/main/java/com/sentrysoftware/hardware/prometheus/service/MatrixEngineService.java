@@ -168,10 +168,11 @@ public class MatrixEngineService {
 				.getTargets()
 				.forEach(hostConfigurationDTO -> {
 
-					Set<String> selectedConnectors = getSelectedConnectors(connectors.keySet(),
-						hostConfigurationDTO.getSelectedConnectors(), hostConfigurationDTO.getExcludedConnectors());
+					final Set<String> allConnecotrs = connectors.keySet();
+					Set<String> selectedConnectors = getConnectors(allConnecotrs, hostConfigurationDTO.getSelectedConnectors());
+					Set<String> excludedConnectors =  getConnectors(allConnecotrs, hostConfigurationDTO.getExcludedConnectors());
 
-					EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors);
+					EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors, excludedConnectors);
 
 					hostMonitoringMap.putIfAbsent(hostConfigurationDTO.getTarget().getHostname(),
 						HostMonitoringFactory.getInstance().createHostMonitoring(
@@ -192,11 +193,12 @@ public class MatrixEngineService {
 	 * 
 	 * @param exporterConfig		User's configuration
 	 * @param selectedConnectors	The connector names, the matrix engine will run
+	 * @param excludedConnectors    The connector names, the matrix engine will skip
 	 *
 	 * @return						The built {@link EngineConfiguration}.
 	 */
 	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO exporterConfig,
-														final Set<String> selectedConnectors) {
+														final Set<String> selectedConnectors, Set<String> excludedConnectors) {
 
 		final HardwareTarget target = exporterConfig.getTarget();
 
@@ -221,27 +223,21 @@ public class MatrixEngineService {
 			.operationTimeout(exporterConfig.getOperationTimeout())
 			.protocolConfigurations(protocolConfigurations)
 			.selectedConnectors(selectedConnectors)
+			.excludedConnectors(excludedConnectors)
 			.target(target)
 			.unknownStatus(exporterConfig.getUnknownStatus())
 			.build();
 	}
 
 	/**
-	 * Return selected connectors, this can be:
-	 * <ol>
-	 *   <li><em>automatic</em>: this method will return an empty set, the engine will then proceed to the automatic detection</li>
-	 *   <li><em>userSelection</em>: replace .hdfs by .connector
-	 *   <li><em>userExclusion</em>: based on the ConnectorStore, filter the connectors
-	 * </ol>
+	 * Return configured connector names with the .connector extension. This method excludes badly configured connectors.
 	 * 
 	 * @param allConnectors      All connectors from the {@link ConnectorStore}
-	 * @param selectedConnectors User's selected connectors
-	 * @param excludedConnectors User's excluded connectors
+	 * @param configConnectors   User's selected or excluded connectors
 	 * 
 	 * @return {@link Set} containing the selected connector names
 	 */
-	static Set<String> getSelectedConnectors(final Set<String> allConnectors, final Set<String> selectedConnectors,
-			final Set<String> excludedConnectors) {
+	static Set<String> getConnectors(final Set<String> allConnectors, final Set<String> configConnectors) {
 
 		final Set<String> result = new HashSet<>();
 
@@ -250,17 +246,14 @@ public class MatrixEngineService {
 		List<String> connectors = null;
 
 		// In the configuration, the filename extension = .hdfs
-		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
-			connectors = getConnectorsWithoutExtension(selectedConnectors);
-
-		} else if (excludedConnectors != null && !excludedConnectors.isEmpty()) {
-
-			final List<String> connectorExclusion = getConnectorsWithoutExtension(excludedConnectors);
-			connectors = connectorStore.stream().filter(f -> !connectorExclusion.contains(f)).collect(Collectors.toList());
+		if (configConnectors != null && !configConnectors.isEmpty()) {
+			connectors = getConnectorsWithoutExtension(configConnectors);
 		}
 
 		// add the correct extension (.connector)
 		if (connectors != null) {
+			// Send only known connectors
+			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
 			connectors.replaceAll(f -> f + HardwareConstants.DOT + HardwareConstants.CONNECTOR);
 			result.addAll(connectors);
 		}

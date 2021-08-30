@@ -1,10 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTPS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
@@ -50,8 +45,8 @@ import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import com.sentrysoftware.matsya.wmi.handlers.WmiStringConverter;
-import com.sentrysoftware.matsya.wmi.handlers.WmiWbemServicesHandler;
+import com.sentrysoftware.matsya.wmi.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +68,7 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
 	 * @param <T>
-	 * 
+	 *
 	 * @param callable
 	 * @param timeout
 	 * @return {@link T} result returned by the callable.
@@ -95,7 +90,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute SNMP GetNext request through Matsya
-	 * 
+	 *
 	 * @param oid
 	 * @param protocol
 	 * @param hostname
@@ -117,7 +112,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute SNMP Get request through Matsya
-	 * 
+	 *
 	 * @param oid
 	 * @param protocol
 	 * @param hostname
@@ -191,9 +186,9 @@ public class MatsyaClientsExecutor {
 					return snmpClient.get(oid);
 				case GETNEXT:
 					return snmpClient.getNext(oid);
-				case TABLE : 
+				case TABLE :
 					return snmpClient.table(oid, selectColumnArray);
-				default : 
+				default :
 					throw new IllegalArgumentException("Not implemented.");
 				}
 			} catch (Exception e) {
@@ -210,7 +205,7 @@ public class MatsyaClientsExecutor {
 	public enum SNMPGetRequest {
 		GET, GETNEXT, TABLE
 	}
-	
+
 	/**
 	 * Execute TableJoin Using Matsya
 	 * @param leftTable
@@ -218,24 +213,24 @@ public class MatsyaClientsExecutor {
 	 * @param leftKeyColumnNumber
 	 * @param rightKeyColumnNumber
 	 * @param defaultRightLine
-	 * @param wbemKeyType {@link true} if WBEM 
+	 * @param wbemKeyType {@link true} if WBEM
 	 * @param caseInsensitive
 	 * @return
 	 */
 	public List<List<String>> executeTableJoin(final List<List<String>> leftTable,
 			final List<List<String>> rightTable,
-			final int leftKeyColumnNumber, 
-			final int rightKeyColumnNumber, 
+			final int leftKeyColumnNumber,
+			final int rightKeyColumnNumber,
 			final List<String> defaultRightLine,
-			final boolean wbemKeyType, 
+			final boolean wbemKeyType,
 			boolean caseInsensitive){
 		return TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber, defaultRightLine, false, caseInsensitive);
-		
+
 	}
 
 	/**
 	 * Call Matsya in order to execute the Awk script on the given input
-	 * 
+	 *
 	 * @param embeddedFileScript
 	 * @param input
 	 * @return
@@ -255,8 +250,8 @@ public class MatsyaClientsExecutor {
 	 * @param propertyList
 	 * @param separator
 	 * @return
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * @throws TimeoutException
+	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator) throws InterruptedException, ExecutionException, TimeoutException {
@@ -328,7 +323,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute a WMI query through Matsya
-	 * 
+	 *
 	 * @param hostname  The hostname of the device where the WMI service is running
 	 * @param username  The username to establish the connection with the device through the WMI protocol
 	 * @param password  The password to establish the connection with the device through the WMI protocol
@@ -350,14 +345,10 @@ public class MatsyaClientsExecutor {
 		// Remote: hostname\namespace
 		final String networkResource = buildWmiNetworkResource(hostname, namespace);
 		// Go!
-		try (final WmiWbemServicesHandler wbemServices = 
-				new WmiWbemServicesHandler(networkResource, username, password, timeout.intValue() * 1000)) {
-
-			// Connect
-			wbemServices.connect();
+		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(networkResource, username, password)) {
 
 			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery);
+			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, timeout.intValue() * 1000);
 
 			// Extract the exact property names (case sensitive), in the right order
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
@@ -367,7 +358,7 @@ public class MatsyaClientsExecutor {
 
 		}
 	}
-	
+
 	/**
 	 * Build the WMI network resource
 	 * @param hostname    The hostname of the device where the WMI service is running
@@ -382,7 +373,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Convert the given result to a {@link List} of {@link List} table
-	 * 
+	 *
 	 * @param result          The result we want to process
 	 * @param properties      The ordered properties
 	 * @return {@link List} of {@link List} table
@@ -392,13 +383,11 @@ public class MatsyaClientsExecutor {
 		final WmiStringConverter stringConverter = new WmiStringConverter();
 
 		// Transform the result to a list of list
-		result.forEach(row ->
-			{
+		result.forEach(row -> {
 				final List<String> line = new ArrayList<>();
 
 				// loop over the right order
-				properties.forEach(property -> line.add(stringConverter.convert(row.get(property))
-								.replace(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY)));
+				properties.forEach(property -> line.add(stringConverter.convert(row.get(property))));
 
 				// We have a line?
 				if (!line.isEmpty()) {
@@ -426,23 +415,26 @@ public class MatsyaClientsExecutor {
 
 		String username = protocol.getUsername();
 		char[] password = protocol.getPassword();
+		String authenticationToken = httpRequest.getAuthenticationToken();
 
 		Header header = httpRequest.getHeader();
-		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, EMPTY);
+		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, authenticationToken);
 
 		Body body = httpRequest.getBody();
-		String bodyContent = body == null ? null : body.getContent(username, password, EMPTY);
+		String bodyContent = body == null ? null : body.getContent(username, password, authenticationToken);
 
 		// Building the full URL
 		String url = httpRequest.getUrl();
 		notNull(url, "URL cannot be null");
 
-		String fullUrl = (protocol.getHttps() != null && protocol.getHttps() ? HTTPS : HardwareConstants.HTTP)
-				+ COLON_DOUBLE_SLASH
-				+ httpRequest.getHostname()
-				+ COLON
-				+ protocol.getPort()
-				+ (url.startsWith(SLASH) ? url : SLASH + url);
+		String fullUrl = String.format(
+				"%s://%s:%d%s%s",
+				protocol.getHttps() != null && protocol.getHttps() ? HardwareConstants.HTTPS : HardwareConstants.HTTP,
+				httpRequest.getHostname(),
+				protocol.getPort(),
+				url.startsWith(HardwareConstants.SLASH) ? HardwareConstants.EMPTY : HardwareConstants.SLASH,
+				url
+		);
 
 		try {
 
@@ -511,7 +503,7 @@ public class MatsyaClientsExecutor {
 				null
 			);
 	}
-	
+
 	/**
 	 * Use Matsya ssh-client in order to run ssh command
 	 * @param hostname
@@ -521,8 +513,8 @@ public class MatsyaClientsExecutor {
 	 * @param command
 	 * @param timeout
 	 * @return
-	 * @throws IOException 
-	 * @throws IllegalStateException 
+	 * @throws IOException
+	 * @throws IllegalStateException
 	 */
 	public String runRemoteSshCommand(String hostname, String username, String password, String keyFilePath,
 			String command, int timeout) throws IOException {
@@ -598,7 +590,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Run the IPMI detection in order to detect the Chassis power state
-	 * 
+	 *
 	 * @param hostname            The host name or the IP address we wish to query
 	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return String value. E.g. System power state is up
@@ -614,7 +606,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Build MATSYA IPMI configuration
-	 * 
+	 *
 	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiOverLanProtocol Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return new instance of MATSYA {@link IpmiConfiguration}
@@ -634,7 +626,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Run IPMI Over-LAN request in order to get all the sensors
-	 * 
+	 *
 	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return String output contains FRUs and Sensor states and readings
