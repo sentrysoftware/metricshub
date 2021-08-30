@@ -71,6 +71,7 @@ class MonitorCollectVisitorTest {
 	private static final String VOLTAGE = "50000";
 	private static final String VOLTAGE_LOW = "-200000";
 	private static final String VOLTAGE_HIGH = "460000";
+	private static final String MEMORY_LAST_ERROR = "error 1234";
 
 	private static Long collectTime = new Date().getTime();
 
@@ -296,7 +297,11 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitMemory() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor
+				.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.MEMORY)
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Memory());
@@ -1565,6 +1570,46 @@ class MonitorCollectVisitorTest {
 		usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertEquals(null, usedCapacityParameter.getRawValue());
 		assertEquals(50.0, usedCapacityParameter.getValue());
+	}
+	
+	@Test
+	void testCollectMemoryStatusInformationWithLastError() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.MEMORY).build();
+			final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+					buildCollectMonitorInfo(hostMonitoring,
+							Map.of(
+									DEVICE_ID, VALUETABLE_COLUMN_1,
+									HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+									HardwareConstants.MEMORY_LAST_ERROR, VALUETABLE_COLUMN_3),
+							monitor,
+							Arrays.asList(MONITOR_DEVICE_ID,
+									OK_RAW_STATUS,
+									MEMORY_LAST_ERROR))
+					);
+
+			monitorCollectVisitor.collectStatusParameter(MonitorType.MEMORY,
+					HardwareConstants.STATUS_PARAMETER,
+					HardwareConstants.STATUS_PARAMETER_UNIT);
+			
+			monitorCollectVisitor.updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
+
+			final Map<String, IParameterValue> parameters = monitor.getParameters();
+			final StatusParam expected = StatusParam
+					.builder()
+					.name(HardwareConstants.STATUS_PARAMETER)
+					.collectTime(collectTime)
+					.state(ParameterState.OK)
+					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.statusInformation("status: 0 (OK)" + " - " + MEMORY_LAST_ERROR)
+					.build();
+
+			final IParameterValue actual = parameters.get(HardwareConstants.STATUS_PARAMETER);
+
+			assertEquals(expected, actual);
+
+		}
 	}
 
 }

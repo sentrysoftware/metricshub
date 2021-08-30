@@ -216,8 +216,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Memory memory) {
 		collectBasicParameters(memory);
 		
-		appendValuesToStatusParameter(HardwareConstants.ERROR_COUNT_PARAMETER, HardwareConstants.ERROR_STATUS_PARAMETER,
-				HardwareConstants.PREDICTED_FAILURE_PARAMETER, HardwareConstants.PRESENT_PARAMETER);
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_STATUS_PARAMETER,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
@@ -602,6 +608,28 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		monitor.collectParameter(statusParam);
 	}
 
+	/**
+	 * Update status information with additional information as suffix.
+	 * 
+	 * @param additionalInformation The name of the field containing the additional information
+	 */
+	void updateAdditionalStatusInformation(final String additionalInformation) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String additionalInfo = CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				additionalInformation,
+				monitor.getMonitorType(),
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(additionalInformation));
+
+		if (additionalInfo != null) {
+
+			StatusParam statusParam = monitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class);
+			statusParam.setStatusInformation(statusParam.getStatusInformation() + " - " + additionalInfo);
+		}
+	}
+	
 	/**
 	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
@@ -1035,6 +1063,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Collects the incremental parameters, namely 
 	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 * 
+	 * @param parameterName The name of the count parameter, like mountCount
+	 * @param parameterName The unit of the count parameter, like mounts
 	 */
 	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
 
