@@ -76,7 +76,7 @@ class MonitorCollectVisitorTest {
 
 	private static  Map<String, String> mapping = Map.of(
 			DEVICE_ID, VALUETABLE_COLUMN_1,
-			HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+			HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2,
 			HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
 			HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
 			HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
@@ -130,7 +130,7 @@ class MonitorCollectVisitorTest {
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new MetaConnector()));  
+		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new MetaConnector()));
 	}
 
 	@Test
@@ -139,7 +139,7 @@ class MonitorCollectVisitorTest {
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new Target()));  
+		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new Target()));
 	}
 
 	@Test
@@ -395,7 +395,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitTemperature() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.VOLTAGE).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TEMPERATURE).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Temperature());
@@ -408,7 +408,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitVoltage() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.VOLTAGE).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Voltage());
@@ -835,7 +835,7 @@ class MonitorCollectVisitorTest {
 					.statusInformation("status: 2 (DOWN)").build();
 
 			previousParameter.reset();
-			
+
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
 					Map.of(HardwareConstants.STATUS_PARAMETER, previousParameter)))
 					.build();
@@ -1412,7 +1412,7 @@ class MonitorCollectVisitorTest {
 		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
 		assertNull(voltageParameter);
 	}
-	
+
 	@Test
 	void testCollectErrorCount() {
 
@@ -1436,7 +1436,7 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList("10"))
 		);
-		
+
 		monitorCollectVisitor.collectErrorCount();
 		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
 		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
@@ -1445,7 +1445,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(0.0, errorCountParameter.getValue());
 		assertEquals(10.0, previousErrorCountParameter.getValue());
 		assertEquals(10.0, startingErrorCountParameter.getValue());
-		
+
 		// Error count value collected with an increased count
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -1456,7 +1456,7 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Arrays.asList("25", "15", "15"))
 		);
-		
+
 		monitorCollectVisitor.collectErrorCount();
 		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
 		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
@@ -1465,9 +1465,9 @@ class MonitorCollectVisitorTest {
 		assertEquals(10.0, errorCountParameter.getValue());
 		assertEquals(15.0, previousErrorCountParameter.getValue());
 		assertEquals(10.0, startingErrorCountParameter.getValue());
-		
+
 	}
-	
+
 	@Test
 	void testCollectIncrementalCount() {
 
@@ -1487,12 +1487,12 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList("10"))
 		);
-		
+
 		monitorCollectVisitor.collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
 		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(10.0, mountCountParameter.getRawValue());
 		assertEquals(0.0, mountCountParameter.getValue());
-		
+
 		// Both current and previous mount counts are set (previous = 12, current = 20)
 		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
 		mountCountParameter.setPreviousRawValue(12.0);
@@ -1507,7 +1507,7 @@ class MonitorCollectVisitorTest {
 		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(20.0, mountCountParameter.getRawValue());
 		assertEquals(8.0, mountCountParameter.getValue());
-		
+
 		// Both current and previous mount counts are set (previous = 32, current = 20)
 		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
 		mountCountParameter.setPreviousRawValue(32.0);
@@ -1523,6 +1523,6 @@ class MonitorCollectVisitorTest {
 		assertEquals(20.0, mountCountParameter.getRawValue());
 		assertEquals(0.0, mountCountParameter.getValue());
 	}
-	
-	
+
+
 }
