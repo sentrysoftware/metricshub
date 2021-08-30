@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.net.MalformedURLException;
@@ -20,16 +21,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -46,12 +50,15 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -82,7 +89,7 @@ class SourceVisitorTest {
 
 	@InjectMocks
 	private SourceVisitor sourceVisitor;
-	
+
 	@Mock
 	private HostMonitoring hostMonitoring;
 
@@ -95,7 +102,7 @@ class SourceVisitorTest {
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, snmpProtocol, HTTPProtocol.class, httpProtocol)).build();
-		
+
 	}
 
 	@Test
@@ -275,7 +282,7 @@ class SourceVisitorTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetSource.builder().oid(OID).build()));
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new SNMPGetSource()));
-		
+
 		// no snmp protocol
 		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
@@ -312,7 +319,7 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
-		
+
 		// test when Matsya throws an exception
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		when(matsyaClientsExecutor.executeSNMPTable(any(), any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
@@ -351,12 +358,12 @@ class SourceVisitorTest {
 		// standard
 		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
-		
+
 		List<List<String>> matsyaReturn = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(mapSources).when(hostMonitoring).getSourceTables();
 		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, false);
-		
+
 		TableJoinSource tableJoinExample = TableJoinSource.builder()
 																	.keyType("notWbem")
 																	.leftTable("tab1")
@@ -416,7 +423,7 @@ class SourceVisitorTest {
 											.rightKeyColumn(1)
 											.defaultRightLine(null).build();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableJoinExample));
-		
+
 		// null args
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
@@ -470,19 +477,19 @@ class SourceVisitorTest {
 	void testVisitTableUnionSourceTest() {
 		SourceTable tabl1 = SourceTable.builder()
 				.table(Arrays.asList(
-						Arrays.asList("a1", "b1", "c1"), 
+						Arrays.asList("a1", "b1", "c1"),
 						Arrays.asList("val1", "val2", "val3")))
 				.build();
 		SourceTable tabl2 = SourceTable.builder()
 				.table(Arrays.asList(
-						Arrays.asList("a1", "b2", "c2"), 
+						Arrays.asList("a1", "b2", "c2"),
 						Arrays.asList("v1", "v2", "v3")))
 				.build();
 
 		// standard
 		List<List<String>> expectedUnion = Arrays.asList(
 				Arrays.asList("a1", "b1", "c1"),
-				Arrays.asList("val1", "val2", "val3"), 
+				Arrays.asList("val1", "val2", "val3"),
 				Arrays.asList("a1", "b2", "c2"),
 				Arrays.asList("v1", "v2", "v3"));
 
@@ -517,7 +524,7 @@ class SourceVisitorTest {
 	void testVisitWBEMSource() throws MalformedURLException, WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit((WBEMSource) null));
 		assertEquals(SourceTable.empty(), new SourceVisitor().visit(WBEMSource.builder().build()));
-		
+
 		WBEMSource wbemSource = WBEMSource.builder().wbemQuery(WBEM_QUERY).build();
 		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
@@ -595,17 +602,17 @@ class SourceVisitorTest {
 				.build();
 
 		List<List<String>> listValues = Arrays.asList(
-				Arrays.asList("a1", "b2", "c2"), 
+				Arrays.asList("a1", "b2", "c2"),
 				Arrays.asList("v1", "v2", "v3"));
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		
-		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
+
+		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(),
 				anyInt(), any(), any());
 		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
-		
+
 		 // handle exception
-		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), 
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(),
 				anyInt(), any(), any());
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 	}
@@ -664,7 +671,7 @@ class SourceVisitorTest {
 				Arrays.asList("1.3", "1|4587"));
 		doReturn(expected).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
-				"password".toCharArray(), 
+				"password".toCharArray(),
 				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
 		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.visit(wmiSource));
 
@@ -687,7 +694,7 @@ class SourceVisitorTest {
 		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
 		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
-				"password".toCharArray(), 
+				"password".toCharArray(),
 				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
 
@@ -760,18 +767,18 @@ class SourceVisitorTest {
 				Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25"));
 		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
-				"password".toCharArray(), 
-				120L, 
-				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor", 
+				"password".toCharArray(),
+				120L,
+				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
 				"root/hardware");
 
 		final List<List<String>> wmiResult3 = Arrays.asList(
 				Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId"));
 		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWmi(PC14,
 				PC14 + "\\" + "Administrator",
-				"password".toCharArray(), 
-				120L, 
-				"SELECT CurrentState,Description FROM Sensor", 
+				"password".toCharArray(),
+				120L,
+				"SELECT CurrentState,Description FROM Sensor",
 				"root/hardware");
 
 		final List<List<String>> expected = Arrays.asList(
@@ -833,62 +840,75 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
 	}
 
-	@Test
-	void testProcessFruResult() {
-		String fruCommandResult = "FRU Device Description : Builtin FRU Device (ID 0)\r\n"
-				+ " Board Mfg Date        : Mon May 21 14:46:00 2012\r\n"
-				+ " Board Mfg             : FUJITSU\r\n"
-				+ " Board Product         : D2939\r\n"
-				+ " Board Serial          : 39159317\r\n"
-				+ " Board Part Number     : S26361-D2939-A17\r\n"
-				+ " Board Extra           : WGS08 GS02\r\n"
-				+ " Board Extra           : 02\r\n"
-				+ "\n"
-				+ "FRU Device Description : Chassis (ID 2)\r\n"
-				+ " Chassis Type          : Rack Mount Chassis\r\n"
-				+ " Chassis Extra         : RX300S7R4\r\n"
-				+ " Product Manufacturer  : FUJITSU\r\n"
-				+ " Product Name          : PRIMERGY RX300 S7\r\n"
-				+ " Product Part Number   : ABN:K1373-M205-11\r\n"
-				+ " Product Version       : GS01\r\n"
-				+ " Product Serial        : YLAR004219\r\n"
-				+ " Product Asset Tag     : 15\r\n"
-				+ " Product Extra         : 330c84\r\n"
-				+ " Product Extra         : 0316\r\n"
-				+ "\n"
-				+ "FRU Device Description : MainBoard (ID 3)\r\n"
-				+ " Board Mfg Date        : Mon May 21 14:46:00 2012\r\n"
-				+ " Board Mfg             : FUJITSU\r\n"
-				+ " Board Product         : D2939\r\n"
-				+ " Board Serial          : 39159317\r\n"
-				+ " Board Part Number     : S26361-D2939-A17\r\n"
-				+ " Board Extra           : WGS08 GS02\r\n"
-				+ " Board Extra           : 02\r\n"
-				+ "\n"
-				+ "FRU Device Description : PSU1 (ID 18)\r\n"
-				+ " Unknown FRU header version 0x02\r\n"
-				+ "\n"
-				+ "FRU Device Description : PSU2 (ID 19)\r\n"
-				+ " Unknown FRU header version 0x02";
-		Map<String, List<String>> expectedMap = Map.of("goodList", 
-				Arrays.asList("FRU;FUJITSU;PRIMERGY RX300 S7;YLAR004219"), 
-				"poorList", 
-				Arrays.asList("FRU;FUJITSU;D2939;39159317", 
-						"FRU;FUJITSU;D2939;39159317"));
-		assertEquals(expectedMap,
-				sourceVisitor.processFruResult(fruCommandResult));
-		
-	}
 
 	@Test
-	void testcleanSensorCommandResult() {
-		String line = "line1;line1\nBMC req: line 2\nline3\n\nline3\n--ine4\nline5\nB line 6\n- line 7";
-		String expected = "line1,line1\n"
-				+ "line3\n"
-				+ "line3\n"
-				+ "line5;B line 6;- line 7";
-		assertEquals(expected, sourceVisitor.cleanSensorCommandResult(line));
-		assertEquals(null, sourceVisitor.cleanSensorCommandResult(null));
-		assertEquals("", sourceVisitor.cleanSensorCommandResult(""));
+	void testPocessUnixIpmiSource() {
+
+		// classic case
+		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+						OSCommandConfig.class, OSCommandConfig.builder().build(),
+						SSHProtocol.class, ssh))
+				.build();
+		doReturn(engineConfigurationLocal).when(strategyConfig).getEngineConfiguration();
+		final HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(true);
+		hostMonitoring.setIpmitoolCommand("ipmiCommand");
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru")).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all")).thenReturn("impiResultSdr");
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			assertEquals(SourceTable.empty(), ipmiResult);
+		}
+
+		String fru = "/data/IpmiFruBabbage";
+		String sensor = "/data/IpmiSensorBabbage";
+		String expected = "/data/ipmiProcessingResult";
+		String fruResult = ResourceHelper.getResourceAsString(fru, this.getClass());
+		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru")).thenReturn(fruResult);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all")).thenReturn(sensorResult);
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
+			List<List<String>> result = new ArrayList<>();
+			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
+			assertEquals(result, ipmiResult.getTable());
+		}
+
+		// ipmiToolCommand is empty
+		hostMonitoring.setIpmitoolCommand("");
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		SourceTable ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
+
+		// ipmiToolCommand is null
+		hostMonitoring.setIpmitoolCommand(null);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
+
+		// osCommandConfig is null
+		engineConfigurationLocal = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+						SSHProtocol.class, ssh))
+				.build();
+		doReturn(engineConfigurationLocal).when(strategyConfig).getEngineConfiguration();
+		final HostMonitoring hostMonitoring2 = new HostMonitoring();
+		hostMonitoring2.setLocalhost(true);
+		hostMonitoring2.setIpmitoolCommand("ipmiCommand");
+		doReturn(hostMonitoring2).when(strategyConfig).getHostMonitoring();
+		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 	}
+
 }

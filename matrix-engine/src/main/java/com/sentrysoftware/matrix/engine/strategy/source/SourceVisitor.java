@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,7 +116,7 @@ public class SourceVisitor implements ISourceVisitor {
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
 			return processWindowsIpmiSource();
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			return processUnixIpmiSource(targetType);
+			return processUnixIpmiSource();
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
 			return processOutOfBandIpmiSource();
 		}
@@ -130,7 +129,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI source via IPMI Over-LAN
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processOutOfBandIpmiSource() {
@@ -163,10 +162,10 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI Source for the Unix system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-		SourceTable processUnixIpmiSource(TargetType targetType) {
+		SourceTable processUnixIpmiSource() {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// get the ipmiTool command to execute
@@ -201,15 +200,14 @@ public class SourceVisitor implements ISourceVisitor {
 				fruResult = OsCommandHelper.runRemoteCommand(fruCommand, hostname, sshProtocol, defaultTimeout,
 						matsyaClientsExecutor);
 			}
-			// TODO : Log the result in debug log
-//			log.ebug("processUnixIpmiSource(".host."): OS Command: ".osCommandLine.":\n".fruResult, host);
+			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, fruCommand, fruResult);
 
 		} catch (IOException |InterruptedException  e) {
 			final String message = String.format("Failed to execute the OS Command %s for %s. Retrun empty result.",
 					fruCommand, hostname);
 			log.error(message);
 			return SourceTable.empty();
-		} 
+		}
 
 		// "-v sdr elist all"
 		String sdrCommand = ipmitoolCommand + "-v sdr elist all";
@@ -221,8 +219,7 @@ public class SourceVisitor implements ISourceVisitor {
 				sensorResult = OsCommandHelper.runRemoteCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,
 						matsyaClientsExecutor);
 			}
-			// TODO : Log the result in debug log
-//			log.debug("processUnixIpmiSource(".host."): OS Command: ".osCommandLine.":\n".sensorResult, host);
+			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
 		} catch (IOException | InterruptedException e) {
 			final String message = String.format("Failed to execute the OS Command %s for %s. Retrun empty result.",
 					sdrCommand, hostname);
@@ -230,234 +227,13 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		return SourceTable.builder().table(ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
+		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
 
-	}
-
-	/**
-	 * Process what we got from ipmitool and return a pretty table
-	 * 
-	 * @param fruResult
-	 * @param sdrResult
-	 * @return
-	 */
-	private List<List<String>> ipmiTranslateFromIpmitool(String fruResult, String sdrResult) {
-		List<List<String>> result = new ArrayList<>();
-		sdrResult = cleanSensorCommandResult(sdrResult);
-		ipmiBuildDeviceListFromIpmitool(fruResult, sdrResult);
-
-		//  Now process the numeric sensor list
-		// TODO
-		// example of expectedResult
-//		[
-//			[FRU, FUJITSU, PRIMERGY RX300 S7, YLAR004219],
-//			[FRU, FUJITSU, D2939, 39159317],
-//			[FRU, FUJITSU, D2939, 39159317],
-//			[Temperature, 1, Ambient, External Environment 0(External, 19, , ],
-//			[Temperature, 3, Systemboard 2, System Board 0(System, 32, , ],
-//			[Temperature, 4, CPU1, Processor 0(Processor), 30, , ],
-//			[Temperature, 5, CPU2, Processor 1(Processor), 32, , ],
-//			[Temperature, 6, MEM A, Memory Device 0(Memory, 30, , ],
-//			[Temperature, a, MEM E, Memory Device 4, 30, , ]
-//		]
-		return result;
-
-	}
-
-	/**
-	 * Process what we got from ipmitool and return a pretty device table
-	 * @param fruResult
-	 * @param sdrResult
-	 * @return
-	 */
-	private List<List<String>> ipmiBuildDeviceListFromIpmitool(String fruResult, String sdrResult) {
-		List<List<String>> result = new ArrayList<>();
-		processFruResult(fruResult);
-
-		List<String> deviceList = new ArrayList<>();
-		// Parse the SDR records
-		for (String sensorEntry : sdrResult.split(HardwareConstants.NEW_LINE)) {
-			if (!sensorEntry.startsWith("Sensor ID ") || !sensorEntry.contains("States Asserted")) { // Bypass sensors with no state asserted
-				continue;
-			}
-
-			String sensorName = null;
-			String entityId = null;
-			String deviceType = null;
-			String statusArray = null;
-			String deviceId = null;
-
-			sensorEntry = sensorEntry.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.NEW_LINE);
-
-			// Get name, ID, entity ID and device type
-			for (String entryLine : sensorEntry.split(HardwareConstants.NEW_LINE)) {
-				if (entryLine.startsWith("Sensor ID") && entryLine.contains(" : ")) {
-					String[] entrySplit = entryLine.split(" : ");
-					if (entrySplit.length > 0) {
-						sensorName = entrySplit[1]
-								.substring(0, entrySplit[1].indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
-					}
-				}
-				if (entryLine.startsWith(" Entity ID ") && entryLine.contains(" : ")) {
-					String[] entrySplit = entryLine.split(" : ");
-					if (entrySplit.length > 0) {
-						entityId = entrySplit[1];
-						deviceType = entityId.substring(entityId.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1,
-								entityId.indexOf(HardwareConstants.CLOSING_PARENTHESIS)).trim();
-						deviceId = entityId.substring(entityId.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1,
-								entityId.indexOf(HardwareConstants.CLOSING_PARENTHESIS)).trim();
-
-					}
-				}
-			}
-			if (entityId == null) {
-				// TODO : complete the debug log
-				log.debug("Cannot retreive entity Id");
-				continue;
-			}
-
-			// check if OEM Specific
-			if (sensorEntry.matches("States Asserted +: 0x[0-9a-zA-Z]+ +OEM Specific")) {
-				// TODO : PSL Code ==>
-//				oemSpecific = ntharg(oemSpecific, 4, " \t");
-//				oemSpecific = substr(oemSpecific, 3, length(oemSpecific) - 2);
-//				oemSpecific = int(convert_base(oemSpecific, 16, 10) | 32768);
-//				oemSpecific = convert_base(oemSpecific, 10, 16);
-//				if (length(oemSpecific) < 4) { oemSpecific = substr("0000", 1, int(4-length(oemSpecific))).oemSpecific; }
-//				statusArray = sensorName."=0x".oemSpecific;
-			} else {
-				if (!sensorEntry.contains("Assertions Enabled ")) {
-					continue;
-				}
-				sensorEntry = sensorEntry.substring(0, sensorEntry.indexOf("Assertions Enabled "));
-				// get the values between the first and the last [, ]
-				statusArray = sensorEntry.substring(
-						sensorEntry.indexOf(HardwareConstants.OPENING_SQUARE_BRACKET) + 1, 
-						sensorEntry.lastIndexOf(HardwareConstants.CLOSING_SQUARE_BRACKET))
-						.trim();
-				statusArray = statusArray.replace(HardwareConstants.OPENING_SQUARE_BRACKET, "")
-						.replace(HardwareConstants.CLOSING_SQUARE_BRACKET, "").trim();
-				statusArray = sensorName + "=" + statusArray.replaceAll(HardwareConstants.NEW_LINE,
-						HardwareConstants.NEW_LINE + sensorName + HardwareConstants.EQUAL);
-				statusArray = statusArray.replaceAll(HardwareConstants.NEW_LINE, HardwareConstants.PIPE);
-			}
-			if (statusArray == null || statusArray.isEmpty() || statusArray.equals("|")) {
-				continue;
-			}
-			if (!deviceList.contains(";" + deviceType + " " + deviceId + ";")) {
-				// It's the first time we meet this entityID, look up its FRU entry
-				if (sdrResult.matches(";Entity ID +: " + entityId.replace(".", "\\.") + " .*;Logical FRU Device ")) {
-					// I am totally lost here .....
-				}
-			} else {
-				// If this entityID was already present in the list, we just need to add the
-				// statusArray to it
-			}
-
-		} // end of sensorEntry
-
-		return result;
-	}
-
-	/**
-	 * Process the raw result of the FRU command and return the list of good FRU list and poor FRU list
-	 * @param fruResult
-	 * @return
-	 */
-	public Map<String, List<String>> processFruResult(String fruResult) {
-		List<String> goodFruList = new ArrayList<>();
-		List<String> poorFruList = new ArrayList<>();
-		List<String> fruList = new ArrayList<>();
-		Map<String, List<String>> ipmiTable = new HashMap<>();
-
-		// extract each FRU bloc, which are separated by an empty line
-		for (String fruEntry : fruResult.split("\n\n")) {
-			String fruID = null;
-			String fruVendor = null;
-			String fruModel = null;
-			String fruSN = null;
-			String boardVendor = null;
-			String boardModel = null;
-			String boardSN = null;
-			boolean board = false;
-
-			for (String fruLine : fruEntry.split(HardwareConstants.NEW_LINE)) {
-				if (fruLine.startsWith("FRU Device Description ")) {
-					fruID = fruLine.substring(fruLine.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 3,
-							fruLine.indexOf(HardwareConstants.CLOSING_PARENTHESIS)).trim();
-				}
-				if (fruLine.startsWith(" Product Manufacturer") && fruLine.contains(" : ")) {
-					fruVendor = fruLine.split(" : ")[1].trim();
-				}
-				if (fruLine.startsWith(" Product Name") && fruLine.contains(" : ")) {
-					fruModel = fruLine.split(" : ")[1].trim();
-				}
-				if (fruLine.startsWith(" Product Serial") && fruLine.contains(" : ")) {
-					fruSN = fruLine.split(" : ")[1].trim();
-				}
-				if (fruLine.startsWith(" Board Mfg") && fruLine.contains(" : ")) {
-					boardVendor = fruLine.split(" : ")[1].trim();
-					board = true;
-				}
-				if (fruLine.startsWith(" Board Product") && fruLine.contains(" : ")) {
-					boardModel = fruLine.split(" : ")[1].trim();
-					board = true;
-				}
-				if (fruLine.startsWith(" Board Serial") && fruLine.contains(" : ")) {
-					boardSN = fruLine.split(" : ")[1].trim();
-					board = true;
-				}
-			}
-
-			StringBuilder fruEntryResult = new StringBuilder();
-			fruEntryResult = fruEntryResult.append("FRU;").append(fruVendor).append(HardwareConstants.SEMICOLON)
-					.append(fruModel).append(HardwareConstants.SEMICOLON).append(fruSN);
-			if (!board) {
-				if (fruModel != null && fruSN != null) {
-					goodFruList.add(fruEntryResult.toString());
-				} else if (fruVendor != null) {
-					poorFruList.add(fruEntryResult.toString());
-				}
-			} else if (boardVendor != null) {
-				fruEntryResult = new StringBuilder();
-				fruEntryResult = fruEntryResult.append("FRU;").append(boardVendor).append(HardwareConstants.SEMICOLON)
-						.append(boardModel).append(HardwareConstants.SEMICOLON).append(boardSN);
-				poorFruList.add(fruEntryResult.toString());
-			}
-
-			fruList.add(fruID + HardwareConstants.SEMICOLON + fruEntryResult.toString());
-		}
-		ipmiTable.put("goodList", goodFruList);
-		ipmiTable.put("poorList", poorFruList);
-		return ipmiTable;
-	}
-
-	/**
-	 * Reformat the ipmitoolSdr list so we have one line per sdr entry Remove lines
-	 * that starts with BMC req and --
-	 * 
-	 * @param sdrResult
-	 * @return
-	 */
-	public String cleanSensorCommandResult(String sdrResult) {
-		if(sdrResult == null || sdrResult.isEmpty()) {
-			return sdrResult;
-		}
-
-		// exclude rows that start with "^BMC req" and "-- "
-		// in order to differentiate blocs of sensorID and the empty lines that will be
-		// created by the replace operation
-		sdrResult = Pattern.compile("(?m)^(BMC req|--).*").matcher(sdrResult).replaceAll("");
-		sdrResult = sdrResult.replaceAll(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
-		sdrResult = sdrResult.replaceAll(HardwareConstants.NEW_LINE, HardwareConstants.SEMICOLON);
-		sdrResult = sdrResult.replace(";;", HardwareConstants.NEW_LINE);
-
-		return sdrResult;
 	}
 
 	/**
 	 * Process IPMI source for the Windows (NT) system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processWindowsIpmiSource() {
@@ -685,12 +461,12 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
-				sources.get(tableJoinSource.getLeftTable()).getTable(), 
-				sources.get(tableJoinSource.getRightTable()).getTable(), 
-				tableJoinSource.getLeftKeyColumn(), 
-				tableJoinSource.getRightKeyColumn(), 
-				tableJoinSource.getDefaultRightLine(), 
-				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()), 
+				sources.get(tableJoinSource.getLeftTable()).getTable(),
+				sources.get(tableJoinSource.getRightTable()).getTable(),
+				tableJoinSource.getLeftKeyColumn(),
+				tableJoinSource.getRightKeyColumn(),
+				tableJoinSource.getDefaultRightLine(),
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
 				false);
 
 		SourceTable sourceTable = new SourceTable();
@@ -736,7 +512,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Get source table based on the key
-	 * 
+	 *
 	 * @param key
 	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
 	 */
@@ -894,7 +670,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Call the matsya client executor to execute a WMI request. 
+	 * Call the matsya client executor to execute a WMI request.
 	 * @param hostname
 	 * @param wmiProtocol
 	 * @param wmiQuery
