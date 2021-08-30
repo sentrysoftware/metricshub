@@ -1067,8 +1067,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the used percent
 		Double usedPercent = null;
 		final Double usedPercentRaw = extractParameterValue(monitor.getMonitorType(),
-			HardwareConstants.POWER_SUPPLY_USED_PERCENT_PARAMETER);
-		
+			HardwareConstants.POWER_SUPPLY_USED_PERCENT);
+
 		if (usedPercentRaw == null) {
 		
 			// Getting the used capacity
@@ -1078,24 +1078,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			// Getting the the power
 			final Double power = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_SUPPLY_POWER);
-	
+
 			if (powerSupplyUsedWatts  != null && power != null && power > 0) {
-				usedPercent = 100 * powerSupplyUsedWatts / power;
-				
-				// Update the used percent
-				updateNumberParameter(monitor,
-					HardwareConstants.POWER_SUPPLY_USED_PERCENT_PARAMETER,
-					HardwareConstants.PERCENT_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					usedPercentRaw,
-					powerSupplyUsedWatts);
+				usedPercent = 100.0 * powerSupplyUsedWatts / power;
 			}
+
 		} else {
 			usedPercent = usedPercentRaw;
 		}
-		
-		// Update the used capacity
-		if (usedPercent != null && usedPercent >= 0 && usedPercent <= 100) {
+
+		// Update the used capacity, if the usedPercent is valid
+		if (usedPercent != null && usedPercent >= 0.0 && usedPercent <= 100.0) {
 			updateNumberParameter(monitor,
 				HardwareConstants.USED_CAPACITY_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,

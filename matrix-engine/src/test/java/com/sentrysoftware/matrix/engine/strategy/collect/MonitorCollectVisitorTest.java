@@ -1543,7 +1543,7 @@ class MonitorCollectVisitorTest {
 		// Used capacity set
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.POWER_SUPPLY_USED_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(HardwareConstants.POWER_SUPPLY_USED_PERCENT, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("10"))
 		);
