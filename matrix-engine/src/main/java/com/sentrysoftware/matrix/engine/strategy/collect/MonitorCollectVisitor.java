@@ -198,6 +198,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(LogicalDisk logicalDisk) {
 		collectBasicParameters(logicalDisk);
 
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.LOGICAL_DISK_LAST_ERROR);
+		collectLogicalDiskUnallocatedSpace();
+		
 		appendValuesToStatusParameter(
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
@@ -1126,6 +1130,27 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				monitorCollectInfo.getCollectTime(),
 				usedPercent,
 				usedPercentRaw);
+		}
+	}
+	
+	/**
+	 * Collects the unallocated space in GB for {@link LogicalDisk}.
+	 */
+	void collectLogicalDiskUnallocatedSpace() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double unallocatedSpaceRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
+
+		if (unallocatedSpaceRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
+				HardwareConstants.SPACE_GB_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
+				unallocatedSpaceRaw);
 		}
 	}
 
