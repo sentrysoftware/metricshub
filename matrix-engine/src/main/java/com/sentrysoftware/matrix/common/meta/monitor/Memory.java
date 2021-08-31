@@ -45,6 +45,13 @@ public class Memory implements IMetaMonitor {
 			.unit(HardwareConstants.ERROR_STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
+	
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, TYPE, SIZE, ADDITIONAL_INFORMATION1,
 			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);

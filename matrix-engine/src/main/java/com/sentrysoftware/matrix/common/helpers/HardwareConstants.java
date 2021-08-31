@@ -171,6 +171,7 @@ public class HardwareConstants {
 	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
 	public static final String COLOR = "color";
 	public static final String ADDITIONAL_LABEL = "additionalLabel";
+	public static final String MEMORY_LAST_ERROR = "memoryLastError";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
