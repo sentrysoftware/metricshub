@@ -332,14 +332,26 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitOtherDevice() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.OTHER_DEVICE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new OtherDevice());
 
 		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
+
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(POWER_CONSUMPTION))
+				);
+		monitorCollectVisitor.visit(new OtherDevice());
+		NumberParam powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		assertNotNull(powerConsumptionParameter);
+		assertEquals(150.0, powerConsumptionParameter.getRawValue());
+		assertEquals(150.0, powerConsumptionParameter.getValue());
 	}
 
 	@Test
