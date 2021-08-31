@@ -35,7 +35,7 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 public class PowerSupply implements IMetaMonitor {
 
 	public static final MetaParameter USED_CAPACITY = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.USED_CAPACITY_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)

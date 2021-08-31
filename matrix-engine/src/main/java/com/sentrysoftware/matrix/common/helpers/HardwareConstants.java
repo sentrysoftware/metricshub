@@ -104,7 +104,7 @@ public class HardwareConstants {
 	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
 	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
-
+	
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -126,6 +126,8 @@ public class HardwareConstants {
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
 	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
+	public static final String POWER_SUPPLY_USED_WATTS = "powerSupplyUsedWatts";
+	public static final String POWER_SUPPLY_USED_PERCENT = "powerSupplyUsedPercent";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
