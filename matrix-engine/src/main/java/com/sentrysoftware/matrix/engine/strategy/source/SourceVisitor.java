@@ -175,7 +175,7 @@ public class SourceVisitor implements ISourceVisitor {
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format("IPMI Tool Command cannot be found for %s. Retrun empty result.",
+			final String message = String.format("IPMI Tool Command cannot be found for %s. Return empty result.",
 					hostname);
 			log.error(message);
 			return SourceTable.empty();
@@ -187,7 +187,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(OSCommandConfig.class);
 
 		if (osCommandConfig == null) {
-			final String message = String.format("No OS Command Configuration for %s. Retrun empty result.", hostname);
+			final String message = String.format("No OS Command Configuration for %s. Return empty result.", hostname);
 			log.error(message);
 			return SourceTable.empty();
 		}
@@ -201,13 +201,13 @@ public class SourceVisitor implements ISourceVisitor {
 			if (isLocalHost) {
 				fruResult = OsCommandHelper.runLocalCommand(fruCommand);
 			} else {
-				fruResult = OsCommandHelper.runRemoteCommand(fruCommand, hostname, sshProtocol, defaultTimeout,
+				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout,
 						matsyaClientsExecutor);
 			}
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, fruCommand, fruResult);
 
 		} catch (IOException |InterruptedException  e) {
-			final String message = String.format("Failed to execute the OS Command %s for %s. Retrun empty result.",
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result.",
 					fruCommand, hostname);
 			log.error(message);
 			return SourceTable.empty();
@@ -220,12 +220,12 @@ public class SourceVisitor implements ISourceVisitor {
 			if (isLocalHost) {
 				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand);
 			} else {
-				sensorResult = OsCommandHelper.runRemoteCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,
+				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,
 						matsyaClientsExecutor);
 			}
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
 		} catch (IOException | InterruptedException e) {
-			final String message = String.format("Failed to execute the OS Command %s for %s. Retrun empty result.",
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result.",
 					sdrCommand, hostname);
 			log.error(message);
 			return SourceTable.empty();

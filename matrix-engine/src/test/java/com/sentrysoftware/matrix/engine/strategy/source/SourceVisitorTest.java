@@ -887,8 +887,8 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runRemoteCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultFru");
-			oscmd.when(() -> OsCommandHelper.runRemoteCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultSdr");
+			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}

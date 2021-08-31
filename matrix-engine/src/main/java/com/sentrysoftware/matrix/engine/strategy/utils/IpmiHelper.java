@@ -22,6 +22,8 @@ import lombok.NonNull;
 public class IpmiHelper {
 
 
+	private static final String SENSOR_ID_REGEX = "^Sensor ID.*";
+
 	private static final String BOARD2 = " Board ";
 
 	private static final String OEM_SPECIFIC = "OEM Specific";
@@ -57,15 +59,23 @@ public class IpmiHelper {
 	private static final Pattern PATTERN_IS_NUMERICAL = Pattern.compile("-?\\d+(\\.\\d+)?");
 
 	private static final Pattern PATTERN_BTW_BRACKETS = Pattern.compile("\\((.*?)\\)");
-	private static final Pattern PATTERN_SENSORID = Pattern.compile("^Sensor ID.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_SENSORID = Pattern.compile(SENSOR_ID_REGEX, Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENTITYID = Pattern.compile("^ *Entity ID.*", Pattern.MULTILINE);
 	private static final Pattern PATTERN_SENSOR_READING = Pattern.compile("^ *Sensor Reading.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_UPPER_NON_CRITICAL = Pattern.compile(".*Upper non-critical.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_UPPER_CRITICAL = Pattern.compile(".*Upper critical.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_UPPER_NON_RECOVERABLE = Pattern.compile(".*Upper non-recoverable.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_LOWER_NON_CRITICAL = Pattern.compile(".*Lower non-critical.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_LOWER_CRITICAL = Pattern.compile(".*Lower critical.*", Pattern.MULTILINE);
-	private static final Pattern PATTERN_THREASHOLD_LOWER_NON_RECOVERABLE = Pattern.compile(".*Lower non-recoverable.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_UPPER_NON_CRITICAL = Pattern.compile(".*Upper non-critical.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_UPPER_CRITICAL = Pattern.compile(".*Upper critical.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE = Pattern.compile(".*Upper non-recoverable.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_LOWER_NON_CRITICAL = Pattern.compile(".*Lower non-critical.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_LOWER_CRITICAL = Pattern.compile(".*Lower critical.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_THRESHOLD_LOWER_NON_RECOVERABLE = Pattern.compile(".*Lower non-recoverable.*", Pattern.MULTILINE);
+
+	private static final Pattern PATTERN_FRUID = Pattern.compile("^FRU Device Description.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_VENDOR = Pattern.compile(" Product Manufacturer.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_MODEL = Pattern.compile(" Product Name.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_SERIAL = Pattern.compile(" Product Serial.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_BORD_VENDOR = Pattern.compile(" Board Mfg +:.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_BORD_MODEL = Pattern.compile(" Board Product.*", Pattern.MULTILINE);
+	private static final Pattern PATTERN_BORD_SERIAL = Pattern.compile(" Board Serial.*", Pattern.MULTILINE);
 
 	private IpmiHelper() {}
 
@@ -292,7 +302,7 @@ public class IpmiHelper {
 
 			// Get the line of this device
 			List<String> deviceLine = deviceMap.get(entityId);
-			if(deviceLine != null) {
+			if (deviceLine != null) {
 				if (deviceLine.size() < 7) {
 					continue;
 				}
@@ -315,9 +325,7 @@ public class IpmiHelper {
 						HardwareConstants.EMPTY,
 						HardwareConstants.EMPTY,
 						HardwareConstants.EMPTY,
-						sensorName
-						+ HardwareConstants.EQUAL
-						+ state);
+						sensorName + HardwareConstants.EQUAL + state);
 				deviceMap.put(entityId, deviceSensorList);
 			}
 		}
@@ -591,32 +599,33 @@ public class IpmiHelper {
 			// ID, Name
 			// example Sensor ID : Ambient (0x1)
 			// sensorName = Ambient && sensorID = 1
-			String sensorIdLine = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_SENSORID, HardwareConstants.EMPTY,HardwareConstants.EMPTY);
-			if(sensorIdLine.isEmpty()) {
+			String sensorIdLine = checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_SENSORID, HardwareConstants.EMPTY,HardwareConstants.EMPTY);
+			if (sensorIdLine.isEmpty()) {
 				continue;
 			}
-			sensorName = sensorIdLine.substring( sensorIdLine.indexOf(HardwareConstants.COLON) +1, sensorIdLine.indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
+			sensorName = sensorIdLine.substring(sensorIdLine.indexOf(HardwareConstants.COLON) + 1, sensorIdLine.indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
 			Matcher matcher = PATTERN_BTW_BRACKETS.matcher(sensorIdLine);
 			if (matcher.find()) {
 				sensorId = matcher.group(1).replace(_0X, HardwareConstants.EMPTY);
-			}else {
+			} else {
 				continue; // we should have a sensorId !!!!
 			}
 
 			// Sensor attached to which device?
 			// Entry ==> Entity ID : 39.0 (External Environment)
 			// Output ==> entityID = 39.0 && deviceType = External Environment && deviceId = 0 && location = External Environment 0
-			entityId = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_ENTITYID, HardwareConstants.COLON,
-					HardwareConstants.OPENING_PARENTHESIS);
-			String entityIdLine =  checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_ENTITYID, HardwareConstants.EMPTY,
-					HardwareConstants.EMPTY);
+			entityId = checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_ENTITYID, HardwareConstants.COLON, HardwareConstants.OPENING_PARENTHESIS);
+			String entityIdLine =  checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_ENTITYID, HardwareConstants.EMPTY, HardwareConstants.EMPTY);
 
 			if (!entityIdLine.isEmpty() && entityIdLine.contains(":")) {
 				matcher = PATTERN_BTW_BRACKETS.matcher(entityIdLine);
 				if (matcher.find()) {
 					deviceType = matcher.group(1);
 					// check if deviceType still contains bracket ==> example : Entity ID             : 224.0 (Unknown (0xE0))
-					if(deviceType.contains(HardwareConstants.OPENING_PARENTHESIS)) {
+					if (deviceType.contains(HardwareConstants.OPENING_PARENTHESIS)) {
 						deviceType = deviceType.substring(0, deviceType.indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
 					}
 				}
@@ -628,19 +637,19 @@ public class IpmiHelper {
 
 			// Sensor Reading        : 1.513 (+/- 0.005) Volts
 			// careful it also can be Sensor Reading        : No Reading
-			String sensorReadingLine = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_SENSOR_READING, HardwareConstants.EMPTY,
-					HardwareConstants.EMPTY);
+			String sensorReadingLine = checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_SENSOR_READING, HardwareConstants.EMPTY, HardwareConstants.EMPTY);
 
 			if (!sensorReadingLine.isEmpty() && sensorReadingLine.contains(HardwareConstants.OPENING_PARENTHESIS)) {
 				String valueReading = sensorReadingLine
-						.substring(sensorReadingLine.indexOf(":")+1,
+						.substring(sensorReadingLine.indexOf(":") + 1,
 								sensorReadingLine.indexOf(HardwareConstants.OPENING_PARENTHESIS))
 						.trim();
-				if(! PATTERN_IS_NUMERICAL.matcher(valueReading).matches()) {
+				if (! PATTERN_IS_NUMERICAL.matcher(valueReading).matches()) {
 					continue;
 				}
 				String unit = sensorReadingLine
-						.substring(sensorReadingLine.indexOf(")")+1)
+						.substring(sensorReadingLine.indexOf(")") + 1)
 						.trim();
 				//Depending on the unit, get different fields and display the result
 				switch (unit) {
@@ -684,8 +693,8 @@ public class IpmiHelper {
 
 	/**
 	 * Get Voltage info for the given Sensor entry
-	 * threashold1 = by priority if exists : Lower non-critical > Lower critical > Lower non-recoverable
-	 * threashold2 =  by priority if exists : Upper non-critical > Upper critical > Upper non-recoverable
+	 * threshold1 = by priority if exists : Lower non-critical > Lower critical > Lower non-recoverable
+	 * threshold2 =  by priority if exists : Upper non-critical > Upper critical > Upper non-recoverable
 	 * @param sensorEntry
 	 * @param sensorName
 	 * @param sensorId
@@ -696,59 +705,61 @@ public class IpmiHelper {
 	public static String getVoltageFromSensor(String sensorEntry, String sensorName, String sensorId, String location,
 			String valueReading) {
 
-		String threashold1 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_LOWER_NON_CRITICAL,
-				HardwareConstants.COLON, HardwareConstants.EMPTY);
-		if (threashold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threashold1).matches()
-				|| Double.parseDouble(threashold1) == 0) {
+		String threshold1 = checkPatternAndReturnDelimitedString(
+				sensorEntry, PATTERN_THRESHOLD_LOWER_NON_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+		if (threshold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold1).matches()
+				|| Double.parseDouble(threshold1) == 0) {
 			// if the result is not numeric or == 0 then check Lower critical
-			threashold1 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_LOWER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
-			if (threashold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threashold1).matches()
-					|| Double.parseDouble(threashold1) == 0) {
+			threshold1 = checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_THRESHOLD_LOWER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+			if (threshold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold1).matches()
+					|| Double.parseDouble(threshold1) == 0) {
 
 				// if the result is not numeric or == 0 then check Lower non-recoverable
-				threashold1 = checkPatternAndReturnDelimitedString(sensorEntry,
-						PATTERN_THREASHOLD_LOWER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
-				if (!PATTERN_IS_NUMERICAL.matcher(threashold1).matches() || Double.parseDouble(threashold1) == 0) {
+				threshold1 = checkPatternAndReturnDelimitedString(
+						sensorEntry, PATTERN_THRESHOLD_LOWER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
+				if (!PATTERN_IS_NUMERICAL.matcher(threshold1).matches() || Double.parseDouble(threshold1) == 0) {
 					// if the result is not numeric reset the value
-					threashold1 = HardwareConstants.EMPTY;
+					threshold1 = HardwareConstants.EMPTY;
 				}
 			}
 		}
 
-		String threashold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_UPPER_NON_CRITICAL,
-				HardwareConstants.COLON, HardwareConstants.EMPTY);
-		if (threashold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threashold2).matches()
-				|| Double.parseDouble(threashold2) == 0) {
+		String threshold2 = checkPatternAndReturnDelimitedString(
+				sensorEntry, PATTERN_THRESHOLD_UPPER_NON_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+		if (threshold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold2).matches()
+				|| Double.parseDouble(threshold2) == 0) {
 
 			// if the result is not numeric then check Upper critical
-			threashold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_UPPER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
-			if (threashold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threashold2).matches()
-					|| Double.parseDouble(threashold2) == 0) {
+			threshold2 = checkPatternAndReturnDelimitedString(
+					sensorEntry, PATTERN_THRESHOLD_UPPER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+			if (threshold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold2).matches()
+					|| Double.parseDouble(threshold2) == 0) {
 				// if the result is not numeric then check Upper non-recoverable
-				threashold2 = checkPatternAndReturnDelimitedString(sensorEntry,
-						PATTERN_THREASHOLD_UPPER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
-				if (!PATTERN_IS_NUMERICAL.matcher(threashold2).matches() || Double.parseDouble(threashold2) == 0) {
+				threshold2 = checkPatternAndReturnDelimitedString(
+						sensorEntry, PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
+				if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches() || Double.parseDouble(threshold2) == 0) {
 					// if the result is not numeric reset the value
-					threashold2 = HardwareConstants.EMPTY;
+					threshold2 = HardwareConstants.EMPTY;
 				}
 			}
 		}
-		if (PATTERN_IS_NUMERICAL.matcher(threashold1).matches()) {
-			threashold1 = Double.toString(Double.parseDouble(threashold1) * 1000);
+		if (PATTERN_IS_NUMERICAL.matcher(threshold1).matches()) {
+			threshold1 = Double.toString(Double.parseDouble(threshold1) * 1000);
 		}
-		if (PATTERN_IS_NUMERICAL.matcher(threashold2).matches()) {
-			threashold2 = Double.toString(Double.parseDouble(threashold2) * 1000);
+		if (PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {
+			threshold2 = Double.toString(Double.parseDouble(threshold2) * 1000);
 		}
 		if (PATTERN_IS_NUMERICAL.matcher(valueReading).matches()) {
 			valueReading = Double.toString(Double.parseDouble(valueReading) * 1000);
 		}
-		return String.format("Voltage;%s;%s;%s;%s;%s;%s", sensorId, sensorName, location, valueReading, threashold1, threashold2);
+		return String.format("Voltage;%s;%s;%s;%s;%s;%s", sensorId, sensorName, location, valueReading, threshold1, threshold2);
 	}
 
 	/**
 	 * Get Fan info for the given Sensor entry
-	 * threashold1 = if exists : Lower non-critical
-	 * threashold2 =  by priority if exists : Lower critical > Lower non-recoverable
+	 * threshold1 = if exists : Lower non-critical
+	 * threshold2 =  by priority if exists : Lower critical > Lower non-recoverable
 	 * @param sensorEntry
 	 * @param sensorName
 	 * @param sensorId
@@ -759,10 +770,10 @@ public class IpmiHelper {
 	public static String getFanFromSensor(String sensorEntry, String sensorName, String sensorId,
 			String location, String valueReading) {
 		String threshold1 = HardwareConstants.EMPTY;
-		Matcher matcherThreashold =
-				PATTERN_THREASHOLD_LOWER_NON_CRITICAL.matcher(sensorEntry);
-		if (matcherThreashold.find()) {
-			threshold1 = matcherThreashold.group(0).trim();
+		Matcher matcherThreshold =
+				PATTERN_THRESHOLD_LOWER_NON_CRITICAL.matcher(sensorEntry);
+		if (matcherThreshold.find()) {
+			threshold1 = matcherThreshold.group(0).trim();
 			threshold1= threshold1.substring(threshold1.indexOf(HardwareConstants.COLON)+1).trim();
 
 			if(! PATTERN_IS_NUMERICAL.matcher(threshold1).matches()) {// if the result is not numeric reset the value
@@ -770,18 +781,18 @@ public class IpmiHelper {
 			}
 		}
 		String threshold2 = HardwareConstants.EMPTY;
-		matcherThreashold =
-				PATTERN_THREASHOLD_LOWER_CRITICAL.matcher(sensorEntry);
-		if (matcherThreashold.find()) {
-			threshold2 = matcherThreashold.group(0).trim();
+		matcherThreshold =
+				PATTERN_THRESHOLD_LOWER_CRITICAL.matcher(sensorEntry);
+		if (matcherThreshold.find()) {
+			threshold2 = matcherThreshold.group(0).trim();
 			threshold2= threshold2.substring(threshold2.indexOf(HardwareConstants.COLON)+1).trim();
 		}
 		if(! PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric check Upper non-recoverable
-			matcherThreashold =
-					PATTERN_THREASHOLD_LOWER_NON_RECOVERABLE.matcher(sensorEntry);
-			if (matcherThreashold.find()) {
-				threshold2 = matcherThreashold.group(0).trim();
-				threshold2= threshold2.substring(threshold2.indexOf(":")+1).trim();
+			matcherThreshold =
+					PATTERN_THRESHOLD_LOWER_NON_RECOVERABLE.matcher(sensorEntry);
+			if (matcherThreshold.find()) {
+				threshold2 = matcherThreshold.group(0).trim();
+				threshold2= threshold2.substring(threshold2.indexOf(":") + 1).trim();
 			}
 			if(! PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric reset the value
 				threshold2 = HardwareConstants.EMPTY;
@@ -793,8 +804,8 @@ public class IpmiHelper {
 
 	/**
 	 * Get Temperature info for the given Sensor entry
-	 * threashold1 = if exists : Upper non-critical
-	 * threashold2 =  by priority of exists : Upper critical > Upper non-recoverable
+	 * threshold1 = if exists : Upper non-critical
+	 * threshold2 =  by priority of exists : Upper critical > Upper non-recoverable
 	 * @param sensorEntry
 	 * @param sensorName
 	 * @param sensorId
@@ -804,24 +815,35 @@ public class IpmiHelper {
 	 */
 	public static String getTemperatureFromSensor(String sensorEntry,
 			String sensorName, String sensorId, String location, String valueReading) {
-		String threshold1 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_UPPER_NON_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+		String threshold1 = checkPatternAndReturnDelimitedString(
+					sensorEntry,
+					PATTERN_THRESHOLD_UPPER_NON_CRITICAL,
+					HardwareConstants.COLON,
+					HardwareConstants.EMPTY);
 		// priority threashold 1 = Upper non-critical >
 		if(! PATTERN_IS_NUMERICAL.matcher(threshold1).matches()) {// if the result is not numeric reset the value
 				threshold1 = HardwareConstants.EMPTY;
 			}
 
 		// priority threashold 1 = Upper critical > Upper non-recoverable
-		String threshold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_UPPER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+		String threshold2 = checkPatternAndReturnDelimitedString(
+					sensorEntry,
+					PATTERN_THRESHOLD_UPPER_CRITICAL,
+					HardwareConstants.COLON,
+					HardwareConstants.EMPTY);
 
 		if(! PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric check Upper non-recoverable
-			threshold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THREASHOLD_UPPER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
+			threshold2 = checkPatternAndReturnDelimitedString(
+					sensorEntry,
+					PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE,
+					HardwareConstants.COLON,
+					HardwareConstants.EMPTY);
 			if(! PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric reset the value
 				threshold2 = HardwareConstants.EMPTY;
 			}
 		}
 
-		return String.format("Temperature;%s;%s;%s;%s;%s;%s", sensorId, sensorName, location, valueReading, threshold1,
-				threshold2);
+		return String.format("Temperature;%s;%s;%s;%s;%s;%s", sensorId, sensorName, location, valueReading, threshold1, threshold2);
 	}
 
 	/**
@@ -833,7 +855,7 @@ public class IpmiHelper {
 	public static List<String> ipmiBuildDeviceListFromIpmitool(String fruResult, String sdrResult) {
 
 		Pattern patternBtwBrackets = Pattern.compile("\\((.*?)\\)");
-		Pattern patternSensorId = Pattern.compile("^Sensor ID.*", Pattern.MULTILINE);
+		Pattern patternSensorId = Pattern.compile(SENSOR_ID_REGEX, Pattern.MULTILINE);
 		Pattern patternEntityId = Pattern.compile("^ *Entity ID.*", Pattern.MULTILINE);
 
 		List<String> result = new ArrayList<>();
@@ -842,7 +864,9 @@ public class IpmiHelper {
 		List<String> deviceList = new ArrayList<>();
 		// Parse the SDR records
 		for (String sensorEntry : sdrResult.split(HardwareConstants.NEW_LINE)) {
-			if (!sensorEntry.startsWith(SENSOR_ID) || !sensorEntry.contains(STATES_ASSERTED) || sensorEntry.contains(NOT_READING)) { // Bypass sensors with no state asserted or sensors with "no reading"
+			if (!sensorEntry.startsWith(SENSOR_ID)
+					|| !sensorEntry.contains(STATES_ASSERTED)
+					|| sensorEntry.contains(NOT_READING)) { // Bypass sensors with no state asserted or sensors with "no reading"
 				continue;
 			}
 
@@ -874,10 +898,11 @@ public class IpmiHelper {
 					patternEntityId,
 					HardwareConstants.EMPTY,
 					HardwareConstants.EMPTY);
-			String deviceType = checkPatternAndReturnDelimitedString(entityIdLine,
-																	patternBtwBrackets,
-																	HardwareConstants.EMPTY,
-																	HardwareConstants.EMPTY)
+			String deviceType = checkPatternAndReturnDelimitedString(
+							entityIdLine,
+							patternBtwBrackets,
+							HardwareConstants.EMPTY,
+							HardwareConstants.EMPTY)
 					.replace(HardwareConstants.OPENING_PARENTHESIS,
 							HardwareConstants.EMPTY)
 					.replace(HardwareConstants.CLOSING_PARENTHESIS,
@@ -890,7 +915,7 @@ public class IpmiHelper {
 				continue;
 			}
 
-			deviceList = addSensorElementotDeviceList(deviceList, sdrResult, deviceType,
+			deviceList = addSensorElementToDeviceList(deviceList, sdrResult, deviceType,
 					deviceId, entityId, statusArray, fruMap.get(FRU_LIST));
 
 		} // end of sensorEntry
@@ -917,29 +942,35 @@ public class IpmiHelper {
 	 * @return
 	 */
 	public static String checkPatternAndReturnDelimitedString(String entry, Pattern patternToMatch, String leftLimit, String rightLimit) {
-		String result = "";
 		Matcher matcher = patternToMatch.matcher(entry);
+
+		boolean noLeftLimit = leftLimit == null || leftLimit.isEmpty();
+		boolean noRightLimit = rightLimit == null || rightLimit.isEmpty();
 
 		if (matcher.find()) {
 			String matchedLine = matcher.group(0).trim();
-			if(leftLimit.isEmpty() && rightLimit.isEmpty()) { // if there is no limit to the substring, return the first line that matches the pattern
+			if (noLeftLimit && noRightLimit) { // if there is no limit to the substring, return the
+									// first line that matches the pattern
 				return matchedLine;
 			}
 
-			if (!matchedLine.isEmpty() && matchedLine.contains(leftLimit) && matchedLine.contains(rightLimit)) {
-				if(rightLimit.isEmpty()) {
-					result =  matchedLine.substring(matchedLine.indexOf(leftLimit)+1).trim();
-				}else if (leftLimit.isEmpty()) {
-					result =  matchedLine.substring(0, matchedLine.indexOf(rightLimit)).trim();
-				}
-				else{
-					result =  matchedLine.substring(matchedLine.indexOf(leftLimit)+1, matchedLine.indexOf(rightLimit)).trim();
+			if (!matchedLine.isEmpty()) {
+				if (noRightLimit) {
+					return matchedLine.substring(matchedLine.indexOf(leftLimit) + 1).trim();
+				} else if (noLeftLimit) {
+					return matchedLine.substring(0, matchedLine.indexOf(rightLimit)).trim();
+				} else {
+					if ( matchedLine.contains(leftLimit)
+							&& matchedLine.contains(rightLimit)
+							&& matchedLine.indexOf(rightLimit) > matchedLine.indexOf(leftLimit) + 1) {
+						return matchedLine
+								.substring(matchedLine.indexOf(leftLimit) + 1, matchedLine.indexOf(rightLimit)).trim();
+					}
 				}
 			}
 
 		}
-
-		return result;
+		return HardwareConstants.EMPTY;
 	}
 
 	/**
@@ -954,43 +985,38 @@ public class IpmiHelper {
 	 * @param statusArray
 	 * @return
 	 */
-	public static List<String> addSensorElementotDeviceList(List<String> deviceList, String sdrResult, String deviceType,
+	public static List<String> addSensorElementToDeviceList(List<String> deviceList, String sdrResult, String deviceType,
 			String deviceId, String entityId, String statusArray, List<String> fruList) {
+
 		// Check whether this entityID was already put into the list
-		String matchedElt = "";
 		String deviceElement = String.format(";%s %s;", deviceType, deviceId);
-		for (String elt : deviceList) {
-			if (elt.contains(deviceElement)) {
-				matchedElt = elt;
-				break;
-			}
-		}
-		if (matchedElt.isEmpty()) {
+		Optional<String> matchedElt = deviceList.stream().filter(elt -> elt.contains(deviceElement)).findFirst();
+
+		if (!matchedElt.isPresent()) {
 			String vendor = "";
 			String model = "";
 			String serialNumber = "";
 			// try to get the corresponding FRU in order to retrieve it serialNumber, model
 			// and vendor
 			// It's the first time we meet this entityID, look up its FRU entry
-			Pattern p = Pattern.compile(";Entity ID +: " + entityId.replace(".", "\\.") + " .*;Logical FRU Device .*", Pattern.MULTILINE);
+			Pattern p = Pattern.compile(";Entity ID +: " + Pattern.quote(entityId) + " .*;Logical FRU Device .*", Pattern.MULTILINE);
 			Matcher m = p.matcher(sdrResult);
 
 			if (m.find()) {
 				// first match
 				String fruDevice = m.group(0).replace(";", "\n");
-				 // get the corresponding  fruID
+				// get the corresponding fruID
 				Optional<String> findFirstFruDevice = Arrays.stream(fruDevice.split("\n"))
 						.filter(role -> role.trim().startsWith("Logical FRU Device")).findFirst();
 				fruDevice = findFirstFruDevice.isPresent() ? findFirstFruDevice.get() : HardwareConstants.EMPTY;
 				if (!fruDevice.isEmpty() && fruDevice.contains(HardwareConstants.COLON)) {
+					// example : Logical FRU Device     : 09h which corresponds to FRU device ID = 9
 					int fruId = Integer
-							.parseInt(fruDevice.split(HardwareConstants.COLON)[1].replaceAll("[^0-9A-Fa-f]", ""), 16); // convert
+							.parseInt(fruDevice.split(HardwareConstants.COLON)[1].trim().replace("h", ""), 16); // convert
 																														// to
 																														// hexadecimal
 					// Retrieve the vendor/model/serial from the corresponding FRU
-//					List<String> fruList = fruMap.get("fruList");
-					Optional<String> findFru = fruList.stream().filter(fru -> fru.startsWith(fruId + HardwareConstants.SEMICOLON)).findFirst();
-					String elt = findFru.isPresent() ? findFru.get() : HardwareConstants.EMPTY;
+					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + HardwareConstants.SEMICOLON)).findFirst().orElse("");
 					if (!elt.isEmpty()) {
 						String[] fruSplit = elt.split(HardwareConstants.SEMICOLON);
 						vendor = fruSplit[1];
@@ -1002,18 +1028,18 @@ public class IpmiHelper {
 			}
 
 			deviceList.add(String.format("%s;%s;%s;%s;%s;%s;%s",
-					deviceType ,
-					deviceId ,
-					deviceType + " " + deviceId ,
-					vendor ,
-					model ,
-					serialNumber ,
+					deviceType,
+					deviceId,
+					deviceType + " " + deviceId,
+					vendor,
+					model,
+					serialNumber,
 					statusArray));
 		} else {
 			// If this entityID was already present in the list, we just need to add the
 			// statusArray to it
-			int index = deviceList.indexOf(matchedElt);
-			deviceList.set(index, matchedElt + HardwareConstants.PIPE + statusArray);
+			int index = deviceList.indexOf(matchedElt.get());
+			deviceList.set(index, matchedElt.get() + HardwareConstants.PIPE + statusArray);
 		}
 		return deviceList;
 	}
@@ -1026,15 +1052,15 @@ public class IpmiHelper {
 	 * @return
 	 */
 	public static String getSensorStatusArray(String sensorEntry, String sensorName) {
-		if(sensorName.isEmpty()) {
-			Pattern patternSensorId = Pattern.compile("^Sensor ID.*", Pattern.MULTILINE);
-			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, patternSensorId, HardwareConstants.SEMICOLON, HardwareConstants.OPENING_PARENTHESIS);
+		if (sensorName.isEmpty()) {
+			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_SENSORID,
+					HardwareConstants.SEMICOLON, HardwareConstants.OPENING_PARENTHESIS);
 		}
 
 		StringBuilder statusArrayBuilder = new StringBuilder();
 		String statusArray = "";
 		// check if OEM Specific
-		if (sensorEntry.contains(STATES_ASSERTED) && sensorEntry.contains(OEM_SPECIFIC) ) {
+		if (sensorEntry.contains(STATES_ASSERTED) && sensorEntry.contains(OEM_SPECIFIC)) {
 			statusArray = processOemSpecific(sensorName, sensorEntry);
 
 		} else {
@@ -1046,14 +1072,14 @@ public class IpmiHelper {
 			// get the values between the first and the last [, ]
 			Matcher matcher = patternBtwBrackets.matcher(sensorEntry);
 			StringBuilder assertion = new StringBuilder();
+
 			while (matcher.find()) {
-				assertion.append(HardwareConstants.NEW_LINE).append( matcher.group(1).trim());
+				assertion.append(HardwareConstants.NEW_LINE).append(matcher.group(1).trim());
 			}
 
-			statusArrayBuilder.append(sensorName)
-								.append(HardwareConstants.EQUAL)
-								.append(assertion.toString().trim().replaceAll(HardwareConstants.NEW_LINE,
-										HardwareConstants.NEW_LINE + sensorName + HardwareConstants.EQUAL));
+			statusArrayBuilder.append(sensorName).append(HardwareConstants.EQUAL)
+					.append(assertion.toString().trim().replaceAll(HardwareConstants.NEW_LINE,
+							HardwareConstants.NEW_LINE + sensorName + HardwareConstants.EQUAL));
 			statusArray = statusArrayBuilder.toString().replaceAll(HardwareConstants.NEW_LINE, HardwareConstants.PIPE);
 		}
 		return statusArray;
@@ -1069,8 +1095,8 @@ public class IpmiHelper {
 	 * @return
 	 */
 	public static String processOemSpecific(String sensorName, String sensorEntry) {
-		if(sensorName.isEmpty()) {
-			Pattern patternSensorId = Pattern.compile("^Sensor ID.*", Pattern.MULTILINE);
+		if (sensorName.isEmpty()) {
+			Pattern patternSensorId = Pattern.compile(SENSOR_ID_REGEX, Pattern.MULTILINE);
 			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, patternSensorId, ":", HardwareConstants.OPENING_PARENTHESIS);
 		}
 
@@ -1084,7 +1110,7 @@ public class IpmiHelper {
 			// convert to decimal, check the last bit and then re-convert to hex
 			oemSpecific = Integer.toHexString((Integer.parseInt(oemSpecific, 16) | 32768));
 			// complete with 0 in the left in order to reach 4 characters
-			oemSpecific = String.format("%1$" + 4 + "s", oemSpecific).replace(' ', '0');
+			oemSpecific = String.format("%1$4s", oemSpecific).replace(' ', '0');
 			return sensorName + "=0x" + oemSpecific;
 		}
 		return HardwareConstants.EMPTY;
@@ -1100,36 +1126,22 @@ public class IpmiHelper {
 		List<String> poorFruList = new ArrayList<>();
 		List<String> fruList = new ArrayList<>();
 		Map<String, List<String>> ipmiTable = new HashMap<>();
-		Pattern fruIdPattern = Pattern.compile("^FRU Device Description.*", Pattern.MULTILINE);
-		Pattern vendorPattern = Pattern.compile(" Product Manufacturer.*", Pattern.MULTILINE);
-		Pattern modelPattern = Pattern.compile(" Product Name.*", Pattern.MULTILINE);
-		Pattern serialPattern = Pattern.compile(" Product Serial.*", Pattern.MULTILINE);
-		Pattern bordVendorPattern = Pattern.compile(" Board Mfg +:.*", Pattern.MULTILINE);
-		Pattern bordModelPattern = Pattern.compile(" Board Product.*", Pattern.MULTILINE);
-		Pattern bordSerialPattern = Pattern.compile(" Board Serial.*", Pattern.MULTILINE);
 
 		// extract each FRU bloc, which are separated by an empty line
 		for (String fruEntry : fruResult.split("\n\n")) {
-			String fruID = null;
-			String fruVendor = null;
-			String fruModel = null;
-			String fruSN = null;
-			String boardVendor = null;
-			String boardModel = null;
-			String boardSN = null;
 			boolean board = fruEntry.contains(BOARD2);
-			// spot line FRU Device Description : Builtin FRU Device (ID 0)
-			fruID = checkPatternAndReturnDelimitedString(fruEntry, fruIdPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			// retrieve the ID beteween brackets ==> 0
+			// spot line FRU Device Description : Built in FRU Device (ID 0)
+			String fruID = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_FRUID, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			// retrieve the ID between brackets ==> 0
 			fruID = checkPatternAndReturnDelimitedString( fruID, PATTERN_BTW_BRACKETS, HardwareConstants.OPENING_PARENTHESIS, HardwareConstants.CLOSING_PARENTHESIS)
 					.replace("ID ", HardwareConstants.EMPTY)
 					.trim();
-			fruVendor = checkPatternAndReturnDelimitedString(fruEntry, vendorPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			fruModel = checkPatternAndReturnDelimitedString(fruEntry, modelPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			fruSN = checkPatternAndReturnDelimitedString(fruEntry, serialPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			boardVendor = checkPatternAndReturnDelimitedString(fruEntry, bordVendorPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			boardModel = checkPatternAndReturnDelimitedString(fruEntry, bordModelPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			boardSN = checkPatternAndReturnDelimitedString(fruEntry, bordSerialPattern, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String fruVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_VENDOR, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String fruModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_MODEL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String fruSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_SERIAL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String boardVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_VENDOR, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String boardModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_MODEL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String boardSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_SERIAL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
 
 			String fruEntryResult = String.format("FRU;%s;%s;%s", fruVendor,fruModel,fruSN);
 			if (!board) {
@@ -1139,7 +1151,7 @@ public class IpmiHelper {
 					poorFruList.add(fruEntryResult);
 				}
 			} else if (!boardVendor.isEmpty()) {
-				fruEntryResult = String.format("FRU;%s;%s;%s", boardVendor,boardModel,boardSN);
+				fruEntryResult = String.format("FRU;%s;%s;%s", boardVendor, boardModel, boardSN);
 				poorFruList.add(fruEntryResult);
 			}
 
@@ -1159,7 +1171,7 @@ public class IpmiHelper {
 	 * @return
 	 */
 	public static String cleanSensorCommandResult(String sdrResult) {
-		if(sdrResult == null || sdrResult.isEmpty()) {
+		if (sdrResult == null || sdrResult.isEmpty()) {
 			return sdrResult;
 		}
 

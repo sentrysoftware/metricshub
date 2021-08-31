@@ -151,7 +151,7 @@ class IpmiHelperTest {
 
 		description = "sensorName(sensorId):description for deviceType deviceId";
 		wmiDiscreteSensors.add(Arrays.asList("OEM State.,Value=State Asserted=State Deasserted=Deasserted", description));
-		expectedResult.set(expectedResult.size() - 1, 
+		expectedResult.set(expectedResult.size() - 1,
 				Arrays.asList(
 						"deviceType",
 						"deviceId",
@@ -330,12 +330,20 @@ class IpmiHelperTest {
 		// empty limit => return the original string if it matches the pattern
 		assertEquals(test, IpmiHelper.checkPatternAndReturnDelimitedString(test,
 				Pattern.compile("^blabla.*", Pattern.MULTILINE), "", ""));
+		assertEquals(test, IpmiHelper.checkPatternAndReturnDelimitedString(test,
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), null, null));
+		assertEquals(test, IpmiHelper.checkPatternAndReturnDelimitedString(test,
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), "", null));
 		// empty right limit => go to the end
 		assertEquals("0x111 (xyz) 222 aaa", IpmiHelper.checkPatternAndReturnDelimitedString(test,
 				Pattern.compile("^blabla.*", Pattern.MULTILINE), ":", ""));
+		assertEquals("0x111 (xyz) 222 aaa", IpmiHelper.checkPatternAndReturnDelimitedString(test,
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), ":", null));
 		// empty left limit => start from the beginning
 		assertEquals("blabla", IpmiHelper.checkPatternAndReturnDelimitedString(test,
 				Pattern.compile("^blabla.*", Pattern.MULTILINE), "", ":"));
+		assertEquals("blabla", IpmiHelper.checkPatternAndReturnDelimitedString(test,
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), null, ":"));
 	}
 
 	@Test
@@ -508,7 +516,7 @@ class IpmiHelperTest {
 		List<String> fruList = new ArrayList<>(Arrays.asList("0;FUJITSU;D2939;39159317",
 				"1;FUJITSU;PRIMERGY RX300 S7;YLAR004219", "2;FUJITSU;D2939;39159317,"));
 		assertEquals(Arrays.asList("Battery;0;Battery 0;FUJITSU;PRIMERGY RX300 S7;YLAR004219;blabla"),
-				IpmiHelper.addSensorElementotDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
+				IpmiHelper.addSensorElementToDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
 						statusArray, fruList));
 
 		// second status
@@ -522,7 +530,7 @@ class IpmiHelperTest {
 		entityId = "40.0";
 		statusArray = "blablaBattery2";
 		assertEquals(Arrays.asList("Battery;0;Battery 0;FUJITSU;PRIMERGY RX300 S7;YLAR004219;blabla|blablaBattery2"),
-				IpmiHelper.addSensorElementotDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
+				IpmiHelper.addSensorElementToDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
 						statusArray, fruList));
 
 		sdrResult = "Sensor ID              : BATT 3.0V (0x12); Entity ID             : 40.0 (Battery); Sensor Type (Threshold)  : Voltage (0x02); Sensor Reading        : 3.210(+/- 0) Volts; Status                : ok; Nominal Reading       : 3.000; Positive Hysteresis   : 0.075; Negative Hysteresis   : 0.075\n"
@@ -536,7 +544,7 @@ class IpmiHelperTest {
 		assertEquals(
 				Arrays.asList("Battery;0;Battery 0;FUJITSU;PRIMERGY RX300 S7;YLAR004219;blabla|blablaBattery2",
 						"Fan;4;Fan 4;;;;blablaFan"),
-				IpmiHelper.addSensorElementotDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
+				IpmiHelper.addSensorElementToDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
 						statusArray, fruList));
 
 	}

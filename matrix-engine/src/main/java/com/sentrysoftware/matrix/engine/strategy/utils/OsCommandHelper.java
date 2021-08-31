@@ -116,7 +116,7 @@ public class OsCommandHelper {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static String runRemoteCommand(String ipmitoolCommand, 
+	public static String runSshCommand(String ipmitoolCommand, 
 			final String hostname, 
 			final SSHProtocol sshProtocol,
 			final int timeout, 

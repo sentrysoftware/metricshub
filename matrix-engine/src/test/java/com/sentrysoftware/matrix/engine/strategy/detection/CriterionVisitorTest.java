@@ -464,10 +464,10 @@ class CriterionVisitorTest {
 		String cmdResult = OsCommandHelper.runLocalCommand(null);
 		assertNull(cmdResult);
 		
-		cmdResult = OsCommandHelper.runRemoteCommand(null, "localhost", ssh, 120, matsyaClientsExecutor);
+		cmdResult = OsCommandHelper.runSshCommand(null, "localhost", ssh, 120, matsyaClientsExecutor);
 		assertNull(cmdResult);
 		
-		cmdResult = OsCommandHelper.runRemoteCommand("cmd", "localhost", null, 120, matsyaClientsExecutor);
+		cmdResult = OsCommandHelper.runSshCommand("cmd", "localhost", null, 120, matsyaClientsExecutor);
 		assertNull(cmdResult);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
