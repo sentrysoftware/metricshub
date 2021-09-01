@@ -178,6 +178,24 @@ public class CollectHelper {
 	}
 
 	/**
+	 * Get the {@link NumberParam} value
+	 * 
+	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} value
+	 * @param parameterName The name of the {@link NumberParam} instance
+	 * @return a {@link Double} value
+	 */
+	public static Double getNumberParamValue(final Monitor monitor, final String parameterName) {
+
+		final NumberParam parameter = monitor.getParameter(parameterName, NumberParam.class);
+
+		if (parameter == null) {
+			return null;
+		}
+
+		return getDoubleValue(parameter.getValue());
+	}
+
+	/**
 	 * Get the {@link NumberParam} collect time
 	 * 
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} collect time

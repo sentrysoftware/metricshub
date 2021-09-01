@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -33,15 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static org.springframework.util.Assert.notNull;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.springframework.util.Assert.state;
 
 @Slf4j
@@ -558,23 +551,6 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * @param hostMonitoring The {@link IHostMonitoring} instance.
-	 *
-	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
-	 */
-	private Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
-
-		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
-		state(targetMonitors != null && !targetMonitors.isEmpty(), "targetMonitors should not be null or empty.");
-
-		return targetMonitors
-			.values()
-			.stream()
-			.findFirst()
-			.orElseThrow();
-	}
-
-	/**
 	 * @param array1	The first array. Cannot be null.
 	 * @param array2	The second array. Cannot be null. Must be the same size as <em>array1</em>.
 	 *
@@ -655,34 +631,11 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	private Double computeTemperatureHeatingMargin(Map<String, String> metadata, NumberParam temperature) {
 
-		notNull(metadata, "metadata cannot be null.");
+		final Double warningThresholdValue = getTemperatureWarningThreshold(metadata);
 
-		String warningThreshold = metadata.get(WARNING_THRESHOLD);
+		final Double temperatureValue = temperature.getValue();
 
-		String threshold = warningThreshold != null
-			? warningThreshold
-			: metadata.get(ALARM_THRESHOLD);
-
-		if (threshold == null) {
-			return null;
-		}
-
-		double thresholdValue;
-		try {
-
-			thresholdValue = Double.parseDouble(threshold);
-
-		} catch (NumberFormatException e) {
-
-			log.warn("Invalid threshold value: {}.", threshold);
-			return null;
-		}
-
-		Double temperatureValue = temperature.getValue();
-
-		return temperatureValue != null
-			? thresholdValue - temperatureValue
-			: null;
+		return temperatureValue != null ? warningThresholdValue - temperatureValue : null;
 	}
 
 	/**
@@ -736,6 +689,130 @@ public class CollectOperation extends AbstractStrategy {
 		// Not implemented yet
 	}
 
+	/**
+	 * Compute temperature parameters for the current target monitor:
+	 * <ul>
+	 * <li><b>ambientTemperature</b>: the minimum temperature between 5 and 100 degrees Celsius</li>
+	 * <li><b>cpuTemperature</b>: the average CPU temperatures</li>
+	 * <li><b>cpuThermalDissipationRate</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
+	 * </ul>
+	 */
+	void computeTemperatureParameters() {
+		final IHostMonitoring hostMonitoring = strategyConfig
+				.getHostMonitoring();
+		final Map<String, Monitor> temperatureMonitors = hostMonitoring
+				.selectFromType(MonitorType.TEMPERATURE);
+
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+
+		// No temperatures then no computation
+		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
+			log.debug(
+					"Could not compute temperature parameters (ambientTemperature, cpuTemperature, cpuThermalDissipationRate) on the given host: {}",
+					strategyConfig.getEngineConfiguration().getTarget().getHostname());
+			return;
+		}
+
+		double ambientTemperature = 100.0;
+		double cpuTemperatureAverage = 0;
+		double cpuTemperatureCount = 0;
+
+		// Loop over all the temperature monitors to compute the ambient temperature, cpuTemperatureCount and cpuTemperatureAverage
+		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
+
+			// Get the temperature value
+			final Double temperatureValue = CollectHelper.getNumberParamValue(temperatureMonitor, TEMPERATURE_PARAMETER);
+
+			// Is this the ambient temperature? (which should be the lowest measured temperature... except if it's less than 5°)
+			if (temperatureValue != null && temperatureValue < ambientTemperature && temperatureValue > 5) {
+				ambientTemperature = temperatureValue;
+			}
+
+			// Get the isCpuSensor flag
+			final boolean isCpuSensor = Boolean.parseBoolean(temperatureMonitor.getMetadata(IS_CPU_SENSOR));
+
+			// Is this a CPU sensor?
+			if (isCpuSensor && temperatureValue > 5) {
+				cpuTemperatureAverage += temperatureValue;
+				cpuTemperatureCount++;
+			}
+		}
+
+		// Sets the host ambient temperature as the minimum of all temperature sensors
+		if (ambientTemperature < 100) {
+
+			// Create the parameter
+			final NumberParam ambientTemperatureParam = NumberParam.builder()
+				.name(AMBIENT_TEMPERATURE_PARAMETER)
+				.unit(TEMPERATURE_PARAMETER_UNIT)
+				.collectTime(strategyTime)
+				.value(ambientTemperature)
+				.rawValue(ambientTemperature)
+				.build();
+
+			// Adding the parameter to the target monitor
+			targetMonitor.collectParameter(ambientTemperatureParam);
+		}
+
+		// Sets the average CPU temperature (to estimate the heat dissipation of the processors)
+		if (cpuTemperatureCount > 0) {
+
+			// Compute the average
+			cpuTemperatureAverage /= cpuTemperatureCount;
+
+			// Create the parameter
+			final NumberParam cpuTemperatureParam = NumberParam.builder()
+					.name(CPU_TEMPERATURE_PARAMETER)
+					.unit(TEMPERATURE_PARAMETER_UNIT)
+					.collectTime(strategyTime)
+					.value(cpuTemperatureAverage)
+					.rawValue(cpuTemperatureAverage)
+					.build();
+
+			// Adding the parameter to the target monitor
+			targetMonitor.collectParameter(cpuTemperatureParam);
+
+			// Calculate the dissipation rate
+			computeThermalDissipationRate(targetMonitor, ambientTemperature, cpuTemperatureAverage);
+		}
+
+	}
+
+	/**
+	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)
+	 * 
+	 * @param targetMonitor         The target monitor we wish to update its heat dissipation rate
+	 * @param ambientTemperature    The ambient temperature of the host
+	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
+	 */
+	void computeThermalDissipationRate(final Monitor targetMonitor, double ambientTemperature, double cpuTemperatureAverage) {
+
+		// Get the average CPU temperature computed at the discovery level
+		final String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
+		final double averageCpuTemperatureWarning = NumberHelper.parseDouble(averageCpuTemperatureWarningMetadata, 0.0);
+
+		final double ambientToWarningDifference = averageCpuTemperatureWarning - ambientTemperature;
+
+		// Avoid the arithmetic exception
+		if (ambientToWarningDifference != 0.0) {
+			double cpuThermalDissipationRate = (cpuTemperatureAverage - ambientTemperature) / ambientToWarningDifference;
+
+			// Do we have a consistent fraction
+			if (cpuThermalDissipationRate >= 0 && cpuThermalDissipationRate <= 1) {
+				final NumberParam cpuThermalDissipationRateParam = NumberParam.builder()
+						.name(CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
+						.unit(HardwareConstants.EMPTY)
+						.collectTime(strategyTime)
+						.value(cpuThermalDissipationRate)
+						.rawValue(cpuThermalDissipationRate)
+						.build();
+
+				// Adding the parameter to the target monitor
+				targetMonitor.collectParameter(cpuThermalDissipationRateParam);
+			}
+		}
+	}
+
 	@Override
 	public void post() {
 
@@ -747,5 +824,9 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Setting the target heating margin
 		computeTargetHeatingMargin();
+
+		// Compute temperatures
+		computeTemperatureParameters();
 	}
+
 }

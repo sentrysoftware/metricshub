@@ -997,4 +997,13 @@ class DiscoveryOperationTest {
 		return hostMonitoring;
 	}
 
+	@Test
+	void testIsCpuSensor() {
+		assertTrue(DiscoveryOperation.isCpuSensor(15.0, (String) null, "val", "cpu"));
+		assertTrue(DiscoveryOperation.isCpuSensor(11.0, (String) null, "val", "proc"));
+		assertFalse(DiscoveryOperation.isCpuSensor(11.0, (String) null, "val", "val2"));
+		assertFalse(DiscoveryOperation.isCpuSensor(9.0, (String) null, "proc", "cpu"));
+		assertFalse(DiscoveryOperation.isCpuSensor(null, (String) null, (String) null, (String) null));
+		assertFalse(DiscoveryOperation.isCpuSensor(15.0, (String) null, (String) null, (String) null));
+	}
 }

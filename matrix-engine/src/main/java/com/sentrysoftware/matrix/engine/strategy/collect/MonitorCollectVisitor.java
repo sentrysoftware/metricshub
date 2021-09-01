@@ -325,9 +325,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Temperature temperature) {
 		collectBasicParameters(temperature);
-		
+
 		collectTemperature();
-		
+
 		appendValuesToStatusParameter(HardwareConstants.TEMPERATURE_PARAMETER);
 	}
 
@@ -1162,113 +1162,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectTemperature() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		System.out.println("\n\n\ncollectTemperature");
-		
 		// Getting the current value
 		final Double temperatureValue = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.TEMPERATURE_PARAMETER);
 
-		final Double computedTemperature = (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) ? temperatureValue : null;
-		final Double ambientTemperature = (temperatureValue != null && temperatureValue > 5 && temperatureValue < 100) ? temperatureValue : null;
-		
-		if (computedTemperature != null ) {
+		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
 			updateNumberParameter(monitor,
 					HardwareConstants.TEMPERATURE_PARAMETER,
 					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					computedTemperature,
+					temperatureValue,
 					temperatureValue);
-		}
-
-		if (ambientTemperature != null ) {
-			updateNumberParameter(monitor,
-					HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER,
-					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					ambientTemperature,
-					temperatureValue);
-		}
-		
-		
-		
-		
-		Map<String, String> metadata = monitor.getMetadata();
-		System.out.println("\nMetadata : ");
-		for (String key : metadata.keySet()) {
-			System.out.println("metadata.get(" + key + ") : " + metadata.get(key));
-		}
-		
-		final List<String> row = monitorCollectInfo.getRow();
-		final Map<String, String> mapping = monitorCollectInfo.getMapping();
-		final String valueTable = monitorCollectInfo.getValueTable();
-		
-		System.out.println("\nRow : ");
-		for (String r : row) {
-			System.out.println("r : " + r);
-		}
-		
-		System.out.println("\nmapping : ");
-		for (String m : mapping.keySet()) {
-			System.out.println("mapping.get(" + m + ") : " + mapping.get(m));
-		}
-		
-		System.out.println("valueTable : " + valueTable);
-		
-		Map<String, IParameterValue> params = monitor.getParameters();
-		System.out.println("\nparams : ");
-		for (String key : params.keySet()) {
-			System.out.println("params.get(" + key + ") : " + params.get(key).formatValueAsString());
-		}
-		
-//		final String temperatureDeviceID = monitor.getId(); // MS_HW_NetApp.connector_temperature_netapp9-san_5:00a:098007:482941-1
-//		
-		//{additionalinformation1=Location: 0a.shelfSHJHU1640000065, alarmthreshold=50, attachedtodeviceid=5:00a:098007:482941, attachedtodevicetype=blade, connector=MS_HW_NetApp.connector, deviceid=5:00a:098007:482941-1, idCount=0, targetFqdn=netapp9-san.internal.sentrysoftware.net, warningthreshold=47}
-		final String additionalInformation1 = monitor.getMetadata("additionalInformation1");
-		final String additionalInformation2 = monitor.getMetadata("additionalInformation2");
-		final String additionalInformation3 = monitor.getMetadata("additionalInformation3");
-		final String additionalInformation = (additionalInformation1 != null ? additionalInformation1 : "")
-				+ (additionalInformation2 != null ? additionalInformation2 : "")
-				+ (additionalInformation3 != null ? additionalInformation3 : "");
-		
-		System.out.println("additionalInformation : " + additionalInformation);
-		
-		final String temperatureType = monitor.getMetadata("temperatureType");
-
-		System.out.println("temperatureType : " + temperatureType);
-		
-//		final String temperatureDisplayName = buildTemperatureDisplayName(temperatureDeviceID, temperatureDisplayID, temperatureType, int(IDCount));
-//
-//		final String temperatureSensorInfo = temperatureDisplayName + " " + additionalInformation;
-//		
-		final Double cpuTemperatureCount = 0.0;//sum(<isCpuSensor> != null && temperatureValue != null && temperatureValue > 5 ? 1 : 0);
-
-		final Double cpuTemperature = 0.0;//(cpuTemperatureCount != null && cpuTemperatureCount != 0) ? (sum(<isCpuSensor> != null && temperature != null && temperature > 5 ? temperature : 0) / cpuTemperatureCount) : null;
-
-		final Double averageCpuTemperatureWarning = 0.0;//?
-
-		final Double cpuThermalDissipationRateValue =
-				(cpuTemperature != null && ambientTemperature != null && averageCpuTemperatureWarning != null) ? 
-						((cpuTemperature - ambientTemperature) / (averageCpuTemperatureWarning - ambientTemperature))
-						: null;
-
-		if (cpuThermalDissipationRateValue != null ) {
-			updateNumberParameter(monitor,
-					HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER,
-					HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					cpuThermalDissipationRateValue,
-					cpuThermalDissipationRateValue);
-		}
-
-		final Double cpuThermalDissipationRate = (cpuThermalDissipationRateValue != null && cpuThermalDissipationRateValue >= 0 && cpuThermalDissipationRateValue <= 1) ? cpuThermalDissipationRateValue : null;
-
-		if (cpuThermalDissipationRateValue != null ) {
-			updateNumberParameter(monitor,
-					HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
-					HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					cpuThermalDissipationRate,
-					cpuThermalDissipationRateValue);
 		}
 	}
 }

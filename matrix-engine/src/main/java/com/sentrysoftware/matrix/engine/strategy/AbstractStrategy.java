@@ -1,15 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
 
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -276,5 +283,52 @@ public abstract class AbstractStrategy implements IStrategy {
 		testReport.setValue(value.toString());
 
 		return testReport;
+	}
+
+	/**
+	 * @param hostMonitoring The {@link IHostMonitoring} instance.
+	 *
+	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
+	 */
+	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
+
+		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		state(targetMonitors != null && !targetMonitors.isEmpty(), "targetMonitors should not be null or empty.");
+
+		return targetMonitors
+			.values()
+			.stream()
+			.findFirst()
+			.orElseThrow();
+	}
+
+	/**
+	 * Get the temperature threshold value from the given metadata map
+	 * 
+	 * @param metadata The {@link Monitor}'s metadata.
+	 * @return Double value
+	 */
+	protected Double getTemperatureWarningThreshold(final Map<String, String> metadata) {
+		notNull(metadata, "metadata cannot be null.");
+
+		final String warningThresholdMetadata = metadata.get(WARNING_THRESHOLD);
+		final String alamThresholdMetadata = metadata.get(ALARM_THRESHOLD);
+
+		final Double warningThreshold = NumberHelper.parseDouble(warningThresholdMetadata, null);
+		final Double alarmThreshold = NumberHelper.parseDouble(alamThresholdMetadata, null);
+
+		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold
+		// If we only have a warning threshold, we are good.
+		// If we have both warning and alarm threshold then we return the minimum value
+		if (warningThreshold == null && alarmThreshold != null) {
+			return NumberHelper.round(alarmThreshold * 0.9, 1, RoundingMode.HALF_UP);
+		} else if (warningThreshold != null && alarmThreshold == null) {
+			return warningThreshold;
+		} else if (warningThreshold != null) {
+			// return the minimum between warning and alarm
+			return Math.min(warningThreshold, alarmThreshold);
+		}
+
+		return null;
 	}
 }
