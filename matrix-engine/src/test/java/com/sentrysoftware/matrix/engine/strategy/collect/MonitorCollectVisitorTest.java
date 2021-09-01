@@ -246,7 +246,11 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitFan() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor
+				.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.FAN)
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new Fan());
@@ -1641,6 +1645,44 @@ class MonitorCollectVisitorTest {
 		assertNotNull(unallocatedSpaceParameter);
 		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
 		assertEquals(10.0, unallocatedSpaceParameter.getValue());
+	}
+	
+	@Test
+	void testCollectFanPowerConsumption() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.FAN).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No fan speed, no fan speed percent -> 5W
+		monitorCollectVisitor.collectFanPowerConsumption();
+		NumberParam powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		assertNotNull(powerConsumptionParameter);
+		assertEquals(5.0, powerConsumptionParameter.getValue());
+
+		// Fan speed set
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.SPEED_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("7000"))
+		);
+		monitorCollectVisitor.collectFanPowerConsumption();
+		powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		assertNotNull(powerConsumptionParameter);
+		assertEquals(7.0, powerConsumptionParameter.getValue());
+		
+		// No fan speed, but fan speed percent set
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				Map.of(HardwareConstants.SPEED_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				monitor,
+				Collections.singletonList("80"))
+		);
+		monitorCollectVisitor.collectFanPowerConsumption();
+		powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		assertNotNull(powerConsumptionParameter);
+		assertEquals(4.0, powerConsumptionParameter.getValue());
 	}
 
 }

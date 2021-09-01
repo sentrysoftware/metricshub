@@ -52,6 +52,13 @@ public class Fan implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
 	private static final List<String> METADATA = List.of(DEVICE_ID, FAN_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Fan::checkMissingCondition,
