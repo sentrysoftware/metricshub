@@ -64,7 +64,13 @@ Run the following command line to launch the Web server:
 ```
 ## Hardware Sentry Exporter for Prometheus
 
-Create a configuration file ```(yml file)``` to monitor one or several targets: ```hardware-sentry-config.yml```, for example:
+Create the configuration file ```hardware-sentry-config.yml``` to monitor one or several targets.
+
+The ```hardware-sentry-config.yml``` configuration file must be saved in ???
+
+The format, intentation and syntax must be strictly respected for **${project.name}** to operate properly. See example below.
+ 
+### Example:
 
 ```
 
