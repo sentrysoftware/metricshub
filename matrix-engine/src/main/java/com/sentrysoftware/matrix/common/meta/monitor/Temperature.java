@@ -35,8 +35,43 @@ public class Temperature implements IMetaMonitor {
 	private static final String HIGH_TEMPERATURE_CONSEQUENCE = "An out-of-range temperature may lead to a system crash or even damaged hardware.";
 
 	public static final MetaParameter _TEMPERATURE = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.TEMPERATURE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_TEMPERATURE_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_TEMPERATURE_COUNT_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_TEMPERATURE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_TEMPERATURE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_THERMAL_DISSIPATION_RATE_VALUE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_THERMAL_DISSIPATION_RATE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
 			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
@@ -59,6 +94,11 @@ public class Temperature implements IMetaMonitor {
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 		map.put(HardwareConstants.TEMPERATURE_PARAMETER, _TEMPERATURE);
+		map.put(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER, AMBIENT_TEMPERATURE);
+		map.put(HardwareConstants.CPU_TEMPERATURE_COUNT_PARAMETER, CPU_TEMPERATURE_COUNT);
+		map.put(HardwareConstants.CPU_TEMPERATURE_PARAMETER, CPU_TEMPERATURE);
+		map.put(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER, CPU_THERMAL_DISSIPATION_RATE_VALUE);
+		map.put(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER, CPU_THERMAL_DISSIPATION_RATE);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

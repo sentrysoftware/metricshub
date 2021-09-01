@@ -58,6 +58,11 @@ public class HardwareConstants {
 	public static final String SPEED_PERCENT_PARAMETER = "speedPercent";
 	public static final String VOLTAGE_PARAMETER = "voltage";
 	public static final String TEMPERATURE_PARAMETER = "temperature";
+	public static final String AMBIENT_TEMPERATURE_PARAMETER = "ambientTemperature";
+	public static final String CPU_TEMPERATURE_COUNT_PARAMETER = "cpuTemperatureCount";
+	public static final String CPU_TEMPERATURE_PARAMETER = "cpuTemperature";
+	public static final String CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER = "cpuThermalDissipationRateValue";
+	public static final String CPU_THERMAL_DISSIPATION_RATE_PARAMETER = "cpuThermalDissipationRate";
 	public static final String HEATING_MARGIN_PARAMETER = "heatingMargin";
 	public static final String ERROR_COUNT_PARAMETER = "errorCount";
 	public static final String HARD_ERROR_COUNT_PARAMETER = "hardErrorCount";
@@ -188,6 +193,7 @@ public class HardwareConstants {
 	public static final String PERCENT_PARAMETER_UNIT = "%";
 	public static final String VOLTAGE_PARAMETER_UNIT = "mV";
 	public static final String TEMPERATURE_PARAMETER_UNIT = "degrees Celsius";
+	public static final String CPU_THERMAL_DISSIPATION_RATE_UNIT = "Thermal dissipation rate";
 	public static final String HEATING_MARGIN_PARAMETER_UNIT = "degrees Celsius";
 	public static final String ERROR_COUNT_PARAMETER_UNIT = "errors";
 	public static final String ERROR_STATUS_PARAMETER_UNIT = "{0 = No Errors ; 1 = Detected Errors ; 2 = Too Many Errors}";
