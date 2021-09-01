@@ -4,6 +4,7 @@ import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.ipmi.ConnectorIpmiProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.os.ConnectorOsProperty;
+import com.sentrysoftware.matrix.connector.parser.state.detection.oscommand.ConnectorOSCommandProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.process.ConnectorProcessProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.service.ConnectorServiceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.ConnectorSnmpProperty;
@@ -29,7 +30,8 @@ public class ConnectorDetectionProperty {
 						ConnectorIpmiProperty.getConnectorProperties(),
 						ConnectorOsProperty.getConnectorProperties(),
 						ConnectorProcessProperty.getConnectorProperties(),
-						ConnectorServiceProperty.getConnectorProperties())
+						ConnectorServiceProperty.getConnectorProperties(),
+						ConnectorOSCommandProperty.getConnectorProperties())
 				.flatMap(Set::stream)
 				.collect(Collectors.toSet());
 	}

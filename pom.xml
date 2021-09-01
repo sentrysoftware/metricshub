@@ -186,11 +186,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-wbemclient2</artifactId>
-				<version>${matsya.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-wmiclient</artifactId>
 				<version>${matsya.version}</version>
 			</dependency>

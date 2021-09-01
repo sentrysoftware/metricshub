@@ -33,9 +33,16 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 public class LogicalDisk implements IMetaMonitor {
 
 	public static final MetaParameter UNALLOCATED_SPACE = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.UNALLOCATED_SPACE_PARAMETER)
 			.unit(HardwareConstants.SPACE_GB_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+	
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
+			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 

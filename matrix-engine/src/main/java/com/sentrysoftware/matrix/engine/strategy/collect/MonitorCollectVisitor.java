@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -32,15 +41,8 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -196,6 +198,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(LogicalDisk logicalDisk) {
 		collectBasicParameters(logicalDisk);
 
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.LOGICAL_DISK_LAST_ERROR);
+		collectLogicalDiskUnallocatedSpace();
+		
 		appendValuesToStatusParameter(
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
@@ -214,8 +220,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Memory memory) {
 		collectBasicParameters(memory);
 		
-		appendValuesToStatusParameter(HardwareConstants.ERROR_COUNT_PARAMETER, HardwareConstants.ERROR_STATUS_PARAMETER,
-				HardwareConstants.PREDICTED_FAILURE_PARAMETER, HardwareConstants.PRESENT_PARAMETER);
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_STATUS_PARAMETER,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
@@ -272,24 +284,42 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(PowerSupply powerSupply) {
 		collectBasicParameters(powerSupply);
+		
+		collectPowerSupplyUsedCapacity();
 
 		appendValuesToStatusParameter(
+				HardwareConstants.USED_CAPACITY_PARAMETER, 
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.MOVE_COUNT_PARAMETER, 
 				HardwareConstants.ERROR_COUNT_PARAMETER);
 	}
-
+	
+	@Override
+	public void visit(Robotic robotic) {
+		collectBasicParameters(robotic);
+		
+		collectIncrementCount(HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.MOVE_COUNT_PARAMETER);
+	}
+	
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
 
+		collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT); 
+		collectIncrementCount(HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT);
+		collectErrorCount();
+
 		appendValuesToStatusParameter(
-				HardwareConstants.PRESENT_PARAMETER, 
+				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 
 				HardwareConstants.NEEDS_CLEANING_PARAMETER,
 				HardwareConstants.UNMOUNT_COUNT_PARAMETER);
-
 	}
 
 	@Override
@@ -303,12 +333,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Voltage voltage) {
 		collectBasicParameters(voltage);
 
-		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
-	}
+		collectVoltage();
 
-	@Override
-	public void visit(Robotic robotic) {
-		collectBasicParameters(robotic);
+		appendValuesToStatusParameter(HardwareConstants.VOLTAGE_PARAMETER);
 	}
 
 	/**
@@ -585,6 +612,28 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		monitor.collectParameter(statusParam);
 	}
 
+	/**
+	 * Update status information with additional information as suffix.
+	 * 
+	 * @param additionalInformation The name of the field containing the additional information
+	 */
+	void updateAdditionalStatusInformation(final String additionalInformation) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String additionalInfo = CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				additionalInformation,
+				monitor.getMonitorType(),
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(additionalInformation));
+
+		if (additionalInfo != null) {
+
+			StatusParam statusParam = monitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class);
+			statusParam.setStatusInformation(statusParam.getStatusInformation() + " - " + additionalInfo);
+		}
+	}
+	
 	/**
 	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
@@ -913,4 +962,196 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			100.0 * usedTimePercentDelta / timeDeltaInSeconds,
 			usedTimePercentRaw);
 	}
+
+	/**
+	 * Collect the voltage value, if the current {@link Monitor} is a {@link Voltage}.
+	 */
+	void collectVoltage() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double voltageValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.VOLTAGE_PARAMETER);
+
+		final Double computedVoltage = (voltageValue != null && voltageValue >= -100000 && voltageValue <= 450000) ? voltageValue : null;
+
+		if (computedVoltage != null ) {
+			updateNumberParameter(monitor,
+					HardwareConstants.VOLTAGE_PARAMETER,
+					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					computedVoltage,
+					voltageValue);
+		}
+	}
+	
+	/**
+	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
+	 */
+	void collectErrorCount() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		Double errorCount = null;
+
+		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.ERROR_COUNT_PARAMETER);
+
+		if (rawErrorCount != null) {
+
+			// Getting the previous error count
+			Double previousErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER);
+
+			// Getting the starting error count
+			Double startingErrorCount = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.STARTING_ERROR_COUNT_PARAMETER);
+			
+			if (startingErrorCount != null) {
+				
+				// Remove existing error count from the current value
+				errorCount = rawErrorCount - startingErrorCount;
+
+				// If we obtain a negative number, that's impossible: set everything to 0
+				if (errorCount < 0)
+				{
+					errorCount = 0.0;
+
+					// Reset the starting error count
+					updateNumberParameter(monitor,
+						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+						HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						0.0,
+						0.0);
+				} 
+
+			} else {
+				
+				// First polling
+				errorCount = 0.0;
+				
+				if (rawErrorCount < 0.0) {
+					rawErrorCount = 0.0;
+				}
+				
+				// Record as the starting error count
+				updateNumberParameter(monitor,
+					HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
+					HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					rawErrorCount,
+					rawErrorCount);
+				
+				// Record the previous error count
+				previousErrorCount = rawErrorCount;
+			}
+			
+			// Update the previous error count
+			updateNumberParameter(monitor,
+				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				previousErrorCount,
+				previousErrorCount);
+
+			// Update the error count
+			updateNumberParameter(monitor,
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				errorCount,
+				rawErrorCount);
+		}
+	}
+	
+	/**
+	 * Collects the incremental parameters, namely 
+	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 * 
+	 * @param parameterName The name of the count parameter, like mountCount
+	 * @param parameterName The unit of the count parameter, like mounts
+	 */
+	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final Double rawCount  = extractParameterValue(monitor.getMonitorType(), countParameter);
+
+		if (rawCount != null) {
+
+			// Getting the previous value
+			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
+			
+			updateNumberParameter(
+				monitor, 
+				countParameter, 
+				countParameterUnit,
+				monitorCollectInfo.getCollectTime(),
+				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
+				rawCount
+			);
+		}
+	}
+	
+	/**
+	 * Collects the used capacity of {@link PowerSupply}.
+	 */
+	void collectPowerSupplyUsedCapacity() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the used percent
+		Double usedPercent = null;
+		final Double usedPercentRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.POWER_SUPPLY_USED_PERCENT);
+
+		if (usedPercentRaw == null) {
+		
+			// Getting the used capacity
+			final Double powerSupplyUsedWatts = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.POWER_SUPPLY_USED_WATTS);
+			
+			// Getting the the power
+			final Double power = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.POWER_SUPPLY_POWER);
+
+			if (powerSupplyUsedWatts  != null && power != null && power > 0) {
+				usedPercent = 100.0 * powerSupplyUsedWatts / power;
+			}
+
+		} else {
+			usedPercent = usedPercentRaw;
+		}
+
+		// Update the used capacity, if the usedPercent is valid
+		if (usedPercent != null && usedPercent >= 0.0 && usedPercent <= 100.0) {
+			updateNumberParameter(monitor,
+				HardwareConstants.USED_CAPACITY_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				usedPercent,
+				usedPercentRaw);
+		}
+	}
+	
+	/**
+	 * Collects the unallocated space in GB for {@link LogicalDisk}.
+	 */
+	void collectLogicalDiskUnallocatedSpace() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double unallocatedSpaceRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
+
+		if (unallocatedSpaceRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
+				HardwareConstants.SPACE_GB_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
+				unallocatedSpaceRaw);
+		}
+	}
+
 }

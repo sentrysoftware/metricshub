@@ -19,24 +19,19 @@
 
 		<menu name="Getting Started">
 			<!--<item name="Release Notes" href="release-notes.html" / -->	
-			<item name="Getting Started" href="index.html"/>
-			<item name="Supported Platforms" href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html"/>
-			<item name="Components Monitored and Metrics" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
-		</menu>
-
-		<menu name="Installing the CLI">
+			<item name="What is ${project.name}?" href="index.html"/>
 			<item name="Prerequisites" href="prerequisites.html"/>
 			<item name="Getting the Installation Packages" href="install.html"/>
 		</menu>
-		
-		<menu name="Using the CLI">
-						<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
-			<item name="Configuring Connectors" href="configuring-connectors.html"/>
-			<item name="Getting Help" href="help.html"/>
-		</menu>
 
-		<menu name="Troubleshooting">
-			<item name="Enabling the debug mode" href="debug.html"/>
+		<menu name="Using the CLI">
+			<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
+			<item name="Getting Help" href="help.html"/>
+			<item name="Generating Logs" href="debug.html"/>
+		</menu>
+		
+		<menu name="Appendix">
+			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
 		</menu>
 		
 	</body>

@@ -37,7 +37,7 @@ public class Voltage implements IMetaMonitor {
 	private static final String OUT_OF_RANGE_VOLTAGE_CONSEQUENCE = "An out-of-range voltage may lead to a system crash.";
 
 	public static final MetaParameter _VOLTAGE = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.VOLTAGE_PARAMETER)
 			.unit(HardwareConstants.VOLTAGE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
