@@ -47,6 +47,13 @@ public class OtherDevice implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
 	private static final List<String> METADATA = List.of(DEVICE_ID, DEVICE_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(OtherDevice::checkMissingCondition,
@@ -69,6 +76,7 @@ public class OtherDevice implements IMetaMonitor {
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.USAGE_COUNT_PARAMETER, USAGE_COUNT);
 		map.put(HardwareConstants.VALUE_PARAMETER, VALUE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

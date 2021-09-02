@@ -198,6 +198,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(LogicalDisk logicalDisk) {
 		collectBasicParameters(logicalDisk);
 
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.LOGICAL_DISK_LAST_ERROR);
+		collectLogicalDiskUnallocatedSpace();
+		
 		appendValuesToStatusParameter(
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
@@ -216,8 +220,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Memory memory) {
 		collectBasicParameters(memory);
 		
-		appendValuesToStatusParameter(HardwareConstants.ERROR_COUNT_PARAMETER, HardwareConstants.ERROR_STATUS_PARAMETER,
-				HardwareConstants.PREDICTED_FAILURE_PARAMETER, HardwareConstants.PRESENT_PARAMETER);
+		collectErrorCount();
+		updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
+		
+		appendValuesToStatusParameter(
+				HardwareConstants.ERROR_COUNT_PARAMETER,
+				HardwareConstants.ERROR_STATUS_PARAMETER,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+				HardwareConstants.PRESENT_PARAMETER);
 	}
 
 	@Override
@@ -274,8 +284,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(PowerSupply powerSupply) {
 		collectBasicParameters(powerSupply);
+		
+		collectPowerSupplyUsedCapacity();
 
 		appendValuesToStatusParameter(
+				HardwareConstants.USED_CAPACITY_PARAMETER, 
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.MOVE_COUNT_PARAMETER, 
 				HardwareConstants.ERROR_COUNT_PARAMETER);
@@ -599,6 +612,28 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		monitor.collectParameter(statusParam);
 	}
 
+	/**
+	 * Update status information with additional information as suffix.
+	 * 
+	 * @param additionalInformation The name of the field containing the additional information
+	 */
+	void updateAdditionalStatusInformation(final String additionalInformation) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String additionalInfo = CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				additionalInformation,
+				monitor.getMonitorType(),
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(additionalInformation));
+
+		if (additionalInfo != null) {
+
+			StatusParam statusParam = monitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class);
+			statusParam.setStatusInformation(statusParam.getStatusInformation() + " - " + additionalInfo);
+		}
+	}
+	
 	/**
 	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
@@ -1032,6 +1067,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Collects the incremental parameters, namely 
 	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 * 
+	 * @param parameterName The name of the count parameter, like mountCount
+	 * @param parameterName The unit of the count parameter, like mounts
 	 */
 	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
 
@@ -1051,6 +1089,68 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
 				rawCount
 			);
+		}
+	}
+	
+	/**
+	 * Collects the used capacity of {@link PowerSupply}.
+	 */
+	void collectPowerSupplyUsedCapacity() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the used percent
+		Double usedPercent = null;
+		final Double usedPercentRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.POWER_SUPPLY_USED_PERCENT);
+
+		if (usedPercentRaw == null) {
+		
+			// Getting the used capacity
+			final Double powerSupplyUsedWatts = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.POWER_SUPPLY_USED_WATTS);
+			
+			// Getting the the power
+			final Double power = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.POWER_SUPPLY_POWER);
+
+			if (powerSupplyUsedWatts  != null && power != null && power > 0) {
+				usedPercent = 100.0 * powerSupplyUsedWatts / power;
+			}
+
+		} else {
+			usedPercent = usedPercentRaw;
+		}
+
+		// Update the used capacity, if the usedPercent is valid
+		if (usedPercent != null && usedPercent >= 0.0 && usedPercent <= 100.0) {
+			updateNumberParameter(monitor,
+				HardwareConstants.USED_CAPACITY_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				usedPercent,
+				usedPercentRaw);
+		}
+	}
+	
+	/**
+	 * Collects the unallocated space in GB for {@link LogicalDisk}.
+	 */
+	void collectLogicalDiskUnallocatedSpace() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double unallocatedSpaceRaw = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.UNALLOCATED_SPACE_PARAMETER);
+
+		if (unallocatedSpaceRaw != null) {
+
+			updateNumberParameter(monitor,
+				HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
+				HardwareConstants.SPACE_GB_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
+				unallocatedSpaceRaw);
 		}
 	}
 
