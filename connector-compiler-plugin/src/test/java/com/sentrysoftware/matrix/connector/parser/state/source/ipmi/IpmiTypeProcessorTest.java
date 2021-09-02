@@ -15,7 +15,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 
-public class IpmiTypeProcessorTest {
+class IpmiTypeProcessorTest {
 
 	private static final String KEY = "Enclosure.Discovery.Source(1).Type";
 	private static final String SOURCE_KEY = "Enclosure.Discovery.Source(1)";
@@ -26,7 +26,7 @@ public class IpmiTypeProcessorTest {
 	void testParse() {
 		Connector connector = new Connector();
 
-		new IpmiTypeProcessor().parse(KEY, VALUE, connector);
+		new IpmiTypeProcessor(IPMI.class, IpmiTypeProcessor.IPMI_TYPE_VALUE).parse(KEY, VALUE, connector);
 
 		assertEquals(SUDO_COMMAND, connector.getSudoCommands());
 		assertNotNull(connector.getHardwareMonitors());
