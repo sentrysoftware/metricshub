@@ -17,8 +17,8 @@ public class ConnectorIpmiProperty {
 
 		return Stream
 				.of(
-						new IpmiTypeProcessor(),
-						new ForceSerializationProcessor(IPMI.class, IpmiProcessor.IPMI_TYPE_VALUE))
+						new IpmiTypeProcessor(IPMI.class, IpmiTypeProcessor.IPMI_TYPE_VALUE),
+						new ForceSerializationProcessor(IPMI.class, IpmiTypeProcessor.IPMI_TYPE_VALUE))
 				.collect(Collectors.toSet());
 	}
 }
