@@ -168,6 +168,9 @@ public class PhysicalDisk implements IMetaMonitor {
 		map.put(HardwareConstants.PREDICTED_FAILURE_PARAMETER, PREDICTED_FAILURE);
 		map.put(HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER, RECOVERABLE_ERROR_COUNT);
 		map.put(HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER, TRANSPORT_ERROR_COUNT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

@@ -72,6 +72,9 @@ public class Robotic implements IMetaMonitor {
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(HardwareConstants.MOVE_COUNT_PARAMETER, MOVE_COUNT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

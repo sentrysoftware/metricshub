@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -196,6 +197,24 @@ public class CollectHelper {
 	}
 
 	/**
+	 * Get the {@link StatusParam} state value
+	 * 
+	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link StatusParam} state
+	 * @param parameterName The name of the {@link StatusParam} instance
+	 * @return a {@link ParameterState} value (OK, WARN or ALARM)
+	 */
+	public static ParameterState getStatusParamState(final Monitor monitor, final String parameterName) {
+
+		final StatusParam parameter = monitor.getParameter(parameterName, StatusParam.class);
+
+		if (parameter == null) {
+			return null;
+		}
+
+		return parameter.getState();
+	}
+
+	/**
 	 * Get the {@link NumberParam} collect time
 	 * 
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} collect time
@@ -324,4 +343,253 @@ public class CollectHelper {
 				CollectHelper.subtract(parameterName, collectTime, previousCollectTime));
 	}
 
+	/**
+	 * Update the number parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
+	 * 
+	 * @param monitor       The monitor we wish to collect the number parameter value
+	 * @param parameterName The unique name of the parameter
+	 * @param unit          The unit of the parameter
+	 * @param collectTime   The collect time for this parameter
+	 * @param value         The value to set on the {@link NumberParam} instance
+	 * @param rawValue      The raw value to set as it is needed when computing delta and rates
+	 */
+	public static void updateNumberParameter(@NonNull final Monitor monitor, @NonNull final String parameterName,
+			final String unit, @NonNull final Long collectTime,
+			final Double value, final Double rawValue) {
+
+		// GET the existing number parameter and update the value and the collect time
+		NumberParam numberParam = monitor.getParameter(parameterName, NumberParam.class);
+
+		// The parameter is not present then create it
+		if (numberParam == null) {
+			numberParam = NumberParam
+					.builder()
+					.name(parameterName)
+					.unit(unit)
+					.build();
+
+		}
+
+		numberParam.setValue(value);
+		numberParam.setCollectTime(collectTime);
+		numberParam.setRawValue(rawValue);
+
+		monitor.collectParameter(numberParam);
+	}
+
+
+	/**
+	 * Update the status parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
+	 * 
+	 * @param monitor           The monitor we wish to collect the status parameter value
+	 * @param parameterName     The unique name of the parameter
+	 * @param unit              The unit of the parameter
+	 * @param collectTime       The collect time for this parameter
+	 * @param state             The {@link ParameterState} (OK, WARN, ALARM) used to build the {@link StatusParam}
+	 * @param statusInformation The status information
+	 */
+	public static void updateStatusParameter(@NonNull final Monitor monitor, @NonNull final String parameterName,
+			@NonNull final String unit, @NonNull final Long collectTime,
+			final ParameterState state, final String statusInformation) {
+
+		StatusParam statusParam = monitor.getParameter(parameterName, StatusParam.class);
+
+		if (statusParam == null) {
+			statusParam = StatusParam
+					.builder()
+					.name(parameterName)
+					.unit(unit)
+					.build();
+		}
+
+		statusParam.setState(state);
+		statusParam.setStatus(state.ordinal());
+		statusParam.setStatusInformation(buildStatusInformation(
+				parameterName,
+				state.ordinal(),
+				statusInformation));
+		statusParam.setCollectTime(collectTime);
+
+		monitor.collectParameter(statusParam);
+	}
+
+	/**
+	 * Build the status information text value
+	 * 
+	 * @param parameterName The name of the parameter e.g. intrusionStatus, status
+	 * @param ordinal       The numeric value of the status (0, 1, 2)
+	 * @param value         The text value of the status information
+	 * @return {@link String} value
+	 */
+	public static String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
+		return new StringBuilder()
+				.append(parameterName)
+				.append(HardwareConstants.COLON)
+				.append(HardwareConstants.WHITE_SPACE)
+				.append(ordinal)
+				.append(HardwareConstants.WHITE_SPACE)
+				.append(HardwareConstants.OPENING_PARENTHESIS)
+				.append(value)
+				.append(HardwareConstants.CLOSING_PARENTHESIS)
+				.toString();
+	}
+
+	/**
+	 * Collect the energy usage based on the power consumption
+	 * 
+	 * @param monitor          The monitor instance we wish to collect
+	 * @param collectTime      The current collect time
+	 * @param powerConsumption The power consumption value. Never null
+	 * @param hostname         The system host name used for debug purpose
+	 */
+	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
+
+		updateNumberParameter(monitor,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+			collectTime,
+			powerConsumption,
+			powerConsumption);
+
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
+
+		Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				collectTime.doubleValue(), collectTimePrevious);
+
+		// Convert deltaTime from milliseconds (ms) to seconds
+		if (deltaTime != null) {
+			deltaTime /= 1000.0; 
+		}
+
+		// Calculate energy usage from Power Consumption: E = P * T
+		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				powerConsumption, deltaTime);
+
+		if (energyUsage != null) {
+
+			// The energy will start from the energy usage delta
+			Double energy = energyUsage;
+
+			// The previous value is needed to get the total energy in joules
+			Double previousEnergy = CollectHelper.getNumberParamRawValue(monitor,
+				HardwareConstants.ENERGY_PARAMETER, true);
+
+			// Ok, we have the previous energy value ? sum the previous energy and the current delta energy usage
+			if (previousEnergy != null) {
+				energy +=  previousEnergy;
+			}
+
+			// Everything is good update the energy parameter in the HostMonitoring
+			updateNumberParameter(monitor,
+				HardwareConstants.ENERGY_PARAMETER,
+				HardwareConstants.ENERGY_PARAMETER_UNIT,
+				collectTime,
+				energy,
+				energy);
+
+			// Update the energy usage delta parameter in the HostMonitoring
+			updateNumberParameter(monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				energyUsage,
+				energyUsage);
+
+		} else {
+			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
+					monitor.getId(), hostname, powerConsumption, collectTime, collectTimePrevious);
+		}
+	}
+
+	/**
+	 * Collect the power consumption based on the energy usage Power Consumption = Delta(energyUsageRaw) - Delta(CollectTime)
+	 * @param monitor           The monitor instance we wish to collect
+	 * @param collectTime       The current collect time
+	 * @param energyUsageRaw    The energy usage value. Never null
+	 * @param hostname          The system host name used for debug purpose
+	 */
+	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
+
+		updateNumberParameter(monitor,
+			HardwareConstants.ENERGY_USAGE_PARAMETER,
+			HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+			collectTime,
+			null,
+			energyUsageRaw);
+
+		// Previous raw value
+		final Double energyUsageRawPrevious = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+
+		// Time
+		final Double collectTimeDouble = collectTime.doubleValue();
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+
+		// Compute the rate value: delta(raw energy usage) / delta (time)
+		Double powerConsumption = CollectHelper.rate(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				energyUsageRaw, energyUsageRawPrevious,
+				collectTimeDouble, collectTimePrevious);
+
+		// Compute the delta to get the energy usage value
+		final Double energyUsage = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsageRaw, energyUsageRawPrevious);
+
+		if (energyUsage != null) {
+			updateNumberParameter(monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				energyUsage * 1000 * 3600, // kW-hours to Joules
+				energyUsageRaw);
+		} else {
+			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy usage {}, previous raw energy usage {}",
+					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious);
+		}
+
+		if (powerConsumption != null) {
+			// powerConsumption = (delta kwatt-hours) / delta (time in milliseconds)
+			// powerConsumption = rate * 1000 (1Kw = 1000 Watts) * (1000 * 3600  To milliseconds convert to hours) 
+			powerConsumption = powerConsumption * 1000 * (1000 * 3600);
+
+			updateNumberParameter(monitor,
+					HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+					HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+					collectTime,
+					powerConsumption,
+					powerConsumption);
+		} else {
+			log.debug("Cannot compute power consumption for monitor {} on system {}.\n"
+					+ "Current raw energy usage {}, previous raw energy usage {}, current time {}, previous time {}",
+					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious, collectTimeDouble, collectTimePrevious);
+		}
+
+		// Updating the monitor's energy parameter
+		updateNumberParameter(monitor,
+			HardwareConstants.ENERGY_PARAMETER,
+			HardwareConstants.ENERGY_PARAMETER_UNIT,
+			collectTime,
+			energyUsageRaw * 3600 * 1000, // value
+			energyUsageRaw); // raw value
+	}
+
+	/**
+	 * Check if the given value is a valid positive
+	 * 
+	 * @param value The {@link Double} value to check
+	 * @return <code>true</code> if the value is not null and greater than equals 0
+	 */
+	static boolean isValidPositive(final Double value) {
+		return value != null && value >= 0;
+	}
+
+
+	/**
+	 * Check if the given percentage value is not null and greater than equals 0 and latest than equals 100
+	 * 
+	 * @param percent The percentage value to check
+	 * @return boolean value, <code>true</code> if the percentage is valid otherwise <code>false</code>
+	 */
+	static boolean isValidPercentage(final Double percent) {
+		return percent != null
+				&& percent >= 0
+				&& percent <= 100;
+	}
 }

@@ -1,5 +1,39 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static org.springframework.util.Assert.state;
+
+import java.math.RoundingMode;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
@@ -16,39 +50,15 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.HardwareMonitorCompar
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static org.springframework.util.Assert.state;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -730,7 +740,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * <li><b>cpuThermalDissipationRate</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
 	 * </ul>
 	 */
-	void computeTemperatureParameters() {
+	void computeTargetTemperatureParameters() {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> temperatureMonitors = hostMonitoring
 				.selectFromType(MonitorType.TEMPERATURE);
@@ -778,17 +788,14 @@ public class CollectOperation extends AbstractStrategy {
 		// Sets the host ambient temperature as the minimum of all temperature sensors
 		if (ambientTemperature < 100) {
 
-			// Create the parameter
-			final NumberParam ambientTemperatureParam = NumberParam.builder()
-				.name(AMBIENT_TEMPERATURE_PARAMETER)
-				.unit(TEMPERATURE_PARAMETER_UNIT)
-				.collectTime(strategyTime)
-				.value(ambientTemperature)
-				.rawValue(ambientTemperature)
-				.build();
+			// Update the parameter 
+			CollectHelper.updateNumberParameter(targetMonitor,
+					AMBIENT_TEMPERATURE_PARAMETER,
+					TEMPERATURE_PARAMETER_UNIT,
+					strategyTime,
+					ambientTemperature,
+					ambientTemperature);
 
-			// Adding the parameter to the target monitor
-			targetMonitor.collectParameter(ambientTemperatureParam);
 		}
 
 		// Sets the average CPU temperature (to estimate the heat dissipation of the processors)
@@ -797,20 +804,18 @@ public class CollectOperation extends AbstractStrategy {
 			// Compute the average
 			cpuTemperatureAverage /= cpuTemperatureCount;
 
-			// Create the parameter
-			final NumberParam cpuTemperatureParam = NumberParam.builder()
-					.name(CPU_TEMPERATURE_PARAMETER)
-					.unit(TEMPERATURE_PARAMETER_UNIT)
-					.collectTime(strategyTime)
-					.value(cpuTemperatureAverage)
-					.rawValue(cpuTemperatureAverage)
-					.build();
+			cpuTemperatureAverage = NumberHelper.round(cpuTemperatureAverage, 2, RoundingMode.HALF_UP);
 
-			// Adding the parameter to the target monitor
-			targetMonitor.collectParameter(cpuTemperatureParam);
+			// Update the parameter
+			CollectHelper.updateNumberParameter(targetMonitor,
+					CPU_TEMPERATURE_PARAMETER,
+					TEMPERATURE_PARAMETER_UNIT,
+					strategyTime,
+					cpuTemperatureAverage,
+					cpuTemperatureAverage);
 
 			// Calculate the dissipation rate
-			computeThermalDissipationRate(targetMonitor, ambientTemperature, cpuTemperatureAverage);
+			computeTargetThermalDissipationRate(targetMonitor, ambientTemperature, cpuTemperatureAverage);
 		}
 
 	}
@@ -822,7 +827,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param ambientTemperature    The ambient temperature of the host
 	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
 	 */
-	void computeThermalDissipationRate(final Monitor targetMonitor, final double ambientTemperature, final double cpuTemperatureAverage) {
+	void computeTargetThermalDissipationRate(final Monitor targetMonitor, final double ambientTemperature, final double cpuTemperatureAverage) {
 
 		// Get the average CPU temperature computed at the discovery level
 		final double ambientToWarningDifference = NumberHelper.parseDouble(
@@ -834,16 +839,15 @@ public class CollectOperation extends AbstractStrategy {
 
 			// Do we have a consistent fraction
 			if (cpuThermalDissipationRate >= 0 && cpuThermalDissipationRate <= 1) {
-				final NumberParam cpuThermalDissipationRateParam = NumberParam.builder()
-						.name(CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
-						.unit(HardwareConstants.EMPTY)
-						.collectTime(strategyTime)
-						.value(cpuThermalDissipationRate)
-						.rawValue(cpuThermalDissipationRate)
-						.build();
 
-				// Adding the parameter to the target monitor
-				targetMonitor.collectParameter(cpuThermalDissipationRateParam);
+				cpuThermalDissipationRate = NumberHelper.round(cpuThermalDissipationRate, 2, RoundingMode.HALF_UP);
+
+				CollectHelper.updateNumberParameter(targetMonitor,
+						CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+						HardwareConstants.EMPTY,
+						strategyTime,
+						cpuThermalDissipationRate,
+						cpuThermalDissipationRate);
 			}
 		}
 	}
@@ -861,7 +865,194 @@ public class CollectOperation extends AbstractStrategy {
 		computeTargetHeatingMargin();
 
 		// Compute temperatures
-		computeTemperatureParameters();
+		computeTargetTemperatureParameters();
+
+		// Estimate CPUs Power Consumption
+		// The CPUs power consumption needs to be estimated in the post collect strategy
+		// because the computation requires the target Thermal Dissipation Rate which is also collected at the end of the collect.
+		estimateCpusPowerConsumption();
+
+		// Estimate the target Power Consumption
+		// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
+		// account for the power supplies' heat dissipation (90% efficiency assumed).
+		estimateTargetPowerConsumption();
+	}
+
+	/**
+	 * Estimate the target power consumption.<br> Perform the the sum of all monitor's power consumption, energy and energy usage, excluding missing
+	 * monitors. The final value is divided by 0.9 to add 10% to the final value so that we account the power supplies' heat dissipation (90%
+	 * efficiency assumed)
+	 */
+	void estimateTargetPowerConsumption() {
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		// Getting the target monitor
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+
+		// Get the target energy
+		final Double targetEnergy = CollectHelper.getNumberParamValue(targetMonitor, ENERGY_PARAMETER);
+		if (targetEnergy != null) {
+			log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
+					hostname, targetEnergy);
+			hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
+			return;
+		}
+
+		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
+		// The connector has collected PowerConsumption on the Enclosure monitors so we don't need to estimate the power on the target
+		// The energy will be collected during the next collect when the calculation is from the power consumption
+		// If the connector has collected Energy using the connector then we will never reach this part of code because the previous targetEnergy
+		// will never be null
+		if (enclosureMonitors != null && enclosureMonitors.values().stream()
+				.anyMatch(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null)) {
+			log.debug("The energy is going to be collected during the next collect for system {}.", hostname);
+			return;
+		}
+
+		// Browse through all the collected objects and perform the sum of parameters using the map-reduce
+		final Double[] totalValues = hostMonitoring.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> !monitor.isMissing()) // Skip missing
+			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
+			.filter(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null) // skip monitors without power consumption
+			.map(monitor -> new Double[] {
+						CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER),
+						CollectHelper.getNumberParamValue(monitor, ENERGY_USAGE_PARAMETER),
+						CollectHelper.getNumberParamValue(monitor, ENERGY_PARAMETER)})
+			.reduce(this::sumArrayValues)
+			.orElse(null);
+
+		if (totalValues == null) {
+			log.debug("No power consumption estimated for the monitored devices on system {}.", hostname);
+			return;
+		}
+
+		// Set power meter to estimated
+		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
+
+		// totalValues[0] can never be null as we have already filtered power consumption null values
+		// Add 10% because of the heat dissipation of the power supplies
+		final double powerConsumption = NumberHelper.round(totalValues[0] / 0.9, 2, RoundingMode.HALF_UP);
+		if (powerConsumption > 0) {
+			CollectHelper.updateNumberParameter(targetMonitor,
+					POWER_CONSUMPTION_PARAMETER,
+					POWER_CONSUMPTION_PARAMETER_UNIT,
+					strategyTime,
+					powerConsumption,
+					powerConsumption);
+			log.debug("Power Consumption: Estimated at {} Watts on system {}.", powerConsumption, hostname);
+
+		} else {
+			log.debug("Power Consumption could not be estimated on system {}.", hostname);
+		}
+
+		// Do we have the energy usage value, the first collect will always return null for the energy usage
+		// as we didn't get the delta time to calculate the energy usage delta
+		if (totalValues[1] != null) {
+			final double energyUsage =  NumberHelper.round(totalValues[1] / 0.9, 2, RoundingMode.HALF_UP);
+			if (energyUsage > 0) {
+				CollectHelper.updateNumberParameter(targetMonitor,
+						ENERGY_USAGE_PARAMETER,
+						ENERGY_USAGE_PARAMETER_UNIT,
+						strategyTime,
+						energyUsage,
+						energyUsage);
+				log.debug("Energy Usage: Estimated at {} Joules on system {}.", energyUsage, hostname);
+			} else {
+				log.debug("Energy Usage could not be estimated on system {}.", hostname);
+			}
+
+		}
+
+		// Do we have the energy value, the first collect will always return null for the energy
+		// as we didn't get the delta time to calculate the energy usage delta
+		if (totalValues[2] != null) {
+			final double energy =  NumberHelper.round(totalValues[2] / 0.9, 2, RoundingMode.HALF_UP);
+			if (energy > 0) {
+				CollectHelper.updateNumberParameter(targetMonitor,
+						ENERGY_PARAMETER,
+						ENERGY_PARAMETER_UNIT,
+						strategyTime,
+						energy,
+						energy);
+				log.debug("Energy: Estimated at {} Joules on system {}", energy, hostname);
+			} else {
+				log.debug("Energy could not be estimated on system {}.", hostname);
+			}
+
+		}
+	}
+
+	/**
+	 * Estimates the power consumption of the processors
+	 */
+	void estimateCpusPowerConsumption() {
+		final String hostname = strategyConfig
+				.getEngineConfiguration()
+				.getTarget().getHostname();
+		final Long collectTime = this.strategyTime;
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final Map<String, Monitor> cpus = hostMonitoring.selectFromType(MonitorType.CPU);
+
+		if (cpus == null) {
+			log.debug("No CPU discovered for system {}. Skip CPUs Power Consumption estimation.", hostname);
+			return;
+		}
+
+		final Monitor target = getTargetMonitor(hostMonitoring);
+
+		cpus.values()
+			.stream()
+			.filter(cpu -> !cpu.isMissing())
+			.forEach(cpu -> estimateCpuPowerConsumption(cpu, target, collectTime, hostname));
+	}
+
+	/**
+	 * Estimates the power dissipation of a processor, based on some characteristics Inspiration:
+	 * https://en.wikipedia.org/wiki/List_of_CPU_power_dissipation_figures Page 11 of
+	 * http://www.cse.iitd.ernet.in/~srsarangi/files/papers/powersurvey.pdf
+	 * 
+	 * @param cpu         The CPU monitor we wish to estimate its power dissipation
+	 * @param target      The target root parent monitor from which we extract the overall dissipation rate of the processors
+	 * @param collectTime The current strategy collect time
+	 * @param hostname    The system hostname 
+	 */
+	void estimateCpuPowerConsumption(@NonNull final Monitor cpu, @NonNull final Monitor target,
+			@NonNull final Long collectTime, @NonNull String hostname) {
+
+		Double maximumPowerConsumption = NumberHelper.parseDouble(cpu.getMetadata(POWER_CONSUMPTION), null);
+
+		// If we didn't get the actual maximum power consumption, discovered by the DiscoveryOperation strategy, assume it's 19W/GHz
+		if (maximumPowerConsumption == null) {
+
+			// Get the maximum speed, discovered metadata.
+			double maximumSpeed = NumberHelper.parseDouble(cpu.getMetadata(MAXIMUM_SPEED), 0.0);
+
+			// No processor speed? Assume 2.5GHz for the calculation
+			if (maximumSpeed <= 0) {
+				maximumSpeed = 2500.0;
+			}
+
+			maximumPowerConsumption = maximumSpeed / 1000 * 19.0;
+		}
+
+		// Get the thermal dissipation rate collected on the target monitor at the end of the collect
+		Double thermalDissipationRate = CollectHelper.getNumberParamValue(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER);
+
+		// If we didn't have a thermal dissipation rate value, then assume it's at 25%
+		if (thermalDissipationRate == null) {
+			thermalDissipationRate = 0.25;
+		}
+
+		// Compute the estimated power consumption
+		final double powerConsumption = NumberHelper.round(maximumPowerConsumption * thermalDissipationRate, 2, RoundingMode.HALF_UP);
+
+		// This will set the energy, the delta energy called energyUsage and the powerConsumption on the cpu monitor
+		CollectHelper.collectEnergyUsageFromPower(cpu, collectTime, powerConsumption, hostname);
 	}
 
 }

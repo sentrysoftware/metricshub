@@ -304,6 +304,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -423,6 +434,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -542,6 +564,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -661,6 +694,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -780,6 +824,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -899,6 +954,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1018,6 +1084,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1137,6 +1214,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1256,6 +1344,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1375,6 +1474,17 @@
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 5.0,
+        "rawValue" : 5.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1514,6 +1624,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.25,
+        "rawValue" : 11.25,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -1660,6 +1781,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.25,
+        "rawValue" : 11.25,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -1804,6 +1936,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -1950,6 +2093,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -2094,6 +2248,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -2240,6 +2405,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -2384,6 +2560,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.25,
+        "rawValue" : 11.25,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -2530,6 +2717,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.25,
+        "rawValue" : 11.25,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -2674,6 +2872,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -2824,6 +3033,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -2968,6 +3188,17 @@
         "statusInformation" : "linkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
+      },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
@@ -3114,6 +3345,17 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 15.77,
+        "rawValue" : 15.77,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -3238,6 +3480,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -3423,6 +3676,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -3608,6 +3872,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -3793,6 +4068,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -3978,6 +4264,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -4163,6 +4460,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -4348,6 +4656,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -4533,6 +4852,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -4718,6 +5048,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -4903,6 +5244,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -5088,6 +5440,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -5273,6 +5636,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -5458,6 +5832,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -5643,6 +6028,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -5828,6 +6224,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -6013,6 +6420,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -6198,6 +6616,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -6383,6 +6812,17 @@
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 11.0,
+        "rawValue" : 11.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "present" : {
         "name" : "present",
         "collectTime" : 1629129125956,
@@ -6951,7 +7391,19 @@
     "parentId" : null,
     "targetId" : "localhost",
     "extendedType" : null,
-    "parameters" : { },
+    "parameters" : {
+      "powerConsumption" : {
+        "name" : "powerConsumption",
+        "collectTime" : 1631022930133,
+        "state" : "OK",
+        "unit" : "Watts",
+        "value" : 465.73,
+        "rawValue" : 465.73,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      }
+    },
     "metadata" : {
       "fqdn" : "0.0.0.0",
       "location" : "localhost",
