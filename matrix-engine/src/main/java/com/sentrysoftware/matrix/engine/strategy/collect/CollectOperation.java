@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
+import com.sentrysoftware.matrix.engine.strategy.discovery.HardwareMonitorComparator;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -121,14 +122,26 @@ public class CollectOperation extends AbstractStrategy {
 		// Re-test the connector and collect the connector monitor
 		collectConnectorMonitor(connector, connectorMonitor, hostname);
 
+		// Perform collect for the hardware monitor jobs
+		// The collect order is the following: Enclosure, Blade, DiskController, CPU then the rest
+		connector
+		.getHardwareMonitors()
+		.stream()
+		.sorted(new HardwareMonitorComparator())
+		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+			&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+			&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
+		.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
+
 		// Now collecting the rest of the monitors in parallel mode
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
 		connector
 			.getHardwareMonitors()
 			.stream()
-			.filter(hardwareMonitor ->
-				validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname))
+			.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+					&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+					&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 			.forEach(hardwareMonitor ->
 				threadsPool.execute(() -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname)));
 

@@ -33,7 +33,6 @@ import java.util.Map;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;

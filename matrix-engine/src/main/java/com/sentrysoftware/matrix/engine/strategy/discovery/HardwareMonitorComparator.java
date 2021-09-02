@@ -9,7 +9,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 public class HardwareMonitorComparator implements Comparator<HardwareMonitor> {
 
-	protected static final List<MonitorType> ORDER = Arrays.asList(MonitorType.ENCLOSURE, MonitorType.BLADE,
+	public static final List<MonitorType> ORDER = Arrays.asList(MonitorType.ENCLOSURE, MonitorType.BLADE,
 			MonitorType.DISK_CONTROLLER, MonitorType.CPU);
 
 	@Override
