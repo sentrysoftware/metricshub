@@ -53,7 +53,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
-
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
 
@@ -896,6 +895,7 @@ class DiscoveryOperationTest {
 	void testPost() {
 		final IHostMonitoring hostMonitoring = buildHostMonitoringScenarioForMissingMonitors();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		discoveryOperation.post();
 		assertExpectedMissingMonitors(hostMonitoring);
 	}
@@ -1004,5 +1004,49 @@ class DiscoveryOperationTest {
 		assertFalse(DiscoveryOperation.isCpuSensor(9.0, (String) null, "proc", "cpu"));
 		assertFalse(DiscoveryOperation.isCpuSensor(null, (String) null, (String) null, (String) null));
 		assertFalse(DiscoveryOperation.isCpuSensor(15.0, (String) null, (String) null, (String) null));
+	}
+
+	@Test
+	void testHandleCpuTemperatures() {
+		HostMonitoring hostMonitoring = new HostMonitoring();
+		Monitor temperatureMonitor1 = Monitor.builder()
+				.id("temperatureMonitorId1")
+				.name("temperatureMonitorName")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.TEMPERATURE)
+				.build();
+		temperatureMonitor1.addMetadata(HardwareConstants.ADDITIONAL_INFORMATION1, "cpu");
+		temperatureMonitor1.addMetadata(HardwareConstants.WARNING_THRESHOLD, "80.0");
+		hostMonitoring.addMonitor(temperatureMonitor1);
+
+		Monitor temperatureMonitor2 = Monitor.builder()
+				.id("temperatureMonitorId2")
+				.name("temperatureMonitorNameproc")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.TEMPERATURE)
+				.build();
+		temperatureMonitor2.addMetadata(HardwareConstants.WARNING_THRESHOLD, "70.0");
+		hostMonitoring.addMonitor(temperatureMonitor2);
+
+		final Monitor targetMonitor = Monitor
+				.builder()
+				.id(ECS1_01)
+				.parentId(null)
+				.targetId(ECS1_01)
+				.name(ECS1_01)
+				.monitorType(MonitorType.TARGET)
+				.build();
+		hostMonitoring.addMonitor(targetMonitor);
+
+		discoveryOperation.handleCpuTemperatures(hostMonitoring);
+
+		String cpuSensorMetadata = temperatureMonitor1.getMetadata(HardwareConstants.IS_CPU_SENSOR);
+		assertEquals("true", cpuSensorMetadata);
+		cpuSensorMetadata = temperatureMonitor2.getMetadata(HardwareConstants.IS_CPU_SENSOR);
+		assertEquals("true", cpuSensorMetadata);
+		String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING);
+		assertEquals("75.0", averageCpuTemperatureWarningMetadata);
 	}
 }

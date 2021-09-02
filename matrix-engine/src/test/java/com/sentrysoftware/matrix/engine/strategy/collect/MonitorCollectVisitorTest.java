@@ -73,7 +73,9 @@ class MonitorCollectVisitorTest {
 	private static final String VOLTAGE_LOW = "-200000";
 	private static final String VOLTAGE_HIGH = "460000";
 	private static final String MEMORY_LAST_ERROR = "error 1234";
-	private static final String TEMPERATURE = "20";
+	private static final String TEMPERATURE = "20.0";
+	private static final String TEMPERATURE_TOO_LOW = "-101.0";
+	private static final String TEMPERATURE_TOO_HIGH = "201.0";
 
 	private static Long collectTime = new Date().getTime();
 
@@ -1658,50 +1660,52 @@ class MonitorCollectVisitorTest {
 
 	@Test
 	void testCollectTemperature() {
-
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TEMPERATURE).build();
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		// No voltage value
+		// No temperature value
 		monitorCollectVisitor.collectTemperature();
 		NumberParam temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
-		NumberParam ambientTemperatureParameter = monitor.getParameter(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class);
-//		NumberParam cpuTemperatureCountParameter = monitor.getParameter(HardwareConstants.CPU_TEMPERATURE_COUNT_PARAMETER, NumberParam.class);
-//		NumberParam cpuTemperatureParameter = monitor.getParameter(HardwareConstants.CPU_TEMPERATURE_PARAMETER, NumberParam.class);
-//		NumberParam cpuThermalDissipationRateValueParameter = monitor.getParameter(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER, NumberParam.class);
-//		NumberParam cpuThermalDissipationRateParameter = monitor.getParameter(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER, NumberParam.class);
 		assertNull(temperatureParameter);
-		assertNull(ambientTemperatureParameter);
-//		assertNull(cpuTemperatureCountParameter);
-//		assertNull(cpuTemperatureParameter);
-//		assertNull(cpuThermalDissipationRateValueParameter);
-//		assertNull(cpuThermalDissipationRateParameter);
 
-		// Temperature value collected
+		// Temperature < -100°
 		monitorCollectVisitor = new MonitorCollectVisitor(
-			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
-				monitor,
-				Collections.singletonList(TEMPERATURE))
-		);
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE_TOO_LOW))
+				);
 
 		monitorCollectVisitor.collectTemperature();
 		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
-		ambientTemperatureParameter = monitor.getParameter(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class);
-//		cpuTemperatureCountParameter = monitor.getParameter(HardwareConstants.CPU_TEMPERATURE_COUNT_PARAMETER, NumberParam.class);
-//		cpuTemperatureParameter = monitor.getParameter(HardwareConstants.CPU_TEMPERATURE_PARAMETER, NumberParam.class);
-//		cpuThermalDissipationRateValueParameter = monitor.getParameter(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_VALUE_PARAMETER, NumberParam.class);
-//		cpuThermalDissipationRateParameter = monitor.getParameter(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER, NumberParam.class);
-		
+		assertNull(temperatureParameter);
+
+		// Temperature > 200°
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE_TOO_HIGH))
+				);
+
+		monitorCollectVisitor.collectTemperature();
+		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		assertNull(temperatureParameter);
+
+		// Temperature value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE))
+				);
+
+		monitorCollectVisitor.collectTemperature();
+		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+
 		assertNotNull(temperatureParameter);
-		assertNotNull(ambientTemperatureParameter);
-//		assertNotNull(cpuTemperatureCountParameter);
-//		assertNotNull(cpuTemperatureParameter);
-//		assertNotNull(cpuThermalDissipationRateValueParameter);
-//		assertNotNull(cpuThermalDissipationRateParameter);
 		assertEquals(20.0, temperatureParameter.getRawValue());
 		assertEquals(20.0, temperatureParameter.getValue());
-		assertEquals(20.0, ambientTemperatureParameter.getRawValue());
 	}
 }

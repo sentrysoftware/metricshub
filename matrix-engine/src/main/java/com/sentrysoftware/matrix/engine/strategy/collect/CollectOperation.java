@@ -35,7 +35,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static org.springframework.util.Assert.state;
 
 @Slf4j
@@ -644,7 +655,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Double temperatureValue = temperature.getValue();
 
-		return temperatureValue != null ? warningThresholdValue - temperatureValue : null;
+		return (temperatureValue != null && warningThresholdValue != null) ? warningThresholdValue - temperatureValue : null;
 	}
 
 	/**
@@ -707,8 +718,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * </ul>
 	 */
 	void computeTemperatureParameters() {
-		final IHostMonitoring hostMonitoring = strategyConfig
-				.getHostMonitoring();
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> temperatureMonitors = hostMonitoring
 				.selectFromType(MonitorType.TEMPERATURE);
 
@@ -732,8 +742,13 @@ public class CollectOperation extends AbstractStrategy {
 			// Get the temperature value
 			final Double temperatureValue = CollectHelper.getNumberParamValue(temperatureMonitor, TEMPERATURE_PARAMETER);
 
+			// If there is not temperature value, no need to continue process this monitor.
+			if (temperatureValue == null) {
+				continue;
+			}
+
 			// Is this the ambient temperature? (which should be the lowest measured temperature... except if it's less than 5°)
-			if (temperatureValue != null && temperatureValue < ambientTemperature && temperatureValue > 5) {
+			if (temperatureValue < ambientTemperature && temperatureValue > 5) {
 				ambientTemperature = temperatureValue;
 			}
 
@@ -788,19 +803,17 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)
+	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit).
 	 * 
 	 * @param targetMonitor         The target monitor we wish to update its heat dissipation rate
 	 * @param ambientTemperature    The ambient temperature of the host
 	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
 	 */
-	void computeThermalDissipationRate(final Monitor targetMonitor, double ambientTemperature, double cpuTemperatureAverage) {
+	void computeThermalDissipationRate(final Monitor targetMonitor, final double ambientTemperature, final double cpuTemperatureAverage) {
 
 		// Get the average CPU temperature computed at the discovery level
-		final String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
-		final double averageCpuTemperatureWarning = NumberHelper.parseDouble(averageCpuTemperatureWarningMetadata, 0.0);
-
-		final double ambientToWarningDifference = averageCpuTemperatureWarning - ambientTemperature;
+		final double ambientToWarningDifference = NumberHelper.parseDouble(
+				targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING), 0.0) - ambientTemperature;
 
 		// Avoid the arithmetic exception
 		if (ambientToWarningDifference != 0.0) {

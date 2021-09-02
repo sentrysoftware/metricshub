@@ -426,14 +426,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, Monitor> temperatureMonitors = hostMonitoring
 				.selectFromType(MonitorType.TEMPERATURE);
 
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
 					"Could not detect cpu temperature sensors on the given host: {}. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
 					strategyConfig.getEngineConfiguration().getTarget().getHostname());
 			return;
 		}
+
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
 		double cpuTemperatureSensorCount = 0;
 		double cpuTemperatureWarningAverage = 0.0;
