@@ -183,7 +183,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
 			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
 
-		// Process all the sources with theirs computes
+		// Process all the sources with their computes
 		processSourcesAndComputes(
 				hardwareMonitor.getDiscovery().getSources(),
 				hostMonitoring,

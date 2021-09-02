@@ -25,6 +25,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -215,30 +216,49 @@ public class HostMonitoring implements IHostMonitoring {
 	 * @return {@link String} value containing the key of the parent monitor 
 	 */
 	String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
+
 		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
 
 		// We have a parent defined by the connector
 		if (attachedToDeviceId != null) {
 
-			// Get the monitorType parent by default get the Enclosure
+			// Get the monitorType parent
+			// By default, get the Enclosure
 			final MonitorType monitorType = MonitorType.getByNameOptional(attachedToDeviceType)
 					.orElse(MonitorType.ENCLOSURE);
 			return buildMonitorId(connectorName, monitorType, targetId, attachedToDeviceId);
+
 		} else {
+
 			// The parent is the enclosure monitor with the extended type 'Computer'
 			final Map<String, Monitor> enclosures = this.selectFromType(MonitorType.ENCLOSURE);
-			Optional<Monitor> computerEnclosure = Optional.empty();
+
 			// No enclosures ?
 			if (enclosures != null) {
-				computerEnclosure = StreamUtils
+
+				// Since the Stream interface does not provide a findLast() method,
+				// we are reversing the Stream so that we can use findFirst()
+				Optional<Monitor> computerEnclosure = StreamUtils
 						.reverse(enclosures.values().stream())
 						.filter(monitor -> COMPUTER.equalsIgnoreCase(monitor.getExtendedType())).findFirst();
-			}
 
-			// We've found the enclosure then 
-			if (computerEnclosure.isPresent()) {
-				return computerEnclosure.get().getId();
+				// We've found the enclosure then
+				if (computerEnclosure.isPresent()) {
+					return computerEnclosure.get().getId();
+				}
+
+				// If no 'Computer'-type enclosure found,
+				// check if there is only one enclosure
+				if (enclosures.size() == 1) {
+
+					return enclosures
+						.values()
+						.stream()
+						.findFirst()
+						.orElseThrow()
+						.getId();
+				}
 			}
 		}
 
@@ -329,6 +349,21 @@ public class HostMonitoring implements IHostMonitoring {
 	public Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType) {
 
 		return Collections.emptySet();
+	}
+
+	@Override
+	public Monitor findById(String monitorIdentifier) {
+
+		Assert.notNull(monitorIdentifier, "monitorIdentifier cannot be null.");
+
+		return monitors
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> monitorIdentifier.equals(monitor.getId()))
+			.findFirst()
+			.orElse(null);
 	}
 
 	@Override

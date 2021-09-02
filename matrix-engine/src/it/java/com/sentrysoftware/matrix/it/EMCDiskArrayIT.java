@@ -1,14 +1,7 @@
 package com.sentrysoftware.matrix.it;
 
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
-
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
@@ -20,6 +13,12 @@ import com.sentrysoftware.matrix.it.job.ITJob;
 import com.sentrysoftware.matrix.it.job.WbemITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
 
 class EMCDiskArrayIT {
 

@@ -23,6 +23,7 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -400,10 +401,18 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	List<Monitor> getSameTypeSameConnectorMonitors(final MonitorType monitorType, final String connectorName,
 			final IHostMonitoring hostMonitoring) {
-		return hostMonitoring.selectFromType(monitorType).values().stream()
-				.filter(monitor -> Objects.nonNull(monitor.getMetadata())
+
+		Map<String, Monitor> sameTypeMonitors = hostMonitoring.selectFromType(monitorType);
+		if (sameTypeMonitors == null) {
+			return Collections.emptyList();
+		}
+
+		return sameTypeMonitors
+			.values()
+			.stream()
+			.filter(monitor -> Objects.nonNull(monitor.getMetadata())
 						&& connectorName.equals(monitor.getMetadata().get(HardwareConstants.CONNECTOR)))
-				.collect(Collectors.toList());
+			.collect(Collectors.toList());
 	}
 
 	/**

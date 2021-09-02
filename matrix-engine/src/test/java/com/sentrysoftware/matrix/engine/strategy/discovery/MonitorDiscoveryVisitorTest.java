@@ -1,14 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -34,6 +25,14 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class MonitorDiscoveryVisitorTest {
 
@@ -49,6 +48,8 @@ class MonitorDiscoveryVisitorTest {
 	private static final String VENDOR = "vendor";
 	private static final String DISPLAY_ID = "displayId";
 	private static final String DEVICE_ID = "deviceId";
+	private static final String DEVICE_ID1 = "deviceId1";
+	private static final String DEVICE_ID2 = "deviceId2";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String VOLTAGE_ID = "myConnector.connector_voltage_ecs1-01_1.1";
 	private static final String TEMPERATURE_ID = "myConnector.connector_temperature_ecs1-01_1.1";
@@ -825,5 +826,4 @@ class MonitorDiscoveryVisitorTest {
 				.build();
 
 	}
-
 }
