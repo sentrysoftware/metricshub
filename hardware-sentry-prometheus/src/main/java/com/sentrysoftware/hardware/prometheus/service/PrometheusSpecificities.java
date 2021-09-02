@@ -159,6 +159,18 @@ public class PrometheusSpecificities {
 				.name("hw_target_heating_margin_celsius")
 				.unit("celsius")
 				.build());
+		map.put(IMetaMonitor.AMBIENT_TEMPERATURE.getName(), PrometheusParameter.builder()
+				.name("hw_target_ambient_temperature_celsius")
+				.unit("celsius")
+				.build());
+		map.put(IMetaMonitor.CPU_TEMPERATURE.getName(), PrometheusParameter.builder()
+				.name("hw_target_cpu_temperature_celsius")
+				.unit("celsius")
+				.build());
+		map.put(IMetaMonitor.CPU_THERMAL_DISSIPATION_RATE.getName(), PrometheusParameter.builder()
+				.name("hw_target_cpu_thermal_dissipation_rate")
+				.unit("")
+				.build());
 
 		return map;
 	}
