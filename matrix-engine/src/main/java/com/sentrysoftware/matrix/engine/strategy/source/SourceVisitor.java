@@ -169,7 +169,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-		SourceTable processUnixIpmiSource() {
+	SourceTable processUnixIpmiSource() {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// get the ipmiTool command to execute
@@ -207,9 +207,10 @@ public class SourceVisitor implements ISourceVisitor {
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, fruCommand, fruResult);
 
 		} catch (IOException |InterruptedException  e) {
-			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result.",
-					fruCommand, hostname);
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
+					fruCommand, hostname, e);
 			log.error(message);
+			Thread.currentThread().interrupt();
 			return SourceTable.empty();
 		}
 
@@ -225,9 +226,10 @@ public class SourceVisitor implements ISourceVisitor {
 			}
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
 		} catch (IOException | InterruptedException e) {
-			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result.",
-					sdrCommand, hostname);
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
+					sdrCommand, hostname, e);
 			log.error(message);
+			Thread.currentThread().interrupt();
 			return SourceTable.empty();
 		}
 
