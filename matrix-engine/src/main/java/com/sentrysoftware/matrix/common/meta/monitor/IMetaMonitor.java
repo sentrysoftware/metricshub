@@ -53,27 +53,6 @@ public interface IMetaMonitor {
 		.type(ParameterType.NUMBER)
 		.build();
 
-	MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
-		.basicCollect(false)
-		.name(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER)
-		.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
-		.build();
-
-	MetaParameter CPU_TEMPERATURE = MetaParameter.builder()
-		.basicCollect(false)
-		.name(HardwareConstants.CPU_TEMPERATURE_PARAMETER)
-		.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
-		.build();
-
-	MetaParameter CPU_THERMAL_DISSIPATION_RATE = MetaParameter.builder()
-		.basicCollect(false)
-		.name(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
-		.unit(HardwareConstants.EMPTY)
-		.type(ParameterType.NUMBER)
-		.build();
-
 	void accept(IMonitorVisitor monitorVisitor);
 
 	Map<String, MetaParameter> getMetaParameters();

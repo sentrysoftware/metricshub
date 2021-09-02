@@ -31,6 +31,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -48,6 +49,7 @@ public class PrometheusSpecificities {
 	private static final String ERRORS = "errors";
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
 	private static final String RATIO = "ratio";
+	private static final String CELSIUS = "celsius";
 
 	private static Map<MonitorType, List<String>> metricInfoLabels;
 
@@ -157,19 +159,19 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), PrometheusParameter.builder()
 				.name("hw_target_heating_margin_celsius")
-				.unit("celsius")
+				.unit(CELSIUS)
 				.build());
-		map.put(IMetaMonitor.AMBIENT_TEMPERATURE.getName(), PrometheusParameter.builder()
+		map.put(Target.AMBIENT_TEMPERATURE.getName(), PrometheusParameter.builder()
 				.name("hw_target_ambient_temperature_celsius")
-				.unit("celsius")
+				.unit(CELSIUS)
 				.build());
-		map.put(IMetaMonitor.CPU_TEMPERATURE.getName(), PrometheusParameter.builder()
+		map.put(Target.CPU_TEMPERATURE.getName(), PrometheusParameter.builder()
 				.name("hw_target_cpu_temperature_celsius")
-				.unit("celsius")
+				.unit(CELSIUS)
 				.build());
-		map.put(IMetaMonitor.CPU_THERMAL_DISSIPATION_RATE.getName(), PrometheusParameter.builder()
-				.name("hw_target_cpu_thermal_dissipation_rate")
-				.unit("")
+		map.put(Target.CPU_THERMAL_DISSIPATION_RATE.getName(), PrometheusParameter.builder()
+				.name("hw_target_cpu_thermal_dissipation_ratio")
+				.unit(RATIO)
 				.build());
 
 		return map;
@@ -752,7 +754,7 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(Battery.CHARGE.getName(), PrometheusParameter.builder()
 				.name("hw_battery_charge_ratio")
-				.unit(Battery.CHARGE.getUnit())
+				.unit(RATIO)
 				.factor(0.01)
 				.build());
 		map.put(Battery.TIME_LEFT.getName(), PrometheusParameter.builder()
