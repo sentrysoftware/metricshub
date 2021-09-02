@@ -318,7 +318,7 @@ public class MonitorNameBuilder {
 	 * @param displayId             {@link String} containing the display ID, part of the name
 	 * @param deviceId              {@link String} containing the device ID, part of the name
 	 * @param idCount               {@link String} containing the ID count, part of the name
-	 * @param trimmableRegex        {@link String} of regex words (case-insensitive) to be trimmed off the device ID
+	 * @param trimPattern			{@link String} of regex words (case-insensitive) to be trimmed off the device ID
 	 * @param additionalLabelFields {@link String} containing any additional labels to be included within parenthesis
 	 *
 	 * @return {@link String} name Full name following the standard naming based on the inputs
@@ -338,7 +338,10 @@ public class MonitorNameBuilder {
 
 		// Add the type
 		if (hasMeaningfulContent(type)) {
-			fullName.append(type + NAME_SEPARATOR);
+
+			fullName
+				.append(type)
+				.append(NAME_SEPARATOR);
 		}
 
 		// Add the name
@@ -362,7 +365,11 @@ public class MonitorNameBuilder {
 		// Add the additional label in parenthesis
 		final String additionalLabel = joinWords(additionalLabelFields);
 		if (hasMeaningfulContent(additionalLabel)) {
-			fullName.append(ADDITIONAL_DETAILS_SEPARATOR + additionalLabel + ADDITIONAL_DETAILS_TERMINATOR);
+
+			fullName
+				.append(ADDITIONAL_DETAILS_SEPARATOR)
+				.append(additionalLabel)
+				.append(ADDITIONAL_DETAILS_TERMINATOR);
 		}
 
 		return trimUnwantedCharacters(fullName.toString());
@@ -557,6 +564,7 @@ public class MonitorNameBuilder {
 		String enclosureType = metadata.get(HardwareConstants.TYPE);
 		if (enclosureType != null) {
 			switch (enclosureType.toLowerCase()) {
+			case "":
 			case "computer":
 				enclosureType = HardwareConstants.COMPUTER;
 				break;
@@ -568,9 +576,6 @@ public class MonitorNameBuilder {
 				break;
 			case "switch":
 				enclosureType = HardwareConstants.SWITCH;
-				break;
-			case "":
-				enclosureType = HardwareConstants.COMPUTER;
 				break;
 			default:
 				enclosureType = HardwareConstants.ENCLOSURE;
