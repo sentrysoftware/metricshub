@@ -1,5 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -405,6 +412,83 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Missing monitors
 		handleMissingMonitorDetection(strategyConfig.getHostMonitoring());
+
+		// Handle CPU temperatures
+		handleCpuTemperatures(strategyConfig.getHostMonitoring());
+	}
+
+	/**
+	 * Detect the CPU temperature sensors and set the average CPU temperature warning 
+	 * 
+	 * @param hostMonitoring The wrapper of the monitors
+	 */
+	void handleCpuTemperatures(final IHostMonitoring hostMonitoring) {
+		final Map<String, Monitor> temperatureMonitors = hostMonitoring
+				.selectFromType(MonitorType.TEMPERATURE);
+
+		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
+			log.debug(
+					"Could not detect cpu temperature sensors on the given host: {}. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
+					strategyConfig.getEngineConfiguration().getTarget().getHostname());
+			return;
+		}
+
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+
+		double cpuTemperatureSensorCount = 0;
+		double cpuTemperatureWarningAverage = 0.0;
+
+		// Loop over all the temperature monitors to detect cpu temperature sensors then compute the CPU temperature warning 
+		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
+
+			final String name = temperatureMonitor.getName();
+			final String additionalInformation1 = temperatureMonitor.getMetadata(ADDITIONAL_INFORMATION1);
+			final String additionalInformation2 = temperatureMonitor.getMetadata(ADDITIONAL_INFORMATION2);
+			final String additionalInformation3 = temperatureMonitor.getMetadata(ADDITIONAL_INFORMATION3);
+			final Double warningThreshold = getTemperatureWarningThreshold(temperatureMonitor.getMetadata());
+
+			// Is this a cpu sensor? check all the information name, addtional information and the warning threshold 
+			if (isCpuSensor(warningThreshold, name, additionalInformation1, additionalInformation2, additionalInformation3)) {
+				temperatureMonitor.addMetadata(IS_CPU_SENSOR, Boolean.TRUE.toString());
+				cpuTemperatureSensorCount++;
+				cpuTemperatureWarningAverage += warningThreshold;
+			}
+		}
+
+		if (cpuTemperatureSensorCount != 0) {
+
+			// Calculate the average value
+			cpuTemperatureWarningAverage /= cpuTemperatureSensorCount;
+
+			// Set the cpuTemperatureWarningAverage value as String
+			targetMonitor.addMetadata(AVERAGE_CPU_TEMPERATURE_WARNING, String.valueOf(cpuTemperatureWarningAverage));
+		}
+	}
+
+	/**
+	 * Check if the given information match a CPU sensor
+	 * 
+	 * @param warningThreshold The warning threshold previously computed
+	 * @param data             The string data to check
+	 * @return <code>true</code> the warning threshold is greater than 10 degrees and the data contains "cpu" or "proc" otherwise
+	 *         <code>false</code>
+	 */
+	static boolean isCpuSensor(final Double warningThreshold, final String... data) {
+		return warningThreshold != null && warningThreshold > 10 && data != null
+				&& Arrays.stream(data)
+				.filter(Objects::nonNull)
+				.map(String::toLowerCase)
+				.anyMatch(DiscoveryOperation::matchesCpuSensor);
+	}
+
+	/**
+	 * Check whether the given value matches a CPU sensor
+	 * 
+	 * @param value string value to check
+	 * @return <code>true</code> if the given value matches "cpu" or "proc" otherwise <code>false</code>
+	 */
+	static boolean matchesCpuSensor(final String value) {
+		return value.contains("cpu") || value.contains("proc");
 	}
 
 	/**

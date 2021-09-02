@@ -73,6 +73,9 @@ class MonitorCollectVisitorTest {
 	private static final String VOLTAGE_LOW = "-200000";
 	private static final String VOLTAGE_HIGH = "460000";
 	private static final String MEMORY_LAST_ERROR = "error 1234";
+	private static final String TEMPERATURE = "20.0";
+	private static final String TEMPERATURE_TOO_LOW = "-101.0";
+	private static final String TEMPERATURE_TOO_HIGH = "201.0";
 
 	private static Long collectTime = new Date().getTime();
 
@@ -1697,4 +1700,54 @@ class MonitorCollectVisitorTest {
 		assertEquals(4.0, powerConsumptionParameter.getValue());
 	}
 
+	@Test
+	void testCollectTemperature() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TEMPERATURE).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No temperature value
+		monitorCollectVisitor.collectTemperature();
+		NumberParam temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		assertNull(temperatureParameter);
+
+		// Temperature < -100°
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE_TOO_LOW))
+				);
+
+		monitorCollectVisitor.collectTemperature();
+		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		assertNull(temperatureParameter);
+
+		// Temperature > 200°
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE_TOO_HIGH))
+				);
+
+		monitorCollectVisitor.collectTemperature();
+		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		assertNull(temperatureParameter);
+
+		// Temperature value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(TEMPERATURE))
+				);
+
+		monitorCollectVisitor.collectTemperature();
+		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+
+		assertNotNull(temperatureParameter);
+		assertEquals(20.0, temperatureParameter.getRawValue());
+		assertEquals(20.0, temperatureParameter.getValue());
+	}
 }

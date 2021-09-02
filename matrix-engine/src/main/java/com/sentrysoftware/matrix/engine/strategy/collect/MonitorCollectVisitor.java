@@ -330,6 +330,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Temperature temperature) {
 		collectBasicParameters(temperature);
 
+		collectTemperature();
+
 		appendValuesToStatusParameter(HardwareConstants.TEMPERATURE_PARAMETER);
 	}
 
@@ -1192,4 +1194,23 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			powerConsumption);
 	}
 
+	/**
+	 * Collect the temperature value, if the current {@link Monitor} is a {@link Temperature}.
+	 */
+	void collectTemperature() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double temperatureValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.TEMPERATURE_PARAMETER);
+
+		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
+			updateNumberParameter(monitor,
+					HardwareConstants.TEMPERATURE_PARAMETER,
+					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					temperatureValue,
+					temperatureValue);
+		}
+	}
 }

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
@@ -249,4 +251,14 @@ class CollectHelperTest {
 				collectTime.doubleValue(), previousCollectTime.doubleValue()));
 	}
 
+	@Test
+	void testGetNumberParamValue() {
+		Map<String, IParameterValue> parameters = new HashMap<>();
+		NumberParam numberParam = NumberParam.builder().value(10.0).build();
+		String parameterName = "parameter";
+		parameters.put(parameterName, numberParam);
+		Monitor monitor = Monitor.builder().parameters(parameters).build();
+		assertNull(CollectHelper.getNumberParamValue(monitor, "wrongParameter"));
+		assertEquals(10.0, CollectHelper.getNumberParamValue(monitor, parameterName));
+	}
 }
