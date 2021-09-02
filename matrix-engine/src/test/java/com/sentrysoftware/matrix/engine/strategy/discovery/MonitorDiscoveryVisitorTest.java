@@ -48,8 +48,6 @@ class MonitorDiscoveryVisitorTest {
 	private static final String VENDOR = "vendor";
 	private static final String DISPLAY_ID = "displayId";
 	private static final String DEVICE_ID = "deviceId";
-	private static final String DEVICE_ID1 = "deviceId1";
-	private static final String DEVICE_ID2 = "deviceId2";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String VOLTAGE_ID = "myConnector.connector_voltage_ecs1-01_1.1";
 	private static final String TEMPERATURE_ID = "myConnector.connector_temperature_ecs1-01_1.1";

@@ -146,7 +146,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectCpuCoreUsedTimePercent();
 
-		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
+		appendValuesToStatusParameter(
+				HardwareConstants.CURRENT_SPEED_PARAMETER, 
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER);
 	}
@@ -180,7 +181,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Fan fan) {
 		collectBasicParameters(fan);
 
-		appendValuesToStatusParameter(HardwareConstants.SPEED_PARAMETER,
+		collectFanPowerConsumption();
+
+		appendValuesToStatusParameter(
+				HardwareConstants.SPEED_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.SPEED_PERCENT_PARAMETER);
 	}
@@ -1154,6 +1158,40 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
 				unallocatedSpaceRaw);
 		}
+	}
+	
+	/**
+	 * Collects the power consumption from {@link Fan} speed.
+	 */
+	void collectFanPowerConsumption() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		
+		// Approximately 5 Watt for standard fan
+		Double powerConsumption = 5.0;
+
+		final Double fanSpeed = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.SPEED_PARAMETER);
+
+		if (fanSpeed != null) {
+			// 1000 RPM = 1 Watt
+			powerConsumption = fanSpeed / 1000.0;
+		} else {
+			final Double fanSpeedPercent = extractParameterValue(monitor.getMonitorType(),
+					HardwareConstants.SPEED_PERCENT_PARAMETER);
+			
+			if (fanSpeedPercent != null) {
+				// Approximately 5 Watt for 100%
+				powerConsumption = fanSpeedPercent * 0.05;
+			}
+		}
+			
+		updateNumberParameter(monitor,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+			monitorCollectInfo.getCollectTime(),
+			powerConsumption,
+			powerConsumption);
 	}
 
 	/**
