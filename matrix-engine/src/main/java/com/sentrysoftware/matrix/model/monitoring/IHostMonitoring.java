@@ -38,6 +38,8 @@ public interface IHostMonitoring {
 
 	Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType);
 
+	Monitor findById(String monitorIdentifier);
+
 	String toJson();
 
 	void addSourceTable(String key, SourceTable sourceTable);

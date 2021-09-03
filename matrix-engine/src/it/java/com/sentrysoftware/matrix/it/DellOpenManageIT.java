@@ -1,11 +1,5 @@
 package com.sentrysoftware.matrix.it;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
@@ -18,13 +12,18 @@ import com.sentrysoftware.matrix.it.job.ITJob;
 import com.sentrysoftware.matrix.it.job.SnmpITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.Set;
 
 class DellOpenManageIT {
 
 	private static EngineConfiguration engineConfiguration;
 
 	@BeforeAll
-	public static void setUp() {
+	static void setUp() {
 		final SNMPProtocol protocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1)
 				.timeout(120L).build();
 
@@ -48,5 +47,4 @@ class DellOpenManageIT {
 			.executeStrategy(new CollectOperation())
 			.verifyExpected("snmp/DellOpenManage/expected/expected.json");
 	}
-
 }

@@ -1,14 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-
-import java.util.Map;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -35,8 +26,16 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.util.Map;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
@@ -267,7 +266,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final String extendedType = getTextDataValueOrElse(metadata.get(TYPE), monitorType.getName());
 		final String attachedToDeviceId = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
-		final String attachedToDeviceType = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
+		final String attachedToDeviceType = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_TYPE), null);
 
 		monitor.setName(monitorName);
 		monitor.setParentId(parentId);
@@ -293,6 +292,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static boolean checkNotBlankDataValue(final String data) {
 		return data != null && !data.trim().isEmpty();
 	}
+
 
 	/**
 	 * Check {@link MonitorBuildingInfo} required fields

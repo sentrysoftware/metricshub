@@ -35,7 +35,7 @@ public class Temperature implements IMetaMonitor {
 	private static final String HIGH_TEMPERATURE_CONSEQUENCE = "An out-of-range temperature may lead to a system crash or even damaged hardware.";
 
 	public static final MetaParameter _TEMPERATURE = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.TEMPERATURE_PARAMETER)
 			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)

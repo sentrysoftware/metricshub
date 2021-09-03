@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -16,6 +17,27 @@ import com.sentrysoftware.matrix.model.alert.AlertRule;
 public class Target implements IMetaMonitor {
 
 	private static final List<String> METADATA = Collections.singletonList(LOCATION);
+
+	public static final MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_TEMPERATURE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_TEMPERATURE_PARAMETER)
+			.unit(HardwareConstants.TEMPERATURE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter CPU_THERMAL_DISSIPATION_RATE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
+			.unit(HardwareConstants.EMPTY)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
@@ -25,6 +47,9 @@ public class Target implements IMetaMonitor {
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
 		map.put(HardwareConstants.HEATING_MARGIN_PARAMETER, HEATING_MARGIN);
+		map.put(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER, AMBIENT_TEMPERATURE);
+		map.put(HardwareConstants.CPU_TEMPERATURE_PARAMETER, CPU_TEMPERATURE);
+		map.put(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER, CPU_THERMAL_DISSIPATION_RATE);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 	}

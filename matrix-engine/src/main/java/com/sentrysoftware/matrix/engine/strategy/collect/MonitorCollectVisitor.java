@@ -146,7 +146,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectCpuCoreUsedTimePercent();
 
-		appendValuesToStatusParameter(HardwareConstants.CURRENT_SPEED_PARAMETER, 
+		appendValuesToStatusParameter(
+				HardwareConstants.CURRENT_SPEED_PARAMETER, 
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER);
 	}
@@ -180,7 +181,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Fan fan) {
 		collectBasicParameters(fan);
 
-		appendValuesToStatusParameter(HardwareConstants.SPEED_PARAMETER,
+		collectFanPowerConsumption();
+
+		appendValuesToStatusParameter(
+				HardwareConstants.SPEED_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.SPEED_PERCENT_PARAMETER);
 	}
@@ -325,6 +329,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Temperature temperature) {
 		collectBasicParameters(temperature);
+
+		collectTemperature();
 
 		appendValuesToStatusParameter(HardwareConstants.TEMPERATURE_PARAMETER);
 	}
@@ -1153,5 +1159,58 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				unallocatedSpaceRaw);
 		}
 	}
+	
+	/**
+	 * Collects the power consumption from {@link Fan} speed.
+	 */
+	void collectFanPowerConsumption() {
 
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		
+		// Approximately 5 Watt for standard fan
+		Double powerConsumption = 5.0;
+
+		final Double fanSpeed = extractParameterValue(monitor.getMonitorType(),
+			HardwareConstants.SPEED_PARAMETER);
+
+		if (fanSpeed != null) {
+			// 1000 RPM = 1 Watt
+			powerConsumption = fanSpeed / 1000.0;
+		} else {
+			final Double fanSpeedPercent = extractParameterValue(monitor.getMonitorType(),
+					HardwareConstants.SPEED_PERCENT_PARAMETER);
+			
+			if (fanSpeedPercent != null) {
+				// Approximately 5 Watt for 100%
+				powerConsumption = fanSpeedPercent * 0.05;
+			}
+		}
+			
+		updateNumberParameter(monitor,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+			monitorCollectInfo.getCollectTime(),
+			powerConsumption,
+			powerConsumption);
+	}
+
+	/**
+	 * Collect the temperature value, if the current {@link Monitor} is a {@link Temperature}.
+	 */
+	void collectTemperature() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double temperatureValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.TEMPERATURE_PARAMETER);
+
+		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
+			updateNumberParameter(monitor,
+					HardwareConstants.TEMPERATURE_PARAMETER,
+					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					temperatureValue,
+					temperatureValue);
+		}
+	}
 }
