@@ -51,6 +51,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Righ
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
@@ -2181,6 +2182,75 @@ class ComputeVisitorTest {
 		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" + 
 							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
+	}
+	
+	@Test
+	void testVisitXml2Csv() {
+		final String xml = ResourceHelper.getResourceAsString("/data/ucsEquipementFan.xml", this.getClass());
+		sourceTable.setRawData(xml);
+
+		final String properties = ">classId;"
+				+ "outConfigs/equipmentFan>dn;"
+				+ "outConfigs/equipmentFan>serial;"
+				+ "outConfigs/equipmentFan>model;"
+				+ "outConfigs/equipmentFan>vendor;"
+				+ "outConfigs/equipmentFan>operState";
+
+		final String recordTag ="/configResolveClass";
+
+		computeVisitor.visit((Xml2Csv) null);
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeVisitor.visit(Xml2Csv.builder().build());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeVisitor.visit(Xml2Csv.builder().recordTag(recordTag).build());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeVisitor.visit(Xml2Csv.builder().properties(properties).build());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeVisitor.visit(Xml2Csv.builder()
+				.properties(properties)
+				.recordTag(recordTag)
+				.build());
+
+		final List<List<String>> expected = List.of(
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-1", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-2", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-3", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-4", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-5", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-1/fan-6", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-1", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-2", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-3", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-4", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-5", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/switch-A/fan-module-1-2/fan-6", "N/A", "N10-FAN1", "Cisco Systems, Inc.", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-1/fan-1", "NWG15030613", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-1/fan-2", "NWG15030613", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-2/fan-1", "NWG150305AQ", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-2/fan-2", "NWG150305AQ", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-3/fan-1", "NWG15030653", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-3/fan-2", "NWG15030653", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-4/fan-1", "NWG1503055C", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-4/fan-2", "NWG1503055C", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-5/fan-1", "NWG150305CM", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-5/fan-2", "NWG150305CM", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-6/fan-1", "NWG150306ZR", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-6/fan-2", "NWG150306ZR", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-7/fan-1", "NWG150305QP", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-7/fan-2", "NWG150305QP", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-8/fan-1", "NWG150306VZ", "N20-FAN5", "Cisco Systems Inc", "operable"),
+				List.of("equipmentFan", "sys/chassis-1/fan-module-1-8/fan-2", "NWG150306VZ", "N20-FAN5", "Cisco Systems Inc", "operable"));
+
+		assertEquals(expected, sourceTable.getTable());
+		assertNull(sourceTable.getRawData());
 	}
 
 	@Test

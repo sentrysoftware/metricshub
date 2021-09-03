@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
 import lombok.Builder;
@@ -16,20 +12,18 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class XML2CSV extends Compute {
+public class Xml2Csv extends Compute {
 
 	private static final long serialVersionUID = 6561437878414249082L;
 
 	private String recordTag;
-	private List<String> properties = new ArrayList<>();
-	private String separator = HardwareConstants.SEMICOLON;
+	private String properties;
 
 	@Builder
-	public XML2CSV(Integer index, String recordTag, List<String> properties, String separator) {
+	public Xml2Csv(Integer index, String recordTag, String properties) {
 		super(index);
 		this.recordTag = recordTag;
-		this.properties = properties == null ? new ArrayList<>() : properties;
-		this.separator = separator == null ? HardwareConstants.SEMICOLON : separator;
+		this.properties = properties;
 	}
 
 	@Override

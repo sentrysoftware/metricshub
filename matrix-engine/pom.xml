@@ -92,6 +92,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-xflat</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.sentrysoftware.emulation</groupId>
 			<artifactId>emulation-framework-http-server</artifactId>
 			<scope>test</scope>
