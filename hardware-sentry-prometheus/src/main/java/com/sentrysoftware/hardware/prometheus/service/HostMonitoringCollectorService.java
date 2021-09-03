@@ -19,6 +19,7 @@ import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
 import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -30,7 +31,7 @@ import io.prometheus.client.GaugeMetricFamily;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems, 
+ * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems,
  * we need to create a custom collector which needs to be registered as a normal metric registry
  */
 @Slf4j
@@ -47,7 +48,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Add a metric sample in the given Gauge metric
-	 * 
+	 *
 	 * @param labeledMetric Prometheus {@link MetricFamilySamples}
 	 * @param monitor       Collected {@link Monitor} instance
 	 * @param parameterName The parameter name we wish to add
@@ -70,8 +71,28 @@ public class HostMonitoringCollectorService extends Collector {
 	}
 
 	/**
+	 * Add a metadata as metric sample
+	 *
+	 * @param labeledMetric Prometheus {@link MetricFamilySamples}
+	 * @param monitor       Collected {@link Monitor} instance
+	 * @param parameterName The parameter name we wish to add
+	 */
+	static void addMetadataAsMetric(final MetricFamilySamples labeledMetric, final Monitor monitor, final String parameterName, final double factor) {
+
+		if (labeledMetric instanceof CounterMetricFamily) {
+			((CounterMetricFamily) labeledMetric).addMetric(
+					// Id, parentId (can be null), label, fqdn
+					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+		} else {
+			((GaugeMetricFamily) labeledMetric).addMetric(
+					// Id, parentId (can be null), label, fqdn
+					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+		}
+	}
+
+	/**
 	 * Get the parameter number value from the monitor instance
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to extract the parameter value
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return {@link Number} value
@@ -83,7 +104,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Convert the parameter number value according to the factor indicated for Prometheus
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to extract the parameter value
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @param factor        The factor used to convert the metric value
@@ -94,6 +115,20 @@ public class HostMonitoringCollectorService extends Collector {
 		// getParameterValue can never return null when the current method convertParameterValue is called
 		// Because a first check is done in isParameterAvailable
 		return getParameterValue(monitor, parameterName).doubleValue() * factor;
+	}
+
+	/**
+	 * Convert metadata value according to the given factor
+	 * @param monitor
+	 * @param metadata
+	 * @param factor
+	 * @return
+	 */
+	static Double convertMetadataValue(final Monitor monitor, final String metadata, double factor) {
+
+		// monitor.getMetadata(metadata) can never return null when the current method is called
+		// Because the precedent method has been filtred
+		return NumberHelper.parseDouble(monitor.getMetadata(metadata), null) * factor;
 	}
 
 	@Override
@@ -116,7 +151,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Process same type monitors metrics
-	 * 
+	 *
 	 * @param monitorType The {@link MonitorType} of the given <code>monitors</code>
 	 * @param monitors    The monitors we wish to extract the collected parameters
 	 * @param mfs         {@link List} of {@link MetricFamilySamples} provided by the Prometheus Client library
@@ -136,12 +171,13 @@ public class HostMonitoringCollectorService extends Collector {
 		.forEach(metaParameter -> processMonitorsMetric(metaParameter, monitorType, monitors, mfs));
 
 		processMonitorMetricInfo(monitorType, monitors, mfs);
-
+		processMonitorsMetadataMetrics(monitorType, monitors, mfs);
 	}
+
 
 	/**
 	 * Process info metrics (*_info) for the given map of monitors
-	 * 
+	 *
 	 * @param monitorType The {@link MonitorType} of the given <code>monitors</code>
 	 * @param monitors    The monitors we wish to extract the discovered metadata
 	 * @param mfs         {@link List} of {@link MetricFamilySamples} provided by the Prometheus Client library
@@ -171,7 +207,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Add the info metric for the given monitor
-	 * 
+	 *
 	 * @param gauge   Prometheus {@link GaugeMetricFamily}
 	 * @param monitor Collected {@link Monitor} instance
 	 * @param labels  List of the specific labels to be
@@ -198,7 +234,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Check if at least the metric of the passed {@link MetaParameter} is collected then extract and append the metric value to the
 	 * list of {@link MetricFamilySamples}
-	 * 
+	 *
 	 * @param metaParameter The {@link MetaParameter} defined by the matrix engine
 	 * @param monitorType   The {@link MonitorType} of the given <code>monitors</code>
 	 * @param monitors      The monitors we wish to extract the collected parameters
@@ -247,9 +283,62 @@ public class HostMonitoringCollectorService extends Collector {
 	}
 
 	/**
-	 * Build help for metric using format: <em>Metric: $metricName - Unit: $metricUnit</em> or 
+	 * Check if at least the metadata of the passed {@link MetaParameter} is
+	 * collected then extract and append the according metric value to the list of
+	 * {@link MetricFamilySamples}
+	 *
+	 * @param monitorType
+	 * @param monitors
+	 * @param mfs
+	 */
+	static void processMonitorsMetadataMetrics(MonitorType monitorType, Map<String, Monitor> monitors,
+			List<MetricFamilySamples> mfs) {
+
+		if (!PrometheusSpecificities.getPrometheusMetadataToParameters().containsKey(monitorType) || monitors == null) {
+			return;
+		}
+
+		// for each monitor check if some metadata needs to be also created as metrics
+		// get metadata and check if they need to be converted to metrci
+		List<String> monitorMetadata = monitorType.getMetaMonitor().getMetadata();
+
+		for (String metadata : monitorMetadata) {
+			// Get the prometheus metadata
+			final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
+					.getPrometheusMetadataToParameters(monitorType, metadata);
+
+			// Check if the metadata is reported and if it is available at least in one
+			// monitor
+			if (!maybePrometheusParameter.isPresent() || !isMetadataFamilyAvailableOnMonitors(metadata, monitors)) {
+				continue;
+			}
+
+			// Ok, now we can get the prometheus parameter related to the given metadata
+			final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
+
+			// Create the help section
+			final String help = buildHelp(prometheusParameter);
+
+			// Create the MetricFamily, Gauge or Counter
+			final MetricFamilySamples labeledMetric;
+			if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
+				labeledMetric = new GaugeMetricFamily(prometheusParameter.getName(), help, LABELS);
+			} else {
+				labeledMetric = new CounterMetricFamily(prometheusParameter.getName(), help, LABELS);
+			}
+
+			// For each monitor, check if the metadata is available then add its value
+			monitors.values().stream().filter(monitor -> checkMetadata(monitor, metadata)).forEach(
+					monitor -> addMetadataAsMetric(labeledMetric, monitor, metadata, prometheusParameter.getFactor()));
+
+			mfs.add(labeledMetric);
+		}
+	}
+
+	/**
+	 * Build help for metric using format: <em>Metric: $metricName - Unit: $metricUnit</em> or
 	 * <em>Metric: $metricName</em> if the unit is not available
-	 * 
+	 *
 	 * @param prometheusParameter {@link PrometheusParameter} prometheus parameter information
 	 * @return {@link String} value
 	 */
@@ -277,7 +366,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Check if the parameter defined in the passed {@link MetaParameter} is collected on the given monitor instance
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to check the parameter
 	 * @param parameterName The name of the parameter to check
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
@@ -289,7 +378,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Check if the parameter exists in the given monitor
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to check its parameter
 	 * @param parameterName The name of the parameter e.g. energyUsage, voltage, temperature.
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
@@ -301,8 +390,35 @@ public class HostMonitoringCollectorService extends Collector {
 	}
 
 	/**
+	 * Check if the metadata defined in the passed {@link String} is collected on the given monitors lookup
+	 * @param metadata The {@link String} defined by the matrix engine
+	 * @param monitors      The monitors we wish to check the parameter
+	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
+	 */
+	static boolean isMetadataFamilyAvailableOnMonitors(final String metadata, final Map<String, Monitor> monitors) {
+
+		return monitors != null
+				&& !monitors.isEmpty()
+				&& monitors.values().stream().anyMatch(monitor -> checkMetadata(monitor, metadata));
+	}
+
+
+	/**
+	 * Check if the metadata exists in the given monitor
+	 *
+	 * @param monitor       The monitor we wish to check its metadata
+	 * @param metadata The name of the metadata
+	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
+	 */
+	static boolean checkMetadata(final Monitor monitor, final String metadata) {
+		return monitor != null
+				&& monitor.getMetadata() != null
+				&& monitor.getMetadata(metadata) != null
+				&& NumberHelper.parseDouble(monitor.getMetadata(metadata), null) != null;
+	}
+	/**
 	 * Get actual value or other if actual is null
-	 * 
+	 *
 	 * @param <T>
 	 * @param actual
 	 * @param other
@@ -315,7 +431,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Create Prometheus labels. The values between { } after the metric name <br>
 	 * Label order: <em>$monitorId</em>, <em>$monitorParentId</em> then <em>$monitorName</em>
-	 * 
+	 *
 	 * @param monitor The monitor we wish to extract its id, parentId and name
 	 * @return {@link List} of {@link String} values
 	 */
