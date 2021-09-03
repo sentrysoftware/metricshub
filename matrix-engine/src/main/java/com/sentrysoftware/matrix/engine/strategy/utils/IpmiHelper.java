@@ -850,8 +850,7 @@ public class IpmiHelper {
 		Map<String, List<String>> fruMap = processFruResult(fruResult);
 
 		List<String> deviceList = new ArrayList<>();
-		deviceList = processSdrRecords(sdrResult, PATTERN_BTW_BRACKETS, PATTERN_SENSORID, PATTERN_ENTITYID,
-				fruMap, deviceList);
+		deviceList = processSdrRecords(sdrResult, fruMap, deviceList);
 		// Remove devices that are marked as "removed" or "absent"
 		deviceList.removeIf(elt -> elt.contains(DEVICE_ABSENT));
 		// Replace "State Asserted" and "State Deasserted" by 1 and 0
@@ -866,8 +865,14 @@ public class IpmiHelper {
 		return result;
 	}
 
-	public static List<String> processSdrRecords(String sdrResult, Pattern patternBtwBrackets, Pattern patternSensorId,
-			Pattern patternEntityId, Map<String, List<String>> fruMap, List<String> deviceList) {
+	/**
+	 * Parse SDR records in order to extract each sensor and complete the device list
+	 * @param sdrResult
+	 * @param fruMap
+	 * @param deviceList
+	 * @return
+	 */
+	public static List<String> processSdrRecords(String sdrResult, Map<String, List<String>> fruMap, List<String> deviceList) {
 		// Parse the SDR records
 		for (String sensorEntry : sdrResult.split(HardwareConstants.NEW_LINE)) {
 			if (!sensorEntry.startsWith(SENSOR_ID)
@@ -884,7 +889,7 @@ public class IpmiHelper {
 			// sensorName = Ambient && sensorID = 1
 			String sensorName = checkPatternAndReturnDelimitedString(
 					sensorEntry,
-					patternSensorId,
+					PATTERN_SENSORID,
 					HardwareConstants.COLON,
 					HardwareConstants.OPENING_PARENTHESIS);
 
@@ -893,7 +898,7 @@ public class IpmiHelper {
 			// entityID = 39.0 && deviceType = External Environment
 			String entityId = checkPatternAndReturnDelimitedString(
 					sensorEntry,
-					patternEntityId,
+					PATTERN_ENTITYID,
 					HardwareConstants.COLON,
 					HardwareConstants.OPENING_PARENTHESIS);
 
@@ -901,12 +906,12 @@ public class IpmiHelper {
 				continue;
 			}
 			String entityIdLine = checkPatternAndReturnDelimitedString(sensorEntry,
-					patternEntityId,
+					PATTERN_ENTITYID,
 					HardwareConstants.EMPTY,
 					HardwareConstants.EMPTY);
 			String deviceType = checkPatternAndReturnDelimitedString(
 							entityIdLine,
-							patternBtwBrackets,
+							PATTERN_BTW_BRACKETS,
 							HardwareConstants.EMPTY,
 							HardwareConstants.EMPTY)
 					.replace(HardwareConstants.OPENING_PARENTHESIS,

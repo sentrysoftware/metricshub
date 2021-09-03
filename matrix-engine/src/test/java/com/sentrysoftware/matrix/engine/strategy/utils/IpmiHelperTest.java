@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -210,12 +211,13 @@ class IpmiHelperTest {
 
 	@Test
 	void testProcessFruResult() {
-		String fruCommandResult = ResourceHelper.getResourceAsString("/data/IpmiFruBabbage", this.getClass());
+		String fruCommandResult = ResourceHelper.getResourceAsString("/data/IpmiFruTest", this.getClass());
 		Map<String, List<String>> expectedMap = Map.of("goodList",
 				Arrays.asList("FRU;FUJITSU;PRIMERGY RX300 S7;YLAR004219"), "poorList",
-				Arrays.asList("FRU;FUJITSU;D2939;39159317", "FRU;FUJITSU;D2939;39159317"));
-		assertEquals(expectedMap.get("goodList"), IpmiHelper.processFruResult(fruCommandResult).get("goodList"));
-		assertEquals(expectedMap.get("poorList"), IpmiHelper.processFruResult(fruCommandResult).get("poorList"));
+				Arrays.asList("FRU;FUJITSU;D2939;39159317", "FRU;FUJITSU;PRIMERGY RX300 S7;", "FRU;FUJITSU;D2939;39159317"));
+		Map<String, List<String>> processFruResult = IpmiHelper.processFruResult(fruCommandResult);
+		assertEquals(expectedMap.get("goodList"), processFruResult.get("goodList"));
+		assertEquals(expectedMap.get("poorList"), processFruResult.get("poorList"));
 
 	}
 
@@ -500,6 +502,14 @@ class IpmiHelperTest {
 		actual = IpmiHelper.getFanFromSensor(sensorFan, "FAN1 SYS", "20", "Fan Device 0", "4680");
 		expected = "Fan;20;FAN1 SYS;Fan Device 0;4680;20;30";
 		assertEquals(expected, actual);
+
+		sensorFan = "Sensor ID              : FAN1 SYS (0x20)\n" + " Entity ID             : 29.0 (Fan Device)\n"
+				+ " Sensor Type (Threshold)  : Fan (0x04)\n" + " Sensor Reading        : 4680 (+/- 30) RPM\n"
+				+ " Status                : ok\n" + " Lower non-critical        : -\n" + " Lower non-recoverable : 30\n"
+				+ " Lower critical        : 20\n";
+		actual = IpmiHelper.getFanFromSensor(sensorFan, "FAN1 SYS", "20", "Fan Device 0", "4680");
+		expected = "Fan;20;FAN1 SYS;Fan Device 0;4680;;20";
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -547,6 +557,50 @@ class IpmiHelperTest {
 				IpmiHelper.addSensorElementToDeviceList(deviceList, sdrResult, deviceType, deviceId, entityId,
 						statusArray, fruList));
 
+	}
+
+	@Test
+	void testProcessSdrRecords() {
+		String sdrResult ="Sensor ID              : iRMC (0xfe)\n"
+				+ " Entity ID             : 6.0 (System Management Module)\n"
+				+ " Sensor Type (Discrete): Unknown (0xee)\n"
+				+ "\n"
+				+ "Sensor ID              : Ambient (0x38)\n"
+				+ " Entity ID             : 39.0 (External Environment)\n"
+				+ " Sensor Type (Discrete): Temperature (0x01)\n"
+				+ " Sensor Reading        : 1h\n"
+				+ " Event Message Control : Per-threshold\n"
+				+ " States Asserted       : Temperature\n"
+				+ "                         [Device Present]\n"
+				+ " Assertions Enabled    : Temperature\n"
+				+ "                         [Device Absent]\n"
+				+ "                         [Device Present]\n"
+				+ "\n"
+				+ "Sensor ID              : Ambient (0x37)\n"
+				+ " Entity ID             : 38.0 (External Environment2)\n"
+				+ " Sensor Type (Discrete): Temperature (0x01)\n"
+				+ " Sensor Reading        : 1h\n"
+				+ " Event Message Control : Per-threshold\n"
+				+ " States Asserted       : Temperature\n"
+				+ "                         [Device Present]\n"
+				+ "\n"
+				+ "Sensor ID              : CPU1 (0x39)\n"
+				+ " Sensor Type (Discrete): Processor (0x07)\n"
+				+ " Sensor Reading        : 0h\n"
+				+ " Event Message Control : Per-threshold\n"
+				+ " States Asserted       : Processor\n"
+				+ "                         [Presence detected]\n"
+				+ "\n"
+				+ "Sensor ID              : PSU (0x3d)\n"
+				+ " Entity ID             : 19.0 (Power Unit)\n"
+				+ " Sensor Type (Discrete): Power Unit (0x09)\n"
+				+ " Sensor Reading        : No Reading\n"
+				+ " Event Message Control : Per-threshold";
+		Map<String, List<String>> fruMap = new HashMap<>();
+		List<String> deviceList = new ArrayList<>();
+		sdrResult = IpmiHelper.cleanSensorCommandResult(sdrResult);
+		List<String> actual = IpmiHelper.processSdrRecords(sdrResult, fruMap, deviceList);
+		assertEquals(Arrays.asList("External Environment;0;External Environment 0;;;;Ambient=Device Present"), actual);
 	}
 
 	@Test
