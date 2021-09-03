@@ -125,13 +125,13 @@ public class CollectOperation extends AbstractStrategy {
 		// Perform collect for the hardware monitor jobs
 		// The collect order is the following: Enclosure, Blade, DiskController, CPU then the rest
 		connector
-		.getHardwareMonitors()
-		.stream()
-		.sorted(new HardwareMonitorComparator())
-		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
-			&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
-			&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
-		.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
+			.getHardwareMonitors()
+			.stream()
+			.sorted(new HardwareMonitorComparator())
+			.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+					&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+					&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
+			.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
 
 		// Now collecting the rest of the monitors in parallel mode
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
