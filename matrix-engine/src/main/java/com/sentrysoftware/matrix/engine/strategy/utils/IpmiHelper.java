@@ -25,8 +25,6 @@ public class IpmiHelper {
 
 	private static final Pattern PATTERN_BMC_REQ = Pattern.compile("(?m)^(BMC req|--).*");
 
-//	private static final Pattern PATTERN_STRING_BTW_BRACKETS = Pattern.compile("\\((.*?)\\)");
-
 	private static final String SENSOR_ID_REGEX = "^Sensor ID.*";
 
 	private static final String BOARD2 = " Board ";
