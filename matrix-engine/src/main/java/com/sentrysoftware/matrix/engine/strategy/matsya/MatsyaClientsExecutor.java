@@ -47,6 +47,8 @@ import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
+import com.sentrysoftware.matsya.xflat.XFlat;
+import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -275,6 +277,22 @@ public class MatsyaClientsExecutor {
 		};
 
 		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
+	}
+	
+	/**
+	 * Parse a XML with the argument properties into a list of values list.
+	 * 
+	 * @param xml The XML.
+	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character. If the property comes from an attribute, it will be preceded by a superior character: '>'.
+	 * @param recordTag A string containing the first element xml tags path to convert. example: /rootTag/tag2
+	 * @return  The list of values list.
+	 * @throws XFlatException if an error occurred in the XML parsing.
+	 */
+	public List<List<String>> executeXmlParsing(
+			final String xml, 
+			final String properties, 
+			final String recordTag) throws XFlatException {
+		return XFlat.parseXml(xml, properties, recordTag);
 	}
 
 	/**
