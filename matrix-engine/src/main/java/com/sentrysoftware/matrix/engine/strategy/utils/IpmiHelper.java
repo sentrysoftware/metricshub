@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -24,7 +25,7 @@ public class IpmiHelper {
 
 	private static final Pattern PATTERN_BMC_REQ = Pattern.compile("(?m)^(BMC req|--).*");
 
-	private static final Pattern PATTERN_STRING_BTW_BRACKETS = Pattern.compile("\\((.*?)\\)");
+//	private static final Pattern PATTERN_STRING_BTW_BRACKETS = Pattern.compile("\\((.*?)\\)");
 
 	private static final String SENSOR_ID_REGEX = "^Sensor ID.*";
 
@@ -60,7 +61,7 @@ public class IpmiHelper {
 
 	private static final Pattern PATTERN_IS_NUMERICAL = Pattern.compile("-?\\d+(\\.\\d+)?");
 
-	private static final Pattern PATTERN_BTW_BRACKETS = PATTERN_STRING_BTW_BRACKETS;
+	private static final Pattern PATTERN_BTW_BRACKETS = Pattern.compile("\\((.*?)\\)");
 	private static final Pattern PATTERN_SENSORID = Pattern.compile(SENSOR_ID_REGEX, Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENTITYID = Pattern.compile("^ *Entity ID.*", Pattern.MULTILINE);
 	private static final Pattern PATTERN_SENSOR_READING = Pattern.compile("^ *Sensor Reading.*", Pattern.MULTILINE);
@@ -576,7 +577,7 @@ public class IpmiHelper {
 		//  Now process the numeric sensor list
 		ipmiTable = ipmiAddHardwareSensorInfo(sdrResult, ipmiTable);
 		// convert imptTable to list<list<String>>
-		ipmiTable.stream().forEach(line -> result.add(Arrays.asList(line.split(";"))));
+		ipmiTable.stream().forEach(line -> result.add(Stream.of(line.split(";")).collect(Collectors.toList())));
 
 		return result;
 
@@ -851,7 +852,7 @@ public class IpmiHelper {
 		Map<String, List<String>> fruMap = processFruResult(fruResult);
 
 		List<String> deviceList = new ArrayList<>();
-		deviceList = processSdrRecords(sdrResult, PATTERN_STRING_BTW_BRACKETS, PATTERN_SENSORID, PATTERN_ENTITYID,
+		deviceList = processSdrRecords(sdrResult, PATTERN_BTW_BRACKETS, PATTERN_SENSORID, PATTERN_ENTITYID,
 				fruMap, deviceList);
 		// Remove devices that are marked as "removed" or "absent"
 		deviceList.removeIf(elt -> elt.contains(DEVICE_ABSENT));
