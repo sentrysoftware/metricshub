@@ -268,6 +268,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(PhysicalDisk physicalDisk) {
 		collectBasicParameters(physicalDisk);
 
+		collectPhysicalDiskParameters();
+
+		collectErrorCount();
+
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.USAGE_COUNT_PARAMETER, 
@@ -1211,6 +1215,47 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					monitorCollectInfo.getCollectTime(),
 					temperatureValue,
 					temperatureValue);
+		}
+	}
+
+	/**
+	 * Collect the physical disks specific parameters.
+	 */
+	void collectPhysicalDiskParameters() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the predictedFailure current value
+		checkCollectInfo(monitorCollectInfo);
+
+		final String rawPredictedFailure = CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+				monitor.getMonitorType(),
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(HardwareConstants.PREDICTED_FAILURE_PARAMETER));
+
+		if (rawPredictedFailure != null) {
+			final Double predictedFailure = ("false".equals(rawPredictedFailure)) ? 0.0 : 1.0;
+
+			updateNumberParameter(monitor,
+					HardwareConstants.PREDICTED_FAILURE_PARAMETER,
+					HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					predictedFailure,
+					predictedFailure);
+		}
+
+		// Getting the endurance remaining current value
+		final Double rawEnduranceRemaining = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.ENDURANCE_REMAINING_PARAMETER);
+
+		if (rawEnduranceRemaining != null && rawEnduranceRemaining >= 0 && rawEnduranceRemaining <= 100) {
+			updateNumberParameter(monitor,
+					HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
+					HardwareConstants.PERCENT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					rawEnduranceRemaining,
+					rawEnduranceRemaining);
 		}
 	}
 }

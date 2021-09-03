@@ -46,59 +46,24 @@ public class PhysicalDisk implements IMetaMonitor {
 			.type(ParameterType.STATUS)
 			.build();
 
-	public static final MetaParameter DEVICE_NOT_READY_ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
 	public static final MetaParameter ENDURANCE_REMAINING = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.ENDURANCE_REMAINING_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter HARD_ERROR_COUNT= MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.HARD_ERROR_COUNT_PARAMETER)
+	public static final MetaParameter ERROR_COUNT= MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
 			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter ILLEGAL_REQUEST_ERROR_COUNT= MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter MEDIA_ERROR_COUNT= MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter NO_DEVICE_ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter RECOVERABLE_ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter TRANSPORT_ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(true)
-			.name(HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
+			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -158,16 +123,8 @@ public class PhysicalDisk implements IMetaMonitor {
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
-		map.put(HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER, DEVICE_NOT_READY_ERROR_COUNT);
 		map.put(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, ENDURANCE_REMAINING);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
-		map.put(HardwareConstants.HARD_ERROR_COUNT_PARAMETER, HARD_ERROR_COUNT);
-		map.put(HardwareConstants.ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER, ILLEGAL_REQUEST_ERROR_COUNT);
-		map.put(HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, MEDIA_ERROR_COUNT);
-		map.put(HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, NO_DEVICE_ERROR_COUNT);
-		map.put(HardwareConstants.PREDICTED_FAILURE_PARAMETER, PREDICTED_FAILURE);
-		map.put(HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER, RECOVERABLE_ERROR_COUNT);
-		map.put(HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER, TRANSPORT_ERROR_COUNT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
