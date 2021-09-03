@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,13 +29,16 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -116,7 +120,7 @@ public class SourceVisitor implements ISourceVisitor {
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
 			return processWindowsIpmiSource();
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			return processUnixIpmiSource(targetType);
+			return processUnixIpmiSource();
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
 			return processOutOfBandIpmiSource();
 		}
@@ -129,7 +133,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI source via IPMI Over-LAN
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processOutOfBandIpmiSource() {
@@ -162,16 +166,80 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI Source for the Unix system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processUnixIpmiSource(TargetType targetType) {
-		return SourceTable.empty();
+	SourceTable processUnixIpmiSource() {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		// get the ipmiTool command to execute
+		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
+		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
+			final String message = String.format("IPMI Tool Command cannot be found for %s. Return empty result.",
+					hostname);
+			log.error(message);
+			return SourceTable.empty();
+		}
+
+		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SSHProtocol.class);
+		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		if (osCommandConfig == null) {
+			final String message = String.format("No OS Command Configuration for %s. Return empty result.", hostname);
+			log.error(message);
+			return SourceTable.empty();
+		}
+		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
+
+		boolean isLocalHost = strategyConfig.getHostMonitoring().isLocalhost();
+		// fru command
+		String fruCommand = ipmitoolCommand + "fru";
+		String fruResult;
+		try {
+			if (isLocalHost) {
+				fruResult = OsCommandHelper.runLocalCommand(fruCommand);
+			} else {
+				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout,
+						matsyaClientsExecutor);
+			}
+			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, fruCommand, fruResult);
+
+		} catch (IOException |InterruptedException  e) {
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
+					fruCommand, hostname, e);
+			log.error(message);
+			Thread.currentThread().interrupt();
+			return SourceTable.empty();
+		}
+
+		// "-v sdr elist all"
+		String sdrCommand = ipmitoolCommand + "-v sdr elist all";
+		String sensorResult;
+		try {
+			if (isLocalHost) {
+				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand);
+			} else {
+				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,
+						matsyaClientsExecutor);
+			}
+			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
+		} catch (IOException | InterruptedException e) {
+			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
+					sdrCommand, hostname, e);
+			log.error(message);
+			Thread.currentThread().interrupt();
+			return SourceTable.empty();
+		}
+
+		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
+
 	}
 
 	/**
 	 * Process IPMI source for the Windows (NT) system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processWindowsIpmiSource() {
@@ -399,12 +467,12 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
-				sources.get(tableJoinSource.getLeftTable()).getTable(), 
-				sources.get(tableJoinSource.getRightTable()).getTable(), 
-				tableJoinSource.getLeftKeyColumn(), 
-				tableJoinSource.getRightKeyColumn(), 
-				tableJoinSource.getDefaultRightLine(), 
-				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()), 
+				sources.get(tableJoinSource.getLeftTable()).getTable(),
+				sources.get(tableJoinSource.getRightTable()).getTable(),
+				tableJoinSource.getLeftKeyColumn(),
+				tableJoinSource.getRightKeyColumn(),
+				tableJoinSource.getDefaultRightLine(),
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
 				false);
 
 		SourceTable sourceTable = new SourceTable();
@@ -450,7 +518,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Get source table based on the key
-	 * 
+	 *
 	 * @param key
 	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
 	 */
@@ -608,7 +676,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Call the matsya client executor to execute a WMI request. 
+	 * Call the matsya client executor to execute a WMI request.
 	 * @param hostname
 	 * @param wmiProtocol
 	 * @param wmiQuery

@@ -1,0 +1,36 @@
+FRU Device Description : Builtin FRU Device (ID 0)
+ Board Mfg Date        : Mon May 21 14:46:00 2012
+ Board Mfg             : FUJITSU
+ Board Product         : D2939
+ Board Serial          : 39159317
+ Board Part Number     : S26361-D2939-A17
+ Board Extra           : WGS08 GS02
+ Board Extra           : 02
+
+FRU Device Description : Chassis (ID 2)
+ Chassis Type          : Rack Mount Chassis
+ Chassis Extra         : RX300S7R4
+ Product Manufacturer  : FUJITSU
+ Product Name          : PRIMERGY RX300 S7
+ Product Part Number   : ABN:K1373-M205-11
+ Product Version       : GS01
+ Product Serial        : YLAR004219
+ Product Asset Tag     : 15
+ Product Extra         : 330c84
+ Product Extra         : 0316
+
+FRU Device Description : MainBoard (ID 3)
+ Board Mfg Date        : Mon May 21 14:46:00 2012
+ Board Mfg             : FUJITSU
+ Board Product         : D2939
+ Board Serial          : 39159317
+ Board Part Number     : S26361-D2939-A17
+ Board Extra           : WGS08 GS02
+ Board Extra           : 02
+
+FRU Device Description : PSU1 (ID 18)
+ Unknown FRU header version 0x02
+
+FRU Device Description : PSU2 (ID 19)
+ Unknown FRU header version 0x02
+
