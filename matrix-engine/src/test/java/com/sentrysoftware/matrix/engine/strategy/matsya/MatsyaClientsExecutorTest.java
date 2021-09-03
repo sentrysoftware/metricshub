@@ -53,6 +53,7 @@ import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
 import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
+import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 
 @ExtendWith(MockitoExtension.class)
 class MatsyaClientsExecutorTest {
@@ -370,5 +371,68 @@ class MatsyaClientsExecutorTest {
 			ipmiOverLanProtocol.setTimeout(120L);
 			assertEquals("System power state is up", matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
 		}
+	}
+	
+	@Test
+	void testExecuteXmlParsing() throws Exception {
+
+		final String xml =
+				"<?xml version=\"1.0\"?>\n" + 
+				"<Document>\n" + 
+				"	<Owner>User</Owner>\n" + 
+				"	<Disks>\n" + 
+				"		<Disk name=\"Disk1\" size=\"1000\">\n" + 
+				"			<Free>500</Free>\n" + 
+				"			<Volumes>\n" + 
+				"				<Volume name=\"Vol1\">\n" + 
+				"					<Subscribe>600</Subscribe>\n" + 
+				"				</Volume>\n" + 
+				"			</Volumes>\n" + 
+				"		</Disk>\n" + 
+				"		<Disk name=\"Disk2\" size=\"2000\">\n" + 
+				"			<Free>750</Free>\n" + 
+				"		</Disk>\n" + 
+				"		<Disk name=\"Disk3\" size=\"2900\">\n" + 
+				"			<Free>1500</Free>\n" + 
+				"			<Volumes>\n" + 
+				"				<Volume name=\"Vol3.0\">\n" + 
+				"					<Subscribe>3000</Subscribe>\n" + 
+				"				</Volume>\n" + 
+				"				<Volume name=\"Vol3.1\">\n" + 
+				"					<Subscribe>3100</Subscribe>\n" + 
+				"				</Volume>\n" + 
+				"				<Volume name=\"Vol3.2\">\n" + 
+				"					<Subscribe>3200</Subscribe>\n" + 
+				"				</Volume>\n" + 
+				"			</Volumes>\n" + 
+				"		</Disk>\n" + 
+				"	</Disks>\n" + 
+				"	<OS name=\"Linux\"/>\n" + 
+				"</Document>\n";
+
+		final String properties =
+				"OS>name;"
+						+ "Owner;"
+						+ "Disks/Disk/Volumes/Volume>name;"
+						+ "Disks/Disk/Volumes/Volume/Subscribe;"
+						+ "Disks/Disk>name;"
+						+ "Disks/Disk>size;"
+						+ "Disks/Disk/Free";
+
+		final String recordTag = "/Document";
+
+		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeXmlParsing(null, properties, recordTag));
+		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeXmlParsing(xml, null, recordTag));
+
+		assertThrows(XFlatException.class, () -> matsyaClientsExecutor.executeXmlParsing("<Document>...", properties, recordTag));
+
+		final List<List<String>> expected = List.of(
+				List.of("Linux", "User", "Vol1", "600", "Disk1", "1000", "500"),
+				List.of("Linux", "User", "", "", "Disk2", "2000", "750"),
+				List.of("Linux", "User", "Vol3.0", "3000", "Disk3", "2900",  "1500"),
+				List.of("Linux", "User", "Vol3.1", "3100", "Disk3", "2900",  "1500"),
+				List.of("Linux", "User", "Vol3.2", "3200", "Disk3", "2900",  "1500"));
+
+		assertEquals(expected, matsyaClientsExecutor.executeXmlParsing(xml, properties, recordTag));
 	}
 }

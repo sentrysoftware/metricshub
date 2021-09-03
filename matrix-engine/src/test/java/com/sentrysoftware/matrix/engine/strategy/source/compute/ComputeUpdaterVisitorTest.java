@@ -204,10 +204,10 @@ class ComputeUpdaterVisitorTest {
 
 	@Test
 	void testVisitXML2CSV() {
-		final XML2CSV xml2Csv = XML2CSV.builder().build();
-		doNothing().when(computeVisitor).visit(any(XML2CSV.class));
+		final Xml2Csv xml2Csv = Xml2Csv.builder().build();
+		doNothing().when(computeVisitor).visit(any(Xml2Csv.class));
 		computeUpdaterVisitor.visit(xml2Csv);
-		verify(computeVisitor, times(1)).visit(any(XML2CSV.class));
+		verify(computeVisitor, times(1)).visit(any(Xml2Csv.class));
 	}
 
 	@Test

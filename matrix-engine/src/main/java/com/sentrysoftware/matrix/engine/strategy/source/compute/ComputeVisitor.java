@@ -29,7 +29,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Righ
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -1342,8 +1342,25 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final XML2CSV xml2csv) {
-		// Not implemented yet
+	public void visit(final Xml2Csv xml2csv) {
+		if (xml2csv == null) {
+			log.warn("Compute Operation (Xml2Csv) is null, the table remains unchanged.");
+			return;
+		}
+
+		try {
+			final List<List<String>> xmlResult = matsyaClientsExecutor.executeXmlParsing(
+					sourceTable.getRawData(),
+					xml2csv.getProperties(),
+					xml2csv.getRecordTag());
+
+			if (xmlResult != null && !xmlResult.isEmpty()) {
+				sourceTable.setTable(xmlResult);
+				sourceTable.setRawData(null);
+			}
+		} catch (Exception e) {
+			log.warn("Compute Operation (Xml2Csv) has failed. ", e);
+		}
 	}
 
 

@@ -26,6 +26,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.rightconcat.Conn
 import com.sentrysoftware.matrix.connector.parser.state.compute.substract.ConnectorSubstractProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.substring.ConnectorSubstringProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.translate.ConnectorTranslateProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.xml2csv.ConnectorXml2CsvProperty;
 
 public class ConnectorComputeProperty {
 
@@ -55,6 +56,7 @@ public class ConnectorComputeProperty {
 				ConnectorConvertProperty.getConnectorProperties(),
 				ConnectorArrayTranslateProperty.getConnectorProperties(),
 				ConnectorJson2CSVProperty.getConnectorProperties(),
+				ConnectorXml2CsvProperty.getConnectorProperties(),
 				ConnectorExtractPropertyFromWbemPathProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
