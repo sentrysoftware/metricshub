@@ -172,6 +172,12 @@ public class HardwareConstants {
 	public static final String IS_CPU_SENSOR = "isCpuSensor";
 	public static final String AVERAGE_CPU_TEMPERATURE_WARNING = "averageCpuTemperatureWarning";
 
+	public static final String WARNING_ON_COLOR_METADATA = "warningOnColor";
+	public static final String ALARM_ON_COLOR_METADATA = "alarmOnColor";
+	public static final String ON_STATUS_METADATA = "onstatus";
+	public static final String OFF_STATUS_METADATA = "offstatus";
+	public static final String BLINKING_STATUS_METADATA = "blinkingstatus";
+
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";

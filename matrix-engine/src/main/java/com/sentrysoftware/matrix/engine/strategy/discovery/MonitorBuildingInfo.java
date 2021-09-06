@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -10,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -18,6 +21,7 @@ public class MonitorBuildingInfo {
 
 	private Monitor monitor;
 	private String connectorName;
+	private Map<String, TranslationTable> translationTables;
 	private Monitor targetMonitor;
 	private IHostMonitoring hostMonitoring;
 	private MonitorType monitorType;

@@ -577,54 +577,62 @@ class DiscoveryOperationTest {
 
 	@Test
 	void testCreateSameTypeMonitorsNoSourceKey() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
+
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory
+			.getInstance()
+			.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(null).build();
 		final Map<String, String> parameters = Map.of(
-				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
-				VENDOR, DELL,
-				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+			DEVICE_ID, INSTANCETABLE_COLUMN_1,
+			DISPLAY_ID, INSTANCETABLE_COLUMN_2,
+			VENDOR, DELL,
+			MODEL, INSTANCETABLE_COLUMN_3,
+			TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+			.builder()
+			.id(ECS1_01)
+			.parentId(null)
+			.targetId(ECS1_01)
+			.name(ECS1_01)
+			.monitorType(MonitorType.TARGET)
+			.build();
 
-		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters, targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters,
+			targetMonitor , MonitorType.ENCLOSURE, ECS1_01, Collections.emptyMap());
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
 
 	@Test
 	void testCreateSameTypeMonitorsNoSources() {
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
+
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory
+			.getInstance()
+			.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
 		final Map<String, String> parameters = Map.of(
-				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
-				VENDOR, DELL,
-				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+			DEVICE_ID, INSTANCETABLE_COLUMN_1,
+			DISPLAY_ID, INSTANCETABLE_COLUMN_2,
+			VENDOR, DELL,
+			MODEL, INSTANCETABLE_COLUMN_3,
+			TYPE, HardwareConstants.COMPUTER);
 
 		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+			.builder()
+			.id(ECS1_01)
+			.parentId(null)
+			.targetId(ECS1_01)
+			.name(ECS1_01)
+			.monitorType(MonitorType.TARGET)
+			.build();
 
-		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters, targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters,
+			targetMonitor , MonitorType.ENCLOSURE, ECS1_01, Collections.emptyMap());
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -632,27 +640,30 @@ class DiscoveryOperationTest {
 	@Test
 	void testCreateSameTypeMonitorsSourceTextTable() {
 
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory
+			.getInstance()
+			.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Map<String, String> parameters = Map.of(
-				DEVICE_ID, DELL_ENCLOSURE,
-				VENDOR, DELL);
+			DEVICE_ID, DELL_ENCLOSURE,
+			VENDOR, DELL);
 
 		final InstanceTable instanceTable = TextInstanceTable.builder().text(DELL_ENCLOSURE).build();
 		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+			.builder()
+			.id(ECS1_01)
+			.parentId(null)
+			.targetId(ECS1_01)
+			.name(ECS1_01)
+			.monitorType(MonitorType.TARGET)
+			.build();
 
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters, targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable , parameters,
+			targetMonitor , MonitorType.ENCLOSURE, ECS1_01, Collections.emptyMap());
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		assertEquals(1, enclosures.size());
@@ -665,15 +676,15 @@ class DiscoveryOperationTest {
 		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
-				.id(HARD_CODED_ENCLOSURE_ID)
-				.name(ENCLOSURE_DELL)
-				.parentId(ECS1_01)
-				.targetId(ECS1_01)
-				.metadata(metadata)
-				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.ENCLOSURE)
-				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
-				.build();
+			.id(HARD_CODED_ENCLOSURE_ID)
+			.name(ENCLOSURE_DELL)
+			.parentId(ECS1_01)
+			.targetId(ECS1_01)
+			.metadata(metadata)
+			.monitorType(MonitorType.ENCLOSURE)
+			.extendedType(HardwareConstants.ENCLOSURE)
+			.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+			.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
 	}
@@ -681,24 +692,26 @@ class DiscoveryOperationTest {
 	@Test
 	void testCreateSameTypeMonitorsSourceInstanceTable() {
 
-		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory
+			.getInstance()
+			.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Map<String, String> parameters = Map.of(
-				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
-				VENDOR, DELL,
-				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+			DEVICE_ID, INSTANCETABLE_COLUMN_1,
+			DISPLAY_ID, INSTANCETABLE_COLUMN_2,
+			VENDOR, DELL,
+			MODEL, INSTANCETABLE_COLUMN_3,
+			TYPE, HardwareConstants.COMPUTER);
 
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
 		final Monitor targetMonitor = Monitor
-				.builder()
-				.id(ECS1_01)
-				.parentId(null)
-				.targetId(ECS1_01)
-				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
-				.build();
+			.builder()
+			.id(ECS1_01)
+			.parentId(null)
+			.targetId(ECS1_01)
+			.name(ECS1_01)
+			.monitorType(MonitorType.TARGET)
+			.build();
 
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final SourceTable sourceTable = SourceTable.builder().table(data).build();
@@ -709,12 +722,14 @@ class DiscoveryOperationTest {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		discoveryOperation.createSameTypeMonitors(
-				MY_CONNECTOR_1_NAME,
-				hostMonitoring,
-				instanceTable,
-				parameters,
-				targetMonitor,
-				MonitorType.ENCLOSURE, ECS1_01);
+			MY_CONNECTOR_1_NAME,
+			hostMonitoring,
+			instanceTable,
+			parameters,
+			targetMonitor,
+			MonitorType.ENCLOSURE,
+			ECS1_01,
+			Collections.emptyMap());
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		assertEquals(1, enclosures.size());
