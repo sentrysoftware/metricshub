@@ -870,8 +870,7 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	void computeNetworkCardParameters() {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		state(hostMonitoring != null, "hostMonitoring should not be null.");
-		
+
 		final Map<String, Monitor> networkCardMonitors = hostMonitoring.selectFromType(MonitorType.NETWORK_CARD);
 		if (networkCardMonitors == null || networkCardMonitors.isEmpty()) {
 			return;
