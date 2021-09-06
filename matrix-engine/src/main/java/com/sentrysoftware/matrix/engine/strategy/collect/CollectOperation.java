@@ -15,6 +15,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
@@ -857,6 +860,69 @@ public class CollectOperation extends AbstractStrategy {
 			}
 		}
 	}
+	
+	/**
+	 * Compute network card parameters for the current target monitor:
+	 * <ul>
+	 * <li><b>connectedPortsCount</b>: the number of connected network ports</li>
+	 * <li><b>totalBandwidth</b>: the total bandwidth available across all network cards</li>
+	 * </ul>
+	 */
+	void computeNetworkCardParameters() {
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		state(hostMonitoring != null, "hostMonitoring should not be null.");
+		
+		final Map<String, Monitor> networkCardMonitors = hostMonitoring.selectFromType(MonitorType.NETWORK_CARD);
+		if (networkCardMonitors == null || networkCardMonitors.isEmpty()) {
+			return;
+		}
+
+		double connectedPortsCount = 0;
+		double totalBandwidth = 0;
+
+		// Loop over all the network card monitors to compute the totalBandwidth & connectedPortsCount
+		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
+
+			// Get the link status value
+			final Double linkStatus = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
+
+			// If there is connected count it.
+			if (linkStatus != null && linkStatus == 0.0) {
+				connectedPortsCount++;
+			}
+			
+			// Get the link speed value
+			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_SPEED_PARAMETER);
+			
+			// If there is a speed add it.
+			if (linkSpeed != null) {
+				totalBandwidth += linkSpeed;
+			}
+		}
+
+		// Create the parameter for connectedPortsCount
+		final NumberParam connectedPortsCountParam = NumberParam.builder()
+				.name(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER)
+				.unit(HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT)
+				.collectTime(strategyTime)
+				.value(connectedPortsCount)
+				.rawValue(connectedPortsCount)
+				.build();
+		
+		// Create the parameter for totalBandwidth
+		final NumberParam totalBandwidthParam = NumberParam.builder()
+				.name(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER)
+				.unit(HardwareConstants.SPEED_MBITS_PARAMETER_UNIT)
+				.collectTime(strategyTime)
+				.value(totalBandwidth)
+				.rawValue(totalBandwidth)
+				.build();
+
+		// Add the new parameters to the target monitor
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		targetMonitor.collectParameter(connectedPortsCountParam);
+		targetMonitor.collectParameter(totalBandwidthParam);
+	}
 
 	@Override
 	public void post() {
@@ -1065,6 +1131,10 @@ public class CollectOperation extends AbstractStrategy {
 
 		// This will set the energy, the delta energy called energyUsage and the powerConsumption on the cpu monitor
 		CollectHelper.collectEnergyUsageFromPower(cpu, collectTime, powerConsumption, hostname);
+		computeTemperatureParameters();
+		
+		// Compute the network card parameters
+		computeNetworkCardParameters();
 	}
 
 }
