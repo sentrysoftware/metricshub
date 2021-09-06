@@ -276,16 +276,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.USAGE_COUNT_PARAMETER, 
 				HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER,
 				HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
-				HardwareConstants.HARD_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER,
-				HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.PREDICTED_FAILURE_PARAMETER, 
-				HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER);
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER);
 
 	}
 

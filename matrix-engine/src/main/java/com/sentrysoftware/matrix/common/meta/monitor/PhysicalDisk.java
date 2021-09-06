@@ -83,27 +83,6 @@ public class PhysicalDisk implements IMetaMonitor {
 			checkErrorCountCondition(monitor, HardwareConstants.ERROR_COUNT_PARAMETER, conditions),
 			ERROR_COUNT_ALARM_CONDITION,
 			ParameterState.ALARM);
-	public static final AlertRule TRANSPORT_ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER, conditions),
-			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
-
-	public static final AlertRule HARD_ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.HARD_ERROR_COUNT_PARAMETER, conditions),
-			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
-	public static final AlertRule NO_DEVICE_ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, conditions),
-			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
-	public static final AlertRule MEDIA_ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, conditions),
-			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
-	public static final AlertRule DEVICE_NOT_READY_ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER, conditions),
-			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(PhysicalDisk::checkPredictedFailureCondition,
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
@@ -133,11 +112,6 @@ public class PhysicalDisk implements IMetaMonitor {
 		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
 		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
 		alertRulesMap.put(HardwareConstants.ERROR_COUNT_PARAMETER, Collections.singletonList(ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER, Collections.singletonList(TRANSPORT_ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.HARD_ERROR_COUNT_PARAMETER, Collections.singletonList(HARD_ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, Collections.singletonList(NO_DEVICE_ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, Collections.singletonList(MEDIA_ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER, Collections.singletonList(DEVICE_NOT_READY_ERROR_COUNT_ALERT_RULE));
 		alertRulesMap.put(HardwareConstants.PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
 		alertRulesMap.put(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, List.of(ENDURANCE_REMAINING_WARN_ALERT_RULE, ENDURANCE_REMAINING_ALARM_ALERT_RULE));
 
