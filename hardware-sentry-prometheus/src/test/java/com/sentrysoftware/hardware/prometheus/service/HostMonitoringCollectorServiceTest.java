@@ -253,9 +253,9 @@ class HostMonitoringCollectorServiceTest {
 
 		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.CPU, monitorCpu, mfsCpu);
 
-		final Sample sample4 = new Sample("hw_cpu_maximum_speed", Arrays.asList(ID, PARENT, LABEL, FQDN),
+		final Sample sample4 = new Sample("hw_cpu_maximum_speed_hertz", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor3.getId(), monitor3.getParentId(), monitor3.getName(), null), 4000 * 1000000.0);
-		final MetricFamilySamples actualCpu = mfsCpu.stream().filter(p -> p.name.equals("hw_cpu_maximum_speed"))
+		final MetricFamilySamples actualCpu = mfsCpu.stream().filter(p -> p.name.equals("hw_cpu_maximum_speed_hertz"))
 				.findFirst().orElse(null);
 		assertEquals(sample4, actualCpu.samples.get(0));
 
@@ -359,8 +359,8 @@ class HostMonitoringCollectorServiceTest {
 
 		HostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
 
-		GaugeMetricFamily expected = new GaugeMetricFamily("hw_cpu_maximum_speed",
-				"Metric: hw_cpu_maximum_speed - Unit: hertz", Arrays.asList(ID, PARENT, LABEL, FQDN));
+		GaugeMetricFamily expected = new GaugeMetricFamily("hw_cpu_maximum_speed_hertz",
+				"Metric: hw_cpu_maximum_speed_hertz - Unit: hertz", Arrays.asList(ID, PARENT, LABEL, FQDN));
 		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 4000000);
 		assertEquals(expected, mfs.get(0));
 

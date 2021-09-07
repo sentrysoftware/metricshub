@@ -199,7 +199,7 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> physicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_physical_disk_size")
+		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_physical_disk_size_bytes")
 				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
 
 		return map;
@@ -213,7 +213,7 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.SIZE,
-				PrometheusParameter.builder().name("hw_memory_size").unit(HardwareConstants.BYTES_PARAMETER_UNIT)
+				PrometheusParameter.builder().name("hw_memory_size_bytes").unit(HardwareConstants.BYTES_PARAMETER_UNIT)
 						.factor(1000000.0) // MB to Bytes
 						.build());
 
@@ -227,7 +227,7 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> logicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_logical_disk_size")
+		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_logical_disk_size_bytes")
 				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
 
 		return map;
@@ -241,7 +241,7 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.MAXIMUM_SPEED,
-				PrometheusParameter.builder().name("hw_cpu_maximum_speed").unit(HERTZ).factor(1000000.0).build());
+				PrometheusParameter.builder().name("hw_cpu_maximum_speed_hertz").unit(HERTZ).factor(1000000.0).build());
 
 		return map;
 	}
@@ -864,7 +864,7 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the parameter name and it corresponding unit and
+	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the parameter name and its corresponding unit and
 	 * conversion factor
 	 *
 	 * @param monitorType     The type of monitor defined by matrix
@@ -877,7 +877,7 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the matrix metadata and it corresponding unit and
+	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the matrix metadata and its corresponding unit and
 	 * conversion factor
 	 *
 	 * @param monitorType     The type of monitor defined by matrix

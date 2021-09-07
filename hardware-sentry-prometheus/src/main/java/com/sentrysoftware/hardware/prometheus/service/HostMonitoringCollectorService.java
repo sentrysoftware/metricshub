@@ -258,19 +258,7 @@ public class HostMonitoringCollectorService extends Collector {
 		final String help = buildHelp(prometheusParameter);
 
 		// Create the MetricFamily, Gauge or Counter
-		final MetricFamilySamples labeledMetric;
-		if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
-			labeledMetric = new GaugeMetricFamily(
-					prometheusParameter.getName(),
-					help,
-					LABELS);
-		} else {
-			labeledMetric = new CounterMetricFamily(
-					prometheusParameter.getName(),
-					help,
-					LABELS);
-		}
-
+		final MetricFamilySamples labeledMetric = createMetricFamilySamples(prometheusParameter, help);
 
 		// For each monitor, check if the parameter is available then add the metric value
 		monitors
@@ -320,19 +308,33 @@ public class HostMonitoringCollectorService extends Collector {
 			final String help = buildHelp(prometheusParameter);
 
 			// Create the MetricFamily, Gauge or Counter
-			final MetricFamilySamples labeledMetric;
-			if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
-				labeledMetric = new GaugeMetricFamily(prometheusParameter.getName(), help, LABELS);
-			} else {
-				labeledMetric = new CounterMetricFamily(prometheusParameter.getName(), help, LABELS);
-			}
+			final MetricFamilySamples labeledMetric = createMetricFamilySamples(prometheusParameter, help);
 
 			// For each monitor, check if the metadata is available then add its value
-			monitors.values().stream().filter(monitor -> checkMetadata(monitor, metadata)).forEach(
-					monitor -> addMetadataAsMetric(labeledMetric, monitor, metadata, prometheusParameter.getFactor()));
+			monitors.values()
+					.stream()
+					.filter(monitor -> checkMetadata(monitor, metadata))
+					.forEach(monitor -> addMetadataAsMetric(labeledMetric, monitor, metadata, prometheusParameter.getFactor()));
 
 			mfs.add(labeledMetric);
 		}
+	}
+
+	/**
+	 * Create prometheus metric family based on the given {@link PrometheusParameter} instance defining the format of the prometheus metric
+	 *
+	 * @param prometheusParameter {@link PrometheusParameter} object defining the type and the name of the metric
+	 * @param help                metric help
+	 * @return new instance of {@link MetricFamilySamples}. GaugeMetricFamily if the type is GAUGE otherwise CounterMetricFamily.
+	 */
+	private static MetricFamilySamples createMetricFamilySamples(final PrometheusParameter prometheusParameter, final String help) {
+
+		if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
+			return new GaugeMetricFamily(prometheusParameter.getName(), help, LABELS);
+		}
+
+		return new CounterMetricFamily(prometheusParameter.getName(), help, LABELS);
+
 	}
 
 	/**
