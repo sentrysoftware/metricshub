@@ -539,4 +539,14 @@ class CollectHelperTest {
 		assertEquals(14880.0,monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
+	@Test
+	void testGetStatusParamState() {
+		Map<String, IParameterValue> parameters = new HashMap<>();
+		StatusParam statusParam = StatusParam.builder().state(ParameterState.OK).build();
+		String parameterName = "parameter";
+		parameters.put(parameterName, statusParam);
+		Monitor monitor = Monitor.builder().parameters(parameters).build();
+		assertNull(CollectHelper.getStatusParamState(monitor, "wrongParameter"));
+		assertEquals(ParameterState.OK, CollectHelper.getStatusParamState(monitor, parameterName));
+	}
 }
