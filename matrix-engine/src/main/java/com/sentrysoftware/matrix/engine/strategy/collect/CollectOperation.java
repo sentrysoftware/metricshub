@@ -59,6 +59,8 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import lombok.extern.slf4j.Slf4j;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -882,14 +884,14 @@ public class CollectOperation extends AbstractStrategy {
 		// Loop over all the network card monitors to compute the totalBandwidth & connectedPortsCount
 		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
 
-			// Get the link status value
-			final Double linkStatus = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
+			// Get the link status
+			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
 
 			// If there is connected count it.
-			if (linkStatus != null && linkStatus == 0.0) {
+			if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
 				connectedPortsCount++;
 			}
-			
+
 			// Get the link speed value
 			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_SPEED_PARAMETER);
 			
