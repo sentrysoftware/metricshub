@@ -77,6 +77,9 @@ class MonitorCollectVisitorTest {
 	private static final String TEMPERATURE = "20.0";
 	private static final String TEMPERATURE_TOO_LOW = "-101.0";
 	private static final String TEMPERATURE_TOO_HIGH = "201.0";
+	private static final String ENDURANCE_REMAINING = "10.0";
+	private static final String ENDURANCE_REMAINING_TOO_LOW = "-10.0";
+	private static final String ENDURANCE_REMAINING_TOO_HIGH = "110.0";
 
 	private static Long collectTime = new Date().getTime();
 
@@ -369,7 +372,12 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitPhysicalDisk() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().name("disk 1").id(MONITOR_ID).parentId(PARENT_ID).build();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.parentId(PARENT_ID)
+				.name("Disk 1 (1TB)")
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new PhysicalDisk());
@@ -2035,5 +2043,56 @@ class MonitorCollectVisitorTest {
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(55.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
 		}
+	}
+
+	@Test
+	void testCollectPhysicalDiskParameters() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.PHYSICAL_DISK).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// No value
+		monitorCollectVisitor.collectPhysicalDiskParameters();
+		NumberParam predictedFailure = monitor.getParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, NumberParam.class);
+		NumberParam enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		assertNull(predictedFailure);
+		assertNull(enduranceRemaining);
+
+		// Values collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Arrays.asList(ENDURANCE_REMAINING))
+				);
+		monitorCollectVisitor.collectPhysicalDiskParameters();
+		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		assertNotNull(enduranceRemaining);
+		assertEquals(10.0, enduranceRemaining.getRawValue());
+		assertEquals(10.0, enduranceRemaining.getValue());
+
+		// rawEnduranceRemaining value collected < 0
+		monitor.getParameters().clear();
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Arrays.asList(ENDURANCE_REMAINING_TOO_LOW))
+				);
+		monitorCollectVisitor.collectPhysicalDiskParameters();
+		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		assertNull(enduranceRemaining);
+
+		// rawEnduranceRemaining value collected > 100
+		monitor.getParameters().clear();
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Arrays.asList(ENDURANCE_REMAINING_TOO_HIGH))
+				);
+		monitorCollectVisitor.collectPhysicalDiskParameters();
+		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		assertNull(enduranceRemaining);
 	}
 }

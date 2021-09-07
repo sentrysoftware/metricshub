@@ -3525,18 +3525,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -3561,42 +3549,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -3648,18 +3600,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -3721,18 +3661,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -3757,42 +3685,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -3844,18 +3736,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -3917,18 +3797,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -3953,42 +3821,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -4040,18 +3872,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4113,18 +3933,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4149,42 +3957,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -4236,18 +4008,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4309,18 +4069,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4345,42 +4093,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -4432,18 +4144,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4505,18 +4205,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4541,42 +4229,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -4628,18 +4280,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4701,18 +4341,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4737,42 +4365,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -4824,18 +4416,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4897,18 +4477,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4933,42 +4501,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -5020,18 +4552,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5093,18 +4613,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -5129,42 +4637,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -5216,18 +4688,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5289,18 +4749,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -5325,42 +4773,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -5412,18 +4824,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5485,18 +4885,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -5521,42 +4909,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -5608,18 +4960,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5681,18 +5021,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -5717,42 +5045,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -5804,18 +5096,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5877,18 +5157,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -5913,42 +5181,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6000,18 +5232,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -6073,18 +5293,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -6109,42 +5317,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6196,18 +5368,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -6269,18 +5429,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -6305,42 +5453,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6392,18 +5504,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -6465,18 +5565,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -6501,42 +5589,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6588,18 +5640,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -6661,18 +5701,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -6697,42 +5725,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6784,18 +5776,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -6857,18 +5837,6 @@
       "vendor" : ""
     },
     "alertRules" : {
-      "deviceNotReadyErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "enduranceRemaining" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -6893,42 +5861,6 @@
         "type" : "STATIC"
       } ],
       "errorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "hardErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "mediaErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "noDeviceErrorCount" : [ {
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
@@ -6980,18 +5912,6 @@
         "conditions" : [ {
           "operator" : "EQ",
           "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
-      "transportErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,

@@ -63,14 +63,7 @@ public class HardwareConstants {
 	public static final String CPU_THERMAL_DISSIPATION_RATE_PARAMETER = "cpuThermalDissipationRate";
 	public static final String HEATING_MARGIN_PARAMETER = "heatingMargin";
 	public static final String ERROR_COUNT_PARAMETER = "errorCount";
-	public static final String HARD_ERROR_COUNT_PARAMETER = "hardErrorCount";
-	public static final String ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER = "illegalRequestErrorCount";
-	public static final String MEDIA_ERROR_COUNT_PARAMETER = "mediaErrorCount";
-	public static final String NO_DEVICE_ERROR_COUNT_PARAMETER = "noDeviceErrorCount";
-	public static final String DEVICE_NOT_READY_ERROR_COUNT_PARAMETER = "deviceNotReadyErrorCount";
 	public static final String CORRECTED_ERROR_COUNT_PARAMETER = "correctedErrorCount";
-	public static final String RECOVERABLE_ERROR_COUNT_PARAMETER = "recoverableErrorCount";
-	public static final String TRANSPORT_ERROR_COUNT_PARAMETER = "transportErrorCount";
 	public static final String STARTING_ERROR_COUNT_PARAMETER = "startingErrorCount";
 	public static final String PREVIOUS_ERROR_COUNT_PARAMETER = "previousErrorCount";
 	public static final String ERROR_STATUS_PARAMETER = "errorStatus";
