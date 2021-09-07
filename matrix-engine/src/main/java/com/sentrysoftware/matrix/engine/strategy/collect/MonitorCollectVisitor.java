@@ -268,20 +268,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(PhysicalDisk physicalDisk) {
 		collectBasicParameters(physicalDisk);
 
+		collectPhysicalDiskParameters();
+
+		collectErrorCount();
+
 		appendValuesToStatusParameter(
 				HardwareConstants.PRESENT_PARAMETER, 
 				HardwareConstants.USAGE_COUNT_PARAMETER, 
 				HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.DEVICE_NOT_READY_ERROR_COUNT_PARAMETER,
 				HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
-				HardwareConstants.HARD_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER,
-				HardwareConstants.MEDIA_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.NO_DEVICE_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.PREDICTED_FAILURE_PARAMETER, 
-				HardwareConstants.RECOVERABLE_ERROR_COUNT_PARAMETER, 
-				HardwareConstants.TRANSPORT_ERROR_COUNT_PARAMETER);
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER);
 
 	}
 
@@ -1211,6 +1208,26 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					monitorCollectInfo.getCollectTime(),
 					temperatureValue,
 					temperatureValue);
+		}
+	}
+
+	/**
+	 * Collect the physical disks specific parameters.
+	 */
+	void collectPhysicalDiskParameters() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the endurance remaining current value
+		final Double rawEnduranceRemaining = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.ENDURANCE_REMAINING_PARAMETER);
+
+		if (rawEnduranceRemaining != null && rawEnduranceRemaining >= 0 && rawEnduranceRemaining <= 100) {
+			updateNumberParameter(monitor,
+					HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
+					HardwareConstants.PERCENT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					rawEnduranceRemaining,
+					rawEnduranceRemaining);
 		}
 	}
 }
