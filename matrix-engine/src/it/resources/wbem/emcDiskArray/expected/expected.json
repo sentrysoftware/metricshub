@@ -1651,7 +1651,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1807,7 +1807,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1963,7 +1963,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2119,7 +2119,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2275,7 +2275,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2431,7 +2431,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2587,7 +2587,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2743,7 +2743,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 1000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2899,7 +2899,7 @@
         "state" : "WARN",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 1,
-        "statusInformation" : "status: 1 (Starting)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 1 (Starting)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3059,7 +3059,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3215,7 +3215,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3371,7 +3371,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)\nbandwidthUtilization: 0.0 %\nlinkSpeed: 16000.0 Mbits/s\nlinkStatus: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
