@@ -60,13 +60,6 @@ public class PhysicalDisk implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
-			.basicCollect(false)
-			.name(HardwareConstants.PREDICTED_FAILURE_PARAMETER)
-			.unit(HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, FIRMWARE_VERSION, SIZE,
 			ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 

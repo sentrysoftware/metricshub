@@ -1772,16 +1772,12 @@ class MonitorCollectVisitorTest {
 		// Values collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.PREDICTED_FAILURE_PARAMETER, VALUETABLE_COLUMN_1, HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_2),
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
-						Arrays.asList(PREDICTED_FAILURE_TRUE, ENDURANCE_REMAINING))
+						Arrays.asList(ENDURANCE_REMAINING))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		predictedFailure = monitor.getParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, NumberParam.class);
 		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
-		assertNotNull(predictedFailure);
-		assertEquals(1.0, predictedFailure.getRawValue());
-		assertEquals(1.0, predictedFailure.getValue());
 		assertNotNull(enduranceRemaining);
 		assertEquals(10.0, enduranceRemaining.getRawValue());
 		assertEquals(10.0, enduranceRemaining.getValue());
@@ -1790,32 +1786,24 @@ class MonitorCollectVisitorTest {
 		monitor.getParameters().clear();
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.PREDICTED_FAILURE_PARAMETER, VALUETABLE_COLUMN_1, HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_2),
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
-						Arrays.asList(PREDICTED_FAILURE_FALSE, ENDURANCE_REMAINING_TOO_LOW))
+						Arrays.asList(ENDURANCE_REMAINING_TOO_LOW))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		predictedFailure = monitor.getParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, NumberParam.class);
 		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
-		assertNotNull(predictedFailure);
-		assertEquals(0.0, predictedFailure.getRawValue());
-		assertEquals(0.0, predictedFailure.getValue());
 		assertNull(enduranceRemaining);
 
 		// rawEnduranceRemaining value collected > 100
 		monitor.getParameters().clear();
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.PREDICTED_FAILURE_PARAMETER, VALUETABLE_COLUMN_1, HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_2),
+						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
-						Arrays.asList(PREDICTED_FAILURE_FALSE, ENDURANCE_REMAINING_TOO_HIGH))
+						Arrays.asList(ENDURANCE_REMAINING_TOO_HIGH))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		predictedFailure = monitor.getParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, NumberParam.class);
 		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
-		assertNotNull(predictedFailure);
-		assertEquals(0.0, predictedFailure.getRawValue());
-		assertEquals(0.0, predictedFailure.getValue());
 		assertNull(enduranceRemaining);
 	}
 }
