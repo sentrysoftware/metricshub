@@ -253,6 +253,11 @@ public class PrometheusSpecificities {
 				.unit("unmounts")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_tape_drive_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
@@ -281,6 +286,11 @@ public class PrometheusSpecificities {
 		map.put(Robotic.MOVE_COUNT.getName(), PrometheusParameter.builder()
 				.name("hw_robotic_moves")
 				.unit("moves")
+				.type(PrometheusMetricType.COUNTER)
+				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_robotic_energy_joules")
+				.unit(JOULES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 
@@ -345,6 +355,11 @@ public class PrometheusSpecificities {
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
 				.name("hw_physical_disk_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
+				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_physical_disk_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
 				.build());
 
 		return map;
@@ -442,7 +457,11 @@ public class PrometheusSpecificities {
 				.unit("buffer_credits")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
-
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_network_card_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 		return map;
 	}
 
@@ -474,6 +493,11 @@ public class PrometheusSpecificities {
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
 				.name("hw_memory_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
+				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_memory_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
 				.build());
 
 		return map;
@@ -574,6 +598,11 @@ public class PrometheusSpecificities {
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_fan_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
@@ -626,6 +655,11 @@ public class PrometheusSpecificities {
 		map.put(DiskController.CONTROLLER_STATUS.getName(), PrometheusParameter.builder()
 				.name("hw_disk_controller_controller_status")
 				.unit(DiskController.CONTROLLER_STATUS.getUnit())
+				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_disk_controller_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
 				.build());
 
 		return map;
@@ -691,7 +725,11 @@ public class PrometheusSpecificities {
 				.name("hw_cpu_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
-
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_cpu_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
