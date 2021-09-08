@@ -24,11 +24,14 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,9 +40,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
+import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
@@ -65,6 +70,7 @@ import io.prometheus.client.exporter.common.TextFormat;
 @ExtendWith(MockitoExtension.class)
 class HostMonitoringCollectorServiceTest {
 
+	private static final String MAXIMUM_SPEED = "maximumSpeed";
 	private static final String ENCLOSURE_NAME = "Enclosure ECS";
 	private static final String ECS = "ecs";
 	private static final String ENCLOSURE_ID = "connector1.connector_enclosure_ecs_1.1";
@@ -227,9 +233,69 @@ class HostMonitoringCollectorServiceTest {
 				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName(), null), ParameterState.OK.ordinal());
 		final Sample sample2 = new Sample("hw_enclosure_status", Arrays.asList(ID, PARENT, LABEL, FQDN),
 				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName(), null), ParameterState.OK.ordinal());
+
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
 		assertEquals(expected, actual);
+
+		// test metadata to metric on CPU
+		final List<MetricFamilySamples> mfsCpu = new ArrayList<>();
+
+		Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		cpuMetadata.put("deviceid", "1.1");
+		cpuMetadata.put("maximumspeed", "4000");
+		cpuMetadata.put("model", "Xeon CPU E5-2620 v4 @ 2.10GHz");
+		cpuMetadata.put("vendor", "Intel");
+		final Monitor monitor3 = Monitor.builder().id(ID_VALUE + 3).parentId(PARENT_ID_VALUE).name(LABEL_VALUE + 3)
+				.parameters(Map.of(HardwareConstants.STATUS_PARAMETER, statusParam)).monitorType(MonitorType.CPU)
+				.metadata(cpuMetadata).build();
+		final Map<String, Monitor> monitorCpu = Map.of(monitor3.getId(), monitor3);
+
+		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.CPU, monitorCpu, mfsCpu);
+
+		final Sample sample4 = new Sample("hw_cpu_maximum_speed_hertz", Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(monitor3.getId(), monitor3.getParentId(), monitor3.getName(), null), 4000 * 1000000.0);
+		final MetricFamilySamples actualCpu = mfsCpu.stream().filter(p -> p.name.equals("hw_cpu_maximum_speed_hertz"))
+				.findFirst().orElse(null);
+		assertEquals(sample4, actualCpu.samples.get(0));
+
+		// mock PrometheusSpecificities to return counter instead of gauge
+		try (MockedStatic<PrometheusSpecificities> utilities = Mockito.mockStatic(PrometheusSpecificities.class)) {
+			final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+			map.put("raidLevel", PrometheusParameter.builder().name("hw_logicalDisk_raidlevel_counter").unit("joules")
+					.type(PrometheusMetricType.COUNTER).build());
+			final Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataParametersMap = new EnumMap<>(
+					MonitorType.class);
+
+			prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, map);
+			Optional<PrometheusParameter> param = Optional
+					.of(PrometheusParameter.builder().name("hw_logicalDisk_raidlevel_counter").unit("joules")
+							.type(PrometheusMetricType.COUNTER).build());
+			utilities.when(PrometheusSpecificities::getPrometheusMetadataToParameters)
+					.thenReturn(prometheusMetadataParametersMap);
+			utilities.when(() -> PrometheusSpecificities.getPrometheusMetadataToParameters(MonitorType.LOGICAL_DISK,
+					"raidLevel")).thenReturn(param);
+
+			final List<MetricFamilySamples> mfsDisk = new ArrayList<>();
+
+			Map<String, String> lgMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			lgMetadata.put("deviceid", "1.1");
+			lgMetadata.put("raidLevel", "5");
+			final Monitor monitor4 = Monitor.builder().id(ID_VALUE + 3).parentId(PARENT_ID_VALUE).name(LABEL_VALUE + 3)
+					.monitorType(MonitorType.LOGICAL_DISK).metadata(lgMetadata).build();
+			final Map<String, Monitor> monitorsLg = Map.of(monitor4.getId(), monitor4);
+
+			HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.LOGICAL_DISK, monitorsLg, mfsDisk);
+
+			final Sample sample5 = new Sample("hw_logicalDisk_raidlevel_counter_total",
+					Arrays.asList(ID, PARENT, LABEL, FQDN),
+					Arrays.asList(monitor4.getId(), monitor4.getParentId(), monitor4.getName(), null), 5);
+			final MetricFamilySamples actualLg = mfsDisk.stream()
+					.filter(p -> p.name.equals("hw_logicalDisk_raidlevel_counter")).findFirst().orElse(null);
+			assertEquals(sample5, actualLg.samples.get(0));
+
+		}
 	}
 
 	@Test
@@ -274,6 +340,41 @@ class HostMonitoringCollectorServiceTest {
 		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 0);
 
 		assertEquals(expected, mfs.get(0));
+	}
+
+	@Test
+	void testProcessMonitorsMetadataMetric() {
+		Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		cpuMetadata.put("deviceid", "1.1");
+		cpuMetadata.put("maximumspeed", "4");
+		cpuMetadata.put("model", "Xeon CPU E5-2620 v4 @ 2.10GHz");
+		cpuMetadata.put("vendor", "Intel");
+		final Monitor monitor1 = Monitor.builder().id(ID_VALUE + 1).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+				.metadata(cpuMetadata).monitorType(MonitorType.CPU).build();
+		final Monitor monitor2 = Monitor.builder().id(ID_VALUE + 2).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+				.parameters(Collections.emptyMap()).monitorType(MonitorType.CPU).build();
+		Map<String, Monitor> monitors = Map.of(monitor1.getId(), monitor1, monitor2.getId(), monitor2);
+
+		List<MetricFamilySamples> mfs = new ArrayList<>();
+
+		HostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
+
+		GaugeMetricFamily expected = new GaugeMetricFamily("hw_cpu_maximum_speed_hertz",
+				"Metric: hw_cpu_maximum_speed_hertz - Unit: hertz", Arrays.asList(ID, PARENT, LABEL, FQDN));
+		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 4000000);
+		assertEquals(expected, mfs.get(0));
+
+		// CPU without maxSpeed, check we do not create metric if no value for metadata
+		Map<String, String> cpuMetadata2 = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		cpuMetadata.put("deviceid", "1.2");
+		final Monitor monitor3 = Monitor.builder().id(ID_VALUE + 3).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+				.metadata(cpuMetadata2).monitorType(MonitorType.CPU).build();
+		monitors = Map.of(monitor2.getId(), monitor2, monitor3.getId(), monitor3);
+		mfs = new ArrayList<>();
+
+		HostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
+		assertTrue(mfs.isEmpty());
+
 	}
 
 	@Test
@@ -355,6 +456,35 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
+	void testIsMetadataFamilyAvailableOnMonitors() {
+		{
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put("deviceid", "1.1");
+			cpuMetadata.put("maximumspeed", "4");
+			cpuMetadata.put("model", "Xeon CPU E5-2620 v4 @ 2.10GHz");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitor1 = Monitor.builder().id(ID_VALUE + 1).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadata).build();
+			final Monitor monitor2 = Monitor.builder().id(ID_VALUE + 2).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			final Map<String, Monitor> monitors = Map.of(monitor1.getId(), monitor1, monitor2.getId(), monitor2);
+			assertTrue(HostMonitoringCollectorService.isMetadataFamilyAvailableOnMonitors(MAXIMUM_SPEED, monitors));
+		}
+
+		{
+			final Monitor monitor1 = Monitor.builder().id(ID_VALUE + 1).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			final Monitor monitor2 = Monitor.builder().id(ID_VALUE + 2).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			final Map<String, Monitor> monitors = Map.of(monitor1.getId(), monitor1, monitor2.getId(), monitor2);
+			assertFalse(HostMonitoringCollectorService.isMetadataFamilyAvailableOnMonitors(MAXIMUM_SPEED, monitors));
+		}
+		assertFalse(HostMonitoringCollectorService.isMetadataFamilyAvailableOnMonitors(MAXIMUM_SPEED, null));
+		assertFalse(HostMonitoringCollectorService.isMetadataFamilyAvailableOnMonitors(MAXIMUM_SPEED,
+				Collections.emptyMap()));
+	}
+
+	@Test
 	void testIsParameterAvailable() {
 
 		{
@@ -392,7 +522,7 @@ class HostMonitoringCollectorServiceTest {
 			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, MetaConnector.TEST_REPORT.getName()));
 
 		}
-		
+
 	}
 
 	@Test
@@ -443,6 +573,24 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
+	void testConvertMetadataValueNumber() {
+		final String cpuMonitor = "CPU";
+		final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		cpuMetadata.put("maximumspeed", "4");
+		cpuMetadata.put("vendor", "Intel");
+		final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(cpuMonitor)
+				.metadata(cpuMetadata).monitorType(MonitorType.CPU).build();
+		// make sure that the conversion is well done : factor 1000.0
+		// Note that the monitor metadata value can never be null when the
+		// convertMetadataValue is called
+		assertEquals(4000.0, HostMonitoringCollectorService.convertMetadataValue(monitor, MAXIMUM_SPEED, 1000.0));
+
+		final Monitor monitor2 = new Monitor();
+		assertThrows(NullPointerException.class,
+				() -> HostMonitoringCollectorService.convertMetadataValue(monitor2, MAXIMUM_SPEED, 1000.0));
+	}
+
+	@Test
 	void testCheckParameter() {
 		{
 			final Monitor monitor = Monitor.builder()
@@ -477,6 +625,34 @@ class HostMonitoringCollectorServiceTest {
 		}
 		{
 			assertFalse(HostMonitoringCollectorService.checkParameter(null, HardwareConstants.ENERGY_USAGE_PARAMETER));
+		}
+	}
+
+	@Test
+	void testCheckcheckMetadata() {
+		{
+
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put("maximumspeed", "4");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadata).build();
+			assertTrue(HostMonitoringCollectorService.checkMetadata(monitor, MAXIMUM_SPEED));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			assertFalse(HostMonitoringCollectorService.checkMetadata(monitor, MAXIMUM_SPEED));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(null).build();
+			assertFalse(HostMonitoringCollectorService.checkMetadata(monitor, MAXIMUM_SPEED));
+		}
+		{
+			assertFalse(HostMonitoringCollectorService.checkMetadata(null, MAXIMUM_SPEED));
 		}
 	}
 
@@ -525,6 +701,29 @@ class HostMonitoringCollectorServiceTest {
 				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 3000D);
 
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testAddMetadataAsMetric() {
+		final GaugeMetricFamily gauge = new GaugeMetricFamily(MAXIMUM_SPEED, HELP_DEFAULT,
+				Arrays.asList(ID, PARENT, LABEL, FQDN));
+		final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		cpuMetadata.put("maximumspeed", "4");
+		final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+				.metadata(cpuMetadata).monitorType(MonitorType.ENCLOSURE).build();
+		HostMonitoringCollectorService.addMetadataAsMetric(gauge, monitor, MAXIMUM_SPEED, 1.0);
+		final Sample actual = gauge.samples.get(0);
+		final Sample expected = new Sample(MAXIMUM_SPEED, Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 4D);
+		assertEquals(expected, actual);
+
+		final CounterMetricFamily counter = new CounterMetricFamily(MAXIMUM_SPEED, HELP_DEFAULT,
+				Arrays.asList(ID, PARENT, LABEL, FQDN));
+		HostMonitoringCollectorService.addMetadataAsMetric(counter, monitor, MAXIMUM_SPEED, 1.0);
+		final Sample actualCounter = counter.samples.get(0);
+		final Sample expectedCounter = new Sample("maximumSpeed_total", Arrays.asList(ID, PARENT, LABEL, FQDN),
+				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 4D);
+		assertEquals(expectedCounter, actualCounter);
 	}
 
 	@Test
