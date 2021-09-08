@@ -1,6 +1,9 @@
+keywords: prometheus exporter, hardware, prerequisites, install
+description: How get started with Hardware Sentry Exporter for Prometheus: packages, installation, prerequisites.
+
 # Getting Started
 
-**${project.name}** is designed to collect health and performance metrics from any hardware devices. It allies the monitoring performance of more that 250 hardware data connectors with the monitoring expertise of Hardware Sentry.
+**${project.name}** is designed to collect health and performance metrics from any hardware device. It allies the monitoring performance of more than 250 hardware data connectors with the monitoring expertise of Hardware Sentry.
 
 ![**${project.name}** Architecture](./images/mat_prom_architecture_diagram.png)
 
@@ -19,7 +22,7 @@ To verify the version installed on your system, run the following command:
 ```batch
 java -version
 ```
-You can download the latest versions of the Java Runtime Environment from <a href="https://adoptium.net/" target="_blank">Adoptium (formerly AdoptOpenJDK)</a>.
+You can download the latest version of the Java Runtime Environment from <a href="https://adoptium.net/" target="_blank">Adoptium (formerly AdoptOpenJDK)</a>.
 
 ### Install the ${project.name} package
 

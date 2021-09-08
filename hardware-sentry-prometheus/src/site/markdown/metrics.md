@@ -1,13 +1,14 @@
+keywords: prometheus exporter, hardware, metrics, output
+description: How Hardware Sentry Exporter for Prometheus exposes hardware metrics in a Prometheus format.
+
 # Viewing Collected Metrics
 
-Make sure to you have:
+1. Configure the following files:
 
-* correctly configured the:
-
-    * [**${project.name}**](./configure.html#Hardware_Sentry_Exporter_for_Prometheus), and
+    * [${project.name}](./configure.html#Hardware_Sentry_Exporter_for_Prometheus), and
     * [Prometheus Server](./configure-prometheus-server.html)
 
-* launched **${project.name}** with the ```java -jar hardware-sentry-prometheus-<version>.jar``` command line.
+2. Launch **${project.name}** with the ```java -jar hardware-sentry-prometheus-<version>.jar``` command line.
 
 Prometheus scrapes all targets listed in the configuration file and returns the collected metrics in the standard Prometheus via an http endpoint (ex:```http://<host>:8080/metrics``` or ```http://nb-docker:8080/metrics/<target>```).
 

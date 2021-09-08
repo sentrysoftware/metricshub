@@ -1,3 +1,6 @@
+keywords: job, configuration, prometheus server, examples, job_name, metrics_path
+description: How to configure single and multi jobs with Hardware Sentry Prometheus Exporter.
+
 # Configure a Prometheus Server
 
 Refer to [Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) for detailed information.
@@ -33,7 +36,7 @@ Example:
       - rt-docker:8080
 ```
 
-**${project.name}** creates a single following http instance: ```http://nb-docker:8080/metrics``` to expose collected metrics.
+**${project.name}** creates a single http instance: ```http://nb-docker:8080/metrics``` to expose collected metrics.
 
 ## Multiple job configuration
 
@@ -42,30 +45,30 @@ To configure metrics from multiple jobs, identify each job with its ```job_name`
 Example:
 
 ```
-  - job_name: hardware_prometheus_bacon 
+  - job_name: hardware_prometheus_prod 
     honor_timestamps: true
     scrape_interval: 120s
     scrape_timeout: 30s
-    metrics_path: /metrics/bacon
+    metrics_path: /metrics/prod
     scheme: http
     static_configs:
     - targets:
       - nb-docker:8080
 
-  - job_name: hardware_prometheus_ankara
+  - job_name: hardware_prometheus_test
       honor_timestamps: true
       scrape_interval: 120s
-      scrape_timeout: 30s
-      metrics_path: /metrics/ankara
+      scrape_timeout: 300s
+      metrics_path: /metrics/test
       scheme: http
       static_configs:
       - targets:
         - nb-docker:8080
 ```
 
-**${project.name}** creates the two following http instances: ```http://nb-docker:8080/metrics/bacon``` and ```http://nb-docker:8080/metrics/ankara``` to respectively expose metrics collected from *bacon* and *ankara* hosts.
+**${project.name}** creates the http instances: ```http://nb-docker:8080/metrics/prod``` and ```http://nb-docker:8080/metrics/test``` to respectively expose metrics collected from *prod* and *test* hosts.
 
-Metrics are returned once the whole collect is completed. This process may be time consuming when a large number of targets are scraped. To retrieve metrics for a specific target, simply specify it name in the ```job_name``` (example: ```job_name: hardware_prometheus_ankara```).
+Metrics are returned once the whole collect is completed. This process may be time-consuming when a large number of targets are scrapped. To retrieve metrics for a specific target, simply specify it name in the ```job_name``` (example: ```job_name: hardware_prometheus_test```).
 
-**${project.name}** collects metrics according to the defined ```scrape_interval``` and returns results immediately so you get real-time data upon each collect.
+**${project.name}** collects metrics according to the defined ```scrape_interval``` and returns results immediately, so you get real-time data upon each collect.
 
