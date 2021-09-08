@@ -545,7 +545,7 @@ public class CollectHelper {
 					monitor.getId(), hostname, energyRawKw, energyRawKwPrevious);
 		}
 
-		if (energyUsageKw != null && deltaTime != null) {
+		if (energyUsageKw != null && deltaTime != null && deltaTime != 0.0) {
 			// Calculate the power consumption in watts corresponding to the energy usage
 			double powerConsumptionWatts = energyUsageKw / deltaTime * 1000 * 3600;
 
