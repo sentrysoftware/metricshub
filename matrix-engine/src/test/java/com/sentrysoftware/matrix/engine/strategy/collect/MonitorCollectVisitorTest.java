@@ -2597,10 +2597,6 @@ class MonitorCollectVisitorTest {
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 		
-		// Full-duplex mode, when the duplex mode is null 
-		bandwidthUtilization = monitorCollectVisitor.collectNetworkCardBandwidthUtilization(null, 1000.0, 100.0, 200.0);
-		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilization);
-		
 		// Half-duplex mode
 		bandwidthUtilizationParameter.reset();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(0.0, 1000.0, 100.0, 200.0);
