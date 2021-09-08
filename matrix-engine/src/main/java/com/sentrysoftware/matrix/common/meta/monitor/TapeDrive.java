@@ -99,6 +99,9 @@ public class TapeDrive implements IMetaMonitor {
 		map.put(HardwareConstants.MOUNT_COUNT_PARAMETER, MOUNT_COUNT);
 		map.put(HardwareConstants.NEEDS_CLEANING_PARAMETER, NEEDS_CLEANING);
 		map.put(HardwareConstants.UNMOUNT_COUNT_PARAMETER, UNMOUNT_COUNT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

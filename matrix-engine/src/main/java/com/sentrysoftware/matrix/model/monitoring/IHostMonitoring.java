@@ -9,6 +9,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 
 public interface IHostMonitoring {
 
@@ -33,8 +34,6 @@ public interface IHostMonitoring {
 	Map<String, Monitor> selectFromType(MonitorType monitorType);
 
 	Map<MonitorType, Map<String, Monitor>> selectFromTypes(MonitorType... monitorTypes);
-
-	Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType);
 
 	Monitor findById(String monitorIdentifier);
 
@@ -72,4 +71,8 @@ public interface IHostMonitoring {
 	ConnectorNamespace getConnectorNamespace(final String connectorName);
 
 	ConnectorNamespace getConnectorNamespace(final Connector connector);
+
+	PowerMeter getPowerMeter();
+
+	void setPowerMeter(PowerMeter powerMeter);
 }

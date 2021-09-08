@@ -82,6 +82,8 @@ public class HostMonitoring implements IHostMonitoring {
 	@Getter(value = AccessLevel.PRIVATE)
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 
+	private PowerMeter powerMeter;
+
 	@Override
 	public void clearCurrent() {
 		monitors.clear();
@@ -349,12 +351,6 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType) {
-
-		return Collections.emptySet();
-	}
-
-	@Override
 	public Monitor findById(String monitorIdentifier) {
 
 		Assert.notNull(monitorIdentifier, "monitorIdentifier cannot be null.");
@@ -596,4 +592,7 @@ public class HostMonitoring implements IHostMonitoring {
 		return getConnectorNamespace(connector.getCompiledFilename());
 	}
 
+	public enum PowerMeter {
+		COLLECTED, ESTIMATED;
+	}
 }

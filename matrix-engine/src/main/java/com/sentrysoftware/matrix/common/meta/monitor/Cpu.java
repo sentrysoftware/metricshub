@@ -79,6 +79,9 @@ public class Cpu implements IMetaMonitor {
 		map.put(HardwareConstants.CURRENT_SPEED_PARAMETER, CURRENT_SPEED);
 		map.put(HardwareConstants.PREDICTED_FAILURE_PARAMETER, PREDICTED_FAILURE);
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

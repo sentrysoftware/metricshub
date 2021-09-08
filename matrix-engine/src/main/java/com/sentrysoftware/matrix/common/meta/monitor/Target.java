@@ -45,11 +45,13 @@ public class Target implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
 		map.put(HardwareConstants.HEATING_MARGIN_PARAMETER, HEATING_MARGIN);
 		map.put(HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER, AMBIENT_TEMPERATURE);
 		map.put(HardwareConstants.CPU_TEMPERATURE_PARAMETER, CPU_TEMPERATURE);
 		map.put(HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER, CPU_THERMAL_DISSIPATION_RATE);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 	}

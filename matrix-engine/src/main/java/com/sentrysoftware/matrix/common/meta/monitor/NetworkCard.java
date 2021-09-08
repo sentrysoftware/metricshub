@@ -197,6 +197,9 @@ public class NetworkCard implements IMetaMonitor {
 		map.put(HardwareConstants.TRANSMITTED_PACKETS_PARAMETER, TRANSMITTED_PACKETS);
 		map.put(HardwareConstants.RECEIVED_PACKETS_PARAMETER, RECEIVED_PACKETS);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
