@@ -1525,9 +1525,6 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(ROOT));
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig).getEngineConfiguration();
-		verify(strategyConfig, times(2)).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(ROOT));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1536,9 +1533,6 @@ class CriterionVisitorTest {
 		final List<List<String>> queryResult = Collections.singletonList(Collections.singletonList(BAZ));
 		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(strategyConfig, times(5)).getHostMonitoring();
-		verify(matsyaClientsExecutor, times(8)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -1547,9 +1541,6 @@ class CriterionVisitorTest {
 		wbem.setWbemNamespace(BAR);
 		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig, times(3)).getEngineConfiguration();
-		verify(strategyConfig, times(5)).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1557,9 +1548,6 @@ class CriterionVisitorTest {
 		// Namespace found, query execution completes
 		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig, times(4)).getEngineConfiguration();
-		verify(strategyConfig, times(5)).getHostMonitoring();
-		verify(matsyaClientsExecutor, times(2)).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
 		assertNotNull(criterionTestResult);
 		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -1577,9 +1565,6 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig).getEngineConfiguration();
-		verify(strategyConfig).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1589,9 +1574,6 @@ class CriterionVisitorTest {
 		wbem.setWbemNamespace(null);
 		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(strategyConfig).getHostMonitoring();
-		verify(matsyaClientsExecutor, times(2)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1611,9 +1593,6 @@ class CriterionVisitorTest {
 		List<List<String>> queryResult = Collections.emptyList();
 		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig).getEngineConfiguration();
-		verify(strategyConfig, times(2)).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1624,9 +1603,6 @@ class CriterionVisitorTest {
 		queryResult = Collections.singletonList(Collections.singletonList(QUUX));
 		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig, times(2)).getEngineConfiguration();
-		verify(strategyConfig, times(5)).getHostMonitoring();
-		verify(matsyaClientsExecutor, times(3)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertEquals(QUUX + SEMICOLON, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
@@ -1646,9 +1622,6 @@ class CriterionVisitorTest {
 		final List<List<String>> queryResult = Collections.emptyList();
 		doReturn(queryResult).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig).getEngineConfiguration();
-		verify(strategyConfig, times(2)).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1657,7 +1630,6 @@ class CriterionVisitorTest {
 		WBEMException wbemException = new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE);
 		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(matsyaClientsExecutor, times(7)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1666,7 +1638,6 @@ class CriterionVisitorTest {
 		wbemException = new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS);
 		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(matsyaClientsExecutor, times(13)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1675,7 +1646,6 @@ class CriterionVisitorTest {
 		wbemException = new WBEMException(WBEMException.CIM_ERR_NOT_FOUND);
 		doThrow(wbemException).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(matsyaClientsExecutor, times(19)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1683,7 +1653,6 @@ class CriterionVisitorTest {
 		// "SELECT Name FROM __NAMESPACE" threw a WqlQuerySyntaxException
 		doThrow(WqlQuerySyntaxException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		criterionTestResult = criterionVisitor.visit(wbem);
-		verify(matsyaClientsExecutor, times(25)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
@@ -1702,9 +1671,6 @@ class CriterionVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doThrow(WBEMException.class).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(wbem);
-		verify(strategyConfig).getEngineConfiguration();
-		verify(strategyConfig, times(2)).getHostMonitoring();
-		verify(matsyaClientsExecutor).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
 		assertNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());

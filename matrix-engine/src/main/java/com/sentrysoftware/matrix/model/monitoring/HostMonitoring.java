@@ -64,17 +64,17 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new LinkedHashMap<>();
 	private Map<String, SourceTable> sourceTables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-	private String automaticWmiNamespace;
 
 	private boolean isLocalhost;
 
 	private String ipmitoolCommand;
 	private int ipmiExecutionCount;
 
-	private Set<String> possibleWmiNamespaces = new TreeSet<>();
+	private String automaticWmiNamespace;
+	private final Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 	private String automaticWbemNamespace;
-	private Set<String> possibleWbemNamespaces = new TreeSet<>();
+	private final Set<String> possibleWbemNamespaces = new TreeSet<>();
 
 	private EngineConfiguration engineConfiguration;
 
@@ -136,7 +136,7 @@ public class HostMonitoring implements IHostMonitoring {
 	/**
 	 * Copy parameters from previous to current monitor. <br>
 	 * If the parameter is already collected the parameter's copy is skipped. E.g a present parameter set in the discovery
-	 * 
+	 *
 	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
 	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
 	 */
@@ -159,7 +159,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	/**
 	 * Copy alert rules from previous to current monitor.
-	 * 
+	 *
 	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
 	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
 	 */
@@ -212,7 +212,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 * @param connectorName        The connector compiled file name.
 	 * @param attachedToDeviceId   The identifier of the monitor we wish to deduce its key
 	 * @param attachedToDeviceType The type of the monitor we wish to deduce its key
-	 * @return {@link String} value containing the key of the parent monitor 
+	 * @return {@link String} value containing the key of the parent monitor
 	 */
 	String buildParentId(final String targetId, final String connectorName, final String attachedToDeviceId, final String attachedToDeviceType) {
 		Assert.notNull(targetId, TARGET_ID_CANNOT_BE_NULL);
@@ -236,7 +236,7 @@ public class HostMonitoring implements IHostMonitoring {
 						.filter(monitor -> COMPUTER.equalsIgnoreCase(monitor.getExtendedType())).findFirst();
 			}
 
-			// We've found the enclosure then 
+			// We've found the enclosure then
 			if (computerEnclosure.isPresent()) {
 				return computerEnclosure.get().getId();
 			}
@@ -305,7 +305,7 @@ public class HostMonitoring implements IHostMonitoring {
 	/**
 	 * Remove the children of the monitor identified by the given
 	 * <code>monitorId</code> recursively
-	 * 
+	 *
 	 * @param monitorId	The monitor's identifier.
 	 */
 	private void removeRelatedChildren(String monitorId) {
@@ -411,6 +411,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 *
 	 * @return				The {@link EngineResult} resulting from the execution of the last given {@link IStrategy}.
 	 */
+	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
 		log.error("Engine called for thread {}", Thread.currentThread().getName());

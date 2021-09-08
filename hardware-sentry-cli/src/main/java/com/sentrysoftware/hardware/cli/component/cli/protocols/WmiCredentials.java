@@ -5,7 +5,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class WMICredentials {
+public class WmiCredentials {
 
 	@Option(names = "--wmi-username",
 			description = "Username to establish the connection with the device.")

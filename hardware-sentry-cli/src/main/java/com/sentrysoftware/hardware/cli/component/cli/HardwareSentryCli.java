@@ -7,11 +7,11 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IPMICredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiCredentials;
 import com.sentrysoftware.hardware.cli.service.EngineService;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -23,7 +23,7 @@ import picocli.CommandLine.Option;
 @Component
 @Command(name = "hardware-sentry-cli", mixinStandardHelpOptions = true)
 @Data
-public class HardwareSentryCLI implements Callable<Boolean> {
+public class HardwareSentryCli implements Callable<Boolean> {
 
 	@Autowired
 	private EngineService engineService;
@@ -35,19 +35,19 @@ public class HardwareSentryCLI implements Callable<Boolean> {
 	private TargetType deviceType;
 
 	@ArgGroup(validate = false)
-	private SNMPCredentials snmpCredentials;
+	private SnmpCredentials snmpCredentials;
 
 	@ArgGroup(validate = false)
-	private WBEMCredentials wbemCredentials;
+	private WbemCredentials wbemCredentials;
 
 	@ArgGroup(validate = false)
-	private WMICredentials wmiCredentials;
+	private WmiCredentials wmiCredentials;
 
 	@ArgGroup(validate = false)
-	private HTTPCredentials httpCredentials;
+	private HttpCredentials httpCredentials;
 
 	@ArgGroup(validate = false)
-	private IPMICredentials ipmiCredentials;
+	private IpmiCredentials ipmiCredentials;
 
 	@Option(names = { "-hdfs", "--connectors" }, split = ",", description = "Enter the hdfs to run.")
 	private Set<String> hdfs;

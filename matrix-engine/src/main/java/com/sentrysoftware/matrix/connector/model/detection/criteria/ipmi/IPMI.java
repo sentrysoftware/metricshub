@@ -7,11 +7,9 @@ import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class IPMI extends Criterion {
 
 	private static final long serialVersionUID = 3276866736810038056L;
@@ -27,4 +25,8 @@ public class IPMI extends Criterion {
 		return criterionVisitor.visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "- IPMI";
+	}
 }

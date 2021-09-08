@@ -1,7 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -129,7 +132,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI source via IPMI Over-LAN
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processOutOfBandIpmiSource() {
@@ -162,7 +165,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI Source for the Unix system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processUnixIpmiSource(TargetType targetType) {
@@ -171,7 +174,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Process IPMI source for the Windows (NT) system
-	 * 
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
 	SourceTable processWindowsIpmiSource() {
@@ -185,13 +188,13 @@ public class SourceVisitor implements ISourceVisitor {
 		final String nameSpaceRootHardware = "root/hardware";
 
 		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
-		List<List<String>> wmiCollection1 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
+		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
 
 		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
-		List<List<String>> wmiCollection2 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		List<List<String>> wmiCollection3 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
 		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
@@ -399,12 +402,12 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
-				sources.get(tableJoinSource.getLeftTable()).getTable(), 
-				sources.get(tableJoinSource.getRightTable()).getTable(), 
-				tableJoinSource.getLeftKeyColumn(), 
-				tableJoinSource.getRightKeyColumn(), 
-				tableJoinSource.getDefaultRightLine(), 
-				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()), 
+				sources.get(tableJoinSource.getLeftTable()).getTable(),
+				sources.get(tableJoinSource.getRightTable()).getTable(),
+				tableJoinSource.getLeftKeyColumn(),
+				tableJoinSource.getRightKeyColumn(),
+				tableJoinSource.getDefaultRightLine(),
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
 				false);
 
 		SourceTable sourceTable = new SourceTable();
@@ -450,7 +453,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Get source table based on the key
-	 * 
+	 *
 	 * @param key
 	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
 	 */
@@ -512,20 +515,7 @@ public class SourceVisitor implements ISourceVisitor {
 				return SourceTable.empty();
 			}
 
-			// if protocol = null than we use the default one : https
-			String transferProtocol = protocol.getProtocol() == null ? WBEMProtocol.WBEMProtocols.HTTPS.name().toLowerCase()
-					: protocol.getProtocol().name().toLowerCase();
-			final String wbemUrl = String.format("%s://%s:%d", transferProtocol, hostname, protocol.getPort());
-			if (wbemUrl == null) {
-				log.error(
-						"Cannot build URL with the following information : hostname :{}, port : {}. Returning an empty table.",
-						hostname, protocol.getPort());
-				return SourceTable.empty();
-			}
-
-			int timeout = protocol.getTimeout() == null ? 120000 : protocol.getTimeout().intValue() * 1000; // seconds to milliseconds
-			final List<List<String>> table = matsyaClientsExecutor.executeWbem(wbemUrl, protocol.getUsername(),
-					protocol.getPassword(), timeout, wbemSource.getWbemQuery(), namespace);
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, protocol, wbemSource.getWbemQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -566,12 +556,8 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			final List<List<String>> table = matsyaClientsExecutor.executeWmi(hostname,
-					protocol.getUsername(),
-					protocol.getPassword(),
-					protocol.getTimeout(),
-					wmiSource.getWbemQuery(),
-					namespace);
+			final List<List<String>> table =
+					matsyaClientsExecutor.executeWmi(hostname, protocol, wmiSource.getWbemQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -598,37 +584,35 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final String sourceNamespace = wmiSource.getWbemNamespace();
 
-		if ("automatic".equalsIgnoreCase(sourceNamespace)) {
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
 			return strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
-		} else {
-			return sourceNamespace != null ? sourceNamespace : protocol.getNamespace();
 		}
+
+		return sourceNamespace;
 
 	}
 
 	/**
-	 * Call the matsya client executor to execute a WMI request. 
+	 * Call the matsya client executor to execute a WMI request.
 	 * @param hostname
 	 * @param wmiProtocol
 	 * @param wmiQuery
 	 * @param namespace
 	 * @return
 	 */
-	private List<List<String>> executeWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
+	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
 			final String wmiQuery, final String namespace) {
-		List<List<String>> wmiCollection1 = new ArrayList<>();
+
+		log.debug("Executing IPMI Query ({}): WMI Query: {}:\n", hostname, wmiQuery);
+
 		try {
-			wmiCollection1 = matsyaClientsExecutor.executeWmi(
+			return matsyaClientsExecutor.executeWmi(
 					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getPassword(),
-					wmiProtocol.getTimeout(),
+					wmiProtocol,
 					wmiQuery,
-					namespace);
-			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
-					hostname,
-					wmiQuery);
+					namespace
+			);
 		} catch (Exception e) {
 			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wmiQuery,
@@ -636,7 +620,7 @@ public class SourceVisitor implements ISourceVisitor {
 					wmiProtocol.getUsername(),
 					wmiProtocol.getTimeout(),
 					namespace);
+			return Collections.emptyList();
 		}
-		return wmiCollection1;
 	}
 }

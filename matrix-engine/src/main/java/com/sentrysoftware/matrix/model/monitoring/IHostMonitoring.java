@@ -31,7 +31,7 @@ public interface IHostMonitoring {
 	void addMonitor(Monitor monitor);
 
 	void removeMonitor(Monitor monitor);
-	
+
 	Map<String, Monitor> selectFromType(MonitorType monitorType);
 
 	Map<MonitorType, Map<String, Monitor>> selectFromTypes(MonitorType... monitorTypes);
@@ -51,10 +51,6 @@ public interface IHostMonitoring {
 
 	void addMissingMonitor(Monitor monitor);
 
-	void setAutomaticWmiNamespace(String automaticNamespace);
-
-	String getAutomaticWmiNamespace();
-
 	String getIpmitoolCommand();
 	void setIpmitoolCommand(String ipmitoolCommand);
 
@@ -66,11 +62,13 @@ public interface IHostMonitoring {
 
 	Set<String> getPossibleWmiNamespaces();
 
-	void setAutomaticWbemNamespace(String automaticNamespace);
-
-	String getAutomaticWbemNamespace();
+	String getAutomaticWmiNamespace();
+	void setAutomaticWmiNamespace(String automaticNamespace);
 
 	Set<String> getPossibleWbemNamespaces();
+
+	String getAutomaticWbemNamespace();
+	void setAutomaticWbemNamespace(String automaticNamespace);
 
 	EngineConfiguration getEngineConfiguration();
 

@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -17,10 +18,11 @@ import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -31,45 +33,39 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
-	private static final String PROCESS_COMMAND_LINE_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
-
 	@NonNull
 	private final String command;
 	private final StrategyConfig strategyConfig;
 	private final MatsyaClientsExecutor matsyaClientsExecutor;
+
+	@Autowired
+	private final WqlDetectionHelper wqlDetectionHelper;
 
 	@Getter
 	private CriterionTestResult criterionTestResult;
 
 	@Override
 	public void visit(final Windows os) {
+
 		Assert.state(strategyConfig != null, "strategyConfig mustn't be null.");
 		Assert.state(matsyaClientsExecutor != null, "matsyaClientsExecutor mustn't be null.");
 
-		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
-		final long timeout = protocol != null ? protocol.getTimeout() : EngineConfiguration.DEFAULT_JOB_TIMEOUT;
+		final WMIProtocol localWmiConfig = WMIProtocol
+				.builder()
+				.username(null)
+				.password(null)
+				.timeout(30L)
+				.build();
 
-		try {
-			final List<List<String>> queryResult = matsyaClientsExecutor.executeWmi(
-					"localhost",
-					null,
-					null,
-					timeout,
-					PROCESS_COMMAND_LINE_QUERY,
-					"root\\cimv2");
-			if (queryResult.isEmpty()) {
-				fail(String.format("WMI query \"%s\" returned empty value.", PROCESS_COMMAND_LINE_QUERY));
-			} else {
-				processResult(queryResult);
-			}
-		} catch (final Exception e) {
-			fail(
-					String.format(
-							"Unable to perform WMI query \"%s\". %s: %s",
-							PROCESS_COMMAND_LINE_QUERY,
-							e.getClass().getSimpleName(),
-							e.getMessage()));
-		}
+		final WMI criterion = (WMI) WMI
+				.builder()
+				.wbemQuery("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process")
+				.wbemNamespace("root\\cimv2")
+				.expectedResult(command)
+				.build();
+
+		criterionTestResult = wqlDetectionHelper.performDetectionTest("localhost", localWmiConfig, criterion);
+
 	}
 
 	@Override
