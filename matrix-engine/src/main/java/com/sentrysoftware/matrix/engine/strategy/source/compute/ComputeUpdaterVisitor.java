@@ -27,7 +27,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Righ
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.XML2CSV;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -196,7 +196,7 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final XML2CSV xml2csv) {
+	public void visit(final Xml2Csv xml2csv) {
 		xml2csv.accept(computeVisitor);
 	}
 

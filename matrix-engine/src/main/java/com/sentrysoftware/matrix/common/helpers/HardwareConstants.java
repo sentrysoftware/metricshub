@@ -59,16 +59,12 @@ public class HardwareConstants {
 	public static final String SPEED_PERCENT_PARAMETER = "speedPercent";
 	public static final String VOLTAGE_PARAMETER = "voltage";
 	public static final String TEMPERATURE_PARAMETER = "temperature";
+	public static final String AMBIENT_TEMPERATURE_PARAMETER = "ambientTemperature";
+	public static final String CPU_TEMPERATURE_PARAMETER = "cpuTemperature";
+	public static final String CPU_THERMAL_DISSIPATION_RATE_PARAMETER = "cpuThermalDissipationRate";
 	public static final String HEATING_MARGIN_PARAMETER = "heatingMargin";
 	public static final String ERROR_COUNT_PARAMETER = "errorCount";
-	public static final String HARD_ERROR_COUNT_PARAMETER = "hardErrorCount";
-	public static final String ILLEGAL_REQUEST_ERROR_COUNT_PARAMETER = "illegalRequestErrorCount";
-	public static final String MEDIA_ERROR_COUNT_PARAMETER = "mediaErrorCount";
-	public static final String NO_DEVICE_ERROR_COUNT_PARAMETER = "noDeviceErrorCount";
-	public static final String DEVICE_NOT_READY_ERROR_COUNT_PARAMETER = "deviceNotReadyErrorCount";
 	public static final String CORRECTED_ERROR_COUNT_PARAMETER = "correctedErrorCount";
-	public static final String RECOVERABLE_ERROR_COUNT_PARAMETER = "recoverableErrorCount";
-	public static final String TRANSPORT_ERROR_COUNT_PARAMETER = "transportErrorCount";
 	public static final String STARTING_ERROR_COUNT_PARAMETER = "startingErrorCount";
 	public static final String PREVIOUS_ERROR_COUNT_PARAMETER = "previousErrorCount";
 	public static final String ERROR_STATUS_PARAMETER = "errorStatus";
@@ -105,7 +101,7 @@ public class HardwareConstants {
 	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
 	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
-
+	
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -127,6 +123,8 @@ public class HardwareConstants {
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
 	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
+	public static final String POWER_SUPPLY_USED_WATTS = "powerSupplyUsedWatts";
+	public static final String POWER_SUPPLY_USED_PERCENT = "powerSupplyUsedPercent";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
@@ -170,6 +168,10 @@ public class HardwareConstants {
 	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
 	public static final String COLOR = "color";
 	public static final String ADDITIONAL_LABEL = "additionalLabel";
+	public static final String MEMORY_LAST_ERROR = "memoryLastError";
+	public static final String LOGICAL_DISK_LAST_ERROR = "logicalDiskLastError";
+	public static final String IS_CPU_SENSOR = "isCpuSensor";
+	public static final String AVERAGE_CPU_TEMPERATURE_WARNING = "averageCpuTemperatureWarning";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

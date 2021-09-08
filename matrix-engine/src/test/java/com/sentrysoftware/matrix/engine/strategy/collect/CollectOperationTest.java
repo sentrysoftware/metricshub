@@ -49,8 +49,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
@@ -1010,11 +1013,11 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure2);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(3)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// Non-null sum
@@ -1027,7 +1030,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(6)).getHostMonitoring();
 		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
 		assertNotNull(energyParameter);
 		assertEquals(10800000.0, energyParameter.getValue());
@@ -1052,9 +1054,9 @@ class CollectOperationTest {
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is null
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
-		verify(strategyConfig, times(3)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is empty
@@ -1063,7 +1065,6 @@ class CollectOperationTest {
 		monitors.put(ENCLOSURE, new LinkedHashMap<>());
 
 		collectOperation.post();
-		verify(strategyConfig, times(6)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// totalEnergyValues is null
@@ -1077,7 +1078,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure2);
 
 		collectOperation.post();
-		verify(strategyConfig, times(9)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// totalEnergyValues[0] is null
@@ -1086,7 +1086,6 @@ class CollectOperationTest {
 		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
 
 		collectOperation.post();
-		verify(strategyConfig, times(12)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// totalEnergyValues[0] is not null && totalEnergyValues[1] is null (should never happen...)
@@ -1095,7 +1094,6 @@ class CollectOperationTest {
 		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
 
 		collectOperation.post();
-		verify(strategyConfig, times(15)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
@@ -1128,7 +1126,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(3)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// OK
@@ -1144,7 +1141,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(6)).getHostMonitoring();
 		NumberParam heatingMarginParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
 		assertNotNull(heatingMarginParameter);
 		assertEquals(8.0, heatingMarginParameter.getValue());
@@ -1167,9 +1163,9 @@ class CollectOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		// temperatureMonitors is null
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
-		verify(strategyConfig, times(3)).getHostMonitoring();
 		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// temperatureMonitors is empty
@@ -1178,7 +1174,6 @@ class CollectOperationTest {
 		monitors.put(TEMPERATURE, new LinkedHashMap<>());
 
 		collectOperation.post();
-		verify(strategyConfig, times(6)).getHostMonitoring();
 		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// Invalid threshold
@@ -1195,7 +1190,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(9)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// Temperature value is null
@@ -1216,7 +1210,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		verify(strategyConfig, times(12)).getHostMonitoring();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
@@ -1253,5 +1246,78 @@ class CollectOperationTest {
 		fan.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).setPresent(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
 				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+	}
+
+	@Test
+	void testComputeTemperatureParameters() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		// temperatureMonitors is null
+
+		collectOperation.computeTemperatureParameters();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// temperatureMonitors is empty
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(TEMPERATURE, new LinkedHashMap<>());
+
+		collectOperation.computeTemperatureParameters();
+		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// No CPU sensor
+
+		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		localMetadata.put(IS_CPU_SENSOR, "false");
+
+		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+				"temperature", localMetadata);
+		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
+
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(temperature);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+
+		collectOperation.computeTemperatureParameters();
+		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+
+		// Present CPU sensor
+
+		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+
+		localMetadata.clear();
+		localMetadata.put(IS_CPU_SENSOR, "true");
+
+		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+				"temperature1", localMetadata);
+		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
+
+		hostMonitoring.setMonitors(new LinkedHashMap<>());
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(temperature);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+
+		collectOperation.computeTemperatureParameters();
+		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+		assertEquals(10.0, target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
 	}
 }

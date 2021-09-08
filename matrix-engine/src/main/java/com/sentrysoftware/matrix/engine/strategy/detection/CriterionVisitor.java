@@ -699,10 +699,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 */
 	private TestResult checkSNMPGetExpectedValue(final String hostname, final String oid, final String expected,
 			final String result) {
+
 		String message;
 		boolean success = false;
+
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-		if (!pattern.matcher(result).find()) {
+		if (result == null || !pattern.matcher(result).find()) {
 			message = String.format(
 					"SNMP Test Failed - SNMP Get of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
 					oid, hostname);
