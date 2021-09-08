@@ -1,25 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -51,6 +31,26 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonitorCollectVisitorTest {
 
@@ -274,9 +274,30 @@ class MonitorCollectVisitorTest {
 
 	@Test
 	void testVisitLed() {
+
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).metadata(Map.of("offstatus", "0")).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		Map<String, String> customMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		customMetadata.put("offstatus", "0");
+
+		final Monitor monitor = Monitor
+			.builder()
+			.id(MONITOR_ID)
+			.metadata(customMetadata)
+			.build();
+
+		Map<String, String> customMapping = new HashMap<>(mapping);
+		customMapping.put(STATUS_PARAMETER, VALUETABLE_COLUMN_6);
+
+		List<String> customRow = new ArrayList<>(row);
+		customRow.add("off");
+
+		MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				customRow)
+		);
 
 		monitorCollectVisitor.visit(new Led());
 
