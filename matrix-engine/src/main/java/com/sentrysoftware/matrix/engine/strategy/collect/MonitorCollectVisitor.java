@@ -1304,6 +1304,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				case "BLINKING":
 					preTranslatedStatus = metadata.get(HardwareConstants.BLINKING_STATUS_METADATA);
 					break;
+				case "OFF":
 				default:
 					preTranslatedStatus = metadata.get(HardwareConstants.OFF_STATUS_METADATA);
 			}

@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.model.monitor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -20,19 +19,14 @@ import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 @Data
@@ -140,97 +134,6 @@ public class Monitor {
 		Assert.notNull(key, "key cannot be null");
 
 		metadata.put(key, value);
-	}
-
-	/**
-	 * Adds the key-value metadata,
-	 * with the keys being the given names,
-	 * and the values being the keys corresponding to the given values in the translation tables.<br><br>
-	 *
-	 * <u>Example</u>: metadataNames = ["warningOnColor", "alarmOnColor"], translationTablesValues = ["WARNING", "ALARM"]
-	 * <br>In this case, the new metadata will look like this:
-	 * <ul>
-	 *     <li>"warningOnColor" -> value1</li>
-	 *     <li>"alarmOnColor" -> value2</li>
-	 * </ul>
-	 * where:
-	 * <ul>
-	 *     <li><em>value1</em> is a comma-separated list of all the keys in the translation tables
-	 *     having "WARNING" as their matching value (case insensitive)</li>
-	 *     <li><em>value2</em> is a comma-separated list of all the keys in the translation tables
-	 *     having "ALARM" as their matching value (case insensitive)</li>
-	 * </ul>
-	 *
-	 *
-	 * @param translationTables			The translation tables.
-	 * @param metadataNames             The names of the metadata.
-	 * @param translationTablesValues	The values to look for in the translation tables.
-	 */
-	public void addMetadataFromTranslationTables(Map<String, TranslationTable> translationTables,
-												 String[] metadataNames, String[] translationTablesValues) {
-
-		if (translationTables == null) {
-			return;
-		}
-
-		Assert.isTrue(metadataNames != null && metadataNames.length > 0,
-			"metadataNames cannot be null or empty.");
-
-		Assert.isTrue(translationTablesValues != null && translationTablesValues.length > 0,
-			"translationTablesValues cannot be null or empty.");
-
-		Assert.isTrue(metadataNames.length == translationTablesValues.length,
-			"metadataNames and translationTablesValues have inconsistent lengths:"
-				+ Arrays.toString(metadataNames)
-				+ NEW_LINE
-				+ Arrays.toString(translationTablesValues));
-
-		// Making sure all required values are upper-cased,
-		// and associating them to their corresponding metadata name
-		Map<String, String> upperCaseTranslationTablesValuesToMetadataNames = new HashMap<>();
-		for (int i = 0; i < translationTablesValues.length; i++) {
-
-			String metadataName = metadataNames[i];
-			Assert.isTrue(metadataName != null && !metadataName.isBlank(), "metadata name cannot be null");
-
-			String translationTablesValue = translationTablesValues[i];
-			Assert.isTrue(translationTablesValue != null && !translationTablesValue.isBlank(),
-				"translation tables value cannot be null");
-
-			upperCaseTranslationTablesValuesToMetadataNames.put(translationTablesValue.toUpperCase(), metadataName);
-		}
-
-		// Initializing the result
-		Map<String, ArrayList<String>> result = Arrays
-			.stream(metadataNames)
-			.collect(Collectors.toMap(Function.identity(), metadataName -> new ArrayList<>()));
-
-		// Building the result
-		translationTables
-			.values()
-			.stream()
-			.map(TranslationTable::getTranslations)
-			.flatMap(map -> map.entrySet().stream())
-			.filter(entry -> entry.getValue() != null)
-			.forEach(entry -> {
-
-				String translation = entry.getValue().toUpperCase();
-
-				// If translation is one of the values we are looking for
-				if (upperCaseTranslationTablesValuesToMetadataNames.containsKey(translation)) {
-
-					// upperCaseTranslationTablesValuesToMetadataNames.get(translation) is the metadata name.
-					// Adding the entry's key to the result.
-					result
-						.get(upperCaseTranslationTablesValuesToMetadataNames.get(translation))
-						.add(entry.getKey());
-				}
-			});
-
-		// We can now actually add the metadata
-		for (Map.Entry<String, ArrayList<String>> entry : result.entrySet()) {
-			metadata.put(entry.getKey(), String.join(COMMA, entry.getValue()));
-		}
 	}
 
 	/**

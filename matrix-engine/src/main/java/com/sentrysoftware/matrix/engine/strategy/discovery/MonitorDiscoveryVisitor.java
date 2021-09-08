@@ -31,13 +31,11 @@ import org.springframework.util.Assert;
 
 import java.util.Map;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR_METADATA;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR_METADATA;
 
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
@@ -144,11 +142,6 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	public void visit(Led led) {
 
 		final Monitor monitor = createMonitor(MonitorNameBuilder.buildLedName(monitorBuildingInfo), null);
-
-		// Adding the warningOnColor and alarmOnColor metadata
-		monitor.addMetadataFromTranslationTables(monitorBuildingInfo.getTranslationTables(),
-			new String [] {WARNING_ON_COLOR_METADATA, ALARM_ON_COLOR_METADATA},
-			new String [] {"WARNING", "ALARM"});
 
 		led.accept(new MonitorAlertRulesVisitor(monitor));
 	}

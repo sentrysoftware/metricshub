@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceTable;
@@ -186,22 +185,21 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Process all the sources with their computes
 		processSourcesAndComputes(
-			hardwareMonitor.getDiscovery().getSources(),
-			hostMonitoring,
-			connector,
-			hardwareMonitor.getType(),
-			hostname);
+				hardwareMonitor.getDiscovery().getSources(),
+				hostMonitoring,
+				connector,
+				hardwareMonitor.getType(),
+				hostname);
 
 		// Create the monitors
 		createSameTypeMonitors(
-			connector.getCompiledFilename(),
-			hostMonitoring,
-			hardwareMonitor.getDiscovery().getInstanceTable(),
-			hardwareMonitor.getDiscovery().getParameters(),
-			targetMonitor,
-			hardwareMonitor.getType(),
-			hostname,
-			connector.getTranslationTables());
+				connector.getCompiledFilename(),
+				hostMonitoring,
+				hardwareMonitor.getDiscovery().getInstanceTable(),
+				hardwareMonitor.getDiscovery().getParameters(),
+				targetMonitor,
+				hardwareMonitor.getType(),
+				hostname);
 
 	}
 
@@ -210,19 +208,17 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * In that case we loop over all the rows referenced in the {@link InstanceTable}, for each row we create a new
 	 * {@link Monitor} instance then we set the discovery metadata on each created monitor
 	 * 
-	 * @param connectorName  	The unique name of the {@link Connector}. The compiled file name
-	 * @param hostMonitoring 	The {@link IHostMonitoring} instance wrapping source tables and monitors
-	 * @param instanceTable  	Defines the source key or the hard coded key
-	 * @param parameters     	The discovery parameters to process (from the connector)
-	 * @param targetMonitor  	The main monitor with {@link MonitorType#TARGET} type
-	 * @param monitorType    	The current type of the monitor, {@link MonitorType}
-	 * @param hostname       	The user's configured hostname used for debug purpose
-	 * @param translationTables	The {@link Connector}'s translation tables
+	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
+	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
+	 * @param instanceTable  Defines the source key or the hard coded key
+	 * @param parameters     The discovery parameters to process (from the connector)
+	 * @param targetMonitor  The main monitor with {@link MonitorType#TARGET} type
+	 * @param monitorType    The current type of the monitor, {@link MonitorType}
+	 * @param hostname       The user's configured hostname used for debug purpose
 	 */
-	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring, // NOSONAR
-								final InstanceTable instanceTable, final Map<String, String> parameters,
-								final Monitor targetMonitor, final MonitorType monitorType, final String hostname,
-								final Map<String, TranslationTable> translationTables) {
+	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
+			final InstanceTable instanceTable, final Map<String, String> parameters, final Monitor targetMonitor,
+			final MonitorType monitorType, final String hostname) {
 
 		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
 
@@ -234,8 +230,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceKey no monitor
 			if (sourceKey == null) {
 				log.error(
-					"No source key found with monitor {} for connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+						"No source key found with monitor {} for connector {} on system {}",
+						monitorType.getName(), connectorName, hostname);
 				return;
 			}
 
@@ -244,8 +240,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceTable no monitor
 			if (sourceTable == null) {
 				log.error(
-					"No source table created with source key {} for connector {} on system {}",
-					sourceKey, connectorName, hostname);
+						"No source table created with source key {} for connector {} on system {}",
+						sourceKey, connectorName, hostname);
 				return;
 			}
 
@@ -258,16 +254,15 @@ public class DiscoveryOperation extends AbstractStrategy {
 				processSourceTableParameters(connectorName, parameters, sourceKey, row, monitor, idCount);
 
 				final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
-					.builder()
-					.monitor(monitor)
-					.targetMonitor(targetMonitor)
-					.connectorName(connectorName)
-					.translationTables(translationTables)
-					.hostMonitoring(hostMonitoring)
-					.monitorType(monitorType)
-					.hostname(hostname)
-					.targetType(targetType)
-					.build();
+						.builder()
+						.monitor(monitor)
+						.targetMonitor(targetMonitor)
+						.connectorName(connectorName)
+						.hostMonitoring(hostMonitoring)
+						.monitorType(monitorType)
+						.hostname(hostname)
+						.targetType(targetType)
+						.build();
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 
@@ -280,16 +275,15 @@ public class DiscoveryOperation extends AbstractStrategy {
 			processTextParameters(parameters, monitor, connectorName);
 
 			final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
-				.builder()
-				.monitor(monitor)
-				.targetMonitor(targetMonitor)
-				.connectorName(connectorName)
-				.translationTables(translationTables)
-				.hostMonitoring(hostMonitoring)
-				.monitorType(monitorType)
-				.hostname(hostname)
-				.targetType(targetType)
-				.build();
+					.builder()
+					.monitor(monitor)
+					.targetMonitor(targetMonitor)
+					.connectorName(connectorName)
+					.hostMonitoring(hostMonitoring)
+					.monitorType(monitorType)
+					.hostname(hostname)
+					.targetType(targetType)
+					.build();
 
 			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 		}
