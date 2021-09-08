@@ -1250,8 +1250,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			// Getting the color status
 			Map<String, String> metadata = monitor.getMetadata();
-			String warningOnColor = metadata.get(HardwareConstants.WARNING_ON_COLOR_METADATA);
-			String alarmOnColor = metadata.get(HardwareConstants.ALARM_ON_COLOR_METADATA);
+			String warningOnColor = metadata.get(HardwareConstants.WARNING_ON_COLOR);
+			String alarmOnColor = metadata.get(HardwareConstants.ALARM_ON_COLOR);
 
 			String colorStatus;
 			if (warningOnColor != null && warningOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
@@ -1299,14 +1299,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			String preTranslatedStatus;
 			switch (statusRaw.toUpperCase()) {
 				case "ON":
-					preTranslatedStatus = metadata.get(HardwareConstants.ON_STATUS_METADATA);
+					preTranslatedStatus = metadata.get(HardwareConstants.ON_STATUS);
 					break;
 				case "BLINKING":
-					preTranslatedStatus = metadata.get(HardwareConstants.BLINKING_STATUS_METADATA);
+					preTranslatedStatus = metadata.get(HardwareConstants.BLINKING_STATUS);
 					break;
 				case "OFF":
 				default:
-					preTranslatedStatus = metadata.get(HardwareConstants.OFF_STATUS_METADATA);
+					preTranslatedStatus = metadata.get(HardwareConstants.OFF_STATUS);
 			}
 
 			ParameterState translatedStatus = CollectHelper.translateStatus(preTranslatedStatus,
