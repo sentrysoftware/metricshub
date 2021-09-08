@@ -235,7 +235,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 				return;
 			}
 
-			final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(sourceKey);
+			final SourceTable sourceTable = hostMonitoring
+					.getConnectorNamespace(connectorName)
+					.getSourceTable(sourceKey);
 
 			// No sourceTable no monitor
 			if (sourceTable == null) {

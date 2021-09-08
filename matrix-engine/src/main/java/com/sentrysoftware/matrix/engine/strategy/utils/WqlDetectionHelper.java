@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion.WqlCriterionBuilder;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
@@ -285,13 +284,13 @@ public class WqlDetectionHelper {
 
 		// Run the query on each namespace and check if the result match the criterion
 		final Map<String, CriterionTestResult> namespaces = new TreeMap<>();
-		final WqlCriterionBuilder tentativeCriterionBuilder = criterion.toBuilder();
+		final WqlCriterion tentativeCriterion = criterion.copy();
 
 		// Loop over each namespace and run the WBEM query and check if the result matches
 		for (final String namespace : possibleNamespaces) {
 
 			// Update the criterion with the current namespace that needs to be tested
-			WqlCriterion tentativeCriterion = tentativeCriterionBuilder.wbemNamespace(namespace).build();
+			tentativeCriterion.setWbemNamespace(namespace);
 
 			// Do the request
 			CriterionTestResult testResult = performDetectionTest(hostname, protoConfig, tentativeCriterion);

@@ -27,14 +27,16 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionUpdaterVisitor;
-import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.ComputeVisitor;
+import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -55,9 +57,6 @@ public abstract class AbstractStrategy implements IStrategy {
 	protected StrategyConfig strategyConfig;
 
 	@Autowired
-	protected SourceVisitor sourceVisitor;
-
-	@Autowired
 	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@Autowired
@@ -65,7 +64,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	protected Long strategyTime;
 
 	@Autowired
-	protected ICriterionVisitor criterionVisitor;
+	protected WqlDetectionHelper wqlDetectionHelper;
 
 	protected static final int MAX_THREADS_COUNT = 50;
 	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
@@ -116,6 +115,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		// visit and process the source
 		for (final Source source : sources) {
 
+			final ISourceVisitor sourceVisitor = new SourceVisitor(strategyConfig, matsyaClientsExecutor, connector);
 			final SourceTable sourceTable = source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
 
 			if (sourceTable == null) {
@@ -126,8 +126,6 @@ public abstract class AbstractStrategy implements IStrategy {
 						hostname);
 				continue;
 			}
-
-			hostMonitoring.addSourceTable(source.getKey(), sourceTable);
 
 			final List<Compute> computes = source.getComputes();
 
@@ -140,7 +138,13 @@ public abstract class AbstractStrategy implements IStrategy {
 					compute.accept(computeUpdaterVisitor);
 				}
 
-				hostMonitoring.addSourceTable(source.getKey(), computeVisitor.getSourceTable());
+				hostMonitoring
+						.getConnectorNamespace(connector)
+						.addSourceTable(source.getKey(), computeVisitor.getSourceTable());
+			} else {
+				hostMonitoring
+						.getConnectorNamespace(connector)
+						.addSourceTable(source.getKey(), sourceTable);
 			}
 		}
 	}
@@ -216,6 +220,10 @@ public abstract class AbstractStrategy implements IStrategy {
 	 */
 	CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
 
+		CriterionVisitor criterionVisitor = new CriterionVisitor(strategyConfig,
+				matsyaClientsExecutor,
+				wqlDetectionHelper,
+				connector);
 		return criterion.accept(new CriterionUpdaterVisitor(criterionVisitor, connector));
 	}
 

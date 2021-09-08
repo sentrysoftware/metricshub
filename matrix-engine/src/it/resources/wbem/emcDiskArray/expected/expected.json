@@ -215,7 +215,7 @@
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : null,
-        "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. The following WBEM query succeeded:\n- SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n- Matching Result:\n\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. The following WBEM query succeeded:\n- SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n- Matching Result:\n\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
+        "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. WBEM test succeeded:\n- WQL Query: SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n\nResult: SYMMETRIX-+-000297800620;3|15|;\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. WBEM test succeeded:\n- WQL Query: SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n\nResult: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
         "type" : "TextParam"
       }
     },

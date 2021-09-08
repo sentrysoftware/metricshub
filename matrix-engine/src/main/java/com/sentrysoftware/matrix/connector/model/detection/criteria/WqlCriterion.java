@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria;
 
-import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
-import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
-
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class WqlCriterion extends Criterion {
+public abstract class WqlCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,8 +16,7 @@ public class WqlCriterion extends Criterion {
 	private String expectedResult;
 	private String errorMessage;
 
-	@Builder(toBuilder = true)
-	public WqlCriterion(boolean forceSerialization, String wbemQuery, String wbemNamespace, String expectedResult,
+	protected WqlCriterion(boolean forceSerialization, String wbemQuery, String wbemNamespace, String expectedResult,
 				String errorMessage, int index) {
 
 		super(forceSerialization, index);
@@ -29,11 +24,6 @@ public class WqlCriterion extends Criterion {
 		this.wbemNamespace = wbemNamespace;
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
-	}
-
-	@Override
-	public CriterionTestResult accept(final ICriterionVisitor criterionVisitor) {
-		throw new IllegalStateException("The accept method on WqlCriterion should have been overridden.");
 	}
 
 	@Override
@@ -48,4 +38,5 @@ public class WqlCriterion extends Criterion {
 		return sb.toString();
 	}
 
+	public abstract WqlCriterion copy();
 }

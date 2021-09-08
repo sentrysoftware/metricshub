@@ -99,7 +99,7 @@ public class CriterionTestResult {
 				criterion.toString(),
 				result
 		);
-		return CriterionTestResult.builder().success(false).message(message).result(result).build();
+		return CriterionTestResult.builder().success(true).message(message).result(result).build();
 	}
 
 

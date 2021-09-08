@@ -108,7 +108,7 @@ class SourceUpdaterVisitorTest {
 				.build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(sourceTable).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 
 		String expectedResult = "expectedVal1expectedVal2";
 
@@ -120,14 +120,14 @@ class SourceUpdaterVisitorTest {
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.LIST);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(sourceTable).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		assertEquals(expectedResult, result.getRawData());
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(sourceTable).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "expectedVal1,\n" +
@@ -136,7 +136,7 @@ class SourceUpdaterVisitorTest {
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(sourceTable).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "{\n" +
@@ -164,7 +164,7 @@ class SourceUpdaterVisitorTest {
 		httpSource.setEntryConcatStart("EntryConcatStart_");
 		httpSource.setEntryConcatEnd("_EntryConcatEnd\n");
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(sourceTable).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "EntryConcatStart_expectedVal1_EntryConcatEnd\n" +
@@ -375,10 +375,10 @@ class SourceUpdaterVisitorTest {
 	void testGetValueFromForeignSource() {
 
 		{ 
-			assertNull(sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			assertNull(sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					null,
 					AUTHENTICATION_TOKEN_FIELD));
-			assertEquals(HardwareConstants.EMPTY, sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			assertEquals(HardwareConstants.EMPTY, sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					HardwareConstants.EMPTY,
 					AUTHENTICATION_TOKEN_FIELD));
 		}
@@ -387,7 +387,7 @@ class SourceUpdaterVisitorTest {
 			// No foreign source table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertNull(value);
@@ -396,9 +396,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table empty
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.empty()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.empty()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertNull(value);
@@ -407,9 +407,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but null list table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(null).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.builder().table(null).build()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertNull(value);
@@ -418,9 +418,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but empty first line
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(List.of(Collections.emptyList(), List.of("val1", "val2"))).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.builder().table(List.of(Collections.emptyList(), List.of("val1", "val2"))).build()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertNull(value);
@@ -429,9 +429,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but null first line
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(Arrays.asList((List<String>) null)).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.builder().table(Arrays.asList((List<String>) null)).build()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertNull(value);
@@ -440,9 +440,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table present via the list table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(List.of(List.of("token", "unwanted", "unwanted"))).build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.builder().table(List.of(List.of("token", "unwanted", "unwanted"))).build()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertEquals("token", value);
@@ -451,9 +451,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table present via the raw data table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().rawData("token;unwanted;unwanted;").build()).when(hostMonitoring).getSourceTableByKey(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(SourceTable.builder().rawData("token;unwanted;unwanted;").build()).when(hostMonitoring).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
 
-			String value = sourceUpdaterVisitor.getValueFromForeignSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
 			assertEquals("token", value);

@@ -13,10 +13,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -46,10 +44,11 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
+@AllArgsConstructor
 public class SourceVisitor implements ISourceVisitor {
 
 	private static final String EXCEPTION = "Exception";
@@ -60,11 +59,9 @@ public class SourceVisitor implements ISourceVisitor {
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
-	@Autowired
 	private StrategyConfig strategyConfig;
-
-	@Autowired
 	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private Connector connector;
 
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
@@ -447,7 +444,10 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
+		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring()
+				.getConnectorNamespace(connector)
+				.getSourceTables();
+
 		if (sources == null ) {
 			log.error("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
@@ -528,7 +528,10 @@ public class SourceVisitor implements ISourceVisitor {
 	SourceTable getSourceTable(final String key) {
 
 		if (SOURCE_PATTERN.matcher(key).matches()) {
-			final SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+			final SourceTable sourceTable = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getSourceTable(key);
 			if (sourceTable == null) {
 				log.warn("The following source table {} cannot be found.", key);
 			}
@@ -654,7 +657,10 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
-			return strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
+			return strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWmiNamespace();
 		}
 
 		return sourceNamespace;

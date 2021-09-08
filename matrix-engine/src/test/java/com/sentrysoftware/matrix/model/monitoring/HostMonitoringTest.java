@@ -317,7 +317,7 @@ class HostMonitoringTest {
 
 		assertEquals(1, hostMonitoring.getSourceTables().size());
 		assertEquals(sourceTable, hostMonitoring.getSourceTables().get(SOURCE_KEY_LOWER));
-		assertEquals(sourceTable, hostMonitoring.getSourceTableByKey(SOURCE_KEY_PASCAL));
+		assertEquals(sourceTable, hostMonitoring.getSourceTable(SOURCE_KEY_PASCAL));
 	}
 
 	@Test

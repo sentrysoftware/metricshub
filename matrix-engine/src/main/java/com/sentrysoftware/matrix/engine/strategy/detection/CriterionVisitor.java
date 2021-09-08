@@ -12,9 +12,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -53,12 +50,13 @@ import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.Possib
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@AllArgsConstructor
 public class CriterionVisitor implements ICriterionVisitor {
 
 	private static final String IPMI_VERSION = "IPMI Version";
@@ -71,14 +69,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private static final Pattern SNMP_GETNEXT_RESULT_REGEX = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
-	@Autowired
 	private StrategyConfig strategyConfig;
-
-	@Autowired
 	private MatsyaClientsExecutor matsyaClientsExecutor;
-
-	@Autowired
 	private WqlDetectionHelper wqlDetectionHelper;
+	private Connector connector;
 
 	@Override
 	public CriterionTestResult visit(final HTTP criterion) {
@@ -445,7 +439,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(ipmi, "No WMI credentials provided.");
 		}
 
-		WqlCriterion ipmiWmiCriterion = WqlCriterion
+		WMI ipmiWmiCriterion = WMI
 				.builder()
 				.wbemQuery("SELECT Description FROM ComputerSystem")
 				.wbemNamespace("root\\hardware")
@@ -595,7 +589,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// Build a new WMI criterion to check the service existence
-		WqlCriterion serviceWmiCriterion = WqlCriterion
+		WMI serviceWmiCriterion = WMI
 				.builder()
 				.wbemQuery(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
 				.wbemNamespace("root\\cimv2")
@@ -781,7 +775,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getWbemNamespace())) {
 
-			final String cachedNamespace = strategyConfig.getHostMonitoring().getAutomaticWbemNamespace();
+			final String cachedNamespace = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWbemNamespace();
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
@@ -789,7 +786,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 			// Update the criterion with the cached namespace
-			WqlCriterion cachedNamespaceCriterion = wbemCriterion.toBuilder().wbemNamespace(cachedNamespace).build();
+			WqlCriterion cachedNamespaceCriterion = wbemCriterion.copy();
+			cachedNamespaceCriterion.setWbemNamespace(cachedNamespace);
 
 			// Run the test
 			return wqlDetectionHelper.performDetectionTest(hostname, wbemConfig, cachedNamespaceCriterion);
@@ -842,7 +840,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again
 		if (namespaceResult.getResult().isSuccess()) {
-			strategyConfig.getHostMonitoring().setAutomaticWbemNamespace(namespaceResult.getNamespace());
+			strategyConfig
+				.getHostMonitoring()
+				.getConnectorNamespace(connector)
+				.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 		}
 
 		return namespaceResult.getResult();
@@ -871,7 +872,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getWbemNamespace())) {
 
-			final String cachedNamespace = strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
+			final String cachedNamespace = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWmiNamespace();
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
@@ -879,7 +883,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 			// Update the criterion with the cached namespace
-			WqlCriterion cachedNamespaceCriterion = wmiCriterion.toBuilder().wbemNamespace(cachedNamespace).build();
+			WqlCriterion cachedNamespaceCriterion = wmiCriterion.copy();
+			cachedNamespaceCriterion.setWbemNamespace(cachedNamespace);
 
 			// Run the test
 			return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, cachedNamespaceCriterion);
@@ -932,7 +937,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again
 		if (namespaceResult.getResult().isSuccess()) {
-			strategyConfig.getHostMonitoring().setAutomaticWmiNamespace(namespaceResult.getNamespace());
+			strategyConfig
+				.getHostMonitoring()
+				.getConnectorNamespace(connector)
+				.setAutomaticWmiNamespace(namespaceResult.getNamespace());
 		}
 
 		return namespaceResult.getResult();

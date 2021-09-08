@@ -187,9 +187,9 @@ public class MatsyaClientsExecutor {
 					protocol.getCommunity(),
 					protocol.getVersion().getAuthType(),
 					protocol.getUsername(),
-					new String(protocol.getPassword()),
+					protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
 					privacyType,
-					new String(protocol.getPrivacyPassword()),
+					protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
 					null,
 					null
 			);
@@ -340,8 +340,8 @@ public class MatsyaClientsExecutor {
 			} else if (protoConfig instanceof WMIProtocol) {
 				return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
 			}
-		} catch (MalformedURLException | WqlQuerySyntaxException | WBEMException | TimeoutException | InterruptedException | LocalhostCheckException | WmiComException e) {
-			throw new MatsyaException(protoConfig.getClass().getSimpleName() + " query failed on " + hostname, e);
+		} catch (Exception e) {
+			throw new MatsyaException(e.getClass().getSimpleName() + " query failed on " + hostname, e);
 		}
 		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
 	}

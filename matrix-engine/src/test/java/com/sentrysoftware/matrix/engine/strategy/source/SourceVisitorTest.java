@@ -239,7 +239,7 @@ class SourceVisitorTest {
 		referenceSource = ReferenceSource.builder().reference(VALUE_TABLE).build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey(VALUE_TABLE);
+		doReturn(tabl1).when(hostMonitoring).getSourceTable(VALUE_TABLE);
 		assertEquals(expectedTable, sourceVisitor.visit(referenceSource).getTable());
 	}
 
@@ -504,8 +504,8 @@ class SourceVisitorTest {
 				.build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(tabl1).when(hostMonitoring).getSourceTableByKey("Enclosure.Discovery.Source(1)");
-		doReturn(tabl2).when(hostMonitoring).getSourceTableByKey("Enclosure.Discovery.Source(2)");
+		doReturn(tabl1).when(hostMonitoring).getSourceTable("Enclosure.Discovery.Source(1)");
+		doReturn(tabl2).when(hostMonitoring).getSourceTable("Enclosure.Discovery.Source(2)");
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
 
 	}
@@ -731,7 +731,7 @@ class SourceVisitorTest {
 		{
 			final SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA).build();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(expected).when(hostMonitoring).getSourceTableByKey("Temperature.Collect.Source(1)");
+			doReturn(expected).when(hostMonitoring).getSourceTable("Temperature.Collect.Source(1)");
 			assertEquals(expected, sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));
 		}
 

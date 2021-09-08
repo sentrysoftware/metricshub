@@ -812,7 +812,7 @@ class DiscoveryOperationTest {
 				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
+		assertEquals(expected, hostMonitoring.getSourceTable(ENCLOSURE_SOURCE_KEY));
 
 		source = SNMPGetTableSource.builder().oid(OID1).key(ENCLOSURE_SOURCE_KEY).build();
 		source.setComputes(null);
@@ -823,7 +823,7 @@ class DiscoveryOperationTest {
 				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
+		assertEquals(expected, hostMonitoring.getSourceTable(ENCLOSURE_SOURCE_KEY));
 
 	}
 
