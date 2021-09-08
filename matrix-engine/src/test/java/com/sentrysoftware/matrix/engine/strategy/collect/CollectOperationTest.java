@@ -87,7 +87,6 @@ class CollectOperationTest {
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
-	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
 	private static final String POWER_CONSUMPTION = "powerConsumption";
 	private static final String CONNECTOR_NAME = "myConnector.connector";
 	private static final String ENCLOSURE_NAME = "enclosure";
@@ -158,7 +157,7 @@ class CollectOperationTest {
 		criterion = SNMPGetNext.builder().oid(OID1).build();
 
 		connector = Connector.builder()
-				.compiledFilename(MY_CONNECTOR_NAME)
+				.compiledFilename(CONNECTOR_NAME)
 				.detection(Detection.builder()
 						.criteria(Collections.singletonList(criterion))
 						.build())
@@ -171,7 +170,7 @@ class CollectOperationTest {
 		parameters.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_NAME);
+		metadata.put(HardwareConstants.CONNECTOR, CONNECTOR_NAME);
 
 		final List<List<String>> table = new ArrayList<>();
 		table.add(row);
@@ -201,7 +200,7 @@ class CollectOperationTest {
 			collectOperation.prepare();
 			assertEquals(enclosure, hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID));
 			assertTrue(hostMonitoring.getPreviousMonitors().isEmpty());
-			assertTrue(hostMonitoring.getSourceTables().isEmpty());
+			assertTrue(hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTables().isEmpty());
 		}
 
 		// Next collect
@@ -227,7 +226,7 @@ class CollectOperationTest {
 			assertNotNull(result);
 
 			final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
-			
+
 			assertNull(parameterAfterReset.getCollectTime());
 			assertEquals(strategyTime, parameterAfterReset.getPreviousCollectTime());
 			assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
@@ -294,7 +293,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(connectorMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(Collections.singletonMap(MY_CONNECTOR_NAME, connector)).when(store).getConnectors();
+		doReturn(Collections.singletonMap(CONNECTOR_NAME, connector)).when(store).getConnectors();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(sourceTable).when(sourceVisitor).visit((SNMPGetTableSource) connector
 				.getHardwareMonitors()
@@ -317,7 +316,7 @@ class CollectOperationTest {
 		assertEquals(expected, actual);
 
 		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
-		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
 
 		assertEquals(expectedConnector, actualConnector);
 
@@ -325,7 +324,7 @@ class CollectOperationTest {
 
 	@Test
 	void testValidateHardwareMonitors() {
-		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().hardwareMonitors(null).build(), 
+		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().hardwareMonitors(null).build(),
 				ECS1_01,
 				CollectOperation.NO_HW_MONITORS_FOUND_MSG));
 		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().build(),
@@ -373,7 +372,7 @@ class CollectOperationTest {
 		assertEquals(expectedEnclosure, actualEnclosure);
 
 		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
-		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
 
 		assertEquals(expectedConnector, actualConnector);
 
@@ -383,10 +382,10 @@ class CollectOperationTest {
 		return Monitor
 				.builder()
 				.monitorType(MonitorType.CONNECTOR)
-				.name(MY_CONNECTOR_NAME)
+				.name(CONNECTOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.id(MY_CONNECTOR_NAME)
+				.id(CONNECTOR_NAME)
 				.build();
 	}
 
@@ -491,9 +490,9 @@ class CollectOperationTest {
 	void testProcessMultiInstanceValueTableMonitorNoFound() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		assertTrue(hostMonitoring.getMonitors().isEmpty());
 	}
@@ -504,7 +503,7 @@ class CollectOperationTest {
 		final Monitor expectedEnclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(expectedEnclosure);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -517,11 +516,11 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(enclosure);
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -545,7 +544,7 @@ class CollectOperationTest {
 
 		assertEquals(Optional.empty(), result);
 	}
-	
+
 	@Test
 	void testGetMonitorCannotExtractDeviceId() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -643,7 +642,7 @@ class CollectOperationTest {
 				.build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+				HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2,
 				HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
 				HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
@@ -739,7 +738,7 @@ class CollectOperationTest {
 			final Monitor expectedEnclosure = buildEnclosure(metadata);
 			hostMonitoring.addMonitor(expectedEnclosure);
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME,
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME,
 					hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -753,9 +752,9 @@ class CollectOperationTest {
 			final Monitor expectedEnclosure = buildEnclosure(metadata);
 
 			hostMonitoring.addMonitor(expectedEnclosure);
-			hostMonitoring.addSourceTable(VALUE_TABLE, SourceTable.empty());
+			hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, SourceTable.empty());
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
 					parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -771,11 +770,11 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(enclosure);
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
 				parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -961,7 +960,7 @@ class CollectOperationTest {
 
 		final Monitor collectedFan1 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN1");
 
-		assertEquals(strategyTime, 
+		assertEquals(strategyTime,
 				collectedFan1.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)
 				.getCollectTime());
 
@@ -1217,7 +1216,7 @@ class CollectOperationTest {
 	void testProcessMonoInstanceValueTableParameterNotPresent() {
 		// Enclosure doesn't define present
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(buildEnclosure(metadata),
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		final Monitor fan = Monitor.builder()
 				.id("FAN")
@@ -1230,22 +1229,22 @@ class CollectOperationTest {
 
 		// Missing is skipped, Present parameter equals 0
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case no parameters, no present
 		fan.setParameters(new HashMap<>());
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Present parameter equals 1
 		fan.setAsPresent();
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case, Present parameter but present value is null
 		fan.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).setPresent(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 	}
 
 	@Test

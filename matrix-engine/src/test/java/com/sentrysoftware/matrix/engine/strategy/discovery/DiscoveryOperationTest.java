@@ -93,7 +93,7 @@ class DiscoveryOperationTest {
 	private static final String MY_CONNECTOR_1_NAME = "myConnector1.connector";
 	private static final String ENCLOSURE_SOURCE_KEY = "Enclosure.discovery.Source(1)";
 	private static final String FAN_SOURCE_KEY = "Fan.discovery.Source(1)";
-	private static final String MY_CONNECTOR_2_NAME = "myConnecctor2.connector";
+	private static final String MY_CONNECTOR_2_NAME = "myConnector2.connector";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -396,7 +396,7 @@ class DiscoveryOperationTest {
 				.compiledFilename(MY_CONNECTOR_1_NAME)
 				.hardwareMonitors(Collections.singletonList(hardwareMonitor))
 				.build();
-	
+
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
@@ -415,7 +415,7 @@ class DiscoveryOperationTest {
 		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
 		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
-		
+
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
@@ -500,7 +500,7 @@ class DiscoveryOperationTest {
 				.build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, HardwareConstants.COMPUTER);
@@ -583,7 +583,7 @@ class DiscoveryOperationTest {
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(null).build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, HardwareConstants.COMPUTER);
@@ -610,7 +610,7 @@ class DiscoveryOperationTest {
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, HardwareConstants.COMPUTER);
@@ -685,7 +685,7 @@ class DiscoveryOperationTest {
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, HardwareConstants.COMPUTER);
@@ -703,7 +703,7 @@ class DiscoveryOperationTest {
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
-		hostMonitoring.addSourceTable(ENCLOSURE_SOURCE_KEY, sourceTable);
+		hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_SOURCE_KEY, sourceTable);
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -751,9 +751,9 @@ class DiscoveryOperationTest {
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, DELL_ENCLOSURE,
 				VENDOR, DELL);
-		
+
 		discoveryOperation.processTextParameters(parameters, monitor, MY_CONNECTOR_1_NAME);
-	
+
 		final Map<String, String> metadata = monitor.getMetadata();
 
 		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
@@ -767,7 +767,7 @@ class DiscoveryOperationTest {
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				OUT_OF_RANGE, INSTANCETABLE_COLUMN_4);
@@ -776,7 +776,7 @@ class DiscoveryOperationTest {
 		discoveryOperation.processSourceTableParameters(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
 		final Map<String, String> metadata = monitor.getMetadata();
-		
+
 		assertEquals(ID, metadata.get(DEVICE_ID_PASCAL));
 		assertEquals(POWER_EDGE_54DSF, metadata.get(DISPLAY_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
@@ -785,17 +785,17 @@ class DiscoveryOperationTest {
 		assertNull(metadata.get(OUT_OF_RANGE));
 	}
 
-	
+
 	@Test
 	void testProcessSourcesAndComputes() {
 
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		discoveryOperation.processSourcesAndComputes(Collections.emptyList(), hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
-		assertTrue(hostMonitoring.getSourceTables().isEmpty());
+		assertTrue(hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTables().isEmpty());
 
 		discoveryOperation.processSourcesAndComputes(null, hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
-		assertTrue(hostMonitoring.getSourceTables().isEmpty());
+		assertTrue(hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTables().isEmpty());
 
 		SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
@@ -812,7 +812,7 @@ class DiscoveryOperationTest {
 				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTable(ENCLOSURE_SOURCE_KEY));
+		assertEquals(expected, hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTable(ENCLOSURE_SOURCE_KEY));
 
 		source = SNMPGetTableSource.builder().oid(OID1).key(ENCLOSURE_SOURCE_KEY).build();
 		source.setComputes(null);
@@ -823,13 +823,13 @@ class DiscoveryOperationTest {
 				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTable(ENCLOSURE_SOURCE_KEY));
+		assertEquals(expected, hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTable(ENCLOSURE_SOURCE_KEY));
 
 	}
 
 	@Test
 	void testResetPresentParam() {
-		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null)); 
+		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null));
 
 		final PresentParam presentParam = PresentParam.present();
 

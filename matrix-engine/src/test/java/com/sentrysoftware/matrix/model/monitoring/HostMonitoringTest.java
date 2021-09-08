@@ -61,7 +61,7 @@ class HostMonitoringTest {
 		final Monitor notargetId = Monitor.builder().targetId(TARGET_ID).name(target_NAME)
 				.monitorType(TARGET).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.removeMonitor(notargetId));
-		
+
 
 		final Monitor noMonitorType = Monitor.builder().targetId(TARGET_ID).id(TARGET_ID).name(target_NAME).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.removeMonitor(noMonitorType));
@@ -156,7 +156,7 @@ class HostMonitoringTest {
 			assertTrue(hostMonitoring.selectFromType(TARGET).isEmpty());
 			assertTrue(hostMonitoring.selectFromType(ENCLOSURE).isEmpty());
 			assertTrue(hostMonitoring.selectFromType(FAN).isEmpty());
-			
+
 			hostMonitoring.getMonitors().put(MonitorType.TARGET, null);
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
@@ -228,7 +228,7 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			
+
 			final String expectedEnclosureId = HostMonitoring.buildMonitorId(CONNECTOR_NAME, MonitorType.ENCLOSURE, TARGET_ID, ENCLOSURE_ID);
 			final Monitor enclosure = Monitor.builder().id(expectedEnclosureId).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 					.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
@@ -249,7 +249,7 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			
+
 			final String expectedEnclosureId = HostMonitoring.buildMonitorId(CONNECTOR_NAME, MonitorType.ENCLOSURE, TARGET_ID, ENCLOSURE_ID);
 			final Monitor enclosure = Monitor.builder().id(expectedEnclosureId).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(HardwareConstants.COMPUTER).build();
@@ -270,7 +270,7 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			
+
 			final String expectedEnclosureId = HostMonitoring.buildMonitorId(CONNECTOR_NAME, MonitorType.ENCLOSURE, TARGET_ID, ENCLOSURE_ID);
 			final Monitor enclosure = Monitor.builder().id(expectedEnclosureId).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(HardwareConstants.STORAGE).build();
@@ -313,11 +313,11 @@ class HostMonitoringTest {
 
 		final SourceTable sourceTable = SourceTable.builder().build();
 
-		hostMonitoring.addSourceTable(SOURCE_KEY_LOWER, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(SOURCE_KEY_LOWER, sourceTable);
 
-		assertEquals(1, hostMonitoring.getSourceTables().size());
-		assertEquals(sourceTable, hostMonitoring.getSourceTables().get(SOURCE_KEY_LOWER));
-		assertEquals(sourceTable, hostMonitoring.getSourceTable(SOURCE_KEY_PASCAL));
+		assertEquals(1, hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTables().size());
+		assertEquals(sourceTable, hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTables().get(SOURCE_KEY_LOWER));
+		assertEquals(sourceTable, hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTable(SOURCE_KEY_PASCAL));
 	}
 
 	@Test
