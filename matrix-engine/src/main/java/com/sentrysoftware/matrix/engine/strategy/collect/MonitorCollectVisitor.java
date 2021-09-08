@@ -33,6 +33,9 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
