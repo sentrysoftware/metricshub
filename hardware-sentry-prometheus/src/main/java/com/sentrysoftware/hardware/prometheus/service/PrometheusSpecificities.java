@@ -52,6 +52,8 @@ public class PrometheusSpecificities {
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
 	private static final String RATIO = "ratio";
 	private static final String CELSIUS = "celsius";
+	private static final String CAMEL_CASE_REGEX = "([a-z])([A-Z]+)";
+	private static final String INSERT_UNDERSCORE = "$1_$2";
 
 	private static Map<MonitorType, List<String>> metricInfoLabels;
 
@@ -860,7 +862,26 @@ public class PrometheusSpecificities {
 	 * @return List of String values
 	 */
 	private static List<String> concatLabelsWithMetadata(MonitorType monitorType) {
-		return Stream.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream()).collect(Collectors.toList());
+
+		return Stream
+			.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream())
+			.map(PrometheusSpecificities::camelCaseToSnakeCase)
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Converts a {@link String} written in camelCase to its snake_case version.<br>
+	 * <b>Example: "parentId" -> "parent_id"</b>
+	 *
+	 * @param camelCase	The {@link String} that should be converted.
+	 *
+	 * @return			The snake_case version of the given {@link String}.
+	 */
+	private static String camelCaseToSnakeCase(String camelCase) {
+
+		return camelCase
+			.replaceAll(CAMEL_CASE_REGEX, INSERT_UNDERSCORE)
+			.toLowerCase();
 	}
 
 	/**
