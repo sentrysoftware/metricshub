@@ -14,7 +14,6 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.telnet.Telne
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
-import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 
 import lombok.AllArgsConstructor;
 
@@ -46,8 +45,7 @@ public class CriterionUpdaterVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(OSCommand osCommand) {
-		osCommand.setCommandLine(OsCommandHelper
-				.updateOsCommandEmbeddedFile(osCommand.getCommandLine(), connector));
+		osCommand.setEmbeddedFiles(connector.getEmbeddedFiles());
 		return osCommand.accept(criterionVisitor);
 	}
 

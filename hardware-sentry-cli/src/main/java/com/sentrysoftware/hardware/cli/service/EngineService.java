@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
@@ -105,6 +107,10 @@ public class EngineService {
 		if (hardwareSentryCli.getIpmiConfig() != null) {
 
 			protocols.put(IPMIOverLanProtocol.class, getIpmiOverLanProtocol(hardwareSentryCli.getIpmiConfig()));
+		}
+
+		if (hardwareSentryCli.getSshConfig() != null) {
+			protocols.put(SSHProtocol.class, getSSHProtocol(hardwareSentryCli.getSshConfig()));
 		}
 
 		return protocols;
@@ -208,6 +214,24 @@ public class EngineService {
 		wbemInstance.setPassword(cliWbemCredentials.getPassword());
 
 		return wbemInstance;
+	}
+
+	/**
+	 * Set SSHProtocol based on HardwareSentryCLi.sshCredentials.
+	 * 
+	 * @param sshConfig The CLI SSH credentials input.
+	 * @return A new {@link SSHProtocol} based on the given CLI SSH credentials input.
+	 */
+	public SSHProtocol getSSHProtocol(final SshConfig sshConfig) {
+		return SSHProtocol.sshProtocolBuilder()
+				.username(sshConfig.getUsername())
+				.password(sshConfig.getPassword())
+				.privateKey(sshConfig.getPrivateKey())
+				.timeout(sshConfig.getTimeout())
+				.sudoCommand(sshConfig.getSudoCommand())
+				.useSudo(sshConfig.isUseSudo())
+				.useSudoCommands(sshConfig.getUseSudoCommands())
+				.build();
 	}
 
 	/**

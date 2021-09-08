@@ -35,6 +35,15 @@ public class LocalOSHandler {
 				.map(String::toLowerCase)
 				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
 	}
+	
+	/**
+	 * Check if the Local OS is a Windows.
+	 * 
+	 * @return true if Windows false otherwise.
+	 */
+	public static boolean isWindows() {
+		return OS.isPresent() && OS.get().equals(WINDOWS);
+	}
 
 	/**
 	 * Get the OS Name from the System.

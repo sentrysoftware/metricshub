@@ -322,6 +322,7 @@ public class HardwareConstants {
 	public static final String PASSWORD_MACRO = "%{PASSWORD}";
 	public static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 
 	public static final String USERNAME = "USERNAME";
 

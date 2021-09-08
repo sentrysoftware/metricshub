@@ -1,8 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +33,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
@@ -44,6 +47,7 @@ import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
+import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
@@ -62,6 +66,9 @@ public class MatsyaClientsExecutor {
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 
 	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
+
+	private static final String SSH_FILE_MODE = "0700";
+	private static final String SSH_REMOTE_DIRECTORY = "/var/tmp/";
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
@@ -431,6 +438,42 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
+	 * Execute a command on a remote Windows system through Matsya and return an object with
+	 * the output of the command.
+	 * 
+	 * @param command The command to execute. (Mandatory)
+	 * @param hostname Host to connect to.  (Mandatory)
+	 * @param username The username name.
+	 * @param password The password.
+	 * @param timeout Timeout in seconds
+	 * @param localFiles The local files list
+	 * @return
+	 * @throws MatsyaException For any problem encountered.
+	 */
+	public static String executeWmiRemoteCommand(
+			final String command,
+			final String hostname,
+			final String username,
+			final char[] password,
+			final int timeout,
+			final List<String> localFiles) throws MatsyaException {
+		try {
+			final WinRemoteCommandExecutor result = WinRemoteCommandExecutor.execute(
+					command,
+					hostname,
+					username,
+					password,
+					null,
+					timeout * 1000L,
+					localFiles,
+					true);
+			return result.getStdout();
+		} catch (Exception e) {
+			throw new MatsyaException((Exception) e.getCause());
+		}
+	}
+
+	/**
 	 * Convert the given result to a {@link List} of {@link List} table
 	 *
 	 * @param result          The result we want to process
@@ -571,80 +614,110 @@ public class MatsyaClientsExecutor {
 	 * @param keyFilePath
 	 * @param command
 	 * @param timeout
+	 * @param localFiles
+	 * @param noPasswordCommand
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException
 	 */
-	public String runRemoteSshCommand(String hostname, String username, String password, String keyFilePath,
-			String command, int timeout) throws IOException {
+	public static String runRemoteSshCommand(
+			final String hostname, 
+			final String username, 
+			final String password, 
+			final String keyFilePath,
+			final String command, 
+			final int timeout, 
+			final List<File> localFiles,
+			final String noPasswordCommand) throws MatsyaException {
 
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-		notNull(username, USERNAME_CANNOT_BE_NULL);
-		notNull(command, "Command cannot be null");
+		notNull(hostname, "hostname cannot be null");
+		notNull(username, "username cannot be null");
+		isTrue(command != null && !command.trim().isEmpty(), "command mustn't be null or empty.");
+		isTrue(timeout > 0, "timeout mustn't be negative or zero.");
+		final int timeoutInMilliseconds = timeout * 1000;
 
-		if (timeout < 0) {
-			log.error("Invalid value of the specified timeout {} ", timeout);
-			return null;
-		}
+		final String updatedCommand = updateCommandWithLocalList(command, localFiles);
 
-		// Password
-		if (password == null) {
-			log.warn("Could not read password. Using an empty password instead.");
-			password = "";
-		}
+		final String noPasswordUpdatedCommand = noPasswordCommand == null ?
+				updatedCommand :
+					updateCommandWithLocalList(noPasswordCommand, localFiles);
 
-		command = command.trim(); // has already been tested that is not null
-		if (command.isEmpty()) {
-			command = null;
-		}
-
-		// Connect
-		SSHClient client = new SSHClient(hostname, StandardCharsets.UTF_8);
-		boolean authenticated = false;
-		client.connect(timeout * 1000);
-
+		// We have a command: execute it
+		final SSHClient sshClient = createSshClientInstance(hostname);
 		try {
-			if (password.isEmpty()) {
-				authenticated = client.authenticate(username);
+			sshClient.connect(timeoutInMilliseconds);
+
+			if (password == null) {
+				log.warn("Could not read password. Using an empty password instead.");
+			}
+			final boolean authenticated;
+			if (password == null || password.isEmpty()) {
+				authenticated = sshClient.authenticate(username);
 			} else if (keyFilePath == null) {
-				authenticated = client.authenticate(username, password);
+				authenticated = sshClient.authenticate(username, password);
 			} else {
-				authenticated = client.authenticate(username, keyFilePath, password);
+				authenticated = sshClient.authenticate(username, keyFilePath, password);
+			}
+			if (!authenticated) {
+				final String message = String.format("authentication failed as %s with %s on %s.", 
+						username, 
+						keyFilePath, 
+						hostname);
+				log.error(message);
+				throw new MatsyaException(message);
 			}
 
-		} catch (IOException e) {
-			log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
-			client.disconnect();
+			if (localFiles != null && !localFiles.isEmpty()) {
+				// copy all local files using SCP
+				for (final File file : localFiles) {
+					sshClient.scp(
+							file.getAbsolutePath(),
+							file.getName(), 
+							SSH_REMOTE_DIRECTORY,
+							SSH_FILE_MODE);
+				}
+			}
+
+			final SSHClient.CommandResult commandResult = sshClient.executeCommand(
+					updatedCommand,
+					timeoutInMilliseconds);
+			if (!commandResult.success) {
+				final String message = String.format("command \"%s\" failed with result %s",
+						noPasswordUpdatedCommand,
+						commandResult.result);
+				log.error(message);
+				throw new MatsyaException(message);
+			}
+			return commandResult.result;
+
+		} catch (final MatsyaException e) {
 			throw e;
+		} catch (final Exception e) {
+			final String message = String.format("Failed to run SSH command \"%s\" as %s on %s",
+					noPasswordUpdatedCommand,
+					username,
+					hostname);
+			log.error("{}. Exception : {}.", message, e.getMessage());
+			throw new MatsyaException(message, (Exception) e.getCause());
+		} finally {
+			sshClient.disconnect();
 		}
+	}
 
-		if (!authenticated) {
-			log.warn("Failed to authenticate as {} on {}.", username, hostname);
-		}
+	static String updateCommandWithLocalList(
+			final String command,
+			final List<File> localFiles) {
+		return  localFiles == null || localFiles.isEmpty() ? 
+				command :
+					localFiles.stream().reduce(
+							command, 
+							(s, file) -> command.replaceAll(
+									OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()), 
+									SSH_REMOTE_DIRECTORY + file.getName()),
+							(s1, s2) -> null);
+	}
 
-		// Command or interactive shell?
-		if (command != null) {
-
-			// We have a command: execute it
-			SSHClient.CommandResult result;
-			try {
-				result = client.executeCommand(command, timeout * 1000);
-			} catch (IOException e) {
-				log.error("Failed to authenticate as {} on {}. Exception : {}.", username, hostname, e.getMessage());
-				throw e;
-			} finally {
-				client.disconnect();
-			}
-
-			if (result.success) {
-				return result.result;
-			} else {
-				// Failure
-				log.error("Execution failed: {}.", result.result);
-			}
-
-		}
-		return null;
+	static SSHClient createSshClientInstance(final String hostname) {
+		return new SSHClient(hostname, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -697,4 +770,5 @@ public class MatsyaClientsExecutor {
 			throws InterruptedException, ExecutionException, TimeoutException {
 		return MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiOverLanProtocol));
 	}
+
 }

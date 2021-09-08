@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand;
 
+import java.util.Map;
+
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
@@ -23,6 +26,10 @@ public class OSCommand extends Criterion {
 	private String expectedResult;
 	private boolean executeLocally;
 	private Long timeout;
+
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	private Map<Integer, EmbeddedFile> embeddedFiles;
 
 	@Builder
 	public OSCommand(boolean forceSerialization, String commandLine, String errorMessage, String expectedResult,

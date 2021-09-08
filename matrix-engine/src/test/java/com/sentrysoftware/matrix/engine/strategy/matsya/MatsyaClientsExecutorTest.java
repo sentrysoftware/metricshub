@@ -18,9 +18,14 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -36,6 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
@@ -48,6 +54,8 @@ import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
 import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
+import com.sentrysoftware.matsya.ssh.SSHClient;
+import com.sentrysoftware.matsya.ssh.SSHClient.CommandResult;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
@@ -408,5 +416,428 @@ class MatsyaClientsExecutorTest {
 				List.of("Linux", "User", "Vol3.2", "3200", "Disk3", "2900",  "1500"));
 
 		assertEquals(expected, matsyaClientsExecutor.executeXmlParsing(xml, properties, recordTag));
+	}
+
+	@Test
+	void testRunRemoteSshCommandArgumentsKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(null, username, password, keyFilePath, command, timeout, null, null));
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, null, password, keyFilePath, command, timeout, null, null));
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, null, timeout, null, null));
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, " ", timeout, null, null));
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, -1, null, null));
+		assertThrows(IllegalArgumentException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, 0, null, null));
+	}
+
+	@Test
+	void testRunRemoteSshCommandConnectionKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doThrow(IOException.class).when(sshClient).connect(timeout * 1000);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandPasswordNullAuthenticationKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doThrow(IOException.class).when(sshClient).authenticate(username);
+	
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandPasswordEmptyAuthenticationKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doThrow(IOException.class).when(sshClient).authenticate(username);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, List.of(localFile), null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandKeyFilePathNullAuthenticationKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doThrow(IOException.class).when(sshClient).authenticate(username, password);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, List.of(localFile), null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandPasswordNullAuthenticationfailed() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		final CommandResult commandResult = new CommandResult();
+		commandResult.success = true;
+		commandResult.result = "result";
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doReturn(false).when(sshClient).authenticate(username);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, null, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandPasswordEmptyAuthenticationfailed() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doReturn(false).when(sshClient).authenticate(username);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandKeyFilePathNullAuthenticationfailed() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doReturn(false).when(sshClient).authenticate(username, password);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, null, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandAuthenticationfailed() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+
+			doReturn(false).when(sshClient).authenticate(username, keyFilePath, password);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandScpKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+			doReturn(true).when(sshClient).authenticate(username, keyFilePath, password);
+			
+			doThrow(IOException.class).when(sshClient).scp("/tmp/SEN_Embedded_file.sh", "SEN_Embedded_file.sh", "/var/tmp/", "0700");
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandExecuteCommandKO() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+			doReturn(true).when(sshClient).authenticate(username, keyFilePath, password);
+			doNothing().when(sshClient).scp("/tmp/SEN_Embedded_file.sh", "SEN_Embedded_file.sh", "/var/tmp/", "0700");
+
+			doThrow(IOException.class).when(sshClient).executeCommand(command, timeout * 1000);
+			doThrow(IOException.class).when(sshClient).executeCommand("/bin/sh /var/tmp/SEN_Embedded_file.sh", timeout * 1000);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommandResultFalse() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		final CommandResult commandResult = new CommandResult();
+		commandResult.success = false;
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+			doReturn(true).when(sshClient).authenticate(username, keyFilePath, password);
+			doNothing().when(sshClient).scp("/tmp/SEN_Embedded_file.sh", "SEN_Embedded_file.sh", "/var/tmp/", "0700");
+			doReturn(commandResult).when(sshClient).executeCommand(command, timeout * 1000);
+			doReturn(commandResult).when(sshClient).executeCommand("/bin/sh /var/tmp/SEN_Embedded_file.sh", timeout * 1000);
+
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertThrows(MatsyaException.class, () -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+
+	@Test
+	void testRunRemoteSshCommand() throws Exception  {
+		final String command = "/bin/sh /tmp/SEN_Embedded_file.sh";
+		final String hostname = "host";
+		final String username = "user";
+		final String password = "pwd";
+		final String keyFilePath = "path";
+		final int timeout = 120;
+		final File localFile = mock(File.class);
+		final List<File> localFiles = List.of(localFile);
+
+		final CommandResult commandResult = new CommandResult();
+		commandResult.success = true;
+		commandResult.result = "result";
+
+		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			final SSHClient sshClient = mock(SSHClient.class);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.createSshClientInstance(hostname)).thenReturn(sshClient);
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.updateCommandWithLocalList(command, localFiles)).thenCallRealMethod();
+
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null)).thenCallRealMethod();
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null)).thenCallRealMethod();
+
+			doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+			doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+			doNothing().when(sshClient).connect(timeout * 1000);
+			doReturn(true).when(sshClient).authenticate(username, keyFilePath, password);
+			doNothing().when(sshClient).scp("/tmp/SEN_Embedded_file.sh", "SEN_Embedded_file.sh", "/var/tmp/", "0700");
+			doReturn(commandResult).when(sshClient).executeCommand(command, timeout * 1000);
+			doReturn(commandResult).when(sshClient).executeCommand("/bin/sh /var/tmp/SEN_Embedded_file.sh", timeout * 1000);
+
+			assertEquals("result", MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, null, null));
+			assertEquals("result", MatsyaClientsExecutor.runRemoteSshCommand(hostname, username, password, keyFilePath, command, timeout, localFiles, null));
+		}
+	}
+	
+	@Test
+	void testUpdateCommandWithLocalList() {
+		final File localFile = mock(File.class);
+
+		doReturn("/tmp/SEN_Embedded_file.sh").when(localFile).getAbsolutePath();
+		doReturn("SEN_Embedded_file.sh").when(localFile).getName();
+
+		assertEquals("cmd /tmp/SEN_Embedded_file.sh", MatsyaClientsExecutor.updateCommandWithLocalList("cmd /tmp/SEN_Embedded_file.sh", null));
+		assertEquals("cmd /tmp/SEN_Embedded_file.sh", MatsyaClientsExecutor.updateCommandWithLocalList("cmd /tmp/SEN_Embedded_file.sh", Collections.emptyList()));
+		assertEquals("cmd /var/tmp/SEN_Embedded_file.sh", MatsyaClientsExecutor.updateCommandWithLocalList("cmd /tmp/SEN_Embedded_file.sh", List.of(localFile)));
 	}
 }

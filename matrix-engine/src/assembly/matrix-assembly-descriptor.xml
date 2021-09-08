@@ -18,6 +18,8 @@
 					<include>com/**</include>
 					<include>org/**</include>
 					<include>uk/**</include>
+					<include>net/**</include>
+					<include>djb/**</include>
 					<include>META-INF/**</include>
 					<include>javax/**</include>
 					<include>*.properties</include>
