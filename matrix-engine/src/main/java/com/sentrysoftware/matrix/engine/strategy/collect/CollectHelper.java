@@ -48,8 +48,10 @@ public class CollectHelper {
 		STATUS_MAP = Collections.unmodifiableMap(map);
 
 		final Map<String, ParameterState> predictedFailureMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		map.put("TRUE", ParameterState.WARN);
-		map.put("FALSE", ParameterState.OK);
+		predictedFailureMap.put("TRUE", ParameterState.WARN);
+		predictedFailureMap.put("FALSE", ParameterState.OK);
+		predictedFailureMap.put("1", ParameterState.WARN);
+		predictedFailureMap.put("0", ParameterState.OK);
 
 		PREDICTED_FAILURE_MAP = Collections.unmodifiableMap(predictedFailureMap);
 
@@ -59,11 +61,11 @@ public class CollectHelper {
 
 	/**
 	 * Translate the status String value to a {@link ParameterState}
-	 * 
+	 *
 	 * @param status         Status value in String format (OK, WARN, ALARM, 0, 1, 2, ON, OFF, BLINKING)
 	 * @param unknownStatus  Unknown status used when we are not able to translate the collected status
 	 * @param monitorId      Current collected monitor identifier
-	 * @param hostname       Current hostname  
+	 * @param hostname       Current hostname
 	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
 	 * @return {@link ParameterState} value
 	 */
@@ -88,7 +90,7 @@ public class CollectHelper {
 			// Get the parameter state from our STATUS_MAP
 			parameterState = STATUS_MAP.get(status.trim());
 		}
-		
+
 
 		// Means it is an unknown status
 		if (parameterState == null) {
@@ -104,7 +106,7 @@ public class CollectHelper {
 				log.error(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.ALARM);
 				return unknownStatus;
 			}
-			
+
 		}
 
 		return parameterState;
@@ -113,7 +115,7 @@ public class CollectHelper {
 
 	/**
 	 * From the given row extract the value corresponding to the given <code>valueTableColumn</code>
-	 * 
+	 *
 	 * @param valueTable       The unique key of the {@link Source} used for debug purpose
 	 * @param parameterKey     The unique key of the parameter. E.g. status, statusInformation, intrusionStatus...
 	 * @param monitorType      The type of the monitor we wish to collect
@@ -160,7 +162,7 @@ public class CollectHelper {
 
 	/**
 	 * Get the {@link NumberParam} raw value
-	 * 
+	 *
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} rawValue
 	 * @param parameterName The name of the {@link NumberParam} instance
 	 * @param previous      Indicate whether we should return the <code>rawValue</code> or <code>previousRawValue</code>.
@@ -179,7 +181,7 @@ public class CollectHelper {
 
 	/**
 	 * Get the {@link NumberParam} value
-	 * 
+	 *
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} value
 	 * @param parameterName The name of the {@link NumberParam} instance
 	 * @return a {@link Double} value
@@ -197,7 +199,7 @@ public class CollectHelper {
 
 	/**
 	 * Get the {@link NumberParam} collect time
-	 * 
+	 *
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberParam} collect time
 	 * @param parameterName The name of the {@link NumberParam} instance
 	 * @param previous      Indicate whether we should return the <code>collectTime</code> or the <code>previousCollectTime</code>.
@@ -216,7 +218,7 @@ public class CollectHelper {
 
 	/**
 	 * Return the {@link Double} value of the given {@link Number} instance
-	 * 
+	 *
 	 * @param number
 	 * @return {@link Double} instance
 	 */
@@ -230,11 +232,11 @@ public class CollectHelper {
 
 	/**
 	 * Perform a subtraction arithmetic operation
-	 * 
+	 *
 	 * @param parameterName	The name of the parameter
 	 * @param minuend		Minuend of the subtraction
 	 * @param subtrahend	Subtrahend of the subtraction
-	 * 
+	 *
 	 * @return {@link Double} value
 	 */
 	public static Double subtract(final String parameterName, final Double minuend, final Double subtrahend) {
@@ -256,7 +258,7 @@ public class CollectHelper {
 
 	/**
 	 * Perform a division arithmetic operation
-	 * 
+	 *
 	 * @param parameter The parameter we wish to compute using a division (Rate, Percentage...)
 	 * @param dividend  The dividend to use
 	 * @param divisor   The divisor to use
@@ -284,7 +286,7 @@ public class CollectHelper {
 
 	/**
 	 * Perform a multiplication arithmetic operation
-	 * 
+	 *
 	 * @param parameter    The parameter we wish to compute using a multiplication
 	 * @param multiplier   The multiplier to use
 	 * @param multiplicand The multiplicand to use
@@ -308,7 +310,7 @@ public class CollectHelper {
 
 	/**
 	 * Compute a rate (value - previousValue) / (collectTime - previousCollectTime)
-	 * 
+	 *
 	 * @param parameterName       The parameter we wish to compute its rate value
 	 * @param value               The value from the current collect
 	 * @param previousValue       The value from the previous collect
@@ -319,7 +321,7 @@ public class CollectHelper {
 	 */
 	public static Double rate(String parameterName, Double value, Double previousValue, Double collectTime,
 			Double previousCollectTime) {
-		return CollectHelper.divide(parameterName, 
+		return CollectHelper.divide(parameterName,
 				CollectHelper.subtract(parameterName, value, previousValue),
 				CollectHelper.subtract(parameterName, collectTime, previousCollectTime));
 	}

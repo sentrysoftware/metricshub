@@ -108,6 +108,36 @@ class CollectHelperTest {
 				ID,
 				HOST_NAME,
 				HardwareConstants.STATUS_PARAMETER));
+
+		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.OK, CollectHelper.translateStatus("FALSE",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("1",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("TRUE",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("blabla",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				HardwareConstants.PREDICTED_FAILURE_PARAMETER));
 	}
 
 
