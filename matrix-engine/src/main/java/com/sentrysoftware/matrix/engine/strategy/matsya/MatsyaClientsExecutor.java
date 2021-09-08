@@ -366,7 +366,7 @@ public class MatsyaClientsExecutor {
 		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(networkResource, username, password)) {
 
 			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, timeout.intValue() * 1000L);
+			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, timeout.intValue() * 1000);
 
 			// Extract the exact property names (case sensitive), in the right order
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);

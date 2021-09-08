@@ -500,7 +500,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Double value = extractParameterValue(monitorType, parameterName);
 		if (value != null) {
-			CollectHelper.updateNumberParameter(monitor, parameterName, unit, collectTime, value, value);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				parameterName,
+				unit,
+				collectTime,
+				value,
+				value
+			);
 		}
 
 	}
@@ -602,6 +609,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
 		.forEach(metaParam -> collectNumberParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+
 	}
 
 
@@ -663,12 +671,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double chargeRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.CHARGE_PARAMETER);
 		if (chargeRaw != null) {
 
-			CollectHelper.updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.CHARGE_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				Math.min(chargeRaw, 100.0), // In case the raw value is greater than 100%
-				chargeRaw);
+				chargeRaw
+			);
 		}
 	}
 
@@ -684,12 +694,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (timeLeftRaw != null) {
 
-			CollectHelper.updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.TIME_LEFT_PARAMETER,
 				HardwareConstants.TIME_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				timeLeftRaw * 60.0, // minutes to seconds
-				timeLeftRaw);
+				timeLeftRaw
+			);
 		}
 	}
 
@@ -718,12 +730,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (usedTimePercentPrevious == null) {
 
 			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
-			CollectHelper.updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				collectTime,
 				null,
-				usedTimePercentRaw);
+				usedTimePercentRaw
+			);
 
 			return;
 		}
@@ -774,15 +788,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double computedVoltage = (voltageValue != null && voltageValue >= -100000 && voltageValue <= 450000) ? voltageValue : null;
 
 		if (computedVoltage != null ) {
-			CollectHelper.updateNumberParameter(monitor,
-					HardwareConstants.VOLTAGE_PARAMETER,
-					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					computedVoltage,
-					voltageValue);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.VOLTAGE_PARAMETER,
+				HardwareConstants.VOLTAGE_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				computedVoltage,
+				voltageValue
+			);
 		}
 	}
-	
+
 	/**
 	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
 	 */
@@ -861,7 +877,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				rawErrorCount);
 		}
 	}
-	
+
 	/**
 	 * Collects the incremental parameters, namely 
 	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
@@ -880,8 +896,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
 			
 			CollectHelper.updateNumberParameter(
-				monitor, 
-				countParameter, 
+				monitor,
+				countParameter,
 				countParameterUnit,
 				monitorCollectInfo.getCollectTime(),
 				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
@@ -922,12 +938,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Update the used capacity, if the usedPercent is valid
 		if (usedPercent != null && usedPercent >= 0.0 && usedPercent <= 100.0) {
-			CollectHelper.updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.USED_CAPACITY_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				usedPercent,
-				usedPercentRaw);
+				usedPercentRaw
+			);
 		}
 	}
 	
@@ -943,12 +961,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (unallocatedSpaceRaw != null) {
 
-			CollectHelper.updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
 				HardwareConstants.SPACE_GB_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
-				unallocatedSpaceRaw);
+				unallocatedSpaceRaw
+			);
 		}
 	}
 
@@ -963,12 +983,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.TEMPERATURE_PARAMETER);
 
 		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
-			CollectHelper.updateNumberParameter(monitor,
-					HardwareConstants.TEMPERATURE_PARAMETER,
-					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					temperatureValue,
-					temperatureValue);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.TEMPERATURE_PARAMETER,
+				HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				temperatureValue,
+				temperatureValue
+			);
 		}
 	}
 
@@ -978,10 +1000,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	void estimateDiskControllerPowerConsumption() {
 
-		CollectHelper.collectEnergyUsageFromPower(monitorCollectInfo.getMonitor(),
-				monitorCollectInfo.getCollectTime(),
-				15.0,
-				monitorCollectInfo.getHostname());
+		CollectHelper.collectEnergyUsageFromPower(
+			monitorCollectInfo.getMonitor(),
+			monitorCollectInfo.getCollectTime(),
+			15.0,
+			monitorCollectInfo.getHostname()
+		);
 	}
 
 	/**
@@ -989,10 +1013,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
 	 */
 	void estimateMemoryPowerConsumption() {
-		CollectHelper.collectEnergyUsageFromPower(monitorCollectInfo.getMonitor(),
-				monitorCollectInfo.getCollectTime(),
-				4.0,
-				monitorCollectInfo.getHostname());
+		CollectHelper.collectEnergyUsageFromPower(
+			monitorCollectInfo.getMonitor(),
+			monitorCollectInfo.getCollectTime(),
+			4.0,
+			monitorCollectInfo.getHostname()
+		);
 	}
 
 	/**
@@ -1084,18 +1110,18 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final double powerConsumption;
 
 		// SSD
-		if (ArrayHelper.anyMatch(str -> str.contains("ssd") || str.contains("solid"), data)) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
 			powerConsumption = estimateSsdPowerConsumption(data);
 		}
 
 		// HDD (non-SSD), depending on the interface
 		// SAS
-		else if (ArrayHelper.anyMatch(str -> str.contains("sas"), data)) {
+		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
 			powerConsumption = estimateSasPowerConsumption(data);
 		}
 
 		// SCSI and IDE
-		else if (ArrayHelper.anyMatch(str -> str.contains("scsi") || str.contains("ide"), data)) {
+		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
 			powerConsumption = estimateScsiAndIde(data);
 		}
 
@@ -1119,11 +1145,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	double estimateSataOrDefault(final String[] data) {
 
 		// Factor in the rotational speed
-		if (ArrayHelper.anyMatch(str -> str.contains("10k"), data)) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
 			return 27.0;
-		} else if (ArrayHelper.anyMatch(str -> str.contains("15k"), data)) {
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
 			return 32.0;
-		} else if (ArrayHelper.anyMatch(str -> str.contains("5400") || str.contains("5.4"), data)) {
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
 			return 7.0;
 		}
 
@@ -1141,13 +1167,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	double estimateScsiAndIde(final String[] data) {
 		// SCSI and IDE
 		// Factor in the rotational speed
-		if (ArrayHelper.anyMatch(str -> str.contains("10k"), data)) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
 			// Only SCSI supports 10k
 			return 32.0;
-		} else if (ArrayHelper.anyMatch(str -> str.contains("15k"), data)) {
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
 			// Only SCSI supports 15k
 			return 35.0;
-		} else if (ArrayHelper.anyMatch(str -> str.contains("5400") || str.contains("5.4"), data)) {
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
 			// Likely to be cheap IDE
 			return 19;
 		}
@@ -1165,7 +1191,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	double estimateSasPowerConsumption(final String[] data) {
 		// Factor in the rotationnal speed
-		if (ArrayHelper.anyMatch(str -> str.contains("15k"), data)) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
 			return 17.0;
 		}
 		// Default for 10k-rpm disks (rarely lower than that anyway)
@@ -1179,9 +1205,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @return double value
 	 */
 	double estimateSsdPowerConsumption(final String[] data) {
-		if (ArrayHelper.anyMatch(str -> str.contains("pcie"), data)) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("pcie"), data)) {
 			return 18.0;
-		} else if (ArrayHelper.anyMatch(str -> str.contains("nvm"), data)) {
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("nvm"), data)) {
 			return  6.0;
 		}
 		return 3.0;
@@ -1300,12 +1326,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.ENDURANCE_REMAINING_PARAMETER);
 
 		if (rawEnduranceRemaining != null && rawEnduranceRemaining >= 0 && rawEnduranceRemaining <= 100) {
-			CollectHelper.updateNumberParameter(monitor,
-					HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
-					HardwareConstants.PERCENT_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					rawEnduranceRemaining,
-					rawEnduranceRemaining);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				rawEnduranceRemaining,
+				rawEnduranceRemaining
+			);
 		}
 	}
 }

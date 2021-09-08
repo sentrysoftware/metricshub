@@ -422,16 +422,7 @@ public class CollectHelper {
 	 * @return {@link String} value
 	 */
 	public static String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
-		return new StringBuilder()
-				.append(parameterName)
-				.append(HardwareConstants.COLON)
-				.append(HardwareConstants.WHITE_SPACE)
-				.append(ordinal)
-				.append(HardwareConstants.WHITE_SPACE)
-				.append(HardwareConstants.OPENING_PARENTHESIS)
-				.append(value)
-				.append(HardwareConstants.CLOSING_PARENTHESIS)
-				.toString();
+		return String.format("%s: %s (%s)", parameterName, ordinal, value);
 	}
 
 	/**
@@ -444,22 +435,22 @@ public class CollectHelper {
 	 */
 	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
 
-		updateNumberParameter(monitor,
+		updateNumberParameter(
+			monitor,
 			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
 			collectTime,
 			powerConsumption,
-			powerConsumption);
+			powerConsumption
+		);
 
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
 
-		Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+		final Double deltaTimeMs = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
 				collectTime.doubleValue(), collectTimePrevious);
 
-		// Convert deltaTime from milliseconds (ms) to seconds
-		if (deltaTime != null) {
-			deltaTime /= 1000.0; 
-		}
+		// Convert deltaTimeMs from milliseconds (ms) to seconds
+		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
 		// Calculate energy usage from Power Consumption: E = P * T
 		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
@@ -480,20 +471,24 @@ public class CollectHelper {
 			}
 
 			// Everything is good update the energy parameter in the HostMonitoring
-			updateNumberParameter(monitor,
+			updateNumberParameter(
+				monitor,
 				HardwareConstants.ENERGY_PARAMETER,
 				HardwareConstants.ENERGY_PARAMETER_UNIT,
 				collectTime,
 				energy,
-				energy);
+				energy
+			);
 
 			// Update the energy usage delta parameter in the HostMonitoring
-			updateNumberParameter(monitor,
+			updateNumberParameter(
+				monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
 				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
 				energyUsage,
-				energyUsage);
+				energyUsage
+			);
 
 		} else {
 			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
@@ -502,72 +497,80 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Collect the power consumption based on the energy usage Power Consumption = Delta(energyUsageRaw) - Delta(CollectTime)
+	 * Collect the power consumption based on the energy usage Power Consumption = Delta(energyUsageRaw) / Delta(CollectTime)
 	 * @param monitor           The monitor instance we wish to collect
 	 * @param collectTime       The current collect time
-	 * @param energyUsageRaw    The energy usage value. Never null
+	 * @param energyRawKw       The cumulative energy value in kW. Never null
 	 * @param hostname          The system host name used for debug purpose
 	 */
-	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
+	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyRawKw, final String hostname) {
 
-		updateNumberParameter(monitor,
+		// Update the raw value for energy usage
+		updateNumberParameter(
+			monitor,
 			HardwareConstants.ENERGY_USAGE_PARAMETER,
 			HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
 			collectTime,
 			null,
-			energyUsageRaw);
+			energyRawKw
+		);
 
 		// Previous raw value
-		final Double energyUsageRawPrevious = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+		final Double energyRawKwPrevious = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
 
-		// Time
-		final Double collectTimeDouble = collectTime.doubleValue();
+		// Previous collect time
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
 
-		// Compute the rate value: delta(raw energy usage) / delta (time)
-		Double powerConsumption = CollectHelper.rate(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				energyUsageRaw, energyUsageRawPrevious,
-				collectTimeDouble, collectTimePrevious);
+		// Calculate the delta to get the energy usage value
+		final Double energyUsageKw = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyRawKw, energyRawKwPrevious);
 
-		// Compute the delta to get the energy usage value
-		final Double energyUsage = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsageRaw, energyUsageRawPrevious);
+		// Calculate the delta time in milliseconds
+		final Double deltaTimeMs = CollectHelper.subtract("energyUsage.collectTime", collectTime.doubleValue(), collectTimePrevious);
+	
+		// Convert delta time milliseconds to seconds
+		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
-		if (energyUsage != null) {
-			updateNumberParameter(monitor,
+		if (energyUsageKw != null) {
+			updateNumberParameter(
+				monitor,
 				HardwareConstants.ENERGY_USAGE_PARAMETER,
 				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
-				energyUsage * 1000 * 3600, // kW-hours to Joules
-				energyUsageRaw);
+				energyUsageKw * 1000 * 3600, // kW-hours to Joules
+				energyRawKw
+			);
+
 		} else {
-			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy usage {}, previous raw energy usage {}",
-					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious);
+			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy {}, previous raw energy {}",
+					monitor.getId(), hostname, energyRawKw, energyRawKwPrevious);
 		}
 
-		if (powerConsumption != null) {
-			// powerConsumption = (delta kwatt-hours) / delta (time in milliseconds)
-			// powerConsumption = rate * 1000 (1Kw = 1000 Watts) * (1000 * 3600  To milliseconds convert to hours) 
-			powerConsumption = powerConsumption * 1000 * (1000 * 3600);
+		if (energyUsageKw != null && deltaTime != null) {
+			// Calculate the power consumption in watts corresponding to the energy usage
+			double powerConsumptionWatts = energyUsageKw / deltaTime * 1000 * 3600;
 
-			updateNumberParameter(monitor,
-					HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-					HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
-					collectTime,
-					powerConsumption,
-					powerConsumption);
+			updateNumberParameter(
+				monitor,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+				collectTime,
+				powerConsumptionWatts,
+				powerConsumptionWatts
+			);
 		} else {
-			log.debug("Cannot compute power consumption for monitor {} on system {}.\n"
-					+ "Current raw energy usage {}, previous raw energy usage {}, current time {}, previous time {}",
-					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious, collectTimeDouble, collectTimePrevious);
+			log.debug("Cannot compute power consumption for monitor {} on system {}. Current raw energy {}, previous raw energy {}, current time {}, previous time {}",
+					monitor.getId(), hostname, energyRawKw, energyRawKwPrevious, collectTime, collectTimePrevious);
 		}
 
 		// Updating the monitor's energy parameter
-		updateNumberParameter(monitor,
+		updateNumberParameter(
+			monitor,
 			HardwareConstants.ENERGY_PARAMETER,
 			HardwareConstants.ENERGY_PARAMETER_UNIT,
 			collectTime,
-			energyUsageRaw * 3600 * 1000, // value
-			energyUsageRaw); // raw value
+			energyRawKw * 3600 * 1000, // value
+			energyRawKw // raw value
+		);
 	}
 
 	/**

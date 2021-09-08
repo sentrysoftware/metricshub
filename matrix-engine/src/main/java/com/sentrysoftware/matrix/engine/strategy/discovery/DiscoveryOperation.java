@@ -475,7 +475,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 */
 	static boolean isCpuSensor(final Double warningThreshold, final String... data) {
 		return warningThreshold != null && warningThreshold > 10 && data != null
-				&& ArrayHelper.anyMatch(DiscoveryOperation::matchesCpuSensor, data);
+				&& ArrayHelper.anyMatchLowerCase(DiscoveryOperation::matchesCpuSensor, data);
 	}
 
 	/**

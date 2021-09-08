@@ -1592,9 +1592,22 @@ class MonitorCollectVisitorTest {
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
 
 
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, "percent", collectTime, 60.0, 60.0);
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.LINK_SPEED_PARAMETER, HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
-					collectTime, 300.0, 300.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER,
+				"percent",
+				collectTime,
+				60.0,
+				60.0
+			);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.LINK_SPEED_PARAMETER,
+				HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
+					collectTime,
+					300.0,
+					300.0
+			);
 
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -1610,9 +1623,22 @@ class MonitorCollectVisitorTest {
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
 
 
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, "percent", collectTime, 60.0, 60.0);
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.LINK_SPEED_PARAMETER, HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
-					collectTime, 9.0, 9.0);
+			CollectHelper.updateNumberParameter(
+					monitor,
+					HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER,
+					"percent",
+					collectTime,
+					60.0,
+					60.0
+			);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.LINK_SPEED_PARAMETER,
+				HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				9.0,
+				9.0
+			);
 	
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -1628,7 +1654,14 @@ class MonitorCollectVisitorTest {
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
 
 
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER, "percent", collectTime, 60.0, 60.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER,
+				"percent",
+				collectTime,
+				60.0,
+				60.0
+			);
 
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -1646,8 +1679,14 @@ class MonitorCollectVisitorTest {
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
 
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.LINK_SPEED_PARAMETER, HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
-					collectTime, 300.0, 300.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.LINK_SPEED_PARAMETER,
+				HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				300.0,
+				300.0
+			);
 
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -1662,8 +1701,14 @@ class MonitorCollectVisitorTest {
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
 
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.LINK_SPEED_PARAMETER, HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
-					collectTime, 9.0, 9.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.LINK_SPEED_PARAMETER,
+				HardwareConstants.SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				9.0,
+				9.0
+			);
 	
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
@@ -1874,8 +1919,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOVE_COUNT_PARAMETER,
+				HardwareConstants.MOVE_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateRoboticPowerConsumption();
 			assertEquals(154.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1884,8 +1935,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT,
-					collectTime, 0.0, 0.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOVE_COUNT_PARAMETER,
+				HardwareConstants.MOVE_COUNT_PARAMETER_UNIT,
+				collectTime,
+				0.0,
+				0.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateRoboticPowerConsumption();
 			assertEquals(48.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1905,8 +1962,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("lto td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(46.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1914,8 +1977,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("lto td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(46.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1934,8 +2003,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000d td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(127.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1943,8 +2018,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000d td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(127.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1963,8 +2044,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000 td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(93.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1972,8 +2059,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000 td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(93.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -1992,8 +2085,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("ts td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(53.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -2001,8 +2100,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("ts td").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(53.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -2021,8 +2126,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("td1").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.MOUNT_COUNT_PARAMETER,
+				HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(80.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
@@ -2030,8 +2141,14 @@ class MonitorCollectVisitorTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("td1").monitorType(MonitorType.TAPE_DRIVE).build();
-			CollectHelper.updateNumberParameter(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
-					collectTime, 1.0, 1.0);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER,
+				HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
 			assertEquals(80.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));

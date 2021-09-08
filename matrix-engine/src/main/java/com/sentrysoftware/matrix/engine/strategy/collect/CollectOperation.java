@@ -789,12 +789,14 @@ public class CollectOperation extends AbstractStrategy {
 		if (ambientTemperature < 100) {
 
 			// Update the parameter 
-			CollectHelper.updateNumberParameter(targetMonitor,
-					AMBIENT_TEMPERATURE_PARAMETER,
-					TEMPERATURE_PARAMETER_UNIT,
-					strategyTime,
-					ambientTemperature,
-					ambientTemperature);
+			CollectHelper.updateNumberParameter(
+				targetMonitor,
+				AMBIENT_TEMPERATURE_PARAMETER,
+				TEMPERATURE_PARAMETER_UNIT,
+				strategyTime,
+				ambientTemperature,
+				ambientTemperature
+			);
 
 		}
 
@@ -807,12 +809,14 @@ public class CollectOperation extends AbstractStrategy {
 			cpuTemperatureAverage = NumberHelper.round(cpuTemperatureAverage, 2, RoundingMode.HALF_UP);
 
 			// Update the parameter
-			CollectHelper.updateNumberParameter(targetMonitor,
-					CPU_TEMPERATURE_PARAMETER,
-					TEMPERATURE_PARAMETER_UNIT,
-					strategyTime,
-					cpuTemperatureAverage,
-					cpuTemperatureAverage);
+			CollectHelper.updateNumberParameter(
+				targetMonitor,
+				CPU_TEMPERATURE_PARAMETER,
+				TEMPERATURE_PARAMETER_UNIT,
+				strategyTime,
+				cpuTemperatureAverage,
+				cpuTemperatureAverage
+			);
 
 			// Calculate the dissipation rate
 			computeTargetThermalDissipationRate(targetMonitor, ambientTemperature, cpuTemperatureAverage);
@@ -842,12 +846,14 @@ public class CollectOperation extends AbstractStrategy {
 
 				cpuThermalDissipationRate = NumberHelper.round(cpuThermalDissipationRate, 2, RoundingMode.HALF_UP);
 
-				CollectHelper.updateNumberParameter(targetMonitor,
-						CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
-						HardwareConstants.EMPTY,
-						strategyTime,
-						cpuThermalDissipationRate,
-						cpuThermalDissipationRate);
+				CollectHelper.updateNumberParameter(
+					targetMonitor,
+					CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+					HardwareConstants.EMPTY,
+					strategyTime,
+					cpuThermalDissipationRate,
+					cpuThermalDissipationRate
+				);
 			}
 		}
 	}
@@ -938,12 +944,14 @@ public class CollectOperation extends AbstractStrategy {
 		// Add 10% because of the heat dissipation of the power supplies
 		final double powerConsumption = NumberHelper.round(totalValues[0] / 0.9, 2, RoundingMode.HALF_UP);
 		if (powerConsumption > 0) {
-			CollectHelper.updateNumberParameter(targetMonitor,
-					POWER_CONSUMPTION_PARAMETER,
-					POWER_CONSUMPTION_PARAMETER_UNIT,
-					strategyTime,
-					powerConsumption,
-					powerConsumption);
+			CollectHelper.updateNumberParameter(
+				targetMonitor,
+				POWER_CONSUMPTION_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER_UNIT,
+				strategyTime,
+				powerConsumption,
+				powerConsumption
+			);
 			log.debug("Power Consumption: Estimated at {} Watts on system {}.", powerConsumption, hostname);
 
 		} else {
@@ -955,12 +963,14 @@ public class CollectOperation extends AbstractStrategy {
 		if (totalValues[1] != null) {
 			final double energyUsage =  NumberHelper.round(totalValues[1] / 0.9, 2, RoundingMode.HALF_UP);
 			if (energyUsage > 0) {
-				CollectHelper.updateNumberParameter(targetMonitor,
-						ENERGY_USAGE_PARAMETER,
-						ENERGY_USAGE_PARAMETER_UNIT,
-						strategyTime,
-						energyUsage,
-						energyUsage);
+				CollectHelper.updateNumberParameter(
+					targetMonitor,
+					ENERGY_USAGE_PARAMETER,
+					ENERGY_USAGE_PARAMETER_UNIT,
+					strategyTime,
+					energyUsage,
+					energyUsage
+				);
 				log.debug("Energy Usage: Estimated at {} Joules on system {}.", energyUsage, hostname);
 			} else {
 				log.debug("Energy Usage could not be estimated on system {}.", hostname);
@@ -973,12 +983,14 @@ public class CollectOperation extends AbstractStrategy {
 		if (totalValues[2] != null) {
 			final double energy =  NumberHelper.round(totalValues[2] / 0.9, 2, RoundingMode.HALF_UP);
 			if (energy > 0) {
-				CollectHelper.updateNumberParameter(targetMonitor,
-						ENERGY_PARAMETER,
-						ENERGY_PARAMETER_UNIT,
-						strategyTime,
-						energy,
-						energy);
+				CollectHelper.updateNumberParameter(
+					targetMonitor,
+					ENERGY_PARAMETER,
+					ENERGY_PARAMETER_UNIT,
+					strategyTime,
+					energy,
+					energy
+				);
 				log.debug("Energy: Estimated at {} Joules on system {}", energy, hostname);
 			} else {
 				log.debug("Energy could not be estimated on system {}.", hostname);

@@ -1344,7 +1344,14 @@ class CollectOperationTest {
 					.monitorType(TARGET)
 					.build();
 
-			CollectHelper.updateNumberParameter(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER, "", strategyTime, 0.30, 0.30);
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
 
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
@@ -1372,7 +1379,14 @@ class CollectOperationTest {
 					.monitorType(TARGET)
 					.build();
 
-			CollectHelper.updateNumberParameter(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER, "", strategyTime, 0.30, 0.30);
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
 
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
@@ -1400,7 +1414,14 @@ class CollectOperationTest {
 					.monitorType(TARGET)
 					.build();
 
-			CollectHelper.updateNumberParameter(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER, "", strategyTime, 0.30, 0.30);
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
 
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
@@ -1452,7 +1473,14 @@ class CollectOperationTest {
 				.monitorType(TARGET)
 				.build();
 
-		CollectHelper.updateNumberParameter(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER, "", strategyTime, 0.30, 0.30);
+		CollectHelper.updateNumberParameter(
+			target,
+			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+			"",
+			strategyTime,
+			0.30,
+			0.30
+		);
 
 		final Monitor cpu = Monitor.builder()
 				.id("CPU")
@@ -1499,7 +1527,14 @@ class CollectOperationTest {
 				.monitorType(TARGET)
 				.build();
 
-		CollectHelper.updateNumberParameter(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER, "", strategyTime, 0.30, 0.30);
+		CollectHelper.updateNumberParameter(
+			target,
+			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+			"",
+			strategyTime,
+			0.30,
+			0.30
+		);
 
 		final Monitor cpu1 = Monitor.builder()
 				.id("CPU1")
@@ -1607,12 +1642,14 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
-		CollectHelper.updateNumberParameter(enclosure,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				120.0,
-				120.0);
+		CollectHelper.updateNumberParameter(
+			enclosure,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			120.0,
+			120.0
+		);
 
 		hostMonitoring.addMonitor(enclosure);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -1637,12 +1674,14 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
-		CollectHelper.updateNumberParameter(target,
-				ENERGY_PARAMETER,
-				ENERGY_PARAMETER_UNIT,
-				strategyTime,
-				3520255.0,
-				3520255.0);
+		CollectHelper.updateNumberParameter(
+			target,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			3520255.0,
+			3520255.0
+		);
 
 		hostMonitoring.addMonitor(enclosure);
 
@@ -1671,12 +1710,14 @@ class CollectOperationTest {
 				.monitorType(CPU)
 				.build();
 
-		CollectHelper.updateNumberParameter(cpu,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				60.0,
-				60.0);
+		CollectHelper.updateNumberParameter(
+			cpu,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			60.0,
+			60.0
+		);
 
 		final Monitor memory = Monitor.builder()
 				.id("memory1")
@@ -1686,12 +1727,14 @@ class CollectOperationTest {
 				.monitorType(MonitorType.MEMORY)
 				.build();
 
-		CollectHelper.updateNumberParameter(memory,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				4.0,
-				4.0);
+		CollectHelper.updateNumberParameter(
+			memory,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			4.0,
+			4.0
+		);
 
 		final Monitor disk = Monitor.builder()
 				.id("disk_nvm_1")
@@ -1701,12 +1744,14 @@ class CollectOperationTest {
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
 
-		CollectHelper.updateNumberParameter(disk,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				6.0,
-				6.0);
+		CollectHelper.updateNumberParameter(
+			disk,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			6.0,
+			6.0
+		);
 
 		final Monitor missingDisk = Monitor.builder()
 				.id("disk_nvm_2")
@@ -1758,26 +1803,32 @@ class CollectOperationTest {
 				.monitorType(CPU)
 				.build();
 
-		CollectHelper.updateNumberParameter(cpu,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				60.0,
-				60.0);
+		CollectHelper.updateNumberParameter(
+			cpu,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			60.0,
+			60.0
+		);
 
-		CollectHelper.updateNumberParameter(cpu,
-				ENERGY_USAGE_PARAMETER,
-				ENERGY_USAGE_PARAMETER_UNIT,
-				strategyTime,
-				7200.0,
-				7200.0);
+		CollectHelper.updateNumberParameter(
+			cpu,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			7200.0,
+			7200.0
+		);
 
-		CollectHelper.updateNumberParameter(cpu,
-				ENERGY_PARAMETER,
-				ENERGY_PARAMETER_UNIT,
-				strategyTime,
-				7250.0,
-				7250.0);
+		CollectHelper.updateNumberParameter(
+			cpu,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			7250.0,
+			7250.0
+		);
 
 		final Monitor memory = Monitor.builder()
 				.id("memory1")
@@ -1787,26 +1838,32 @@ class CollectOperationTest {
 				.monitorType(MonitorType.MEMORY)
 				.build();
 
-		CollectHelper.updateNumberParameter(memory,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				4.0,
-				4.0);
+		CollectHelper.updateNumberParameter(
+			memory,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			4.0,
+			4.0
+		);
 
-		CollectHelper.updateNumberParameter(memory,
-				ENERGY_USAGE_PARAMETER,
-				ENERGY_USAGE_PARAMETER_UNIT,
-				strategyTime,
-				480.0,
-				480.0);
+		CollectHelper.updateNumberParameter(
+			memory,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			480.0,
+			480.0
+		);
 
-		CollectHelper.updateNumberParameter(memory,
-				ENERGY_PARAMETER,
-				ENERGY_PARAMETER_UNIT,
-				strategyTime,
-				500.0,
-				500.0);
+		CollectHelper.updateNumberParameter(
+			memory,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			500.0,
+			500.0
+		);
 
 		final Monitor disk = Monitor.builder()
 				.id("disk_nvm_1")
@@ -1816,26 +1873,32 @@ class CollectOperationTest {
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
 
-		CollectHelper.updateNumberParameter(disk,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				6.0,
-				6.0);
+		CollectHelper.updateNumberParameter(
+			disk,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			6.0,
+			6.0
+		);
 
-		CollectHelper.updateNumberParameter(disk,
-				ENERGY_USAGE_PARAMETER,
-				ENERGY_USAGE_PARAMETER_UNIT,
-				strategyTime,
-				720.0,
-				720.0);
+		CollectHelper.updateNumberParameter(
+			disk,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			720.0,
+			720.0
+		);
 
-		CollectHelper.updateNumberParameter(disk,
-				ENERGY_PARAMETER,
-				ENERGY_PARAMETER_UNIT,
-				strategyTime,
-				750.0,
-				750.0);
+		CollectHelper.updateNumberParameter(
+			disk,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			750.0,
+			750.0
+		);
 
 		final Monitor missingDisk = Monitor.builder()
 				.id("disk_nvm_2")

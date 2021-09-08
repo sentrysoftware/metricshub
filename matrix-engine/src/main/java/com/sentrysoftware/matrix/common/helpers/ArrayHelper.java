@@ -25,13 +25,14 @@ public class ArrayHelper {
 	}
 
 	/**
-	 * Check if the given data matches using the predicate function
+	 * Check if the given data matches using the predicate function.<br>
+	 * Each data element is converted to lower case before applying the predicate.
 	 * 
-	 * @param predicate boolean valued function to check the passed data
+	 * @param predicate boolean-valued function to check the passed data
 	 * @param data      the input to the predicate
 	 * @return <code>true</code> if one of the data matched otherwise <code>false</code>
 	 */
-	public static boolean anyMatch(final Predicate<String> predicate, final String... data) {
+	public static boolean anyMatchLowerCase(final Predicate<String> predicate, final String... data) {
 		return Arrays.stream(data)
 				.filter(Objects::nonNull)
 				.map(String::toLowerCase)

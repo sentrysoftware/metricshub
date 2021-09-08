@@ -281,12 +281,14 @@ class CollectHelperTest {
 	void testUpdateNumberParameter() {
 		{
 			final Monitor monitor = Monitor.builder().build();
-			CollectHelper.updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime,
-					100D,
-					1500D);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				100D,
+				1500D
+			);
 
 			final NumberParam expected = NumberParam
 					.builder()
@@ -315,12 +317,14 @@ class CollectHelperTest {
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
 					Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, previousParameter)))
 					.build();
-			CollectHelper.updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime + (2 * 60 * 1000),
-					50D,
-					1550D);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.ENERGY_USAGE_PARAMETER,
+				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime + (2 * 60 * 1000),
+				50D,
+				1550D
+			);
 
 			final NumberParam expected = NumberParam
 					.builder()
