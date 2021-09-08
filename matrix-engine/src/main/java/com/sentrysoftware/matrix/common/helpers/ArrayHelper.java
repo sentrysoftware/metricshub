@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Predicate;
+
 public class ArrayHelper {
 
 	private ArrayHelper() {}
@@ -18,5 +22,20 @@ public class ArrayHelper {
 			return defaultValue;
 		}
 		return array[index];
+	}
+
+	/**
+	 * Check if the given data matches using the predicate function.<br>
+	 * Each data element is converted to lower case before applying the predicate.
+	 * 
+	 * @param predicate boolean-valued function to check the passed data
+	 * @param data      the input to the predicate
+	 * @return <code>true</code> if one of the data matched otherwise <code>false</code>
+	 */
+	public static boolean anyMatchLowerCase(final Predicate<String> predicate, final String... data) {
+		return Arrays.stream(data)
+				.filter(Objects::nonNull)
+				.map(String::toLowerCase)
+				.anyMatch(predicate);
 	}
 }

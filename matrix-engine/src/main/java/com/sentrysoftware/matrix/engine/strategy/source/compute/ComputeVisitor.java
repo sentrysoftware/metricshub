@@ -82,7 +82,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		return null;
 	};
 
-	private static final  Function<ComputeValue, String> GET_VALUE = ComputeValue::getValue;
+	private static final Function<ComputeValue, String> GET_VALUE = ComputeValue::getValue;
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 

@@ -1,5 +1,56 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TEMPERATURE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -24,53 +75,13 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TEMPERATURE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
@@ -88,7 +99,6 @@ class CollectOperationTest {
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
-	private static final String POWER_CONSUMPTION = "powerConsumption";
 	private static final String CONNECTOR_NAME = "myConnector.connector";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
@@ -956,6 +966,7 @@ class CollectOperationTest {
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
 
@@ -1111,6 +1122,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		// No temperature parameter
 
@@ -1265,7 +1277,7 @@ class CollectOperationTest {
 
 		// temperatureMonitors is null
 
-		collectOperation.computeTemperatureParameters();
+		collectOperation.computeTargetTemperatureParameters();
 		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// temperatureMonitors is empty
@@ -1274,7 +1286,7 @@ class CollectOperationTest {
 		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
 		monitors.put(TEMPERATURE, new LinkedHashMap<>());
 
-		collectOperation.computeTemperatureParameters();
+		collectOperation.computeTargetTemperatureParameters();
 		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// No CPU sensor
@@ -1293,7 +1305,7 @@ class CollectOperationTest {
 		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
 		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
-		collectOperation.computeTemperatureParameters();
+		collectOperation.computeTargetTemperatureParameters();
 		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
 		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
@@ -1316,8 +1328,611 @@ class CollectOperationTest {
 		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
 		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
-		collectOperation.computeTemperatureParameters();
+		collectOperation.computeTargetTemperatureParameters();
 		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
 		assertEquals(10.0, target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+	}
+
+	@Test
+	void testEstimateCpuPowerConsumption() {
+		{
+			// Max Power Consumption already discovered on the CPU - thermal dissipation rate is set on the target
+			final Monitor target = Monitor.builder()
+					.id("TARGET")
+					.name("TARGET")
+					.targetId(ECS1_01)
+					.monitorType(TARGET)
+					.build();
+
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
+
+			final Monitor cpu = Monitor.builder()
+					.id("CPU")
+					.name("CPU")
+					.targetId(ECS1_01)
+					.parentId(ENCLOSURE_ID)
+					.monitorType(CPU)
+					.build();
+
+			cpu.addMetadata(POWER_CONSUMPTION, "120");
+
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+
+			assertEquals(36.0, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+		}
+
+		{
+			// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
+			final Monitor target = Monitor.builder()
+					.id("TARGET")
+					.name("TARGET")
+					.targetId(ECS1_01)
+					.monitorType(TARGET)
+					.build();
+
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
+
+			final Monitor cpu = Monitor.builder()
+					.id("CPU")
+					.name("CPU")
+					.targetId(ECS1_01)
+					.parentId(ENCLOSURE_ID)
+					.monitorType(CPU)
+					.build();
+
+			cpu.addMetadata(MAXIMUM_SPEED, "2200");
+
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+
+			assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+		}
+
+		{
+			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is set on the target
+			final Monitor target = Monitor.builder()
+					.id("TARGET")
+					.name("TARGET")
+					.targetId(ECS1_01)
+					.monitorType(TARGET)
+					.build();
+
+			CollectHelper.updateNumberParameter(
+				target,
+				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+				"",
+				strategyTime,
+				0.30,
+				0.30
+			);
+
+			final Monitor cpu = Monitor.builder()
+					.id("CPU")
+					.name("CPU")
+					.targetId(ECS1_01)
+					.parentId(ENCLOSURE_ID)
+					.monitorType(CPU)
+					.build();
+
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+
+			assertEquals(14.25, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+		}
+
+		{
+			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is not set
+			final Monitor target = Monitor.builder()
+					.id("TARGET")
+					.name("TARGET")
+					.targetId(ECS1_01)
+					.monitorType(TARGET)
+					.build();
+
+			final Monitor cpu = Monitor.builder()
+					.id("CPU")
+					.name("CPU")
+					.targetId(ECS1_01)
+					.parentId(ENCLOSURE_ID)
+					.monitorType(CPU)
+					.build();
+
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+
+			assertEquals(11.88, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateCpuPowerConsumptionManyCollects() {
+		// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			target,
+			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+			"",
+			strategyTime,
+			0.30,
+			0.30
+		);
+
+		final Monitor cpu = Monitor.builder()
+				.id("CPU")
+				.name("CPU")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		cpu.addMetadata(MAXIMUM_SPEED, "2200");
+
+		// Collect 1
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+
+		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+
+		// Collect 2
+		cpu.getParameters().values().forEach(param -> param.reset());
+
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 2 * 60 * 1000, ECS1_01);
+
+		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
+		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+
+		// Collect 3
+		cpu.getParameters().values().forEach(param -> param.reset());
+
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 4 * 60 * 1000, ECS1_01);
+
+		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
+		assertEquals(3009.6, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER)); // The energy is increased correctly
+		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
+	}
+
+	@Test
+	void testEstimateCpusPowerConsumption() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			target,
+			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
+			"",
+			strategyTime,
+			0.30,
+			0.30
+		);
+
+		final Monitor cpu1 = Monitor.builder()
+				.id("CPU1")
+				.name("CPU 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		cpu1.addMetadata(MAXIMUM_SPEED, "2200");
+
+		final Monitor cpu2 = Monitor.builder()
+				.id("CPU 2")
+				.name("CPU 2")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		cpu2.addMetadata(MAXIMUM_SPEED, "2200");
+
+		final Monitor cpu3 = Monitor.builder()
+				.id("CPU 3")
+				.name("CPU 3")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(cpu1);
+		hostMonitoring.addMissingMonitor(cpu3);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateCpusPowerConsumption();
+
+		hostMonitoring.selectFromType(MonitorType.CPU)
+			.values()
+			.stream()
+			.filter(monitor -> !monitor.isMissing())
+			.forEach(cpu -> 
+				assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER)));
+
+		final Monitor cpuMissing = hostMonitoring.selectFromType(MonitorType.CPU)
+				.values()
+				.stream()
+				.filter(Monitor::isMissing)
+				.findFirst().orElse(null);
+		assertNotNull(cpuMissing);
+		assertNull(CollectHelper.getNumberParamValue(cpuMissing, POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEstimateCpusPowerConsumptionNoCpus() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		assertDoesNotThrow(() -> collectOperation.estimateCpusPowerConsumption());
+
+	}
+
+	@Test
+	void testEstimateTargetPowerConsumptionNoData() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateTargetPowerConsumption();
+
+		assertNull(CollectHelper.getNumberParamValue(target, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEstimateTargetPowerConsumptionEnclosureHasPower() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
+		CollectHelper.updateNumberParameter(
+			enclosure,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			120.0,
+			120.0
+		);
+
+		hostMonitoring.addMonitor(enclosure);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateTargetPowerConsumption();
+
+		// First collect
+		assertNull(CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_PARAMETER));
+	}
+
+	@Test
+	void testEstimateTargetPowerConsumptionTargetHasEnergy() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
+		CollectHelper.updateNumberParameter(
+			target,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			3520255.0,
+			3520255.0
+		);
+
+		hostMonitoring.addMonitor(enclosure);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateTargetPowerConsumption();
+
+		assertEquals(3520255.0, CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_PARAMETER));
+	}
+
+	@Test 
+	void testEstimateTargetPowerConsumptionTargetOnlyPower() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final Monitor cpu = Monitor.builder()
+				.id("CPU1")
+				.name("CPU 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			cpu,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			60.0,
+			60.0
+		);
+
+		final Monitor memory = Monitor.builder()
+				.id("memory1")
+				.name("memory 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.MEMORY)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			memory,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			4.0,
+			4.0
+		);
+
+		final Monitor disk = Monitor.builder()
+				.id("disk_nvm_1")
+				.name("nvm 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			disk,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			6.0,
+			6.0
+		);
+
+		final Monitor missingDisk = Monitor.builder()
+				.id("disk_nvm_2")
+				.name("nvm 2")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+		
+		final Monitor diskNoPower = Monitor.builder()
+				.id("disk_noPower")
+				.name("disk 3")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(cpu);
+		hostMonitoring.addMonitor(disk);
+		hostMonitoring.addMissingMonitor(missingDisk);
+		hostMonitoring.addMonitor(memory);
+		hostMonitoring.addMonitor(diskNoPower);
+		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateTargetPowerConsumption();
+
+		assertEquals(77.78, CollectHelper.getNumberParamValue(target, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test 
+	void testEstimateTargetPowerConsumptionTargetFull() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		final Monitor cpu = Monitor.builder()
+				.id("CPU1")
+				.name("CPU 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(CPU)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			cpu,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			60.0,
+			60.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			cpu,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			7200.0,
+			7200.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			cpu,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			7250.0,
+			7250.0
+		);
+
+		final Monitor memory = Monitor.builder()
+				.id("memory1")
+				.name("memory 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.MEMORY)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			memory,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			4.0,
+			4.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			memory,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			480.0,
+			480.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			memory,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			500.0,
+			500.0
+		);
+
+		final Monitor disk = Monitor.builder()
+				.id("disk_nvm_1")
+				.name("nvm 1")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+
+		CollectHelper.updateNumberParameter(
+			disk,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
+			strategyTime,
+			6.0,
+			6.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			disk,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
+			strategyTime,
+			720.0,
+			720.0
+		);
+
+		CollectHelper.updateNumberParameter(
+			disk,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
+			strategyTime,
+			750.0,
+			750.0
+		);
+
+		final Monitor missingDisk = Monitor.builder()
+				.id("disk_nvm_2")
+				.name("nvm 2")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+		
+		final Monitor diskNoPower = Monitor.builder()
+				.id("disk_noPower")
+				.name("disk 3")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(cpu);
+		hostMonitoring.addMonitor(disk);
+		hostMonitoring.addMissingMonitor(missingDisk);
+		hostMonitoring.addMonitor(memory);
+		hostMonitoring.addMonitor(diskNoPower);
+		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		collectOperation.estimateTargetPowerConsumption();
+
+		assertEquals(77.78, CollectHelper.getNumberParamValue(target, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
+		assertEquals(9333.33, CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_USAGE_PARAMETER));
+		assertEquals(9444.44, CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_PARAMETER));
+		assertEquals(PowerMeter.ESTIMATED, hostMonitoring.getPowerMeter());
 	}
 }

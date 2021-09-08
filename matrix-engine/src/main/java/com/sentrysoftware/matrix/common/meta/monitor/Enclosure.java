@@ -41,20 +41,6 @@ public class Enclosure implements IMetaMonitor {
 			.type(ParameterType.STATUS)
 			.build();
 
-	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
-			.basicCollect(false)
-			.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-			.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
-			.basicCollect(false)
-			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
-			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION, TYPE,
 			ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 

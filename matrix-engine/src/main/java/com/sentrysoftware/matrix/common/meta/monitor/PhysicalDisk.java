@@ -97,6 +97,9 @@ public class PhysicalDisk implements IMetaMonitor {
 		map.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
 		map.put(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, ENDURANCE_REMAINING);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
