@@ -1,16 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CARET;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CLOSING_SQUARE_BRACKET;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMMA;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOUBLE_BACKSLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_PARENTHESIS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPENING_SQUARE_BRACKET;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PLUS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +9,9 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 @Slf4j
 public class PslUtils {
@@ -57,7 +49,7 @@ public class PslUtils {
 	public static String psl2JavaRegex(String pslRegex) {
 
 		if (pslRegex == null || pslRegex.isEmpty()) {
-			return EMPTY;
+			return "";
 		}
 
 		if (DOT.equals(pslRegex)) {
@@ -126,7 +118,7 @@ public class PslUtils {
 
 			// Escape works differently in [] ranges
 			// We simply need to double backslashes
-			javaRegex.append(DOUBLE_BACKSLASH);
+			javaRegex.append("\\\\");
 
 		} else {
 
@@ -202,18 +194,18 @@ public class PslUtils {
 		if (text == null || selectColumns == null || separators == null
 			|| text.isEmpty() || selectColumns.isEmpty() || separators.isEmpty()) {
 
-			return EMPTY;
+			return "";
 		}
 
 		// Replace special chars with their literal equivalents
-		String separatorsRegExp = OPENING_SQUARE_BRACKET
+		String separatorsRegExp = "["
 			+ separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_FIRST_MATCHING_GROUP)
-			+ CLOSING_SQUARE_BRACKET;
+			+ "]";
 
 		if (isNthArg) {
 
 			// Remove redundant separators
-			text = text.replaceAll(OPENING_PARENTHESIS
+			text = text.replaceAll("("
 				+ separatorsRegExp
 				+ CLOSING_OPENING_PARENTHESIS
 				+ separatorsRegExp
@@ -221,7 +213,7 @@ public class PslUtils {
 				FIRST_MATCHING_GROUP);
 
 			// Remove leading separators
-			text = text.replaceAll(CARET + separatorsRegExp + PLUS, EMPTY);
+			text = text.replaceAll("^" + separatorsRegExp + "+", "");
 		}
 
 		// Check the result separator
@@ -264,7 +256,7 @@ public class PslUtils {
 
 		// The user can specify several columns.
 		// Split the selectColumns into an array too.
-		final String[] columnsArray = selectColumns.split(COMMA);
+		final String[] columnsArray = selectColumns.split(",");
 
 		// So, for each columns group requested
 		String result = null;

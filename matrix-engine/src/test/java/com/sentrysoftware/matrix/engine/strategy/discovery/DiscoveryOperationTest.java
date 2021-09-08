@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -43,7 +42,16 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -298,9 +306,9 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		enclosureMetadata.put(VENDOR, DELL);
 		enclosureMetadata.put(MODEL, MODEL_VALUE);
-		enclosureMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		enclosureMetadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
-		enclosureMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		enclosureMetadata.put(ID_COUNT, ID_COUNT_0);
+		enclosureMetadata.put(TYPE, COMPUTER);
+		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		enclosureMetadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -310,7 +318,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -319,8 +327,8 @@ class DiscoveryOperationTest {
 		fanMetadata.put(DEVICE_ID, ID);
 		fanMetadata.put(DISPLAY_ID, FAN_1);
 		fanMetadata.put(SPEED, SPEED_VALUE);
-		fanMetadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		fanMetadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		fanMetadata.put(ID_COUNT, ID_COUNT_0);
+		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		fanMetadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedFan = Monitor.builder()
@@ -332,7 +340,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getName())
 				.parameters(Map.of(
-						HardwareConstants.PRESENT_PARAMETER,
+						PRESENT_PARAMETER,
 						PresentParam.builder().state(ParameterState.OK).build()))
 				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
 				.build();
@@ -411,9 +419,9 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(ID_COUNT, ID_COUNT_0);
+		metadata.put(TYPE, COMPUTER);
+		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
 		
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -423,7 +431,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -463,9 +471,9 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(ID_COUNT, ID_COUNT_0);
+		metadata.put(TYPE, COMPUTER);
+		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -475,7 +483,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -503,7 +511,7 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+				TYPE, COMPUTER);
 		final Discovery discovery = Discovery
 				.builder()
 				.instanceTable(sourceInstanceTable)
@@ -586,7 +594,7 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+				TYPE, COMPUTER);
 
 		final Monitor targetMonitor = Monitor
 				.builder()
@@ -613,7 +621,7 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+				TYPE, COMPUTER);
 
 		final Monitor targetMonitor = Monitor
 				.builder()
@@ -660,8 +668,8 @@ class DiscoveryOperationTest {
 		Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		metadata.put(DEVICE_ID, DELL_ENCLOSURE);
 		metadata.put(VENDOR, DELL);
-		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(ID_COUNT, ID_COUNT_0);
+		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -671,7 +679,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.ENCLOSURE)
+				.extendedType(ENCLOSURE)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -688,7 +696,7 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, HardwareConstants.COMPUTER);
+				TYPE, COMPUTER);
 
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
 		final Monitor targetMonitor = Monitor
@@ -725,9 +733,9 @@ class DiscoveryOperationTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, ID_COUNT_0);
-		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_1_NAME);
+		metadata.put(ID_COUNT, ID_COUNT_0);
+		metadata.put(TYPE, COMPUTER);
+		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
@@ -737,7 +745,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -758,8 +766,8 @@ class DiscoveryOperationTest {
 
 		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
-		assertEquals(MY_CONNECTOR_1_NAME, metadata.get(HardwareConstants.CONNECTOR));
-		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
+		assertEquals(MY_CONNECTOR_1_NAME, metadata.get(CONNECTOR));
+		assertEquals(ID_COUNT_0, metadata.get(ID_COUNT));
 	}
 
 	@Test
@@ -781,7 +789,7 @@ class DiscoveryOperationTest {
 		assertEquals(POWER_EDGE_54DSF, metadata.get(DISPLAY_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
 		assertEquals(MODEL_VALUE, metadata.get(MODEL_PASCAL));
-		assertEquals(ID_COUNT_0, metadata.get(HardwareConstants.ID_COUNT));
+		assertEquals(ID_COUNT_0, metadata.get(ID_COUNT));
 		assertNull(metadata.get(OUT_OF_RANGE));
 	}
 
@@ -912,7 +920,7 @@ class DiscoveryOperationTest {
 		.stream()
 		.map(Map::values)
 		.flatMap(Collection::stream)
-		.map(monitor -> monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class))
+		.map(monitor -> monitor.getParameter(PRESENT_PARAMETER, PresentParam.class))
 		.filter(Objects::nonNull)
 		.forEach(parameter -> assertNull(parameter.getPresent()));
 	}
@@ -935,7 +943,7 @@ class DiscoveryOperationTest {
 				.monitorType(FAN)
 				.build();
 		expectedFan2.setAsMissing();
-		expectedFan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)
+		expectedFan2.getParameter(PRESENT_PARAMETER, PresentParam.class)
 		.setPreviousState(ParameterState.OK);
 
 		final Monitor expectedFan3 = Monitor.builder()
@@ -989,7 +997,7 @@ class DiscoveryOperationTest {
 
 		hostMonitoring.getPreviousMonitors().put(MonitorType.FAN, Map.of(FAN_ID + 1, fan1));
 		hostMonitoring.addMonitor(fan2);
-		fan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).discoveryReset();
+		fan2.getParameter(PRESENT_PARAMETER, PresentParam.class).discoveryReset();
 		hostMonitoring.addMonitor(fan3);
 		hostMonitoring.addMonitor(fan4);
 		fan4.setParameters(Collections.emptyMap());
@@ -1016,8 +1024,8 @@ class DiscoveryOperationTest {
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.TEMPERATURE)
 				.build();
-		temperatureMonitor1.addMetadata(HardwareConstants.ADDITIONAL_INFORMATION1, "cpu");
-		temperatureMonitor1.addMetadata(HardwareConstants.WARNING_THRESHOLD, "80.0");
+		temperatureMonitor1.addMetadata(ADDITIONAL_INFORMATION1, "cpu");
+		temperatureMonitor1.addMetadata(WARNING_THRESHOLD, "80.0");
 		hostMonitoring.addMonitor(temperatureMonitor1);
 
 		Monitor temperatureMonitor2 = Monitor.builder()
@@ -1027,7 +1035,7 @@ class DiscoveryOperationTest {
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.TEMPERATURE)
 				.build();
-		temperatureMonitor2.addMetadata(HardwareConstants.WARNING_THRESHOLD, "70.0");
+		temperatureMonitor2.addMetadata(WARNING_THRESHOLD, "70.0");
 		hostMonitoring.addMonitor(temperatureMonitor2);
 
 		final Monitor targetMonitor = Monitor
@@ -1042,11 +1050,11 @@ class DiscoveryOperationTest {
 
 		discoveryOperation.handleCpuTemperatures(hostMonitoring);
 
-		String cpuSensorMetadata = temperatureMonitor1.getMetadata(HardwareConstants.IS_CPU_SENSOR);
+		String cpuSensorMetadata = temperatureMonitor1.getMetadata(IS_CPU_SENSOR);
 		assertEquals("true", cpuSensorMetadata);
-		cpuSensorMetadata = temperatureMonitor2.getMetadata(HardwareConstants.IS_CPU_SENSOR);
+		cpuSensorMetadata = temperatureMonitor2.getMetadata(IS_CPU_SENSOR);
 		assertEquals("true", cpuSensorMetadata);
-		String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING);
+		String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
 		assertEquals("75.0", averageCpuTemperatureWarningMetadata);
 	}
 }

@@ -1,7 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.dto;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -20,7 +18,7 @@ public class PrometheusParameter {
 
 	@Default
 	@NonNull
-	private String unit = HardwareConstants.EMPTY;
+	private String unit = "";
 
 	@Default
 	@NonNull

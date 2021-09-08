@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -13,11 +9,17 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CollectHelperTest {
 
@@ -35,79 +37,79 @@ class CollectHelperTest {
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("OK",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("1",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("WARN",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("2",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("ALARM",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("ON",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("BLINKING",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("OFF",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
 				UNKNOWN_STATUS_WARN,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_OK, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
 				UNKNOWN_STATUS_OK,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_ALARM, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
 				UNKNOWN_STATUS_ALARM,
 				ID,
 				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
+				STATUS_PARAMETER));
 	}
 
 
@@ -115,43 +117,43 @@ class CollectHelperTest {
 	void testGetValueTableColumnValue() {
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				Collections.emptyList(),
 				null));
 
 		assertEquals("100", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(2)"));
 
 		assertEquals("400", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(3)"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(4)"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(string)"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(-1)"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				HardwareConstants.STATUS_PARAMETER,
+				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
 				"Valuetable.Column(0)"));
@@ -174,18 +176,18 @@ class CollectHelperTest {
 				.build();
 
 		final Monitor monitor = Monitor.builder()
-				.parameters(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+				.parameters(Map.of(ENERGY_USAGE_PARAMETER, numberParam))
 				.build();
 
-		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, false));
-		assertNull(CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, false));
+		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, false));
+		assertNull(CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamRawValue(monitor, POWER_CONSUMPTION_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamRawValue(monitor, POWER_CONSUMPTION_PARAMETER, false));
 
 		numberParam.reset();
 
-		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, false));
+		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, false));
 	}
 
 	@Test
@@ -199,46 +201,46 @@ class CollectHelperTest {
 				.build();
 
 		final Monitor monitor = Monitor.builder()
-				.parameters(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, numberParam))
+				.parameters(Map.of(ENERGY_USAGE_PARAMETER, numberParam))
 				.build();
 
-		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, false));
-		assertNull(CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, false));
+		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, false));
+		assertNull(CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, false));
 
 		numberParam.reset();
 
-		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, false));
+		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, true));
+		assertNull(CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, false));
 	}
 
 	@Test
 	void testSubtract() {
-		assertEquals(10, CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, 50D, 40D));
-		assertNull(CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, 30D, 40D));
-		assertNull(CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, null, 40D));
-		assertNull(CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, 30D, null));
+		assertEquals(10, CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 50D, 40D));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, 40D));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, null, 40D));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, null));
 	}
 
 	@Test
 	void testDivide() {
-		assertEquals(2, CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, 50D, 25D));
-		assertNull(CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, 30D, 0D));
-		assertNull(CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, null, 40D));
-		assertNull(CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, 30D, null));
-		assertNull(CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, -50D, 25D));
-		assertNull(CollectHelper.divide(HardwareConstants.ENERGY_USAGE_PARAMETER, 50D, -25D));
+		assertEquals(2, CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, 25D));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, 0D));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, null, 40D));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, null));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, -50D, 25D));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, -25D));
 	}
 
 	@Test
 	void testMultiply() {
-		assertEquals(500, CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, 50D, 10D));
-		assertEquals(-0D, CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, -30D, 0D));
-		assertNull(CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, null, 40D));
-		assertNull(CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, 30D, null));
-		assertNull(CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, -50D, 25D));
-		assertNull(CollectHelper.multiply(HardwareConstants.ENERGY_USAGE_PARAMETER, 50D, -25D));
+		assertEquals(500, CollectHelper.multiply(ENERGY_USAGE_PARAMETER, 50D, 10D));
+		assertEquals(-0D, CollectHelper.multiply(ENERGY_USAGE_PARAMETER, -30D, 0D));
+		assertNull(CollectHelper.multiply(ENERGY_USAGE_PARAMETER, null, 40D));
+		assertNull(CollectHelper.multiply(ENERGY_USAGE_PARAMETER, 30D, null));
+		assertNull(CollectHelper.multiply(ENERGY_USAGE_PARAMETER, -50D, 25D));
+		assertNull(CollectHelper.multiply(ENERGY_USAGE_PARAMETER, 50D, -25D));
 	}
 
 	@Test
@@ -246,7 +248,7 @@ class CollectHelperTest {
 		final Long collectTime = new Date().getTime();
 		final Long previousCollectTime = collectTime - (2 * 60 * 1000);
 
-		assertEquals(1, CollectHelper.rate(HardwareConstants.ENERGY_USAGE_PARAMETER,
+		assertEquals(1, CollectHelper.rate(ENERGY_USAGE_PARAMETER,
 				240000D, 120000D,
 				collectTime.doubleValue(), previousCollectTime.doubleValue()));
 	}

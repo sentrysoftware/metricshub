@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -44,6 +43,8 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
 
 @Component
 @Slf4j
@@ -533,7 +534,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+				.table(SourceTable.csvToTable(key, TABLE_SEPARATOR))
 				.build();
 	}
 

@@ -1,12 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -17,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -49,6 +41,42 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_USED_PERCENT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_USED_WATTS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class MonitorCollectVisitorTest {
 
 	private static final String POWER_CONSUMPTION = "150";
@@ -76,8 +104,6 @@ class MonitorCollectVisitorTest {
 	private static final String TEMPERATURE = "20.0";
 	private static final String TEMPERATURE_TOO_LOW = "-101.0";
 	private static final String TEMPERATURE_TOO_HIGH = "201.0";
-	private static final String PREDICTED_FAILURE_TRUE = "true";
-	private static final String PREDICTED_FAILURE_FALSE = "false";
 	private static final String ENDURANCE_REMAINING = "10.0";
 	private static final String ENDURANCE_REMAINING_TOO_LOW = "-10.0";
 	private static final String ENDURANCE_REMAINING_TOO_HIGH = "110.0";
@@ -86,10 +112,10 @@ class MonitorCollectVisitorTest {
 
 	private static  Map<String, String> mapping = Map.of(
 			DEVICE_ID, VALUETABLE_COLUMN_1,
-			HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2,
-			HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
-			HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
-			HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
+			STATUS_PARAMETER, VALUETABLE_COLUMN_2,
+			STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
+			INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
+			POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 
 	private static List<String> row = Arrays.asList(MONITOR_DEVICE_ID,
 			OK_RAW_STATUS,
@@ -99,37 +125,37 @@ class MonitorCollectVisitorTest {
 
 	private static IParameterValue powerConsumptionParam = NumberParam
 			.builder()
-			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+			.name(POWER_CONSUMPTION_PARAMETER)
 			.collectTime(collectTime)
-			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
 			.value(Double.parseDouble(POWER_CONSUMPTION))
 			.rawValue(Double.parseDouble(POWER_CONSUMPTION))
 			.build();
 
 	private static IParameterValue intructionStatusParam = StatusParam
 			.builder()
-			.name(HardwareConstants.INTRUSION_STATUS_PARAMETER)
+			.name(INTRUSION_STATUS_PARAMETER)
 			.collectTime(collectTime)
 			.state(ParameterState.OK)
-			.unit(HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT)
+			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
 			.statusInformation("intrusionStatus: 0 (No Intrusion Detected)")
 			.build();
 
 	private static IParameterValue statusParam = StatusParam
 			.builder()
-			.name(HardwareConstants.STATUS_PARAMETER)
+			.name(STATUS_PARAMETER)
 			.collectTime(collectTime)
 			.state(ParameterState.OK)
-			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.unit(STATUS_PARAMETER_UNIT)
 			.statusInformation("status: 0 (Operable)")
 			.build();
 
 	private static IParameterValue statusParamWithIntrusion = StatusParam
 			.builder()
-			.name(HardwareConstants.STATUS_PARAMETER)
+			.name(STATUS_PARAMETER)
 			.collectTime(collectTime)
 			.state(ParameterState.OK)
-			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.unit(STATUS_PARAMETER_UNIT)
 			.statusInformation("status: 0 (Operable)\nintrusionStatus: 0 (No Intrusion Detected)")
 			.build();
 
@@ -160,7 +186,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Battery());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -173,7 +199,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Blade());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -186,7 +212,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Cpu());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -199,7 +225,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new CpuCore());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -212,7 +238,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new DiskController());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -239,14 +265,14 @@ class MonitorCollectVisitorTest {
 
 		final IParameterValue expected = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation(statusInformation)
 				.build();
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(expected, actual);
 	}
@@ -263,7 +289,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Fan());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -276,7 +302,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Led());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -293,7 +319,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new LogicalDisk());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -306,7 +332,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Lun());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -323,7 +349,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Memory());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -336,7 +362,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new NetworkCard());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -349,18 +375,18 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new OtherDevice());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Collections.singletonList(POWER_CONSUMPTION))
 				);
 		monitorCollectVisitor.visit(new OtherDevice());
-		NumberParam powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		NumberParam powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(150.0, powerConsumptionParameter.getRawValue());
 		assertEquals(150.0, powerConsumptionParameter.getValue());
@@ -374,7 +400,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new PhysicalDisk());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParamWithIntrusion, actual);
 	}
@@ -391,7 +417,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new PowerSupply());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -408,7 +434,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Robotic());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -425,7 +451,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new TapeDrive());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -438,7 +464,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Temperature());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -451,7 +477,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Voltage());
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -467,26 +493,26 @@ class MonitorCollectVisitorTest {
 							monitor,
 							Arrays.asList(MONITOR_DEVICE_ID,
 									OK_RAW_STATUS,
-									HardwareConstants.EMPTY,
+									"",
 									OK_RAW_STATUS,
 									POWER_CONSUMPTION))
 					);
 
 			monitorCollectVisitor.collectStatusParameter(MonitorType.ENCLOSURE,
-					HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT);
+					STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT);
 
 			final Map<String, IParameterValue> parameters = monitor.getParameters();
 			final StatusParam expected = StatusParam
 					.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.OK)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 0 (OK)")
 					.build();
 
-			final IParameterValue actual = parameters.get(HardwareConstants.STATUS_PARAMETER);
+			final IParameterValue actual = parameters.get(STATUS_PARAMETER);
 
 			assertEquals(expected, actual);
 
@@ -507,20 +533,20 @@ class MonitorCollectVisitorTest {
 					);
 
 			monitorCollectVisitor.collectStatusParameter(MonitorType.ENCLOSURE,
-					HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT);
+					STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT);
 
 			final Map<String, IParameterValue> parameters = monitor.getParameters();
 			final StatusParam expected = StatusParam
 					.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.OK)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 0 (OK)")
 					.build();
 
-			final IParameterValue actual = parameters.get(HardwareConstants.STATUS_PARAMETER);
+			final IParameterValue actual = parameters.get(STATUS_PARAMETER);
 
 			assertEquals(expected, actual);
 
@@ -539,8 +565,8 @@ class MonitorCollectVisitorTest {
 				);
 
 		monitorCollectVisitor.collectStatusParameter(MonitorType.ENCLOSURE,
-				HardwareConstants.STATUS_PARAMETER,
-				HardwareConstants.STATUS_PARAMETER_UNIT);
+				STATUS_PARAMETER,
+				STATUS_PARAMETER_UNIT);
 
 		final Map<String, IParameterValue> parameters = monitor.getParameters();
 		assertTrue(parameters.isEmpty());
@@ -554,13 +580,13 @@ class MonitorCollectVisitorTest {
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.collectStatusParameter(MonitorType.ENCLOSURE,
-				HardwareConstants.STATUS_PARAMETER,
-				HardwareConstants.STATUS_PARAMETER_UNIT);
+				STATUS_PARAMETER,
+				STATUS_PARAMETER_UNIT);
 
 		final Map<String, IParameterValue> parameters = monitor.getParameters();
 		assertFalse(parameters.isEmpty());
 
-		final IParameterValue actual = parameters.get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = parameters.get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
 	}
@@ -578,10 +604,10 @@ class MonitorCollectVisitorTest {
 	void testAppendToStatusInformation() {
 		final StatusParam statusParam = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation(null)
 				.build();
 
@@ -603,10 +629,10 @@ class MonitorCollectVisitorTest {
 
 		final StatusParam statusParam = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation(null)
 				.build();
 
@@ -624,19 +650,19 @@ class MonitorCollectVisitorTest {
 		monitor.collectParameter(powerConsumptionParam);
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-		monitorCollectVisitor.appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
-		assertNull(monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER));
+		monitorCollectVisitor.appendValuesToStatusParameter(INTRUSION_STATUS_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER);
+		assertNull(monitor.getParameters().get(STATUS_PARAMETER));
 	}
 
 	@Test
 	void testAppendValuesToStatusParameter() {
 		final IParameterValue statusParam = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation("status: 0 (Operable)")
 				.build();
 
@@ -648,10 +674,10 @@ class MonitorCollectVisitorTest {
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		monitorCollectVisitor.appendValuesToStatusParameter(HardwareConstants.INTRUSION_STATUS_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
+		monitorCollectVisitor.appendValuesToStatusParameter(INTRUSION_STATUS_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER);
 
-		final IParameterValue actual = monitor.getParameters().get(HardwareConstants.STATUS_PARAMETER);
+		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		final String statusInformation = new StringBuilder()
 				.append("status: 0 (Operable)")
@@ -663,10 +689,10 @@ class MonitorCollectVisitorTest {
 
 		final IParameterValue expected = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation(statusInformation)
 				.build();
 
@@ -685,8 +711,8 @@ class MonitorCollectVisitorTest {
 				);
 
 		monitorCollectVisitor.collectNumberParameter(MonitorType.ENCLOSURE,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT);
+				POWER_CONSUMPTION_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER_UNIT);
 
 		final Map<String, IParameterValue> parameters = monitor.getParameters();
 
@@ -706,8 +732,8 @@ class MonitorCollectVisitorTest {
 				);
 
 		monitorCollectVisitor.collectNumberParameter(MonitorType.ENCLOSURE,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT);
+				POWER_CONSUMPTION_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER_UNIT);
 
 		final Map<String, IParameterValue> parameters = monitor.getParameters();
 
@@ -722,13 +748,13 @@ class MonitorCollectVisitorTest {
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.collectNumberParameter(MonitorType.ENCLOSURE,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT);
+				POWER_CONSUMPTION_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER_UNIT);
 
 		final Map<String, IParameterValue> parameters = monitor.getParameters();
 		assertFalse(parameters.isEmpty());
 
-		final IParameterValue actual = parameters.get(HardwareConstants.POWER_CONSUMPTION_PARAMETER);
+		final IParameterValue actual = parameters.get(POWER_CONSUMPTION_PARAMETER);
 
 		assertEquals(powerConsumptionParam, actual);
 
@@ -790,29 +816,29 @@ class MonitorCollectVisitorTest {
 		{
 			final Monitor monitor = Monitor.builder().build();
 			MonitorCollectVisitor.updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+					ENERGY_USAGE_PARAMETER,
+					ENERGY_USAGE_PARAMETER_UNIT,
 					collectTime,
 					100D,
 					1500D);
 
 			final NumberParam expected = NumberParam
 					.builder()
-					.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-					.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
 					.collectTime(collectTime)
 					.value(100D)
 					.rawValue(1500D)
 					.build();
 
-			assertEquals(expected, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 		}
 
 		{
 			final NumberParam previousParameter = NumberParam
 					.builder()
-					.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-					.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
 					.collectTime(collectTime)
 					.value(100D)
 					.rawValue(1500D)
@@ -821,19 +847,19 @@ class MonitorCollectVisitorTest {
 			previousParameter.reset();
 
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
-					Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, previousParameter)))
+					Map.of(ENERGY_USAGE_PARAMETER, previousParameter)))
 					.build();
 			MonitorCollectVisitor.updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+					ENERGY_USAGE_PARAMETER,
+					ENERGY_USAGE_PARAMETER_UNIT,
 					collectTime + (2 * 60 * 1000),
 					50D,
 					1550D);
 
 			final NumberParam expected = NumberParam
 					.builder()
-					.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-					.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
 					.collectTime(collectTime + (2 * 60 * 1000))
 					.value(50D)
 					.rawValue(1550D)
@@ -841,7 +867,7 @@ class MonitorCollectVisitorTest {
 			expected.setPreviousCollectTime(collectTime);
 			expected.setPreviousRawValue(1500D);
 
-			assertEquals(expected, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 		}
 	}
 
@@ -849,50 +875,50 @@ class MonitorCollectVisitorTest {
 	void testUpdateStatusParameter() {
 		{
 			final Monitor monitor = Monitor.builder().build();
-			MonitorCollectVisitor.updateStatusParameter(monitor, HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+			MonitorCollectVisitor.updateStatusParameter(monitor, STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
 
 			final StatusParam expected = StatusParam
 					.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.OK)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 0 (Operable)")
 					.build();
 
-			assertEquals(expected, monitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class));
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
 		}
 
 		{
 			final StatusParam previousParameter = StatusParam.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.ALARM)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 2 (DOWN)").build();
 
 			previousParameter.reset();
 
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
-					Map.of(HardwareConstants.STATUS_PARAMETER, previousParameter)))
+					Map.of(STATUS_PARAMETER, previousParameter)))
 					.build();
 
-			MonitorCollectVisitor.updateStatusParameter(monitor, HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+			MonitorCollectVisitor.updateStatusParameter(monitor, STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
 
 			final StatusParam expected = StatusParam
 					.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.OK)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 0 (Operable)")
 					.build();
 
 			expected.setPreviousState(ParameterState.ALARM);
 
-			assertEquals(expected, monitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class));
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
 		}
 	}
 
@@ -905,9 +931,9 @@ class MonitorCollectVisitorTest {
 
 		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime, 3138.358D, ECS1_01);
 
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue());
-		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertEquals(3138.358D, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue());
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertEquals(3138.358D, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
 
 	}
 
@@ -916,8 +942,8 @@ class MonitorCollectVisitorTest {
 
 		final NumberParam energyUsage = NumberParam
 				.builder()
-				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-				.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+				.name(ENERGY_USAGE_PARAMETER)
+				.unit(ENERGY_USAGE_PARAMETER_UNIT)
 				.collectTime(collectTime)
 				.value(null)
 				.rawValue(3138.358D) // kWatt-hours
@@ -925,17 +951,17 @@ class MonitorCollectVisitorTest {
 		energyUsage.reset();
 
 		final Monitor monitor = Monitor.builder().monitorType(MonitorType.ENCLOSURE).parameters(new HashMap<>(
-				Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+				Map.of(ENERGY_USAGE_PARAMETER, energyUsage)))
 				.build();
 
 		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime + (2 * 60 * 1000), 3138.360, ECS1_01);
 
-		Double joules = monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
+		Double joules = monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
 		joules  = Math.round(joules * 100000D) / 100000D;
 
 		assertEquals(7200, joules); // Joules (Energy)
 
-		final double watts = Math.round(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+		final double watts = Math.round(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
 		assertEquals(60.0, watts); // Watts (Power)
 
 	}
@@ -949,9 +975,9 @@ class MonitorCollectVisitorTest {
 
 		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime, 60D, ECS1_01);
 
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
-		assertEquals(60, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
-		assertEquals(60, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 	}
 
 	@Test
@@ -959,8 +985,8 @@ class MonitorCollectVisitorTest {
 
 		final NumberParam powerConsumption = NumberParam
 				.builder()
-				.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
-				.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+				.name(POWER_CONSUMPTION_PARAMETER)
+				.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
 				.collectTime(collectTime)
 				.value(null)
 				.rawValue(60.0)
@@ -970,8 +996,8 @@ class MonitorCollectVisitorTest {
 
 		final NumberParam energyUsage = NumberParam
 			.builder()
-			.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-			.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+			.name(ENERGY_USAGE_PARAMETER)
+			.unit(ENERGY_USAGE_PARAMETER_UNIT)
 			.collectTime(collectTime)
 			.value(null)
 			.rawValue(999.0)
@@ -984,17 +1010,17 @@ class MonitorCollectVisitorTest {
 			.monitorType(MonitorType.ENCLOSURE)
 			.parameters(new HashMap<>(
 				Map
-					.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, powerConsumption,
-						HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+					.of(POWER_CONSUMPTION_PARAMETER, powerConsumption,
+						ENERGY_USAGE_PARAMETER, energyUsage)))
 			.build();
 
 		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
 
-		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 
-		assertEquals(7680.0, monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(7680.0, monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7680.0, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7680.0, monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
 	@Test
@@ -1007,7 +1033,7 @@ class MonitorCollectVisitorTest {
 				.build();
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.358");
 
@@ -1017,7 +1043,7 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor.collectPowerConsumption();
 
 		assertEquals(3138.358D,
-				monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
+				monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
 	}
 
 	@Test
@@ -1031,35 +1057,35 @@ class MonitorCollectVisitorTest {
 
 		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime , 64D, ECS1_01);
 
-		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class)); // Joules
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class)); // Joules
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class)); // Joules
+		assertNull(monitor.getParameter(ENERGY_PARAMETER, NumberParam.class)); // Joules
 
 		// Collect 2 (first collect time + 2 minutes)
 		monitor.getParameters().values().forEach(IParameterValue::reset);
 
 		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
 
-		assertEquals(60D, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(7200.0,monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(7200.0,monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(60D, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7200.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7200.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 
 		// Collect 3  (first collect time + 4 minutes)
 		monitor.getParameters().values().forEach(IParameterValue::reset);
 
 		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
 
-		assertEquals(64, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(7680.0,monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(14880.0,monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7680.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(14880.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
 	@Test
 	void testCollectPowerConsumptionFromEnergyUsage() {
 		final NumberParam energyUsage = NumberParam
 				.builder()
-				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
-				.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+				.name(ENERGY_USAGE_PARAMETER)
+				.unit(ENERGY_USAGE_PARAMETER_UNIT)
 				.collectTime(collectTime - (2 * 60 * 1000))
 				.value(null)
 				.rawValue(3138.358D)
@@ -1072,11 +1098,11 @@ class MonitorCollectVisitorTest {
 				.builder()
 				.id(MONITOR_ID)
 				.monitorType(MonitorType.ENCLOSURE)
-				.parameters(new HashMap<>(Map.of(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+				.parameters(new HashMap<>(Map.of(ENERGY_USAGE_PARAMETER, energyUsage)))
 				.build();
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.360");
 
@@ -1085,10 +1111,10 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		Double joules = monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
+		Double joules = monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
 		joules = Math.round(joules * 100000D) / 100000D;
 		assertEquals(7200.0, joules);
-		assertEquals(60, Math.round(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()));
+		assertEquals(60, Math.round(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()));
 	}
 
 	@Test
@@ -1101,7 +1127,7 @@ class MonitorCollectVisitorTest {
 				.build();
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
+				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, POWER_CONSUMPTION);
 
@@ -1111,17 +1137,17 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor.collectPowerConsumption();
 
 		assertEquals(Double.parseDouble(POWER_CONSUMPTION),
-				monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+				monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 		assertEquals(Double.parseDouble(POWER_CONSUMPTION),
-						monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+						monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
 	}
 
 	@Test
 	void testCollectPowerConsumptionFromPower() {
 		final NumberParam powerConsumption = NumberParam
 				.builder()
-				.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
-				.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+				.name(POWER_CONSUMPTION_PARAMETER)
+				.unit(POWER_CONSUMPTION_PARAMETER)
 				.collectTime(collectTime - (2 * 60 * 1000))
 				.value(null)
 				.rawValue(60.0)
@@ -1134,11 +1160,11 @@ class MonitorCollectVisitorTest {
 				.builder()
 				.id(MONITOR_ID)
 				.monitorType(MonitorType.ENCLOSURE)
-				.parameters(new HashMap<>(Map.of(HardwareConstants.POWER_CONSUMPTION_PARAMETER, powerConsumption)))
+				.parameters(new HashMap<>(Map.of(POWER_CONSUMPTION_PARAMETER, powerConsumption)))
 				.build();
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
+				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "60.2");
 
@@ -1147,10 +1173,10 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		assertEquals(60.2, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
-		assertEquals(60.2, monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+		assertEquals(60.2, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+		assertEquals(60.2, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
 
-		assertEquals(7224, Math.round(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()));
+		assertEquals(7224, Math.round(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()));
 	}
 
 	@Test
@@ -1165,7 +1191,7 @@ class MonitorCollectVisitorTest {
 
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
+				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "");
 
@@ -1174,8 +1200,8 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 
 	}
 
@@ -1191,7 +1217,7 @@ class MonitorCollectVisitorTest {
 
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
+				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "-1");
 
@@ -1200,8 +1226,8 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 
 	}
 
@@ -1217,7 +1243,7 @@ class MonitorCollectVisitorTest {
 
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "");
 
@@ -1226,8 +1252,8 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 
 	}
 
@@ -1243,7 +1269,7 @@ class MonitorCollectVisitorTest {
 
 		final Map<String, String> mapping = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
 
 		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "-1");
 
@@ -1252,8 +1278,8 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.collectPowerConsumption();
 
-		assertNull(monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertNull(monitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 
 	}
 
@@ -1266,18 +1292,18 @@ class MonitorCollectVisitorTest {
 
 		// No charge value
 		monitorCollectVisitor.collectBatteryCharge();
-		NumberParam chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		NumberParam chargeParameter = monitor.getParameter(CHARGE_PARAMETER, NumberParam.class);
 		assertNull(chargeParameter);
 
 		// Charge value collected, value is lower than 100
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(CHARGE))
 		);
 		monitorCollectVisitor.collectBatteryCharge();
-		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		chargeParameter = monitor.getParameter(CHARGE_PARAMETER, NumberParam.class);
 		assertNotNull(chargeParameter);
 		assertEquals(39.0, chargeParameter.getRawValue());
 		assertEquals(39.0, chargeParameter.getValue());
@@ -1285,12 +1311,12 @@ class MonitorCollectVisitorTest {
 		// Charge value collected, value is greater than 100
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(CHARGE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("125"))
 		);
 		monitorCollectVisitor.collectBatteryCharge();
-		chargeParameter = monitor.getParameter(HardwareConstants.CHARGE_PARAMETER, NumberParam.class);
+		chargeParameter = monitor.getParameter(CHARGE_PARAMETER, NumberParam.class);
 		assertNotNull(chargeParameter);
 		assertEquals(125.0, chargeParameter.getRawValue());
 		assertEquals(100.0, chargeParameter.getValue());
@@ -1305,18 +1331,18 @@ class MonitorCollectVisitorTest {
 
 		// No time left value
 		monitorCollectVisitor.collectBatteryTimeLeft();
-		NumberParam timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		NumberParam timeLeftParameter = monitor.getParameter(TIME_LEFT_PARAMETER, NumberParam.class);
 		assertNull(timeLeftParameter);
 
 		// Time left value collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.TIME_LEFT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(TIME_LEFT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(TIME_LEFT))
 		);
 		monitorCollectVisitor.collectBatteryTimeLeft();
-		timeLeftParameter = monitor.getParameter(HardwareConstants.TIME_LEFT_PARAMETER, NumberParam.class);
+		timeLeftParameter = monitor.getParameter(TIME_LEFT_PARAMETER, NumberParam.class);
 		assertNotNull(timeLeftParameter);
 		assertEquals(60.0, timeLeftParameter.getRawValue());
 		assertEquals(3600.0, timeLeftParameter.getValue());
@@ -1331,19 +1357,19 @@ class MonitorCollectVisitorTest {
 
 		// usedTimePercentRaw is null
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
-		NumberParam usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER,
+		NumberParam usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER,
 			NumberParam.class);
 		assertNull(usedTimePercentParameter);
 
 		// usedTimePercentRaw is not null, usedTimePercentPrevious is null
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("12"))
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
-		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER, NumberParam.class);
 		assertNotNull(usedTimePercentParameter);
 		assertEquals(12.0, usedTimePercentParameter.getRawValue());
 		assertNull(usedTimePercentParameter.getValue());
@@ -1353,49 +1379,49 @@ class MonitorCollectVisitorTest {
 		usedTimePercentParameter.setPreviousCollectTime(null);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("42"))
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
-		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER, NumberParam.class);
 		assertNotNull(usedTimePercentParameter);
 		assertNull(usedTimePercentParameter.getRawValue());
 		assertNull(usedTimePercentParameter.getValue());
 
 		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is not null
 		// timeDeltaInSeconds == 0.0
-		usedTimePercentParameter = NumberParam.builder().name(HardwareConstants.USED_TIME_PERCENT_PARAMETER).build();
+		usedTimePercentParameter = NumberParam.builder().name(USED_TIME_PERCENT_PARAMETER).build();
 		usedTimePercentParameter.setPreviousRawValue(12.0);
 		usedTimePercentParameter.setPreviousCollectTime(System.currentTimeMillis() - 120000L); // 2 minutes ago
 		monitor.addParameter(usedTimePercentParameter);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("42"),
 				usedTimePercentParameter.getPreviousCollectTime())
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
-		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER, NumberParam.class);
 		assertNotNull(usedTimePercentParameter);
 		assertNull(usedTimePercentParameter.getRawValue());
 		assertNull(usedTimePercentParameter.getValue());
 
 		// OK
-		usedTimePercentParameter = NumberParam.builder().name(HardwareConstants.USED_TIME_PERCENT_PARAMETER).build();
+		usedTimePercentParameter = NumberParam.builder().name(USED_TIME_PERCENT_PARAMETER).build();
 		usedTimePercentParameter.setPreviousRawValue(12.0);
 		usedTimePercentParameter.setPreviousCollectTime(System.currentTimeMillis() - 120000L); // 2 minutes ago
 		monitor.addParameter(usedTimePercentParameter);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(USED_TIME_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("42"),
 				usedTimePercentParameter.getPreviousCollectTime() + 120000L)
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
-		usedTimePercentParameter = monitor.getParameter(HardwareConstants.USED_TIME_PERCENT_PARAMETER, NumberParam.class);
+		usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER, NumberParam.class);
 		assertNotNull(usedTimePercentParameter);
 		assertEquals(42.0, usedTimePercentParameter.getRawValue());
 		assertEquals(25.0, usedTimePercentParameter.getValue());
@@ -1410,18 +1436,18 @@ class MonitorCollectVisitorTest {
 
 		// No voltage value
 		monitorCollectVisitor.collectVoltage();
-		NumberParam voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		NumberParam voltageParameter = monitor.getParameter(VOLTAGE_PARAMETER, NumberParam.class);
 		assertNull(voltageParameter);
 
 		// Voltage value collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(VOLTAGE))
 		);
 		monitorCollectVisitor.collectVoltage();
-		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		voltageParameter = monitor.getParameter(VOLTAGE_PARAMETER, NumberParam.class);
 		assertNotNull(voltageParameter);
 		assertEquals(50000.0, voltageParameter.getRawValue());
 		assertEquals(50000.0, voltageParameter.getValue());
@@ -1430,24 +1456,24 @@ class MonitorCollectVisitorTest {
 		monitor.setParameters(new HashMap<>());
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(VOLTAGE_LOW))
 		);
 		monitorCollectVisitor.collectVoltage();
-		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		voltageParameter = monitor.getParameter(VOLTAGE_PARAMETER, NumberParam.class);
 		assertNull(voltageParameter);
 
 		// Voltage value collected > 450000
 		monitor.setParameters(new HashMap<>());
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(VOLTAGE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(VOLTAGE_HIGH))
 		);
 		monitorCollectVisitor.collectVoltage();
-		voltageParameter = monitor.getParameter(HardwareConstants.VOLTAGE_PARAMETER, NumberParam.class);
+		voltageParameter = monitor.getParameter(VOLTAGE_PARAMETER, NumberParam.class);
 		assertNull(voltageParameter);
 	}
 
@@ -1460,9 +1486,9 @@ class MonitorCollectVisitorTest {
 
 		// No error count set
 		monitorCollectVisitor.collectErrorCount();
-		NumberParam errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
-		NumberParam previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
-		NumberParam startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		NumberParam errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
+		NumberParam previousErrorCountParameter = monitor.getParameter(PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		NumberParam startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertNull(errorCountParameter);
 		assertNull(previousErrorCountParameter);
 		assertNull(startingErrorCountParameter);
@@ -1470,15 +1496,15 @@ class MonitorCollectVisitorTest {
 		// Error count value collected for the first time
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("10"))
 		);
 
 		monitorCollectVisitor.collectErrorCount();
-		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
-		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
-		startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
+		previousErrorCountParameter = monitor.getParameter(PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(10.0, errorCountParameter.getRawValue());
 		assertEquals(0.0, errorCountParameter.getValue());
 		assertEquals(10.0, previousErrorCountParameter.getValue());
@@ -1488,17 +1514,17 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map
-					.of(HardwareConstants.ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1,
-						HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
-						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_3),
+					.of(ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_1,
+						PREVIOUS_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+						STARTING_ERROR_COUNT_PARAMETER, VALUETABLE_COLUMN_3),
 				monitor,
 				Arrays.asList("25", "15", "15"))
 		);
 
 		monitorCollectVisitor.collectErrorCount();
-		errorCountParameter = monitor.getParameter(HardwareConstants.ERROR_COUNT_PARAMETER, NumberParam.class);
-		previousErrorCountParameter = monitor.getParameter(HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
-		startingErrorCountParameter = monitor.getParameter(HardwareConstants.STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
+		errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
+		previousErrorCountParameter = monitor.getParameter(PREVIOUS_ERROR_COUNT_PARAMETER, NumberParam.class);
+		startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(25.0, errorCountParameter.getRawValue());
 		assertEquals(10.0, errorCountParameter.getValue());
 		assertEquals(15.0, previousErrorCountParameter.getValue());
@@ -1514,50 +1540,50 @@ class MonitorCollectVisitorTest {
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		// No mount count set
-		monitorCollectVisitor.collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
-		NumberParam mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		monitorCollectVisitor.collectIncrementCount(MOUNT_COUNT_PARAMETER, MOUNT_COUNT_PARAMETER_UNIT);
+		NumberParam mountCountParameter = monitor.getParameter(MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertNull(mountCountParameter);
 
 		// Mount count value collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("10"))
 		);
 
-		monitorCollectVisitor.collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
-		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		monitorCollectVisitor.collectIncrementCount(MOUNT_COUNT_PARAMETER, MOUNT_COUNT_PARAMETER_UNIT);
+		mountCountParameter = monitor.getParameter(MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(10.0, mountCountParameter.getRawValue());
 		assertEquals(0.0, mountCountParameter.getValue());
 
 		// Both current and previous mount counts are set (previous = 12, current = 20)
-		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
+		mountCountParameter = NumberParam.builder().name(MOUNT_COUNT_PARAMETER).build();
 		mountCountParameter.setPreviousRawValue(12.0);
 		monitor.addParameter(mountCountParameter);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("20"))
 		);
-		monitorCollectVisitor.collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
-		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		monitorCollectVisitor.collectIncrementCount(MOUNT_COUNT_PARAMETER, MOUNT_COUNT_PARAMETER_UNIT);
+		mountCountParameter = monitor.getParameter(MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(20.0, mountCountParameter.getRawValue());
 		assertEquals(8.0, mountCountParameter.getValue());
 
 		// Both current and previous mount counts are set (previous = 32, current = 20)
-		mountCountParameter = NumberParam.builder().name(HardwareConstants.MOUNT_COUNT_PARAMETER).build();
+		mountCountParameter = NumberParam.builder().name(MOUNT_COUNT_PARAMETER).build();
 		mountCountParameter.setPreviousRawValue(32.0);
 		monitor.addParameter(mountCountParameter);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(MOUNT_COUNT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("20"))
 		);
-		monitorCollectVisitor.collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
-		mountCountParameter = monitor.getParameter(HardwareConstants.MOUNT_COUNT_PARAMETER, NumberParam.class);
+		monitorCollectVisitor.collectIncrementCount(MOUNT_COUNT_PARAMETER, MOUNT_COUNT_PARAMETER_UNIT);
+		mountCountParameter = monitor.getParameter(MOUNT_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(20.0, mountCountParameter.getRawValue());
 		assertEquals(0.0, mountCountParameter.getValue());
 	}
@@ -1571,32 +1597,32 @@ class MonitorCollectVisitorTest {
 
 		// No parameter set
 		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
-		NumberParam usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		NumberParam usedCapacityParameter = monitor.getParameter(USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertNull(usedCapacityParameter);
 
 		// Used capacity set
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.POWER_SUPPLY_USED_PERCENT, VALUETABLE_COLUMN_1),
+				Map.of(POWER_SUPPLY_USED_PERCENT, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("10"))
 		);
 		
 		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
-		usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		usedCapacityParameter = monitor.getParameter(USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertEquals(10.0, usedCapacityParameter.getValue());
 		
 		// No used capacity, derive from used & total power
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map
-					.of(HardwareConstants.POWER_SUPPLY_USED_WATTS, VALUETABLE_COLUMN_1,
-						HardwareConstants.POWER_SUPPLY_POWER, VALUETABLE_COLUMN_2),
+					.of(POWER_SUPPLY_USED_WATTS, VALUETABLE_COLUMN_1,
+						POWER_SUPPLY_POWER, VALUETABLE_COLUMN_2),
 				monitor,
 				Arrays.asList("25", "50"))
 		);
 		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
-		usedCapacityParameter = monitor.getParameter(HardwareConstants.USED_CAPACITY_PARAMETER, NumberParam.class);
+		usedCapacityParameter = monitor.getParameter(USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertEquals(null, usedCapacityParameter.getRawValue());
 		assertEquals(50.0, usedCapacityParameter.getValue());
 	}
@@ -1610,8 +1636,8 @@ class MonitorCollectVisitorTest {
 					buildCollectMonitorInfo(hostMonitoring,
 							Map.of(
 									DEVICE_ID, VALUETABLE_COLUMN_1,
-									HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
-									HardwareConstants.MEMORY_LAST_ERROR, VALUETABLE_COLUMN_3),
+									STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+									MEMORY_LAST_ERROR, VALUETABLE_COLUMN_3),
 							monitor,
 							Arrays.asList(MONITOR_DEVICE_ID,
 									OK_RAW_STATUS,
@@ -1619,22 +1645,22 @@ class MonitorCollectVisitorTest {
 					);
 
 			monitorCollectVisitor.collectStatusParameter(MonitorType.MEMORY,
-					HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT);
+					STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT);
 			
-			monitorCollectVisitor.updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
+			monitorCollectVisitor.updateAdditionalStatusInformation(MEMORY_LAST_ERROR);
 
 			final Map<String, IParameterValue> parameters = monitor.getParameters();
 			final StatusParam expected = StatusParam
 					.builder()
-					.name(HardwareConstants.STATUS_PARAMETER)
+					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
 					.state(ParameterState.OK)
-					.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 0 (OK)" + " - " + MEMORY_LAST_ERROR)
 					.build();
 
-			final IParameterValue actual = parameters.get(HardwareConstants.STATUS_PARAMETER);
+			final IParameterValue actual = parameters.get(STATUS_PARAMETER);
 
 			assertEquals(expected, actual);
 
@@ -1650,18 +1676,18 @@ class MonitorCollectVisitorTest {
 
 		// No unallocated space value
 		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
-		NumberParam unallocatedSpaceParameter = monitor.getParameter(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
+		NumberParam unallocatedSpaceParameter = monitor.getParameter(UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
 		assertNull(unallocatedSpaceParameter);
 
 		// Unallocated space value collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList(UNALLOCATED_SPACE))
 		);
 		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
-		unallocatedSpaceParameter = monitor.getParameter(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
+		unallocatedSpaceParameter = monitor.getParameter(UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
 		assertNotNull(unallocatedSpaceParameter);
 		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
 		assertEquals(10.0, unallocatedSpaceParameter.getValue());
@@ -1676,31 +1702,31 @@ class MonitorCollectVisitorTest {
 
 		// No fan speed, no fan speed percent -> 5W
 		monitorCollectVisitor.collectFanPowerConsumption();
-		NumberParam powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		NumberParam powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(5.0, powerConsumptionParameter.getValue());
 
 		// Fan speed set
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.SPEED_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(SPEED_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("7000"))
 		);
 		monitorCollectVisitor.collectFanPowerConsumption();
-		powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(7.0, powerConsumptionParameter.getValue());
 		
 		// No fan speed, but fan speed percent set
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
-				Map.of(HardwareConstants.SPEED_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
+				Map.of(SPEED_PERCENT_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
 				Collections.singletonList("80"))
 		);
 		monitorCollectVisitor.collectFanPowerConsumption();
-		powerConsumptionParameter = monitor.getParameter(HardwareConstants.POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+		powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(4.0, powerConsumptionParameter.getValue());
 	}
@@ -1713,43 +1739,43 @@ class MonitorCollectVisitorTest {
 
 		// No temperature value
 		monitorCollectVisitor.collectTemperature();
-		NumberParam temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		NumberParam temperatureParameter = monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class);
 		assertNull(temperatureParameter);
 
 		// Temperature < -100°
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Collections.singletonList(TEMPERATURE_TOO_LOW))
 				);
 
 		monitorCollectVisitor.collectTemperature();
-		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		temperatureParameter = monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class);
 		assertNull(temperatureParameter);
 
 		// Temperature > 200°
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Collections.singletonList(TEMPERATURE_TOO_HIGH))
 				);
 
 		monitorCollectVisitor.collectTemperature();
-		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		temperatureParameter = monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class);
 		assertNull(temperatureParameter);
 
 		// Temperature value collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(TEMPERATURE_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Collections.singletonList(TEMPERATURE))
 				);
 
 		monitorCollectVisitor.collectTemperature();
-		temperatureParameter = monitor.getParameter(HardwareConstants.TEMPERATURE_PARAMETER, NumberParam.class);
+		temperatureParameter = monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class);
 
 		assertNotNull(temperatureParameter);
 		assertEquals(20.0, temperatureParameter.getRawValue());
@@ -1764,20 +1790,20 @@ class MonitorCollectVisitorTest {
 
 		// No value
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		NumberParam predictedFailure = monitor.getParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, NumberParam.class);
-		NumberParam enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		NumberParam predictedFailure = monitor.getParameter(PREDICTED_FAILURE_PARAMETER, NumberParam.class);
+		NumberParam enduranceRemaining = monitor.getParameter(ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
 		assertNull(predictedFailure);
 		assertNull(enduranceRemaining);
 
 		// Values collected
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Arrays.asList(ENDURANCE_REMAINING))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		enduranceRemaining = monitor.getParameter(ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
 		assertNotNull(enduranceRemaining);
 		assertEquals(10.0, enduranceRemaining.getRawValue());
 		assertEquals(10.0, enduranceRemaining.getValue());
@@ -1786,24 +1812,24 @@ class MonitorCollectVisitorTest {
 		monitor.getParameters().clear();
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Arrays.asList(ENDURANCE_REMAINING_TOO_LOW))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		enduranceRemaining = monitor.getParameter(ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
 		assertNull(enduranceRemaining);
 
 		// rawEnduranceRemaining value collected > 100
 		monitor.getParameters().clear();
 		monitorCollectVisitor = new MonitorCollectVisitor(
 				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
+						Map.of(ENDURANCE_REMAINING_PARAMETER, VALUETABLE_COLUMN_1),
 						monitor,
 						Arrays.asList(ENDURANCE_REMAINING_TOO_HIGH))
 				);
 		monitorCollectVisitor.collectPhysicalDiskParameters();
-		enduranceRemaining = monitor.getParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
+		enduranceRemaining = monitor.getParameter(ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
 		assertNull(enduranceRemaining);
 	}
 }

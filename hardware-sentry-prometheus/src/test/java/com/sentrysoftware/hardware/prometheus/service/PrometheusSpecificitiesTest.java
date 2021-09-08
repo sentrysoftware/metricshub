@@ -10,8 +10,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
 
 class PrometheusSpecificitiesTest {
 
@@ -50,7 +51,7 @@ class PrometheusSpecificitiesTest {
 		assertNotNull(PrometheusSpecificities.getPrometheusMetadataToParameters(MonitorType.CPU, "maximumSpeed"));
 		Optional<PrometheusParameter> memorySize = PrometheusSpecificities.getPrometheusMetadataToParameters(MonitorType.MEMORY, "size");
 		PrometheusParameter expectedMemorySize = PrometheusParameter.builder().name("hw_memory_size_bytes")
-				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).factor(1000000.0).build();
+				.unit(BYTES_PARAMETER_UNIT).factor(1000000.0).build();
 		assertEquals(expectedMemorySize, memorySize.get());
 		assertEquals(Optional.empty(), PrometheusSpecificities.getPrometheusMetadataToParameters(MonitorType.MEMORY, "blabla"));
 		assertEquals(Optional.empty(), PrometheusSpecificities.getPrometheusMetadataToParameters(MonitorType.MEMORY, ""));

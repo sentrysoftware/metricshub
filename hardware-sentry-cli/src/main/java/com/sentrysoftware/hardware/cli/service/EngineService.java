@@ -19,7 +19,6 @@ import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -38,6 +37,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static org.springframework.util.Assert.notNull;
 
 @Slf4j
@@ -233,7 +233,7 @@ public class EngineService {
 		if (connectors != null) {
 			// Send only known connectors
 			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
-			connectors.replaceAll(f -> f + HardwareConstants.DOT + HardwareConstants.CONNECTOR);
+			connectors.replaceAll(f -> f + "." + CONNECTOR);
 			result.addAll(connectors);
 		}
 

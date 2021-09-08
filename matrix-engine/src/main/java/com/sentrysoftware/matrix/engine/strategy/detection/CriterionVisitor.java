@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static org.springframework.util.Assert.notNull;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -64,6 +60,9 @@ import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @Component
@@ -522,7 +521,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// Test the result
-		final TestResult testResult = getMatchingResult(query, "root/hardware", EMPTY, csvTable, WMI.class);
+		final TestResult testResult = getMatchingResult(query, "root/hardware", "", csvTable, WMI.class);
 
 		return CriterionTestResult.builder()
 				.success(testResult.isSuccess())
@@ -1314,7 +1313,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 		}
 
-		final String expected = expectedResult != null ? expectedResult : EMPTY;
+		final String expected = expectedResult != null ? expectedResult : "";
 
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected),
 				Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);

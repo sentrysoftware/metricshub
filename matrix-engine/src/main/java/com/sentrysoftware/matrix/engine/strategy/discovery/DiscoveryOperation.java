@@ -4,7 +4,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -37,6 +39,15 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -60,7 +71,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.forEach(monitor ->
-				resetPresentParam(monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)));
+				resetPresentParam(monitor.getParameter(PRESENT_PARAMETER, PresentParam.class)));
 	}
 
 	@Override
@@ -303,10 +314,10 @@ public class DiscoveryOperation extends AbstractStrategy {
 		}
 
 		// Add the id count parameter
-		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(0));
+		monitor.addMetadata(ID_COUNT, String.valueOf(0));
 
 		// Add the connector name to the metadata
-		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
+		monitor.addMetadata(CONNECTOR, connectorName);
 	}
 
 	/**
@@ -350,10 +361,10 @@ public class DiscoveryOperation extends AbstractStrategy {
 		}
 
 		// Add the idCount metadata
-		monitor.addMetadata(HardwareConstants.ID_COUNT, String.valueOf(idCount));
+		monitor.addMetadata(ID_COUNT, String.valueOf(idCount));
 
 		// Add the connector name to the metadata
-		monitor.addMetadata(HardwareConstants.CONNECTOR, connectorName);
+		monitor.addMetadata(CONNECTOR, connectorName);
 
 	}
 
@@ -524,9 +535,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 		currentMonitors
 			.stream()
 			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
-			.filter(monitor -> monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class) != null)
+			.filter(monitor -> monitor.getParameter(PRESENT_PARAMETER, PresentParam.class) != null)
 			.filter(monitor ->
-				monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).getPresent() == null)
+				monitor.getParameter(PRESENT_PARAMETER, PresentParam.class).getPresent() == null)
 			.forEach(Monitor::setAsMissing);
 	}
 

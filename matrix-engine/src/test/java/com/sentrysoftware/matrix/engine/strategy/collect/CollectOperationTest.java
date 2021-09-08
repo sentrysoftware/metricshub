@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -50,12 +49,24 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
@@ -164,14 +175,14 @@ class CollectOperationTest {
 						.build())
 				.build();
 
-		parameters.put(HardwareConstants.DEVICE_ID, VALUETABLE_COLUMN_1);
-		parameters.put(HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2);
-		parameters.put(HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
-		parameters.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4);
-		parameters.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
+		parameters.put(DEVICE_ID, VALUETABLE_COLUMN_1);
+		parameters.put(STATUS_PARAMETER, VALUETABLE_COLUMN_2);
+		parameters.put(STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+		parameters.put(INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4);
+		parameters.put(POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);
-		metadata.put(HardwareConstants.CONNECTOR, MY_CONNECTOR_NAME);
+		metadata.put(CONNECTOR, MY_CONNECTOR_NAME);
 
 		final List<List<String>> table = new ArrayList<>();
 		table.add(row);
@@ -639,14 +650,14 @@ class CollectOperationTest {
 				.builder()
 				.oid(oid)
 				.key(VALUE_TABLE)
-				.computes(Collections.singletonList(LeftConcat.builder().column(1).string(HardwareConstants.EMPTY).build()))
+				.computes(Collections.singletonList(LeftConcat.builder().column(1).string("").build()))
 				.build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				HardwareConstants.STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
-				HardwareConstants.STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
-				HardwareConstants.INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
+				STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+				STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
+				INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
+				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 		final Collect collect = Collect
 				.builder()
 				.valueTable(VALUE_TABLE)
@@ -675,29 +686,29 @@ class CollectOperationTest {
 
 		final IParameterValue statusParam = StatusParam
 				.builder()
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.collectTime(strategyTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.statusInformation(statusInformation)
 				.build();
 		expected.collectParameter(statusParam);
 
 		final IParameterValue intructionStatusParam = StatusParam
 				.builder()
-				.name(HardwareConstants.INTRUSION_STATUS_PARAMETER)
+				.name(INTRUSION_STATUS_PARAMETER)
 				.collectTime(strategyTime)
 				.state(ParameterState.OK)
-				.unit(HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT)
+				.unit(INTRUSION_STATUS_PARAMETER_UNIT)
 				.statusInformation("intrusionStatus: 0 (No Intrusion Detected)")
 				.build();
 		expected.collectParameter(intructionStatusParam);
 
 		final IParameterValue powerConsumption = NumberParam
 				.builder()
-				.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+				.name(POWER_CONSUMPTION_PARAMETER)
 				.collectTime(strategyTime)
-				.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+				.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
 				.value(150D)
 				.rawValue(150D)
 				.build();
@@ -713,7 +724,7 @@ class CollectOperationTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.build();
 	}
 
@@ -727,7 +738,7 @@ class CollectOperationTest {
 			.targetId(ECS1_01)
 			.metadata(metadata)
 			.monitorType(monitorType)
-			.extendedType(HardwareConstants.COMPUTER)
+			.extendedType(COMPUTER)
 			.build();
 	}
 
@@ -803,7 +814,7 @@ class CollectOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
-				.metadata(Map.of(HardwareConstants.CONNECTOR, MY_OTHER_CONNECTOR_NAME))
+				.metadata(Map.of(CONNECTOR, MY_OTHER_CONNECTOR_NAME))
 				.build();
 
 		final Monitor fan3 = Monitor
@@ -887,23 +898,23 @@ class CollectOperationTest {
 		final StatusParam status = StatusParam
 				.builder()
 				.collectTime(strategyTime)
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.state(success ? ParameterState.OK : ParameterState.ALARM)
 				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
-				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.unit(STATUS_PARAMETER_UNIT)
 				.build();
 
 		final TextParam testReport = TextParam
 				.builder()
 				.collectTime(strategyTime)
-				.name(HardwareConstants.TEST_REPORT_PARAMETER)
+				.name(TEST_REPORT_PARAMETER)
 				.value("Received Result: " + result + ". " + message + "\nConclusion: TEST on ecs1-01 "
 						+ (success ? "SUCCEEDED" : "FAILED"))
 				.build();
 
 		expected.setParameters(Map.of(
-				HardwareConstants.STATUS_PARAMETER, status,
-				HardwareConstants.TEST_REPORT_PARAMETER, testReport));
+				STATUS_PARAMETER, status,
+				TEST_REPORT_PARAMETER, testReport));
 
 		return expected;
 	}
@@ -962,12 +973,12 @@ class CollectOperationTest {
 		final Monitor collectedFan1 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN1");
 
 		assertEquals(strategyTime, 
-				collectedFan1.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class)
+				collectedFan1.getParameter(PRESENT_PARAMETER, PresentParam.class)
 				.getCollectTime());
 
 		final Monitor weirdFan2 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN2");
 
-		assertNull(weirdFan2.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class));
+		assertNull(weirdFan2.getParameter(PRESENT_PARAMETER, PresentParam.class));
 	}
 
 	@Test
@@ -1179,7 +1190,7 @@ class CollectOperationTest {
 		// Invalid threshold
 
 		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		localMetadata.put(WARNING_THRESHOLD, " ");
+		localMetadata.put(WARNING_THRESHOLD, WHITE_SPACE);
 
 		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
 			"temperature", localMetadata);
@@ -1243,7 +1254,7 @@ class CollectOperationTest {
 				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case, Present parameter but present value is null
-		fan.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class).setPresent(null);
+		fan.getParameter(PRESENT_PARAMETER, PresentParam.class).setPresent(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
 				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 	}

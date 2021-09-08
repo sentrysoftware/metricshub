@@ -1,13 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mockStatic;
-
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -18,6 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
 
 class NetworkHelperTest {
 
@@ -31,7 +32,7 @@ class NetworkHelperTest {
 		assertTrue(NetworkHelper.isLocalhost("0000:0000:0000:0000:0000:0000:0000:0001"));
 		assertTrue(NetworkHelper.isLocalhost(InetAddress.getLocalHost().getHostName()));
 		assertThrows(LocalhostCheckException.class, () -> NetworkHelper.isLocalhost(UUID.randomUUID().toString()));
-		assertThrows(IllegalArgumentException.class, () -> NetworkHelper.isLocalhost(" "));
+		assertThrows(IllegalArgumentException.class, () -> NetworkHelper.isLocalhost(WHITE_SPACE));
 		assertThrows(IllegalArgumentException.class, () -> NetworkHelper.isLocalhost(""));
 		assertThrows(IllegalArgumentException.class, () ->NetworkHelper.isLocalhost(null));
 		try (MockedStatic<InetAddress> inetAddressMock = mockStatic(InetAddress.class)) {

@@ -1,8 +1,5 @@
 package com.sentrysoftware.matrix.model.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +11,6 @@ import java.util.stream.Collectors;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -30,6 +26,10 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 @Data
 @Builder
@@ -168,7 +168,7 @@ public class Monitor {
 			return;
 		}
 
-		final PresentParam presentParam = getParameter(HardwareConstants.PRESENT_PARAMETER,
+		final PresentParam presentParam = getParameter(PRESENT_PARAMETER,
 				PresentParam.class);
 
 		if (presentParam != null) {
@@ -209,7 +209,7 @@ public class Monitor {
 			return AssertedParameter.<PresentParam>builder().abnormal(false).build();
 		}
 
-		final PresentParam presentParam = getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		final PresentParam presentParam = getParameter(PRESENT_PARAMETER, PresentParam.class);
 		final Integer present = presentParam != null ? presentParam.getPresent() : null;
 		final Double presentValue = present != null ? presentParam.getPresent().doubleValue() : null;
 

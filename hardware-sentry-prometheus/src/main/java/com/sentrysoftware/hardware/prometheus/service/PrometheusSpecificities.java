@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -40,6 +39,10 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PrometheusSpecificities {
@@ -199,8 +202,8 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> physicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_physical_disk_size_bytes")
-				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
+		map.put(SIZE, PrometheusParameter.builder().name("hw_physical_disk_size_bytes")
+				.unit(BYTES_PARAMETER_UNIT).build());
 
 		return map;
 	}
@@ -212,10 +215,9 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> memoryMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.SIZE,
-				PrometheusParameter.builder().name("hw_memory_size_bytes").unit(HardwareConstants.BYTES_PARAMETER_UNIT)
-						.factor(1000000.0) // MB to Bytes
-						.build());
+		map.put(SIZE, PrometheusParameter.builder().name("hw_memory_size_bytes").unit(BYTES_PARAMETER_UNIT)
+				.factor(1000000.0) // MB to Bytes
+				.build());
 
 		return map;
 	}
@@ -227,8 +229,8 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> logicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_logical_disk_size_bytes")
-				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
+		map.put(SIZE, PrometheusParameter.builder().name("hw_logical_disk_size_bytes")
+				.unit(BYTES_PARAMETER_UNIT).build());
 
 		return map;
 	}
@@ -240,7 +242,7 @@ public class PrometheusSpecificities {
 	private static Map<String, PrometheusParameter> cpuMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.MAXIMUM_SPEED,
+		map.put(MAXIMUM_SPEED,
 				PrometheusParameter.builder().name("hw_cpu_maximum_speed_hertz").unit(HERTZ).factor(1000000.0).build());
 
 		return map;

@@ -11,10 +11,43 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_LABEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_MAXLENGTH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RAID_LEVEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SWITCH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_REPEAT_REGEX;
 
 public class MonitorNameBuilder {
 
@@ -62,11 +95,6 @@ public class MonitorNameBuilder {
 
 	// Network card vendor/model words to be trimmed
 	private static final Pattern NETWORK_VENDOR_MODEL_TRIM_PATTERN = Pattern.compile("network|ndis|client|server|adapter|ethernet|interface|controller|miniport|scheduler|packet|connection|multifunction|(1([0]+[/]*))*(base[\\-tx]*)*", Pattern.CASE_INSENSITIVE);
-
-	// Separators
-	private static final String NAME_SEPARATOR = HardwareConstants.COLON + HardwareConstants.WHITE_SPACE;
-	private static final String ADDITIONAL_DETAILS_SEPARATOR = HardwareConstants.WHITE_SPACE + HardwareConstants.OPENING_PARENTHESIS;
-	private static final String ADDITIONAL_DETAILS_TERMINATOR = HardwareConstants.CLOSING_PARENTHESIS;
 
 	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES;
 	static {
@@ -147,9 +175,9 @@ public class MonitorNameBuilder {
 	 */
 	private static String trimUnwantedCharacters(final String name) {
 		return name
-			.replaceAll(HardwareConstants.COMMA, HardwareConstants.EMPTY)
-			.replace(HardwareConstants.PARENTHESIS_EMPTY, HardwareConstants.EMPTY)
-			.replaceAll(HardwareConstants.WHITE_SPACE_REPEAT_REGEX, HardwareConstants.WHITE_SPACE)
+			.replaceAll(",", "")
+			.replace("()", "")
+			.replaceAll(WHITE_SPACE_REPEAT_REGEX, WHITE_SPACE)
 			.trim();
 	}
 
@@ -189,8 +217,8 @@ public class MonitorNameBuilder {
 	 */
 	private static String joinVendorAndModel(final Map<String, String> metadata) {
 
-		String vendor = metadata.get(HardwareConstants.VENDOR);
-		String model = metadata.get(HardwareConstants.MODEL);
+		String vendor = metadata.get(VENDOR);
+		String model = metadata.get(MODEL);
 
 		if (vendor != null && model != null) {
 			if (model.toLowerCase().contains(vendor.toLowerCase())) {
@@ -199,7 +227,7 @@ public class MonitorNameBuilder {
 			}
 		}
 
-		return joinWords(new String[] { vendor, model }, HardwareConstants.WHITE_SPACE);
+		return joinWords(new String[] { vendor, model }, WHITE_SPACE);
 	}
 
 	/**
@@ -212,7 +240,7 @@ public class MonitorNameBuilder {
 	 */
 	public static boolean isLocalhost(final Map<String, String> metadata) {
 		if (metadata != null) {
-			return HardwareConstants.LOCALHOST.equalsIgnoreCase(metadata.get(HardwareConstants.LOCATION));
+			return LOCALHOST.equalsIgnoreCase(metadata.get(LOCATION));
 		}
 
 		return false;
@@ -341,7 +369,7 @@ public class MonitorNameBuilder {
 
 			fullName
 				.append(type)
-				.append(NAME_SEPARATOR);
+				.append(": ");
 		}
 
 		// Add the name
@@ -349,8 +377,8 @@ public class MonitorNameBuilder {
 		if (hasMeaningfulContent(displayId)) {
 			name = displayId;
 		} else if (hasMeaningfulContent(deviceId)) {
-			name = (trimPattern == null) ? deviceId : trimPattern.matcher(deviceId).replaceAll(HardwareConstants.EMPTY);
-			if (name.length() > HardwareConstants.ID_MAXLENGTH) {
+			name = (trimPattern == null) ? deviceId : trimPattern.matcher(deviceId).replaceAll("");
+			if (name.length() > ID_MAXLENGTH) {
 				name = idCount;
 			}
 		}
@@ -367,9 +395,9 @@ public class MonitorNameBuilder {
 		if (hasMeaningfulContent(additionalLabel)) {
 
 			fullName
-				.append(ADDITIONAL_DETAILS_SEPARATOR)
+				.append(" (")
 				.append(additionalLabel)
-				.append(ADDITIONAL_DETAILS_TERMINATOR);
+				.append(")");
 		}
 
 		return trimUnwantedCharacters(fullName.toString());
@@ -396,14 +424,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				BATTERY_TRIM_PATTERN,
 
 				// Additional label
 				joinVendorAndModel(metadata),
-				metadata.get(HardwareConstants.TYPE)
+				metadata.get(TYPE)
 		);
 	}
 
@@ -427,14 +455,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				BLADE_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.BLADE_NAME),
-				metadata.get(HardwareConstants.MODEL)
+				metadata.get(BLADE_NAME),
+				metadata.get(MODEL)
 		);
 	}
 
@@ -452,7 +480,7 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Format the maximum speed
-		String cpuMaxSpeed = metadata.get(HardwareConstants.MAXIMUM_SPEED);
+		String cpuMaxSpeed = metadata.get(MAXIMUM_SPEED);
 		if (cpuMaxSpeed != null) {
 			try {
 				double cpuMaxSpeedD = Double.parseDouble(cpuMaxSpeed);
@@ -473,14 +501,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				CPU_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.VENDOR),
-				metadata.get(HardwareConstants.MODEL),
+				metadata.get(VENDOR),
+				metadata.get(MODEL),
 				cpuMaxSpeed
 		);
 	}
@@ -505,9 +533,9 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				CPU_CORE_TRIM_PATTERN
 		);
 	}
@@ -532,9 +560,9 @@ public class MonitorNameBuilder {
 				"Disk Controller",
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DISK_CONTROLLER_NUMBER),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DISK_CONTROLLER_NUMBER),
+				metadata.get(ID_COUNT),
 				DISK_CONTROLLER_TRIM_PATTERN,
 
 				// Additional label
@@ -561,31 +589,31 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Find the enclosure type
-		String enclosureType = metadata.get(HardwareConstants.TYPE);
+		String enclosureType = metadata.get(TYPE);
 		if (enclosureType != null) {
 			switch (enclosureType.toLowerCase()) {
 			case "":
 			case "computer":
-				enclosureType = HardwareConstants.COMPUTER;
+				enclosureType = COMPUTER;
 				break;
 			case "storage":
-				enclosureType = HardwareConstants.STORAGE;
+				enclosureType = STORAGE;
 				break;
 			case "blade":
-				enclosureType = HardwareConstants.BLADE_ENCLOSURE;
+				enclosureType = BLADE_ENCLOSURE;
 				break;
 			case "switch":
-				enclosureType = HardwareConstants.SWITCH;
+				enclosureType = SWITCH;
 				break;
 			default:
-				enclosureType = HardwareConstants.ENCLOSURE;
+				enclosureType = ENCLOSURE;
 			}
 		} else {
-			enclosureType = HardwareConstants.ENCLOSURE;
+			enclosureType = ENCLOSURE;
 		}
 
 		// If enclosureDisplayID is specified, use it and put the rest in parenthesis
-		String enclosureDisplayId = metadata.get(HardwareConstants.DISPLAY_ID);
+		String enclosureDisplayId = metadata.get(DISPLAY_ID);
 		String additionalInfo = null;
 
 		// Find the vendor/model details
@@ -601,7 +629,7 @@ public class MonitorNameBuilder {
 				enclosureDisplayId = vendorModel;
 			}
 
-		} else if (HardwareConstants.COMPUTER.equals(enclosureType)) {
+		} else if (COMPUTER.equals(enclosureType)) {
 
 			// Find the computer display name
 			String computerDisplayName = handleComputerDisplayName(targetMonitor, targetType);
@@ -625,8 +653,8 @@ public class MonitorNameBuilder {
 
 				// Name
 				enclosureDisplayId,
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				ENCLOSURE_TRIM_PATTERN,
 
 				// Additional label
@@ -654,13 +682,13 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				FAN_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.FAN_TYPE)
+				metadata.get(FAN_TYPE)
 		);
 	}
 
@@ -678,7 +706,7 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Format the LED color
-		String ledColor = metadata.get(HardwareConstants.COLOR);
+		String ledColor = metadata.get(COLOR);
 		if (hasMeaningfulContent(ledColor)) {
 			ledColor = ledColor.substring(0, 1).toUpperCase() + ledColor.substring(1).toLowerCase();
 		}
@@ -690,14 +718,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				LED_TRIM_PATTERN,
 
 				// Additional label
 				ledColor,
-				metadata.get(HardwareConstants.NAME)
+				metadata.get(NAME)
 		);
 	}
 
@@ -715,7 +743,7 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Format the RAID level
-		String logicalDiskRaidLevel = metadata.get(HardwareConstants.RAID_LEVEL);
+		String logicalDiskRaidLevel = metadata.get(RAID_LEVEL);
 		if (logicalDiskRaidLevel != null) {
 			try {
 				int logicalDiskRaidLevelD = Integer.parseInt(logicalDiskRaidLevel);
@@ -727,17 +755,17 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.DEVICE_TYPE),
+				metadata.get(DEVICE_TYPE),
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				LOGICAL_DISK_TRIM_PATTERN,
 
 				// Additional label
 				logicalDiskRaidLevel,
-				humanReadableByteCountBin(metadata.get(HardwareConstants.SIZE))
+				humanReadableByteCountBin(metadata.get(SIZE))
 		);
 	}
 
@@ -761,14 +789,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				LUN_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.LOCAL_DEVICE_NAME),
-				metadata.get(HardwareConstants.REMOTE_DEVICE_NAME)
+				metadata.get(LOCAL_DEVICE_NAME),
+				metadata.get(REMOTE_DEVICE_NAME)
 		);
 	}
 
@@ -786,7 +814,7 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Format the memory size
-		String memorySize = metadata.get(HardwareConstants.SIZE);
+		String memorySize = metadata.get(SIZE);
 		if (memorySize != null) {
 			try {
 				double memorySizeD = Double.parseDouble(memorySize);
@@ -807,14 +835,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				MEMORY_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.VENDOR),
-				metadata.get(HardwareConstants.TYPE),
+				metadata.get(VENDOR),
+				metadata.get(TYPE),
 				memorySize
 		);
 	}
@@ -833,15 +861,15 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Network card vendor without unwanted words
-		String networkCardVendor = metadata.get(HardwareConstants.VENDOR);
+		String networkCardVendor = metadata.get(VENDOR);
 		if (hasMeaningfulContent(networkCardVendor)) {
-			networkCardVendor = NETWORK_VENDOR_MODEL_TRIM_PATTERN.matcher(networkCardVendor).replaceAll(HardwareConstants.EMPTY);
+			networkCardVendor = NETWORK_VENDOR_MODEL_TRIM_PATTERN.matcher(networkCardVendor).replaceAll("");
 		}
 
 		// Network card model without unwanted words and up to 30 characters
-		String networkCardModel = metadata.get(HardwareConstants.MODEL);
+		String networkCardModel = metadata.get(MODEL);
 		if (hasMeaningfulContent(networkCardModel)) {
-			networkCardModel = NETWORK_VENDOR_MODEL_TRIM_PATTERN.matcher(networkCardModel).replaceAll(HardwareConstants.EMPTY);
+			networkCardModel = NETWORK_VENDOR_MODEL_TRIM_PATTERN.matcher(networkCardModel).replaceAll("");
 			if (networkCardModel.length() > 30) {
 				networkCardModel = networkCardModel.substring(0, 30);
 			}
@@ -854,13 +882,13 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				NETWORK_CARD_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.DEVICE_TYPE),
+				metadata.get(DEVICE_TYPE),
 				networkCardVendor,
 				networkCardModel
 		);
@@ -884,16 +912,16 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.DEVICE_TYPE),
+				metadata.get(DEVICE_TYPE),
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				OTHER_DEVICE_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.ADDITIONAL_LABEL)
+				metadata.get(ADDITIONAL_LABEL)
 		);
 	}
 
@@ -914,17 +942,17 @@ public class MonitorNameBuilder {
 		return buildName(
 
 				// Type
-				metadata.get(HardwareConstants.DEVICE_TYPE),
+				metadata.get(DEVICE_TYPE),
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				PHYSICAL_DISK_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.VENDOR),
-				humanReadableByteCountSI(metadata.get(HardwareConstants.SIZE))
+				metadata.get(VENDOR),
+				humanReadableByteCountSI(metadata.get(SIZE))
 		);
 	}
 
@@ -942,7 +970,7 @@ public class MonitorNameBuilder {
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
 		// Format the power
-		String powerSupplyPower = metadata.get(HardwareConstants.POWER_SUPPLY_POWER);
+		String powerSupplyPower = metadata.get(POWER_SUPPLY_POWER);
 		if (hasMeaningfulContent(powerSupplyPower)) {
 			powerSupplyPower = powerSupplyPower + " W";
 		}
@@ -954,13 +982,13 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				POWER_SUPPLY_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.POWER_SUPPLY_TYPE),
+				metadata.get(POWER_SUPPLY_TYPE),
 				powerSupplyPower
 		);
 	}
@@ -985,14 +1013,14 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				ROBOTICS_TRIM_PATTERN,
 
 				// Additional label
 				joinVendorAndModel(metadata),
-				metadata.get(HardwareConstants.ROBOTIC_TYPE)
+				metadata.get(ROBOTIC_TYPE)
 		);
 	}
 
@@ -1016,9 +1044,9 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				TAPE_DRIVE_TRIM_PATTERN,
 
 				// Additional label
@@ -1046,13 +1074,13 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				TEMPERATURE_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.TEMPERATURE_TYPE)
+				metadata.get(TEMPERATURE_TYPE)
 		);
 	}
 
@@ -1076,13 +1104,13 @@ public class MonitorNameBuilder {
 				null,
 
 				// Name
-				metadata.get(HardwareConstants.DISPLAY_ID),
-				metadata.get(HardwareConstants.DEVICE_ID),
-				metadata.get(HardwareConstants.ID_COUNT),
+				metadata.get(DISPLAY_ID),
+				metadata.get(DEVICE_ID),
+				metadata.get(ID_COUNT),
 				VOLTAGE_TRIM_PATTERN,
 
 				// Additional label
-				metadata.get(HardwareConstants.VOLTAGE_TYPE)
+				metadata.get(VOLTAGE_TYPE)
 		);
 	}
 

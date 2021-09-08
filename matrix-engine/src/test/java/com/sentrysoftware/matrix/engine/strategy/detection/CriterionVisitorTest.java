@@ -1,23 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.condition.OS.LINUX;
-import static org.junit.jupiter.api.condition.OS.WINDOWS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -77,6 +59,23 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.LINUX;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
@@ -1549,7 +1548,7 @@ class CriterionVisitorTest {
 		verify(strategyConfig, times(5)).getHostMonitoring();
 		verify(matsyaClientsExecutor, times(8)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
-		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
+		assertEquals(BAZ + TABLE_SEPARATOR, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 
 		// Namespace found, query execution throws exception
@@ -1570,7 +1569,7 @@ class CriterionVisitorTest {
 		verify(strategyConfig, times(5)).getHostMonitoring();
 		verify(matsyaClientsExecutor, times(2)).executeWbem(any(), any(), any(), anyInt(), any(), eq(BAR));
 		assertNotNull(criterionTestResult);
-		assertEquals(BAZ + SEMICOLON, criterionTestResult.getResult());
+		assertEquals(BAZ + TABLE_SEPARATOR, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 	}
 
@@ -1637,7 +1636,7 @@ class CriterionVisitorTest {
 		verify(strategyConfig, times(5)).getHostMonitoring();
 		verify(matsyaClientsExecutor, times(3)).executeWbem(any(), any(), any(), anyInt(), any(), any());
 		assertNotNull(criterionTestResult);
-		assertEquals(QUUX + SEMICOLON, criterionTestResult.getResult());
+		assertEquals(QUUX + TABLE_SEPARATOR, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 	}
 

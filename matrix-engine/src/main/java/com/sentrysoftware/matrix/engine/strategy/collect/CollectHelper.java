@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -18,6 +17,8 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 
 @Slf4j
 public class CollectHelper {
@@ -82,7 +83,7 @@ public class CollectHelper {
 
 		final ParameterState parameterState;
 		// Get the parameter state from our PREDICTED_FAILURE_MAP
-		if (HardwareConstants.PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
+		if (PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
 			parameterState = PREDICTED_FAILURE_MAP.get(status.trim());
 		} else {
 			// Get the parameter state from our STATUS_MAP

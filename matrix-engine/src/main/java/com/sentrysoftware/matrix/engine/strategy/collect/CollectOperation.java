@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -38,8 +37,10 @@ import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
@@ -305,7 +306,7 @@ public class CollectOperation extends AbstractStrategy {
 					monitorType,
 					hostMonitoring,
 					row,
-					parameters.get(HardwareConstants.DEVICE_ID));
+					parameters.get(DEVICE_ID));
 
 			if (monitorOpt.isEmpty()) {
 				log.warn("Collect - Couldn't find monitor {} associated with row {}. Connector {}",
@@ -361,7 +362,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		final String id = CollectHelper.getValueTableColumnValue(valueTable,
-				HardwareConstants.DEVICE_ID,
+				DEVICE_ID,
 				monitorType,
 				row,
 				deviceIdValueTableColumn);
@@ -369,7 +370,7 @@ public class CollectOperation extends AbstractStrategy {
 		if (id != null) {
 			return monitors.values().stream()
 					.filter(mo -> Objects.nonNull(mo.getMetadata()) &&
-							id.equals(mo.getMetadata().get(HardwareConstants.DEVICE_ID)))
+							id.equals(mo.getMetadata().get(DEVICE_ID)))
 					.findFirst();
 		}
 
@@ -435,7 +436,7 @@ public class CollectOperation extends AbstractStrategy {
 			.values()
 			.stream()
 			.filter(monitor -> Objects.nonNull(monitor.getMetadata())
-						&& connectorName.equals(monitor.getMetadata().get(HardwareConstants.CONNECTOR)))
+						&& connectorName.equals(monitor.getMetadata().get(CONNECTOR)))
 			.collect(Collectors.toList());
 	}
 
@@ -563,7 +564,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param collectTime	The new collect time.
 	 */
 	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
-		final PresentParam presentParam = monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		final PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
 		if (presentParam != null) {
 			presentParam.setCollectTime(collectTime);
 		}
@@ -836,7 +837,7 @@ public class CollectOperation extends AbstractStrategy {
 			if (cpuThermalDissipationRate >= 0 && cpuThermalDissipationRate <= 1) {
 				final NumberParam cpuThermalDissipationRateParam = NumberParam.builder()
 						.name(CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
-						.unit(HardwareConstants.EMPTY)
+						.unit("")
 						.collectTime(strategyTime)
 						.value(cpuThermalDissipationRate)
 						.rawValue(cpuThermalDissipationRate)

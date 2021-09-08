@@ -32,7 +32,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -799,9 +798,9 @@ class SourceVisitorTest {
 						"deviceType",
 						"deviceId",
 						"deviceType deviceId",
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
+						"",
+						"",
+						"",
 						"sensorName=state"));
 		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource());
 	}

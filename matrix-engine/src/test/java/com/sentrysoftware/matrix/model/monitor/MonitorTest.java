@@ -1,5 +1,25 @@
 package com.sentrysoftware.matrix.model.monitor;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleState;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
@@ -14,28 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleState;
-import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 
 class MonitorTest {
 
@@ -59,13 +57,13 @@ class MonitorTest {
 		alarmOrigin.setActive(AlertRuleState.ACTIVE);
 
 		final AlertRule sameSpeedAlert = new AlertRule((mo, conditions) -> 
-			Fan.checkZeroSpeedCondition(mo, HardwareConstants.SPEED_PARAMETER, conditions),
+			Fan.checkZeroSpeedCondition(mo, SPEED_PARAMETER, conditions),
 			SPEED_ALARM_CONDITION, // Same condition
 			ParameterState.ALARM);
 
 		final Set<AlertCondition> warnConditions = AlertConditionsBuilder.newInstance().gt(0D).lte(300D).build();
 		final AlertRule newWarnAlert = new AlertRule((mo, conditions) -> 
-			Fan.checkOutOfRangeSpeedCondition(mo, HardwareConstants.SPEED_PARAMETER, conditions),
+			Fan.checkOutOfRangeSpeedCondition(mo, SPEED_PARAMETER, conditions),
 			warnConditions, // Original is 500.0
 			ParameterState.WARN);
 

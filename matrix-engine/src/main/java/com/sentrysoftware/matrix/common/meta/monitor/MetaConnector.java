@@ -1,17 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -24,11 +18,18 @@ import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+
 public class MetaConnector implements IMetaMonitor {
 
 	public static final MetaParameter TEST_REPORT = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.TEST_REPORT_PARAMETER)
+			.name(TEST_REPORT_PARAMETER)
 			.type(ParameterType.TEXT)
 			.build();
 
@@ -44,14 +45,14 @@ public class MetaConnector implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.TEST_REPORT_PARAMETER, TEST_REPORT);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(TEST_REPORT_PARAMETER, TEST_REPORT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, Collections.singletonList(STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, Collections.singletonList(STATUS_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
@@ -64,7 +65,7 @@ public class MetaConnector implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()

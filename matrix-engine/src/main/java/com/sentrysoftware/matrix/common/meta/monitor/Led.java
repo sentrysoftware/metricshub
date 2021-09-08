@@ -1,20 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -27,37 +18,50 @@ import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class Led implements IMetaMonitor {
 
 	public static final MetaParameter COLOR = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.COLOR_PARAMETER)
-			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.name(COLOR_PARAMETER)
+			.unit(STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
 	public static final MetaParameter LED_INDICATOR = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.LED_INDICATOR_PARAMETER)
-			.unit(HardwareConstants.LED_INDICATOR_PARAMETER_UNIT)
+			.name(LED_INDICATOR_PARAMETER)
+			.unit(LED_INDICATOR_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, HardwareConstants.STATUS_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusAlarmCondition(monitor, STATUS_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, HardwareConstants.STATUS_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusAlarmCondition(monitor, STATUS_PARAMETER, conditions),
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
 
 	public static final AlertRule COLOR_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, HardwareConstants.COLOR_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusAlarmCondition(monitor, COLOR_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule COLOR_ALARM_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor,  HardwareConstants.COLOR_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusAlarmCondition(monitor, COLOR_PARAMETER, conditions),
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
 
@@ -69,16 +73,16 @@ public class Led implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.COLOR_PARAMETER, COLOR);
-		map.put(HardwareConstants.LED_INDICATOR_PARAMETER, LED_INDICATOR);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(COLOR_PARAMETER, COLOR);
+		map.put(LED_INDICATOR_PARAMETER, LED_INDICATOR);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}

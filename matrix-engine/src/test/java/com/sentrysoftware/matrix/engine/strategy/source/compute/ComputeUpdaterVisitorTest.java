@@ -1,15 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +9,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.*;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeUpdaterVisitorTest {
@@ -231,7 +230,7 @@ class ComputeUpdaterVisitorTest {
 					.length("5")
 					.build();
 
-			doReturn(Map.of(HardwareConstants.DEVICE_ID, "1")).when(monitor).getMetadata();
+			doReturn(Map.of(DEVICE_ID, "1")).when(monitor).getMetadata();
 			ComputeUpdaterVisitor.doSubstringReplacements(substring, monitor);
 
 			final Substring expected = Substring.builder()

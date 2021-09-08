@@ -1,7 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,7 +16,6 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
 import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -29,6 +26,8 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 /**
  * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems,
@@ -218,13 +217,13 @@ public class HostMonitoringCollectorService extends Collector {
 			if (ID.equals(label)) {
 				labelValues.add(monitor.getId());
 			} else if (PARENT.equals(label)) {
-				labelValues.add(getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY));
+				labelValues.add(getValueOrElse(monitor.getParentId(), ""));
 			} else if (LABEL.equals(label)) {
 				labelValues.add(monitor.getName());
 			} else if (FQDN.equals(label)) {
 				labelValues.add(monitor.getFqdn());
 			} else {
-				labelValues.add(getValueOrElse(monitor.getMetadata(label), HardwareConstants.EMPTY));
+				labelValues.add(getValueOrElse(monitor.getMetadata(label), ""));
 			}
 		}
 
@@ -440,7 +439,7 @@ public class HostMonitoringCollectorService extends Collector {
 	static List<String> createLabels(final Monitor monitor) {
 
 		return Arrays.asList(monitor.getId(),
-				getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY),
+				getValueOrElse(monitor.getParentId(), ""),
 				monitor.getName(),
 				monitor.getFqdn());
 	}
