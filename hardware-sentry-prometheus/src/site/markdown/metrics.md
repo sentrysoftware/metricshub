@@ -1,11 +1,13 @@
-# Collecting Metrics
+# Viewing Collected Metrics
 
-1. Configure [**${project.name}**](./configure.html#Hardware Sentry Exporter for Prometheus)
-2. Execute the following command line to launch **${project.name}**:
+Make sure to you have:
 
-    ```java -jar hardware-sentry-prometheus-<version>.jar```
+* correctly configured the:
 
-3. Configure the [Prometheus Server](./configure.html#Prometheus Server) to scrape the target(s).
+    * [**${project.name}**](./configure.html#Hardware_Sentry_Exporter_for_Prometheus), and
+    * [Prometheus Server](./configure-prometheus-server.html)
+
+* launched **${project.name}** with the ```java -jar hardware-sentry-prometheus-<version>.jar``` command line.
 
 Prometheus scrapes all targets listed in the configuration file and returns the collected metrics in the standard Prometheus via an http endpoint (ex:```http://<host>:8080/metrics``` or ```http://nb-docker:8080/metrics/<target>```).
 

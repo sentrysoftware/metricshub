@@ -1,106 +1,169 @@
 # Configuration
 
-## Prometheus Server
-
-Refer to [Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) for detailed information.
-
-Configure your Prometheus server,  ```(YAML file)```, to collect metrics from targets.
-
-Save the following basic Prometheus configuration as a file named ```prometheus.yml```:
-
-```
-Example 1:
-
-  - job_name: hardware_prometheus   # Name added as a label `job=<job_name>` to any timeseries scraped from this config.
-    honor_timestamps: true   # Timestamps of the metrics exposed by the target (default).
-    scrape_interval: 120s   # Scrape targets every 120 seconds (default).
-    scrape_timeout: 30s   # Scrape request times out after 30 seconds (default)
-    metrics_path: /metrics   # Path on which to fetch metrics from targets (mandatory)
-    scheme: http   # Protocol scheme used for requests
-    static_configs:
-    - targets:
-      - nb-docker:8080   # Target name and port (default 8080)
-      - rt-docker:8080
-```
-
-**${project.name}** creates the following http endpoint: ```http://nb-docker:8080/metrics``` to expose collected metrics.
-
-```
-Example 2:
-
-  - job_name: hardware_prometheus_bacon   # Name added as a label `job=<job_name>` to any timeseries scraped from this config.
-    honor_timestamps: true   # Timestamps of the metrics exposed by the target (default).
-    scrape_interval: 120s   # Scrape targets every 120 seconds (default).
-    scrape_timeout: 30s   # Scrape request times out after 30 seconds (default)
-    metrics_path: /metrics/bacon   # Path on which to fetch metrics from targets (mandatory)
-    scheme: http   # Protocol scheme used for requests
-    static_configs:
-    - targets:
-      - nb-docker:8080   # Target name and port (default 8080)
-
-  - job_name: hardware_prometheus_ankara   # Name added as a label `job=<job_name>` to any timeseries scraped from this config.
-      honor_timestamps: true   # Timestamps of the metrics exposed by the target (default).
-      scrape_interval: 120s   # Scrape targets every 120 seconds (default).
-      scrape_timeout: 30s   # Scrape request times out after 30 seconds (default)
-      metrics_path: /metrics/ankara   # Path on which to fetch metrics from targets (mandatory)
-      scheme: http   # Protocol scheme used for requests
-      static_configs:
-      - targets:
-        - nb-docker:8080   # Target name and port (default 8080)
-```
-
-**${project.name}** creates the following http endpoints: ```http://nb-docker:8080/metrics/bacon``` and ```http://nb-docker:8080/metrics/ankara``` to respectively expose metrics from collected *bacon* and *ankara* servers.
-
-Metrics are returned once the whole collect is completed. This may take time when your monitored environment contains a large number of targets. To retrieve metrics for a specific target, simply add its hostname to the ```job_name``` argument (ex: ```job_name: hardware_prometheus_ankara```).
-
-**${project.name}** collects metrics according to the defined scrape_interval configuration and returns results immediately so you get real-time data upon each collect.
-
-## Web Server
-
-Run the following command line to launch the Web server:
-
-```
-"%JDK11_HOME%"\bin\java.exe -jar hardware-sentry-prometheus-<version>.jar
-```
-## Hardware Sentry Exporter for Prometheus
-
 Create the configuration file ```hardware-sentry-config.yml``` to monitor one or several targets.
 
-The ```hardware-sentry-config.yml``` configuration file must be saved in ???
+The ```hardware-sentry-config.yml``` configuration file must be located in the same directory as the ```hardware-sentry-prometheus-<version>.jar``` file.
 
-The format, intentation and syntax must be strictly respected for **${project.name}** to operate properly. See example below.
- 
-### Example:
+The format, intentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly. See examples below.
+
+## Configurations per Protocols
+
+Refer to the [Supported Platforms](https://www.sentrysoftware.com/library/hc/24/platform-requirements.html) documentation to know 
+
+### SNMP Configurations
 
 ```
+---
+targets:
 
+- target:
+    hostname: myhost-01
+    type: LINUX
+  snmp:
+    version: V1
+    community: public
+    port: 161
+    timeout: 120
+
+- target:
+    hostname: myhost-01
+    type: LINUX
+  snmp:
+    version: V2c
+    community: public
+    port: 161
+    timeout: 120
+
+- target:
+    hostname: myhost-01
+    type: LINUX
+  snmp:
+    version: V3
+    username: myusername
+    authentication protocol: None
+    authentication password: authpwd
+    privacy protocol: None
+    privacy password: privatepwd
+    context name: contexname
+    port: 161
+    timeout: 120
+```
+
+|Parameter | Description |
+|---------|------|
+|hostname|Hostname of the target.|
+|type|Type of the system (OS or platform type).|
+|snmp|Protocol and credentials used to access the target.|
+|version|The version of the SNMP protocol (V1, V2c or V3)|
+|community|The SNMP Community string to use to perform SNMP v1 queries (Default: public)|
+|username|SNMP V3 only - Name to use for performing the SNMP query.|
+|authentication protocol|_SNMP V3 only_ - Protocol used to authenticate the SNMP v3 messages (None, MD5 or SHA).|
+|authentication password|_SNMP V3 only_ - Password used to authenticate the SNMP v3 messages|
+|privacy protocol|_SNMP V3 only_ - Protocol used to authenticate the SNMP v3 messages (None, AES or DES).|
+|privacy password|_SNMP V3 only_ - Password associated to the privacy protocol.|
+|context name|_SNMP V3 only_ - Name accessible to the SNMP entity.|
+|port|The SNMP port number used to perform SNMP queries (Default: 161).|
+|timeout|How long until the SNMP request times out (default: 120s).|
+
+### WBEM Configuration
+
+```
+---
 targets:
 
   - target:
-      hostname: "ecs1-01"      # Hostname of the target
-      type: "LINUX"   # Type of the system (OS or platform type)
-    snmp:   # Protocol and credentials used to access the target
-      version: "V1"
-      community: "public"
-      port: 161
+      hostname: myhost-01
+      type: STORAGE
+    wbem:
+      protocol: HTTPS
+      port: 5989
       timeout: 120
-    selectedConnectors:
-      - "MS_HW_DellOpenManage.hdf"   # Name of the Hardware Connector used to scrape the target. Leave empty to enable the automatic detection.
-    excludedConnectors: []   # List of connectors that are NOT used to scrape the target (optional)
-    unknownStatus: "WARN"   # Status level to apply (OK, WARN or ALARM) when the target' status is unknown and cannot be translated. Default is WARN.
-  - target:
-      hostname: "ecs1-02"      # Hostname of the target
-      type: "STORAGE"   
-    http:
-      https: "true"
-      community: "public"
-      port: 443
-      timeout: 120
-      username: admin
-      password: admin
-    selectedConnectors:
-      - "MS_HW_DellCompellentStorageManager.hdf"
-    excludedConnectors: []
-    unknownStatus: "WARN"
+      username: myusername
+      password: mypwd
+```
+
+|Parameter | Description |
+|---------|------|
+|hostname|Hostname of the target.|
+|type|Type of the system (OS or platform type).|
+|wbem |Protocol and credentials used to access the target.|
+|protocol|The protocol used to access the target.|
+|port|The https port number used to perform WBEM queries (Default: 5989 for https or 5988 for http).|
+|timeout |How long until the WBEM request times out (default: 120s).|
+|username|Name used to establish the connection with the target via the WBEM protocol.|
+|password|Password used establish the connection with the target via the WBEM protocol.|
+
+### HTTP Configuration
 
 ```
+---
+targets:
+
+  - target:
+      hostname: myhost-01
+      type: STORAGE
+    http:
+      https: true
+      port: 443
+      username: myusername
+      password: mypwd
+```
+
+|Parameter | Description |
+|---------|------|
+|hostname|Hostname of the target.|
+|type|Type of the system (OS or platform type).|
+|http |Protocol and credentials used to access the target.|
+|port|The https port number used to perform SNMP queries (Default: 443).|
+|username|Name used establish the connection with the target via the WBEM protocol.|
+|password|Password used establish the connection with the target via the HTTP protocol.|
+
+### WMI Configuration
+
+```
+---
+targets:
+
+  - target:
+      hostname: myhost-01
+      type: MS_WINDOWS
+    wmi:
+      timeout: 120
+      username: myusername
+      password: mypwd
+```
+
+|Parameter | Description |
+|---------|------|
+|hostname|Hostname of the target.|
+|type|Type of the system (OS or platform type).|
+|wmi |Protocol and credentials used to access the target.|
+|timeout |How long until the WMI request times out (default: 120s).|
+|username|Name used to establish the connection with the target via the WMI protocol.|
+|password|Password used establish the connection with the target via the WMI protocol.|
+
+### IPMI Configuration
+
+```
+---
+targets:
+
+- target:
+    hostname: myhost-01
+    type: MGMT_CARD_BLADE_ESXI
+  ipmi:
+    username: myusername
+    password: mypwd
+```
+
+|Parameter | Description |
+|---------|------|
+|hostname|Hostname of the target.|
+|type|Type of the system (OS or platform type).|
+|ipmi |Protocol and credentials used to access the target.|
+|username|Name used to establish the connection with the target via the IPMI protocol.|
+|password|Password used establish the connection with the target via the IPMI protocol.|
+
+### SSH Configuration
+
+COMING SOON!

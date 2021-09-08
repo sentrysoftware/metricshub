@@ -23,19 +23,20 @@
 			<item name="Supported Platforms" href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html"/>
 			<item name="Components Monitored and Metrics" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
 		</menu>
-
-		<menu name="Installing">
-			<item name="Prerequisites" href="prerequisites.html"/>
-			<item name="Getting the Installation Packages" href="install.html"/>
-		</menu>
 		
-		<menu name="Using">
-			<item name="Configuring the Exporter" href="configure.html"/>
-			<item name="Collecting Metrics" href="collect.html"/>
+		<menu name="Using the Exporter">
+			<item name="Configuring" href="configure.html"/>
+			<item name="Operating" href="operate.html"/>
+			<item name="Viewing Metrics" href="metrics.html"/>
+		</menu>
+
+		<menu name="Integrating the Exporter">
+			<item name="Prometheus Server" href="configure-prometheus-server.html"/>
+			<item name="Grafana Dashboards" href="grafana.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">
-			<item name="Enabling the debug mode" href="debug.html"/>
+			<item name="Enabling Debug Mode" href="debug.html"/>
 		</menu>
 		
 	</body>
