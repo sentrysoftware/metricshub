@@ -594,23 +594,4 @@ public class CollectHelper {
 				&& percent >= 0
 				&& percent <= 100;
 	}
-
-	/**
-	 * Get the {@link StatusParam} state value
-	 * 
-	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link StatusParam} state
-	 * @param parameterName The name of the {@link StatusParam} instance
-	 * @return a {@link ParameterState} value (OK, WARN or ALARM)
-	 */
-	public static ParameterState getStatusParamState(final Monitor monitor, final String parameterName) {
-
-		final StatusParam parameter = monitor.getParameter(parameterName, StatusParam.class);
-
-		if (parameter == null) {
-			return null;
-		}
-
-		return parameter.getState();
-	}
-
 }

@@ -15,9 +15,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
@@ -60,7 +57,6 @@ import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import lombok.extern.slf4j.Slf4j;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -1132,10 +1128,6 @@ public class CollectOperation extends AbstractStrategy {
 
 		// This will set the energy, the delta energy called energyUsage and the powerConsumption on the cpu monitor
 		CollectHelper.collectEnergyUsageFromPower(cpu, collectTime, powerConsumption, hostname);
-		computeTemperatureParameters();
-		
-		// Compute the network card parameters
-		computeNetworkCardParameters();
 	}
 
 }
