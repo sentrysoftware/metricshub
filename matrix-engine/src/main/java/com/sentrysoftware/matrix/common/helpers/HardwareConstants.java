@@ -43,6 +43,47 @@ public class HardwareConstants {
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
 
+	///////////////////////////////////////////////////////////////////////////////
+	//                                                                           //
+	//                              PARAMETER NAMES                              //
+	//                                                                           //
+	//                                 .i;;;;i.                                  //
+	//                               iYcviii;vXY:                                //
+	//                             .YXi       .i1c.                              //
+	//                            .YC.     .    in7.                             //
+	//                           .vc.   ......   ;1c.                            //
+	//                           i7,   ..        .;1.                            //
+	//                          i7,   .. ...      .Y1i                           //
+	//                         ,7v     .6MMM@;     .YX,                          //
+	//                        .7;.   ..IMMMMMM1     :t7.                         //
+	//                       .;Y.     ;$MMMMMM9.     :tc.                        //
+	//                       vY.   .. .nMMM@MMU.      ;1v.                       //
+	//                      i7i   ...  .#MM@M@C. .....:71i                       //
+	//                     it:   ....   $MMM@9;.,i;;;i,;tti                      //
+	//                    :t7.  .....   0MMMWv.,iii:::,,;St.                     //
+	//                   .nC.   .....   IMMMQ..,::::::,.,czX.                    //
+	//                  .ct:   ....... .ZMMMI..,:::::::,,:76Y.                   //
+	//                  c2:   ......,i..Y$M@t..:::::::,,..inZY                   //
+	//                 vov   ......:ii..c$MBc..,,,,,,,,,,..iI9i                  //
+	//                i9Y   ......iii:..7@MA,..,,,,,,,,,....;AA:                 //
+	//               iIS.  ......:ii::..;@MI....,............;Ez.                //
+	//              .I9.  ......:i::::...8M1..................C0z.               //
+	//             .z9;  ......:i::::,.. .i:...................zWX.              //
+	//             vbv  ......,i::::,,.      ................. :AQY              //
+	//            c6Y.  .,...,::::,,..:t0@@QY. ................ :8bi             //
+	//           :6S. ..,,...,:::,,,..EMMMMMMI. ............... .;bZ,            //
+	//          :6o,  .,,,,..:::,,,..i#MMMMMM#v.................  YW2.           //
+	//         .n8i ..,,,,,,,::,,,,.. tMMMMM@C:.................. .1Wn           //
+	//         7Uc. .:::,,,,,::,,,,..   i1t;,..................... .UEi          //
+	//         7C...::::::::::::,,,,..        ....................  vSi.         //
+	//         ;1;...,,::::::,.........       ..................    Yz:          //
+	//          v97,.........                                     .voC.          //
+	//           izAotX7777777777777777777777777777777777777777Y7n92:            //
+	//             .;CoIIIIIUAA666666699999ZZZZZZZZZZZZZZZZZZZZ6ov.              //
+	//                                                                           //
+	//       PLEASE NOTE: parameter names MUST be written using camelCase        //
+	//                                                                           //
+	///////////////////////////////////////////////////////////////////////////////
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
 	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
@@ -100,7 +141,48 @@ public class HardwareConstants {
 	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
 	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
-	
+
+	///////////////////////////////////////////////////////////////////////////////
+	//                                                                           //
+	//                              METADATA NAMES                               //
+	//                                                                           //
+	//                                 .i;;;;i.                                  //
+	//                               iYcviii;vXY:                                //
+	//                             .YXi       .i1c.                              //
+	//                            .YC.     .    in7.                             //
+	//                           .vc.   ......   ;1c.                            //
+	//                           i7,   ..        .;1.                            //
+	//                          i7,   .. ...      .Y1i                           //
+	//                         ,7v     .6MMM@;     .YX,                          //
+	//                        .7;.   ..IMMMMMM1     :t7.                         //
+	//                       .;Y.     ;$MMMMMM9.     :tc.                        //
+	//                       vY.   .. .nMMM@MMU.      ;1v.                       //
+	//                      i7i   ...  .#MM@M@C. .....:71i                       //
+	//                     it:   ....   $MMM@9;.,i;;;i,;tti                      //
+	//                    :t7.  .....   0MMMWv.,iii:::,,;St.                     //
+	//                   .nC.   .....   IMMMQ..,::::::,.,czX.                    //
+	//                  .ct:   ....... .ZMMMI..,:::::::,,:76Y.                   //
+	//                  c2:   ......,i..Y$M@t..:::::::,,..inZY                   //
+	//                 vov   ......:ii..c$MBc..,,,,,,,,,,..iI9i                  //
+	//                i9Y   ......iii:..7@MA,..,,,,,,,,,....;AA:                 //
+	//               iIS.  ......:ii::..;@MI....,............;Ez.                //
+	//              .I9.  ......:i::::...8M1..................C0z.               //
+	//             .z9;  ......:i::::,.. .i:...................zWX.              //
+	//             vbv  ......,i::::,,.      ................. :AQY              //
+	//            c6Y.  .,...,::::,,..:t0@@QY. ................ :8bi             //
+	//           :6S. ..,,...,:::,,,..EMMMMMMI. ............... .;bZ,            //
+	//          :6o,  .,,,,..:::,,,..i#MMMMMM#v.................  YW2.           //
+	//         .n8i ..,,,,,,,::,,,,.. tMMMMM@C:.................. .1Wn           //
+	//         7Uc. .:::,,,,,::,,,,..   i1t;,..................... .UEi          //
+	//         7C...::::::::::::,,,,..        ....................  vSi.         //
+	//         ;1;...,,::::::,.........       ..................    Yz:          //
+	//          v97,.........                                     .voC.          //
+	//           izAotX7777777777777777777777777777777777777777Y7n92:            //
+	//             .;CoIIIIIUAA666666699999ZZZZZZZZZZZZZZZZZZZZ6ov.              //
+	//                                                                           //
+	//        PLEASE NOTE: metadata names MUST be written using camelCase        //
+	//                                                                           //
+	///////////////////////////////////////////////////////////////////////////////
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -147,23 +229,23 @@ public class HardwareConstants {
 	public static final String ADDITIONAL_INFORMATION1 = "additionalInformation1";
 	public static final String CHEMISTRY = "chemistry";
 	public static final String POWER = "power";
-	public static final String CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
-	public static final String CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
-	public static final String WARNING_THRESHOLD = "warningthreshold";
-	public static final String ALARM_THRESHOLD = "alarmthreshold";
-	public static final String PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
-	public static final String PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
-	public static final String ERROR_COUNT_WARNING_THRESHOLD =  "errorcountwarningthreshold";
-	public static final String ERROR_COUNT_ALARM_THRESHOLD =  "errorcountalarmthreshold";
-	public static final String AVAILABLE_PATH_WARNING = "availablepathwarning";
-	public static final String ERROR_PERCENT_WARNING_THRESHOLD = "errorpercentwarningthreshold";
-	public static final String ERROR_PERCENT_ALARM_THRESHOLD ="errorpercentalarmthreshold";
-	public static final String VALUE_WARNING_THRESHOLD = "valuewarningthreshold";
-	public static final String VALUE_ALARM_THRESHOLD = "valuealarmthreshold";
-	public static final String USAGE_COUNT_WARNING_THRESHOLD = "usagecountwarningthreshold";
-	public static final String USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
-	public static final String UPPER_THRESHOLD = "upperthreshold";
-	public static final String LOWER_THRESHOLD= "lowerthreshold";
+	public static final String CORRECTED_ERROR_WARNING_THRESHOLD = "correctedErrorWarningThreshold";
+	public static final String CORRECTED_ERROR_ALARM_THRESHOLD = "correctedErrorAlarmThreshold";
+	public static final String WARNING_THRESHOLD = "warningThreshold";
+	public static final String ALARM_THRESHOLD = "alarmThreshold";
+	public static final String PERCENT_WARNING_THRESHOLD = "percentWarningThreshold";
+	public static final String PERCENT_ALARM_THRESHOLD = "percentAlarmThreshold";
+	public static final String ERROR_COUNT_WARNING_THRESHOLD =  "errorCountWarningThreshold";
+	public static final String ERROR_COUNT_ALARM_THRESHOLD =  "errorCountAlarmThreshold";
+	public static final String AVAILABLE_PATH_WARNING = "availablePathWarning";
+	public static final String ERROR_PERCENT_WARNING_THRESHOLD = "errorPercentWarningThreshold";
+	public static final String ERROR_PERCENT_ALARM_THRESHOLD ="errorPercentAlarmThreshold";
+	public static final String VALUE_WARNING_THRESHOLD = "valueWarningThreshold";
+	public static final String VALUE_ALARM_THRESHOLD = "valueAlarmThreshold";
+	public static final String USAGE_COUNT_WARNING_THRESHOLD = "usageCountWarningThreshold";
+	public static final String USAGE_COUNT_ALARM_THRESHOLD = "usageCountAlarmThreshold";
+	public static final String UPPER_THRESHOLD = "upperThreshold";
+	public static final String LOWER_THRESHOLD= "lowerThreshold";
 	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
 	public static final String COLOR = "color";
 	public static final String ADDITIONAL_LABEL = "additionalLabel";
@@ -173,6 +255,11 @@ public class HardwareConstants {
 	public static final String AVERAGE_CPU_TEMPERATURE_WARNING = "averageCpuTemperatureWarning";
 	public static final String POWER_CONSUMPTION = "powerConsumption";
 
+	/////////////////////
+	//                 //
+	// PARAMETER UNITS //
+	//                 //
+	/////////////////////
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
