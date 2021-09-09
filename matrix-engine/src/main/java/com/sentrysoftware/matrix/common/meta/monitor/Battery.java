@@ -152,7 +152,7 @@ public class Battery implements IMetaMonitor {
 
 			return AlertDetails.builder()
 					.problem("This battery has failed." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
-					.consequence("This battery in unoperational and a power outage will certainly lead to data loss and/or corruption.")
+					.consequence("This battery is nonoperational and a power outage will certainly lead to data loss and/or corruption.")
 					.recommendedAction("Replace the battery.").build();
 
 		}

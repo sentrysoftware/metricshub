@@ -34,11 +34,18 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 public class Led implements IMetaMonitor {
 
 	public static final MetaParameter COLOR = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(COLOR_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
+
+	public static final MetaParameter STATUS = MetaParameter.builder()
+		.basicCollect(false)
+		.name(STATUS_PARAMETER)
+		.unit(STATUS_PARAMETER_UNIT)
+		.type(ParameterType.STATUS)
+		.build();
 
 	public static final MetaParameter LED_INDICATOR = MetaParameter.builder()
 			.basicCollect(true)
@@ -48,7 +55,7 @@ public class Led implements IMetaMonitor {
 			.build();
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, STATUS_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusWarnCondition(monitor, STATUS_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(
@@ -57,7 +64,7 @@ public class Led implements IMetaMonitor {
 			ParameterState.ALARM);
 
 	public static final AlertRule COLOR_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, COLOR_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusWarnCondition(monitor, COLOR_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule COLOR_ALARM_ALERT_RULE = new AlertRule(
@@ -82,7 +89,7 @@ public class Led implements IMetaMonitor {
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(STATUS_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
+		alertRulesMap.put(COLOR_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}

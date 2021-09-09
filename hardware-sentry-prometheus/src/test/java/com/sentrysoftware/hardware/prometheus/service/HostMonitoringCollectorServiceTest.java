@@ -50,15 +50,11 @@ import io.prometheus.client.exporter.common.TextFormat;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
@@ -83,10 +79,14 @@ class HostMonitoringCollectorServiceTest {
 	private static final String MONITOR_STATUS_METRIC = "monitor_status";
 	private static final String MONITOR_ENERGY_METRIC = "monitor_energy_total";
 	private static final String LABEL_VALUE = "monitor";
-	private static final String PARENT_ID_VALUE = "parentId";
+	private static final String PARENT_ID_VALUE = "parent_id";
 	private static final String ID_VALUE = "id";
 	private static final String FAN_ID = "connector1.connector_fan_ecs_1.1";
 	private static final String FAN_NAME = "Fan 1.1";
+	private static final String ADDITIONAL_INFORMATION1 = "additional_information1";
+	private static final String DEVICE_ID = "device_id";
+	private static final String FAN_TYPE = "fan_type";
+	private static final String SERIAL_NUMBER = "serial_number";
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;

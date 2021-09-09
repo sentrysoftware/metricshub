@@ -1,11 +1,13 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -44,6 +46,7 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
@@ -99,6 +102,7 @@ class MonitorCollectVisitorTest {
 	private static final String VALUETABLE_COLUMN_3 = "Valuetable.Column(3)";
 	private static final String VALUETABLE_COLUMN_4 = "Valuetable.Column(4)";
 	private static final String VALUETABLE_COLUMN_5 = "Valuetable.Column(5)";
+	private static final String VALUETABLE_COLUMN_6 = "Valuetable.Column(6)";
 	private static final String MONITOR_DEVICE_ID = "1.1";
 	private static final String MONITOR_ID = "myConnecctor1.connector_monitor_ecs1-01_1.1";
 	private static final String ECS1_01 = "ecs1-01";
@@ -119,7 +123,7 @@ class MonitorCollectVisitorTest {
 
 	private static Long collectTime = new Date().getTime();
 
-	private static  Map<String, String> mapping = Map.of(
+	private static Map<String, String> mapping = Map.of(
 			DEVICE_ID, VALUETABLE_COLUMN_1,
 			STATUS_PARAMETER, VALUETABLE_COLUMN_2,
 			STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
@@ -307,15 +311,45 @@ class MonitorCollectVisitorTest {
 
 	@Test
 	void testVisitLed() {
+
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		Map<String, String> customMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		customMetadata.put("offstatus", "0");
+
+		final Monitor monitor = Monitor
+			.builder()
+			.id(MONITOR_ID)
+			.metadata(customMetadata)
+			.build();
+
+		Map<String, String> customMapping = new HashMap<>(mapping);
+		customMapping.put(STATUS_PARAMETER, VALUETABLE_COLUMN_6);
+
+		List<String> customRow = new ArrayList<>(row);
+		customRow.add("off");
+
+		MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				customRow)
+		);
 
 		monitorCollectVisitor.visit(new Led());
 
+		final IParameterValue expected = StatusParam
+			.builder()
+			.name(STATUS_PARAMETER)
+			.collectTime(collectTime)
+			.state(ParameterState.OK)
+			.unit(STATUS_PARAMETER_UNIT)
+			.statusInformation("status: 0 (OK)")
+			.build();
+
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
-		assertEquals(statusParam, actual);
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -828,6 +862,29 @@ class MonitorCollectVisitorTest {
 				.sorted(new MonitorCollectVisitor.StatusParamFirstComparator())
 				.map(MetaParameter::getName)
 				.collect(Collectors.toList()));
+	}
+
+	@Test
+	void testCollectPowerConsumptionFromEnergyUsageFirstCollect() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor
+				.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.ENCLOSURE)
+				.build();
+		final Map<String, String> mapping = Map.of(
+				DEVICE_ID, VALUETABLE_COLUMN_1,
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+
+		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.358");
+
+		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring, mapping, monitor, row));
+
+		monitorCollectVisitor.collectPowerConsumption();
+
+		assertEquals(3138.358D,
+				monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
 	}
 
 	@Test
@@ -1415,29 +1472,6 @@ class MonitorCollectVisitorTest {
 			assertEquals(expected, actual);
 
 		}
-	}
-
-	@Test
-	void testCollectPowerConsumptionFromEnergyUsageFirstCollect() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor
-				.builder()
-				.id(MONITOR_ID)
-				.monitorType(MonitorType.ENCLOSURE)
-				.build();
-		final Map<String, String> mapping = Map.of(
-				DEVICE_ID, VALUETABLE_COLUMN_1,
-				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
-
-		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.358");
-
-		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
-				buildCollectMonitorInfo(hostMonitoring, mapping, monitor, row));
-
-		monitorCollectVisitor.collectPowerConsumption();
-
-		assertEquals(3138.358D,
-				monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
 	}
 
 	@Test
@@ -2247,5 +2281,113 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor.collectPhysicalDiskParameters();
 		enduranceRemaining = monitor.getParameter(ENDURANCE_REMAINING_PARAMETER, NumberParam.class);
 		assertNull(enduranceRemaining);
+	}
+
+	@Test
+	void testCollectLedColor() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.LED).build();
+
+		// colorRaw != null, colorRaw is a warning color
+		monitor.addMetadata("warningOnColor", "amber,yellow");
+		Map<String, String> customMapping = new HashMap<>(mapping);
+		customMapping.put(COLOR_PARAMETER, VALUETABLE_COLUMN_6);
+
+		List<String> customRow = new ArrayList<>(row);
+		customRow.add("amber");
+
+		MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				customRow)
+		);
+
+		monitorCollectVisitor.collectLedColor();
+		StatusParam colorParameter = monitor.getParameter(COLOR_PARAMETER, StatusParam.class);
+		assertNotNull(colorParameter);
+		assertEquals(ParameterState.WARN, colorParameter.getState());
+
+		// colorRaw != null, warningOnColor != null, colorRaw not in warningOnColor
+		monitor.addMetadata("warningOnColor", "blue,yellow");
+		monitorCollectVisitor.collectLedColor();
+		colorParameter = monitor.getParameter(COLOR_PARAMETER, StatusParam.class);
+		assertNotNull(colorParameter);
+		assertEquals(ParameterState.OK, colorParameter.getState());
+
+		// colorRaw != null, warningOnColor == null, alarmOnColor != null, colorRaw is an alarm color
+		monitor.addMetadata("warningOnColor", null);
+		monitor.addMetadata("alarmOnColor", "amber,yellow");
+		monitorCollectVisitor.collectLedColor();
+		colorParameter = monitor.getParameter(COLOR_PARAMETER, StatusParam.class);
+		assertNotNull(colorParameter);
+		assertEquals(ParameterState.ALARM, colorParameter.getState());
+
+		// colorRaw != null, warningOnColor == null, alarmOnColor != null, colorRaw is not an alarm color
+		monitor.addMetadata("alarmOnColor", "blue,yellow");
+		monitorCollectVisitor.collectLedColor();
+		colorParameter = monitor.getParameter(COLOR_PARAMETER, StatusParam.class);
+		assertNotNull(colorParameter);
+		assertEquals(ParameterState.OK, colorParameter.getState());
+
+		// colorRaw != null, warningOnColor == null, alarmOnColor == null
+		monitor.addMetadata("alarmOnColor", null);
+		monitorCollectVisitor.collectLedColor();
+		colorParameter = monitor.getParameter(COLOR_PARAMETER, StatusParam.class);
+		assertNotNull(colorParameter);
+		assertEquals(ParameterState.OK, colorParameter.getState());
+	}
+
+	@Test
+	void testCollectLedStatus() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.LED).build();
+
+		// statusRaw == null
+		Map<String, String> customMapping = new HashMap<>(mapping);
+		customMapping.put(STATUS_PARAMETER, VALUETABLE_COLUMN_6);
+		MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				row)
+		);
+		monitorCollectVisitor.collectLedStatus();
+		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+
+		// statusRaw.equals("on")
+		List<String> customRow = new ArrayList<>(row);
+		customRow.add("on");
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				customRow)
+		);
+		monitorCollectVisitor.collectLedStatus();
+		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+
+		// statusRaw.equals("blinking"), no blinking status metadata
+		customRow = new ArrayList<>(row);
+		customRow.add("blinking");
+		monitorCollectVisitor = new MonitorCollectVisitor(
+			buildCollectMonitorInfo(hostMonitoring,
+				customMapping,
+				monitor,
+				customRow)
+		);
+		monitorCollectVisitor.collectLedStatus();
+		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+
+		// statusRaw.equals("blinking"), blinking status meta data found
+		monitor.addMetadata("blinkingstatus", "WARN");
+		monitorCollectVisitor.collectLedStatus();
+		StatusParam statusParameter = monitor.getParameter(STATUS_PARAMETER, StatusParam.class);
+		assertNotNull(statusParameter);
+		assertEquals(ParameterState.WARN, statusParameter.getState());
 	}
 }
