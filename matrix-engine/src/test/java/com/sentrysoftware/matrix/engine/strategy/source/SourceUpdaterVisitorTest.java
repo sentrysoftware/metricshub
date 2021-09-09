@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,6 +39,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WB
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,9 +86,13 @@ class SourceUpdaterVisitorTest {
 
 	}
 
+	@BeforeEach
+	void beforeEeach() {
+		lenient().doReturn(CONNECTOR_NAME).when(connector).getCompiledFilename();
+	}
+
 	@Test
 	void testVisitHTTPSource() {
-		doReturn(CONNECTOR_NAME).when(connector).getCompiledFilename();
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(HTTPSource.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(HTTPSource.builder().build()));
 
@@ -109,8 +116,11 @@ class SourceUpdaterVisitorTest {
 				.table(table)
 				.build();
 
+		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
+				Map.of(VALUE_TABLE, sourceTable)).build();
+		
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(VALUE_TABLE);
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 
 		String expectedResult = "expectedVal1expectedVal2";
 
@@ -122,14 +132,12 @@ class SourceUpdaterVisitorTest {
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.LIST);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		assertEquals(expectedResult, result.getRawData());
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "expectedVal1,\n" +
@@ -138,7 +146,6 @@ class SourceUpdaterVisitorTest {
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "{\n" +
@@ -166,7 +173,6 @@ class SourceUpdaterVisitorTest {
 		httpSource.setEntryConcatStart("EntryConcatStart_");
 		httpSource.setEntryConcatEnd("_EntryConcatEnd\n");
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(VALUE_TABLE);
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
 		expectedResult = "EntryConcatStart_expectedVal1_EntryConcatEnd\n" +
@@ -374,7 +380,7 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
-	void testGetValueFromForeignSource() {
+	void testExtractHttpTokenFromSource() {
 
 		{
 			assertNull(sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
@@ -388,7 +394,8 @@ class SourceUpdaterVisitorTest {
 		{
 			// No foreign source table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-
+			doReturn(ConnectorNamespace.builder().build())
+				.when(hostMonitoring).getConnectorNamespace(connector);
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
@@ -397,9 +404,10 @@ class SourceUpdaterVisitorTest {
 
 		{
 			// Foreign source table empty
-			doReturn(CONNECTOR_NAME).when(connector).getCompiledFilename();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.empty()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
+			doReturn(ConnectorNamespace.builder().sourceTables(
+						Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY, SourceTable.empty())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
 
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
@@ -410,8 +418,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but null list table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(null).build()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
-
+			doReturn(ConnectorNamespace.builder().sourceTables(Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+						SourceTable.builder().table(null).build())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
@@ -421,8 +430,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but empty first line
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(List.of(Collections.emptyList(), List.of("val1", "val2"))).build()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
-
+			doReturn(ConnectorNamespace.builder().sourceTables(Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
+						SourceTable.builder().table(List.of(Collections.emptyList(), List.of("val1", "val2"))).build())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
@@ -432,8 +442,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table not empty but null first line
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(Arrays.asList((List<String>) null)).build()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
-
+			doReturn(ConnectorNamespace.builder().sourceTables(Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY, 
+						SourceTable.builder().table(Arrays.asList((List<String>) null)).build())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
@@ -443,8 +454,10 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table present via the list table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().table(List.of(List.of("token", "unwanted", "unwanted"))).build()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
-
+			doReturn(ConnectorNamespace.builder().sourceTables(Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY, 
+						SourceTable.builder().table(List.of(List.of("token", "unwanted", "unwanted"))).build())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
+	
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);
@@ -454,8 +467,9 @@ class SourceUpdaterVisitorTest {
 		{
 			// Foreign source table present via the raw data table
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(SourceTable.builder().rawData("token;unwanted;unwanted;").build()).when(hostMonitoring).getConnectorNamespace(CONNECTOR_NAME).getSourceTable(ENCLOSURE_DISCOVERY_SOURCE_1_KEY);
-
+			doReturn(ConnectorNamespace.builder().sourceTables(Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY, 
+						SourceTable.builder().rawData("token;unwanted;unwanted;").build())).build())
+					.when(hostMonitoring).getConnectorNamespace(connector);
 			String value = sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					ENCLOSURE_DISCOVERY_SOURCE_1_KEY,
 					AUTHENTICATION_TOKEN_FIELD);

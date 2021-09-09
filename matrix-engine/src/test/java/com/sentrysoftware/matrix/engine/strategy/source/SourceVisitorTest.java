@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -61,6 +63,7 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
@@ -80,12 +83,16 @@ class SourceVisitorTest {
 	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String VALUE_LIST = "a1;b1;c1";
 	private static final String VALUE_A1 = "a1";
+	private static final String CONNECTOR_NAME = "myConnector.connector"; 
 
 	@Mock
 	private StrategyConfig strategyConfig;
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutor;
+
+	@Mock
+	private Connector connector;
 
 	@InjectMocks
 	private SourceVisitor sourceVisitor;
@@ -103,6 +110,12 @@ class SourceVisitorTest {
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, snmpProtocol, HTTPProtocol.class, httpProtocol)).build();
 
+	}
+
+
+	@BeforeEach
+	void beforeEeach() {
+		lenient().doReturn(CONNECTOR_NAME).when(connector).getCompiledFilename();
 	}
 
 	@Test
@@ -215,23 +228,26 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitOSCommandSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new OSCommandSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new OSCommandSource()));
 	}
 
 	@Test
 	void testVisitReferenceSource() {
 		ReferenceSource referenceSource = null;
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(referenceSource));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(referenceSource));
 		referenceSource = new ReferenceSource();
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(referenceSource));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(referenceSource));
 
 		List<List<String>> expectedTable = Arrays.asList(
 				Arrays.asList("a1", "b1", "c1"),
 				Arrays.asList("val1", "val2", "val3"));
 
-		SourceTable tabl1 = SourceTable.builder()
+		SourceTable table = SourceTable.builder()
 				.table(expectedTable)
 				.build();
+
+		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
+				Map.of(VALUE_TABLE, table)).build();
 
 		referenceSource = ReferenceSource.builder().build();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(referenceSource));
@@ -239,16 +255,16 @@ class SourceVisitorTest {
 		referenceSource = ReferenceSource.builder().reference(VALUE_TABLE).build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(tabl1).when(hostMonitoring).getSourceTable(VALUE_TABLE);
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		assertEquals(expectedTable, sourceVisitor.visit(referenceSource).getTable());
 	}
 
 	@Test
 	void testVisitStaticSourceSingleValue() {
 		StaticSource staticSource = null;
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(staticSource));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
 		staticSource = new StaticSource();
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(staticSource));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
 
 		List<List<String>> expectedTable = Arrays.asList(
 				Arrays.asList(VALUE_A1));
@@ -263,7 +279,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitStaticSourceMultipleValues() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new StaticSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new StaticSource()));
 
 		List<List<String>> expectedTable = Arrays.asList(
 				Arrays.asList("a1", "b1", "c1"));
@@ -281,7 +297,7 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SNMPGetSource.builder().oid(null).build()));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetSource.builder().oid(OID).build()));
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new SNMPGetSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new SNMPGetSource()));
 
 		// no snmp protocol
 		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
@@ -355,13 +371,15 @@ class SourceVisitorTest {
 		mapSources.put("tab1", tabl1 );
 		mapSources.put("tab2", tabl2 );
 
+		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
+
 		// standard
 		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
 
 		List<List<String>> matsyaReturn = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, false);
 
 		TableJoinSource tableJoinExample = TableJoinSource.builder()
@@ -380,7 +398,7 @@ class SourceVisitorTest {
 		expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, false);
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
@@ -396,10 +414,11 @@ class SourceVisitorTest {
 		// no matches
 		SourceTable tabl3 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a","b", "c"), Arrays.asList("v10","v20", "v30"))).build();
 		mapSources.put("tab3", tabl3 );
+		namespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		expectedJoin = Arrays.asList(Arrays.asList("a", "b", "c"));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, false);
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
@@ -413,8 +432,9 @@ class SourceVisitorTest {
 		// wrong column key
 		tabl3 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a","b", "c"), Arrays.asList("v10","v20", "v30"))).build();
 		mapSources.put("tab3", tabl3 );
+		namespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(mapSources).when(hostMonitoring).getSourceTables();
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
 											.leftTable("tab1")
@@ -451,7 +471,7 @@ class SourceVisitorTest {
 											.defaultRightLine(null).build();
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getTable());
 
-		doReturn(null).when(hostMonitoring).getSourceTables();
+		doReturn(ConnectorNamespace.builder().build()).when(hostMonitoring).getConnectorNamespace(connector);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
@@ -486,6 +506,12 @@ class SourceVisitorTest {
 						Arrays.asList("v1", "v2", "v3")))
 				.build();
 
+		final Map<String, SourceTable> mapSources = new HashMap<>();
+		mapSources.put("Enclosure.Discovery.Source(1)", tabl1);
+		mapSources.put("Enclosure.Discovery.Source(2)", tabl2);
+
+		final ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
+
 		// standard
 		List<List<String>> expectedUnion = Arrays.asList(
 				Arrays.asList("a1", "b1", "c1"),
@@ -504,26 +530,25 @@ class SourceVisitorTest {
 				.build();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(tabl1).when(hostMonitoring).getSourceTable("Enclosure.Discovery.Source(1)");
-		doReturn(tabl2).when(hostMonitoring).getSourceTable("Enclosure.Discovery.Source(2)");
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
 
 	}
 
 	@Test
 	void testVisitTelnetInteractiveSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new TelnetInteractiveSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new TelnetInteractiveSource()));
 	}
 
 	@Test
 	void testVisitUCSSource() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(new UCSSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new UCSSource()));
 	}
 
 	@Test
 	void testVisitWBEMSource() throws MalformedURLException, WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit((WBEMSource) null));
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(WBEMSource.builder().build()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit((WBEMSource) null));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(WBEMSource.builder().build()));
 
 		WBEMSource wbemSource = WBEMSource.builder().wbemQuery(WBEM_QUERY).build();
 		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
@@ -607,20 +632,18 @@ class SourceVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(),
-				anyInt(), any(), any());
+		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), any());
 		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
 
 		 // handle exception
-		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(),
-				anyInt(), any(), any());
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), any());
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 	}
 
 	@Test
 	void testVisitWMISourceMalformed() {
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit((WMISource) null));
-		assertEquals(SourceTable.empty(), new SourceVisitor().visit(WMISource.builder().build()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit((WMISource) null));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(WMISource.builder().build()));
 	}
 
 	@Test
@@ -647,32 +670,38 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(null).when(hostMonitoring).getAutomaticWmiNamespace();
+		doReturn(ConnectorNamespace.builder().automaticWmiNamespace(null).build()).when(hostMonitoring).getConnectorNamespace(connector);
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
 	}
 
 	@Test
 	void testVisitWMISource() throws Exception {
 		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WMIProtocol.class,
-						WMIProtocol.builder()
-						.username(PC14 + "\\" + "Administrator")
-						.password("password".toCharArray())
-						.build()))
+						wmiProtocol))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
+		doReturn(ConnectorNamespace
+				.builder()
+				.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
+				.build()).when(hostMonitoring).getConnectorNamespace(connector);
 		final List<List<String>> expected = Arrays.asList(
 				Arrays.asList("1.1", "0|4587"),
 				Arrays.asList("1.2", "2|4587"),
 				Arrays.asList("1.3", "1|4587"));
-		doReturn(expected).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
+		doReturn(expected).when(matsyaClientsExecutor)
+				.executeWmi(
+						PC14,
+						wmiProtocol,
+						WQL,
+						ROOT_IBMSD_WMI_NAMESPACE);
 		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.visit(wmiSource));
 
 	}
@@ -681,21 +710,26 @@ class SourceVisitorTest {
 	void testVisitWMISourceTimeout() throws Exception {
 
 		final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
-				.protocolConfigurations(Map.of(WMIProtocol.class,
-						WMIProtocol.builder()
-						.username(PC14 + "\\" + "Administrator")
-						.password("password".toCharArray())
-						.build()))
+				.protocolConfigurations(Map.of(WMIProtocol.class, wmiProtocol))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
-		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L, WQL, ROOT_IBMSD_WMI_NAMESPACE);
+		doReturn(ConnectorNamespace
+				.builder()
+				.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
+				.build()).when(hostMonitoring).getConnectorNamespace(connector);
+		doThrow(new TimeoutException()).when(matsyaClientsExecutor)
+				.executeWmi(
+						PC14,
+						wmiProtocol,
+						WQL,
+						ROOT_IBMSD_WMI_NAMESPACE);
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wmiSource));
 
 	}
@@ -705,7 +739,10 @@ class SourceVisitorTest {
 		{
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(ROOT_IBMSD_WMI_NAMESPACE).when(hostMonitoring).getAutomaticWmiNamespace();
+			doReturn(ConnectorNamespace
+					.builder()
+					.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
+					.build()).when(hostMonitoring).getConnectorNamespace(connector);
 			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
 		}
 
@@ -713,25 +750,21 @@ class SourceVisitorTest {
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace(ROOT_IBMSD_WMI_NAMESPACE).build();
 			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
 		}
-
-		{
-			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).build();
-			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder()
-					.namespace(ROOT_IBMSD_WMI_NAMESPACE).build()));
-		}
 	}
 
 	@Test
 	void testGetSourceTable() {
 		{
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			doReturn(ConnectorNamespace.builder().build()).when(hostMonitoring).getConnectorNamespace(connector);
 			assertNull(sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));
 		}
 
 		{
 			final SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA).build();
+			final Map<String, SourceTable> sourceTableMap = Map.of("Temperature.Collect.Source(1)", expected);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-			doReturn(expected).when(hostMonitoring).getSourceTable("Temperature.Collect.Source(1)");
+			doReturn(ConnectorNamespace.builder().sourceTables(sourceTableMap).build()).when(hostMonitoring).getConnectorNamespace(connector);
 			assertEquals(expected, sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));
 		}
 
@@ -743,41 +776,37 @@ class SourceVisitorTest {
 
 	@Test
 	void testProcessWindowsIpmiSource() throws Exception {
+		final WMIProtocol wmiProtocol = WMIProtocol
+				.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.timeout(120L)
+				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WMIProtocol.class,
-						WMIProtocol.builder()
-						.username(PC14 + "\\" + "Administrator")
-						.password("password".toCharArray())
-						.timeout(120L)
-						.build()))
+						wmiProtocol))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		final List<List<String>> wmiResult1 = Arrays.asList(
 				Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
 		doReturn(wmiResult1).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L,
+				wmiProtocol,
 				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
 				"root/cimv2");
 
 		final List<List<String>> wmiResult2 = Arrays.asList(
 				Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25"));
 		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L,
+				wmiProtocol,
 				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
 				"root/hardware");
 
 		final List<List<String>> wmiResult3 = Arrays.asList(
 				Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId"));
 		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L,
+				wmiProtocol,
 				"SELECT CurrentState,Description FROM Sensor",
 				"root/hardware");
 
@@ -808,21 +837,20 @@ class SourceVisitorTest {
 
 	@Test
 	void testProcessWindowsIpmiSourceWmiException() throws Exception {
+		final WMIProtocol wmiProtocol = WMIProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.timeout(120L)
+				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WMIProtocol.class,
-						WMIProtocol.builder()
-						.username(PC14 + "\\" + "Administrator")
-						.password("password".toCharArray())
-						.timeout(120L)
-						.build()))
+						wmiProtocol))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doThrow(WmiComException.class).when(matsyaClientsExecutor).executeWmi(PC14,
-				PC14 + "\\" + "Administrator",
-				"password".toCharArray(),
-				120L,
+				wmiProtocol,
 				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
 				"root/cimv2");
 		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());

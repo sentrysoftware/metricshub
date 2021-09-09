@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -46,7 +44,8 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -305,11 +304,7 @@ class MatsyaClientsExecutorTest {
 	}
 
 	@Test
-	void testExecuteWbem() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
-
-		// url is null
-		assertThrows(MalformedURLException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, null, 0, null, null));
+	void testExecuteWbem() throws Exception {
 
 		// url is not null
 		try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
@@ -327,18 +322,13 @@ class MatsyaClientsExecutorTest {
 				.thenReturn(wbemQueryResult);
 
 			String url = "https://" + DEV_HV_01 + ":5989";
-			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, null, null, 0, FOO, BAR));
+			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WBEMProtocol.builder()
+					.protocol(WBEMProtocols.HTTPS)
+					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
 				isNull(), anyString(), anyInt(), isNull()));
 		}
-	}
-
-	@Test
-	void testBuildWbemUrl() {
-
-		assertEquals("https://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, true));
-		assertEquals("http://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, false));
 	}
 
 	@Test

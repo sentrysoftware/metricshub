@@ -547,8 +547,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
 				process.getProcessCommandLine(),
-				strategyConfig,
-				matsyaClientsExecutor,
 				wqlDetectionHelper
 		);
 		maybeLocalOS.get().accept(localOSVisitor);
@@ -904,7 +902,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 *
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	private CriterionTestResult findNamespace(final String hostname, final WMIProtocol wmiConfig, final WMI criterion) {
+	CriterionTestResult findNamespace(final String hostname, final WMIProtocol wmiConfig, final WMI criterion) {
 
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWmiNamespaces = strategyConfig.getHostMonitoring().getPossibleWmiNamespaces();

@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -20,8 +19,6 @@ import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
 import lombok.Getter;
@@ -35,10 +32,6 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
 	@NonNull
 	private final String command;
-	private final StrategyConfig strategyConfig;
-	private final MatsyaClientsExecutor matsyaClientsExecutor;
-
-	@Autowired
 	private final WqlDetectionHelper wqlDetectionHelper;
 
 	@Getter
@@ -47,8 +40,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	@Override
 	public void visit(final Windows os) {
 
-		Assert.state(strategyConfig != null, "strategyConfig mustn't be null.");
-		Assert.state(matsyaClientsExecutor != null, "matsyaClientsExecutor mustn't be null.");
+		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper mustn't be null.");
 
 		final WMIProtocol localWmiConfig = WMIProtocol
 				.builder()
@@ -57,7 +49,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 				.timeout(30L)
 				.build();
 
-		final WMI criterion = (WMI) WMI
+		final WMI criterion = WMI
 				.builder()
 				.wbemQuery("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process")
 				.wbemNamespace("root\\cimv2")
