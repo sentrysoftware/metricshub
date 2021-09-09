@@ -176,6 +176,7 @@ public class HardwareConstants {
 	public static final String ON_STATUS = "onStatus";
 	public static final String OFF_STATUS = "offStatus";
 	public static final String BLINKING_STATUS = "blinkingStatus";
+	public static final String POWER_CONSUMPTION = "powerConsumption";
 
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";

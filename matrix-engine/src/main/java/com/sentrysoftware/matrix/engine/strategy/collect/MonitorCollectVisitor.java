@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -29,12 +31,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -159,6 +162,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.BATTERY_STATUS_PARAMETER,
 				HardwareConstants.CONTROLLER_STATUS_PARAMETER
 				);
+
+		estimateDiskControllerPowerConsumption();
 	}
 
 	@Override
@@ -179,12 +184,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(Fan fan) {
 		collectBasicParameters(fan);
 
-		collectFanPowerConsumption();
-
 		appendValuesToStatusParameter(
 				HardwareConstants.SPEED_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER,
 				HardwareConstants.SPEED_PERCENT_PARAMETER);
+
+		estimateFanPowerConsumption();
 	}
 
 	@Override
@@ -224,15 +229,18 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Memory memory) {
 		collectBasicParameters(memory);
-		
+
 		collectErrorCount();
+
 		updateAdditionalStatusInformation(HardwareConstants.MEMORY_LAST_ERROR);
-		
+
 		appendValuesToStatusParameter(
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_STATUS_PARAMETER,
 				HardwareConstants.PREDICTED_FAILURE_PARAMETER,
 				HardwareConstants.PRESENT_PARAMETER);
+
+		estimateMemoryPowerConsumption();
 	}
 
 	@Override
@@ -252,6 +260,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER, 
 				HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER, 
 				HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER);
+
+		estimateNetworkCardPowerConsumption();
 
 	}
 
@@ -281,6 +291,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.ERROR_COUNT_PARAMETER, 
 				HardwareConstants.PREDICTED_FAILURE_PARAMETER);
 
+		estimatePhysicalDiskPowerConsumption();
+
 	}
 
 	@Override
@@ -299,21 +311,26 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Robotic robotic) {
 		collectBasicParameters(robotic);
-		
+
 		collectIncrementCount(HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT);
+
 		collectErrorCount();
-		
+
 		appendValuesToStatusParameter(
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.MOVE_COUNT_PARAMETER);
+
+		estimateRoboticPowerConsumption();
 	}
 	
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
 
-		collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT); 
+		collectIncrementCount(HardwareConstants.MOUNT_COUNT_PARAMETER, HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT);
+
 		collectIncrementCount(HardwareConstants.UNMOUNT_COUNT_PARAMETER, HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT);
+
 		collectErrorCount();
 
 		appendValuesToStatusParameter(
@@ -322,6 +339,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.MOUNT_COUNT_PARAMETER, 
 				HardwareConstants.NEEDS_CLEANING_PARAMETER,
 				HardwareConstants.UNMOUNT_COUNT_PARAMETER);
+
+		estimateTapeDrivePowerConsumption();
 	}
 
 	@Override
@@ -403,29 +422,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 		}
 
-		updateStatusParameter(monitor, parameterName, unit, collectTime, state, statusInformation);
+		CollectHelper.updateStatusParameter(monitor, parameterName, unit, collectTime, state, statusInformation);
 
-	}
-
-	/**
-	 * Build the status information text value
-	 * 
-	 * @param parameterName The name of the parameter e.g. intrusionStatus, status
-	 * @param ordinal       The numeric value of the status (0, 1, 2)
-	 * @param value         The text value of the status information
-	 * @return {@link String} value
-	 */
-	static String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
-		return new StringBuilder()
-				.append(parameterName)
-				.append(HardwareConstants.COLON)
-				.append(HardwareConstants.WHITE_SPACE)
-				.append(ordinal)
-				.append(HardwareConstants.WHITE_SPACE)
-				.append(HardwareConstants.OPENING_PARENTHESIS)
-				.append(value)
-				.append(HardwareConstants.CLOSING_PARENTHESIS)
-				.toString();
 	}
 
 	/**
@@ -503,7 +501,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Double value = extractParameterValue(monitorType, parameterName);
 		if (value != null) {
-			updateNumberParameter(monitor, parameterName, unit, collectTime, value, value);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				parameterName,
+				unit,
+				collectTime,
+				value,
+				value
+			);
 		}
 
 	}
@@ -547,73 +552,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Update the number parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
-	 * 
-	 * @param monitor       The monitor we wish to collect the number parameter value
-	 * @param parameterName The unique name of the parameter
-	 * @param unit          The unit of the parameter
-	 * @param collectTime   The collect time for this parameter
-	 * @param value         The value to set on the {@link NumberParam} instance
-	 * @param rawValue      The raw value to set as it is needed when computing delta and rates
-	 */
-	static void updateNumberParameter(final Monitor monitor, final String parameterName, final String unit, final Long collectTime,
-			final Double value, final Double rawValue) {
-
-		// GET the existing number parameter and update the value and the collect time
-		NumberParam numberParam = monitor.getParameter(parameterName, NumberParam.class);
-
-		// The parameter is not present then create it
-		if (numberParam == null) {
-			numberParam = NumberParam
-					.builder()
-					.name(parameterName)
-					.unit(unit)
-					.build();
-
-		}
-
-		numberParam.setValue(value);
-		numberParam.setCollectTime(collectTime);
-		numberParam.setRawValue(rawValue);
-
-		monitor.collectParameter(numberParam);
-	}
-
-	/**
-	 * Update the status parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
-	 * 
-	 * @param monitor           The monitor we wish to collect the status parameter value
-	 * @param parameterName     The unique name of the parameter
-	 * @param unit              The unit of the parameter
-	 * @param collectTime       The collect time for this parameter
-	 * @param state             The {@link ParameterState} (OK, WARN, ALARM) used to build the {@link StatusParam}
-	 * @param statusInformation The status information
-	 */
-	static void updateStatusParameter(final Monitor monitor, final String parameterName, final String unit, final Long collectTime,
-			final ParameterState state, final String statusInformation) {
-
-		StatusParam statusParam = monitor.getParameter(parameterName, StatusParam.class);
-
-		if (statusParam == null) {
-			statusParam = StatusParam
-					.builder()
-					.name(parameterName)
-					.unit(unit)
-					.build();
-		}
-
-		statusParam.setState(state);
-		statusParam.setStatus(state.ordinal());
-		statusParam.setStatusInformation(buildStatusInformation(
-				parameterName,
-				state.ordinal(),
-				statusInformation));
-		statusParam.setCollectTime(collectTime);
-
-		monitor.collectParameter(statusParam);
 	}
 
 	/**
@@ -672,6 +610,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
 		.forEach(metaParam -> collectNumberParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+
 	}
 
 
@@ -697,7 +636,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double energyUsageRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.ENERGY_USAGE_PARAMETER);
 		if (energyUsageRaw != null && energyUsageRaw >= 0) {
 
-			collectPowerFromEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
+			CollectHelper.collectPowerFromEnergyUsage(monitor, collectTime, energyUsageRaw, hostname);
 			return;
 		}
 
@@ -705,145 +644,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double powerConsumption = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_CONSUMPTION_PARAMETER);
 		if (powerConsumption != null && powerConsumption >= 0) {
-			collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
+			CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 		}
 
-	}
-
-	/**
-	 * Collect the energy usage based on the power consumption
-	 * 
-	 * @param monitor          The monitor instance we wish to collect
-	 * @param collectTime      The current collect time
-	 * @param powerConsumption The power consumption value. Never null
-	 * @param hostname         The system host name used for debug purpose
-	 */
-	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
-
-		updateNumberParameter(monitor,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
-				collectTime,
-				powerConsumption,
-				powerConsumption);
-
-		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
-
-		Double deltaTime = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				collectTime.doubleValue(), collectTimePrevious);
-
-		// Convert deltaTime from milliseconds (ms) to seconds
-		if (deltaTime != null) {
-			deltaTime /= 1000.0; 
-		}
-
-		// Calculate energy usage from Power Consumption: E = P * T
-		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				powerConsumption, deltaTime);
-
-		if (energyUsage != null) {
-
-			// The energy will start from the energy usage delta
-			Double energy = energyUsage;
-
-			// The previous value is needed to get the total energy in joules
-			Double previousEnergy = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.ENERGY_PARAMETER, true);
-
-			// Ok, we have the previous energy value ? sum the previous energy and the current delta energy usage
-			if (previousEnergy != null) {
-				energy +=  previousEnergy;
-			}
-
-			// Everything is good update the energy parameter in the HostMonitoring
-			updateNumberParameter(monitor,
-				HardwareConstants.ENERGY_PARAMETER,
-				HardwareConstants.ENERGY_PARAMETER_UNIT,
-				collectTime,
-				energy,
-				energy);
-
-			// Update the energy usage delta parameter in the HostMonitoring
-			updateNumberParameter(monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-				collectTime,
-				energyUsage,
-				energyUsage);
-
-		} else {
-			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
-					monitor.getId(), hostname, powerConsumption, collectTime, collectTimePrevious);
-		}
-	}
-
-	/**
-	 * Collect the power consumption based on the energy usage Power Consumption = Delta(energyUsageRaw) - Delta(CollectTime)
-	 * @param monitor           The monitor instance we wish to collect
-	 * @param collectTime       The current collect time
-	 * @param energyUsageRaw    The energy usage value. Never null
-	 * @param hostname          The system host name used for debug purpose
-	 */
-	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyUsageRaw, final String hostname) {
-
-		updateNumberParameter(monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-				collectTime,
-				null,
-				energyUsageRaw);
-
-		// Previous raw value
-		final Double energyUsageRawPrevious = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
-
-		// Time
-		final Double collectTimeDouble = collectTime.doubleValue();
-		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
-
-		// Compute the rate value: delta(raw energy usage) / delta (time)
-		Double powerConsumption = CollectHelper.rate(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				energyUsageRaw, energyUsageRawPrevious,
-				collectTimeDouble, collectTimePrevious);
-
-		// Compute the delta to get the energy usage value
-		final Double energyUsage = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsageRaw, energyUsageRawPrevious);
-
-		if (energyUsage != null) {
-			updateNumberParameter(monitor,
-					HardwareConstants.ENERGY_USAGE_PARAMETER,
-					HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime,
-					energyUsage * 1000 * 3600, // kW-hours to Joules
-					energyUsageRaw);
-		} else {
-			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy usage {}, previous raw energy usage {}",
-					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious);
-		}
-
-		if (powerConsumption != null) {
-			// powerConsumption = (delta kwatt-hours) / delta (time in milliseconds)
-			// powerConsumption = rate * 1000 (1Kw = 1000 Watts) * (1000 * 3600  To milliseconds convert to hours) 
-			powerConsumption = powerConsumption * 1000 * (1000 * 3600);
-
-			updateNumberParameter(monitor,
-					HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-					HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
-					collectTime,
-					powerConsumption,
-					powerConsumption);
-		} else {
-			log.debug("Cannot compute power consumption for monitor {} on system {}.\n"
-					+ "Current raw energy usage {}, previous raw energy usage {}, current time {}, previous time {}",
-					monitor.getId(), hostname, energyUsageRaw, energyUsageRawPrevious, collectTimeDouble, collectTimePrevious);
-		}
-
-		// Updating the monitor's energy parameter
-		updateNumberParameter(monitor,
-			HardwareConstants.ENERGY_PARAMETER,
-			HardwareConstants.ENERGY_PARAMETER_UNIT,
-			collectTime,
-			energyUsageRaw * 3600 * 1000, // value
-			energyUsageRaw); // raw value
 	}
 
 	public static class StatusParamFirstComparator implements Comparator<MetaParameter> {
@@ -869,12 +672,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double chargeRaw = extractParameterValue(monitor.getMonitorType(), HardwareConstants.CHARGE_PARAMETER);
 		if (chargeRaw != null) {
 
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.CHARGE_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				Math.min(chargeRaw, 100.0), // In case the raw value is greater than 100%
-				chargeRaw);
+				chargeRaw
+			);
 		}
 	}
 
@@ -890,12 +695,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (timeLeftRaw != null) {
 
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.TIME_LEFT_PARAMETER,
 				HardwareConstants.TIME_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				timeLeftRaw * 60.0, // minutes to seconds
-				timeLeftRaw);
+				timeLeftRaw
+			);
 		}
 	}
 
@@ -924,12 +731,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (usedTimePercentPrevious == null) {
 
 			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.USED_TIME_PERCENT_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				collectTime,
 				null,
-				usedTimePercentRaw);
+				usedTimePercentRaw
+			);
 
 			return;
 		}
@@ -959,7 +768,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		// Setting the parameter
-		updateNumberParameter(monitor,
+		CollectHelper.updateNumberParameter(monitor,
 			HardwareConstants.USED_TIME_PERCENT_PARAMETER,
 			HardwareConstants.PERCENT_PARAMETER_UNIT,
 			collectTime,
@@ -980,15 +789,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double computedVoltage = (voltageValue != null && voltageValue >= -100000 && voltageValue <= 450000) ? voltageValue : null;
 
 		if (computedVoltage != null ) {
-			updateNumberParameter(monitor,
-					HardwareConstants.VOLTAGE_PARAMETER,
-					HardwareConstants.VOLTAGE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					computedVoltage,
-					voltageValue);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.VOLTAGE_PARAMETER,
+				HardwareConstants.VOLTAGE_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				computedVoltage,
+				voltageValue
+			);
 		}
 	}
-	
+
 	/**
 	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
 	 */
@@ -1021,7 +832,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					errorCount = 0.0;
 
 					// Reset the starting error count
-					updateNumberParameter(monitor,
+					CollectHelper.updateNumberParameter(monitor,
 						HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
 						HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 						monitorCollectInfo.getCollectTime(),
@@ -1039,7 +850,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				}
 				
 				// Record as the starting error count
-				updateNumberParameter(monitor,
+				CollectHelper.updateNumberParameter(monitor,
 					HardwareConstants.STARTING_ERROR_COUNT_PARAMETER,
 					HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
@@ -1051,7 +862,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 			
 			// Update the previous error count
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(monitor,
 				HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
@@ -1059,7 +870,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				previousErrorCount);
 
 			// Update the error count
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(monitor,
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.ERROR_COUNT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
@@ -1067,7 +878,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				rawErrorCount);
 		}
 	}
-	
+
 	/**
 	 * Collects the incremental parameters, namely 
 	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
@@ -1085,9 +896,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			// Getting the previous value
 			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
 			
-			updateNumberParameter(
-				monitor, 
-				countParameter, 
+			CollectHelper.updateNumberParameter(
+				monitor,
+				countParameter,
 				countParameterUnit,
 				monitorCollectInfo.getCollectTime(),
 				(previousRawCount != null && previousRawCount < rawCount) ?  (rawCount - previousRawCount) : 0,
@@ -1128,12 +939,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Update the used capacity, if the usedPercent is valid
 		if (usedPercent != null && usedPercent >= 0.0 && usedPercent <= 100.0) {
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.USED_CAPACITY_PARAMETER,
 				HardwareConstants.PERCENT_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				usedPercent,
-				usedPercentRaw);
+				usedPercentRaw
+			);
 		}
 	}
 	
@@ -1149,22 +962,335 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (unallocatedSpaceRaw != null) {
 
-			updateNumberParameter(monitor,
+			CollectHelper.updateNumberParameter(
+				monitor,
 				HardwareConstants.UNALLOCATED_SPACE_PARAMETER,
 				HardwareConstants.SPACE_GB_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
-				unallocatedSpaceRaw);
+				unallocatedSpaceRaw
+			);
 		}
 	}
-	
+
+	/**
+	 * Collect the temperature value, if the current {@link Monitor} is a {@link Temperature}.
+	 */
+	void collectTemperature() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double temperatureValue = extractParameterValue(monitor.getMonitorType(),
+				HardwareConstants.TEMPERATURE_PARAMETER);
+
+		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.TEMPERATURE_PARAMETER,
+				HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				temperatureValue,
+				temperatureValue
+			);
+		}
+	}
+
+	/**
+	 * Set the power consumption (15W by default for disk controllers) Source:
+	 * https://forums.servethehome.com/index.php?threads/raid-controllers-power-consumption.9189/
+	 */
+	void estimateDiskControllerPowerConsumption() {
+
+		CollectHelper.collectEnergyUsageFromPower(
+			monitorCollectInfo.getMonitor(),
+			monitorCollectInfo.getCollectTime(),
+			15.0,
+			monitorCollectInfo.getHostname()
+		);
+	}
+
+	/**
+	 * Estimated power consumption: 4W 
+	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
+	 */
+	void estimateMemoryPowerConsumption() {
+		CollectHelper.collectEnergyUsageFromPower(
+			monitorCollectInfo.getMonitor(),
+			monitorCollectInfo.getCollectTime(),
+			4.0,
+			monitorCollectInfo.getHostname()
+		);
+	}
+
+	/**
+	 * Estimates the power dissipation of a network card, based on some characteristics Inspired by:
+	 * https://www.cl.cam.ac.uk/~acr31/pubs/sohan-10gbpower.pdf
+	 */
+	void estimateNetworkCardPowerConsumption() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Network card name
+		final String lowerCaseName = monitor.getName().toLowerCase();
+
+		// Link status
+		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, HardwareConstants.LINK_STATUS_PARAMETER);
+
+		// Link speed
+		final Double linkSpeed = CollectHelper.getNumberParamValue(monitor, HardwareConstants.LINK_SPEED_PARAMETER);
+
+		// Bandwidth utilization
+		final Double bandwidthUtilization = CollectHelper.getNumberParamValue(monitor, HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER);
+
+		final double powerConsumption;
+
+		// Virtual or WAN card: 0 (it's not physical)
+		if (lowerCaseName.indexOf("wan") >= 0 || lowerCaseName.indexOf("virt") >= 0) {
+			powerConsumption = 0.0;
+		}
+
+		// Unplugged, means not much
+		else if (ParameterState.WARN.equals(linkStatus)) {
+			// 1W for an unplugged card
+			powerConsumption = 1.0;
+		}
+
+		// (0.5 + 0.5 * bandwidthUtilization) * 5 * log10(linkSpeed)
+		else if (CollectHelper.isValidPercentage(bandwidthUtilization)) {
+			if (CollectHelper.isValidPositive(linkSpeed) && linkSpeed > 10) {
+				powerConsumption = (0.5 + 0.5 * bandwidthUtilization / 100.0) * 5.0 * Math.log10(linkSpeed);
+			} else {
+				powerConsumption = (0.5 + 0.5 * bandwidthUtilization / 100.0) * 5.0;
+			}
+		}
+
+		// If we have the link speed, we'll go with 0.75 * 5 * log10(linkSpeed)
+		else if (CollectHelper.isValidPositive(linkSpeed)) {
+			if (linkSpeed > 10) {
+				powerConsumption = 0.75 * 5.0 * Math.log10(linkSpeed);
+			} else {
+				powerConsumption = 2.0;
+			}
+
+		} else {
+			// Some default value (what about 10W ? wet finger...)
+			powerConsumption = 10.0;
+		}
+
+		CollectHelper.collectEnergyUsageFromPower(monitor,
+				monitorCollectInfo.getCollectTime(),
+				NumberHelper.round(powerConsumption, 2, RoundingMode.HALF_UP),
+				monitorCollectInfo.getHostname());
+	}
+
+	/**
+	 * Estimates the power dissipation of a physical disk, based on its characteristics: vendor, model, location, type, etc. all mixed up
+	 * Inspiration: https://outervision.com/power-supply-calculator
+	 */
+	void estimatePhysicalDiskPowerConsumption() {
+		// Physical disk
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Physical disk characteristics
+		final List<String> dataList = new ArrayList<>();
+		dataList.add(monitor.getName());
+		dataList.add(monitor.getMetadata(HardwareConstants.MODEL));
+		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION1));
+		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION2));
+		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION3));
+
+		final Monitor parent = monitorCollectInfo.getHostMonitoring().findById(monitor.getParentId());
+		if (parent != null) {
+			dataList.add(parent.getName());
+		} else {
+			log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
+					monitor.getId(), monitor.getName());
+		}
+
+		final String[] data = dataList.toArray(new String[dataList.size()]);
+
+		final double powerConsumption;
+
+		// SSD
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
+			powerConsumption = estimateSsdPowerConsumption(data);
+		}
+
+		// HDD (non-SSD), depending on the interface
+		// SAS
+		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
+			powerConsumption = estimateSasPowerConsumption(data);
+		}
+
+		// SCSI and IDE
+		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
+			powerConsumption = estimateScsiAndIde(data);
+		}
+
+		// SATA (and unknown, we'll assume it's the most common case)
+		else {
+			powerConsumption  = estimateSataOrDefault(data);
+		}
+
+		CollectHelper.collectEnergyUsageFromPower(monitor,
+				monitorCollectInfo.getCollectTime(),
+				powerConsumption,
+				monitorCollectInfo.getHostname());
+	}
+
+	/**
+	 * Estimate SATA physical disk power dissipation. Default is 11W.
+	 * 
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSataOrDefault(final String[] data) {
+
+		// Factor in the rotational speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
+			return 27.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			return 32.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
+			return 7.0;
+		}
+
+		// Default for 7200-RPM disks
+		return 11.0;
+
+	}
+
+	/**
+	 * Estimate SCSI and IDE physical disk power dissipation
+	 * 
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateScsiAndIde(final String[] data) {
+		// SCSI and IDE
+		// Factor in the rotational speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
+			// Only SCSI supports 10k
+			return 32.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			// Only SCSI supports 15k
+			return 35.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
+			// Likely to be cheap IDE
+			return 19;
+		}
+
+		// Default for 7200-rpm disks, SCSI or IDE, who knows?
+		// SCSI is 31 watts, IDE is 21...
+		return 30.0;
+	}
+
+	/**
+	 * Estimate SAS physical disk power dissipation
+	 * 
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSasPowerConsumption(final String[] data) {
+		// Factor in the rotationnal speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			return 17.0;
+		}
+		// Default for 10k-rpm disks (rarely lower than that anyway)
+		return 12.0;
+	}
+
+	/**
+	 * Estimate SSD physical disk power dissipation
+	 * 
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSsdPowerConsumption(final String[] data) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("pcie"), data)) {
+			return 18.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("nvm"), data)) {
+			return  6.0;
+		}
+		return 3.0;
+	}
+
+	/**
+	 * Calculate the approximate power consumption of the media changer.<br>
+	 * If it moved, 154W, if not, 48W Source:
+	 * https://docs.oracle.com/en/storage/tape-storage/sl4000/slklg/calculate-total-power-consumption.html
+	 */
+	void estimateRoboticPowerConsumption() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double moveCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.MOVE_COUNT_PARAMETER);
+
+		final double powerConsumption;
+		if (moveCount != null && moveCount > 0.0) {
+			powerConsumption = 154.0;
+		} else {
+			powerConsumption = 48.0;
+		}
+
+		CollectHelper.collectEnergyUsageFromPower(monitor,
+				monitorCollectInfo.getCollectTime(),
+				powerConsumption,
+				monitorCollectInfo.getHostname());
+	}
+
+	/**
+	 * Estimates the power consumed by a tape drive for its operation, based on some of its characteristics and activity Inspiration:
+	 * https://docs.oracle.com/en/storage/tape-storage/sl4000/slklg/calculate-total-power-consumption.html
+	 * https://www.ibm.com/support/knowledgecenter/STQRQ9/com.ibm.storage.ts4500.doc/ts4500_power_consumption_and_cooling_requirements.html
+	 */
+	void estimateTapeDrivePowerConsumption() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		Double mountCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER);
+		mountCount = mountCount != null ? mountCount : 0.0;
+
+		Double unmountCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER);
+		unmountCount = unmountCount != null ? unmountCount : 0.0;
+
+		final boolean active = mountCount + unmountCount > 0;
+		final String lowerCaseName = monitor.getName().toLowerCase();
+
+		final double powerConsumption = estimateTapeDrivePowerConsumption(active, lowerCaseName);
+
+		CollectHelper.collectEnergyUsageFromPower(monitor,
+				monitorCollectInfo.getCollectTime(),
+				powerConsumption,
+				monitorCollectInfo.getHostname());
+	}
+
+	/**
+	 * Estimate the tape drive power consumption based on its name and its activity
+	 * 
+	 * @param active        Whether the tape drive is active or not
+	 * @param lowerCaseName The name of the tape drive in lower case
+	 * @return double value
+	 */
+	double estimateTapeDrivePowerConsumption(final boolean active, final String lowerCaseName) {
+
+		if (lowerCaseName.indexOf("lto") >= 0) {
+			return active ? 46 : 30;
+		} else if (lowerCaseName.indexOf("t10000d") >= 0) {
+			return active ? 127 : 64;
+		} else if (lowerCaseName.indexOf("t10000") >= 0) {
+			return active ? 93 : 61;
+		} else if (lowerCaseName.indexOf("ts") >= 0) {
+			return active ? 53 : 35;
+		}
+
+		return active ? 80 : 55;
+	}
+
 	/**
 	 * Collects the power consumption from {@link Fan} speed.
 	 */
-	void collectFanPowerConsumption() {
+	void estimateFanPowerConsumption() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
-		
+
 		// Approximately 5 Watt for standard fan
 		double powerConsumption = 5.0;
 
@@ -1183,33 +1309,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				powerConsumption = fanSpeedPercent * 0.05;
 			}
 		}
-			
-		updateNumberParameter(monitor,
-			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
-			monitorCollectInfo.getCollectTime(),
-			powerConsumption,
-			powerConsumption);
-	}
 
-	/**
-	 * Collect the temperature value, if the current {@link Monitor} is a {@link Temperature}.
-	 */
-	void collectTemperature() {
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-
-		// Getting the current value
-		final Double temperatureValue = extractParameterValue(monitor.getMonitorType(),
-				HardwareConstants.TEMPERATURE_PARAMETER);
-
-		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
-			updateNumberParameter(monitor,
-					HardwareConstants.TEMPERATURE_PARAMETER,
-					HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					temperatureValue,
-					temperatureValue);
-		}
+		CollectHelper.collectEnergyUsageFromPower(monitor,
+				monitorCollectInfo.getCollectTime(),
+				NumberHelper.round(powerConsumption, 2, RoundingMode.HALF_UP),
+				monitorCollectInfo.getHostname());
 	}
 
 	/**
@@ -1223,12 +1327,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.ENDURANCE_REMAINING_PARAMETER);
 
 		if (rawEnduranceRemaining != null && rawEnduranceRemaining >= 0 && rawEnduranceRemaining <= 100) {
-			updateNumberParameter(monitor,
-					HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
-					HardwareConstants.PERCENT_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					rawEnduranceRemaining,
-					rawEnduranceRemaining);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				HardwareConstants.ENDURANCE_REMAINING_PARAMETER,
+				HardwareConstants.PERCENT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				rawEnduranceRemaining,
+				rawEnduranceRemaining
+			);
 		}
 	}
 
@@ -1268,7 +1374,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.COLOR_PARAMETER);
 
 			// colorState is never null here
-			updateStatusParameter(monitor,
+			CollectHelper.updateStatusParameter(monitor,
 				HardwareConstants.COLOR_PARAMETER,
 				HardwareConstants.STATUS_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
@@ -1315,7 +1421,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			if (translatedStatus != null) {
 
-				updateStatusParameter(monitor,
+				CollectHelper.updateStatusParameter(monitor,
 					HardwareConstants.STATUS_PARAMETER,
 					HardwareConstants.STATUS_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),

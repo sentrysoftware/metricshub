@@ -79,6 +79,9 @@ public class DiskController implements IMetaMonitor {
 		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
 		map.put(HardwareConstants.BATTERY_STATUS_PARAMETER, BATTERY_STATUS);
 		map.put(HardwareConstants.CONTROLLER_STATUS_PARAMETER, CONTROLLER_STATUS);
+		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
+		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

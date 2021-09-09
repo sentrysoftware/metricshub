@@ -40,18 +40,32 @@ public interface IMetaMonitor {
 			.build();
 
 	MetaParameter ENERGY = MetaParameter.builder()
-		.basicCollect(true)
+		.basicCollect(false)
 		.name(HardwareConstants.ENERGY_PARAMETER)
 		.unit(HardwareConstants.ENERGY_PARAMETER_UNIT)
 		.type(ParameterType.NUMBER)
 		.build();
 
 	MetaParameter HEATING_MARGIN = MetaParameter.builder()
-		.basicCollect(true)
+		.basicCollect(false)
 		.name(HardwareConstants.HEATING_MARGIN_PARAMETER)
 		.unit(HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT)
 		.type(ParameterType.NUMBER)
 		.build();
+
+	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
+			.unit(HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
+			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	void accept(IMonitorVisitor monitorVisitor);
 

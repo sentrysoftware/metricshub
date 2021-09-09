@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -43,6 +44,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PrometheusSpecificities {
 
+	private static final String HERTZ = "hertz";
 	private static final String PACKETS = "packets";
 	private static final String BYTES = "bytes";
 	private static final String JOULES = "joules";
@@ -55,6 +57,8 @@ public class PrometheusSpecificities {
 
 	@Getter
 	private static Map<MonitorType, Map<String, PrometheusParameter>> prometheusParameters;
+	@Getter
+	private static Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataToParameters;
 
 	private static Map<MonitorType, String> infoMetricNames;
 
@@ -138,11 +142,22 @@ public class PrometheusSpecificities {
 		infoMetricsMap.put(MonitorType.TARGET, "hw_target_info");
 
 		infoMetricNames = Collections.unmodifiableMap(infoMetricsMap);
+
+
+
+		final Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataParametersMap = new EnumMap<>(MonitorType.class);
+
+		prometheusMetadataParametersMap.put(MonitorType.CPU, cpuMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, logicalDiskMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.MEMORY, memoryMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.PHYSICAL_DISK, physicalDiskMetadataToPrometheusParameters());
+
+		prometheusMetadataToParameters = Collections.unmodifiableMap(prometheusMetadataParametersMap);
 	}
 
 	/**
 	 * Build target prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildTargetPrometheusParameters() {
@@ -178,8 +193,61 @@ public class PrometheusSpecificities {
 	}
 
 	/**
+	 * Convert some PhysicalDisk Metadata to Prometheus metrics
+	 * @return
+	 */
+	private static Map<String, PrometheusParameter> physicalDiskMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_physical_disk_size_bytes")
+				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
+
+		return map;
+	}
+
+	/**
+	 * Convert some Memory Metadata to Prometheus metrics
+	 * @return
+	 */
+	private static Map<String, PrometheusParameter> memoryMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(HardwareConstants.SIZE,
+				PrometheusParameter.builder().name("hw_memory_size_bytes").unit(HardwareConstants.BYTES_PARAMETER_UNIT)
+						.factor(1000000.0) // MB to Bytes
+						.build());
+
+		return map;
+	}
+
+	/**
+	 * Convert some LogicalDisk Metadata to Prometheus metrics
+	 * @return
+	 */
+	private static Map<String, PrometheusParameter> logicalDiskMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(HardwareConstants.SIZE, PrometheusParameter.builder().name("hw_logical_disk_size_bytes")
+				.unit(HardwareConstants.BYTES_PARAMETER_UNIT).build());
+
+		return map;
+	}
+
+	/**
+	 * Convert some CPU Metadata to Prometheus metrics
+	 * @return
+	 */
+	private static Map<String, PrometheusParameter> cpuMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(HardwareConstants.MAXIMUM_SPEED,
+				PrometheusParameter.builder().name("hw_cpu_maximum_speed_hertz").unit(HERTZ).factor(1000000.0).build());
+
+		return map;
+	}
+	/**
 	 * Build voltage prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildVoltagePrometheusParameters() {
@@ -200,7 +268,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build temperature prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildTemperaturePrometheusParameters() {
@@ -220,7 +288,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build tape drive prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildTapeDrivePrometheusParameters() {
@@ -253,13 +321,18 @@ public class PrometheusSpecificities {
 				.unit("unmounts")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_tape_drive_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build robotic prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildRoboticPrometheusParameters() {
@@ -283,13 +356,18 @@ public class PrometheusSpecificities {
 				.unit("moves")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_robotic_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build power supply prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildPowerSupplyPrometheusParameters() {
@@ -314,7 +392,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build physical disk prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildPhysicalDiskPrometheusParameters() {
@@ -346,13 +424,18 @@ public class PrometheusSpecificities {
 				.name("hw_physical_disk_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_physical_disk_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build other device prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildOtherDevicePrometheusParameters() {
@@ -380,7 +463,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build network card prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildNetworkCardPrometheusParameters() {
@@ -442,13 +525,17 @@ public class PrometheusSpecificities {
 				.unit("buffer_credits")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
-
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_network_card_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 		return map;
 	}
 
 	/**
 	 * Build memory prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildMemoryPrometheusParameters() {
@@ -475,13 +562,18 @@ public class PrometheusSpecificities {
 				.name("hw_memory_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_memory_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build lun prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildLunPrometheusParameters() {
@@ -501,7 +593,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build logical disk prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildLogicalDiskPrometheusParameters() {
@@ -527,7 +619,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build led prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildLedPrometheusParameters() {
@@ -551,7 +643,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build fan prometheus parameters map
-	 * 
+	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildFanPrometheusParameters() {
@@ -574,13 +666,18 @@ public class PrometheusSpecificities {
 				.unit(RATIO)
 				.factor(0.01)
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_fan_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build enclosure prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildEnclosurePrometheusParameters() {
@@ -605,7 +702,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build disk controller prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildDiskControllerPrometheusParameters() {
@@ -627,13 +724,18 @@ public class PrometheusSpecificities {
 				.name("hw_disk_controller_controller_status")
 				.unit(DiskController.CONTROLLER_STATUS.getUnit())
 				.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_disk_controller_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build cpu core prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildCpuCorePrometheusParameters() {
@@ -649,7 +751,7 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(CpuCore.CURRENT_SPEED.getName(), PrometheusParameter.builder()
 				.name("hw_cpu_core_current_speed_hertz")
-				.unit("hertz")
+				.unit(HERTZ)
 				.factor(1000000.0)
 				.build());
 		map.put(CpuCore.USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
@@ -663,7 +765,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build cpu prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildCpuPrometheusParameters() {
@@ -684,21 +786,25 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(Cpu.CURRENT_SPEED.getName(), PrometheusParameter.builder()
 				.name("hw_cpu_current_speed_hertz")
-				.unit("hertz")
+				.unit(HERTZ)
 				.factor(1000000.0)
 				.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
 				.name("hw_cpu_predicted_failure")
 				.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 				.build());
-
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+				.name("hw_cpu_energy_joules")
+				.unit(JOULES)
+				.type(PrometheusMetricType.COUNTER)
+				.build());
 
 		return map;
 	}
 
 	/**
 	 * Build connector prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildConnectorPrometheusParameters() {
@@ -714,7 +820,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build blade prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildBladePrometheusParameters() {
@@ -738,7 +844,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Build battery prometheus parameters map
-	 * 
+	 *
 	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
 	private static Map<String, PrometheusParameter> buildBatteryPrometheusParameters() {
@@ -767,7 +873,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Get the monitor type predefined labels
-	 * 
+	 *
 	 * @param monitorType The type of monitor
 	 * @return List of string values
 	 */
@@ -777,7 +883,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Get the monitor type predefined info metric name
-	 * 
+	 *
 	 * @param monitorType The type of monitor
 	 * @return String value. E.g fan_info
 	 */
@@ -787,7 +893,7 @@ public class PrometheusSpecificities {
 
 	/**
 	 * Concatenate the Prometheus predefined labels with the specific monitor metadata
-	 * 
+	 *
 	 * @param monitorType The monitor type we want to get its metadata
 	 * @return List of String values
 	 */
@@ -796,9 +902,9 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the parameter name and it corresponding unit and
+	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the parameter name and its corresponding unit and
 	 * conversion factor
-	 * 
+	 *
 	 * @param monitorType     The type of monitor defined by matrix
 	 * @param matrixParameter The name of the matrix predefined parameter
 	 * @return {@link Optional} {@link PrometheusParameter} since the parameter could be
@@ -806,5 +912,18 @@ public class PrometheusSpecificities {
 	public static Optional<PrometheusParameter> getPrometheusParameter(final MonitorType monitorType, final String matrixParameter) {
 		final Map<String, PrometheusParameter> parametersMap = prometheusParameters.get(monitorType);
 		return parametersMap == null ? Optional.empty() : Optional.ofNullable(parametersMap.get(matrixParameter));
+	}
+
+	/**
+	 * Get the corresponding PrometheusParameter object which gives the correct syntax for the matrix metadata and its corresponding unit and
+	 * conversion factor
+	 *
+	 * @param monitorType     The type of monitor defined by matrix
+	 * @param matrixMetadata The name of the matrix predefined metadata
+	 * @return {@link Optional} {@link PrometheusParameter} since the parameter could be
+	 */
+	public static Optional<PrometheusParameter> getPrometheusMetadataToParameters(final MonitorType monitorType, final String matrixMetadata) {
+		final Map<String, PrometheusParameter> parametersMap = prometheusMetadataToParameters.get(monitorType);
+		return (parametersMap == null || matrixMetadata == null) ? Optional.empty() : Optional.ofNullable(parametersMap.get(matrixMetadata));
 	}
 }
