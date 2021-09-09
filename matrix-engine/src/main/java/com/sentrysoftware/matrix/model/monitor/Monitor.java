@@ -221,6 +221,24 @@ public class Monitor {
 	}
 
 	/**
+	 * Check if the current monitor is missing or not. Missing means the present value is 0.
+	 * If the monitor is not eligible to missing devices then it can never be missing.
+	 * 
+	 * @return <code>true</code> if the monitor is missing otherwise <code>false</code>
+	 */
+	@JsonIgnore
+	public boolean isMissing() {
+		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
+			return false;
+		}
+
+		final PresentParam presentParam = getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		final Integer present = presentParam != null ? presentParam.getPresent() : null;
+
+		return present != null && present == 0;
+	}
+
+	/**
 	 * Assert the given status parameter identified by its name.
 	 * 
 	 * @param parameterName The parameter name we wish to assert

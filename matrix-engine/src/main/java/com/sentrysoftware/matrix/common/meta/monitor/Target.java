@@ -15,8 +15,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 
@@ -51,11 +53,13 @@ public class Target implements IMetaMonitor {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(STATUS_PARAMETER, STATUS);
-		map.put(ENERGY_PARAMETER, ENERGY);
 		map.put(HEATING_MARGIN_PARAMETER, HEATING_MARGIN);
 		map.put(AMBIENT_TEMPERATURE_PARAMETER, AMBIENT_TEMPERATURE);
 		map.put(CPU_TEMPERATURE_PARAMETER, CPU_TEMPERATURE);
 		map.put(CPU_THERMAL_DISSIPATION_RATE_PARAMETER, CPU_THERMAL_DISSIPATION_RATE);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 	}

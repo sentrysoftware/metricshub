@@ -41,16 +41,21 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
@@ -58,6 +63,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_S
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_USED_WATTS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
@@ -67,6 +73,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
@@ -79,6 +87,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonitorCollectVisitorTest {
 
+	private static final String PARENT_ID = "myConnecctor1.connector_monitor_ecs1-01_parent";
 	private static final String POWER_CONSUMPTION = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
@@ -241,6 +250,8 @@ class MonitorCollectVisitorTest {
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
+
+		assertEquals(15.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
@@ -352,12 +363,14 @@ class MonitorCollectVisitorTest {
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
+	
+		assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
 	void testVisitNetworkCard() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("eth0").build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new NetworkCard());
@@ -395,7 +408,12 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testVisitPhysicalDisk() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.PHYSICAL_DISK).build();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.parentId(PARENT_ID)
+				.name("Disk 1 (1TB)")
+				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.visit(new PhysicalDisk());
@@ -444,6 +462,7 @@ class MonitorCollectVisitorTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor
 				.builder()
+				.name("TapeDrive 1")
 				.id(MONITOR_ID)
 				.monitorType(MonitorType.TAPE_DRIVE)
 				.build();
@@ -809,275 +828,6 @@ class MonitorCollectVisitorTest {
 				.sorted(new MonitorCollectVisitor.StatusParamFirstComparator())
 				.map(MetaParameter::getName)
 				.collect(Collectors.toList()));
-	}
-
-	@Test
-	void testUpdateNumberParameter() {
-		{
-			final Monitor monitor = Monitor.builder().build();
-			MonitorCollectVisitor.updateNumberParameter(monitor,
-					ENERGY_USAGE_PARAMETER,
-					ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime,
-					100D,
-					1500D);
-
-			final NumberParam expected = NumberParam
-					.builder()
-					.name(ENERGY_USAGE_PARAMETER)
-					.unit(ENERGY_USAGE_PARAMETER_UNIT)
-					.collectTime(collectTime)
-					.value(100D)
-					.rawValue(1500D)
-					.build();
-
-			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
-		}
-
-		{
-			final NumberParam previousParameter = NumberParam
-					.builder()
-					.name(ENERGY_USAGE_PARAMETER)
-					.unit(ENERGY_USAGE_PARAMETER_UNIT)
-					.collectTime(collectTime)
-					.value(100D)
-					.rawValue(1500D)
-					.build();
-
-			previousParameter.reset();
-
-			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
-					Map.of(ENERGY_USAGE_PARAMETER, previousParameter)))
-					.build();
-			MonitorCollectVisitor.updateNumberParameter(monitor,
-					ENERGY_USAGE_PARAMETER,
-					ENERGY_USAGE_PARAMETER_UNIT,
-					collectTime + (2 * 60 * 1000),
-					50D,
-					1550D);
-
-			final NumberParam expected = NumberParam
-					.builder()
-					.name(ENERGY_USAGE_PARAMETER)
-					.unit(ENERGY_USAGE_PARAMETER_UNIT)
-					.collectTime(collectTime + (2 * 60 * 1000))
-					.value(50D)
-					.rawValue(1550D)
-					.build();
-			expected.setPreviousCollectTime(collectTime);
-			expected.setPreviousRawValue(1500D);
-
-			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
-		}
-	}
-
-	@Test
-	void testUpdateStatusParameter() {
-		{
-			final Monitor monitor = Monitor.builder().build();
-			MonitorCollectVisitor.updateStatusParameter(monitor, STATUS_PARAMETER,
-					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
-
-			final StatusParam expected = StatusParam
-					.builder()
-					.name(STATUS_PARAMETER)
-					.collectTime(collectTime)
-					.state(ParameterState.OK)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 0 (Operable)")
-					.build();
-
-			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
-		}
-
-		{
-			final StatusParam previousParameter = StatusParam.builder()
-					.name(STATUS_PARAMETER)
-					.collectTime(collectTime)
-					.state(ParameterState.ALARM)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 2 (DOWN)").build();
-
-			previousParameter.reset();
-
-			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
-					Map.of(STATUS_PARAMETER, previousParameter)))
-					.build();
-
-			MonitorCollectVisitor.updateStatusParameter(monitor, STATUS_PARAMETER,
-					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
-
-			final StatusParam expected = StatusParam
-					.builder()
-					.name(STATUS_PARAMETER)
-					.collectTime(collectTime)
-					.state(ParameterState.OK)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 0 (Operable)")
-					.build();
-
-			expected.setPreviousState(ParameterState.ALARM);
-
-			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
-		}
-	}
-
-	@Test
-	void testCollectPowerWithEnergyUsageFirstCollect() {
-
-		final Monitor monitor = Monitor.builder()
-				.monitorType(MonitorType.ENCLOSURE)
-				.build();
-
-		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime, 3138.358D, ECS1_01);
-
-		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue());
-		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
-		assertEquals(3138.358D, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
-
-	}
-
-	@Test
-	void testCollectPowerFromEnergyUsage() {
-
-		final NumberParam energyUsage = NumberParam
-				.builder()
-				.name(ENERGY_USAGE_PARAMETER)
-				.unit(ENERGY_USAGE_PARAMETER_UNIT)
-				.collectTime(collectTime)
-				.value(null)
-				.rawValue(3138.358D) // kWatt-hours
-				.build();
-		energyUsage.reset();
-
-		final Monitor monitor = Monitor.builder().monitorType(MonitorType.ENCLOSURE).parameters(new HashMap<>(
-				Map.of(ENERGY_USAGE_PARAMETER, energyUsage)))
-				.build();
-
-		MonitorCollectVisitor.collectPowerFromEnergyUsage(monitor, collectTime + (2 * 60 * 1000), 3138.360, ECS1_01);
-
-		Double joules = monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
-		joules  = Math.round(joules * 100000D) / 100000D;
-
-		assertEquals(7200, joules); // Joules (Energy)
-
-		final double watts = Math.round(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
-		assertEquals(60.0, watts); // Watts (Power)
-
-	}
-
-	@Test
-	void testCollectEnergyUsageFromPowerFirstCollect() {
-
-		final Monitor monitor = Monitor.builder()
-				.monitorType(MonitorType.ENCLOSURE)
-				.build();
-
-		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime, 60D, ECS1_01);
-
-		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
-		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
-		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
-	}
-
-	@Test
-	void testCollectEnergyUsageFromPower() {
-
-		final NumberParam powerConsumption = NumberParam
-				.builder()
-				.name(POWER_CONSUMPTION_PARAMETER)
-				.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
-				.collectTime(collectTime)
-				.value(null)
-				.rawValue(60.0)
-				.build();
-
-		powerConsumption.reset();
-
-		final NumberParam energyUsage = NumberParam
-			.builder()
-			.name(ENERGY_USAGE_PARAMETER)
-			.unit(ENERGY_USAGE_PARAMETER_UNIT)
-			.collectTime(collectTime)
-			.value(null)
-			.rawValue(999.0)
-			.build();
-
-		energyUsage.reset();
-
-		final Monitor monitor = Monitor
-			.builder()
-			.monitorType(MonitorType.ENCLOSURE)
-			.parameters(new HashMap<>(
-				Map
-					.of(POWER_CONSUMPTION_PARAMETER, powerConsumption,
-						ENERGY_USAGE_PARAMETER, energyUsage)))
-			.build();
-
-		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
-
-		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
-
-		assertEquals(7680.0, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(7680.0, monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
-	}
-
-	@Test
-	void testCollectPowerConsumptionFromEnergyUsageFirstCollect() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor
-				.builder()
-				.id(MONITOR_ID)
-				.monitorType(MonitorType.ENCLOSURE)
-				.build();
-		final Map<String, String> mapping = Map.of(
-				DEVICE_ID, VALUETABLE_COLUMN_1,
-				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
-
-		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.358");
-
-		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
-				buildCollectMonitorInfo(hostMonitoring, mapping, monitor, row));
-
-		monitorCollectVisitor.collectPowerConsumption();
-
-		assertEquals(3138.358D,
-				monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
-	}
-
-	@Test
-	void testCollectEnergyUsageFromPowerManyCollects() {
-
-		// Collect 1
-		final Monitor monitor = Monitor
-			.builder()
-			.monitorType(MonitorType.ENCLOSURE)
-			.build();
-
-		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime , 64D, ECS1_01);
-
-		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class)); // Joules
-		assertNull(monitor.getParameter(ENERGY_PARAMETER, NumberParam.class)); // Joules
-
-		// Collect 2 (first collect time + 2 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::reset);
-
-		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
-
-		assertEquals(60D, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(7200.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(7200.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
-
-		// Collect 3  (first collect time + 4 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::reset);
-
-		MonitorCollectVisitor.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
-
-		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
-		assertEquals(7680.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
-		assertEquals(14880.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 	}
 
 	@Test
@@ -1666,7 +1416,30 @@ class MonitorCollectVisitorTest {
 
 		}
 	}
-	
+
+	@Test
+	void testCollectPowerConsumptionFromEnergyUsageFirstCollect() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor
+				.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.ENCLOSURE)
+				.build();
+		final Map<String, String> mapping = Map.of(
+				DEVICE_ID, VALUETABLE_COLUMN_1,
+				ENERGY_USAGE_PARAMETER, VALUETABLE_COLUMN_2);
+
+		final List<String> row = Arrays.asList(MONITOR_DEVICE_ID, "3138.358");
+
+		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring, mapping, monitor, row));
+
+		monitorCollectVisitor.collectPowerConsumption();
+
+		assertEquals(3138.358D,
+				monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
+	}
+
 	@Test
 	void testCollectLogicalDiskUnallocatedSpace() {
 
@@ -1694,14 +1467,14 @@ class MonitorCollectVisitorTest {
 	}
 	
 	@Test
-	void testCollectFanPowerConsumption() {
+	void testEstimateFanPowerConsumption() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.FAN).build();
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		// No fan speed, no fan speed percent -> 5W
-		monitorCollectVisitor.collectFanPowerConsumption();
+		monitorCollectVisitor.estimateFanPowerConsumption();
 		NumberParam powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(5.0, powerConsumptionParameter.getValue());
@@ -1713,7 +1486,7 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList("7000"))
 		);
-		monitorCollectVisitor.collectFanPowerConsumption();
+		monitorCollectVisitor.estimateFanPowerConsumption();
 		powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(7.0, powerConsumptionParameter.getValue());
@@ -1725,7 +1498,7 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList("80"))
 		);
-		monitorCollectVisitor.collectFanPowerConsumption();
+		monitorCollectVisitor.estimateFanPowerConsumption();
 		powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(4.0, powerConsumptionParameter.getValue());
@@ -1780,6 +1553,649 @@ class MonitorCollectVisitorTest {
 		assertNotNull(temperatureParameter);
 		assertEquals(20.0, temperatureParameter.getRawValue());
 		assertEquals(20.0, temperatureParameter.getValue());
+	}
+
+	@Test
+	void testEstimateDiskControllerPowerConsumption() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.DISK_CONTROLLER).build();
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.estimateDiskControllerPowerConsumption();
+
+		assertEquals(15.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEstimateMemoryPowerConsumption() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.MEMORY).build();
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.estimateMemoryPowerConsumption();
+
+		assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEstimateNetworkCardPowerConsumptionVirtOrWan() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			// WAN
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("wan 01").monitorType(MonitorType.NETWORK_CARD).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(0.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+			// Virtual interface
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("Virtual itf:01").monitorType(MonitorType.NETWORK_CARD).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(0.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+	}
+
+	@Test
+	void testEstimateNetworkCardPowerConsumptionDown() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+		// Link status unplugged
+		monitor.addParameter(StatusParam.builder().name(LINK_STATUS_PARAMETER).state(ParameterState.WARN).build());
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+		assertEquals(1.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEstimateNetworkCardPowerConsumptionFromBandwidthUtilization() {
+		{
+			// Bandwith utilization + Link Speed
+
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+
+			CollectHelper.updateNumberParameter(
+				monitor,
+				BANDWIDTH_UTILIZATION_PARAMETER,
+				"percent",
+				collectTime,
+				60.0,
+				60.0
+			);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				LINK_SPEED_PARAMETER,
+				SPEED_MBITS_PARAMETER_UNIT,
+					collectTime,
+					300.0,
+					300.0
+			);
+
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(9.91, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// Bandwith utilization with Link Speed < 10
+
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					BANDWIDTH_UTILIZATION_PARAMETER,
+					"percent",
+					collectTime,
+					60.0,
+					60.0
+			);
+			CollectHelper.updateNumberParameter(
+				monitor,
+				LINK_SPEED_PARAMETER,
+				SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				9.0,
+				9.0
+			);
+	
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// Bandwith utilization without link speed
+
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+
+			CollectHelper.updateNumberParameter(
+				monitor,
+				BANDWIDTH_UTILIZATION_PARAMETER,
+				"percent",
+				collectTime,
+				60.0,
+				60.0
+			);
+
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateNetworkCardPowerConsumptionFromLinkSpeed() {
+		{
+			// Link Speed
+
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+			CollectHelper.updateNumberParameter(
+				monitor,
+				LINK_SPEED_PARAMETER,
+				SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				300.0,
+				300.0
+			);
+
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(9.29, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// Bandwith utilization with Link Speed < 10
+
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+			CollectHelper.updateNumberParameter(
+				monitor,
+				LINK_SPEED_PARAMETER,
+				SPEED_MBITS_PARAMETER_UNIT,
+				collectTime,
+				9.0,
+				9.0
+			);
+	
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+			assertEquals(2.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateNetworkCardPowerConsumptionDefault() {
+		// No link speed, no bandwidth utilization
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).name("FC 01").monitorType(MonitorType.NETWORK_CARD).build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.estimateNetworkCardPowerConsumption();
+
+		assertEquals(10.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+	}
+
+	@Test
+	void testEestimatePhysicalDiskPowerConsumptionSsd() {
+		{
+			// SSD & PCIE -> 18W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "pcie 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(18.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			// SSD & NVM -> 6W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "nvm 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(6.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// SOLID -> 3W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Solid 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(3.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEestimatePhysicalDiskPowerConsumptionSas() {
+		{
+			// SAS & 15k -> 17W 
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(17.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// SOLID -> 3W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(12.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEestimatePhysicalDiskPowerConsumptionScsiAndIde() {
+		{
+			// SCSI & 10k -> 32W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(32.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			// SCSI & 15k -> 35W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(35.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// SCSI & 5400 -> 19W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(19.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			// IDE & 5.4 -> 19W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("IDE 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(19.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// SCSI -> 30W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(30.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void estimateSataOrDefault() {
+		{
+			// SATA & 10k -> 27W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(27.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			// SATA & 15k -> 32W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(32.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// SATA & 5400 -> 7W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(7.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			// SATA & 5.4 -> 7W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(7.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			// Default -> 11W
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			hostMonitoring.addMonitor(diskController);
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
+			assertEquals(11.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateRoboticPowerConsumption() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOVE_COUNT_PARAMETER,
+				MOVE_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			assertEquals(154.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOVE_COUNT_PARAMETER,
+				MOVE_COUNT_PARAMETER_UNIT,
+				collectTime,
+				0.0,
+				0.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			assertEquals(48.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			assertEquals(48.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateTapeDrivePowerConsumptionLto() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("lto td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOUNT_COUNT_PARAMETER,
+				MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(46.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("lto td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				UNMOUNT_COUNT_PARAMETER,
+				UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(46.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("lto td").monitorType(MonitorType.TAPE_DRIVE).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(30.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateTapeDrivePowerConsumptionT10000d() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000d td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOUNT_COUNT_PARAMETER,
+				MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(127.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000d td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				UNMOUNT_COUNT_PARAMETER,
+				UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(127.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000d td").monitorType(MonitorType.TAPE_DRIVE).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(64.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateTapeDrivePowerConsumptionT10000() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000 td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOUNT_COUNT_PARAMETER,
+				MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(93.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000 td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				UNMOUNT_COUNT_PARAMETER,
+				UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(93.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("t10000 td").monitorType(MonitorType.TAPE_DRIVE).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(61.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateTapeDrivePowerConsumptionTs() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("ts td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOUNT_COUNT_PARAMETER,
+				MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(53.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("ts td").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				UNMOUNT_COUNT_PARAMETER,
+				UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(53.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("ts td").monitorType(MonitorType.TAPE_DRIVE).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(35.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+	}
+
+	@Test
+	void testEstimateTapeDrivePowerConsumptionDefault() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("td1").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				MOUNT_COUNT_PARAMETER,
+				MOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(80.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("td1").monitorType(MonitorType.TAPE_DRIVE).build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				UNMOUNT_COUNT_PARAMETER,
+				UNMOUNT_COUNT_PARAMETER_UNIT,
+				collectTime,
+				1.0,
+				1.0
+			);
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(80.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("td1").monitorType(MonitorType.TAPE_DRIVE).build();
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+			monitorCollectVisitor.estimateTapeDrivePowerConsumption();
+			assertEquals(55.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
+		}
 	}
 
 	@Test

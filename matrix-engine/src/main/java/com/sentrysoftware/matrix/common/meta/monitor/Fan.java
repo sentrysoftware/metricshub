@@ -24,6 +24,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
@@ -104,6 +106,9 @@ public class Fan implements IMetaMonitor {
 		map.put(PRESENT_PARAMETER, PRESENT);
 		map.put(SPEED_PARAMETER, SPEED);
 		map.put(SPEED_PERCENT_PARAMETER, SPEED_PERCENT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

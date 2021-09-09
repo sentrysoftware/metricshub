@@ -1,15 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -486,10 +477,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 */
 	static boolean isCpuSensor(final Double warningThreshold, final String... data) {
 		return warningThreshold != null && warningThreshold > 10 && data != null
-				&& Arrays.stream(data)
-				.filter(Objects::nonNull)
-				.map(String::toLowerCase)
-				.anyMatch(DiscoveryOperation::matchesCpuSensor);
+				&& ArrayHelper.anyMatchLowerCase(DiscoveryOperation::matchesCpuSensor, data);
 	}
 
 	/**

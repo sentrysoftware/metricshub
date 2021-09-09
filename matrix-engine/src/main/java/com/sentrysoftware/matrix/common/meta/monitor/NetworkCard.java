@@ -30,6 +30,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_R
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FULL_DUPLEX_MODE;
@@ -43,6 +45,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_RATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PHYSICAL_ADDRESS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
@@ -225,6 +228,9 @@ public class NetworkCard implements IMetaMonitor {
 		map.put(TRANSMITTED_PACKETS_PARAMETER, TRANSMITTED_PACKETS);
 		map.put(RECEIVED_PACKETS_PARAMETER, RECEIVED_PACKETS);
 		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

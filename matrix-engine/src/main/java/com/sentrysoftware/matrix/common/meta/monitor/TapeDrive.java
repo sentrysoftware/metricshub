@@ -24,6 +24,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
@@ -31,6 +33,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEEDS_CLEANING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEEDS_CLEANING_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
@@ -108,6 +111,9 @@ public class TapeDrive implements IMetaMonitor {
 		map.put(MOUNT_COUNT_PARAMETER, MOUNT_COUNT);
 		map.put(NEEDS_CLEANING_PARAMETER, NEEDS_CLEANING);
 		map.put(UNMOUNT_COUNT_PARAMETER, UNMOUNT_COUNT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

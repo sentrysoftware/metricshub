@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
@@ -332,5 +333,42 @@ class MonitorTest {
 		final AlertRule alarmAlert = alertRulesToAdd.stream().filter(a -> a.getSeverity().equals(ParameterState.ALARM)).findFirst().orElse(null);
 		assertNotNull(alarmAlert);
 		assertFalse(alarmAlert.isActive()); // Not yet alarm, alarm is at 0 RPM
+	}
+
+	@Test
+	void testIsMissing() {
+		final Monitor fan = Monitor.builder()
+				.monitorType(MonitorType.FAN)
+				.build();
+
+		assertFalse(fan.isMissing());
+
+		fan.addParameter(PresentParam.present());
+		assertFalse(fan.isMissing());
+
+		fan.addParameter(PresentParam.missing());
+		assertTrue(fan.isMissing());
+
+		PresentParam present = fan.getParameter(PRESENT_PARAMETER, PresentParam.class);
+
+		present.setPresent(1);
+		assertFalse(fan.isMissing());
+
+		present.setPresent(null);
+		assertFalse(fan.isMissing());
+
+		// Temperature can never be missing
+		final Monitor temperature = Monitor.builder()
+				.monitorType(MonitorType.TEMPERATURE)
+				.build();
+
+		assertFalse(temperature.isMissing());
+
+		temperature.addParameter(PresentParam.present());
+		assertFalse(temperature.isMissing());
+
+		temperature.addParameter(PresentParam.missing());
+		assertFalse(temperature.isMissing());
+
 	}
 }

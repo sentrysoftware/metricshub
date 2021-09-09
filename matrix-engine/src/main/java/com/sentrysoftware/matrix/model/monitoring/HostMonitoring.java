@@ -79,6 +79,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private EngineConfiguration engineConfiguration;
 
+	private PowerMeter powerMeter;
+
 	@Override
 	public void clearCurrent() {
 		monitors.clear();
@@ -346,12 +348,6 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType) {
-
-		return Collections.emptySet();
-	}
-
-	@Override
 	public Monitor findById(String monitorIdentifier) {
 
 		Assert.notNull(monitorIdentifier, "monitorIdentifier cannot be null.");
@@ -595,5 +591,9 @@ public class HostMonitoring implements IHostMonitoring {
 		public int compare(MonitorType a, MonitorType b) {
 			return a.name().compareTo(b.name());
 		}
+	}
+
+	public enum PowerMeter {
+		COLLECTED, ESTIMATED;
 	}
 }

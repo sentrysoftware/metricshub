@@ -26,12 +26,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
@@ -47,20 +45,6 @@ public class Enclosure implements IMetaMonitor {
 			.name(INTRUSION_STATUS_PARAMETER)
 			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
-			.build();
-
-	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
-			.basicCollect(false)
-			.name(ENERGY_USAGE_PARAMETER)
-			.unit(ENERGY_USAGE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
-			.build();
-
-	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
-			.basicCollect(false)
-			.name(POWER_CONSUMPTION_PARAMETER)
-			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION, TYPE,

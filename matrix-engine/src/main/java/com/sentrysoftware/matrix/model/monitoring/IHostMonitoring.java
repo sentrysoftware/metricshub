@@ -6,6 +6,7 @@ import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +32,10 @@ public interface IHostMonitoring {
 	void addMonitor(Monitor monitor);
 
 	void removeMonitor(Monitor monitor);
-	
+
 	Map<String, Monitor> selectFromType(MonitorType monitorType);
 
 	Map<MonitorType, Map<String, Monitor>> selectFromTypes(MonitorType... monitorTypes);
-
-	Set<Monitor> selectChildren(String parentIdentifier, MonitorType childrenMonitorType);
 
 	Monitor findById(String monitorIdentifier);
 
@@ -58,12 +57,15 @@ public interface IHostMonitoring {
 	String getAutomaticWmiNamespace();
 
 	String getIpmitoolCommand();
+
 	void setIpmitoolCommand(String ipmitoolCommand);
 
 	int getIpmiExecutionCount();
+
 	void setIpmiExecutionCount(int ipmiExecutionCount);
 
 	boolean isLocalhost();
+
 	void setLocalhost(boolean isLocalHost);
 
 	Set<String> getPossibleWmiNamespaces();
@@ -79,4 +81,8 @@ public interface IHostMonitoring {
 	void setEngineConfiguration(EngineConfiguration engineConfiguration);
 
 	EngineResult run(IStrategy... strategies);
+
+	PowerMeter getPowerMeter();
+
+	void setPowerMeter(PowerMeter powerMeter);
 }

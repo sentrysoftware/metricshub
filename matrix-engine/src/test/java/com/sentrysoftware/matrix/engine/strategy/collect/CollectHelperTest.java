@@ -9,14 +9,21 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,6 +37,8 @@ class CollectHelperTest {
 	private static final String HOST_NAME = "host";
 	private static final String ID = "enclosure_1";
 	private static final String VALUE_TABLE = "Enclosure.Collect.Source(1)";
+	private static final String ECS1_01 = "ecs1-01";
+	private static Long collectTime = new Date().getTime();
 
 	@Test
 	void testTranslateStatus() {
@@ -110,6 +119,36 @@ class CollectHelperTest {
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
+
+		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.OK, CollectHelper.translateStatus("FALSE",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("1",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("TRUE",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				PREDICTED_FAILURE_PARAMETER));
+
+		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("blabla",
+				UNKNOWN_STATUS_WARN,
+				ID,
+				HOST_NAME,
+				PREDICTED_FAILURE_PARAMETER));
 	}
 
 
@@ -263,4 +302,266 @@ class CollectHelperTest {
 		assertNull(CollectHelper.getNumberParamValue(monitor, "wrongParameter"));
 		assertEquals(10.0, CollectHelper.getNumberParamValue(monitor, parameterName));
 	}
+
+	@Test
+	void testGetStatusParamState() {
+		Map<String, IParameterValue> parameters = new HashMap<>();
+		StatusParam statusParam = StatusParam.builder().name("status").state(ParameterState.OK).build();
+		parameters.put("status", statusParam);
+		Monitor monitor = Monitor.builder().parameters(parameters).build();
+		assertNull(CollectHelper.getStatusParamState(monitor, "wrongStatus"));
+		assertEquals(ParameterState.OK, CollectHelper.getStatusParamState(monitor, "status"));
+	}
+
+
+	@Test
+	void testUpdateNumberParameter() {
+		{
+			final Monitor monitor = Monitor.builder().build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				ENERGY_USAGE_PARAMETER,
+				ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime,
+				100D,
+				1500D
+			);
+
+			final NumberParam expected = NumberParam
+					.builder()
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
+					.collectTime(collectTime)
+					.value(100D)
+					.rawValue(1500D)
+					.build();
+
+			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
+		}
+
+		{
+			final NumberParam previousParameter = NumberParam
+					.builder()
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
+					.collectTime(collectTime)
+					.value(100D)
+					.rawValue(1500D)
+					.build();
+
+			previousParameter.reset();
+
+			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
+					Map.of(ENERGY_USAGE_PARAMETER, previousParameter)))
+					.build();
+			CollectHelper.updateNumberParameter(
+				monitor,
+				ENERGY_USAGE_PARAMETER,
+				ENERGY_USAGE_PARAMETER_UNIT,
+				collectTime + (2 * 60 * 1000),
+				50D,
+				1550D
+			);
+
+			final NumberParam expected = NumberParam
+					.builder()
+					.name(ENERGY_USAGE_PARAMETER)
+					.unit(ENERGY_USAGE_PARAMETER_UNIT)
+					.collectTime(collectTime + (2 * 60 * 1000))
+					.value(50D)
+					.rawValue(1550D)
+					.build();
+			expected.setPreviousCollectTime(collectTime);
+			expected.setPreviousRawValue(1500D);
+
+			assertEquals(expected, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
+		}
+	}
+
+	@Test
+	void testUpdateStatusParameter() {
+		{
+			final Monitor monitor = Monitor.builder().build();
+			CollectHelper.updateStatusParameter(monitor, STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+
+			final StatusParam expected = StatusParam
+					.builder()
+					.name(STATUS_PARAMETER)
+					.collectTime(collectTime)
+					.state(ParameterState.OK)
+					.unit(STATUS_PARAMETER_UNIT)
+					.statusInformation("status: 0 (Operable)")
+					.build();
+
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		}
+
+		{
+			final StatusParam previousParameter = StatusParam.builder()
+					.name(STATUS_PARAMETER)
+					.collectTime(collectTime)
+					.state(ParameterState.ALARM)
+					.unit(STATUS_PARAMETER_UNIT)
+					.statusInformation("status: 2 (DOWN)").build();
+
+			previousParameter.reset();
+
+			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
+					Map.of(STATUS_PARAMETER, previousParameter)))
+					.build();
+
+			CollectHelper.updateStatusParameter(monitor, STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+
+			final StatusParam expected = StatusParam
+					.builder()
+					.name(STATUS_PARAMETER)
+					.collectTime(collectTime)
+					.state(ParameterState.OK)
+					.unit(STATUS_PARAMETER_UNIT)
+					.statusInformation("status: 0 (Operable)")
+					.build();
+
+			expected.setPreviousState(ParameterState.ALARM);
+
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		}
+	}
+
+	@Test
+	void testCollectPowerWithEnergyUsageFirstCollect() {
+
+		final Monitor monitor = Monitor.builder()
+				.monitorType(MonitorType.ENCLOSURE)
+				.build();
+
+		CollectHelper.collectPowerFromEnergyUsage(monitor, collectTime, 3138.358D, ECS1_01);
+
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue());
+		assertNull(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertEquals(3138.358D, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getRawValue());
+
+	}
+
+	@Test
+	void testCollectPowerFromEnergyUsage() {
+
+		final NumberParam energyUsage = NumberParam
+				.builder()
+				.name(ENERGY_USAGE_PARAMETER)
+				.unit(ENERGY_USAGE_PARAMETER_UNIT)
+				.collectTime(collectTime)
+				.value(null)
+				.rawValue(3138.358D) // kWatt-hours
+				.build();
+		energyUsage.reset();
+
+		final Monitor monitor = Monitor.builder().monitorType(MonitorType.ENCLOSURE).parameters(new HashMap<>(
+				Map.of(ENERGY_USAGE_PARAMETER, energyUsage)))
+				.build();
+
+		CollectHelper.collectPowerFromEnergyUsage(monitor, collectTime + (2 * 60 * 1000), 3138.360, ECS1_01);
+
+		Double joules = monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue();
+		joules  = Math.round(joules * 100000D) / 100000D;
+
+		assertEquals(7200, joules); // Joules (Energy)
+
+		final double watts = Math.round(monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+		assertEquals(60.0, watts); // Watts (Power)
+
+	}
+
+	@Test
+	void testCollectEnergyUsageFromPowerFirstCollect() {
+
+		final Monitor monitor = Monitor.builder()
+				.monitorType(MonitorType.ENCLOSURE)
+				.build();
+
+		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, 60D, ECS1_01);
+
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue());
+		assertEquals(60, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+	}
+
+	@Test
+	void testCollectEnergyUsageFromPower() {
+
+		final NumberParam powerConsumption = NumberParam
+				.builder()
+				.name(POWER_CONSUMPTION_PARAMETER)
+				.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
+				.collectTime(collectTime)
+				.value(null)
+				.rawValue(60.0)
+				.build();
+
+		powerConsumption.reset();
+
+		final NumberParam energyUsage = NumberParam
+			.builder()
+			.name(ENERGY_USAGE_PARAMETER)
+			.unit(ENERGY_USAGE_PARAMETER_UNIT)
+			.collectTime(collectTime)
+			.value(null)
+			.rawValue(999.0)
+			.build();
+
+		energyUsage.reset();
+
+		final Monitor monitor = Monitor
+			.builder()
+			.monitorType(MonitorType.ENCLOSURE)
+			.parameters(new HashMap<>(
+				Map
+					.of(POWER_CONSUMPTION_PARAMETER, powerConsumption,
+						ENERGY_USAGE_PARAMETER, energyUsage)))
+			.build();
+
+		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 64D, ECS1_01);
+
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getRawValue());
+
+		assertEquals(7680.0, monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7680.0, monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+	}
+
+	@Test
+	void testCollectEnergyUsageFromPowerManyCollects() {
+
+		// Collect 1
+		final Monitor monitor = Monitor
+			.builder()
+			.monitorType(MonitorType.ENCLOSURE)
+			.build();
+
+		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime , 64D, ECS1_01);
+
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertNull(monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class)); // Joules
+		assertNull(monitor.getParameter(ENERGY_PARAMETER, NumberParam.class)); // Joules
+
+		// Collect 2 (first collect time + 2 minutes)
+		monitor.getParameters().values().forEach(IParameterValue::reset);
+
+		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
+
+		assertEquals(60D, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7200.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(7200.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+
+		// Collect 3  (first collect time + 4 minutes)
+		monitor.getParameters().values().forEach(IParameterValue::reset);
+
+		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
+
+		assertEquals(64, monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class).getValue()); // Watts
+		assertEquals(7680.0,monitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class).getValue()); // Joules
+		assertEquals(14880.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
+	}
+
 }

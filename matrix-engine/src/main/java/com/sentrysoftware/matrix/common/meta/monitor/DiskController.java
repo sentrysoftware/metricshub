@@ -27,8 +27,11 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
@@ -83,6 +86,9 @@ public class DiskController implements IMetaMonitor {
 		map.put(PRESENT_PARAMETER, PRESENT);
 		map.put(BATTERY_STATUS_PARAMETER, BATTERY_STATUS);
 		map.put(CONTROLLER_STATUS_PARAMETER, CONTROLLER_STATUS);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

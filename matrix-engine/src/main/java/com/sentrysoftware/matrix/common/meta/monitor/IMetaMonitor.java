@@ -12,10 +12,14 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -52,18 +56,32 @@ public interface IMetaMonitor {
 			.build();
 
 	MetaParameter ENERGY = MetaParameter.builder()
-		.basicCollect(true)
+		.basicCollect(false)
 		.name(ENERGY_PARAMETER)
 		.unit(ENERGY_PARAMETER_UNIT)
 		.type(ParameterType.NUMBER)
 		.build();
 
 	MetaParameter HEATING_MARGIN = MetaParameter.builder()
-		.basicCollect(true)
+		.basicCollect(false)
 		.name(HEATING_MARGIN_PARAMETER)
 		.unit(HEATING_MARGIN_PARAMETER_UNIT)
 		.type(ParameterType.NUMBER)
 		.build();
+
+	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(ENERGY_USAGE_PARAMETER)
+			.unit(ENERGY_USAGE_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
+			.basicCollect(false)
+			.name(POWER_CONSUMPTION_PARAMETER)
+			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
+			.type(ParameterType.NUMBER)
+			.build();
 
 	void accept(IMonitorVisitor monitorVisitor);
 
