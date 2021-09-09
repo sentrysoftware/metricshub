@@ -253,12 +253,17 @@ public class HardwareConstants {
 	public static final String BLINKING_STATUS = "blinkingStatus";
 	public static final String POWER_CONSUMPTION = "powerConsumption";
 	public static final String IDENTIFYING_INFORMATION = "identifyingInformation";
+	public static final String POWER_SOURCE_ID = "powerSourceId";
+	public static final String POWER_SHARE = "powerShare";
+	public static final String DOMAIN = "domain";
+	public static final String IP_ADDRESS = "ipAddress";
 
 	/////////////////////
 	//                 //
 	// PARAMETER UNITS //
 	//                 //
 	/////////////////////
+
 	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
 	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
 	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";

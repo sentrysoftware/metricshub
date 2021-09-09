@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -336,6 +337,17 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, robotics, parametersToSkip);
+	}
+
+	@Override
+	public void visit(Vm vm) {
+
+		if (monitor == null) {
+			return;
+		}
+
+		// Process the static alert rules
+		processStaticAlertRules(monitor, vm);
 	}
 
 	/**

@@ -69,14 +69,14 @@ public interface IMetaMonitor {
 		.type(ParameterType.NUMBER)
 		.build();
 
-	public static final MetaParameter ENERGY_USAGE = MetaParameter.builder()
+	MetaParameter ENERGY_USAGE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ENERGY_USAGE_PARAMETER)
 			.unit(ENERGY_USAGE_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
-	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
+	MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
 			.basicCollect(false)
 			.name(POWER_CONSUMPTION_PARAMETER)
 			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)

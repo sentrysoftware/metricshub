@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 
 import java.util.Collections;
@@ -37,6 +38,7 @@ public class CollectHelper {
 	private static final String UNKNOWN_STATUS_LOG_MSG = "For host {}, unexpected status value for instance {}. {} = {}";
 
 	private static final Map<String, ParameterState> PREDICTED_FAILURE_MAP;
+	private static final Map<String, ParameterState> POWER_STATE_MAP;
 	private static final Map<String, ParameterState> STATUS_MAP;
 	private static final List<String> MAYBE_NEGATIVE_PARAMETERS;
 
@@ -58,6 +60,12 @@ public class CollectHelper {
 		predictedFailureMap.put("0", ParameterState.OK);
 
 		PREDICTED_FAILURE_MAP = Collections.unmodifiableMap(predictedFailureMap);
+
+		final Map<String, ParameterState> powerStateMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		powerStateMap.put("ON", ParameterState.OK);
+		powerStateMap.put("OFF", ParameterState.ALARM);
+
+		POWER_STATE_MAP = Collections.unmodifiableMap(powerStateMap);
 
 		// Update this list when you collect a parameter accepting a negative value
 		MAYBE_NEGATIVE_PARAMETERS = Collections.unmodifiableList(Collections.emptyList());
@@ -85,14 +93,16 @@ public class CollectHelper {
 		// Get the parameter state from our PREDICTED_FAILURE_MAP
 		if (PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
 			parameterState = PREDICTED_FAILURE_MAP.get(status.trim());
+		} else if (POWER_STATE_PARAMETER.equalsIgnoreCase(parameterName)) {
+			parameterState = POWER_STATE_MAP.get(status.trim());
 		} else {
 			// Get the parameter state from our STATUS_MAP
 			parameterState = STATUS_MAP.get(status.trim());
 		}
 
-
 		// Means it is an unknown status
 		if (parameterState == null && unknownStatus.isPresent()) {
+
 			switch(unknownStatus.get()) {
 			case OK:
 				log.debug(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.OK);
@@ -105,11 +115,9 @@ public class CollectHelper {
 				log.error(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.ALARM);
 				return unknownStatus.get();
 			}
-
 		}
 
 		return parameterState;
-
 	}
 
 	/**
