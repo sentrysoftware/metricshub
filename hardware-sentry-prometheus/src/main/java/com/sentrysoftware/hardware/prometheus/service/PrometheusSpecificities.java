@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,8 +53,8 @@ public class PrometheusSpecificities {
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
 	private static final String RATIO = "ratio";
 	private static final String CELSIUS = "celsius";
-	private static final String CAMEL_CASE_REGEX = "([a-z])([A-Z]+)";
-	private static final String INSERT_UNDERSCORE = "$1_$2";
+
+	private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z]+)");
 
 	private static Map<MonitorType, List<String>> metricInfoLabels;
 
@@ -879,8 +880,9 @@ public class PrometheusSpecificities {
 	 */
 	private static String camelCaseToSnakeCase(String camelCase) {
 
-		return camelCase
-			.replaceAll(CAMEL_CASE_REGEX, INSERT_UNDERSCORE)
+		return CAMEL_CASE_PATTERN
+			.matcher(camelCase)
+			.replaceAll("$1_$2")
 			.toLowerCase();
 	}
 

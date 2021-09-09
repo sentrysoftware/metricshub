@@ -43,13 +43,47 @@ public class HardwareConstants {
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String EQUAL = "=";
 
-	////////////////////////////////////////////////////////////////////////////
-	//                                                                        //
-	//                            PARAMETER NAMES                             //
-	//                                                                        //
-	// /!\ Please note: parameter names should be written using camelCase /!\ //
-	//                                                                        //
-	////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+	//                                                                           //
+	//                              PARAMETER NAMES                              //
+	//                                                                           //
+	//                                 .i;;;;i.                                  //
+	//                               iYcviii;vXY:                                //
+	//                             .YXi       .i1c.                              //
+	//                            .YC.     .    in7.                             //
+	//                           .vc.   ......   ;1c.                            //
+	//                           i7,   ..        .;1.                            //
+	//                          i7,   .. ...      .Y1i                           //
+	//                         ,7v     .6MMM@;     .YX,                          //
+	//                        .7;.   ..IMMMMMM1     :t7.                         //
+	//                       .;Y.     ;$MMMMMM9.     :tc.                        //
+	//                       vY.   .. .nMMM@MMU.      ;1v.                       //
+	//                      i7i   ...  .#MM@M@C. .....:71i                       //
+	//                     it:   ....   $MMM@9;.,i;;;i,;tti                      //
+	//                    :t7.  .....   0MMMWv.,iii:::,,;St.                     //
+	//                   .nC.   .....   IMMMQ..,::::::,.,czX.                    //
+	//                  .ct:   ....... .ZMMMI..,:::::::,,:76Y.                   //
+	//                  c2:   ......,i..Y$M@t..:::::::,,..inZY                   //
+	//                 vov   ......:ii..c$MBc..,,,,,,,,,,..iI9i                  //
+	//                i9Y   ......iii:..7@MA,..,,,,,,,,,....;AA:                 //
+	//               iIS.  ......:ii::..;@MI....,............;Ez.                //
+	//              .I9.  ......:i::::...8M1..................C0z.               //
+	//             .z9;  ......:i::::,.. .i:...................zWX.              //
+	//             vbv  ......,i::::,,.      ................. :AQY              //
+	//            c6Y.  .,...,::::,,..:t0@@QY. ................ :8bi             //
+	//           :6S. ..,,...,:::,,,..EMMMMMMI. ............... .;bZ,            //
+	//          :6o,  .,,,,..:::,,,..i#MMMMMM#v.................  YW2.           //
+	//         .n8i ..,,,,,,,::,,,,.. tMMMMM@C:.................. .1Wn           //
+	//         7Uc. .:::,,,,,::,,,,..   i1t;,..................... .UEi          //
+	//         7C...::::::::::::,,,,..        ....................  vSi.         //
+	//         ;1;...,,::::::,.........       ..................    Yz:          //
+	//          v97,.........                                     .voC.          //
+	//           izAotX7777777777777777777777777777777777777777Y7n92:            //
+	//             .;CoIIIIIUAA666666699999ZZZZZZZZZZZZZZZZZZZZ6ov.              //
+	//                                                                           //
+	//       PLEASE NOTE: parameter names MUST be written using camelCase        //
+	//                                                                           //
+	///////////////////////////////////////////////////////////////////////////////
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
 	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
@@ -108,13 +142,47 @@ public class HardwareConstants {
 	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                            METADATA NAMES                             //
-	//                                                                       //
-	// /!\ Please note: metadata names should be written using camelCase /!\ //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+	//                                                                           //
+	//                              METADATA NAMES                               //
+	//                                                                           //
+	//                                 .i;;;;i.                                  //
+	//                               iYcviii;vXY:                                //
+	//                             .YXi       .i1c.                              //
+	//                            .YC.     .    in7.                             //
+	//                           .vc.   ......   ;1c.                            //
+	//                           i7,   ..        .;1.                            //
+	//                          i7,   .. ...      .Y1i                           //
+	//                         ,7v     .6MMM@;     .YX,                          //
+	//                        .7;.   ..IMMMMMM1     :t7.                         //
+	//                       .;Y.     ;$MMMMMM9.     :tc.                        //
+	//                       vY.   .. .nMMM@MMU.      ;1v.                       //
+	//                      i7i   ...  .#MM@M@C. .....:71i                       //
+	//                     it:   ....   $MMM@9;.,i;;;i,;tti                      //
+	//                    :t7.  .....   0MMMWv.,iii:::,,;St.                     //
+	//                   .nC.   .....   IMMMQ..,::::::,.,czX.                    //
+	//                  .ct:   ....... .ZMMMI..,:::::::,,:76Y.                   //
+	//                  c2:   ......,i..Y$M@t..:::::::,,..inZY                   //
+	//                 vov   ......:ii..c$MBc..,,,,,,,,,,..iI9i                  //
+	//                i9Y   ......iii:..7@MA,..,,,,,,,,,....;AA:                 //
+	//               iIS.  ......:ii::..;@MI....,............;Ez.                //
+	//              .I9.  ......:i::::...8M1..................C0z.               //
+	//             .z9;  ......:i::::,.. .i:...................zWX.              //
+	//             vbv  ......,i::::,,.      ................. :AQY              //
+	//            c6Y.  .,...,::::,,..:t0@@QY. ................ :8bi             //
+	//           :6S. ..,,...,:::,,,..EMMMMMMI. ............... .;bZ,            //
+	//          :6o,  .,,,,..:::,,,..i#MMMMMM#v.................  YW2.           //
+	//         .n8i ..,,,,,,,::,,,,.. tMMMMM@C:.................. .1Wn           //
+	//         7Uc. .:::,,,,,::,,,,..   i1t;,..................... .UEi          //
+	//         7C...::::::::::::,,,,..        ....................  vSi.         //
+	//         ;1;...,,::::::,.........       ..................    Yz:          //
+	//          v97,.........                                     .voC.          //
+	//           izAotX7777777777777777777777777777777777777777Y7n92:            //
+	//             .;CoIIIIIUAA666666699999ZZZZZZZZZZZZZZZZZZZZ6ov.              //
+	//                                                                           //
+	//        PLEASE NOTE: metadata names MUST be written using camelCase        //
+	//                                                                           //
+	///////////////////////////////////////////////////////////////////////////////
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
