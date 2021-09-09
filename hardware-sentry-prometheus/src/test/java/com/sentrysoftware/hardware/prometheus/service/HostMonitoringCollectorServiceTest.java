@@ -629,7 +629,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCheckcheckMetadata() {
+	void testCheckMetadata() {
 		{
 
 			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -653,6 +653,44 @@ class HostMonitoringCollectorServiceTest {
 		}
 		{
 			assertFalse(HostMonitoringCollectorService.checkMetadata(null, MAXIMUM_SPEED));
+		}
+	}
+
+	@Test
+	void testConvertMetadataInfoValue() {
+		{
+
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put("maximumspeed", "4");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadata).monitorType(MonitorType.CPU).build();
+			assertEquals(Double.toString(4*1000000.0), HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, ""));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, null));
+
+			final Map<String, String> cpuMetadataEmpty = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadataEmpty.put("maximumspeed", "");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitorCpu = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadataEmpty).monitorType(MonitorType.CPU).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitorCpu, MAXIMUM_SPEED));
+
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(null).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+		{
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(null, MAXIMUM_SPEED));
 		}
 	}
 

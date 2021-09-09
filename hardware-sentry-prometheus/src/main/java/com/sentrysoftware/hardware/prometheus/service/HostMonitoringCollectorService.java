@@ -224,11 +224,35 @@ public class HostMonitoringCollectorService extends Collector {
 			} else if (FQDN.equals(label)) {
 				labelValues.add(monitor.getFqdn());
 			} else {
-				labelValues.add(getValueOrElse(monitor.getMetadata(label), HardwareConstants.EMPTY));
+				labelValues.add(convertMetadataInfoValue(monitor, label));
 			}
 		}
 
 		gauge.addMetric(labelValues, 1);
+	}
+
+	/**
+	 * Check if the metadata value stored in metric_info needs to be converted
+	 * @param monitor
+	 * @param label
+	 * @return
+	 */
+	static String convertMetadataInfoValue(final Monitor monitor, String label) {
+		if (label == null || label.isEmpty() || monitor == null || monitor.getMetadata() == null) {
+			return HardwareConstants.EMPTY;
+		}
+		// check if its value needs to be converted
+		String metricValue = getValueOrElse(monitor.getMetadata(label), HardwareConstants.EMPTY);
+		// check if there is a prometheus metadata specificity in order to get the factor
+		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
+				.getPrometheusMetadataToParameters(monitor.getMonitorType(), label);
+
+		if (maybePrometheusParameter.isPresent() && !metricValue.isEmpty()) {
+			// Ok, now we can get the prometheus parameter related to the given metadata
+			final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
+			metricValue = convertMetadataValue(monitor, label, prometheusParameter.getFactor()).toString() ;
+		}
+		return metricValue;
 	}
 
 	/**
