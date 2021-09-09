@@ -1,16 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -44,8 +33,17 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -196,7 +194,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Led led) {
+
 		collectBasicParameters(led);
+		collectLedColor();
+		collectLedStatus();
 
 		appendValuesToStatusParameter(
 				HardwareConstants.COLOR_PARAMETER,
@@ -805,7 +806,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectErrorCount() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
-		Double errorCount = null;
+		double errorCount;
 
 		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
 			HardwareConstants.ERROR_COUNT_PARAMETER);
@@ -882,8 +883,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * Collects the incremental parameters, namely 
 	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
 	 * 
-	 * @param parameterName The name of the count parameter, like mountCount
-	 * @param parameterName The unit of the count parameter, like mounts
+	 * @param countParameter		The name of the count parameter, like mountCount
+	 * @param countParameterUnit	The unit of the count parameter, like mounts
 	 */
 	void collectIncrementCount(final String countParameter, final String countParameterUnit) {
 
@@ -924,7 +925,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			final Double powerSupplyUsedWatts = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_SUPPLY_USED_WATTS);
 			
-			// Getting the the power
+			// Getting the power
 			final Double power = extractParameterValue(monitor.getMonitorType(),
 				HardwareConstants.POWER_SUPPLY_POWER);
 
@@ -1291,7 +1292,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		// Approximately 5 Watt for standard fan
-		Double powerConsumption = 5.0;
+		double powerConsumption = 5.0;
 
 		final Double fanSpeed = extractParameterValue(monitor.getMonitorType(),
 			HardwareConstants.SPEED_PARAMETER);
@@ -1334,6 +1335,99 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				rawEnduranceRemaining,
 				rawEnduranceRemaining
 			);
+		}
+	}
+
+	/**
+	 * Collects the color status for a {@link Led}.
+	 */
+	void collectLedColor() {
+
+		// Getting the raw color from the current row
+		final String colorRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
+			HardwareConstants.COLOR_PARAMETER,
+			MonitorType.LED,
+			monitorCollectInfo.getRow(),
+			monitorCollectInfo.getMapping().get(HardwareConstants.COLOR_PARAMETER));
+
+		if (colorRaw != null) {
+
+			final Monitor monitor = monitorCollectInfo.getMonitor();
+
+			// Getting the color status
+			Map<String, String> metadata = monitor.getMetadata();
+			String warningOnColor = metadata.get(HardwareConstants.WARNING_ON_COLOR);
+			String alarmOnColor = metadata.get(HardwareConstants.ALARM_ON_COLOR);
+
+			String colorStatus;
+			if (warningOnColor != null && warningOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
+				colorStatus = "1";
+			} else if (alarmOnColor != null && alarmOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
+				colorStatus = "2";
+			} else {
+				colorStatus = "0";
+			}
+
+			// Translating the color status
+			ParameterState colorState = CollectHelper.translateStatus(colorStatus,
+				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
+				HardwareConstants.COLOR_PARAMETER);
+
+			// colorState is never null here
+			CollectHelper.updateStatusParameter(monitor,
+				HardwareConstants.COLOR_PARAMETER,
+				HardwareConstants.STATUS_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				colorState,
+				colorState.name());
+		}
+	}
+
+	/**
+	 * Collects the status for a {@link Led}.
+	 */
+	void collectLedStatus() {
+
+		// Getting the raw status from the current row
+		final String statusRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
+			HardwareConstants.STATUS_PARAMETER,
+			MonitorType.LED,
+			monitorCollectInfo.getRow(),
+			monitorCollectInfo.getMapping().get(HardwareConstants.STATUS_PARAMETER));
+
+		if (statusRaw != null) {
+
+			final Monitor monitor = monitorCollectInfo.getMonitor();
+
+			// Translating the status
+			Map<String, String> metadata = monitor.getMetadata();
+
+			String preTranslatedStatus;
+			switch (statusRaw.toUpperCase()) {
+				case "ON":
+					preTranslatedStatus = metadata.get(HardwareConstants.ON_STATUS);
+					break;
+				case "BLINKING":
+					preTranslatedStatus = metadata.get(HardwareConstants.BLINKING_STATUS);
+					break;
+				case "OFF":
+				default:
+					preTranslatedStatus = metadata.get(HardwareConstants.OFF_STATUS);
+			}
+
+			ParameterState translatedStatus = CollectHelper.translateStatus(preTranslatedStatus,
+				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
+				HardwareConstants.STATUS_PARAMETER);
+
+			if (translatedStatus != null) {
+
+				CollectHelper.updateStatusParameter(monitor,
+					HardwareConstants.STATUS_PARAMETER,
+					HardwareConstants.STATUS_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					translatedStatus,
+					translatedStatus.name());
+			}
 		}
 	}
 }

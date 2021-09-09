@@ -253,6 +253,11 @@ public class HardwareConstants {
 	public static final String LOGICAL_DISK_LAST_ERROR = "logicalDiskLastError";
 	public static final String IS_CPU_SENSOR = "isCpuSensor";
 	public static final String AVERAGE_CPU_TEMPERATURE_WARNING = "averageCpuTemperatureWarning";
+	public static final String WARNING_ON_COLOR = "warningOnColor";
+	public static final String ALARM_ON_COLOR = "alarmOnColor";
+	public static final String ON_STATUS = "onStatus";
+	public static final String OFF_STATUS = "offStatus";
+	public static final String BLINKING_STATUS = "blinkingStatus";
 	public static final String POWER_CONSUMPTION = "powerConsumption";
 
 	/////////////////////

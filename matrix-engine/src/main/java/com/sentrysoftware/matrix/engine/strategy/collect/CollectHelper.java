@@ -42,9 +42,6 @@ public class CollectHelper {
 		map.put("0", ParameterState.OK);
 		map.put("1", ParameterState.WARN);
 		map.put("2", ParameterState.ALARM);
-		map.put("OFF", ParameterState.OK);
-		map.put("BLINKING", ParameterState.WARN);
-		map.put("ON", ParameterState.ALARM);
 
 		STATUS_MAP = Collections.unmodifiableMap(map);
 
@@ -63,7 +60,7 @@ public class CollectHelper {
 	/**
 	 * Translate the status String value to a {@link ParameterState}
 	 *
-	 * @param status         Status value in String format (OK, WARN, ALARM, 0, 1, 2, ON, OFF, BLINKING)
+	 * @param status         Status value in String format (OK, WARN, ALARM, 0, 1, 2)
 	 * @param unknownStatus  Unknown status used when we are not able to translate the collected status
 	 * @param monitorId      Current collected monitor identifier
 	 * @param hostname       Current hostname
