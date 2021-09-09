@@ -12,7 +12,6 @@ import java.util.function.Function;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -47,6 +46,9 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
@@ -69,6 +71,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOGICAL_DISK_LAST_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MEMORY_LAST_ERROR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
@@ -93,6 +96,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTIN
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
@@ -1039,8 +1043,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (temperatureValue != null && temperatureValue >= -100 && temperatureValue <= 200) {
 			CollectHelper.updateNumberParameter(
 				monitor,
-				HardwareConstants.TEMPERATURE_PARAMETER,
-				HardwareConstants.TEMPERATURE_PARAMETER_UNIT,
+				TEMPERATURE_PARAMETER,
+				TEMPERATURE_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				temperatureValue,
 				temperatureValue
@@ -1086,13 +1090,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final String lowerCaseName = monitor.getName().toLowerCase();
 
 		// Link status
-		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, HardwareConstants.LINK_STATUS_PARAMETER);
+		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, LINK_STATUS_PARAMETER);
 
 		// Link speed
-		final Double linkSpeed = CollectHelper.getNumberParamValue(monitor, HardwareConstants.LINK_SPEED_PARAMETER);
+		final Double linkSpeed = CollectHelper.getNumberParamValue(monitor, LINK_SPEED_PARAMETER);
 
 		// Bandwidth utilization
-		final Double bandwidthUtilization = CollectHelper.getNumberParamValue(monitor, HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER);
+		final Double bandwidthUtilization = CollectHelper.getNumberParamValue(monitor, BANDWIDTH_UTILIZATION_PARAMETER);
 
 		final double powerConsumption;
 
@@ -1146,10 +1150,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Physical disk characteristics
 		final List<String> dataList = new ArrayList<>();
 		dataList.add(monitor.getName());
-		dataList.add(monitor.getMetadata(HardwareConstants.MODEL));
-		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION1));
-		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION2));
-		dataList.add(monitor.getMetadata(HardwareConstants.ADDITIONAL_INFORMATION3));
+		dataList.add(monitor.getMetadata(MODEL));
+		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
+		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
+		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
 
 		final Monitor parent = monitorCollectInfo.getHostMonitoring().findById(monitor.getParentId());
 		if (parent != null) {
@@ -1275,7 +1279,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void estimateRoboticPowerConsumption() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		final Double moveCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.MOVE_COUNT_PARAMETER);
+		final Double moveCount = CollectHelper.getNumberParamValue(monitor, MOVE_COUNT_PARAMETER);
 
 		final double powerConsumption;
 		if (moveCount != null && moveCount > 0.0) {
@@ -1298,10 +1302,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void estimateTapeDrivePowerConsumption() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		Double mountCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.MOUNT_COUNT_PARAMETER);
+		Double mountCount = CollectHelper.getNumberParamValue(monitor, MOUNT_COUNT_PARAMETER);
 		mountCount = mountCount != null ? mountCount : 0.0;
 
-		Double unmountCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.UNMOUNT_COUNT_PARAMETER);
+		Double unmountCount = CollectHelper.getNumberParamValue(monitor, UNMOUNT_COUNT_PARAMETER);
 		unmountCount = unmountCount != null ? unmountCount : 0.0;
 
 		final boolean active = mountCount + unmountCount > 0;

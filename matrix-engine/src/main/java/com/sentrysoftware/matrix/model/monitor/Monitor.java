@@ -232,7 +232,7 @@ public class Monitor {
 			return false;
 		}
 
-		final PresentParam presentParam = getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		final PresentParam presentParam = getParameter(PRESENT_PARAMETER, PresentParam.class);
 		final Integer present = presentParam != null ? presentParam.getPresent() : null;
 
 		return present != null && present == 0;
