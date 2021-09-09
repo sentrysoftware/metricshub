@@ -47,10 +47,12 @@ import java.util.function.Function;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BATTERY_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
@@ -76,6 +78,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_CO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEEDS_CLEANING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ON_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OFF_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
@@ -93,6 +97,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
@@ -109,6 +114,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 
 @Slf4j
@@ -1403,10 +1409,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Getting the raw color from the current row
 		final String colorRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
-			HardwareConstants.COLOR_PARAMETER,
+			COLOR_PARAMETER,
 			MonitorType.LED,
 			monitorCollectInfo.getRow(),
-			monitorCollectInfo.getMapping().get(HardwareConstants.COLOR_PARAMETER));
+			monitorCollectInfo.getMapping().get(COLOR_PARAMETER));
 
 		if (colorRaw != null) {
 
@@ -1414,8 +1420,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			// Getting the color status
 			Map<String, String> metadata = monitor.getMetadata();
-			String warningOnColor = metadata.get(HardwareConstants.WARNING_ON_COLOR);
-			String alarmOnColor = metadata.get(HardwareConstants.ALARM_ON_COLOR);
+			String warningOnColor = metadata.get(WARNING_ON_COLOR);
+			String alarmOnColor = metadata.get(ALARM_ON_COLOR);
 
 			String colorStatus;
 			if (warningOnColor != null && warningOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
@@ -1429,12 +1435,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			// Translating the color status
 			ParameterState colorState = CollectHelper.translateStatus(colorStatus,
 				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
-				HardwareConstants.COLOR_PARAMETER);
+				COLOR_PARAMETER);
 
 			// colorState is never null here
 			CollectHelper.updateStatusParameter(monitor,
-				HardwareConstants.COLOR_PARAMETER,
-				HardwareConstants.STATUS_PARAMETER_UNIT,
+				COLOR_PARAMETER,
+				STATUS_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
 				colorState,
 				colorState.name());
@@ -1448,10 +1454,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Getting the raw status from the current row
 		final String statusRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
-			HardwareConstants.STATUS_PARAMETER,
+			STATUS_PARAMETER,
 			MonitorType.LED,
 			monitorCollectInfo.getRow(),
-			monitorCollectInfo.getMapping().get(HardwareConstants.STATUS_PARAMETER));
+			monitorCollectInfo.getMapping().get(STATUS_PARAMETER));
 
 		if (statusRaw != null) {
 
@@ -1463,25 +1469,25 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			String preTranslatedStatus;
 			switch (statusRaw.toUpperCase()) {
 				case "ON":
-					preTranslatedStatus = metadata.get(HardwareConstants.ON_STATUS);
+					preTranslatedStatus = metadata.get(ON_STATUS);
 					break;
 				case "BLINKING":
-					preTranslatedStatus = metadata.get(HardwareConstants.BLINKING_STATUS);
+					preTranslatedStatus = metadata.get(BLINKING_STATUS);
 					break;
 				case "OFF":
 				default:
-					preTranslatedStatus = metadata.get(HardwareConstants.OFF_STATUS);
+					preTranslatedStatus = metadata.get(OFF_STATUS);
 			}
 
 			ParameterState translatedStatus = CollectHelper.translateStatus(preTranslatedStatus,
 				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
-				HardwareConstants.STATUS_PARAMETER);
+				STATUS_PARAMETER);
 
 			if (translatedStatus != null) {
 
 				CollectHelper.updateStatusParameter(monitor,
-					HardwareConstants.STATUS_PARAMETER,
-					HardwareConstants.STATUS_PARAMETER_UNIT,
+					STATUS_PARAMETER,
+					STATUS_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
 					translatedStatus,
 					translatedStatus.name());
