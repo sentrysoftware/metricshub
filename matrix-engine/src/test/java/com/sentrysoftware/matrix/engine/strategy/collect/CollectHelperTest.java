@@ -77,24 +77,6 @@ class CollectHelperTest {
 				HOST_NAME,
 				HardwareConstants.STATUS_PARAMETER));
 
-		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("ON",
-				UNKNOWN_STATUS_WARN,
-				ID,
-				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
-
-		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("BLINKING",
-				UNKNOWN_STATUS_WARN,
-				ID,
-				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
-
-		assertEquals(ParameterState.OK, CollectHelper.translateStatus("OFF",
-				UNKNOWN_STATUS_WARN,
-				ID,
-				HOST_NAME,
-				HardwareConstants.STATUS_PARAMETER));
-
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
 				UNKNOWN_STATUS_WARN,
 				ID,

@@ -140,6 +140,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Led led) {
+
 		final Monitor monitor = createMonitor(MonitorNameBuilder.buildLedName(monitorBuildingInfo), null);
 
 		led.accept(new MonitorAlertRulesVisitor(monitor));

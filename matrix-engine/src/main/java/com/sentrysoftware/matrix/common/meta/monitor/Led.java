@@ -30,11 +30,18 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 public class Led implements IMetaMonitor {
 
 	public static final MetaParameter COLOR = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.COLOR_PARAMETER)
 			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
+
+	public static final MetaParameter STATUS = MetaParameter.builder()
+		.basicCollect(false)
+		.name(HardwareConstants.STATUS_PARAMETER)
+		.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+		.type(ParameterType.STATUS)
+		.build();
 
 	public static final MetaParameter LED_INDICATOR = MetaParameter.builder()
 			.basicCollect(true)
@@ -44,7 +51,7 @@ public class Led implements IMetaMonitor {
 			.build();
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, HardwareConstants.STATUS_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusWarnCondition(monitor, HardwareConstants.STATUS_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(
@@ -53,7 +60,7 @@ public class Led implements IMetaMonitor {
 			ParameterState.ALARM);
 
 	public static final AlertRule COLOR_WARN_ALERT_RULE = new AlertRule(
-			(monitor, conditions) -> checkStatusAlarmCondition(monitor, HardwareConstants.COLOR_PARAMETER, conditions),
+			(monitor, conditions) -> checkStatusWarnCondition(monitor, HardwareConstants.COLOR_PARAMETER, conditions),
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule COLOR_ALARM_ALERT_RULE = new AlertRule(
@@ -78,7 +85,7 @@ public class Led implements IMetaMonitor {
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
+		alertRulesMap.put(HardwareConstants.COLOR_PARAMETER, List.of(COLOR_WARN_ALERT_RULE, COLOR_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
