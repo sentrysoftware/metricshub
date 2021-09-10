@@ -14,9 +14,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
@@ -56,7 +56,7 @@ class EngineServiceTest {
 	@Test
 	void getSnmpCredentialsTest() {
 
-		SnmpCredentials snmpCred = new SnmpCredentials();
+		SnmpConfig snmpCred = new SnmpConfig();
 		snmpCred.setCommunity("comm1");
 		snmpCred.setPassword("pwd1".toCharArray());
 		snmpCred.setPort(110);
@@ -87,8 +87,8 @@ class EngineServiceTest {
 		assertThrows(IllegalArgumentException.class, () -> engineService.getHttpProtocol(null));
 
 		// httpCredentials is not null, password is null
-		HttpCredentials httpCredentials = new HttpCredentials();
-		HTTPProtocol httpProtocol = engineService.getHttpProtocol(httpCredentials);
+		HttpConfig httpConfig = new HttpConfig();
+		HTTPProtocol httpProtocol = engineService.getHttpProtocol(httpConfig);
 		assertNotNull(httpProtocol);
 		assertTrue(httpProtocol.getHttps());
 		assertEquals(0, httpProtocol.getPort());
@@ -98,8 +98,8 @@ class EngineServiceTest {
 
 		// httpCredentials is not null, password is not null
 		char[] password = "password".toCharArray();
-		httpCredentials.setPassword(password);
-		httpProtocol = engineService.getHttpProtocol(httpCredentials);
+		httpConfig.setPassword(password);
+		httpProtocol = engineService.getHttpProtocol(httpConfig);
 		assertNotNull(httpProtocol);
 		assertTrue(httpProtocol.getHttps());
 		assertEquals(0, httpProtocol.getPort());
@@ -110,13 +110,13 @@ class EngineServiceTest {
 
 	@Test
 	void testGetIpmiProtocol() {
-		IpmiCredentials ipmiCredentials = new IpmiCredentials();
-		assertNotNull(engineService.getIpmiOverLanProtocol(ipmiCredentials));
+		IpmiConfig ipmiConfig = new IpmiConfig();
+		assertNotNull(engineService.getIpmiOverLanProtocol(ipmiConfig));
 
-		ipmiCredentials.setBmcKey("key");
-		ipmiCredentials.setPassword("password".toCharArray());
-		ipmiCredentials.setUsername("username");
-		ipmiCredentials.setTimeout(120L);
+		ipmiConfig.setBmcKey("key");
+		ipmiConfig.setPassword("password".toCharArray());
+		ipmiConfig.setUsername("username");
+		ipmiConfig.setTimeout(120L);
 
 		assertEquals(IPMIOverLanProtocol.builder()
 				.bmcKey("key".getBytes())
@@ -124,6 +124,6 @@ class EngineServiceTest {
 				.username("username")
 				.skipAuth(false)
 				.timeout(120L)
-				.build(), engineService.getIpmiOverLanProtocol(ipmiCredentials));
+				.build(), engineService.getIpmiOverLanProtocol(ipmiConfig));
 	}
 }

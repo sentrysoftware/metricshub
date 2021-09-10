@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,14 +70,14 @@ public class WqlDetectionHelper {
 					"root\\ServiceModel",
 					"root\\nap");
 
-	private static final List<WqlQuery> WBEM_INTEROP_QUERIES = Collections.unmodifiableList(Arrays.asList(
+	private static final List<WqlQuery> WBEM_INTEROP_QUERIES = List.of(
 			new WqlQuery("SELECT Name FROM __NAMESPACE", "root"),
 			new WqlQuery("SELECT Name from CIM_Namespace", "Interop"),
 			new WqlQuery("SELECT Name from CIM_Namespace", "PG_Interop"),
 			new WqlQuery("SELECT Name from CIM_Namespace", "root/Interop"),
 			new WqlQuery("SELECT Name from CIM_Namespace", "root/PG_Interop"),
 			new WqlQuery("SELECT Name from CIM_Namespace", "interop")
-	));
+	);
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
@@ -127,7 +126,7 @@ public class WqlDetectionHelper {
 				.map(namespace -> "root/" + namespace)
 				.forEach(namespace -> possibleWbemNamespaces.add(namespace));
 
-			} catch (final Exception e) {
+			} catch (final MatsyaException e) {
 
 				// If the CIM server doesn't know the requested class, we will get a WBEM exception
 				// saying so. Such exceptions are okay and will not fail the detection.
@@ -135,8 +134,9 @@ public class WqlDetectionHelper {
 				// nor "invalid class", nor "not found".
 
 				boolean giveUp = true;
-				if (e instanceof WBEMException) {
-					final int cimErrorType = ((WBEMException) e).getID();
+				Throwable cause = e.getCause();
+				if (cause != null && cause instanceof WBEMException) {
+					final int cimErrorType = ((WBEMException) cause).getID();
 					giveUp =
 							cimErrorType != WBEMException.CIM_ERR_INVALID_NAMESPACE
 							&& cimErrorType != WBEMException.CIM_ERR_INVALID_CLASS
@@ -150,8 +150,8 @@ public class WqlDetectionHelper {
 					String message = String.format(
 							"%s does not respond to WBEM requests. %s: %s\nCancelling namespace detection.",
 							hostname,
-							e.getClass().getSimpleName(),
-							e.getMessage()
+							cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
+							cause != null ? cause.getMessage() : e.getMessage()
 					);
 
 					log.debug(message);
@@ -226,15 +226,16 @@ public class WqlDetectionHelper {
 			.map(namespace -> "root/" + namespace)
 			.forEach(namespace -> possibleWmiNamespaces.add(namespace));
 
-		} catch (final Exception e) {
+		} catch (final MatsyaException e) {
 
-			// This error indicates that the CIM server will probably never respond to anything
-			// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
+			// Get the cause in the exception
+			Throwable cause = e.getCause();
+
 			String message = String.format(
 					"%s does not respond to WMI requests. %s: %s\nCancelling namespace detection.",
 					hostname,
-					e.getClass().getSimpleName(),
-					e.getMessage()
+					cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
+					cause != null ? cause.getMessage() : e.getMessage()
 			);
 
 			log.debug(message);

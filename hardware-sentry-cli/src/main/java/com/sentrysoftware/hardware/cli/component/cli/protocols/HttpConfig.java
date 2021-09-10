@@ -5,7 +5,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @Data
-public class HttpCredentials {
+public class HttpConfig {
 
 	@ArgGroup(
 			exclusive = true,

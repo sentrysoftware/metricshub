@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.target.TargetType;
@@ -32,18 +32,18 @@ class HardwareSentryCliTest {
 				"--snmp-port", "200",
 				"--snmp-community", "private",
 				"--snmp-timeout", "60",
-				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+				"-hdf", "hdfs1,hdfs2,hdfs3" };
 		HardwareSentryCli sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
-		assertEquals(200, sentryCli.getSnmpCredentials().getPort());
-		assertEquals("private", sentryCli.getSnmpCredentials().getCommunity());
-		assertEquals(60, sentryCli.getSnmpCredentials().getTimeout());
-		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
-		assertNull(sentryCli.getHdfsExclusion());
+		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpConfig().getSnmpVersion());
+		assertEquals(200, sentryCli.getSnmpConfig().getPort());
+		assertEquals("private", sentryCli.getSnmpConfig().getCommunity());
+		assertEquals(60, sentryCli.getSnmpConfig().getTimeout());
+		assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		assertNull(sentryCli.getExcludedConnectors());
 
 
 		String[] args_exclud_hdfs = { "-host", "hosta",
@@ -52,38 +52,38 @@ class HardwareSentryCliTest {
 				"--snmp-port", "200",
 				"--snmp-community", "private",
 				"--snmp-timeout", "60",
-				"-hdfsExcluded", "hdfs1,hdfs2" };
+				"-exclude", "hdfs1,hdfs2" };
 
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_exclud_hdfs);
 		assertEquals("hosta", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpCredentials().getSnmpVersion());
-		assertEquals(200, sentryCli.getSnmpCredentials().getPort());
-		assertEquals("private", sentryCli.getSnmpCredentials().getCommunity());
-		assertEquals(60, sentryCli.getSnmpCredentials().getTimeout());
-		assertEquals(sentryCli.getHdfsExclusion(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2")));
-		assertNull(sentryCli.getHdfs());
+		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpConfig().getSnmpVersion());
+		assertEquals(200, sentryCli.getSnmpConfig().getPort());
+		assertEquals("private", sentryCli.getSnmpConfig().getCommunity());
+		assertEquals(60, sentryCli.getSnmpConfig().getTimeout());
+		assertEquals(sentryCli.getExcludedConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2")));
+		assertNull(sentryCli.getConnectors());
 
 		String[] args_default_snmp = { "-host", "hostaa",
 				"-dt", "HP_UX",
 				"--snmp", "1",
-				"-hdfs", "hdfs1,hdfs2" };
+				"-hdf", "hdfs1,hdfs2" };
 
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_default_snmp);
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V1, sentryCli.getSnmpCredentials().getSnmpVersion());
-		assertEquals(161, sentryCli.getSnmpCredentials().getPort());
-		assertEquals("public", sentryCli.getSnmpCredentials().getCommunity());
-		assertEquals(120, sentryCli.getSnmpCredentials().getTimeout());
-		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2")));
-		assertNull(sentryCli.getHdfsExclusion());
+		assertEquals(SNMPProtocol.SNMPVersion.V1, sentryCli.getSnmpConfig().getSnmpVersion());
+		assertEquals(161, sentryCli.getSnmpConfig().getPort());
+		assertEquals("public", sentryCli.getSnmpConfig().getCommunity());
+		assertEquals(120, sentryCli.getSnmpConfig().getTimeout());
+		assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2")));
+		assertNull(sentryCli.getExcludedConnectors());
 
 		String[] args_required_host = {
 				"-dt", "HP_UX",
-				"-hdfs", "hdfs1,hdfs2" };
+				"-hdf", "hdfs1,hdfs2" };
 
 		final CommandLine commandLine = new CommandLine(new HardwareSentryCli());
 
@@ -95,49 +95,49 @@ class HardwareSentryCliTest {
 	void wbemArgumentsTest() {
 		String[] args_hdfs = { "-host", "hostaa",
 				"-dt", "HP_UX",
-				"--wbem-protocol", "HTTP",
+				"--wbem-transport", "HTTP",
 				"--wbem-port", "5989",
-				"--wbem-namespace", "root/emc",
+				"--wbem-force-namespace", "root/emc",
 				"--wbem-timeout", "120",
 				"--wbem-username", "admin",
 				"--wbem-password", "#1Password",
-				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+				"-hdf", "hdfs1,hdfs2,hdfs3" };
 		HardwareSentryCli sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 		assertEquals("hostaa", sentryCli.getHostname());
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(WBEMProtocol.WBEMProtocols.HTTP, sentryCli.getWbemCredentials().getProtocol());
-		assertEquals(5989, sentryCli.getWbemCredentials().getPort());
-		assertEquals("root/emc", sentryCli.getWbemCredentials().getNamespace());
-		assertEquals(120, sentryCli.getWbemCredentials().getTimeout());
-		assertEquals("admin", sentryCli.getWbemCredentials().getUsername());
-		assertEquals("#1Password", sentryCli.getWbemCredentials().getPassword());
-		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
-		assertNull(sentryCli.getHdfsExclusion());
+		assertEquals(WBEMProtocol.WBEMProtocols.HTTP, sentryCli.getWbemConfig().getProtocol());
+		assertEquals(5989, sentryCli.getWbemConfig().getPort());
+		assertEquals("root/emc", sentryCli.getWbemConfig().getNamespace());
+		assertEquals(120, sentryCli.getWbemConfig().getTimeout());
+		assertEquals("admin", sentryCli.getWbemConfig().getUsername());
+		assertArrayEquals("#1Password".toCharArray(), sentryCli.getWbemConfig().getPassword());
+		assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		assertNull(sentryCli.getExcludedConnectors());
 
 		String[] args_hdfs2 = { "-host", "dev-hv-01",
 				"-dt", "MS_WINDOWS",
-				"--wbem-protocol", "https",
+				"--wbem-transport", "https",
 				"--wbem-port", "5989",
-				"--wbem-namespace", "root/emc",
+				"--wbem-force-namespace", "root/emc",
 				"--wbem-timeout", "120",
 				"--wbem-username", "admin",
 				"--wbem-password", "#1Password",
-				"-hdfs", "hdfs1,hdfs2,hdfs3" };
+				"-hdf", "hdfs1,hdfs2,hdfs3" };
 
 		new CommandLine(sentryCli).parseArgs(args_hdfs2);
 
 		assertEquals("dev-hv-01", sentryCli.getHostname());
 		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-		assertEquals(WBEMProtocol.WBEMProtocols.HTTPS, sentryCli.getWbemCredentials().getProtocol());
-		assertEquals(5989, sentryCli.getWbemCredentials().getPort());
-		assertEquals("root/emc", sentryCli.getWbemCredentials().getNamespace());
-		assertEquals(120, sentryCli.getWbemCredentials().getTimeout());
-		assertEquals("admin", sentryCli.getWbemCredentials().getUsername());
-		assertEquals("#1Password", sentryCli.getWbemCredentials().getPassword());
-		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
-		assertNull(sentryCli.getHdfsExclusion());
+		assertEquals(WBEMProtocol.WBEMProtocols.HTTPS, sentryCli.getWbemConfig().getProtocol());
+		assertEquals(5989, sentryCli.getWbemConfig().getPort());
+		assertEquals("root/emc", sentryCli.getWbemConfig().getNamespace());
+		assertEquals(120, sentryCli.getWbemConfig().getTimeout());
+		assertEquals("admin", sentryCli.getWbemConfig().getUsername());
+		assertArrayEquals("#1Password".toCharArray(), sentryCli.getWbemConfig().getPassword());
+		assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		assertNull(sentryCli.getExcludedConnectors());
 
 	}
 
@@ -157,7 +157,7 @@ class HardwareSentryCliTest {
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
 		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
-		assertNull(hardwareSentryCli.getHttpCredentials());
+		assertNull(hardwareSentryCli.getHttpConfig());
 
 		// Default values
 		arguments = new String[]{HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
@@ -165,13 +165,13 @@ class HardwareSentryCliTest {
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
 		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
-		HttpCredentials httpCredentials = hardwareSentryCli.getHttpCredentials();
-		assertNotNull(httpCredentials);
-		assertNull(httpCredentials.getHttpOrHttps());
-		assertEquals(443, httpCredentials.getPort());
-		assertEquals(120L, httpCredentials.getTimeout());
-		assertEquals(USER, httpCredentials.getUsername());
-		assertEquals(PASS, new String(httpCredentials.getPassword()));
+		HttpConfig httpConfig = hardwareSentryCli.getHttpConfig();
+		assertNotNull(httpConfig);
+		assertNull(httpConfig.getHttpOrHttps());
+		assertEquals(443, httpConfig.getPort());
+		assertEquals(120L, httpConfig.getTimeout());
+		assertEquals(USER, httpConfig.getUsername());
+		assertEquals(PASS, new String(httpConfig.getPassword()));
 
 		// Explicit values
 		arguments = new String[]{HOST_OPTION, HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
@@ -180,32 +180,49 @@ class HardwareSentryCliTest {
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
 		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
-		httpCredentials = hardwareSentryCli.getHttpCredentials();
-		assertNotNull(httpCredentials);
-		assertTrue(httpCredentials.getHttpOrHttps().isHttp());
-		assertEquals(Integer.parseInt(PORT), httpCredentials.getPort());
-		assertEquals(Long.parseLong(TIMEOUT), httpCredentials.getTimeout());
-		assertEquals(USER, httpCredentials.getUsername());
-		assertEquals(PASS, new String(httpCredentials.getPassword()));
+		httpConfig = hardwareSentryCli.getHttpConfig();
+		assertNotNull(httpConfig);
+		assertTrue(httpConfig.getHttpOrHttps().isHttp());
+		assertEquals(Integer.parseInt(PORT), httpConfig.getPort());
+		assertEquals(Long.parseLong(TIMEOUT), httpConfig.getTimeout());
+		assertEquals(USER, httpConfig.getUsername());
+		assertEquals(PASS, new String(httpConfig.getPassword()));
 	}
 
 	@Test
 	void wmiArgumentsTest() {
-		String[] args_hdfs = { "-host", "hostaa",
-				"-dt", "MS_WINDOWS",
-				"--wmi-namespace", "root\\ibmsd",
-				"--wmi-username", "admin",
-				"--wmi-password", "#1Password",
-				"-hdfs", "hdfs1,hdfs2,hdfs3" };
-		HardwareSentryCli sentryCli = new HardwareSentryCli();
-		new CommandLine(sentryCli).parseArgs(args_hdfs);
+		{
+			String[] args_hdfs = { "-host", "hostaa",
+					"-dt", "MS_WINDOWS",
+					"--wmi-force-namespace", "root\\ibmsd",
+					"--wmi-username", "admin",
+					"--wmi-password", "#1Password",
+					"-hdf", "hdfs1,hdfs2,hdfs3" };
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
-		assertEquals("hostaa", sentryCli.getHostname());
-		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-		assertEquals("root\\ibmsd", sentryCli.getWmiCredentials().getNamespace());
-		assertEquals(120L, sentryCli.getWmiCredentials().getTimeout());
-		assertEquals("admin", sentryCli.getWmiCredentials().getUsername());
-		assertEquals("#1Password", sentryCli.getWmiCredentials().getPassword());
-		assertEquals(sentryCli.getHdfs(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+			assertEquals("hostaa", sentryCli.getHostname());
+			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals("root\\ibmsd", sentryCli.getWmiConfig().getNamespace());
+			assertEquals(120L, sentryCli.getWmiConfig().getTimeout());
+			assertEquals("admin", sentryCli.getWmiConfig().getUsername());
+			assertArrayEquals("#1Password".toCharArray(), sentryCli.getWmiConfig().getPassword());
+			assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		}
+
+		{
+			String[] args_hdfs = {
+					"-host", "localhost",
+					"-dt", "MS_WINDOWS",
+					"--wmi"
+			};
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(args_hdfs);
+
+			assertEquals("localhost", sentryCli.getHostname());
+			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertNotNull(sentryCli.getWmiConfig());
+		}
+
 	}
 }

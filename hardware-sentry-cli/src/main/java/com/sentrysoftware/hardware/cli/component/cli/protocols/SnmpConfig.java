@@ -9,7 +9,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class SnmpCredentials {
+public class SnmpConfig {
 
 	@Option(
 			names = "--snmp",

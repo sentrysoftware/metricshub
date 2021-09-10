@@ -12,7 +12,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -65,8 +64,6 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class SourceVisitorTest {
@@ -83,7 +80,7 @@ class SourceVisitorTest {
 	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String VALUE_LIST = "a1;b1;c1";
 	private static final String VALUE_A1 = "a1";
-	private static final String CONNECTOR_NAME = "myConnector.connector"; 
+	private static final String CONNECTOR_NAME = "myConnector.connector";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -546,7 +543,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWBEMSource() throws MalformedURLException, WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+	void testVisitWBEMSource() throws MatsyaException {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WBEMSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WBEMSource.builder().build()));
 
@@ -636,7 +633,7 @@ class SourceVisitorTest {
 		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
 
 		 // handle exception
-		doThrow(new TimeoutException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), any());
+		doThrow(new MatsyaException()).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), any());
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 	}
 
@@ -724,7 +721,7 @@ class SourceVisitorTest {
 				.builder()
 				.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
 				.build()).when(hostMonitoring).getConnectorNamespace(connector);
-		doThrow(new TimeoutException()).when(matsyaClientsExecutor)
+		doThrow(new MatsyaException()).when(matsyaClientsExecutor)
 				.executeWmi(
 						PC14,
 						wmiProtocol,
@@ -849,7 +846,7 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doThrow(WmiComException.class).when(matsyaClientsExecutor).executeWmi(PC14,
+		doThrow(MatsyaException.class).when(matsyaClientsExecutor).executeWmi(PC14,
 				wmiProtocol,
 				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
 				"root/cimv2");

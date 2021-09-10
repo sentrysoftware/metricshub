@@ -4,7 +4,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class IpmiCredentials {
+public class IpmiConfig {
 
 	@Option(
 			names = "--ipmi-timeout",

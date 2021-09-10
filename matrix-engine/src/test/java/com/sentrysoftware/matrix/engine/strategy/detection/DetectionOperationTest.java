@@ -30,7 +30,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -230,7 +229,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCreatetargetOnExistingtarget() throws LocalhostCheckException, UnknownHostException {
+	void testCreatetargetOnExistingtarget() throws UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString(), null);
 
@@ -331,7 +330,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testFilterConnectorsByLocalAndRemoteSupport() throws LocalhostCheckException {
+	void testFilterConnectorsByLocalAndRemoteSupport() {
 
 		{
 			Connector connector = Connector.builder().localSupport(false).build();
@@ -379,7 +378,7 @@ class DetectionOperationTest {
 				.collect(Collectors.toSet());
 
 		// exclude set is empty
-		assertEquals(localStore, 
+		assertEquals(localStore,
 				DetectionOperation.filterExcludedConnectors(Collections.emptySet(), localStore)
 				.collect(Collectors.toSet()));
 

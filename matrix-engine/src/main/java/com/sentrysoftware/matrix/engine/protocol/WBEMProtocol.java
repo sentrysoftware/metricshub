@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WBEMProtocol implements IProtocolConfiguration {
 
-	WBEMProtocols protocol;
+	@Default
+	WBEMProtocols protocol = WBEMProtocols.HTTPS;
 
 	@Default
 	private Integer port = 5989;
 
-	@Default
-	private String namespace = "root/cimv2";
+	private String namespace;
 
 	@Default
 	private Long timeout = 120L;

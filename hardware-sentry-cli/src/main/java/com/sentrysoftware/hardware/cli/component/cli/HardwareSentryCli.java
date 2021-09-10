@@ -7,11 +7,11 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiCredentials;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.hardware.cli.service.EngineService;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -27,7 +27,7 @@ public class HardwareSentryCli implements Callable<Boolean> {
 
 	@Autowired
 	private EngineService engineService;
-	
+
 	@Option(names = { "--hostname", "-host" }, required = true, description = "Enter a hostname or an IP Address.")
 	private String hostname;
 
@@ -35,25 +35,25 @@ public class HardwareSentryCli implements Callable<Boolean> {
 	private TargetType deviceType;
 
 	@ArgGroup(validate = false)
-	private SnmpCredentials snmpCredentials;
+	private SnmpConfig snmpConfig;
 
 	@ArgGroup(validate = false)
-	private WbemCredentials wbemCredentials;
+	private WbemConfig wbemConfig;
 
 	@ArgGroup(validate = false)
-	private WmiCredentials wmiCredentials;
+	private WmiConfig wmiConfig;
 
 	@ArgGroup(validate = false)
-	private HttpCredentials httpCredentials;
+	private HttpConfig httpConfig;
 
 	@ArgGroup(validate = false)
-	private IpmiCredentials ipmiCredentials;
+	private IpmiConfig ipmiConfig;
 
-	@Option(names = { "-hdfs", "--connectors" }, split = ",", description = "Enter the hdfs to run.")
-	private Set<String> hdfs;
-	
-	@Option(names = { "-hdfsExcluded", "--connectorsExcluded" }, split = ",", description = "Enter the hdfs to exclude.")
-	private Set<String> hdfsExclusion;
+	@Option(names = { "-hdf", "--connectors" }, split = ",", description = "Force selected hardware connectors to connect to the target")
+	private Set<String> connectors;
+
+	@Option(names = { "-exclude", "--exclude-connectors" }, split = ",", description = "Specify hardware connectors that must be excluded from the automatic detection process")
+	private Set<String> excludedConnectors;
 
 	@Option(names = { "--debug", "-d" }, description = "Activate debug mode for logs.")
 	private boolean debug;

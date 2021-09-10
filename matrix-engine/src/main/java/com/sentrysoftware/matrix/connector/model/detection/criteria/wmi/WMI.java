@@ -28,6 +28,7 @@ public class WMI extends WqlCriterion {
 		return criterionVisitor.visit(this);
 	}
 
+	@Override
 	public WMI copy() {
 		return WMI
 				.builder()

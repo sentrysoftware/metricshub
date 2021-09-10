@@ -4,7 +4,6 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,8 +19,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -36,7 +33,6 @@ import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -47,7 +43,6 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
@@ -299,10 +294,10 @@ public class MatsyaClientsExecutor {
 
 		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 	}
-	
+
 	/**
 	 * Parse a XML with the argument properties into a list of values list.
-	 * 
+	 *
 	 * @param xml The XML.
 	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character. If the property comes from an attribute, it will be preceded by a superior character: '>'.
 	 * @param recordTag A string containing the first element xml tags path to convert. example: /rootTag/tag2
@@ -310,8 +305,8 @@ public class MatsyaClientsExecutor {
 	 * @throws XFlatException if an error occurred in the XML parsing.
 	 */
 	public List<List<String>> executeXmlParsing(
-			final String xml, 
-			final String properties, 
+			final String xml,
+			final String properties,
 			final String recordTag) throws XFlatException {
 		return XFlat.parseXml(xml, properties, recordTag);
 	}
@@ -334,15 +329,13 @@ public class MatsyaClientsExecutor {
 		final String query,
 		final String namespace
 	) throws MatsyaException {
-		try {
-			if (protoConfig instanceof WBEMProtocol) {
-				return executeWbem(hostname, (WBEMProtocol) protoConfig, query, namespace);
-			} else if (protoConfig instanceof WMIProtocol) {
-				return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
-			}
-		} catch (Exception e) {
-			throw new MatsyaException(e.getClass().getSimpleName() + " query failed on " + hostname, e);
+
+		if (protoConfig instanceof WBEMProtocol) {
+			return executeWbem(hostname, (WBEMProtocol) protoConfig, query, namespace);
+		} else if (protoConfig instanceof WMIProtocol) {
+			return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
 		}
+
 		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
 	}
 
@@ -358,35 +351,36 @@ public class MatsyaClientsExecutor {
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
 	 *
-	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
-	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
-	 * @throws WBEMException			If there is a WBEM error.
-	 * @throws TimeoutException			If the query did not complete on time.
-	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	public List<List<String>> executeWbem(
-			final String hostname,
-			final WBEMProtocol wbemConfig,
-			final String query,
-			final String namespace
-	) throws MalformedURLException, WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+			@NonNull final String hostname,
+			@NonNull final WBEMProtocol wbemConfig,
+			@NonNull final String query,
+			@NonNull final String namespace
+	) throws MatsyaException {
 
-		final URL url = new URL(String.format(
-				"%s://%s:%d",
-				wbemConfig.getProtocol().toString(),
-				hostname,
-				wbemConfig.getPort()
-		));
+		try {
+			final URL url = new URL(String.format(
+					"%s://%s:%d",
+					wbemConfig.getProtocol().toString(),
+					hostname,
+					wbemConfig.getPort()
+			));
 
-		return WbemExecutor.executeWql(
-				url,
-				namespace,
-				wbemConfig.getUsername(),
-				wbemConfig.getPassword(),
-				query,
-				wbemConfig.getTimeout().intValue() * 1000,
-				null
-		).getValues();
+			return WbemExecutor.executeWql(
+					url,
+					namespace,
+					wbemConfig.getUsername(),
+					wbemConfig.getPassword(),
+					query,
+					wbemConfig.getTimeout().intValue() * 1000,
+					null
+			).getValues();
+
+		} catch (Exception e) {
+			throw new MatsyaException("WBEM query failed on " + hostname, e);
+		}
 
 	}
 
@@ -394,28 +388,26 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Execute a WMI query through Matsya
 	 *
-	 * @param hostname  The hostname of the device where the WMI service is running
-	 * @param username  The username to establish the connection with the device through the WMI protocol
-	 * @param password  The password to establish the connection with the device through the WMI protocol
-	 * @param timeout   The timeout in seconds after which the query is rejected
+	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
+	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException  If the localhost check fails
-	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WqlQuerySyntaxException  In case of not valid query
-	 * @throws TimeoutException         When the given timeout is reached
+	 *
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	public List<List<String>> executeWmi(
 			final String hostname,
-			final WMIProtocol wmiConfig,
-			final String wbemQuery,
-			final String namespace
-	) throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
+			@NonNull final WMIProtocol wmiConfig,
+			@NonNull final String wbemQuery,
+			@NonNull final String namespace
+	) throws MatsyaException {
 
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
-		final String networkResource = buildWmiNetworkResource(hostname, namespace);
+		final String networkResource =
+				NetworkHelper.isLocalhost(hostname) ?
+						namespace : String.format("\\\\%s\\%s", hostname, namespace);
 
 		// Go!
 		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(
@@ -433,19 +425,9 @@ public class MatsyaClientsExecutor {
 			// Build the table
 			return buildWmiTable(result, properties);
 
+		} catch (Exception e) {
+			throw new MatsyaException("WMI query failed on " + hostname, e);
 		}
-	}
-
-	/**
-	 * Build the WMI network resource
-	 * @param hostname    The hostname of the device where the WMI service is running
-	 * @param namespace   The WMI namespace
-	 * @return {@link String} value
-	 * @throws LocalhostCheckException
-	 */
-	String buildWmiNetworkResource(final String hostname, final String namespace) throws LocalhostCheckException {
-		return NetworkHelper.isLocalhost(hostname) ?
-				namespace : String.format("\\\\%s\\%s", hostname, namespace);
 	}
 
 	/**

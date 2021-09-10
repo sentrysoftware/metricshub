@@ -36,9 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
@@ -75,20 +73,6 @@ class MatsyaClientsExecutorTest {
 	@Test
 	void testExecute() throws InterruptedException, ExecutionException, TimeoutException {
 		assertEquals("value", new MatsyaClientsExecutor().execute(() -> "value", 10L));
-	}
-
-	@Test
-	void testBuildWMINetworkResource() throws LocalhostCheckException {
-		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(true);
-			assertEquals("root/cimv2", new MatsyaClientsExecutor().buildWmiNetworkResource("hostname", "root/cimv2"));
-		}
-
-		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(false);
-			assertEquals("\\\\hostname\\root/cimv2", new MatsyaClientsExecutor()
-				.buildWmiNetworkResource("hostname", "root/cimv2"));
-		}
 	}
 
 	@Test
@@ -362,42 +346,42 @@ class MatsyaClientsExecutorTest {
 			assertEquals("System power state is up", matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
 		}
 	}
-	
+
 	@Test
 	void testExecuteXmlParsing() throws Exception {
 
 		final String xml =
-				"<?xml version=\"1.0\"?>\n" + 
-				"<Document>\n" + 
-				"	<Owner>User</Owner>\n" + 
-				"	<Disks>\n" + 
-				"		<Disk name=\"Disk1\" size=\"1000\">\n" + 
-				"			<Free>500</Free>\n" + 
-				"			<Volumes>\n" + 
-				"				<Volume name=\"Vol1\">\n" + 
-				"					<Subscribe>600</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"			</Volumes>\n" + 
-				"		</Disk>\n" + 
-				"		<Disk name=\"Disk2\" size=\"2000\">\n" + 
-				"			<Free>750</Free>\n" + 
-				"		</Disk>\n" + 
-				"		<Disk name=\"Disk3\" size=\"2900\">\n" + 
-				"			<Free>1500</Free>\n" + 
-				"			<Volumes>\n" + 
-				"				<Volume name=\"Vol3.0\">\n" + 
-				"					<Subscribe>3000</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"				<Volume name=\"Vol3.1\">\n" + 
-				"					<Subscribe>3100</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"				<Volume name=\"Vol3.2\">\n" + 
-				"					<Subscribe>3200</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"			</Volumes>\n" + 
-				"		</Disk>\n" + 
-				"	</Disks>\n" + 
-				"	<OS name=\"Linux\"/>\n" + 
+				"<?xml version=\"1.0\"?>\n" +
+				"<Document>\n" +
+				"	<Owner>User</Owner>\n" +
+				"	<Disks>\n" +
+				"		<Disk name=\"Disk1\" size=\"1000\">\n" +
+				"			<Free>500</Free>\n" +
+				"			<Volumes>\n" +
+				"				<Volume name=\"Vol1\">\n" +
+				"					<Subscribe>600</Subscribe>\n" +
+				"				</Volume>\n" +
+				"			</Volumes>\n" +
+				"		</Disk>\n" +
+				"		<Disk name=\"Disk2\" size=\"2000\">\n" +
+				"			<Free>750</Free>\n" +
+				"		</Disk>\n" +
+				"		<Disk name=\"Disk3\" size=\"2900\">\n" +
+				"			<Free>1500</Free>\n" +
+				"			<Volumes>\n" +
+				"				<Volume name=\"Vol3.0\">\n" +
+				"					<Subscribe>3000</Subscribe>\n" +
+				"				</Volume>\n" +
+				"				<Volume name=\"Vol3.1\">\n" +
+				"					<Subscribe>3100</Subscribe>\n" +
+				"				</Volume>\n" +
+				"				<Volume name=\"Vol3.2\">\n" +
+				"					<Subscribe>3200</Subscribe>\n" +
+				"				</Volume>\n" +
+				"			</Volumes>\n" +
+				"		</Disk>\n" +
+				"	</Disks>\n" +
+				"	<OS name=\"Linux\"/>\n" +
 				"</Document>\n";
 
 		final String properties =

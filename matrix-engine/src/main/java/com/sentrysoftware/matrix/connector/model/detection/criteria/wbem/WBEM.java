@@ -28,6 +28,7 @@ public class WBEM extends WqlCriterion {
 		return criterionVisitor.visit(this);
 	}
 
+	@Override
 	public WBEM copy() {
 		return WBEM
 				.builder()

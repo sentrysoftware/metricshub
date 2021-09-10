@@ -7,7 +7,7 @@ import picocli.CommandLine.Option;
 import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
 
 @Data
-public class WbemCredentials {
+public class WbemConfig {
 
 	@Option(
 			names = "--wbem-transport",
@@ -25,7 +25,7 @@ public class WbemCredentials {
 	int port;
 
 	@Option(
-			names = "--wbem-namespace",
+			names = "--wbem-force-namespace",
 			description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	String namespace;
