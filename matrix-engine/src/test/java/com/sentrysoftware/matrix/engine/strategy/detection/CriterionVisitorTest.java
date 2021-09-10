@@ -390,7 +390,7 @@ class CriterionVisitorTest {
 				+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
 				+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
 				+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
-		
+
 		doReturn(ipmiResultExample).when(matsyaClientsExecutor).runRemoteSshCommand(any(), any(), any(), any(), any(),
 				 				anyInt());
 		assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
@@ -429,10 +429,10 @@ class CriterionVisitorTest {
 
 		String cmdResult = OsCommandHelper.runLocalCommand(null);
 		assertNull(cmdResult);
-		
+
 		cmdResult = OsCommandHelper.runSshCommand(null, "localhost", ssh, 120, matsyaClientsExecutor);
 		assertNull(cmdResult);
-		
+
 		cmdResult = OsCommandHelper.runSshCommand("cmd", "localhost", null, 120, matsyaClientsExecutor);
 		assertNull(cmdResult);
 
@@ -1013,6 +1013,7 @@ class CriterionVisitorTest {
 	}
 
 	@Test
+	@EnabledOnOs(WINDOWS)
 	void testVisitServiceCheckServiceNameEmpty() {
 		final WMIProtocol wmiProtocol = WMIProtocol.builder()
 				.username(USERNAME)
