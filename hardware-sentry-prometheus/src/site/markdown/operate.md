@@ -13,15 +13,14 @@ $ java -jar hardware-sentry-prometheus-<version>.jar
 
 Use the following arguments to launch **${project.name}** with specific conditions.
 
-
 ```
-$ java -jar hardware-sentry-prometheus-0.0.1-SNAPSHOT.jar <argument(s)>.yml
+$ java -jar hardware-sentry-prometheus-<version>jar <argument(s)>
 ```
 
 |Argument | Description |
 |---------|------|
 | ```--target.config.file```| To specify a custom yaml configuration file. Use the ```--target.config.file``` option followed by the relative or absolute path to the custom configuration YAML file. <br/>Example: ```--target.config.file=../custom-config.yml```.|
-| ```--server.port```| To use a specific http port. Use the ```--server.port``` option to specify a port other than the default one. <br/>Example: ```--server.port=<port number>```.|
-|```--server.ssl.enabled```| To enable the https protocol. Set the ```--server.ssl.enabled``` option to ```true```. <br/>Example: ```--server.ssl.enabled=true```. |
-|```--http.port```| To specify a prefered http port when the https protocol is enabled. Use the ```--http.port``` followed by the port number you wish to use. <br/>Example: ```--server.port=<port number>```.|
-|```--server.ssl.redirect-http```| To redirect the http port the https port. Set the ```--server.ssl.redirect-http``` to ```true```. <br/>Example: ```--server.ssl.redirect-http=true)```|
+| ```--server.port```| To use a specific HTTP port. Use the ```--server.port``` option to specify a port other than the default one. <br/>Example: ```--server.port=8081```.|
+|```--server.ssl.enabled```| To enable the HTTPS protocol. Set the ```--server.ssl.enabled``` option to ```true```. <br/>Example: ```--server.ssl.enabled=true```. |
+|```--http.port```| To specify a prefered HTTP port when the HTTPS protocol is enabled. Use the ```--http.port``` followed by the port number you wish to use. <br/>Example: ```--server.port=8084```.|
+|```--server.ssl.redirect-http```| To redirect the HTTP port the HTTPS port. Set the ```--server.ssl.redirect-http``` to ```true```. <br/>Example: ```--server.ssl.redirect-http=true)```|

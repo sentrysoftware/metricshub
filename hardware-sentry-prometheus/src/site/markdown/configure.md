@@ -18,7 +18,6 @@ Refer to the [Supported Platforms](https://www.sentrysoftware.com/library/hc/24/
 ### SNMP Configurations
 
 ```
----
 targets:
 
 - target:
@@ -39,18 +38,18 @@ targets:
     port: 161
     timeout: 120
 
-target:
-  hostname: myhost-01
-  type: LINUX
-snmp:
-  version: v3_md5  # possible values: v1, v2c, v3_no_auth, v3_md5, v3_sha;
-  community: public
-  port: 161
-  timeout: 120
-  privacy: DES  # possible values: 
-  privacyPassword: myprivacypwd
-  username: myusername
-  password: mypwd
+- target:
+    hostname: myhost-01
+    type: LINUX
+  snmp:
+    version: v3_md5 
+    community: public
+    port: 161
+    timeout: 120
+    privacy: DES   
+    privacyPassword: myprivacypwd
+    username: myusername
+    password: mypwd
 ```
 
 |Parameter | Description |
@@ -59,18 +58,18 @@ snmp:
 |type|Type of the system (OS or platform type).|
 |snmp|Protocol and credentials used to access the target.|
 |version|The version of the SNMP protocol (V1, V2c, V3_no_auth, V3_md5, V3_sha).|
-|community|The SNMP Community string to use to perform SNMP v1 queries (Default: public)|
+|community|The SNMP Community string to use to perform SNMP v1 queries (Default: public).|
 |port|The SNMP port number used to perform SNMP queries (Default: 161).|
 |timeout|How long until the SNMP request times out (default: 120s).|
-|username|_SNMP V3 only_ - Name to use for performing the SNMP query.|
-|password|_SNMP V3 only_ - Password to use for performing the SNMP query.|
 |privacy|_SNMP V3 only_ - The type of encryption protocol (NO_ENCRYPTION, AES, DES).|
 |privacy password|_SNMP V3 only_ - Password associated to the privacy protocol.|
+|username|_SNMP V3 only_ - Name to use for performing the SNMP query.|
+|password|_SNMP V3 only_ - Password to use for performing the SNMP query.|
+
 
 ### WBEM Configuration
 
 ```
----
 targets:
 
   - target:
@@ -90,7 +89,7 @@ targets:
 |type|Type of the system (OS or platform type).|
 |wbem |Protocol and credentials used to access the target.|
 |protocol|The protocol used to access the target.|
-|port|The https port number used to perform WBEM queries (Default: 5989 for https or 5988 for http).|
+|port|The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).|
 |timeout |How long until the WBEM request times out (default: 120s).|
 |username|Name used to establish the connection with the target via the WBEM protocol.|
 |password|Password used to establish the connection with the target via the WBEM protocol.|
@@ -98,7 +97,6 @@ targets:
 ### HTTP Configuration
 
 ```
----
 targets:
 
   - target:
@@ -116,19 +114,18 @@ targets:
 |hostname|Hostname of the target.|
 |type|Type of the system (OS or platform type).|
 |http |Protocol and credentials used to access the target.|
-|port|The https port number used to perform SNMP queries (Default: 443).|
-|username|Name used establish the connection with the target via the WBEM protocol.|
+|port|The HTTPS port number used to perform SNMP queries (Default: 443).|
+|username|Name used establish the connection with the target via the HTTP protocol.|
 |password|Password used to establish the connection with the target via the HTTP protocol.|
 
 ### WMI Configuration
 
 ```
----
 targets:
 
   - target:
       hostname: myhost-01
-      type: MS_WINDOWS
+      type: WINDOWS
     wmi:
       timeout: 120
       username: myusername
@@ -147,12 +144,11 @@ targets:
 ### IPMI Configuration
 
 ```
----
 targets:
 
 - target:
     hostname: myhost-01
-    type: MGMT_CARD_BLADE_ESXI
+    type: OOB
   ipmi:
     username: myusername
     password: mypwd
@@ -174,35 +170,41 @@ COMING SOON!
 
 ### Auto-detection
 
-By default, **${project.name}** selects the appropriate connector to scrape metrics from a target. However, you can manually select or exclude a connector by setting the following parameters:
+By default, **${project.name}** automatically selects the appropriate connectors to scrape metrics from a target. However, you can manually specify or exclude connectors by setting the following parameters:
 
 |Parameter | Description |
 |---------|------|
-|selectedConnectors| Enter the name of the collector you want to use (.hdf or .hdfs file).|
-|excludedConnectors| Enter the name of the collector you do NOT want to use (.hdf or .hdfs file).|
+|selectedConnectors| Enter the file name(s) of the collector(s) you want to use (.hdf or .hdfs file).|
+|excludedConnectors| Enter the file name(s) of the collector you do NOT want to use (.hdf or .hdfs file).|
+
+Connector file names must be comma-separated, as shown in the example below:
 
 ```
----
 targets:
 
   - target:
       hostname: myhost-01
-      type: MS_WINDOWS
+      type: WINDOWS
     wmi:
       timeout: 120
       username: myusername
       password: mypwd
     selectedConnectors:
-    - MS_HW_Director61NT.hdfs
-    excludedConnectors: []
+    - MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf
+    excludedConnectors: MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf
 ```
 
 ### Mapping Unknown Status
 
-On rare occasions, **${project.name}** collects an unexpected value from a target and returns an _Unknown Status_. You can set the ```unknownStatus``` parameter to OK, WARN or ALARM when the target' status is unknown and cannot be translated. Default is WARN. See the example below:
+On rare occasions, **${project.name}** may collect an unexpected value from a Monitor and return an _Unknown Status_. You can configure the ```unknownStatus``` settings to trigger a specific action: 
+
+  * **0** to set the Monitor's status to **OK**
+  * **1** to trigger a **WARNING** on the Monitor's status (WARN)
+  * **2** to trigger an **ALARM** on the Monitor's status (ALARM)
+
+Default is **1** (WARN) as shown below:
 
 ```
----
 targets:
 
   - target:

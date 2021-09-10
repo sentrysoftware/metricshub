@@ -66,7 +66,7 @@ Example:
         - nb-docker:8080
 ```
 
-**${project.name}** creates the http instances: ```http://nb-docker:8080/metrics/prod``` and ```http://nb-docker:8080/metrics/test``` to respectively expose metrics collected from *prod* and *test* hosts.
+**${project.name}** creates the HTTP instances: ```http://nb-docker:8080/metrics/prod``` and ```http://nb-docker:8080/metrics/test``` to respectively expose metrics collected from *prod* and *test* hosts.
 
 Metrics are returned once the whole collect is completed. This process may be time-consuming when a large number of targets are scrapped. To retrieve metrics for a specific target, simply specify it name in the ```job_name``` (example: ```job_name: hardware_prometheus_test```).
 
