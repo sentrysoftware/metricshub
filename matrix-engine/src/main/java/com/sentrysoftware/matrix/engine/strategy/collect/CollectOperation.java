@@ -42,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
@@ -53,13 +55,17 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
 import static org.springframework.util.Assert.state;
 
 @Slf4j
@@ -882,7 +888,7 @@ public class CollectOperation extends AbstractStrategy {
 		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
 
 			// Get the link status
-			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
+			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, LINK_STATUS_PARAMETER);
 
 			// If there is connected count it.
 			if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
@@ -890,7 +896,7 @@ public class CollectOperation extends AbstractStrategy {
 			}
 
 			// Get the link speed value
-			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_SPEED_PARAMETER);
+			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, LINK_SPEED_PARAMETER);
 			
 			// If there is a speed add it.
 			if (linkSpeed != null) {
@@ -900,8 +906,8 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Create the parameter for connectedPortsCount
 		final NumberParam connectedPortsCountParam = NumberParam.builder()
-				.name(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER)
-				.unit(HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT)
+				.name(CONNECTED_PORTS_COUNT_PARAMETER)
+				.unit(CONNECTED_PORTS_PARAMETER_UNIT)
 				.collectTime(strategyTime)
 				.value(connectedPortsCount)
 				.rawValue(connectedPortsCount)
@@ -909,8 +915,8 @@ public class CollectOperation extends AbstractStrategy {
 		
 		// Create the parameter for totalBandwidth
 		final NumberParam totalBandwidthParam = NumberParam.builder()
-				.name(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER)
-				.unit(HardwareConstants.SPEED_MBITS_PARAMETER_UNIT)
+				.name(TOTAL_BANDWIDTH_PARAMETER)
+				.unit(SPEED_MBITS_PARAMETER_UNIT)
 				.collectTime(strategyTime)
 				.value(totalBandwidth)
 				.rawValue(totalBandwidth)

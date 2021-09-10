@@ -175,7 +175,7 @@ public class MonitorNameBuilder {
 	 */
 	private static String trimUnwantedCharacters(final String name) {
 		return name
-			.replaceAll(",", "")
+			.replace(",", "")
 			.replace("()", "")
 			.replaceAll(WHITE_SPACE_REPEAT_REGEX, WHITE_SPACE)
 			.trim();
@@ -220,11 +220,9 @@ public class MonitorNameBuilder {
 		String vendor = metadata.get(VENDOR);
 		String model = metadata.get(MODEL);
 
-		if (vendor != null && model != null) {
-			if (model.toLowerCase().contains(vendor.toLowerCase())) {
-				// Model includes the vendor, so no need to join them
-				return model;
-			}
+		if (vendor != null && model != null && model.toLowerCase().contains(vendor.toLowerCase())) {
+			// Model includes the vendor, so no need to join them
+			return model;
 		}
 
 		return joinWords(new String[] { vendor, model }, WHITE_SPACE);
