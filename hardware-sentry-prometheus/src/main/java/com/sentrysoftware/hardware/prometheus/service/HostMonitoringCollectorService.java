@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
 	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
+	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -242,7 +244,7 @@ public class HostMonitoringCollectorService extends Collector {
 			return HardwareConstants.EMPTY;
 		}
 		// check if its value needs to be converted
-		String metricValue = getValueOrElse(monitor.getMetadata(label), HardwareConstants.EMPTY);
+		String metricValue = getValueOrElse(monitor.getMetadata(snakeCaseToCamelCase(label)), HardwareConstants.EMPTY);
 		// check if there is a prometheus metadata specificity in order to get the factor
 		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
 				.getPrometheusMetadataToParameters(monitor.getMonitorType(), label);
@@ -467,5 +469,21 @@ public class HostMonitoringCollectorService extends Collector {
 				getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY),
 				monitor.getName(),
 				monitor.getFqdn());
+	}
+
+
+	/*
+	 * Converts a {@link String} written in snake_case to its camelCase version.<br>
+	 * <b>Example: "parent_id" -> "parentId"</b>
+	 *
+	 * @param snakeCase	The {@link String} that should be converted.
+	 *
+	 * @return			The camelCase version of the given {@link String}.
+	 */
+	private static String snakeCaseToCamelCase(String snakeCase) {
+
+		return SNAKE_CASE_PATTERN
+			.matcher(snakeCase)
+			.replaceAll(matchResult -> matchResult.group(2).toUpperCase());
 	}
 }

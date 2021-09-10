@@ -3,8 +3,11 @@ package com.sentrysoftware.hardware.prometheus.service;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
@@ -78,10 +81,6 @@ class HostMonitoringCollectorServiceTest {
 	private static final String ID_VALUE = "id";
 	private static final String FAN_ID = "connector1.connector_fan_ecs_1.1";
 	private static final String FAN_NAME = "Fan 1.1";
-	private static final String ADDITIONAL_INFORMATION1 = "additional_information1";
-	private static final String DEVICE_ID = "device_id";
-	private static final String FAN_TYPE = "fan_type";
-	private static final String SERIAL_NUMBER = "serial_number";
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -121,8 +120,8 @@ class HostMonitoringCollectorServiceTest {
 			.monitorType(MonitorType.FAN)
 			.build();
 		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
-		fan1Monitor.addMetadata(DEVICE_ID, "1.11");
-		fan1Monitor.addMetadata(FAN_TYPE, "default cooling");
+		fan1Monitor.addMetadata(HardwareConstants.DEVICE_ID, "1.11");
+		fan1Monitor.addMetadata(HardwareConstants.FAN_TYPE, "default cooling");
 
 		Monitor fan2Monitor = Monitor.builder()
 			.id(FAN_ID + 2)
@@ -132,8 +131,8 @@ class HostMonitoringCollectorServiceTest {
 			.monitorType(MonitorType.FAN)
 			.build();
 		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
-		fan2Monitor.addMetadata(DEVICE_ID, "1.12");
-		fan2Monitor.addMetadata(FAN_TYPE, "default cooling");
+		fan2Monitor.addMetadata(HardwareConstants.DEVICE_ID, "1.12");
+		fan2Monitor.addMetadata(HardwareConstants.FAN_TYPE, "default cooling");
 
 		Map<String, Monitor> fans = new LinkedHashMap<>();
 		fans.put(FAN_ID + 1, fan1Monitor);
