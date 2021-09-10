@@ -17,6 +17,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.NETWORK_CARD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TEMPERATURE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -934,13 +935,21 @@ class CollectOperationTest {
 			.parentId(ENCLOSURE_ID)
 			.monitorType(TEMPERATURE)
 			.build();
-
+		
+		final Monitor networkCard = Monitor.builder()
+				.id("NETWORK_CARD")
+				.name("NETWORK_CARD")
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(NETWORK_CARD)
+				.build();
 
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(target);
 		hostMonitoring.addMonitor(fan1);
 		hostMonitoring.addMonitor(fan2);
 		hostMonitoring.addMonitor(temperature);
+		hostMonitoring.addMonitor(networkCard);
 		hostMonitoring.addMonitor(enclosure);
 
 		fan2.setParameters(Collections.emptyMap());
@@ -1902,5 +1911,57 @@ class CollectOperationTest {
 		assertEquals(9333.33, CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_USAGE_PARAMETER));
 		assertEquals(9444.44, CollectHelper.getNumberParamValue(target, HardwareConstants.ENERGY_PARAMETER));
 		assertEquals(PowerMeter.ESTIMATED, hostMonitoring.getPowerMeter());
+	}
+
+	@Test
+	void testComputeNetworkCardParameters() {
+		final Monitor target = Monitor.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(ECS1_01)
+				.monitorType(TARGET)
+				.build();
+
+		IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(target);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		// No network cards
+		collectOperation.computeNetworkCardParameters();
+		assertNull(target.getParameter(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+
+		// Network card is empty
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
+		monitors.put(NETWORK_CARD, new LinkedHashMap<>());
+
+		collectOperation.computeNetworkCardParameters();
+		assertNull(target.getParameter(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+
+		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_ecs1-01_1.1", "network card", null);
+		networkCard.collectParameter(StatusParam
+				.builder()
+				.name(HardwareConstants.LINK_STATUS_PARAMETER)
+				.collectTime(strategyTime)
+				.state(ParameterState.OK)
+				.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+				.statusInformation("status: 0 (Operable)")
+				.build());
+		networkCard.collectParameter(NumberParam.builder().name(HardwareConstants.LINK_SPEED_PARAMETER).value(100.0).rawValue(100.0).build());
+
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(networkCard);
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		assertNull(target.getParameter(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+
+		collectOperation.computeNetworkCardParameters();
+		assertEquals(1.0, target.getParameter(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class).getValue());
+		assertEquals(100.0, target.getParameter(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER, NumberParam.class).getValue());
 	}
 }

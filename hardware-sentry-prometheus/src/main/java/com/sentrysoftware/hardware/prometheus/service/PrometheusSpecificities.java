@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +53,8 @@ public class PrometheusSpecificities {
 	private static final String BYTES_PER_SECOND = "bytes_per_second";
 	private static final String RATIO = "ratio";
 	private static final String CELSIUS = "celsius";
+
+	private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z]+)");
 
 	private static Map<MonitorType, List<String>> metricInfoLabels;
 
@@ -898,7 +901,27 @@ public class PrometheusSpecificities {
 	 * @return List of String values
 	 */
 	private static List<String> concatLabelsWithMetadata(MonitorType monitorType) {
-		return Stream.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream()).collect(Collectors.toList());
+
+		return Stream
+			.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream())
+			.map(PrometheusSpecificities::camelCaseToSnakeCase)
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Converts a {@link String} written in camelCase to its snake_case version.<br>
+	 * <b>Example: "parentId" -> "parent_id"</b>
+	 *
+	 * @param camelCase	The {@link String} that should be converted.
+	 *
+	 * @return			The snake_case version of the given {@link String}.
+	 */
+	private static String camelCaseToSnakeCase(String camelCase) {
+
+		return CAMEL_CASE_PATTERN
+			.matcher(camelCase)
+			.replaceAll("$1_$2")
+			.toLowerCase();
 	}
 
 	/**

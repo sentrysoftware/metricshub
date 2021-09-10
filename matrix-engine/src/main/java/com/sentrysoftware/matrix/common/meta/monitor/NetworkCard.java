@@ -44,7 +44,7 @@ public class NetworkCard implements IMetaMonitor {
 	private static final String CONSEQUENCE_FOR_BAD_NETWORK_CARD = "The network traffic (if any) that was processed by this adapter is no longer being handled, or is overloading another network adapter.";
 
 	public static final MetaParameter BANDWIDTH_UTILIZATION = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
@@ -58,14 +58,14 @@ public class NetworkCard implements IMetaMonitor {
 			.build();
 
 	public static final MetaParameter ERROR_PERCENT = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.ERROR_PERCENT_PARAMETER)
 			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
 	public static final MetaParameter LINK_SPEED = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(HardwareConstants.LINK_SPEED_PARAMETER)
 			.unit(HardwareConstants.SPEED_MBITS_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)

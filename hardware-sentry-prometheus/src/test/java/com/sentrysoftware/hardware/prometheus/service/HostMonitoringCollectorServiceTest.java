@@ -5,7 +5,6 @@ import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringColle
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
@@ -78,7 +77,7 @@ class HostMonitoringCollectorServiceTest {
 	private static final String MONITOR_STATUS_METRIC = "monitor_status";
 	private static final String MONITOR_ENERGY_METRIC = "monitor_energy_total";
 	private static final String LABEL_VALUE = "monitor";
-	private static final String PARENT_ID_VALUE = "parentId";
+	private static final String PARENT_ID_VALUE = "parent_id";
 	private static final String ID_VALUE = "id";
 	private static final String FAN_ID = "connector1.connector_fan_ecs_1.1";
 	private static final String FAN_NAME = "Fan 1.1";
@@ -121,8 +120,8 @@ class HostMonitoringCollectorServiceTest {
 			.monitorType(MonitorType.FAN)
 			.build();
 		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
-		fan1Monitor.addMetadata(DEVICE_ID, "1.11");
-		fan1Monitor.addMetadata(FAN_TYPE, "default cooling");
+		fan1Monitor.addMetadata(HardwareConstants.DEVICE_ID, "1.11");
+		fan1Monitor.addMetadata(HardwareConstants.FAN_TYPE, "default cooling");
 
 		Monitor fan2Monitor = Monitor.builder()
 			.id(FAN_ID + 2)
@@ -132,8 +131,8 @@ class HostMonitoringCollectorServiceTest {
 			.monitorType(MonitorType.FAN)
 			.build();
 		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
-		fan2Monitor.addMetadata(DEVICE_ID, "1.12");
-		fan2Monitor.addMetadata(FAN_TYPE, "default cooling");
+		fan2Monitor.addMetadata(HardwareConstants.DEVICE_ID, "1.12");
+		fan2Monitor.addMetadata(HardwareConstants.FAN_TYPE, "default cooling");
 
 		Map<String, Monitor> fans = new LinkedHashMap<>();
 		fans.put(FAN_ID + 1, fan1Monitor);
@@ -629,7 +628,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCheckcheckMetadata() {
+	void testCheckMetadata() {
 		{
 
 			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -653,6 +652,44 @@ class HostMonitoringCollectorServiceTest {
 		}
 		{
 			assertFalse(HostMonitoringCollectorService.checkMetadata(null, MAXIMUM_SPEED));
+		}
+	}
+
+	@Test
+	void testConvertMetadataInfoValue() {
+		{
+
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put("maximumspeed", "4");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadata).monitorType(MonitorType.CPU).build();
+			assertEquals(Double.toString(4*1000000.0), HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, ""));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, null));
+
+			final Map<String, String> cpuMetadataEmpty = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadataEmpty.put("maximumspeed", "");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitorCpu = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadataEmpty).monitorType(MonitorType.CPU).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitorCpu, MAXIMUM_SPEED));
+
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(null).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+		{
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(null, MAXIMUM_SPEED));
 		}
 	}
 

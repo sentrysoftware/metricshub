@@ -56,6 +56,7 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -860,6 +861,68 @@ public class CollectOperation extends AbstractStrategy {
 				);
 			}
 		}
+	}
+	
+	/**
+	 * Compute network card parameters for the current target monitor:
+	 * <ul>
+	 * <li><b>connectedPortsCount</b>: the number of connected network ports</li>
+	 * <li><b>totalBandwidth</b>: the total bandwidth available across all network cards</li>
+	 * </ul>
+	 */
+	void computeNetworkCardParameters() {
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		final Map<String, Monitor> networkCardMonitors = hostMonitoring.selectFromType(MonitorType.NETWORK_CARD);
+		if (networkCardMonitors == null || networkCardMonitors.isEmpty()) {
+			return;
+		}
+
+		double connectedPortsCount = 0;
+		double totalBandwidth = 0;
+
+		// Loop over all the network card monitors to compute the totalBandwidth & connectedPortsCount
+		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
+
+			// Get the link status
+			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
+
+			// If there is connected count it.
+			if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
+				connectedPortsCount++;
+			}
+
+			// Get the link speed value
+			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_SPEED_PARAMETER);
+			
+			// If there is a speed add it.
+			if (linkSpeed != null) {
+				totalBandwidth += linkSpeed;
+			}
+		}
+
+		// Create the parameter for connectedPortsCount
+		final NumberParam connectedPortsCountParam = NumberParam.builder()
+				.name(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER)
+				.unit(HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT)
+				.collectTime(strategyTime)
+				.value(connectedPortsCount)
+				.rawValue(connectedPortsCount)
+				.build();
+		
+		// Create the parameter for totalBandwidth
+		final NumberParam totalBandwidthParam = NumberParam.builder()
+				.name(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER)
+				.unit(HardwareConstants.SPEED_MBITS_PARAMETER_UNIT)
+				.collectTime(strategyTime)
+				.value(totalBandwidth)
+				.rawValue(totalBandwidth)
+				.build();
+
+		// Add the new parameters to the target monitor
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		targetMonitor.collectParameter(connectedPortsCountParam);
+		targetMonitor.collectParameter(totalBandwidthParam);
 	}
 
 	@Override
