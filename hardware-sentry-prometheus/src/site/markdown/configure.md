@@ -125,7 +125,7 @@ targets:
 
   - target:
       hostname: myhost-01
-      type: WINDOWS
+      type: WIN
     wmi:
       timeout: 120
       username: myusername
@@ -184,7 +184,7 @@ targets:
 
   - target:
       hostname: myhost-01
-      type: WINDOWS
+      type: WIN
     wmi:
       timeout: 120
       username: myusername
