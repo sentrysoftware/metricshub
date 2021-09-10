@@ -32,6 +32,9 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -53,12 +56,15 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILAB
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BATTERY_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -66,11 +72,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOGICAL_DISK_LAST_ERROR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MEMORY_LAST_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
@@ -78,20 +83,22 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_CO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEEDS_CLEANING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ON_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OFF_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ON_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_RATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_USED_PERCENT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_USED_WATTS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREVIOUS_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
@@ -103,18 +110,29 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WATTS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 
 @Slf4j
@@ -275,12 +293,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(logicalDisk);
 
 		collectErrorCount();
-		updateAdditionalStatusInformation(LOGICAL_DISK_LAST_ERROR);
 		collectLogicalDiskUnallocatedSpace();
 		
 		appendValuesToStatusParameter(
 				ERROR_COUNT_PARAMETER,
-				UNALLOCATED_SPACE_PARAMETER);
+				UNALLOCATED_SPACE_PARAMETER,
+				LAST_ERROR_PARAMETER);
 	}
 
 	@Override
@@ -297,13 +315,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(memory);
 
 		collectErrorCount();
-		updateAdditionalStatusInformation(MEMORY_LAST_ERROR);
-		
+
 		appendValuesToStatusParameter(
 				ERROR_COUNT_PARAMETER,
 				ERROR_STATUS_PARAMETER,
 				PREDICTED_FAILURE_PARAMETER,
-				PRESENT_PARAMETER);
+				PRESENT_PARAMETER,
+				LAST_ERROR_PARAMETER);
 
 		estimateMemoryPowerConsumption();
 	}
@@ -311,19 +329,46 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(NetworkCard networkCard) {
 		collectBasicParameters(networkCard);
+		
+		final Double duplexMode = collectNetworkCardDuplexMode();
+		final Double linkSpeed = collectNetworkCardLinkSpeed();
+		final Double receivedBytesRate = collectNetworkCardBytesRate(
+			RECEIVED_BYTES_PARAMETER,
+			RECEIVED_BYTES_RATE_PARAMETER,
+			USAGE_REPORT_RECEIVED_BYTES_PARAMETER
+		);
+		final Double transmittedBytesRate = collectNetworkCardBytesRate(
+			TRANSMITTED_BYTES_PARAMETER,
+			TRANSMITTED_BYTES_RATE_PARAMETER,
+			USAGE_REPORT_TRANSMITTED_BYTES_PARAMETER
+		);
+
+		collectNetworkCardBandwidthUtilization(duplexMode, linkSpeed, receivedBytesRate,transmittedBytesRate);
+
+		final Double receivedPackets = collectNetworkCardPacketsRate(
+			RECEIVED_PACKETS_PARAMETER,
+			RECEIVED_PACKETS_RATE_PARAMETER,
+			USAGE_REPORT_RECEIVED_PACKETS_PARAMETER
+		);
+		final Double transmittedPackets = collectNetworkCardPacketsRate(
+			TRANSMITTED_PACKETS_PARAMETER,
+			TRANSMITTED_PACKETS_RATE_PARAMETER,
+			USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER
+		);
+		collectNetworkCardErrorPercent(receivedPackets, transmittedPackets);
+		collectNetworkCardZeroBufferCreditPercent();
 
 		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
+				PRESENT_PARAMETER, 
 				BANDWIDTH_UTILIZATION_PARAMETER,
-				DUPLEX_MODE_PARAMETER,
 				ERROR_COUNT_PARAMETER,
-				ERROR_PERCENT_PARAMETER,
-				LINK_SPEED_PARAMETER,
-				LINK_STATUS_PARAMETER,
-				RECEIVED_BYTES_RATE_PARAMETER,
-				RECEIVED_PACKETS_RATE_PARAMETER,
-				TRANSMITTED_BYTES_RATE_PARAMETER,
-				TRANSMITTED_PACKETS_RATE_PARAMETER,
+				ERROR_PERCENT_PARAMETER, 
+				LINK_SPEED_PARAMETER, 
+				LINK_STATUS_PARAMETER, 
+				RECEIVED_BYTES_RATE_PARAMETER, 
+				RECEIVED_PACKETS_RATE_PARAMETER, 
+				TRANSMITTED_BYTES_RATE_PARAMETER, 
+				TRANSMITTED_PACKETS_RATE_PARAMETER, 
 				ZERO_BUFFER_CREDIT_PERCENT_PARAMETER);
 
 		estimateNetworkCardPowerConsumption();
@@ -578,14 +623,38 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
+	 * Collect the parameter string from the current value
+	 * 
+	 * @param monitorType   The type of the monitor
+	 * @param parameterName The unique name of the parameter
+	 * @return {@link String} value
+	 */
+	void collectTextParameter(@NonNull final String parameterName, final String value) {
+
+		if (value == null) {
+			return;
+		}
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Create a text parameter and update the value and the collect time
+		final TextParam textParam = TextParam.builder()
+				.name(parameterName)
+				.value(value)
+				.collectTime(monitorCollectInfo.getCollectTime())
+				.build();
+
+		monitor.collectParameter(textParam);
+	}
+
+	/**
 	 * Extract the parameter value from the current row
 	 * 
 	 * @param monitorType   The type of the monitor
 	 * @param parameterName The unique name of the parameter
 	 * @return {@link Double} value
 	 */
-	Double extractParameterValue(final MonitorType monitorType, final String parameterName) {
-		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+	Double extractParameterValue(@NonNull final MonitorType monitorType, final String parameterName) {
 
 		checkCollectInfo(monitorCollectInfo);
 
@@ -617,29 +686,27 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return null;
 	}
-
-	/**
-	 * Update status information with additional information as suffix.
-	 * 
-	 * @param additionalInformation The name of the field containing the additional information
-	 */
-	void updateAdditionalStatusInformation(final String additionalInformation) {
-
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-		final String additionalInfo = CollectHelper.getValueTableColumnValue(
-				monitorCollectInfo.getValueTable(),
-				additionalInformation,
-				monitor.getMonitorType(),
-				monitorCollectInfo.getRow(),
-				monitorCollectInfo.getMapping().get(additionalInformation));
-
-		if (additionalInfo != null) {
-
-			StatusParam statusParam = monitor.getParameter(STATUS_PARAMETER, StatusParam.class);
-			statusParam.setStatusInformation(statusParam.getStatusInformation() + " - " + additionalInfo);
-		}
-	}
 	
+	/**
+	 * Extract the parameter string from the current row
+	 * 
+	 * @param monitorType   The type of the monitor
+	 * @param parameterName The unique name of the parameter
+	 * @return {@link String} value
+	 */
+	String extractParameterStringValue(@NonNull final MonitorType monitorType, final String parameterName) {
+
+		checkCollectInfo(monitorCollectInfo);
+
+		// Get the number value as string from the current row
+		return CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				parameterName,
+				monitorType,
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(parameterName));
+	}
+
 	/**
 	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
 	 * @return a phrase for the intrusion status value
@@ -667,16 +734,30 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.STATUS.equals(metaParam.getType()))
 		.sorted(new StatusParamFirstComparator())
-		.forEach(metaParam -> collectStatusParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+		.forEach(metaParam -> collectStatusParameter(
+			metaMonitor.getMonitorType(),
+			metaParam.getName(), metaParam.getUnit()
+		));
 
 		metaMonitor.getMetaParameters()
 		.values()
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
-		.forEach(metaParam -> collectNumberParameter(metaMonitor.getMonitorType(), metaParam.getName(), metaParam.getUnit()));
+		.forEach(metaParam -> collectNumberParameter(
+			metaMonitor.getMonitorType(), 
+			metaParam.getName(),
+			metaParam.getUnit()
+		));
 
+		metaMonitor.getMetaParameters()
+		.values()
+		.stream()
+		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.TEXT.equals(metaParam.getType()))
+		.forEach(metaParam -> collectTextParameter(
+			metaParam.getName(),
+			extractParameterStringValue(metaMonitor.getMonitorType(), metaParam.getName())
+		));
 	}
-
 
 	/**
 	 * Collect the power consumption. <br>
@@ -865,82 +946,73 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects the error counts in {@link Robotic} & {@link TapeDrive}.
+	 * Collects the error counts
 	 */
 	void collectErrorCount() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
-		double errorCount;
 
 		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
 			ERROR_COUNT_PARAMETER);
 
 		if (rawErrorCount != null) {
+			double errorCount = 0.0;
+			final Double startingErrorCount = CollectHelper.getNumberParamRawValue(
+					monitor, STARTING_ERROR_COUNT_PARAMETER, true);
 
-			// Getting the previous error count
-			Double previousErrorCount = extractParameterValue(monitor.getMonitorType(),
-				PREVIOUS_ERROR_COUNT_PARAMETER);
-
-			// Getting the starting error count
-			Double startingErrorCount = extractParameterValue(monitor.getMonitorType(),
-				STARTING_ERROR_COUNT_PARAMETER);
-			
 			if (startingErrorCount != null) {
-				
 				// Remove existing error count from the current value
 				errorCount = rawErrorCount - startingErrorCount;
 
 				// If we obtain a negative number, that's impossible: set everything to 0
-				if (errorCount < 0)
-				{
+				if (errorCount < 0) {
 					errorCount = 0.0;
 
 					// Reset the starting error count
-					CollectHelper.updateNumberParameter(monitor,
+					CollectHelper.updateNumberParameter(
+							monitor,
+							STARTING_ERROR_COUNT_PARAMETER,
+							ERROR_COUNT_PARAMETER_UNIT,
+							monitorCollectInfo.getCollectTime(),
+							0.0,
+							0.0
+					);
+				} else {
+					// Copy the last startingErrorCount
+					CollectHelper.updateNumberParameter(
+							monitor,
+							STARTING_ERROR_COUNT_PARAMETER,
+							ERROR_COUNT_PARAMETER_UNIT,
+							monitorCollectInfo.getCollectTime(),
+							startingErrorCount,
+							startingErrorCount
+					);
+				}
+			} else {
+				// First polling, we're going to pretend that everything is alright and save the existing number of errors
+				if (rawErrorCount < 0) {
+					rawErrorCount = 0.0;
+				}
+				CollectHelper.updateNumberParameter(
+						monitor,
 						STARTING_ERROR_COUNT_PARAMETER,
 						ERROR_COUNT_PARAMETER_UNIT,
 						monitorCollectInfo.getCollectTime(),
-						0.0,
-						0.0);
-				} 
+						rawErrorCount,
+						rawErrorCount
+				);
+			}
 
-			} else {
-				
-				// First polling
-				errorCount = 0.0;
-				
-				if (rawErrorCount < 0.0) {
-					rawErrorCount = 0.0;
-				}
-				
-				// Record as the starting error count
-				CollectHelper.updateNumberParameter(monitor,
-					STARTING_ERROR_COUNT_PARAMETER,
+			CollectHelper.updateNumberParameter(
+					monitor,
+					ERROR_COUNT_PARAMETER,
 					ERROR_COUNT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					rawErrorCount,
-					rawErrorCount);
-				
-				// Record the previous error count
-				previousErrorCount = rawErrorCount;
-			}
-			
-			// Update the previous error count
-			CollectHelper.updateNumberParameter(monitor,
-				PREVIOUS_ERROR_COUNT_PARAMETER,
-				ERROR_COUNT_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				previousErrorCount,
-				previousErrorCount);
-
-			// Update the error count
-			CollectHelper.updateNumberParameter(monitor,
-				ERROR_COUNT_PARAMETER,
-				ERROR_COUNT_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				errorCount,
-				rawErrorCount);
+					errorCount,
+					errorCount
+			);
 		}
+
 	}
 
 	/**
@@ -981,13 +1053,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the used percent
 		Double usedPercent = null;
 		final Double usedPercentRaw = extractParameterValue(monitor.getMonitorType(),
-			POWER_SUPPLY_USED_PERCENT);
+			USED_PERCENT_PARAMETER);
 
 		if (usedPercentRaw == null) {
 		
 			// Getting the used capacity
 			final Double powerSupplyUsedWatts = extractParameterValue(monitor.getMonitorType(),
-				POWER_SUPPLY_USED_WATTS);
+				USED_WATTS_PARAMETER);
 			
 			// Getting the power
 			final Double power = extractParameterValue(monitor.getMonitorType(),
@@ -1492,6 +1564,425 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					translatedStatus,
 					translatedStatus.name());
 			}
+		}
+	}
+	
+	/**
+	 * Collect the {@link NetworkCard} duplex mode parameter.
+	 */
+	Double collectNetworkCardDuplexMode() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the duplex mode
+		final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(),
+				DUPLEX_MODE_PARAMETER);
+
+		if (duplexModeRaw != null) {
+
+			final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") || 
+					duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
+			CollectHelper.updateNumberParameter(
+					monitor,
+					DUPLEX_MODE_PARAMETER,
+					DUPLEX_MODE_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					duplexMode,
+					duplexMode
+			);
+
+			return duplexMode;
+		}
+
+		CollectHelper.updateNumberParameter(
+				monitor,
+				DUPLEX_MODE_PARAMETER,
+				DUPLEX_MODE_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				0D,
+				0D
+		);
+
+		return null;
+	}
+	
+	/**
+	 * Collect the {@link NetworkCard} link speed parameter.
+	 */
+	Double collectNetworkCardLinkSpeed() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the link speed
+		final Double linkSpeed = extractParameterValue(monitor.getMonitorType(),
+				LINK_SPEED_PARAMETER);
+
+		if (linkSpeed != null && linkSpeed >= 0) {
+			CollectHelper.updateNumberParameter(
+					monitor,
+					LINK_SPEED_PARAMETER,
+					SPEED_MBITS_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					linkSpeed,
+					linkSpeed
+			);
+		}
+
+		return linkSpeed;
+	}
+	
+	/**
+	 * Collects the {@link NetworkCard} bytes rate and usage.
+	 * 
+	 * @param bytesParameterName       The name of the bytes parameter where the raw value is collected
+	 * @param byteRateParameterName    The name of the byte rate parameter to be calculated
+	 * @param usageReportParameterName The name of the usage report parameter to be calculated
+	 * 
+	 * @return bytesRate               Calculated byte rate in MB/s
+	 */
+	Double collectNetworkCardBytesRate(final String bytesParameterName, final String byteRateParameterName, final String usageReportParameterName) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double bytesValue = extractParameterValue(monitor.getMonitorType(), bytesParameterName);
+		if (bytesValue == null) {
+			return null;
+		}
+
+		// Getting the current value's collect time
+		Long collectTime = monitorCollectInfo.getCollectTime();
+
+		// Setting the bytes parameter
+		CollectHelper.updateNumberParameter(
+				monitor,
+				bytesParameterName,
+				BYTES_PARAMETER_UNIT,
+				collectTime,
+				bytesValue,
+				bytesValue
+		);
+		
+		// Getting the previous value
+		Double lastBytesValue = CollectHelper.getNumberParamRawValue(monitor, bytesParameterName, true);
+		if (lastBytesValue == null) {
+			log.warn("No last bytes value to calculate the byte rate or usage.");
+			return null;
+		}
+
+		// Getting the previous value's collect time
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, bytesParameterName, true);
+		if (collectTimePrevious == null) {
+			// This should never happen
+			log.warn("Found previous bytes value, but could not find previous collect time.");
+			return null;
+		}
+
+		// Computing the value delta (in MBytes)
+		final Double bytesDelta = CollectHelper.subtract(bytesParameterName, bytesValue, lastBytesValue);
+		if (bytesDelta == null) {
+			log.warn("Found decreasing bytes count - must have been reset.");
+			return null;
+		}
+		final double bytesDeltaMb = bytesDelta / 1048576.0;
+
+		// Byte rate
+		Double bytesRate = null;
+
+		// Computing the time delta (in seconds)
+		final Double timeDeltaMs = CollectHelper.subtract(bytesParameterName, collectTime.doubleValue(), collectTimePrevious);
+		if (timeDeltaMs == null || timeDeltaMs == 0.0) {
+			log.warn("No denominator for collect time difference to calculate the byte rate.");
+		} else {
+			final double timeDelta = timeDeltaMs / 1000.0;
+	
+			// Setting the byte rate (in MB/s)
+			bytesRate = bytesDeltaMb / timeDelta;
+			CollectHelper.updateNumberParameter(monitor,
+					byteRateParameterName,
+					BYTES_RATE_PARAMETER_UNIT,
+					collectTime,
+					bytesRate,
+					bytesRate
+			);
+		}
+
+		// Setting the usage (in GB), even if it is zero
+		final double bytesDeltaGb = bytesDeltaMb / 1024.0;
+		CollectHelper.updateNumberParameter(
+				monitor,
+				usageReportParameterName,
+				SPACE_GB_PARAMETER_UNIT,
+				collectTime,
+				bytesDeltaGb,
+				bytesDeltaGb
+		);
+
+		return bytesRate;
+	}
+	
+	/**
+	 * Collects the {@link NetworkCard} packets rate and usage.
+	 * 
+	 * @param packetsParameterName       The name of the packets parameter where the raw value is collected
+	 * @param packetRateParameterName    The name of the packets rate parameter to be calculated
+	 * @param usageReportParameterName   The name of the usage report parameter to be calculated
+	 * 
+	 * @return packetsValue              Number of packets
+	 */
+	Double collectNetworkCardPacketsRate(final String packetsParameterName, final String packetRateParameterName, final String usageReportParameterName) {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current value
+		final Double packetsValue = extractParameterValue(monitor.getMonitorType(),
+			packetsParameterName);
+
+		if (packetsValue == null) {
+			return null;
+		}
+
+		// Getting the current value's collect time
+		Long collectTime = monitorCollectInfo.getCollectTime();
+		
+		// Setting the packets parameter
+		CollectHelper.updateNumberParameter(
+				monitor,
+				packetsParameterName,
+				PACKETS_PARAMETER_UNIT,
+				collectTime,
+				packetsValue,
+				packetsValue
+		);
+
+		// Getting the previous value
+		Double lastPacketsValue = CollectHelper.getNumberParamRawValue(monitor, packetsParameterName, true);
+		if (lastPacketsValue == null) {
+			return packetsValue;
+		}
+
+		// Getting the previous value's collect time
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, packetsParameterName, true);
+
+		if (collectTimePrevious == null) {
+			// This should never happen
+			log.warn("Found previous packets value, but could not find previous collect time.");
+			return packetsValue;
+		}
+
+		// Computing the packets delta
+		final Double packetsDelta = CollectHelper.subtract(packetsParameterName, packetsValue, lastPacketsValue);
+		if (packetsDelta == null) {
+			log.warn("Found decreasing packets count - must have been reset.");
+			return packetsValue;
+		}
+
+		// Computing the time delta (in seconds)
+		Double timeDelta = CollectHelper.subtract(packetsParameterName, collectTime.doubleValue(), collectTimePrevious);
+		if (timeDelta == null || timeDelta == 0.0) {
+			return packetsValue;
+		}
+
+		timeDelta /= 1000.0;
+
+		// Setting the usage in packets
+		CollectHelper.updateNumberParameter(
+				monitor,
+				usageReportParameterName,
+				PACKETS_PARAMETER_UNIT,
+				collectTime,
+				packetsDelta,
+				packetsValue
+		);
+
+		// Setting the packets rate
+		final Double packetsRate = packetsDelta / timeDelta;
+		CollectHelper.updateNumberParameter(
+				monitor,
+				packetRateParameterName,
+				PACKETS_RATE_PARAMETER_UNIT,
+				collectTime,
+				packetsRate,
+				packetsValue
+		);
+
+		return packetsValue;
+	}
+	
+	/**
+	 * Collect the {@link NetworkCard} bandwidth utilization.
+	 */
+	void collectNetworkCardBandwidthUtilization(final Double duplexMode, final Double linkSpeed, Double receivedBytesRate, Double transmittedBytesRate) {
+
+		// No rate => no bandwidth
+		if (receivedBytesRate == null && transmittedBytesRate == null) {
+			return;
+		}
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		if (linkSpeed != null && linkSpeed >= 0) {
+
+			if (receivedBytesRate == null) {
+				receivedBytesRate = 0D;
+			}
+			if (transmittedBytesRate == null) {
+				transmittedBytesRate = 0D;
+			}
+
+			double bandwidthUtilization;
+			if (duplexMode == null || duplexMode == 1D)  {
+				// Full-duplex mode, or unknown mode, in which case, we assume full-duplex.
+				// In full-duplex mode, consider bandwidth as the maximum usage while receiving or transmitting.
+				bandwidthUtilization = Math.max(transmittedBytesRate, receivedBytesRate) * 8 * 100 / linkSpeed;
+			} else {
+				// Half-duplex mode
+				bandwidthUtilization = (transmittedBytesRate + receivedBytesRate) * 8 * 100 / linkSpeed;
+			}
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					BANDWIDTH_UTILIZATION_PARAMETER,
+					PERCENT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					bandwidthUtilization,
+					bandwidthUtilization
+			);
+		}
+	}
+	
+	/**
+	 * Collect the {@link NetworkCard} error count/percentage.
+	 */
+	void collectNetworkCardErrorPercent(final Double receivedPackets, final Double tranmittedPackets) {
+		
+		if (receivedPackets == null || tranmittedPackets == null) {
+			return;
+		}
+		
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current error count
+		final Double errorCount = extractParameterValue(monitor.getMonitorType(),
+			ERROR_COUNT_PARAMETER);
+
+		if (errorCount == null) {
+			return;
+		}
+
+		// Setting the error count
+		CollectHelper.updateNumberParameter(
+				monitor,
+				ERROR_COUNT_PARAMETER,
+				ERROR_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				errorCount,
+				errorCount
+		);
+		
+		// Setting the total packets
+		final Double totalPackets = receivedPackets + tranmittedPackets;
+		CollectHelper.updateNumberParameter(
+				monitor,
+				TOTAL_PACKETS_PARAMETER,
+				PACKETS_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				totalPackets,
+				totalPackets
+		);
+
+		// Getting the previous error count
+		final Double lastErrorCount = CollectHelper.getNumberParamRawValue(monitor,
+			ERROR_COUNT_PARAMETER, true);
+		
+		if (lastErrorCount == null) {
+			return;
+		}
+
+		// Getting the previous total packets count
+		final Double lastTotalPackets = CollectHelper.getNumberParamRawValue(monitor,
+				TOTAL_PACKETS_PARAMETER, true);
+		
+		if (lastTotalPackets == null) {
+			return;
+		}
+
+		// Computing the total packets delta
+		final Double totalPacketsDelta = CollectHelper.subtract(TOTAL_PACKETS_PARAMETER,
+				totalPackets, lastTotalPackets);
+		
+		// Setting the error percent
+		if (totalPacketsDelta != null && totalPacketsDelta > 10) {
+			
+			// Computing the error count delta
+			final Double errorCountDelta = CollectHelper.subtract(ERROR_COUNT_PARAMETER,
+				errorCount, lastErrorCount);
+			
+			if (errorCountDelta != null) {
+				// Computing the error percent
+				final Double errorPercent = Math.min(100 * errorCountDelta / totalPacketsDelta, 100);
+			
+				CollectHelper.updateNumberParameter(
+						monitor,
+						ERROR_PERCENT_PARAMETER,
+						PERCENT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						errorPercent,
+						errorPercent
+				);
+			}
+		}
+	}
+	
+	/**
+	 * Collect the {@link NetworkCard} zero credit buffer count/percent
+	 */
+	void collectNetworkCardZeroBufferCreditPercent() {
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Getting the current zero buffer credit count
+		final Double zeroBufferCreditCount = extractParameterValue(monitor.getMonitorType(),
+				ZERO_BUFFER_CREDIT_COUNT_PARAMETER);
+		
+		// Getting the previous zero buffer credit count
+		final Double lastZeroBufferCreditCount = CollectHelper.getNumberParamRawValue(monitor,
+			ZERO_BUFFER_CREDIT_COUNT_PARAMETER, true);
+		
+		// Setting the zero buffer credit count
+		CollectHelper.updateNumberParameter(
+				monitor,
+				ZERO_BUFFER_CREDIT_COUNT_PARAMETER,
+				ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				zeroBufferCreditCount,
+				zeroBufferCreditCount
+		);
+
+		if (zeroBufferCreditCount == null || lastZeroBufferCreditCount == null) {
+			return;
+		}
+		
+		// Getting the transmitted packets since last collect
+		final Double transmittedPacketsSinceLastCollect = CollectHelper.getNumberParamValue(monitor,
+				USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER);
+		
+		if (transmittedPacketsSinceLastCollect == null) {
+			return;
+		}
+
+		// Computing the zero buffer credit delta delta
+		final Double zeroBufferCreditDelta = CollectHelper.subtract(ZERO_BUFFER_CREDIT_COUNT_PARAMETER,
+				zeroBufferCreditCount, lastZeroBufferCreditCount);
+		
+		if (zeroBufferCreditDelta != null) {
+			// Setting the zero buffer credit percent
+			final Double lastZeroBufferCreditPercent = 100 * zeroBufferCreditDelta / (zeroBufferCreditDelta + transmittedPacketsSinceLastCollect);
+			CollectHelper.updateNumberParameter(
+					monitor,
+					ZERO_BUFFER_CREDIT_PERCENT_PARAMETER,
+					PERCENT_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					lastZeroBufferCreditPercent,
+					lastZeroBufferCreditPercent
+			);
 		}
 	}
 }

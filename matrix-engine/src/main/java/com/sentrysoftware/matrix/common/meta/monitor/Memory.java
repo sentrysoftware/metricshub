@@ -30,6 +30,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
@@ -60,6 +61,12 @@ public class Memory implements IMetaMonitor {
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
+			.build();
+
+	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
+			.basicCollect(true)
+			.name(LAST_ERROR_PARAMETER)
+			.type(ParameterType.TEXT)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, TYPE, SIZE, ADDITIONAL_INFORMATION1,
@@ -101,6 +108,7 @@ public class Memory implements IMetaMonitor {
 		map.put(ENERGY_PARAMETER, ENERGY);
 		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
 		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(LAST_ERROR_PARAMETER, LAST_ERROR);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

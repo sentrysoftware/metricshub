@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import java.util.List;
-
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +17,7 @@ public class TextParam extends AbstractParam {
 	private String value;
 
 	@Builder
-	public TextParam(String name, Long collectTime, List<AlertRule> alertRules, ParameterState parameterState, String unit, String value) {
+	public TextParam(String name, Long collectTime, ParameterState parameterState, String unit, String value) {
 
 		super(name, collectTime, parameterState, unit);
 		this.value = value;

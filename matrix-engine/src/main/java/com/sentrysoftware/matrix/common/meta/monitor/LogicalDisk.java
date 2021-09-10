@@ -25,6 +25,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RAID_LEVEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
@@ -50,6 +51,12 @@ public class LogicalDisk implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
+			.basicCollect(true)
+			.name(LAST_ERROR_PARAMETER)
+			.type(ParameterType.TEXT)
+			.build();
+
 	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, ADDITIONAL_INFORMATION1,
 			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
@@ -72,6 +79,7 @@ public class LogicalDisk implements IMetaMonitor {
 		map.put(STATUS_PARAMETER, STATUS);
 		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
+		map.put(LAST_ERROR_PARAMETER, LAST_ERROR);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
