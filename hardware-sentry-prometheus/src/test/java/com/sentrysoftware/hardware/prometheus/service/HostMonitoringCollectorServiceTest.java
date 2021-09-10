@@ -50,11 +50,15 @@ import io.prometheus.client.exporter.common.TextFormat;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.ID;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABEL;
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.PARENT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
@@ -83,10 +87,6 @@ class HostMonitoringCollectorServiceTest {
 	private static final String ID_VALUE = "id";
 	private static final String FAN_ID = "connector1.connector_fan_ecs_1.1";
 	private static final String FAN_NAME = "Fan 1.1";
-	private static final String ADDITIONAL_INFORMATION1 = "additional_information1";
-	private static final String DEVICE_ID = "device_id";
-	private static final String FAN_TYPE = "fan_type";
-	private static final String SERIAL_NUMBER = "serial_number";
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -634,7 +634,7 @@ class HostMonitoringCollectorServiceTest {
 	}
 
 	@Test
-	void testCheckcheckMetadata() {
+	void testCheckMetadata() {
 		{
 
 			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -658,6 +658,44 @@ class HostMonitoringCollectorServiceTest {
 		}
 		{
 			assertFalse(HostMonitoringCollectorService.checkMetadata(null, MAXIMUM_SPEED));
+		}
+	}
+
+	@Test
+	void testConvertMetadataInfoValue() {
+		{
+
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put("maximumspeed", "4");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadata).monitorType(MonitorType.CPU).build();
+			assertEquals(Double.toString(4*1000000.0), HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, ""));
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, null));
+
+			final Map<String, String> cpuMetadataEmpty = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadataEmpty.put("maximumspeed", "");
+			cpuMetadata.put("vendor", "Intel");
+			final Monitor monitorCpu = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(cpuMetadataEmpty).monitorType(MonitorType.CPU).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitorCpu, MAXIMUM_SPEED));
+
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(Collections.emptyMap()).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
+					.metadata(null).build();
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+		}
+		{
+			assertEquals("", HostMonitoringCollectorService.convertMetadataInfoValue(null, MAXIMUM_SPEED));
 		}
 	}
 
