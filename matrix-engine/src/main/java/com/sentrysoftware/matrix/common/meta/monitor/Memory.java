@@ -53,6 +53,12 @@ public class Memory implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.LAST_ERROR_PARAMETER)
+			.type(ParameterType.TEXT)
+			.build();
+
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, TYPE, SIZE, ADDITIONAL_INFORMATION1,
 			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
@@ -92,6 +98,7 @@ public class Memory implements IMetaMonitor {
 		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
 		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
 		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(HardwareConstants.LAST_ERROR_PARAMETER, LAST_ERROR);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

@@ -84,6 +84,7 @@ public class HardwareConstants {
 	//       PLEASE NOTE: parameter names MUST be written using camelCase        //
 	//                                                                           //
 	///////////////////////////////////////////////////////////////////////////////
+
 	public static final String STATUS_PARAMETER = "status";
 	public static final String TEST_REPORT_PARAMETER = "testReport";
 	public static final String STATUS_INFORMATION_PARAMETER = "statusInformation";
@@ -106,7 +107,6 @@ public class HardwareConstants {
 	public static final String ERROR_COUNT_PARAMETER = "errorCount";
 	public static final String CORRECTED_ERROR_COUNT_PARAMETER = "correctedErrorCount";
 	public static final String STARTING_ERROR_COUNT_PARAMETER = "startingErrorCount";
-	public static final String PREVIOUS_ERROR_COUNT_PARAMETER = "previousErrorCount";
 	public static final String ERROR_STATUS_PARAMETER = "errorStatus";
 	public static final String PREDICTED_FAILURE_PARAMETER = "predictedFailure";
 	public static final String PRESENT_PARAMETER = "present";
@@ -123,9 +123,13 @@ public class HardwareConstants {
 	public static final String LINK_SPEED_PARAMETER = "linkSpeed";
 	public static final String LINK_STATUS_PARAMETER = "linkStatus";
 	public static final String RECEIVED_BYTES_RATE_PARAMETER = "receivedBytesRate";
+	public static final String USAGE_REPORT_RECEIVED_BYTES_PARAMETER = "usageReportReceivedBytes";
 	public static final String RECEIVED_PACKETS_RATE_PARAMETER = "receivedPacketsRate";
+	public static final String USAGE_REPORT_RECEIVED_PACKETS_PARAMETER = "usageReportReceivedPackets";
 	public static final String TRANSMITTED_BYTES_RATE_PARAMETER = "transmittedBytesRate";
+	public static final String USAGE_REPORT_TRANSMITTED_BYTES_PARAMETER = "usageReportTransmittedBytes";
 	public static final String TRANSMITTED_PACKETS_RATE_PARAMETER = "transmittedPacketsRate";
+	public static final String USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER = "usageReportTransmittedPackets";
 	public static final String ZERO_BUFFER_CREDIT_PERCENT_PARAMETER = "zeroBufferCreditPercent";
 	public static final String USAGE_COUNT_PARAMETER = "usageCount";
 	public static final String VALUE_PARAMETER = "value";
@@ -141,6 +145,12 @@ public class HardwareConstants {
 	public static final String TRANSMITTED_PACKETS_PARAMETER = "transmittedPackets";
 	public static final String RECEIVED_PACKETS_PARAMETER = "receivedPackets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER = "zeroBufferCreditCount";
+	public static final String TOTAL_PACKETS_PARAMETER = "totalPackets";
+	public static final String CONNECTED_PORTS_COUNT_PARAMETER = "connectedPortsCount";
+	public static final String TOTAL_BANDWIDTH_PARAMETER = "totalBandwidth";
+	public static final String USED_WATTS_PARAMETER = "usedWatts";
+	public static final String USED_PERCENT_PARAMETER = "usedPercent";
+	public static final String LAST_ERROR_PARAMETER = "lastError";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //
@@ -183,6 +193,7 @@ public class HardwareConstants {
 	//        PLEASE NOTE: metadata names MUST be written using camelCase        //
 	//                                                                           //
 	///////////////////////////////////////////////////////////////////////////////
+
 	public static final String SERIAL_NUMBER = "serialNumber";
 	public static final String MODEL = "model";
 	public static final String VENDOR = "vendor";
@@ -204,8 +215,6 @@ public class HardwareConstants {
 	public static final String ROBOTIC_TYPE = "roboticType";
 	public static final String POWER_SUPPLY_TYPE = "powerSupplyType";
 	public static final String POWER_SUPPLY_POWER = "powerSupplyPower";
-	public static final String POWER_SUPPLY_USED_WATTS = "powerSupplyUsedWatts";
-	public static final String POWER_SUPPLY_USED_PERCENT = "powerSupplyUsedPercent";
 	public static final String BIOS_VERSION = "biosVersion";
 	public static final String DEVICE_TYPE = "deviceType";
 	public static final String LOGICAL_ADDRESS = "logicalAddress";
@@ -249,8 +258,6 @@ public class HardwareConstants {
 	public static final String DISK_CONTROLLER_NUMBER = "controllerNumber";
 	public static final String COLOR = "color";
 	public static final String ADDITIONAL_LABEL = "additionalLabel";
-	public static final String MEMORY_LAST_ERROR = "memoryLastError";
-	public static final String LOGICAL_DISK_LAST_ERROR = "logicalDiskLastError";
 	public static final String IS_CPU_SENSOR = "isCpuSensor";
 	public static final String AVERAGE_CPU_TEMPERATURE_WARNING = "averageCpuTemperatureWarning";
 	public static final String WARNING_ON_COLOR = "warningOnColor";
@@ -299,6 +306,7 @@ public class HardwareConstants {
 	public static final String BYTES_PARAMETER_UNIT = "Bytes";
 	public static final String PACKETS_PARAMETER_UNIT = "Packets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
+	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
 
 	public static final String ONE = "1";
 	public static final String ZERO = "0";

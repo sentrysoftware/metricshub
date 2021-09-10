@@ -46,6 +46,12 @@ public class LogicalDisk implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
+	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
+			.basicCollect(true)
+			.name(HardwareConstants.LAST_ERROR_PARAMETER)
+			.type(ParameterType.TEXT)
+			.build();
+
 	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, ADDITIONAL_INFORMATION1,
 			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
@@ -68,6 +74,7 @@ public class LogicalDisk implements IMetaMonitor {
 		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
 		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(HardwareConstants.UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
+		map.put(HardwareConstants.LAST_ERROR_PARAMETER, LAST_ERROR);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
