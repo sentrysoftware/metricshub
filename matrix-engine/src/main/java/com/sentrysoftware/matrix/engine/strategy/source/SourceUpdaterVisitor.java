@@ -75,7 +75,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final HTTPSource copy = httpSource.copy();
 
 		// Replace HTTP Authentication token
-		copy.setAuthenticationToken(getValueFromForeignSource(
+		copy.setAuthenticationToken(extractHttpTokenFromSource(
 				copy.getKey(),
 				copy.getAuthenticationToken(),
 				"authenticationToken"));
@@ -182,7 +182,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 * @param fieldLabel        The field label used for debug purpose
 	 * @return {@link String} value
 	 */
-	String getValueFromForeignSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
+	String extractHttpTokenFromSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
 
 		// No token to replace
 		if (foreignSourceKey == null) {
@@ -457,7 +457,10 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	SourceTable getSourceTable(final String key) {
 
 		if (SOURCE_PATTERN.matcher(key).matches()) {
-			return strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+			return strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getSourceTable(key);
 		}
 
 		return SourceTable.builder()

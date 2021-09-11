@@ -27,6 +27,7 @@ public class HardwareConstants {
 	public static final String OPENING_SQUARE_BRACKET = "[";
 	public static final String CLOSING_SQUARE_BRACKET = "]";
 	public static final String SEMICOLON = ";";
+	public static final String TABLE_SEP = SEMICOLON;
 	public static final String COLUMN_REGEXP = "^\\s*column\\((\\d+)\\)\\s*$";
 	public static final String LOCALHOST = "localhost";
 	public static final String REMOTE = "remote";

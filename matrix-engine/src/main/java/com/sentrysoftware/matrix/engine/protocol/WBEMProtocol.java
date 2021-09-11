@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WBEMProtocol implements IProtocolConfiguration {
 
-	WBEMProtocols protocol;
+	@Default
+	WBEMProtocols protocol = WBEMProtocols.HTTPS;
 
 	@Default
 	private Integer port = 5989;
 
-	@Default
-	private String namespace = "root/cimv2";
+	private String namespace;
 
 	@Default
 	private Long timeout = 120L;
@@ -27,18 +27,40 @@ public class WBEMProtocol implements IProtocolConfiguration {
 
 	char[] password;
 
+	/**
+	 * Represents the transport protocol for WBEM: HTTP or HTTPS
+	 */
 	public enum WBEMProtocols {
-		HTTP, HTTPS;
+
+		HTTP,
+		HTTPS;
 
 		/**
-		 * Convert to upper case in order to manage case sensitivity
+		 * Interpret the specified name and returns corresponding value.
 		 *
-		 * @param label	The {@link String} representation of the {@link WBEMProtocols}.
+		 * @param label	String to be interpreted
 		 *
-		 * @return		The {@link WBEMProtocols} having the given {@link String} representation (case insensitive).
+		 * @return Corresponding {@link WBEMProtocols} value
 		 */
-		public static WBEMProtocols getValue(final String label) {
-			return WBEMProtocols.valueOf(label.toUpperCase());
+		public static WBEMProtocols interpretValueOf(final String label) {
+
+			if ("http".equalsIgnoreCase(label)) {
+				return HTTP;
+			}
+
+			if ("https".equalsIgnoreCase(label)) {
+				return HTTPS;
+			}
+
+			throw new IllegalArgumentException("Invalid protocol value: " + label);
+		}
+
+		@Override
+		public String toString() {
+			if (this == HTTP) {
+				return "http";
+			}
+			return "https";
 		}
 	}
 }

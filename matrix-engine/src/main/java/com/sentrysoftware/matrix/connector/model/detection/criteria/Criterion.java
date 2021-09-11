@@ -19,9 +19,9 @@ public abstract class Criterion implements Serializable {
 
 	private static final long serialVersionUID = -3677479724786317941L;
 
-	private boolean forceSerialization;
+	protected boolean forceSerialization;
 
-	private Integer index;
+	protected Integer index;
 
 	public void setIndex(int index) {
 

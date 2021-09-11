@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -28,7 +30,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -41,6 +42,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -55,10 +57,7 @@ class DetectionOperationTest {
 	private static final String TARGET_NAME = "target";
 	private static final String TARGET_ID = "targetId";
 	private static final String COMMUNITY = "public";
-	private static final String BAD_RESULT = "1";
-	private static final String FAILED = "Failed";
 	private static final String VERSION = "4.2.3";
-	private static final String SUCCESS = "Success";
 	private static final String CONNECTOR5_ID = "connector5.connector";
 	private static final String CONNECTOR4_ID = "connector4.connector";
 	private static final String CONNECTOR3_ID = "connector3.connector";
@@ -70,6 +69,8 @@ class DetectionOperationTest {
 	private static final String OID4 = "1.2.3.4.8";
 	private static final String OID5 = "1.2.3.4.9";
 	private static final String ECS1_01 = "ecs1-01";
+	private static final String SUCCESS_SNMP_RESULT1 = OID1 + " ASN_OCT " + VERSION;
+	private static final String SUCCESS_SNMP_RESULT2 = OID2 + " ASN_OCT " + VERSION;
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -78,7 +79,7 @@ class DetectionOperationTest {
 	private ConnectorStore store;
 
 	@Mock
-	private CriterionVisitor criterionVisitor;
+	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@InjectMocks
 	private DetectionOperation detectionOperation;
@@ -153,14 +154,14 @@ class DetectionOperationTest {
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(ECS1_01))).thenReturn(false);
 
-			doReturn(CriterionTestResult.builder().success(true).message(SUCCESS).result(VERSION).build())
-					.when(criterionVisitor).visit(criterion1);
+			doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
 
-			doReturn(CriterionTestResult.builder().success(true).message(SUCCESS).result(VERSION).build())
-					.when(criterionVisitor).visit(criterion2);
+			doReturn(SUCCESS_SNMP_RESULT2).when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID2), any(), any(), anyBoolean());
 
-			doReturn(CriterionTestResult.builder().success(false).message(FAILED).result(BAD_RESULT).build())
-					.when(criterionVisitor).visit(criterion5);
+			doReturn("").when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID5), any(), any(), anyBoolean());
 
 			detectionOperation.call();
 
@@ -191,11 +192,11 @@ class DetectionOperationTest {
 				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)
 						.getConnectors();
 
-		doReturn(CriterionTestResult.builder().success(true).message(SUCCESS).result(VERSION).build())
-				.when(criterionVisitor).visit(criterion1);
+		doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
+				.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
 
-		doReturn(CriterionTestResult.builder().success(false).message(FAILED).result(BAD_RESULT).build())
-				.when(criterionVisitor).visit(criterion2);
+		doReturn("").when(matsyaClientsExecutor)
+				.executeSNMPGetNext(eq(OID2), any(), any(), anyBoolean());
 
 		detectionOperation.call();
 
@@ -228,7 +229,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCreatetargetOnExistingtarget() throws LocalhostCheckException, UnknownHostException {
+	void testCreatetargetOnExistingtarget() throws UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString(), null);
 
@@ -329,7 +330,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testFilterConnectorsByLocalAndRemoteSupport() throws LocalhostCheckException {
+	void testFilterConnectorsByLocalAndRemoteSupport() {
 
 		{
 			Connector connector = Connector.builder().localSupport(false).build();
@@ -377,7 +378,7 @@ class DetectionOperationTest {
 				.collect(Collectors.toSet());
 
 		// exclude set is empty
-		assertEquals(localStore, 
+		assertEquals(localStore,
 				DetectionOperation.filterExcludedConnectors(Collections.emptySet(), localStore)
 				.collect(Collectors.toSet()));
 

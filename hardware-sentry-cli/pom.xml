@@ -105,7 +105,7 @@
 							<goal>repackage</goal>
 						</goals>
 						<configuration>
-							<mainClass>com.sentrysoftware.hardware.cli.HardwareSentryCLIApplication</mainClass>
+							<mainClass>com.sentrysoftware.hardware.cli.HardwareSentryCliApplication</mainClass>
 						</configuration>
 					</execution>
 				</executions>

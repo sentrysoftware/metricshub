@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,16 +36,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -76,20 +73,6 @@ class MatsyaClientsExecutorTest {
 	@Test
 	void testExecute() throws InterruptedException, ExecutionException, TimeoutException {
 		assertEquals("value", new MatsyaClientsExecutor().execute(() -> "value", 10L));
-	}
-
-	@Test
-	void testBuildWMINetworkResource() throws LocalhostCheckException {
-		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(true);
-			assertEquals("root/cimv2", new MatsyaClientsExecutor().buildWmiNetworkResource("hostname", "root/cimv2"));
-		}
-
-		try (MockedStatic<NetworkHelper> networkHelper = mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost("hostname")).thenReturn(false);
-			assertEquals("\\\\hostname\\root/cimv2", new MatsyaClientsExecutor()
-				.buildWmiNetworkResource("hostname", "root/cimv2"));
-		}
 	}
 
 	@Test
@@ -305,11 +288,7 @@ class MatsyaClientsExecutorTest {
 	}
 
 	@Test
-	void testExecuteWbem() throws WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException, MalformedURLException {
-
-		// url is null
-		assertThrows(MalformedURLException.class,
-			() -> matsyaClientsExecutor.executeWbem(null, null, null, 0, null, null));
+	void testExecuteWbem() throws Exception {
 
 		// url is not null
 		try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
@@ -327,18 +306,13 @@ class MatsyaClientsExecutorTest {
 				.thenReturn(wbemQueryResult);
 
 			String url = "https://" + DEV_HV_01 + ":5989";
-			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, null, null, 0, FOO, BAR));
+			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WBEMProtocol.builder()
+					.protocol(WBEMProtocols.HTTPS)
+					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
 				isNull(), anyString(), anyInt(), isNull()));
 		}
-	}
-
-	@Test
-	void testBuildWbemUrl() {
-
-		assertEquals("https://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, true));
-		assertEquals("http://FOO:5989", MatsyaClientsExecutor.buildWbemUrl(FOO, 5989, false));
 	}
 
 	@Test
@@ -372,42 +346,42 @@ class MatsyaClientsExecutorTest {
 			assertEquals("System power state is up", matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));
 		}
 	}
-	
+
 	@Test
 	void testExecuteXmlParsing() throws Exception {
 
 		final String xml =
-				"<?xml version=\"1.0\"?>\n" + 
-				"<Document>\n" + 
-				"	<Owner>User</Owner>\n" + 
-				"	<Disks>\n" + 
-				"		<Disk name=\"Disk1\" size=\"1000\">\n" + 
-				"			<Free>500</Free>\n" + 
-				"			<Volumes>\n" + 
-				"				<Volume name=\"Vol1\">\n" + 
-				"					<Subscribe>600</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"			</Volumes>\n" + 
-				"		</Disk>\n" + 
-				"		<Disk name=\"Disk2\" size=\"2000\">\n" + 
-				"			<Free>750</Free>\n" + 
-				"		</Disk>\n" + 
-				"		<Disk name=\"Disk3\" size=\"2900\">\n" + 
-				"			<Free>1500</Free>\n" + 
-				"			<Volumes>\n" + 
-				"				<Volume name=\"Vol3.0\">\n" + 
-				"					<Subscribe>3000</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"				<Volume name=\"Vol3.1\">\n" + 
-				"					<Subscribe>3100</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"				<Volume name=\"Vol3.2\">\n" + 
-				"					<Subscribe>3200</Subscribe>\n" + 
-				"				</Volume>\n" + 
-				"			</Volumes>\n" + 
-				"		</Disk>\n" + 
-				"	</Disks>\n" + 
-				"	<OS name=\"Linux\"/>\n" + 
+				"<?xml version=\"1.0\"?>\n" +
+				"<Document>\n" +
+				"	<Owner>User</Owner>\n" +
+				"	<Disks>\n" +
+				"		<Disk name=\"Disk1\" size=\"1000\">\n" +
+				"			<Free>500</Free>\n" +
+				"			<Volumes>\n" +
+				"				<Volume name=\"Vol1\">\n" +
+				"					<Subscribe>600</Subscribe>\n" +
+				"				</Volume>\n" +
+				"			</Volumes>\n" +
+				"		</Disk>\n" +
+				"		<Disk name=\"Disk2\" size=\"2000\">\n" +
+				"			<Free>750</Free>\n" +
+				"		</Disk>\n" +
+				"		<Disk name=\"Disk3\" size=\"2900\">\n" +
+				"			<Free>1500</Free>\n" +
+				"			<Volumes>\n" +
+				"				<Volume name=\"Vol3.0\">\n" +
+				"					<Subscribe>3000</Subscribe>\n" +
+				"				</Volume>\n" +
+				"				<Volume name=\"Vol3.1\">\n" +
+				"					<Subscribe>3100</Subscribe>\n" +
+				"				</Volume>\n" +
+				"				<Volume name=\"Vol3.2\">\n" +
+				"					<Subscribe>3200</Subscribe>\n" +
+				"				</Volume>\n" +
+				"			</Volumes>\n" +
+				"		</Disk>\n" +
+				"	</Disks>\n" +
+				"	<OS name=\"Linux\"/>\n" +
 				"</Document>\n";
 
 		final String properties =

@@ -8,12 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class Service extends Criterion {
 
 	private static final long serialVersionUID = -6173571823803344096L;
@@ -31,4 +29,10 @@ public class Service extends Criterion {
 	public CriterionTestResult accept(final ICriterionVisitor criterionVisitor) {
 		return criterionVisitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return "- Service: " + serviceName;
+	}
+
 }
