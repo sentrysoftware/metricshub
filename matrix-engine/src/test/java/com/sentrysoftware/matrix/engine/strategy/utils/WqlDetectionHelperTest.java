@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
@@ -19,10 +21,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.NamespaceResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.PossibleNamespacesResult;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class WqlDetectionHelperTest {
@@ -195,11 +201,175 @@ class WqlDetectionHelperTest {
 
 
 	@Test
-	void testDetectNamespace() {
+	void testPerformDetectionTest() throws Exception {
+
+		// Invalid parameters
+		{
+			assertThrows(IllegalArgumentException.class, () -> wqlDetectionHelper.performDetectionTest(HOSTNAME, null, null));
+		}
+
+		// MatsyaException
+		{
+			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			doThrow(new MatsyaException("problem", new TimeoutException()))
+					.when(matsyaClientsExecutor)
+					.executeWql(any(), eq(wmiConfig), any(), any());
+			WMI criterion = WMI.builder().wbemQuery("query").build();
+
+			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
+			assertFalse(result.isSuccess());
+			assertNotNull(result.getException());
+			assertTrue(result.getException() instanceof TimeoutException);
+		}
+
+		// Empty result
+		// MatsyaException
+		{
+			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			doReturn(Collections.emptyList())
+					.when(matsyaClientsExecutor)
+					.executeWql(any(), eq(wmiConfig), any(), any());
+			WMI criterion = WMI.builder().wbemQuery("query").build();
+
+			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
+			assertFalse(result.isSuccess());
+			assertNull(result.getException());
+		}
+
+		// Non-empty result, and no expected result => success
+		{
+			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			doReturn(List.of(List.of("some result")))
+					.when(matsyaClientsExecutor)
+					.executeWql(any(), eq(wmiConfig), any(), any());
+			WMI criterion = WMI.builder().wbemQuery("query").build();
+
+			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
+			assertTrue(result.isSuccess());
+			assertTrue(result.getMessage().contains("some result"), "Result message must contain the query result");
+		}
+
+		// Non-empty result, and matching expected result => success
+		{
+			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			doReturn(List.of(List.of("some result")))
+					.when(matsyaClientsExecutor)
+					.executeWql(any(), eq(wmiConfig), any(), any());
+			WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[aeiouy]lt").build();
+
+			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
+			assertTrue(result.isSuccess());
+			assertTrue(result.getMessage().contains("some result"), "Result message must contain the query result");
+		}
+
+		// Non-empty result, and non-matching expected result => failure
+		{
+			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			doReturn(List.of(List.of("some result")))
+					.when(matsyaClientsExecutor)
+					.executeWql(any(), eq(wmiConfig), any(), any());
+			WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+
+			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
+			assertFalse(result.isSuccess());
+			assertNull(result.getException());
+			assertTrue(result.getMessage().contains("some result"), "Result message must contain the query result");
+		}
+
 	}
 
+
 	@Test
-	void testPerformDetectionTest() {
+	void testDetectNamespaceNoResponse() throws Exception {
+		// No response at all => we fail early (we don't try every single namespace)
+		WMIProtocol wmiConfig = WMIProtocol.builder().build();
+		WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+		doThrow(new MatsyaException("problem", new TimeoutException()))
+				.when(matsyaClientsExecutor)
+				.executeWql(any(), eq(wmiConfig), any(), any());
+
+		NamespaceResult result = wqlDetectionHelper.detectNamespace(HOSTNAME, wmiConfig, criterion, Set.of("ns1", "ns2"));
+		assertFalse(result.getResult().isSuccess());
+		assertTrue(result.getResult().getMessage().contains("TimeoutException"));
+		verify(matsyaClientsExecutor).executeWql(any(), eq(wmiConfig), any(), any());
 	}
+
+
+	@Test
+	void testDetectNamespaceEmpty() throws Exception {
+		// Non-matching result AND empty result (with an error that doesn't stop the loop)
+		WMIProtocol wmiConfig = WMIProtocol.builder().build();
+		WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+		doThrow(new MatsyaException("problem", new WmiComException("WBEM_E_INVALID_NAMESPACE")))
+				.when(matsyaClientsExecutor)
+				.executeWql(any(), eq(wmiConfig), any(), eq("ns1"));
+		doReturn(List.of(List.of("non-matching")))
+				.when(matsyaClientsExecutor)
+				.executeWql(any(), eq(wmiConfig), any(), eq("ns2"));
+
+		NamespaceResult result = wqlDetectionHelper.detectNamespace(HOSTNAME, wmiConfig, criterion, Set.of("ns1", "ns2"));
+		assertFalse(result.getResult().isSuccess());
+		assertNull(result.getResult().getException());
+		verify(matsyaClientsExecutor, times(2)).executeWql(any(), eq(wmiConfig), any(), any());
+	}
+
+
+	@Test
+	void testDetectNamespace() throws Exception {
+		// 3 matching result, and root\\cimv2 must be removed
+		WMIProtocol wmiConfig = WMIProtocol.builder().build();
+		WMI criterion = WMI.builder().wbemQuery("query").build();
+		doReturn(List.of(List.of("some result")))
+				.when(matsyaClientsExecutor)
+				.executeWql(any(), eq(wmiConfig), any(), any());
+
+		NamespaceResult result = wqlDetectionHelper.detectNamespace(HOSTNAME, wmiConfig, criterion, Set.of("root\\cimv2", "ns1"));
+		assertTrue(result.getResult().isSuccess());
+		assertNull(result.getResult().getException());
+		assertEquals("ns1", result.getNamespace());
+		verify(matsyaClientsExecutor, times(2)).executeWql(any(), eq(wmiConfig), any(), any());
+	}
+
+
+	@Test
+	void testDetectNamespaceCimv2() throws Exception {
+		// 1 single matching result: root\\cimv2 which must not be removed
+		WMIProtocol wmiConfig = WMIProtocol.builder().build();
+		WMI criterion = WMI.builder().wbemQuery("query").build();
+		doReturn(List.of(List.of("some result")))
+				.when(matsyaClientsExecutor)
+				.executeWql(any(), eq(wmiConfig), any(), any());
+
+		NamespaceResult result = wqlDetectionHelper.detectNamespace(HOSTNAME, wmiConfig, criterion, Set.of("root\\cimv2"));
+		assertTrue(result.getResult().isSuccess());
+		assertEquals("root\\cimv2", result.getNamespace());
+	}
+
+
+	@Test
+	void testIsAcceptableException() {
+
+		assertFalse(wqlDetectionHelper.isAcceptableException(null));
+		assertFalse(wqlDetectionHelper.isAcceptableException(new Exception()));
+		assertFalse(wqlDetectionHelper.isAcceptableException(new Exception(new Exception())));
+
+		assertFalse(wqlDetectionHelper.isAcceptableException(new WmiComException("other")));
+		assertFalse(wqlDetectionHelper.isAcceptableException(new WmiComException(new Exception())));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_NOT_FOUND")));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_NAMESPACE")));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_CLASS")));
+
+		assertFalse(wqlDetectionHelper.isAcceptableException(new WBEMException("other")));
+		assertFalse(wqlDetectionHelper.isAcceptableException(new WBEMException(0)));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND)));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)));
+
+		assertTrue(wqlDetectionHelper.isAcceptableException(new Exception(new WmiComException("WBEM_E_NOT_FOUND"))));
+		assertTrue(wqlDetectionHelper.isAcceptableException(new Exception(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))));
+
+	}
+
+
 
 }
