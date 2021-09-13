@@ -289,7 +289,7 @@ public class HostMonitoring implements IHostMonitoring {
 		return new StringBuilder()
 				.append(connectorName)
 				.append(ID_SEPARATOR)
-				.append(monitorType.getName().toLowerCase())
+				.append(monitorType.getKey())
 				.append(ID_SEPARATOR)
 				.append(targetId)
 				.append(ID_SEPARATOR)
