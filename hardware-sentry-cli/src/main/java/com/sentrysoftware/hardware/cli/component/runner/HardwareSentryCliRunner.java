@@ -2,6 +2,7 @@ package com.sentrysoftware.hardware.cli.component.runner;
 
 import java.util.Arrays;
 
+import org.fusesource.jansi.AnsiConsole;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,6 @@ import picocli.CommandLine.IFactory;
 @Component
 public class HardwareSentryCliRunner implements CommandLineRunner, ExitCodeGenerator {
 
-	private static final String SPRING_CONFIG_PREFIX = "--spring";
-	
 	private final HardwareSentryCli monitorHardwareCommand;
 
 	private final IFactory factory; // auto-configured to inject PicocliSpringFactory
@@ -29,8 +28,20 @@ public class HardwareSentryCliRunner implements CommandLineRunner, ExitCodeGener
 
 	@Override
 	public void run(String... args) throws Exception {
-		final String[] normalizedArgs = Arrays.stream(args).filter(arg -> !arg.startsWith(SPRING_CONFIG_PREFIX)).toArray(String[]::new);
-		exitCode = new CommandLine(monitorHardwareCommand, factory).execute(normalizedArgs);
+
+		final String[] filteredArgs = Arrays.stream(args)
+				.filter(arg -> !arg.startsWith("--spring"))
+				.toArray(String[]::new);
+
+		// Enable colors on Windows terminal
+		AnsiConsole.systemInstall();
+
+		// Run the picocli command
+		exitCode = new CommandLine(monitorHardwareCommand, factory).execute(filteredArgs);
+
+		// Cleanup Windows terminal settings
+		AnsiConsole.systemUninstall();
+
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.target;
 
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 
 import lombok.AllArgsConstructor;
@@ -8,18 +11,62 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TargetType {
 
-	HP_OPEN_VMS(OSType.VMS),
-	HP_TRU64_UNIX(OSType.OSF1),
-	HP_UX(OSType.HP),
-	IBM_AIX(OSType.RS6000),
-	LINUX(OSType.LINUX),
-	MGMT_CARD_BLADE_ESXI(OSType.OOB),
-	MS_WINDOWS(OSType.NT),
-	NETWORK_SWITCH(OSType.NETWORK),
-	STORAGE(OSType.STORAGE),
-	SUN_SOLARIS(OSType.SOLARIS);
+	HP_OPEN_VMS(OSType.VMS, "OpenVMS"),
+	HP_TRU64_UNIX(OSType.OSF1, "Tru64"),
+	HP_UX(OSType.HP, "HP-UX"),
+	IBM_AIX(OSType.RS6000, "AIX"),
+	LINUX(OSType.LINUX, "Linux"),
+	MGMT_CARD_BLADE_ESXI(OSType.OOB, "Management"),
+	MS_WINDOWS(OSType.NT, "Windows"),
+	NETWORK_SWITCH(OSType.NETWORK, "Network"),
+	STORAGE(OSType.STORAGE, "Storage"),
+	SUN_SOLARIS(OSType.SOLARIS, "Solaris");
 
+	/**
+	 * Map each TargetType with a regular expression that detects it
+	 */
+	private static final Map<TargetType, Pattern> DETECTORS = Map.of(
+			LINUX, Pattern.compile("^lin|^lnx$"),
+			MS_WINDOWS, Pattern.compile("^win|^ms.*win|^microsoft.*w"),
+			MGMT_CARD_BLADE_ESXI, Pattern.compile("^oob$|^out|^vmware|^mgmt|^management|^esx|^blade"),
+			NETWORK_SWITCH, Pattern.compile("^net|^switch"),
+			STORAGE, Pattern.compile("^sto|^san"),
+			HP_OPEN_VMS, Pattern.compile("vms"),
+			HP_TRU64_UNIX, Pattern.compile("tru64|osf"),
+			HP_UX, Pattern.compile("hp.*ux"),
+			IBM_AIX, Pattern.compile("aix|rs6000"),
+			SUN_SOLARIS, Pattern.compile("^sun|^ora|sol")
+	);
 	@Getter
 	private OSType osType;
+
+	@Getter
+	private String displayName;
+
+	/**
+	 * Interpret the specified string as a TargetType (in a flexible way).
+	 * <p>
+	 * @param value String to be interpreted
+	 * @return a TargetType value (or null if null)
+	 * @throws IllegalArgumentException when specified value is not supported
+	 */
+	public static TargetType interpretValueOf(String value) {
+
+		// Null returns null
+		if (value == null) {
+			return null;
+		}
+
+		// Check all regex in DETECTORS to see which one matches
+		String lCaseValue = value.trim().toLowerCase();
+		for (Map.Entry<TargetType, Pattern> detector : DETECTORS.entrySet()) {
+			if (detector.getValue().matcher(lCaseValue).find()) {
+				return detector.getKey();
+			}
+		}
+
+		// No match => Exception
+		throw new IllegalArgumentException("'" + value + "' is not a supported target type");
+	}
 
 }

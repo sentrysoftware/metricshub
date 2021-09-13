@@ -1,3 +1,9 @@
 logging:
   pattern:
     console: ''
+project:
+  name: "@project.name@"
+  version: "@project.version@"
+buildNumber: "@buildNumber@"
+timestamp: "@timestamp@"
+hcVersion: "@hardware-connectors.version@"
