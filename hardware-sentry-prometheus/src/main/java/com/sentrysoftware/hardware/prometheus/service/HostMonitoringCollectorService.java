@@ -41,7 +41,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
+	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired
@@ -60,12 +60,12 @@ public class HostMonitoringCollectorService extends Collector {
 		// that's why the following code looks a bit ugly...
 		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
+					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
 					convertParameterValue(monitor, parameterName, factor));
 		} else {
 			((GaugeMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
+					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
 					convertParameterValue(monitor, parameterName, factor));
 		}
@@ -82,12 +82,16 @@ public class HostMonitoringCollectorService extends Collector {
 
 		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
-					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+					// fqdn, Id, label, parentId (can be null)
+					createLabels(monitor),
+					convertMetadataValue(monitor, parameterName, factor)
+				);
 		} else {
 			((GaugeMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
-					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+					// fqdn, Id, label, parentId (can be null)
+					createLabels(monitor),
+					convertMetadataValue(monitor, parameterName, factor)
+				);
 		}
 	}
 
@@ -457,17 +461,19 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Create Prometheus labels. The values between { } after the metric name <br>
-	 * Label order: <em>$monitorId</em>, <em>$monitorParentId</em> then <em>$monitorName</em>
+	 * Labels order: <em>$fqdn</em>, <em>$monitorId</em>, <em>$monitorName</em>, <em>$monitorParentId</em>
 	 *
 	 * @param monitor The monitor we wish to extract its id, parentId and name
 	 * @return {@link List} of {@link String} values
 	 */
 	static List<String> createLabels(final Monitor monitor) {
 
-		return Arrays.asList(monitor.getId(),
-				getValueOrElse(monitor.getParentId(), ""),
-				monitor.getName(),
-				monitor.getFqdn());
+		return Arrays.asList(
+					monitor.getFqdn(),
+					monitor.getId(),
+					monitor.getName(),
+					getValueOrElse(monitor.getParentId(), "")
+				);
 	}
 
 
