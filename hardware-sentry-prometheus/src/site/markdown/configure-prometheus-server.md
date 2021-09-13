@@ -3,7 +3,7 @@ description: How to configure single and multi jobs with Hardware Sentry Prometh
 
 # Configure a Prometheus Server
 
-Refer to [Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) for detailed information.
+Refer to <a href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/" target="_blank">Prometheus documentation</a> for detailed information.
 
 Configure your Prometheus server,  ```prometheus.yml```, to collect metrics from targets.
 
@@ -68,7 +68,7 @@ Example:
 
 **${project.name}** creates the HTTP instances: ```http://nb-docker:8080/metrics/prod``` and ```http://nb-docker:8080/metrics/test``` to respectively expose metrics collected from *prod* and *test* hosts.
 
-Metrics are returned once the whole collect is completed. This process may be time-consuming when a large number of targets are scrapped. To retrieve metrics for a specific target, simply specify it name in the ```job_name``` (example: ```job_name: hardware_prometheus_test```).
+Metrics are returned once the whole collect is completed. This process may be time-consuming when a large number of targets are scrapped. To retrieve metrics for a specific target, simply specify its name in the ```job_name``` (example: ```job_name: hardware_prometheus_test```).
 
 **${project.name}** collects metrics according to the defined ```scrape_interval``` and returns results immediately, so you get real-time data upon each collect.
 

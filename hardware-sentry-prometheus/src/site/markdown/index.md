@@ -1,4 +1,4 @@
-keywords: prometheus exporter, hardware, prerequisites, install
+keywords: prerequisites, install
 description: How get started with Hardware Sentry Exporter for Prometheus: packages, installation, prerequisites.
 
 # Getting Started

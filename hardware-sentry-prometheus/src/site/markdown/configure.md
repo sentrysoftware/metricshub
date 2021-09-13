@@ -13,7 +13,9 @@ The format, indentation and syntax of the configuration file must be strictly re
 
 ## Configurations per Protocols
 
-Refer to the [Supported Platforms](https://www.sentrysoftware.com/library/hc/24/platform-requirements.html) documentation to know more about the properties that you need to set for each specific supported platform.
+Refer to the <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html" target="_blank">Supported Platforms</a> documentation to know more about the properties that you need to set for each specific supported platform.
+
+
 
 ### SNMP Configurations
 
@@ -115,7 +117,7 @@ targets:
 |type|Type of the system (OS or platform type).|
 |http |Protocol and credentials used to access the target.|
 |port|The HTTPS port number used to perform SNMP queries (Default: 443).|
-|username|Name used establish the connection with the target via the HTTP protocol.|
+|username|Name used to establish the connection with the target via the HTTP protocol.|
 |password|Password used to establish the connection with the target via the HTTP protocol.|
 
 ### WMI Configuration
