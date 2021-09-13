@@ -33,7 +33,7 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-public class Robotic implements IMetaMonitor {
+public class Robotics implements IMetaMonitor {
 
 	public static final MetaParameter MOVE_COUNT = MetaParameter.builder()
 			.basicCollect(false)
@@ -52,13 +52,13 @@ public class Robotic implements IMetaMonitor {
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, ROBOTIC_TYPE, ADDITIONAL_INFORMATION1,
 			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
 
-	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Robotic::checkMissingCondition,
+	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Robotics::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
 			ParameterState.ALARM);
-	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Robotic::checkStatusWarnCondition,
+	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Robotics::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
-	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Robotic::checkStatusAlarmCondition,
+	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Robotics::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
 
@@ -88,7 +88,7 @@ public class Robotic implements IMetaMonitor {
 	}
 
 	/**
-	 * Check missing Robotic condition.
+	 * Check missing Robotics condition.
 	 * 
 	 * @param monitor The monitor we wish to check
 	 * @param conditions The conditions used to determine the abnormality
@@ -204,7 +204,7 @@ public class Robotic implements IMetaMonitor {
 
 	@Override
 	public MonitorType getMonitorType() {
-		return MonitorType.ROBOTIC;
+		return MonitorType.ROBOTICS;
 	}
 
 	@Override

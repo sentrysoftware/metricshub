@@ -17,7 +17,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -444,16 +444,16 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitRobotic() {
+	void testVisitRobotics() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor
 				.builder().
 				id(MONITOR_ID)
-				.monitorType(MonitorType.ROBOTIC)
+				.monitorType(MonitorType.ROBOTICS)
 				.build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		monitorCollectVisitor.visit(new Robotic());
+		monitorCollectVisitor.visit(new Robotics());
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
@@ -1943,10 +1943,10 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testEstimateRoboticPowerConsumption() {
+	void testEstimateRoboticsPowerConsumption() {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotics").monitorType(MonitorType.ROBOTICS).build();
 			CollectHelper.updateNumberParameter(
 				monitor,
 				HardwareConstants.MOVE_COUNT_PARAMETER,
@@ -1956,13 +1956,13 @@ class MonitorCollectVisitorTest {
 				1.0
 			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			monitorCollectVisitor.estimateRoboticsPowerConsumption();
 			assertEquals(154.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
 		}
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotics").monitorType(MonitorType.ROBOTICS).build();
 			CollectHelper.updateNumberParameter(
 				monitor,
 				HardwareConstants.MOVE_COUNT_PARAMETER,
@@ -1972,15 +1972,15 @@ class MonitorCollectVisitorTest {
 				0.0
 			);
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			monitorCollectVisitor.estimateRoboticsPowerConsumption();
 			assertEquals(48.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
 		}
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotic").monitorType(MonitorType.ROBOTIC).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Robotics").monitorType(MonitorType.ROBOTICS).build();
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimateRoboticPowerConsumption();
+			monitorCollectVisitor.estimateRoboticsPowerConsumption();
 			assertEquals(48.0, CollectHelper.getNumberParamValue(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER));
 		}
 	}

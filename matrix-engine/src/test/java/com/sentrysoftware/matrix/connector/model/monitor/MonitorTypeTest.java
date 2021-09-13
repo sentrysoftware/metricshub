@@ -66,7 +66,7 @@ class MonitorTypeTest {
 		monitor = MonitorType.POWER_SUPPLY;
 		assertEquals("PowerSupplies", monitor.jsonKey());
 
-		monitor = MonitorType.ROBOTIC;
+		monitor = MonitorType.ROBOTICS;
 		assertEquals("Robotics", monitor.jsonKey());
 
 		monitor = MonitorType.TAPE_DRIVE;

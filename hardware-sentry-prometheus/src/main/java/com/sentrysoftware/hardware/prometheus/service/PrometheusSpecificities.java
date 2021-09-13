@@ -31,7 +31,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -86,7 +86,7 @@ public class PrometheusSpecificities {
 		labelsMap.put(MonitorType.OTHER_DEVICE, concatLabelsWithMetadata(MonitorType.OTHER_DEVICE));
 		labelsMap.put(MonitorType.PHYSICAL_DISK, concatLabelsWithMetadata(MonitorType.PHYSICAL_DISK));
 		labelsMap.put(MonitorType.POWER_SUPPLY, concatLabelsWithMetadata(MonitorType.POWER_SUPPLY));
-		labelsMap.put(MonitorType.ROBOTIC, concatLabelsWithMetadata(MonitorType.ROBOTIC));
+		labelsMap.put(MonitorType.ROBOTICS, concatLabelsWithMetadata(MonitorType.ROBOTICS));
 		labelsMap.put(MonitorType.TAPE_DRIVE, concatLabelsWithMetadata(MonitorType.TAPE_DRIVE));
 		labelsMap.put(MonitorType.TEMPERATURE, concatLabelsWithMetadata(MonitorType.TEMPERATURE));
 		labelsMap.put(MonitorType.VOLTAGE, concatLabelsWithMetadata(MonitorType.VOLTAGE));
@@ -112,7 +112,7 @@ public class PrometheusSpecificities {
 		prometheusParametersMap.put(MonitorType.OTHER_DEVICE, buildOtherDevicePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.PHYSICAL_DISK, buildPhysicalDiskPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.POWER_SUPPLY, buildPowerSupplyPrometheusParameters());
-		prometheusParametersMap.put(MonitorType.ROBOTIC, buildRoboticPrometheusParameters());
+		prometheusParametersMap.put(MonitorType.ROBOTICS, buildRoboticsPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.TAPE_DRIVE, buildTapeDrivePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.TEMPERATURE, buildTemperaturePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VOLTAGE, buildVoltagePrometheusParameters());
@@ -138,7 +138,7 @@ public class PrometheusSpecificities {
 		infoMetricsMap.put(MonitorType.OTHER_DEVICE, "hw_other_device_info");
 		infoMetricsMap.put(MonitorType.PHYSICAL_DISK, "hw_physical_disk_info");
 		infoMetricsMap.put(MonitorType.POWER_SUPPLY, "hw_power_supply_info");
-		infoMetricsMap.put(MonitorType.ROBOTIC, "hw_robotic_info");
+		infoMetricsMap.put(MonitorType.ROBOTICS, "hw_robotics_info");
 		infoMetricsMap.put(MonitorType.TAPE_DRIVE, "hw_tape_drive_info");
 		infoMetricsMap.put(MonitorType.TEMPERATURE, "hw_temperature_info");
 		infoMetricsMap.put(MonitorType.VOLTAGE, "hw_voltage_info");
@@ -334,33 +334,33 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Build robotic prometheus parameters map
+	 * Build robotics prometheus parameters map
 	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
-	private static Map<String, PrometheusParameter> buildRoboticPrometheusParameters() {
+	private static Map<String, PrometheusParameter> buildRoboticsPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
-				.name("hw_robotic_status")
+				.name("hw_robotics_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
 				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
-				.name("hw_robotic_present")
+				.name("hw_robotics_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), PrometheusParameter.builder()
-				.name("hw_robotic_errors")
+				.name("hw_robotics_errors")
 				.unit(ERRORS)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
-		map.put(Robotic.MOVE_COUNT.getName(), PrometheusParameter.builder()
-				.name("hw_robotic_moves")
+		map.put(Robotics.MOVE_COUNT.getName(), PrometheusParameter.builder()
+				.name("hw_robotics_moves")
 				.unit("moves")
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
-				.name("hw_robotic_energy_joules")
+				.name("hw_robotics_energy_joules")
 				.unit(JOULES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());

@@ -1145,7 +1145,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.ROBOTIC)
+					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -1173,7 +1173,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.ROBOTIC)
+					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)

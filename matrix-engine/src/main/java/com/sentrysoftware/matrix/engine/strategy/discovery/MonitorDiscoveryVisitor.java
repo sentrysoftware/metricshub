@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -196,10 +196,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Robotic robotic) {
+	public void visit(Robotics robotics) {
 		final Monitor monitor = createMonitor(MonitorNameBuilder.buildRoboticsName(monitorBuildingInfo), null);
 
-		robotic.accept(new MonitorAlertRulesVisitor(monitor));
+		robotics.accept(new MonitorAlertRulesVisitor(monitor));
 	}
 
 	@Override

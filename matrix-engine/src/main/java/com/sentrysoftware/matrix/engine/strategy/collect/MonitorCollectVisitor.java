@@ -20,7 +20,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -338,8 +338,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 	
 	@Override
-	public void visit(Robotic robotic) {
-		collectBasicParameters(robotic);
+	public void visit(Robotics robotics) {
+		collectBasicParameters(robotics);
 
 		collectIncrementCount(HardwareConstants.MOVE_COUNT_PARAMETER, HardwareConstants.MOVE_COUNT_PARAMETER_UNIT);
 
@@ -349,7 +349,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				HardwareConstants.ERROR_COUNT_PARAMETER,
 				HardwareConstants.MOVE_COUNT_PARAMETER);
 
-		estimateRoboticPowerConsumption();
+		estimateRoboticsPowerConsumption();
 	}
 	
 	@Override
@@ -937,7 +937,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Collects the incremental parameters, namely 
-	 * {@link TapeDrive} unmount, mount & {@link Robotic} move count.
+	 * {@link TapeDrive} unmount, mount & {@link Robotics} move count.
 	 * 
 	 * @param countParameter		The name of the count parameter, like mountCount
 	 * @param countParameterUnit	The unit of the count parameter, like mounts
@@ -1275,7 +1275,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * If it moved, 154W, if not, 48W Source:
 	 * https://docs.oracle.com/en/storage/tape-storage/sl4000/slklg/calculate-total-power-consumption.html
 	 */
-	void estimateRoboticPowerConsumption() {
+	void estimateRoboticsPowerConsumption() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		final Double moveCount = CollectHelper.getNumberParamValue(monitor, HardwareConstants.MOVE_COUNT_PARAMETER);
