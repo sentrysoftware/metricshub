@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -17,18 +16,19 @@ import java.util.concurrent.TimeoutException;
 
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -38,9 +38,7 @@ import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
-import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.wmi.WmiHelper;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
@@ -59,10 +57,8 @@ public class MatsyaClientsExecutor {
 	private static final String TIMEOUT_CANNOT_BE_NULL = "Timeout cannot be null";
 	private static final String PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
 	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
-	private static final String SELECTED_COLUMN_CANNOT_BE_NULL = "selectedColumn cannot be null";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
-	private static final String OID_CANNOT_BE_NULL = "oid cannot be null";
 
 	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
@@ -101,11 +97,12 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	public String executeSNMPGetNext(final String oid, final SNMPProtocol protocol, final String hostname,
-			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		notNull(oid, OID_CANNOT_BE_NULL);
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+	public String executeSNMPGetNext(
+			@NonNull final String oid,
+			@NonNull final SNMPProtocol protocol,
+			@NonNull final String hostname,
+			final boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException {
 
 		return executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
 
@@ -123,11 +120,12 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	public String executeSNMPGet(final String oid, final SNMPProtocol protocol, final String hostname,
-			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		notNull(oid, OID_CANNOT_BE_NULL);
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
+	public String executeSNMPGet(
+			@NonNull final String oid,
+			@NonNull final SNMPProtocol protocol,
+			@NonNull final String hostname,
+			final boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException {
 
 		return executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, null, logMode);
 
@@ -145,61 +143,79 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
-	public List<List<String>> executeSNMPTable(final String oid, String[] selectColumnArray, final SNMPProtocol protocol, final String hostname,
-			final boolean logMode) throws InterruptedException, ExecutionException, TimeoutException {
-		notNull(oid, OID_CANNOT_BE_NULL);
-		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-		notNull(selectColumnArray, SELECTED_COLUMN_CANNOT_BE_NULL);
+	public List<List<String>> executeSNMPTable(
+			@NonNull final String oid,
+			@NonNull String[] selectColumnArray,
+			@NonNull final SNMPProtocol protocol,
+			@NonNull final String hostname,
+			final boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException {
 
 		return executeSNMPGetRequest(SNMPGetRequest.TABLE, oid, protocol, hostname, selectColumnArray, logMode);
 
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T executeSNMPGetRequest(final SNMPGetRequest request, final String oid, final SNMPProtocol protocol,
-			final String hostname, final String[] selectColumnArray, final boolean logMode)
-			throws InterruptedException, ExecutionException, TimeoutException {
-		final int port = protocol.getPort();
-		final int version = protocol.getVersion().getIntVersion();
-		final int[] retryIntervals = null;
-		final String community = protocol.getCommunity();
-		final String authType = protocol.getVersion().getAuthType();
-		final String authUsername = protocol.getUsername();
-		final String authPassword = protocol.getPassword();
-		final String privacyType = protocol.getPrivacy() != Privacy.NO_ENCRYPTION && protocol.getPrivacy() != null
+	private <T> T executeSNMPGetRequest(
+			final SNMPGetRequest request,
+			final String oid,
+			final SNMPProtocol protocol,
+			final String hostname,
+			final String[] selectColumnArray,
+			final boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException {
+
+		final String privacyType =
+				protocol.getPrivacy() != Privacy.NO_ENCRYPTION && protocol.getPrivacy() != null
 				? protocol.getPrivacy().name()
 				: null;
-
-		final String privacyPassword = protocol.getPrivacyPassword();
-		final String contextName = Thread.currentThread().getName();
-		final byte[] contextID = String.valueOf(Thread.currentThread().getId()).getBytes();
 
 		// Create the Matsya SNMPClient and run the GetNext request
 		return (T) execute(() -> {
 
-			final SNMPClient snmpClient = new SNMPClient(hostname, port, version, retryIntervals, community, authType,
-					authUsername, authPassword, privacyType, privacyPassword, contextName, contextID);
+			final SNMPClient snmpClient = new SNMPClient(
+					hostname,
+					protocol.getPort(),
+					protocol.getVersion().getIntVersion(),
+					null,
+					protocol.getCommunity(),
+					protocol.getVersion().getAuthType(),
+					protocol.getUsername(),
+					protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
+					privacyType,
+					protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
+					null,
+					null
+			);
 
 			try {
 				switch (request) {
+
 				case GET:
 					return snmpClient.get(oid);
+
 				case GETNEXT:
 					return snmpClient.getNext(oid);
-				case TABLE :
+
+				case TABLE:
 					return snmpClient.table(oid, selectColumnArray);
+
 				default :
 					throw new IllegalArgumentException("Not implemented.");
+
 				}
+
 			} catch (Exception e) {
+
 				if (logMode) {
-					log.error("Error detected when running SNMP {} query OID:{} on HOST:{}", request, oid, hostname);
+					log.error("Error detected when running SNMP {} query OID: {} on HOST: {}", request, oid, hostname);
 				}
 				return null;
+
 			} finally {
 				snmpClient.freeResources();
 			}
+
 		}, protocol.getTimeout());
 	}
 
@@ -277,10 +293,10 @@ public class MatsyaClientsExecutor {
 
 		return execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 	}
-	
+
 	/**
 	 * Parse a XML with the argument properties into a list of values list.
-	 * 
+	 *
 	 * @param xml The XML.
 	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character. If the property comes from an attribute, it will be preceded by a superior character: '>'.
 	 * @param recordTag A string containing the first element xml tags path to convert. example: /rootTag/tag2
@@ -288,84 +304,119 @@ public class MatsyaClientsExecutor {
 	 * @throws XFlatException if an error occurred in the XML parsing.
 	 */
 	public List<List<String>> executeXmlParsing(
-			final String xml, 
-			final String properties, 
+			final String xml,
+			final String properties,
 			final String recordTag) throws XFlatException {
 		return XFlat.parseXml(xml, properties, recordTag);
 	}
 
 	/**
+	 * Perform a WQL query, either against a CIM server (WBEM) or WMI
+	 * <p>
+	 * @param hostname Hostname
+	 * @param protoConfig The WBEMProtocol or WMIProtocol object specifying how to connect to specified host
+	 * @param query WQL query to execute
+	 * @param namespace The namespace
 	 *
-	 * @param url						The target URL, as a {@link String}.
-	 * @param username					The username to access the host.
-	 * @param password					The password to access the host.
-	 * @param timeout					The timeout, in milliseconds.
-	 * @param query						The query that is being executed.
-	 * @param namespace					The namespace with which the query should be executed.
-	 *
-	 * @return							A table (as a {@link List} of {@link List} of {@link String}s)
-	 * 									resulting from the execution of the query.
-	 *
-	 * @throws MalformedURLException	If no {@link URL} object could be built from <em>url</em>.
-	 * @throws WqlQuerySyntaxException	If there is a WQL syntax error.
-	 * @throws WBEMException			If there is a WBEM error.
-	 * @throws TimeoutException			If the query did not complete on time.
-	 * @throws InterruptedException		If the current thread was interrupted while waiting.
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 * @throws MatsyaException when anything wrong happens with the Matsya library
 	 */
-	public List<List<String>> executeWbem(final String url, final String username, final char[] password,
-			final int timeout, final String query, final String namespace) throws MalformedURLException,
-			WqlQuerySyntaxException, WBEMException, TimeoutException, InterruptedException {
+	public List<List<String>> executeWql(
+		final String hostname,
+		final IProtocolConfiguration protoConfig,
+		final String query,
+		final String namespace
+	) throws MatsyaException {
 
-		WbemQueryResult  wbemResult = WbemExecutor.executeWql(new URL(url), namespace, username, password, query,
-				timeout, null);
+		if (protoConfig instanceof WBEMProtocol) {
+			return executeWbem(hostname, (WBEMProtocol) protoConfig, query, namespace);
+		} else if (protoConfig instanceof WMIProtocol) {
+			return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
+		}
 
-		return wbemResult.getValues();
+		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
 	}
+
 
 	/**
-	 * @param hostname		The hostname of the target device.
-	 * @param port			The port used to access the target device.
-	 * @param useEncryption	Indicate whether HTTPS should be used (as opposed to using HTTP).
+	 * Perform a WBEM query.
+	 * <p>
+	 * @param hostname Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query WQL query to execute
+	 * @param namespace WBEM namespace
 	 *
-	 * @return				A url based on the given input, as a {@link String}.
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 *
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
-	public static String buildWbemUrl(String hostname, int port, boolean useEncryption) {
+	public List<List<String>> executeWbem(
+			@NonNull final String hostname,
+			@NonNull final WBEMProtocol wbemConfig,
+			@NonNull final String query,
+			@NonNull final String namespace
+	) throws MatsyaException {
 
-		String protocolName = useEncryption ? "https" : "http";
+		try {
+			final URL url = new URL(String.format(
+					"%s://%s:%d",
+					wbemConfig.getProtocol().toString(),
+					hostname,
+					wbemConfig.getPort()
+			));
 
-		return String.format("%s://%s:%d", protocolName, hostname, port);
+			return WbemExecutor.executeWql(
+					url,
+					namespace,
+					wbemConfig.getUsername(),
+					wbemConfig.getPassword(),
+					query,
+					wbemConfig.getTimeout().intValue() * 1000,
+					null
+			).getValues();
+
+		} catch (Exception e) {
+			throw new MatsyaException("WBEM query failed on " + hostname, e);
+		}
+
 	}
-
 
 
 	/**
 	 * Execute a WMI query through Matsya
 	 *
-	 * @param hostname  The hostname of the device where the WMI service is running
-	 * @param username  The username to establish the connection with the device through the WMI protocol
-	 * @param password  The password to establish the connection with the device through the WMI protocol
-	 * @param timeout   The timeout in seconds after which the query is rejected
+	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
+	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws LocalhostCheckException  If the localhost check fails
-	 * @throws WmiComException          For any problem encountered with JNA. I.e. on the connection or the query execution
-	 * @throws WqlQuerySyntaxException  In case of not valid query
-	 * @throws TimeoutException         When the given timeout is reached
+	 *
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
-	public List<List<String>> executeWmi(final String hostname, final String username,
-			final char[] password, final Long timeout,
-			final String wbemQuery, final String namespace)
-			throws LocalhostCheckException, WmiComException, TimeoutException, WqlQuerySyntaxException  {
+	public List<List<String>> executeWmi(
+			final String hostname,
+			@NonNull final WMIProtocol wmiConfig,
+			@NonNull final String wbemQuery,
+			@NonNull final String namespace
+	) throws MatsyaException {
 
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
-		final String networkResource = buildWmiNetworkResource(hostname, namespace);
+		final String networkResource =
+				NetworkHelper.isLocalhost(hostname) ?
+						namespace : String.format("\\\\%s\\%s", hostname, namespace);
+
 		// Go!
-		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(networkResource, username, password)) {
+		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(
+				networkResource,
+				wmiConfig.getUsername(),
+				wmiConfig.getPassword()
+		)) {
 
 			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, timeout.longValue() * 1000L);
+			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, wmiConfig.getTimeout() * 1000);
 
 			// Extract the exact property names (case sensitive), in the right order
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
@@ -373,19 +424,9 @@ public class MatsyaClientsExecutor {
 			// Build the table
 			return buildWmiTable(result, properties);
 
+		} catch (Exception e) {
+			throw new MatsyaException("WMI query failed on " + hostname, e);
 		}
-	}
-
-	/**
-	 * Build the WMI network resource
-	 * @param hostname    The hostname of the device where the WMI service is running
-	 * @param namespace   The WMI namespace
-	 * @return {@link String} value
-	 * @throws LocalhostCheckException
-	 */
-	String buildWmiNetworkResource(final String hostname, final String namespace) throws LocalhostCheckException {
-		return NetworkHelper.isLocalhost(hostname) ?
-				namespace : String.format("\\\\%s\\%s", hostname, namespace);
 	}
 
 	/**

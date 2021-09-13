@@ -1,8 +1,11 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,9 +13,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -42,12 +45,14 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class SourceVisitor implements ISourceVisitor {
 
 	private static final String EXCEPTION = "Exception";
@@ -58,11 +63,9 @@ public class SourceVisitor implements ISourceVisitor {
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
-	@Autowired
 	private StrategyConfig strategyConfig;
-
-	@Autowired
 	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private Connector connector;
 
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
@@ -254,13 +257,13 @@ public class SourceVisitor implements ISourceVisitor {
 		final String nameSpaceRootHardware = "root/hardware";
 
 		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
-		List<List<String>> wmiCollection1 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
+		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
 
 		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
-		List<List<String>> wmiCollection2 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		List<List<String>> wmiCollection3 = executeWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
 
 		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
 	}
@@ -445,7 +448,10 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring().getSourceTables();
+		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring()
+				.getConnectorNamespace(connector)
+				.getSourceTables();
+
 		if (sources == null ) {
 			log.error("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
@@ -526,7 +532,10 @@ public class SourceVisitor implements ISourceVisitor {
 	SourceTable getSourceTable(final String key) {
 
 		if (SOURCE_PATTERN.matcher(key).matches()) {
-			final SourceTable sourceTable = strategyConfig.getHostMonitoring().getSourceTableByKey(key);
+			final SourceTable sourceTable = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getSourceTable(key);
 			if (sourceTable == null) {
 				log.warn("The following source table {} cannot be found.", key);
 			}
@@ -534,7 +543,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, TABLE_SEPARATOR))
+				.table(SourceTable.csvToTable(key, TABLE_SEP))
 				.build();
 	}
 
@@ -581,20 +590,7 @@ public class SourceVisitor implements ISourceVisitor {
 				return SourceTable.empty();
 			}
 
-			// if protocol = null than we use the default one : https
-			String transferProtocol = protocol.getProtocol() == null ? WBEMProtocol.WBEMProtocols.HTTPS.name().toLowerCase()
-					: protocol.getProtocol().name().toLowerCase();
-			final String wbemUrl = String.format("%s://%s:%d", transferProtocol, hostname, protocol.getPort());
-			if (wbemUrl == null) {
-				log.error(
-						"Cannot build URL with the following information : hostname :{}, port : {}. Returning an empty table.",
-						hostname, protocol.getPort());
-				return SourceTable.empty();
-			}
-
-			int timeout = protocol.getTimeout() == null ? 120000 : protocol.getTimeout().intValue() * 1000; // seconds to milliseconds
-			final List<List<String>> table = matsyaClientsExecutor.executeWbem(wbemUrl, protocol.getUsername(),
-					protocol.getPassword(), timeout, wbemSource.getWbemQuery(), namespace);
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, protocol, wbemSource.getWbemQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -635,12 +631,8 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			final List<List<String>> table = matsyaClientsExecutor.executeWmi(hostname,
-					protocol.getUsername(),
-					protocol.getPassword(),
-					protocol.getTimeout(),
-					wmiSource.getWbemQuery(),
-					namespace);
+			final List<List<String>> table =
+					matsyaClientsExecutor.executeWmi(hostname, protocol, wmiSource.getWbemQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -667,12 +659,15 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final String sourceNamespace = wmiSource.getWbemNamespace();
 
-		if ("automatic".equalsIgnoreCase(sourceNamespace)) {
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
-			return strategyConfig.getHostMonitoring().getAutomaticWmiNamespace();
-		} else {
-			return sourceNamespace != null ? sourceNamespace : protocol.getNamespace();
+			return strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWmiNamespace();
 		}
+
+		return sourceNamespace;
 
 	}
 
@@ -684,20 +679,18 @@ public class SourceVisitor implements ISourceVisitor {
 	 * @param namespace
 	 * @return
 	 */
-	private List<List<String>> executeWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
+	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
 			final String wmiQuery, final String namespace) {
-		List<List<String>> wmiCollection1 = new ArrayList<>();
+
+		log.debug("Executing IPMI Query ({}): WMI Query: {}:\n", hostname, wmiQuery);
+
 		try {
-			wmiCollection1 = matsyaClientsExecutor.executeWmi(
+			return matsyaClientsExecutor.executeWmi(
 					hostname,
-					wmiProtocol.getUsername(),
-					wmiProtocol.getPassword(),
-					wmiProtocol.getTimeout(),
+					wmiProtocol,
 					wmiQuery,
-					namespace);
-			log.debug("Executed IPMI Query ({}) : WMI Query: {}:\n",
-					hostname,
-					wmiQuery);
+					namespace
+			);
 		} catch (Exception e) {
 			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wmiQuery,
@@ -705,7 +698,7 @@ public class SourceVisitor implements ISourceVisitor {
 					wmiProtocol.getUsername(),
 					wmiProtocol.getTimeout(),
 					namespace);
+			return Collections.emptyList();
 		}
-		return wmiCollection1;
 	}
 }

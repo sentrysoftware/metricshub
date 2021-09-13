@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
@@ -13,18 +15,18 @@ import static org.mockito.Mockito.mockStatic;
 import java.lang.ProcessHandle.Info;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
@@ -35,53 +37,37 @@ import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionProcessVisitorTest {
 
 	@Mock
-	private StrategyConfig strategyConfig;
-	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutor;
+	@Spy
+	@InjectMocks
+	private WqlDetectionHelper wqlDetectionHelper = new WqlDetectionHelper();
 
 	@Test
 	void testVisitWindowsMatsyaClientsExecutorKO() {
 		{
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, matsyaClientsExecutor);
-			assertThrows(IllegalStateException.class, () -> visitor.visit((Windows) null));
-		}
-		{
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, null);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null);
 			assertThrows(IllegalStateException.class, () -> visitor.visit((Windows) null));
 		}
 	}
 
 	@Test
 	void testVisitWindowsExecuteWMIFailed() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(120L)
-				.build();
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.build();
-
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-		doThrow(new TimeoutException("over")).when(matsyaClientsExecutor).executeWmi(
-				"localhost",
-				null,
-				null,
-				120L,
-				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
-				"root\\cimv2");
+		doThrow(new MatsyaException("over")).when(matsyaClientsExecutor).executeWql(
+				eq("localhost"),
+				any(WMIProtocol.class),
+				eq("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process"),
+				eq("root\\cimv2"));
 
 		visitor.visit((Windows) null);
 
@@ -89,32 +75,24 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-				"Unable to perform WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\". TimeoutException: over",
-				criterionTestResult.getMessage());
+		assertTrue(criterionTestResult.getMessage().contains("over") && criterionTestResult.getMessage().contains("MatsyaException"));
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitWindowsEmptyResult() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(120L)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
+		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.username(null)
+				.password(null)
+				.timeout(30L)
 				.build();
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-		doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWmi(
+		doReturn(Collections.emptyList()).when(matsyaClientsExecutor).executeWql(
 				"localhost",
-				null,
-				null,
-				120L,
+				wmiConfig,
 				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
@@ -124,36 +102,28 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-				"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" returned empty value.",
-				criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("no result"));
+		assertEquals("No result.", criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitWindowsResultWithoutSearchedProcess() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(120L)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
+		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.username(null)
+				.password(null)
+				.timeout(30L)
 				.build();
-
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(
 				List.of(
 						List.of("0","System Idle Process", "0", ""),
 						List.of("10564","eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")))
-		.when(matsyaClientsExecutor).executeWmi(
+		.when(matsyaClientsExecutor).executeWql(
 				"localhost",
-				null,
-				null,
-				120L,
+				wmiConfig,
 				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
@@ -163,41 +133,29 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-				"No currently running processes matches the following regular expression:\n" +
-						"- Regexp (should match with the command-line): cimserver\n" +
-						"- Currently running process list:\n" +
-						"0;System Idle Process;0;\n" +
-						"10564;eclipse.exe;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"",
-						criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("wmi test ran but failed"));
+		assertNotNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitWindowsOK() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 
-		final WMIProtocol wmiProtocol = WMIProtocol.builder()
-				.timeout(120L)
-				.build();
-
-		final EngineConfiguration engineConfiguration = EngineConfiguration
+		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
-				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.username(null)
+				.password(null)
+				.timeout(30L)
 				.build();
-
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(
 				List.of(
 						List.of("0","System Idle Process", "0", ""),
 						List.of("2", "cimserver", "0", "cimserver arg1 arg2"),
 						List.of("10564","eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")))
-		.when(matsyaClientsExecutor).executeWmi(
+		.when(matsyaClientsExecutor).executeWql(
 				"localhost",
-				null,
-				null,
-				120L,
+				wmiConfig,
 				"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
 				"root\\cimv2");
 
@@ -207,10 +165,8 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-				"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): cimserver",
-				criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("wmi test succeeded"));
+		assertNotNull(criterionTestResult.getResult());
 	}
 
 	@Test
@@ -219,7 +175,7 @@ class CriterionProcessVisitorTest {
 			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -244,7 +200,7 @@ class CriterionProcessVisitorTest {
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("2", "cimserver", "root", "0", "cimserver args1 args2")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -260,7 +216,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedSunOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((Sun) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -273,7 +229,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedSolarisOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((Solaris) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -286,7 +242,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedHpOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((Hp) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -299,7 +255,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedAixOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((Aix) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -312,7 +268,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedFreeBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((FreeBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -325,7 +281,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedOpenBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((OpenBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -338,7 +294,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedNetBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((NetBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -351,7 +307,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedMacOsxOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", strategyConfig, matsyaClientsExecutor);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
 		visitor.visit((MacOSX) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -375,7 +331,7 @@ class CriterionProcessVisitorTest {
 			Mockito.doReturn(Optional.empty()).when(info).user();
 			Mockito.doReturn(Optional.empty()).when(info).commandLine();
 
-			Assertions.assertEquals(
+			assertEquals(
 					List.of("1", "", "", "", ""),
 					CriterionProcessVisitor.getProcessDetails(processHandle));
 		}
@@ -393,7 +349,7 @@ class CriterionProcessVisitorTest {
 			Mockito.doReturn(Optional.of("root")).when(info).user();
 			Mockito.doReturn(Optional.of("ps -A -o pid,comm,ruser,ppid,args")).when(info).commandLine();
 
-			Assertions.assertEquals(
+			assertEquals(
 					List.of("2", "ps", "root", "1", "ps -A -o pid,comm,ruser,ppid,args"),
 					CriterionProcessVisitor.getProcessDetails(processHandle));
 		}

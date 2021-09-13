@@ -19,7 +19,8 @@ public class HardwareConstants {
 	public static final String COMPUTER = "Computer";
 	public static final String STORAGE = "Storage";
 	public static final String SWITCH = "Switch";
-	public static final String TABLE_SEPARATOR = ";";
+	public static final String SEMICOLON = ";";
+	public static final String TABLE_SEP = SEMICOLON;
 	public static final String COLUMN_REGEXP = "^\\s*column\\((\\d+)\\)\\s*$";
 	public static final String LOCALHOST = "localhost";
 	public static final String REMOTE = "remote";

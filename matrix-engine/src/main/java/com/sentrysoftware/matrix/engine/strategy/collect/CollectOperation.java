@@ -282,7 +282,9 @@ public class CollectOperation extends AbstractStrategy {
 			final MonitorType monitorType, final String hostname) {
 
 		// Get the source table used to collect parameters
-		final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(valueTable);
+		final SourceTable sourceTable = hostMonitoring
+				.getConnectorNamespace(connectorName)
+				.getSourceTable(valueTable);
 
 		// No sourceTable no monitor
 		if (sourceTable == null) {
@@ -482,7 +484,9 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		// Get the source table used to collect parameters
-		final SourceTable sourceTable = hostMonitoring.getSourceTableByKey(valueTable);
+		final SourceTable sourceTable = hostMonitoring
+				.getConnectorNamespace(connectorName)
+				.getSourceTable(valueTable);
 
 		// No sourceTable no monitor
 		if (sourceTable == null) {

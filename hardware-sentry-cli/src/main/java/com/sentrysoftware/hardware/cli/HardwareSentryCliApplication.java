@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
-public class HardwareSentryCLIApplication {
+public class HardwareSentryCliApplication {
 
 	public static void main(String[] args) {
 
@@ -32,6 +32,6 @@ public class HardwareSentryCLIApplication {
 
 		final String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands.toArray(String[]::new));
 
-		System.exit(SpringApplication.exit(SpringApplication.run(HardwareSentryCLIApplication.class, fullArgs)));
+		System.exit(SpringApplication.exit(SpringApplication.run(HardwareSentryCliApplication.class, fullArgs)));
 	}
 }

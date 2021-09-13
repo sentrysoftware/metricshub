@@ -1,5 +1,34 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,37 +48,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
-import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
@@ -67,7 +65,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -93,13 +90,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
 
+	private static final String SNMP_TEST_FAILED = "SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 on ecs1-01 was unsuccessful due to an empty result.";
+	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Successful SNMP GetNext of 1.2.3.4.5.6 on ecs1-01. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
 	private static final String POWER_CONSUMPTION_WATTS = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
@@ -112,7 +114,7 @@ class CollectOperationTest {
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
-	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
+	private static final String POWER_CONSUMPTION = "powerConsumption";
 	private static final String CONNECTOR_NAME = "myConnector.connector";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
@@ -121,6 +123,7 @@ class CollectOperationTest {
 	private static final String DEVICE_ID = "deviceId";
 	private static final ParameterState UNKNOWN_STATUS_WARN = ParameterState.WARN;
 	private static final String OID1 = "1.2.3.4.5";
+	private static final String CRITERION_OID = "1.2.3.4.5.6";
 	private static final String FAN_ID_1 = "myConnecctor1.connector_fan_ecs1-01_1.1";
 	private static final String FAN_ID_2 = "myOtherConnecctor.connector_fan_ecs1-01_1.2";
 	private static final String ENCLOSURE_BIS_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.2";
@@ -128,21 +131,13 @@ class CollectOperationTest {
 	private static final String FAN_ID_3 = "myConnecctor1.connector_fan_ecs1-01_1.3";
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
 	private static final String VERSION = "4.2.3";
-	private static final String SUCCESS = "Success";
-	private static final String BAD_RESULT = "1";
-	private static final String FAILED = "Failed";
-
-	@Mock
-	private CriterionVisitor criterionVisitor;
 
 	@Mock
 	private StrategyConfig strategyConfig;
-
 	@Mock
 	private ConnectorStore store;
-
 	@Mock
-	private SourceVisitor sourceVisitor;
+	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static Long strategyTime = new Date().getTime();
 
@@ -157,6 +152,7 @@ class CollectOperationTest {
 	private static Map<String, String> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private static Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private static SourceTable sourceTable;
+	private static List<List<String>> table = new ArrayList<>();
 	private static List<String> row = Arrays.asList(ENCLOSURE_DEVICE_ID,
 			OK_RAW_STATUS,
 			OPERABLE,
@@ -179,10 +175,10 @@ class CollectOperationTest {
 				.unknownStatus(UNKNOWN_STATUS_WARN)
 				.build();
 
-		criterion = SNMPGetNext.builder().oid(OID1).build();
+		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();
 
 		connector = Connector.builder()
-				.compiledFilename(MY_CONNECTOR_NAME)
+				.compiledFilename(CONNECTOR_NAME)
 				.detection(Detection.builder()
 						.criteria(Collections.singletonList(criterion))
 						.build())
@@ -195,9 +191,8 @@ class CollectOperationTest {
 		parameters.put(POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);
-		metadata.put(CONNECTOR, MY_CONNECTOR_NAME);
+		metadata.put(CONNECTOR, CONNECTOR_NAME);
 
-		final List<List<String>> table = new ArrayList<>();
 		table.add(row);
 
 		sourceTable = SourceTable.builder().table(table).build();
@@ -209,6 +204,7 @@ class CollectOperationTest {
 	@BeforeEach
 	void beforeEeach() {
 		collectOperation.setStrategyTime(strategyTime);
+		lenient().doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 	}
 
 
@@ -225,7 +221,7 @@ class CollectOperationTest {
 			collectOperation.prepare();
 			assertEquals(enclosure, hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID));
 			assertTrue(hostMonitoring.getPreviousMonitors().isEmpty());
-			assertTrue(hostMonitoring.getSourceTables().isEmpty());
+			assertTrue(hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTables().isEmpty());
 		}
 
 		// Next collect
@@ -251,7 +247,7 @@ class CollectOperationTest {
 			assertNotNull(result);
 
 			final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
-			
+
 			assertNull(parameterAfterReset.getCollectTime());
 			assertEquals(strategyTime, parameterAfterReset.getPreviousCollectTime());
 			assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
@@ -271,7 +267,7 @@ class CollectOperationTest {
 
 			hostMonitoring.addMonitor(enclosure);
 
-			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.call();
 
@@ -291,7 +287,7 @@ class CollectOperationTest {
 			hostMonitoring.addMonitor(connectorMonitor);
 			hostMonitoring.removeMonitor(connectorMonitor);
 
-			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+			//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 			collectOperation.call();
@@ -317,21 +313,17 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 		hostMonitoring.addMonitor(connectorMonitor);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(Collections.singletonMap(MY_CONNECTOR_NAME, connector)).when(store).getConnectors();
+		//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(Collections.singletonMap(CONNECTOR_NAME, connector)).when(store).getConnectors();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(sourceTable).when(sourceVisitor).visit((SNMPGetTableSource) connector
-				.getHardwareMonitors()
-				.get(0)
-				.getCollect()
-				.getSources()
-				.get(0));
-		doReturn(CriterionTestResult.builder()
-				.success(true)
-				.message(SUCCESS)
-				.result(VERSION)
-				.build())
-		.when(criterionVisitor).visit(criterion);
+
+		final String snmpResult = CRITERION_OID + " ASN_OCT " + VERSION;
+
+		doReturn(snmpResult).when(matsyaClientsExecutor)
+			.executeSNMPGetNext(eq(CRITERION_OID), any(), any(), anyBoolean());
+
+		doReturn(table).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
 
 		collectOperation.call();
 
@@ -340,8 +332,9 @@ class CollectOperationTest {
 
 		assertEquals(expected, actual);
 
-		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
-		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, snmpResult,
+				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
 
 		assertEquals(expectedConnector, actualConnector);
 
@@ -349,7 +342,7 @@ class CollectOperationTest {
 
 	@Test
 	void testValidateHardwareMonitors() {
-		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().hardwareMonitors(null).build(), 
+		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().hardwareMonitors(null).build(),
 				ECS1_01,
 				CollectOperation.NO_HW_MONITORS_FOUND_MSG));
 		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().build(),
@@ -365,7 +358,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testCollect() {
+	void testCollect() throws Exception {
 
 		final Monitor connectorMonitor = buildConnectorMonitor();
 
@@ -375,19 +368,15 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 		hostMonitoring.addMonitor(connectorMonitor);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(sourceTable).when(sourceVisitor).visit((SNMPGetTableSource) connector
-				.getHardwareMonitors()
-				.get(0)
-				.getCollect()
-				.getSources()
-				.get(0));
-		doReturn(CriterionTestResult.builder()
-				.success(true)
-				.message(SUCCESS)
-				.result(VERSION)
-				.build())
-		.when(criterionVisitor).visit(criterion);
+		//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		final String snmpResult = CRITERION_OID + " ASN_OCT " + VERSION;
+
+		doReturn(snmpResult).when(matsyaClientsExecutor)
+			.executeSNMPGetNext(eq(CRITERION_OID), any(), any(), anyBoolean());
+
+		doReturn(table).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
 
 		collectOperation.collect(connector, connectorMonitor, hostMonitoring, ECS1_01);
 
@@ -396,8 +385,9 @@ class CollectOperationTest {
 
 		assertEquals(expectedEnclosure, actualEnclosure);
 
-		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
-		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, MY_CONNECTOR_NAME);
+		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, snmpResult,
+				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
 
 		assertEquals(expectedConnector, actualConnector);
 
@@ -407,10 +397,10 @@ class CollectOperationTest {
 		return Monitor
 				.builder()
 				.monitorType(MonitorType.CONNECTOR)
-				.name(MY_CONNECTOR_NAME)
+				.name(CONNECTOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
-				.id(MY_CONNECTOR_NAME)
+				.id(CONNECTOR_NAME)
 				.build();
 	}
 
@@ -475,7 +465,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testCollectSameTypeMonitorsMultiInstance() {
+	void testCollectSameTypeMonitorsMultiInstance() throws Exception {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
@@ -484,8 +474,8 @@ class CollectOperationTest {
 
 		final HardwareMonitor enclosureHardwareMonitor = buildHardwareEnclosureMonitor(CollectType.MULTI_INSTANCE, OID1);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(sourceTable).when(sourceVisitor).visit((SNMPGetTableSource) enclosureHardwareMonitor.getCollect().getSources().get(0));
+		doReturn(table).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
 
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
@@ -515,9 +505,9 @@ class CollectOperationTest {
 	void testProcessMultiInstanceValueTableMonitorNoFound() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		assertTrue(hostMonitoring.getMonitors().isEmpty());
 	}
@@ -528,7 +518,7 @@ class CollectOperationTest {
 		final Monitor expectedEnclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(expectedEnclosure);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -541,11 +531,9 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(enclosure);
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -569,7 +557,7 @@ class CollectOperationTest {
 
 		assertEquals(Optional.empty(), result);
 	}
-	
+
 	@Test
 	void testGetMonitorCannotExtractDeviceId() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -662,12 +650,13 @@ class CollectOperationTest {
 		final SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
 				.oid(oid)
+				.snmpTableSelectColumns(Arrays.asList("1", "2", "3", "4", "5"))
 				.key(VALUE_TABLE)
 				.computes(Collections.singletonList(LeftConcat.builder().column(1).string("").build()))
 				.build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, VALUETABLE_COLUMN_1,
-				STATUS_PARAMETER, VALUETABLE_COLUMN_2, 
+				STATUS_PARAMETER, VALUETABLE_COLUMN_2,
 				STATUS_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3,
 				INTRUSION_STATUS_PARAMETER, VALUETABLE_COLUMN_4,
 				POWER_CONSUMPTION_PARAMETER, VALUETABLE_COLUMN_5);
@@ -763,7 +752,7 @@ class CollectOperationTest {
 			final Monitor expectedEnclosure = buildEnclosure(metadata);
 			hostMonitoring.addMonitor(expectedEnclosure);
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME,
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME,
 					hostMonitoring, parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -777,9 +766,9 @@ class CollectOperationTest {
 			final Monitor expectedEnclosure = buildEnclosure(metadata);
 
 			hostMonitoring.addMonitor(expectedEnclosure);
-			hostMonitoring.addSourceTable(VALUE_TABLE, SourceTable.empty());
+			hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, SourceTable.empty());
 
-			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
 					parameters, ENCLOSURE, ECS1_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -795,11 +784,9 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(enclosure);
-		hostMonitoring.addSourceTable(VALUE_TABLE, sourceTable);
+		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, MY_CONNECTOR_NAME, hostMonitoring,
+		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
 				parameters, ENCLOSURE, ECS1_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -849,7 +836,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testCollectSameTypeMonitorsMonoInstance() {
+	void testCollectSameTypeMonitorsMonoInstance() throws Exception {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor enclosure = buildEnclosure(metadata);
@@ -858,8 +845,8 @@ class CollectOperationTest {
 
 		final HardwareMonitor enclosureHardwareMonitor = buildHardwareEnclosureMonitor(CollectType.MONO_INSTANCE, OID_MONO_INSTANCE);
 
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(sourceTable).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
+		doReturn(table).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID1 + ".1.1"), any(), any(), any(), anyBoolean());
 
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
@@ -870,37 +857,31 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testCollectConnectorMonitorSuccess() {
+	void testCollectConnectorMonitorSuccess() throws Exception {
 		final Monitor actual = buildConnectorMonitor();
 
-		doReturn(CriterionTestResult.builder()
-				.success(true)
-				.message(SUCCESS)
-				.result(VERSION)
-				.build())
-		.when(criterionVisitor).visit(criterion);
+		final String snmpResult = CRITERION_OID + " ASN_OCT " + VERSION;
 
+		doReturn(snmpResult).when(matsyaClientsExecutor).executeSNMPGetNext(
+				any(), any(), any(), anyBoolean());
 		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
 
-		final Monitor expected = buildExpectedConnectorMonitor(true, VERSION, SUCCESS);
+		final Monitor expected = buildExpectedConnectorMonitor(true, snmpResult,
+				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testCollectConnectorMonitorFailed() {
+	void testCollectConnectorMonitorFailed() throws Exception {
 		final Monitor actual = buildConnectorMonitor();
 
-		doReturn(CriterionTestResult.builder()
-				.success(false)
-				.message(FAILED)
-				.result(BAD_RESULT)
-				.build())
-		.when(criterionVisitor).visit(criterion);
+		doReturn("").when(matsyaClientsExecutor).executeSNMPGetNext(
+				any(), any(), any(), anyBoolean());
 
 		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
 
-		final Monitor expected = buildExpectedConnectorMonitor(false, BAD_RESULT, FAILED);
+		final Monitor expected = buildExpectedConnectorMonitor(false, "", SNMP_TEST_FAILED);
 
 		assertEquals(expected, actual);
 	}
@@ -926,8 +907,8 @@ class CollectOperationTest {
 				.build();
 
 		expected.setParameters(Map.of(
-				STATUS_PARAMETER, status,
-				TEST_REPORT_PARAMETER, testReport));
+				TEST_REPORT_PARAMETER, testReport,
+				STATUS_PARAMETER, status));
 
 		return expected;
 	}
@@ -988,13 +969,12 @@ class CollectOperationTest {
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).build());
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
 
 		final Monitor collectedFan1 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN1");
 
-		assertEquals(strategyTime, 
+		assertEquals(strategyTime,
 				collectedFan1.getParameter(PRESENT_PARAMETER, PresentParam.class)
 				.getCollectTime());
 
@@ -1046,7 +1026,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure2);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
@@ -1087,7 +1066,6 @@ class CollectOperationTest {
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is null
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
 		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
@@ -1144,7 +1122,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		// No temperature parameter
 
@@ -1197,7 +1174,6 @@ class CollectOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		// temperatureMonitors is null
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.post();
 		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
@@ -1251,7 +1227,7 @@ class CollectOperationTest {
 	void testProcessMonoInstanceValueTableParameterNotPresent() {
 		// Enclosure doesn't define present
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(buildEnclosure(metadata),
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		final Monitor fan = Monitor.builder()
 				.id("FAN")
@@ -1264,22 +1240,22 @@ class CollectOperationTest {
 
 		// Missing is skipped, Present parameter equals 0
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case no parameters, no present
 		fan.setParameters(new HashMap<>());
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Present parameter equals 1
 		fan.setAsPresent();
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case, Present parameter but present value is null
 		fan.getParameter(PRESENT_PARAMETER, PresentParam.class).setPresent(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, MY_CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 	}
 
 	@Test
@@ -1295,7 +1271,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		// temperatureMonitors is null
 
@@ -1592,7 +1567,6 @@ class CollectOperationTest {
 		hostMonitoring.addMissingMonitor(cpu3);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateCpusPowerConsumption();
 
@@ -1600,7 +1574,7 @@ class CollectOperationTest {
 			.values()
 			.stream()
 			.filter(monitor -> !monitor.isMissing())
-			.forEach(cpu -> 
+			.forEach(cpu ->
 				assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER)));
 
 		final Monitor cpuMissing = hostMonitoring.selectFromType(MonitorType.CPU)
@@ -1625,7 +1599,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		assertDoesNotThrow(() -> collectOperation.estimateCpusPowerConsumption());
 
@@ -1644,7 +1617,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(target);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateTargetPowerConsumption();
 
@@ -1675,7 +1647,6 @@ class CollectOperationTest {
 
 		hostMonitoring.addMonitor(enclosure);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateTargetPowerConsumption();
 
@@ -1708,14 +1679,13 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateTargetPowerConsumption();
 
 		assertEquals(3520255.0, CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER));
 	}
 
-	@Test 
+	@Test
 	void testEstimateTargetPowerConsumptionTargetOnlyPower() {
 		final Monitor target = Monitor.builder()
 				.id("TARGET")
@@ -1782,7 +1752,7 @@ class CollectOperationTest {
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
-		
+
 		final Monitor diskNoPower = Monitor.builder()
 				.id("disk_noPower")
 				.name("disk 3")
@@ -1801,14 +1771,13 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateTargetPowerConsumption();
 
 		assertEquals(77.78, CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
 	}
 
-	@Test 
+	@Test
 	void testEstimateTargetPowerConsumptionTargetFull() {
 		final Monitor target = Monitor.builder()
 				.id("TARGET")
@@ -1929,7 +1898,7 @@ class CollectOperationTest {
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
-		
+
 		final Monitor diskNoPower = Monitor.builder()
 				.id("disk_noPower")
 				.name("disk 3")
@@ -1948,7 +1917,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		collectOperation.estimateTargetPowerConsumption();
 

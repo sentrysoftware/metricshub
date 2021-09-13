@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -9,16 +13,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mockStatic;
 
 class NetworkHelperTest {
 
@@ -31,19 +31,19 @@ class NetworkHelperTest {
 		assertTrue(NetworkHelper.isLocalhost("::1"));
 		assertTrue(NetworkHelper.isLocalhost("0000:0000:0000:0000:0000:0000:0000:0001"));
 		assertTrue(NetworkHelper.isLocalhost(InetAddress.getLocalHost().getHostName()));
-		assertThrows(LocalhostCheckException.class, () -> NetworkHelper.isLocalhost(UUID.randomUUID().toString()));
-		assertThrows(IllegalArgumentException.class, () -> NetworkHelper.isLocalhost(WHITE_SPACE));
-		assertThrows(IllegalArgumentException.class, () -> NetworkHelper.isLocalhost(""));
-		assertThrows(IllegalArgumentException.class, () ->NetworkHelper.isLocalhost(null));
+		assertFalse(NetworkHelper.isLocalhost(UUID.randomUUID().toString()));
+		assertTrue(NetworkHelper.isLocalhost(WHITE_SPACE));
+		assertTrue(NetworkHelper.isLocalhost(""));
+		assertTrue(NetworkHelper.isLocalhost(null));
 		try (MockedStatic<InetAddress> inetAddressMock = mockStatic(InetAddress.class)) {
 			final String randomHost = UUID.randomUUID().toString();
 			inetAddressMock.when(() -> InetAddress.getByName(eq(randomHost))).thenReturn(null);
-			assertThrows(LocalhostCheckException.class, () -> NetworkHelper.isLocalhost(randomHost));
+			assertFalse(NetworkHelper.isLocalhost(randomHost));
 		}
 
 		try (MockedStatic<NetworkInterface> networkInterface = mockStatic(NetworkInterface.class)) {
 			networkInterface.when(() -> NetworkInterface.getByInetAddress(InetAddress.getLocalHost())).thenThrow(new SocketException());
-			assertThrows(LocalhostCheckException.class, () -> NetworkHelper.isLocalhost(InetAddress.getLocalHost().getHostName()));
+			assertFalse(NetworkHelper.isLocalhost(InetAddress.getLocalHost().getHostName()));
 		}
 	}
 

@@ -6,23 +6,23 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.stereotype.Component;
 
-import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
+import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
 
 import picocli.CommandLine;
 import picocli.CommandLine.IFactory;
 
 @Component
-public class HardwareSentryCLIRunner implements CommandLineRunner, ExitCodeGenerator {
+public class HardwareSentryCliRunner implements CommandLineRunner, ExitCodeGenerator {
 
 	private static final String SPRING_CONFIG_PREFIX = "--spring";
 	
-	private final HardwareSentryCLI monitorHardwareCommand;
+	private final HardwareSentryCli monitorHardwareCommand;
 
 	private final IFactory factory; // auto-configured to inject PicocliSpringFactory
 
 	private int exitCode;
 
-	public HardwareSentryCLIRunner(HardwareSentryCLI monitorHardwareCommand, IFactory factory) {
+	public HardwareSentryCliRunner(HardwareSentryCli monitorHardwareCommand, IFactory factory) {
 		this.monitorHardwareCommand = monitorHardwareCommand;
 		this.factory = factory;
 	}

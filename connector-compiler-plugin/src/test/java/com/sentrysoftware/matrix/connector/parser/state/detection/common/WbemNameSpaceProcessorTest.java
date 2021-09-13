@@ -31,7 +31,7 @@ class WbemNameSpaceProcessorTest {
 	@Test
 	void testParse() {
 
-		WBEM wbem = WBEM.builder().index(1).build();
+		WBEM wbem = (WBEM) WBEM.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(wbem)).build();
 		connector.setDetection(detection);
 		assertNull(wbem.getWbemNamespace());

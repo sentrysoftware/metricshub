@@ -7,26 +7,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HTTPCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IPMICredentials;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCLI;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SNMPCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WBEMCredentials;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WMICredentials;
+import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
@@ -47,7 +45,7 @@ public class EngineService {
 	@Autowired
 	private JobResultFormatterService jobResultFormatterService;
 
-	public String call(final HardwareSentryCLI data) {
+	public String call(final HardwareSentryCli data) {
 
 		log.info("EngineService called with data {}", data);
 		EngineConfiguration engineConf = new EngineConfiguration();
@@ -58,8 +56,8 @@ public class EngineService {
 		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
 		if (allConnectors != null) {
 			final Set<String> allConnectorNames = allConnectors.keySet();
-			engineConf.setSelectedConnectors(getConnectors(allConnectorNames, data.getHdfs()));
-			engineConf.setExcludedConnectors(getConnectors(allConnectorNames, data.getHdfsExclusion()));
+			engineConf.setSelectedConnectors(getConnectors(allConnectorNames, data.getConnectors()));
+			engineConf.setExcludedConnectors(getConnectors(allConnectorNames, data.getExcludedConnectors()));
 		}
 
 		// run jobs
@@ -74,38 +72,38 @@ public class EngineService {
 	}
 
 	/**
-	 * @param hardwareSentryCLI	The {@link HardwareSentryCLI} instance calling this service.
+	 * @param hardwareSentryCli	The {@link HardwareSentryCli} instance calling this service.
 	 *
-	 * @return					A {@link Map} associating the input protocol type to its input credentials.
+	 * @return A {@link Map} associating the input protocol type to its input credentials.
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols(
-		HardwareSentryCLI hardwareSentryCLI) {
+		HardwareSentryCli hardwareSentryCli) {
 
 		Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> protocols = new HashMap<>();
 
-		if (hardwareSentryCLI.getSnmpCredentials() != null) {
+		if (hardwareSentryCli.getSnmpConfig() != null) {
 
-			protocols.put(SNMPProtocol.class, getSNMPProtocol(hardwareSentryCLI.getSnmpCredentials()));
-		} 
-
-		if (hardwareSentryCLI.getWmiCredentials() != null) {
-
-			protocols.put(WMIProtocol.class, getWMIProtocol(hardwareSentryCLI.getWmiCredentials()));
-		} 
-
-		if (hardwareSentryCLI.getWbemCredentials() != null) {
-
-			protocols.put(WBEMProtocol.class, getWBEMProtocol(hardwareSentryCLI.getWbemCredentials()));
-		} 
-
-		if (hardwareSentryCLI.getHttpCredentials() != null) {
-
-			protocols.put(HTTPProtocol.class, getHTTPProtocol(hardwareSentryCLI.getHttpCredentials()));
+			protocols.put(SNMPProtocol.class, getSnmpProtocol(hardwareSentryCli.getSnmpConfig()));
 		}
 
-		if (hardwareSentryCLI.getIpmiCredentials() != null) {
+		if (hardwareSentryCli.getWmiConfig() != null) {
 
-			protocols.put(IPMIOverLanProtocol.class, getIPMIOverLanProtocol(hardwareSentryCLI.getIpmiCredentials()));
+			protocols.put(WMIProtocol.class, getWMIProtocol(hardwareSentryCli.getWmiConfig()));
+		}
+
+		if (hardwareSentryCli.getWbemConfig() != null) {
+
+			protocols.put(WBEMProtocol.class, getWbemProtocol(hardwareSentryCli.getWbemConfig()));
+		}
+
+		if (hardwareSentryCli.getHttpConfig() != null) {
+
+			protocols.put(HTTPProtocol.class, getHttpProtocol(hardwareSentryCli.getHttpConfig()));
+		}
+
+		if (hardwareSentryCli.getIpmiConfig() != null) {
+
+			protocols.put(IPMIOverLanProtocol.class, getIpmiOverLanProtocol(hardwareSentryCli.getIpmiConfig()));
 		}
 
 		return protocols;
@@ -113,61 +111,64 @@ public class EngineService {
 
 	/**
 	 * Get {@link IPMIOverLanProtocol} based on HardwareSentryCLi.ipmiCredentials
-	 * 
-	 * @param ipmiCredentials The CLI IPMI credentials input.
+	 *
+	 * @param ipmiConfig The CLI IPMI credentials input.
 	 * @return new instance of {@link IPMIOverLanProtocol}
 	 */
-	public IProtocolConfiguration getIPMIOverLanProtocol(IPMICredentials ipmiCredentials) {
+	public IProtocolConfiguration getIpmiOverLanProtocol(IpmiConfig ipmiConfig) {
 		return IPMIOverLanProtocol.builder()
-				.username(ipmiCredentials.getUsername())
-				.password(ipmiCredentials.getPassword() == null ? null : ipmiCredentials.getPassword().toCharArray())
-				.bmcKey(ipmiCredentials.getBmcKey() == null ? null : ipmiCredentials.getBmcKey().getBytes())
-				.timeout(ipmiCredentials.getTimeout())
-				.skipAuth(ipmiCredentials.isSkipAuth())
+				.username(ipmiConfig.getUsername())
+				.password(ipmiConfig.getPassword())
+				.bmcKey(ipmiConfig.getBmcKey() == null ? null : ipmiConfig.getBmcKey().getBytes())
+				.timeout(ipmiConfig.getTimeout())
+				.skipAuth(ipmiConfig.isSkipAuth())
 				.build();
 	}
 
 	/**
-	 * @param snmpCredentials	The CLI SNMP credentials input.
+	 * @param snmpConfig	The CLI SNMP credentials input.
 	 *
-	 * @return					A new {@link SNMPProtocol} based on the given CLI SNMP credentials input.
+	 * @return A new {@link SNMPProtocol} based on the given CLI SNMP credentials input.
 	 */
-	public SNMPProtocol getSNMPProtocol(SNMPCredentials snmpCredentials) {
+	public SNMPProtocol getSnmpProtocol(SnmpConfig snmpConfig) {
 
-		notNull(snmpCredentials, "snmpCredentials cannot be null.");
+		notNull(snmpConfig, "snmpCredentials cannot be null.");
 
 		SNMPProtocol snmpProtocol = new SNMPProtocol();
 
-		snmpProtocol.setVersion(snmpCredentials.getSnmpVersion());
-		snmpProtocol.setCommunity(snmpCredentials.getCommunity());
-		snmpProtocol.setPort(snmpCredentials.getPort());
-		snmpProtocol.setTimeout(snmpCredentials.getTimeout());
+		snmpProtocol.setVersion(snmpConfig.getSnmpVersion());
+		snmpProtocol.setCommunity(snmpConfig.getCommunity());
+		snmpProtocol.setPort(snmpConfig.getPort());
+		snmpProtocol.setTimeout(snmpConfig.getTimeout());
 
-		snmpProtocol.setUsername(snmpCredentials.getUsername());
-		snmpProtocol.setPassword(snmpCredentials.getPassword());
-		snmpProtocol.setPrivacyPassword(snmpCredentials.getPrivacyPassword());
-		snmpProtocol.setPrivacy(snmpCredentials.getPrivacy());
+		snmpProtocol.setUsername(snmpConfig.getUsername());
+		snmpProtocol.setPassword(snmpConfig.getPassword());
+		snmpProtocol.setPrivacyPassword(snmpConfig.getPrivacyPassword());
+		snmpProtocol.setPrivacy(snmpConfig.getPrivacy());
 
 		return snmpProtocol;
 	}
 
 	/**
-	 * @param httpCredentials	The CLI HTTP credentials input.
+	 * @param httpConfig	The CLI HTTP credentials input.
 	 *
-	 * @return					A new {@link HTTPProtocol} based on the given CLI HTTP credentials input.
+	 * @return A new {@link HTTPProtocol} based on the given CLI HTTP credentials input.
 	 */
-	public HTTPProtocol getHTTPProtocol(HTTPCredentials httpCredentials) {
+	public HTTPProtocol getHttpProtocol(HttpConfig httpConfig) {
 
-		notNull(httpCredentials, "httpCredentials cannot be null.");
+		notNull(httpConfig, "httpCredentials cannot be null.");
 
 		HTTPProtocol httpProtocol = new HTTPProtocol();
 
-		httpProtocol.setHttps(!httpCredentials.isHttp());
-		httpProtocol.setPort(httpCredentials.getPort());
-		httpProtocol.setTimeout(httpCredentials.getTimeout());
+		if (httpConfig.getHttpOrHttps() != null) {
+			httpProtocol.setHttps(httpConfig.getHttpOrHttps().isHttps());
+		}
 
-		httpProtocol.setUsername(httpCredentials.getUsername());
-		httpProtocol.setPassword(httpCredentials.getPassword() == null ? null :  httpCredentials.getPassword().toCharArray());
+		httpProtocol.setPort(httpConfig.getPort());
+		httpProtocol.setTimeout(httpConfig.getTimeout());
+
+		httpProtocol.setUsername(httpConfig.getUsername());
+		httpProtocol.setPassword(httpConfig.getPassword());
 
 		return httpProtocol;
 	}
@@ -175,45 +176,45 @@ public class EngineService {
 	/**
 	 * Set @WMIProtocol based on HardwareSentryCLi.wmiCredentials
 	 *
-	 * @param wmiCredentials	The CLI WMI credentials input.
+	 * @param wmiConfig	The CLI WMI credentials input.
 	 *
-	 * @return 					{@link WMIProtocol} instance
+	 * @return {@link WMIProtocol} instance
 	 */
-	private WMIProtocol getWMIProtocol(final WMICredentials wmiCredentials) {
+	private WMIProtocol getWMIProtocol(final WmiConfig wmiConfig) {
 		return WMIProtocol.builder()
-			.username(wmiCredentials.getUsername())
-			.password(wmiCredentials.getPassword() == null ? null : wmiCredentials.getPassword().toCharArray())
-			.timeout(wmiCredentials.getTimeout())
-			.namespace(wmiCredentials.getNamespace())
+			.username(wmiConfig.getUsername())
+			.password(wmiConfig.getPassword())
+			.timeout(wmiConfig.getTimeout())
+			.namespace(wmiConfig.getNamespace())
 			.build();
 	}
 
 	/**
 	 * Set @WBEMProtocol based on HardwareSentryCLi.wbemCredentials
-	 * 
+	 *
 	 * @param cliWBEMCredentials	The CLI WBEM credentials input.
 	 *
 	 * @return						A new {@link WBEMProtocol} based on the given CLI WBEM credentials input.
 	 */
-	public WBEMProtocol getWBEMProtocol(WBEMCredentials cliWBEMCredentials) {
+	public WBEMProtocol getWbemProtocol(WbemConfig cliWbemCredentials) {
 		WBEMProtocol wbemInstance = new WBEMProtocol();
 
-		wbemInstance.setProtocol(WBEMProtocols.getValue(cliWBEMCredentials.getProtocol()));
-		wbemInstance.setPort(cliWBEMCredentials.getPort());
-		wbemInstance.setNamespace(cliWBEMCredentials.getNamespace());
-		wbemInstance.setTimeout(cliWBEMCredentials.getTimeout());
-		wbemInstance.setUsername(cliWBEMCredentials.getUsername());
-		wbemInstance.setPassword(cliWBEMCredentials.getPassword() == null ? null : cliWBEMCredentials.getPassword().toCharArray());
+		wbemInstance.setProtocol(cliWbemCredentials.getProtocol());
+		wbemInstance.setPort(cliWbemCredentials.getPort());
+		wbemInstance.setNamespace(cliWbemCredentials.getNamespace());
+		wbemInstance.setTimeout(cliWbemCredentials.getTimeout());
+		wbemInstance.setUsername(cliWbemCredentials.getUsername());
+		wbemInstance.setPassword(cliWbemCredentials.getPassword());
 
 		return wbemInstance;
 	}
 
 	/**
 	 * Return configured connector names with the .connector extension. This method excludes badly configured connectors.
-	 * 
+	 *
 	 * @param allConnectors      All connectors from the {@link ConnectorStore}
 	 * @param configConnectors   User's selected or excluded connectors
-	 * 
+	 *
 	 * @return {@link Set} containing the selected connector names
 	 */
 	static Set<String> getConnectors(final Set<String> allConnectors, final Set<String> configConnectors) {
@@ -242,7 +243,7 @@ public class EngineService {
 
 	/**
 	 * Remove the extension from the given set of connector names and return a new list
-	 * 
+	 *
 	 * @param connectors The connector names we wish to process
 	 * @return {@link List} of String elements
 	 */

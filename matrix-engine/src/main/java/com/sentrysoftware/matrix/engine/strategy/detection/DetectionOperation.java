@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import com.sentrysoftware.matrix.common.exception.LocalhostCheckException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -50,7 +49,7 @@ public class DetectionOperation extends AbstractStrategy {
 		// The configuration is wrapped in the strategyConfig bean
 		final Set<String> selectedConnectors = strategyConfig.getEngineConfiguration().getSelectedConnectors();
 
-		// Localhost check 
+		// Localhost check
 		final boolean isLocalhost = NetworkHelper.isLocalhost(strategyConfig.getEngineConfiguration().getTarget().getHostname());
 
 		// Create the target
@@ -106,7 +105,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Perform auto detection.
-	 * 
+	 *
 	 * @param isLocalhost				Whether the monitored system is local host or not.
 	 * @param threadsPool				The threads pool that will be used to execute the detections.
 	 *
@@ -115,8 +114,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @throws LocalhostCheckException	Could be thrown by filterConnectorsByLocalAndRemoteSupport
 	 * 									if {@link NetworkHelper#isLocalhost(String)} fails.
 	 */
-	List<TestedConnector> performAutoDetection(final boolean isLocalhost, ExecutorService threadsPool)
-		throws LocalhostCheckException {
+	List<TestedConnector> performAutoDetection(final boolean isLocalhost, ExecutorService threadsPool) {
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Start DETECTION for system {}", hostname);
@@ -130,7 +128,7 @@ public class DetectionOperation extends AbstractStrategy {
 				.values());
 
 		// Filter Connectors by the TargetType (target type: NT, LINUX, ESX, ...etc)
-		connectorStream = filterConnectorsByTargetType(connectorStream, 
+		connectorStream = filterConnectorsByTargetType(connectorStream,
 				strategyConfig.getEngineConfiguration().getTarget().getType());
 
 		// Now based on the target location (Local or Remote) filter connectors by
@@ -160,7 +158,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Filter excluded connectors from the given collection of connectors.
-	 * 
+	 *
 	 * @param excludedConnectors The user's excluded connectors we want to skip
 	 * @param connectors         The connectors to filter
 	 * @return {@link Stream} of {@link Connector} instances
@@ -278,7 +276,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Filter the given stream {@link TestedConnector} instances and keep only
 	 * connectors with successful criteria
-	 * 
+	 *
 	 * @param testedConnectors
 	 * @param hostname
 	 * @return Updated {@link Stream}
@@ -289,7 +287,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Check if the given {@link TestedConnector} has been successfully tested.
-	 * 
+	 *
 	 * @param testedConnector
 	 * @param hostname
 	 * @return <code>true</code> if all the {@link Criterion} have been tested
@@ -314,7 +312,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * If a connector is defined in the supersedes list of another detected
 	 * connector then it will be removed
-	 * 
+	 *
 	 * @param testedConnectorList
 	 */
 	void handleSupersedes(final List<TestedConnector> testedConnectorList) {
@@ -326,7 +324,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Update the given {@link Set} of supersedes connectors
-	 * 
+	 *
 	 * @param supersedes
 	 * @param testedConnector
 	 */
@@ -343,7 +341,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * Build the stream of {@link TestedConnector}s.
 	 * For performance reasons, detections will be run in parallel.
 	 * Thus we just have to wait for only one timeout instead of all the timeouts as we would have to in sequential mode.
-	 * 
+	 *
 	 * @param stream		The {@link Stream} of {@link Connector}s whose {@link Detection} will be tested.
 	 * @param hostname		The name of the host against with the {@link Detection}s will be tested.
 	 * @param threadsPool	The threads pool that will be used to execute the detections.
@@ -393,13 +391,13 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Filter connectors if local host and hdf.LocalSupport is false Filter
 	 * connectors if not local host and hdf.RemoteSupport is not true
-	 * 
+	 *
 	 * @param connectorStream
 	 * @param isLocalhost
 	 * @return {@link Stream} of {@link Connector} instances
 	 * @throws LocalhostCheckException when {@link NetworkHelper#isLocalhost(String)} fails
 	 */
-	Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final boolean isLocalhost) throws LocalhostCheckException  {
+	Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final boolean isLocalhost) {
 		if (isLocalhost) {
 			return connectorStream.filter(connector -> !Boolean.FALSE.equals(connector.getLocalSupport()));
 		} else {
@@ -409,10 +407,10 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Filter the connectors by the {@link TargetType}
-	 * 
+	 *
 	 * @param connectorStream
 	 * @param targetType
-	 * 
+	 *
 	 * @return {@link Stream} of {@link Connector} instances
 	 */
 	Stream<Connector> filterConnectorsByTargetType(final Stream<Connector> connectorStream, final TargetType targetType) {

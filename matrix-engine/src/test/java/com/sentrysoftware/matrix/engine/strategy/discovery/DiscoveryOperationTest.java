@@ -14,8 +14,8 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -59,6 +59,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,12 +98,12 @@ class DiscoveryOperationTest {
 	private static final String EMPTY = "";
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
-	private static final String OID1 = "1.2.3.4.5";
-	private static final String OID2 = "1.2.3.4.6";
+	private static final String OID_ENCLOSURE = "1.2.3.4.5";
+	private static final String OID_FAN = "1.2.3.4.6";
 	private static final String MY_CONNECTOR_1_NAME = "myConnector1.connector";
 	private static final String ENCLOSURE_SOURCE_KEY = "Enclosure.discovery.Source(1)";
 	private static final String FAN_SOURCE_KEY = "Fan.discovery.Source(1)";
-	private static final String MY_CONNECTOR_2_NAME = "myConnecctor2.connector";
+	private static final String MY_CONNECTOR_2_NAME = "myConnector2.connector";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -110,7 +112,7 @@ class DiscoveryOperationTest {
 	private ConnectorStore store;
 
 	@Mock
-	private SourceVisitor sourceVisitor;
+	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static Long strategyTime = new Date().getTime();
 
@@ -268,7 +270,7 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverMultiJobs() {
+	void testDiscoverMultiJobs() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
@@ -289,16 +291,17 @@ class DiscoveryOperationTest {
 				.build();
 
 		final List<List<String>> enclosureData = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
-		final SourceTable enclosureSourceTable = SourceTable.builder().table(enclosureData).build();
-
-		final List<List<String>> fanDate = Collections.singletonList(Arrays.asList(ID, FAN_1, SPEED_VALUE));
-		final SourceTable fanSourceTable = SourceTable.builder().table(fanDate).build();
+		final List<List<String>> fanData = Collections.singletonList(Arrays.asList(ID, FAN_1, SPEED_VALUE));
 
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(enclosureSourceTable).when(sourceVisitor).visit((SNMPGetTableSource) enclosureMonitor.getDiscovery().getSources().get(0));
-		doReturn(fanSourceTable).when(sourceVisitor).visit((SNMPGetTableSource) fanMonitor.getDiscovery().getSources().get(0));
+
+		doReturn(enclosureData).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());
+
+		doReturn(fanData).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_FAN), any(), any(), any(), anyBoolean());
 
 		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -363,7 +366,8 @@ class DiscoveryOperationTest {
 				.build();
 		final SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
-				.oid(OID2)
+				.oid(OID_FAN)
+				.snmpTableSelectColumns(Arrays.asList("1", "2", "3"))
 				.key(FAN_SOURCE_KEY)
 				.computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build()))
 				.build();
@@ -386,7 +390,7 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscover() {
+	void testDiscover() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
@@ -404,14 +408,14 @@ class DiscoveryOperationTest {
 				.compiledFilename(MY_CONNECTOR_1_NAME)
 				.hardwareMonitors(Collections.singletonList(hardwareMonitor))
 				.build();
-	
+
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
-		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(sourceTable).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
+		doReturn(data).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());
 
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -423,7 +427,7 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
-		
+
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
@@ -444,7 +448,7 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverSameTypeMonitors() {
+	void testDiscoverSameTypeMonitors() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		final Monitor targetMonitor = Monitor
@@ -458,12 +462,12 @@ class DiscoveryOperationTest {
 		final HardwareMonitor hardwareMonitor = buildHardwareEnclosureMonitor();
 
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
-		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-		doReturn(sourceTable).when(sourceVisitor).visit(any(SNMPGetTableSource.class));
+		doReturn(data).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());
 
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -502,13 +506,14 @@ class DiscoveryOperationTest {
 				.build();
 		final SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
-				.oid(OID1)
+				.oid(OID_ENCLOSURE)
+				.snmpTableSelectColumns(Arrays.asList("1", "2", "3", "4", "5"))
 				.key(ENCLOSURE_SOURCE_KEY)
 				.computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build()))
 				.build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
@@ -591,7 +596,7 @@ class DiscoveryOperationTest {
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(null).build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
@@ -618,7 +623,7 @@ class DiscoveryOperationTest {
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
@@ -693,7 +698,7 @@ class DiscoveryOperationTest {
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
@@ -711,7 +716,7 @@ class DiscoveryOperationTest {
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
-		hostMonitoring.addSourceTable(ENCLOSURE_SOURCE_KEY, sourceTable);
+		hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_SOURCE_KEY, sourceTable);
 		hostMonitoring.addMonitor(targetMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -759,9 +764,9 @@ class DiscoveryOperationTest {
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, DELL_ENCLOSURE,
 				VENDOR, DELL);
-		
+
 		discoveryOperation.processTextParameters(parameters, monitor, MY_CONNECTOR_1_NAME);
-	
+
 		final Map<String, String> metadata = monitor.getMetadata();
 
 		assertEquals(DELL_ENCLOSURE, metadata.get(DEVICE_ID_PASCAL));
@@ -775,7 +780,7 @@ class DiscoveryOperationTest {
 
 		final Map<String, String> parameters = Map.of(
 				DEVICE_ID, INSTANCETABLE_COLUMN_1,
-				DISPLAY_ID, INSTANCETABLE_COLUMN_2, 
+				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
 				OUT_OF_RANGE, INSTANCETABLE_COLUMN_4);
@@ -784,7 +789,7 @@ class DiscoveryOperationTest {
 		discoveryOperation.processSourceTableParameters(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
 		final Map<String, String> metadata = monitor.getMetadata();
-		
+
 		assertEquals(ID, metadata.get(DEVICE_ID_PASCAL));
 		assertEquals(POWER_EDGE_54DSF, metadata.get(DISPLAY_ID_PASCAL));
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
@@ -793,51 +798,60 @@ class DiscoveryOperationTest {
 		assertNull(metadata.get(OUT_OF_RANGE));
 	}
 
-	
+
 	@Test
-	void testProcessSourcesAndComputes() {
+	void testProcessSourcesAndComputes() throws Exception{
 
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		discoveryOperation.processSourcesAndComputes(Collections.emptyList(), hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
-		assertTrue(hostMonitoring.getSourceTables().isEmpty());
+		assertTrue(hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTables().isEmpty());
 
 		discoveryOperation.processSourcesAndComputes(null, hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
-		assertTrue(hostMonitoring.getSourceTables().isEmpty());
+		assertTrue(hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTables().isEmpty());
 
 		SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
-				.oid(OID1)
+				.oid(OID_ENCLOSURE)
+				.snmpTableSelectColumns(Arrays.asList("1", "2"))
 				.key(ENCLOSURE_SOURCE_KEY)
 				.computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build()))
 				.build();
 		final List<List<String>> data = Arrays.asList(Arrays.asList("val1", "val2"), Arrays.asList("val3, val4"));
-		final SourceTable expected = SourceTable.builder().table(data).build();
-		doReturn(expected).when(sourceVisitor).visit(source);
-		discoveryOperation.processSourcesAndComputes(
-				Collections.singletonList(source),
-				hostMonitoring,
-				connector,
-				MonitorType.ENCLOSURE,
-				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
+		final SourceTable expected = SourceTable.builder().table(data).headers(Arrays.asList("1", "2")).build();
 
-		source = SNMPGetTableSource.builder().oid(OID1).key(ENCLOSURE_SOURCE_KEY).build();
-		source.setComputes(null);
-		doReturn(expected).when(sourceVisitor).visit(source);
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(data).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());
+
 		discoveryOperation.processSourcesAndComputes(
 				Collections.singletonList(source),
 				hostMonitoring,
 				connector,
 				MonitorType.ENCLOSURE,
 				ECS1_01);
-		assertEquals(expected, hostMonitoring.getSourceTableByKey(ENCLOSURE_SOURCE_KEY));
+		assertEquals(expected, hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTable(ENCLOSURE_SOURCE_KEY));
+
+		source = SNMPGetTableSource.builder()
+				.oid(OID_ENCLOSURE)
+				.key(ENCLOSURE_SOURCE_KEY)
+				.snmpTableSelectColumns(Arrays.asList("1", "2"))
+				.build();
+		source.setComputes(null);
+
+		discoveryOperation.processSourcesAndComputes(
+				Collections.singletonList(source),
+				hostMonitoring,
+				connector,
+				MonitorType.ENCLOSURE,
+				ECS1_01);
+		assertEquals(expected, hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTable(ENCLOSURE_SOURCE_KEY));
 
 	}
 
 	@Test
 	void testResetPresentParam() {
-		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null)); 
+		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null));
 
 		final PresentParam presentParam = PresentParam.present();
 
