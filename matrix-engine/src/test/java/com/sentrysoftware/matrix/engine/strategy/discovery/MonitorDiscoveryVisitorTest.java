@@ -15,7 +15,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -70,7 +70,7 @@ class MonitorDiscoveryVisitorTest {
 	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";
 	private static final String ENCLOSURE_ID = "myConnector.connector_enclosure_ecs1-01_1.1";
 	private static final String FAN_ID = "myConnector.connector_fan_ecs1-01_1.1";
-	private static final String ROBOTIC_ID = "myConnector.connector_robotic_ecs1-01_1.1";
+	private static final String ROBOTICS_ID = "myConnector.connector_robotics_ecs1-01_1.1";
 
 
 	@Test
@@ -653,11 +653,11 @@ class MonitorDiscoveryVisitorTest {
 	}
 
 	@Test
-	void testVisitRobotic() {
+	void testVisitRobotics() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTIC);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotic) MonitorType.ROBOTIC.getMetaMonitor());
+		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTICS);
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotics) MonitorType.ROBOTICS.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
@@ -667,18 +667,18 @@ class MonitorDiscoveryVisitorTest {
 
 
 		final Monitor expectedMonitor = Monitor.builder()
-				.id(ROBOTIC_ID)
+				.id(ROBOTICS_ID)
 				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
-				.monitorType(MonitorType.ROBOTIC)
-				.extendedType(MonitorType.ROBOTIC.getName())
-				.alertRules(MonitorType.ROBOTIC.getMetaMonitor().getStaticAlertRules())
+				.monitorType(MonitorType.ROBOTICS)
+				.extendedType(MonitorType.ROBOTICS.getName())
+				.alertRules(MonitorType.ROBOTICS.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
-		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ROBOTIC);
+		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ROBOTICS);
 
 		assertEquals(expectedMonitor, monitors.values().stream().findFirst().get());
 

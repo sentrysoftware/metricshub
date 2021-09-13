@@ -56,7 +56,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -322,18 +322,18 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Robotic robotic) {
+	public void visit(Robotics robotics) {
 		if (monitor == null) {
 			return;
 		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				Robotic::checkErrorCountCondition,
-				Robotic::checkHighErrorCountCondition);
+				Robotics::checkErrorCountCondition,
+				Robotics::checkHighErrorCountCondition);
 
 		// Process static alert rules
-		processStaticAlertRules(monitor, robotic, parametersToSkip);
+		processStaticAlertRules(monitor, robotics, parametersToSkip);
 	}
 
 	/**
