@@ -42,7 +42,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
+	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired

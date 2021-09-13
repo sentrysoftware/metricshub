@@ -905,6 +905,7 @@ public class PrometheusSpecificities {
 		return Stream
 			.concat(LABELS.stream(), monitorType.getMetaMonitor().getMetadata().stream())
 			.map(PrometheusSpecificities::camelCaseToSnakeCase)
+			.sorted()
 			.collect(Collectors.toList());
 	}
 

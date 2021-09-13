@@ -1,18 +1,18 @@
 # HELP hw_enclosure_energy_joules_total Metric: hw_enclosure_energy_joules - Unit: joules
 # TYPE hw_enclosure_energy_joules_total counter
-hw_enclosure_energy_joules_total{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",} 3000.0
+hw_enclosure_energy_joules_total{fqdn="connector1.connector_enclosure_ecs_1.1",id="ecs",label="Enclosure ECS",parent="targetFqdn",} 3000.0
 # HELP hw_enclosure_status Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_enclosure_status gauge
-hw_enclosure_status{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",} 0.0
+hw_enclosure_status{fqdn="connector1.connector_enclosure_ecs_1.1",id="ecs",label="Enclosure ECS",parent="targetFqdn",} 0.0
 # HELP hw_enclosure_info Metric: hw_enclosure_info
 # TYPE hw_enclosure_info gauge
-hw_enclosure_info{id="connector1.connector_enclosure_ecs_1.1",parent="ecs",label="Enclosure ECS",fqdn="targetFqdn",device_id="1.1",serial_number="XXX888",vendor="Dell",model="PowerEdge R630",bios_version="",type="Computer",additional_information1="Additional info test",additional_information2="",additional_information3="",} 1.0
+hw_enclosure_info{additional_information1="Additional info test",additional_information2="",additional_information3="",bios_version="",device_id="1.1",fqdn="targetFqdn",id="connector1.connector_enclosure_ecs_1.1",label="Enclosure ECS",model="PowerEdge R630",parent="ecs",serial_number="XXX888",type="Computer",vendor="Dell",} 1.0
 # HELP hw_fan_status Metric: hw_fan_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_fan_status gauge
-hw_fan_status{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",fqdn="targetFqdn",} 0.0
-hw_fan_status{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",fqdn="targetFqdn",} 0.0
+hw_fan_status{fqdn="connector1.connector_fan_ecs_1.11",id="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",parent="targetFqdn",} 0.0
+hw_fan_status{fqdn="connector1.connector_fan_ecs_1.12",id="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",parent="targetFqdn",} 0.0
 # HELP hw_fan_info Metric: hw_fan_info
 # TYPE hw_fan_info gauge
-hw_fan_info{id="connector1.connector_fan_ecs_1.11",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.11",fqdn="targetFqdn",device_id="1.11",fan_type="default cooling",additional_information1="",additional_information2="",additional_information3="",} 1.0
-hw_fan_info{id="connector1.connector_fan_ecs_1.12",parent="connector1.connector_enclosure_ecs_1.1",label="Fan 1.12",fqdn="targetFqdn",device_id="1.12",fan_type="default cooling",additional_information1="",additional_information2="",additional_information3="",} 1.0
+hw_fan_info{additional_information1="",additional_information2="",additional_information3="",device_id="1.11",fan_type="default cooling",fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.11",label="Fan 1.11",parent="connector1.connector_enclosure_ecs_1.1",} 1.0
+hw_fan_info{additional_information1="",additional_information2="",additional_information3="",device_id="1.12",fan_type="default cooling",fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.12",label="Fan 1.12",parent="connector1.connector_enclosure_ecs_1.1",} 1.0
 
