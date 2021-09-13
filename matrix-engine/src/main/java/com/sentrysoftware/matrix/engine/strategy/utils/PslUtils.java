@@ -21,8 +21,6 @@ public class PslUtils {
 	private static final String SEPARATORS_SPECIAL_CHARACTERS = "([()\\[\\]{}\\\\^\\-$|?*+.])";
 	private static final String ESCAPED_FIRST_MATCHING_GROUP = "\\\\$1";
 	private static final String FIRST_MATCHING_GROUP = "$1";
-	private static final String CLOSING_OPENING_PARENTHESIS = ")(";
-	private static final String CLOSING_PARENTHESIS_PLUS = ")+";
 	private static final String DOT_PLUS = ".+";
 	private static final String DOT = ".";
 	private static final char BACKSLASH_CHAR = '\\';
@@ -198,20 +196,12 @@ public class PslUtils {
 		}
 
 		// Replace special chars with their literal equivalents
-		String separatorsRegExp = "["
-			+ separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_FIRST_MATCHING_GROUP)
-			+ "]";
+		String separatorsRegExp = String.format("[%s]", separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_FIRST_MATCHING_GROUP));
 
 		if (isNthArg) {
 
 			// Remove redundant separators
-			text = text.replaceAll("("
-				+ separatorsRegExp
-				+ CLOSING_OPENING_PARENTHESIS
-				+ separatorsRegExp
-				+ CLOSING_PARENTHESIS_PLUS,
-				FIRST_MATCHING_GROUP);
-
+			text = text.replaceAll(String.format("(%s)(%s)+", separatorsRegExp, separatorsRegExp), FIRST_MATCHING_GROUP);
 			// Remove leading separators
 			text = text.replaceAll("^" + separatorsRegExp + "+", "");
 		}

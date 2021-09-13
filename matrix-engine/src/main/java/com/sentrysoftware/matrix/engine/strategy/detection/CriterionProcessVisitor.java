@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -149,7 +149,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 						String.format(
 								"No currently running processes matches the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
 								command,
-								result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEPARATOR))).collect(Collectors.joining(NEW_LINE)))));
+								result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP))).collect(Collectors.joining(NEW_LINE)))));
 	}
 
 	/**

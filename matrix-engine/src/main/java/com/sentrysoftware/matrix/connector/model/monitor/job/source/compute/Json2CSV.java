@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Data
 @NoArgsConstructor
@@ -23,14 +23,14 @@ public class Json2CSV extends Compute {
 
 	private String entryKey;
 	private List<String> properties = new ArrayList<>();
-	private String separator = TABLE_SEPARATOR;
+	private String separator = TABLE_SEP;
 
 	@Builder
 	public Json2CSV(Integer index, String entryKey, List<String> properties, String separator) {
 		super(index);
 		this.entryKey = entryKey;
 		this.properties = properties == null ? new ArrayList<>() : properties;
-		this.separator = separator == null ? TABLE_SEPARATOR : separator;
+		this.separator = separator == null ? TABLE_SEP : separator;
 	}
 	@Override
 	public void accept(final IComputeVisitor computeVisitor) {

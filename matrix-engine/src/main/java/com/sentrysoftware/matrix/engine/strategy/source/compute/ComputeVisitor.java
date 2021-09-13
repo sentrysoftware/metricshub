@@ -55,7 +55,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TAB;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 @AllArgsConstructor
@@ -261,7 +261,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
-				? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEPARATOR, true)
+				? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
 				: sourceTable.getRawData();
 		try {
 			
@@ -294,7 +294,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 
 			sourceTable.setRawData(awkResult);
-			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEPARATOR));
+			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
 
 		} catch (Exception e) {
 			log.warn("Compute Operation (Awk) has failed. ", e);
@@ -324,10 +324,10 @@ public class ComputeVisitor implements IComputeVisitor {
 		// protect the initial string that contains ";" and replace it with "," if this
 		// latest is not in Separators list. Otherwise, just remove the ";"
 		// replace all separators by ";", which is the standard separator used by MS_HW
-		if (!separators.contains(TABLE_SEPARATOR) && !separators.contains(",")) {
-			awkResult = awkResult.replace(TABLE_SEPARATOR, ",");
-		} else if (!separators.contains(TABLE_SEPARATOR)) {
-			awkResult = awkResult.replace(TABLE_SEPARATOR, "");
+		if (!separators.contains(TABLE_SEP) && !separators.contains(",")) {
+			awkResult = awkResult.replace(TABLE_SEP, ",");
+		} else if (!separators.contains(TABLE_SEP)) {
+			awkResult = awkResult.replace(TABLE_SEP, "");
 		}
 
 		StringBuilder selectedOutput = new StringBuilder();
@@ -336,13 +336,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			// if separator = tab or simple space, then ignore empty cells
 			// equivalent to ntharg
 			if (!separators.contains(TAB) && !separators.contains(WHITE_SPACE)) {
-				line = PslUtils.nthArgf(line, selectColumnsStr, separators, TABLE_SEPARATOR);
+				line = PslUtils.nthArgf(line, selectColumnsStr, separators, TABLE_SEP);
 			} else {
-				line = PslUtils.nthArg(line, selectColumnsStr, separators, TABLE_SEPARATOR);
+				line = PslUtils.nthArg(line, selectColumnsStr, separators, TABLE_SEP);
 			}
 
 			// mind that the joining operation do not add separator at the end and do not return new line
-			selectedOutput.append(line).append(TABLE_SEPARATOR).append(NEW_LINE);
+			selectedOutput.append(line).append(TABLE_SEP).append(NEW_LINE);
 
 		}
 
@@ -851,12 +851,12 @@ public class ComputeVisitor implements IComputeVisitor {
 				// Serialize and deserialize
 				// in case the String to concat contains a ';'
 				// so that a new column is created.
-				if (concatString.contains(TABLE_SEPARATOR)) {
+				if (concatString.contains(TABLE_SEP)) {
 
 					sourceTable.setTable(
 						SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEPARATOR, false),
-							TABLE_SEPARATOR));
+							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+							TABLE_SEP));
 				}
 			}
 		}
@@ -1104,8 +1104,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(SourceTable.csvToTable(
-				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEPARATOR, false),
-				TABLE_SEPARATOR));
+				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+				TABLE_SEP));
 	}
 
 	@Override
@@ -1326,7 +1326,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
 
-					needSerialization = needSerialization || newValue.contains(TABLE_SEPARATOR);
+					needSerialization = needSerialization || newValue.contains(TABLE_SEP);
 				} else {
 					log.warn("The Translation Map {} does not contain the following value {}.",
 							translationTable.getName(), valueToBeReplaced);
@@ -1337,8 +1337,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		if (needSerialization) {
 			sourceTable.setTable(
 					SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEPARATOR, false),
-							TABLE_SEPARATOR));
+							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+							TABLE_SEP));
 		}
 	}
 

@@ -40,7 +40,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @Slf4j
@@ -464,7 +464,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 
 		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, TABLE_SEPARATOR))
+				.table(SourceTable.csvToTable(key, TABLE_SEP))
 				.build();
 	}
 

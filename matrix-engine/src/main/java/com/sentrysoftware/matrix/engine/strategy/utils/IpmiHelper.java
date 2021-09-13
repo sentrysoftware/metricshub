@@ -18,7 +18,7 @@ import com.sentrysoftware.matrix.common.helpers.ListHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEPARATOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 import lombok.NonNull;
@@ -304,7 +304,7 @@ public class IpmiHelper {
 				state = "0x" + state.substring(18, 20) + state.substring(16, 18);
 			}
 
-			state = state.replace("." + ",", "|" + sensorName + "=");
+			state = state.replace(".,", "|" + sensorName + "=");
 
 			// Get the line of this device
 			List<String> deviceLine = deviceMap.get(entityId);
@@ -314,11 +314,7 @@ public class IpmiHelper {
 				}
 
 				// Add the list of states of this sensor to the device
-				deviceLine.set(6, deviceLine.get(6)
-						+ "|"
-						+ sensorName
-						+ "="
-						+ state);
+				deviceLine.set(6, String.format("%s|%s=%s", deviceLine.get(6), sensorName, state));
 
 				// Re-add that to the device list
 				deviceMap.put(entityId, deviceLine);
@@ -331,7 +327,7 @@ public class IpmiHelper {
 						"",
 						"",
 						"",
-						sensorName + "=" + state);
+						String.format("%s=%s", sensorName, state));
 				deviceMap.put(entityId, deviceSensorList);
 			}
 		}
@@ -593,7 +589,7 @@ public class IpmiHelper {
 	public static List<String> ipmiAddHardwareSensorInfo(String sdrResult, List<String> ipmiTable) {
 
 		for (String sensorEntry : sdrResult.split(NEW_LINE)) {
-			sensorEntry = sensorEntry.replace(TABLE_SEPARATOR, NEW_LINE);
+			sensorEntry = sensorEntry.replace(TABLE_SEP, NEW_LINE);
 			String sensorName = "";
 			String sensorId = "";
 			String entityId = "";
@@ -638,7 +634,7 @@ public class IpmiHelper {
 				if (entityId.contains(".")) {
 					deviceId = entityId.split("\\.")[1];
 				}
-				location = deviceType + WHITE_SPACE + deviceId;
+				location = String.format("%s %s", deviceType, deviceId);
 			} // Entity ID
 
 			// Sensor Reading        : 1.513 (+/- 0.005) Volts
@@ -884,7 +880,7 @@ public class IpmiHelper {
 				continue;
 			}
 
-			sensorEntry = sensorEntry.replace(TABLE_SEPARATOR, NEW_LINE);
+			sensorEntry = sensorEntry.replace(TABLE_SEP, NEW_LINE);
 
 			// Get name, ID, entity ID and device type
 			// ID, Name
@@ -917,10 +913,8 @@ public class IpmiHelper {
 							PATTERN_BTW_BRACKETS,
 							"",
 							"")
-					.replace("(",
-							"")
-					.replace(")",
-							"");
+					.replace("(", "")
+					.replace(")", "");
 			String deviceId = entityId.contains(".") ? entityId.split("\\.")[1] : "";
 
 			String statusArray = getSensorStatusArray(sensorEntry, sensorName);
@@ -1019,9 +1013,9 @@ public class IpmiHelper {
 																														// to
 																														// hexadecimal
 					// Retrieve the vendor/model/serial from the corresponding FRU
-					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + TABLE_SEPARATOR)).findFirst().orElse("");
+					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + TABLE_SEP)).findFirst().orElse("");
 					if (!elt.isEmpty()) {
-						String[] fruSplit = elt.split(TABLE_SEPARATOR);
+						String[] fruSplit = elt.split(TABLE_SEP);
 						vendor = fruSplit[1];
 						model = fruSplit[2];
 						serialNumber = fruSplit[3];
@@ -1033,7 +1027,7 @@ public class IpmiHelper {
 			deviceList.add(String.format("%s;%s;%s;%s;%s;%s;%s",
 					deviceType,
 					deviceId,
-					deviceType + WHITE_SPACE + deviceId,
+					String.format("%s %s", deviceType, deviceId),
 					vendor,
 					model,
 					serialNumber,
@@ -1057,7 +1051,7 @@ public class IpmiHelper {
 	public static String getSensorStatusArray(String sensorEntry, String sensorName) {
 		if (sensorName.isEmpty()) {
 			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_SENSORID,
-					TABLE_SEPARATOR, "(");
+					TABLE_SEP, "(");
 		}
 
 		StringBuilder statusArrayBuilder = new StringBuilder();
@@ -1156,7 +1150,7 @@ public class IpmiHelper {
 				poorFruList.add(fruEntryResult);
 			}
 
-			fruList.add(fruID + TABLE_SEPARATOR + fruEntryResult);
+			fruList.add(fruID + TABLE_SEP + fruEntryResult);
 		}
 		ipmiTable.put(GOOD_LIST, goodFruList);
 		ipmiTable.put(POOR_LIST, poorFruList);
@@ -1180,8 +1174,8 @@ public class IpmiHelper {
 		// in order to differentiate blocs of sensorID and the empty lines that will be
 		// created by the replace operation
 		sdrResult = PATTERN_BMC_REQ.matcher(sdrResult).replaceAll("");
-		sdrResult = sdrResult.replace(TABLE_SEPARATOR, ",");
-		sdrResult = sdrResult.replace(NEW_LINE, TABLE_SEPARATOR);
+		sdrResult = sdrResult.replace(TABLE_SEP, ",");
+		sdrResult = sdrResult.replace(NEW_LINE, TABLE_SEP);
 		sdrResult = sdrResult.replace(";;", NEW_LINE);
 
 		return sdrResult;
