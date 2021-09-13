@@ -1,9 +1,9 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 @Data
 @NoArgsConstructor
@@ -41,12 +41,12 @@ public abstract class AbstractParam implements IParameterValue {
 		final StringBuilder builder = new StringBuilder(getName());
 
 		builder
-		.append(HardwareConstants.COLON)
-		.append(HardwareConstants.WHITE_SPACE)
+		.append(":")
+		.append(WHITE_SPACE)
 		.append(value);
 
 		if (getUnit() != null) {
-			builder.append(HardwareConstants.WHITE_SPACE).append(getUnit());
+			builder.append(WHITE_SPACE).append(getUnit());
 		}
 
 		return builder.toString();

@@ -12,8 +12,6 @@ import java.util.Map;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
@@ -47,17 +45,17 @@ public class EmbeddedFileHeader implements Header {
 
 		String resolvedContent = content
 			.replace(USERNAME_MACRO, username)
-			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? EMPTY : authenticationToken)
+			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? "" : authenticationToken)
 			.replace(PASSWORD_MACRO, passwordAsString)
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
-			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((username + COLON + passwordAsString).getBytes()));
+			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((username + ":" + passwordAsString).getBytes()));
 
 		Map<String, String> result = new HashMap<>();
 		for (String line : resolvedContent.split(NEW_LINE)) {
 
 			if (line != null && !line.trim().isEmpty()) {
 
-				String[] tuple = line.split(COLON);
+				String[] tuple = line.split(":");
 				isTrue(tuple.length == 2, "Invalid header entry: " + line);
 
 				result.put(tuple[0].trim(), tuple[1].trim());

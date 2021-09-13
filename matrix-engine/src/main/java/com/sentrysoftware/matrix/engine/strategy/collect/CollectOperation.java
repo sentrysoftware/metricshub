@@ -1,25 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static org.springframework.util.Assert.state;
-
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -60,6 +39,34 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static org.springframework.util.Assert.state;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -318,7 +325,7 @@ public class CollectOperation extends AbstractStrategy {
 					monitorType,
 					hostMonitoring,
 					row,
-					parameters.get(HardwareConstants.DEVICE_ID));
+					parameters.get(DEVICE_ID));
 
 			if (monitorOpt.isEmpty()) {
 				log.warn("Collect - Couldn't find monitor {} associated with row {}. Connector {}",
@@ -374,7 +381,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		final String id = CollectHelper.getValueTableColumnValue(valueTable,
-				HardwareConstants.DEVICE_ID,
+				DEVICE_ID,
 				monitorType,
 				row,
 				deviceIdValueTableColumn);
@@ -382,7 +389,7 @@ public class CollectOperation extends AbstractStrategy {
 		if (id != null) {
 			return monitors.values().stream()
 					.filter(mo -> Objects.nonNull(mo.getMetadata()) &&
-							id.equals(mo.getMetadata().get(HardwareConstants.DEVICE_ID)))
+							id.equals(mo.getMetadata().get(DEVICE_ID)))
 					.findFirst();
 		}
 
@@ -448,7 +455,7 @@ public class CollectOperation extends AbstractStrategy {
 			.values()
 			.stream()
 			.filter(monitor -> Objects.nonNull(monitor.getMetadata())
-						&& connectorName.equals(monitor.getMetadata().get(HardwareConstants.CONNECTOR)))
+						&& connectorName.equals(monitor.getMetadata().get(CONNECTOR)))
 			.collect(Collectors.toList());
 	}
 
@@ -578,7 +585,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param collectTime	The new collect time.
 	 */
 	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
-		final PresentParam presentParam = monitor.getParameter(HardwareConstants.PRESENT_PARAMETER, PresentParam.class);
+		final PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
 		if (presentParam != null) {
 			presentParam.setCollectTime(collectTime);
 		}
@@ -854,7 +861,7 @@ public class CollectOperation extends AbstractStrategy {
 				CollectHelper.updateNumberParameter(
 					targetMonitor,
 					CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
-					HardwareConstants.EMPTY,
+					"",
 					strategyTime,
 					cpuThermalDissipationRate,
 					cpuThermalDissipationRate
@@ -885,7 +892,7 @@ public class CollectOperation extends AbstractStrategy {
 		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
 
 			// Get the link status
-			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, HardwareConstants.LINK_STATUS_PARAMETER);
+			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, LINK_STATUS_PARAMETER);
 
 			// If there is connected count it.
 			if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
@@ -893,7 +900,7 @@ public class CollectOperation extends AbstractStrategy {
 			}
 
 			// Get the link speed value
-			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, HardwareConstants.LINK_SPEED_PARAMETER);
+			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, LINK_SPEED_PARAMETER);
 			
 			// If there is a speed add it.
 			if (linkSpeed != null) {
@@ -903,8 +910,8 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Create the parameter for connectedPortsCount
 		final NumberParam connectedPortsCountParam = NumberParam.builder()
-				.name(HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER)
-				.unit(HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT)
+				.name(CONNECTED_PORTS_COUNT_PARAMETER)
+				.unit(CONNECTED_PORTS_PARAMETER_UNIT)
 				.collectTime(strategyTime)
 				.value(connectedPortsCount)
 				.rawValue(connectedPortsCount)
@@ -912,8 +919,8 @@ public class CollectOperation extends AbstractStrategy {
 		
 		// Create the parameter for totalBandwidth
 		final NumberParam totalBandwidthParam = NumberParam.builder()
-				.name(HardwareConstants.TOTAL_BANDWIDTH_PARAMETER)
-				.unit(HardwareConstants.SPEED_MBITS_PARAMETER_UNIT)
+				.name(TOTAL_BANDWIDTH_PARAMETER)
+				.unit(SPEED_MBITS_PARAMETER_UNIT)
 				.collectTime(strategyTime)
 				.value(totalBandwidth)
 				.rawValue(totalBandwidth)

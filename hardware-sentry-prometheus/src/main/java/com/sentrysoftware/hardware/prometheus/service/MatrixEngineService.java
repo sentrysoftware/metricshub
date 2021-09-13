@@ -8,7 +8,6 @@ import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
 import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -40,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 
 @Service
 @Slf4j
@@ -254,7 +255,7 @@ public class MatrixEngineService {
 		if (connectors != null) {
 			// Send only known connectors
 			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
-			connectors.replaceAll(f -> f + HardwareConstants.DOT + HardwareConstants.CONNECTOR);
+			connectors.replaceAll(f -> f + "." + CONNECTOR);
 			result.addAll(connectors);
 		}
 

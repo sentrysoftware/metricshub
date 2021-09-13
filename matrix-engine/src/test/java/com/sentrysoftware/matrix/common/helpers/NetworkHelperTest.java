@@ -13,6 +13,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class NetworkHelperTest {
 
 	@Test
@@ -25,7 +32,7 @@ class NetworkHelperTest {
 		assertTrue(NetworkHelper.isLocalhost("0000:0000:0000:0000:0000:0000:0000:0001"));
 		assertTrue(NetworkHelper.isLocalhost(InetAddress.getLocalHost().getHostName()));
 		assertFalse(NetworkHelper.isLocalhost(UUID.randomUUID().toString()));
-		assertTrue(NetworkHelper.isLocalhost(" "));
+		assertTrue(NetworkHelper.isLocalhost(WHITE_SPACE));
 		assertTrue(NetworkHelper.isLocalhost(""));
 		assertTrue(NetworkHelper.isLocalhost(null));
 		try (MockedStatic<InetAddress> inetAddressMock = mockStatic(InetAddress.class)) {

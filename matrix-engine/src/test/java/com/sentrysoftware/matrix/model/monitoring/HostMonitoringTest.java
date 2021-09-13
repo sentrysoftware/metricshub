@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -23,6 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
@@ -252,7 +256,7 @@ class HostMonitoringTest {
 
 			final String expectedEnclosureId = HostMonitoring.buildMonitorId(CONNECTOR_NAME, MonitorType.ENCLOSURE, TARGET_ID, ENCLOSURE_ID);
 			final Monitor enclosure = Monitor.builder().id(expectedEnclosureId).name(ENCLOSURE_NAME).targetId(TARGET_ID)
-					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(HardwareConstants.COMPUTER).build();
+					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(COMPUTER).build();
 
 			hostMonitoring.addMonitor(enclosure);
 
@@ -273,7 +277,7 @@ class HostMonitoringTest {
 
 			final String expectedEnclosureId = HostMonitoring.buildMonitorId(CONNECTOR_NAME, MonitorType.ENCLOSURE, TARGET_ID, ENCLOSURE_ID);
 			final Monitor enclosure = Monitor.builder().id(expectedEnclosureId).name(ENCLOSURE_NAME).targetId(TARGET_ID)
-					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(HardwareConstants.STORAGE).build();
+					.parentId(TARGET_ID).monitorType(ENCLOSURE).extendedType(STORAGE).build();
 
 			hostMonitoring.addMonitor(enclosure);
 
@@ -501,7 +505,7 @@ class HostMonitoringTest {
 		final StatusParam status = StatusParam
 				.builder()
 				.state(ParameterState.OK)
-				.name(HardwareConstants.STATUS_PARAMETER)
+				.name(STATUS_PARAMETER)
 				.statusInformation("OK")
 				.build();
 		final long collectTime = new Date().getTime();
@@ -510,7 +514,7 @@ class HostMonitoringTest {
 				.value(100.0)
 				.rawValue(1500.0)
 				.collectTime(collectTime)
-				.name(HardwareConstants.ENERGY_USAGE_PARAMETER)
+				.name(ENERGY_USAGE_PARAMETER)
 				.build();
 
 		final long previousCollectTime = collectTime - (2 * 60 * 1000);
@@ -520,19 +524,19 @@ class HostMonitoringTest {
 
 		final Monitor currentMonitor = Monitor.builder()
 				.id(ENCLOSURE_1)
-				.parameters(new HashMap<>(Map.of(HardwareConstants.STATUS_PARAMETER, status)))
+				.parameters(new HashMap<>(Map.of(STATUS_PARAMETER, status)))
 				.build();
 
 		final Monitor previousMonitor = Monitor.builder()
 				.id(ENCLOSURE_1)
-				.parameters(new HashMap<>(Map.of(HardwareConstants.STATUS_PARAMETER, status,
-						HardwareConstants.ENERGY_USAGE_PARAMETER, energyUsage)))
+				.parameters(new HashMap<>(Map.of(STATUS_PARAMETER, status,
+						ENERGY_USAGE_PARAMETER, energyUsage)))
 				.build();
 
 		HostMonitoring.copyParameters(previousMonitor, currentMonitor);
 
-		assertEquals(status, currentMonitor.getParameter(HardwareConstants.STATUS_PARAMETER, StatusParam.class));
-		assertEquals(energyUsage, currentMonitor.getParameter(HardwareConstants.ENERGY_USAGE_PARAMETER, NumberParam.class));
+		assertEquals(status, currentMonitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		assertEquals(energyUsage, currentMonitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 	}
 
 	@Test
@@ -615,7 +619,7 @@ class HostMonitoringTest {
 		{
 			final AlertRule alertRule = new AlertRule((monitor, conditions) -> null, AlertConditionsBuilder.newInstance().gte((double) Integer.MAX_VALUE).build() , ParameterState.ALARM);
 			final Monitor currentMonitor = Monitor.builder()
-					.alertRules(new HashMap<>(Map.of(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(alertRule))))
+					.alertRules(new HashMap<>(Map.of(PRESENT_PARAMETER, Collections.singletonList(alertRule))))
 					.id(FAN_ID)
 					.build();
 
@@ -628,8 +632,8 @@ class HostMonitoringTest {
 
 			HostMonitoring.copyAlertRules(previousMonitor, currentMonitor);
 
-			assertNotEquals(currentMonitor.getAlertRules().get(HardwareConstants.PRESENT_PARAMETER),
-					staticAlertRules.get(HardwareConstants.PRESENT_PARAMETER));
+			assertNotEquals(currentMonitor.getAlertRules().get(PRESENT_PARAMETER),
+					staticAlertRules.get(PRESENT_PARAMETER));
 		}
 	}
 

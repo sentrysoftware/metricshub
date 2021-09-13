@@ -7,23 +7,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -37,6 +35,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static org.springframework.util.Assert.notNull;
 
 @Slf4j
@@ -235,7 +234,7 @@ public class EngineService {
 		if (connectors != null) {
 			// Send only known connectors
 			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
-			connectors.replaceAll(f -> f + HardwareConstants.DOT + HardwareConstants.CONNECTOR);
+			connectors.replaceAll(f -> f + "." + CONNECTOR);
 			result.addAll(connectors);
 		}
 

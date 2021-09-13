@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 
 class IpmiHelperTest {
@@ -144,9 +143,9 @@ class IpmiHelperTest {
 						"deviceType",
 						"deviceId",
 						"deviceType deviceId",
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
+						"",
+						"",
+						"",
 						"sensorName=0x0100"));
 		assertEquals(expectedResult, IpmiHelper.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
@@ -157,9 +156,9 @@ class IpmiHelperTest {
 						"deviceType",
 						"deviceId",
 						"deviceType deviceId",
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
+						"",
+						"",
+						"",
 						"sensorName=0x0100|sensorName=OEM State|sensorName=Value=1=0=0"));
 		assertEquals(expectedResult, IpmiHelper.ipmiTranslateFromWmi(wmiComputerSystem, wmiNumericSensors, wmiDiscreteSensors));
 
@@ -190,9 +189,9 @@ class IpmiHelperTest {
 						"deviceType",
 						"deviceId",
 						"deviceType deviceId",
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
+						"",
+						"",
+						"",
 						"sensorName=0x0100"));
 		assertEquals(expectedResult, IpmiHelper.ipmiTranslateFromWmi(new ArrayList<>(), new ArrayList<>(), wmiDiscreteSensors));
 	}
@@ -309,26 +308,26 @@ class IpmiHelperTest {
 				+ " Assertion Events : 0x181 OEM Specific\n" + " Assertions Enabled : 0x7fff OEM Specific\n"
 				+ " Deassertions Enabled : 0x7fff OEM Specific";
 		String sensorName = IpmiHelper.checkPatternAndReturnDelimitedString(sensorEntry, sensorIdPattern, ":",
-				HardwareConstants.OPENING_PARENTHESIS);
+				"(");
 		assertEquals("DDR3_P2_D1_INFO", sensorName);
 
 		// other pattern
 		String test = "blabla: 0x111 (xyz) 222 aaa";
 		Pattern testPattern = Pattern.compile("^blabla.*", Pattern.MULTILINE);
 		assertEquals("xyz", IpmiHelper.checkPatternAndReturnDelimitedString(test, testPattern,
-				HardwareConstants.OPENING_PARENTHESIS, HardwareConstants.CLOSING_PARENTHESIS));
+				"(", ")"));
 
 		// pattern doesn't match
 		assertEquals("", IpmiHelper.checkPatternAndReturnDelimitedString(test, sensorIdPattern,
-				HardwareConstants.OPENING_PARENTHESIS, HardwareConstants.CLOSING_PARENTHESIS));
+				"(", ")"));
 
 		// pattern match but leftlimits don't match
 		assertEquals("", IpmiHelper.checkPatternAndReturnDelimitedString(test,
-				Pattern.compile("^blabla.*", Pattern.MULTILINE), "-", HardwareConstants.CLOSING_PARENTHESIS));
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), "-", ")"));
 		assertEquals("", IpmiHelper.checkPatternAndReturnDelimitedString(test,
 				Pattern.compile("^blabla.*", Pattern.MULTILINE), "-", "-"));
 		assertEquals("", IpmiHelper.checkPatternAndReturnDelimitedString(test,
-				Pattern.compile("^blabla.*", Pattern.MULTILINE), HardwareConstants.CLOSING_PARENTHESIS, "-"));
+				Pattern.compile("^blabla.*", Pattern.MULTILINE), ")", "-"));
 		// empty limit => return the original string if it matches the pattern
 		assertEquals(test, IpmiHelper.checkPatternAndReturnDelimitedString(test,
 				Pattern.compile("^blabla.*", Pattern.MULTILINE), "", ""));

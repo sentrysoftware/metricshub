@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -31,8 +30,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
@@ -243,11 +249,11 @@ public class DetectionOperation extends AbstractStrategy {
 			.build();
 
 		// Create the location metadata
-		targetMonitor.addMetadata(HardwareConstants.LOCATION,
-				isLocalhost ? HardwareConstants.LOCALHOST: HardwareConstants.REMOTE);
+		targetMonitor.addMetadata(LOCATION,
+				isLocalhost ? LOCALHOST: REMOTE);
 
 		// Create the operating system type metadata
-		targetMonitor.addMetadata(HardwareConstants.OPERATING_SYSTEM_TYPE, target.getType().name());
+		targetMonitor.addMetadata(OPERATING_SYSTEM_TYPE, target.getType().name());
 
 		// Create the fqdn metadata
 		targetMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));

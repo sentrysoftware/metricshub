@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -11,7 +9,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
@@ -41,6 +38,9 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @Slf4j
@@ -190,7 +190,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 
 		if (foreignSourceKey.isEmpty()) {
-			return EMPTY;
+			return "";
 		}
 
 		// Get the source table defining where we are going to fetch the value
@@ -433,9 +433,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 
 		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
-		Assert.notNull(monitor.getMetadata().get(HardwareConstants.DEVICE_ID), "monitor deviceId cannot be null.");
+		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "monitor deviceId cannot be null.");
 
-		final String deviceId = monitor.getMetadata().get(HardwareConstants.DEVICE_ID);
+		final String deviceId = monitor.getMetadata().get(DEVICE_ID);
 
 		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(key);
 
@@ -464,7 +464,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 
 		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+				.table(SourceTable.csvToTable(key, TABLE_SEP))
 				.build();
 	}
 
@@ -486,6 +486,6 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 					.collect(Collectors.joining(separator));
 		}
 
-		return EMPTY;
+		return "";
 	}
 }
