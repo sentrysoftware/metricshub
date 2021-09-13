@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.ListHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 import lombok.NonNull;
 
@@ -149,15 +152,15 @@ public class IpmiHelper {
 		// BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical
 		for (List<String> line : wmiNumericSensors) {
 			// Process the 'Description' field which contains everything about how to identify the sensor
-			String description = ListHelper.getValueAtIndex(line, 2, HardwareConstants.EMPTY);
+			String description = ListHelper.getValueAtIndex(line, 2, "");
 			if (description.isEmpty()) {
 				continue;
 			}
 
 			String[] sensorSplit = description.split("\\(");
-			String sensorId = ArrayHelper.getValueAtIndex(sensorSplit, 1, HardwareConstants.EMPTY).split("\\)")[0];
+			String sensorId = ArrayHelper.getValueAtIndex(sensorSplit, 1, "").split("\\)")[0];
 			String sensorName = sensorSplit[0];
-			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, HardwareConstants.EMPTY);
+			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, "");
 
 			String deviceId;
 
@@ -165,7 +168,7 @@ public class IpmiHelper {
 			if (lookupIndex != -1) {
 				deviceId = description.substring(lookupIndex + 5);
 			} else {
-				deviceId = HardwareConstants.EMPTY;
+				deviceId = "";
 			}
 
 			String baseUnit = ListHelper.getValueAtIndex(line, 0, "0");
@@ -267,13 +270,13 @@ public class IpmiHelper {
 		Map<String, List<String>> deviceMap = new HashMap<>();
 
 		for (List<String> line : wmiDiscreteSensors) {
-			String description = ListHelper.getValueAtIndex(line, 1, HardwareConstants.EMPTY);
+			String description = ListHelper.getValueAtIndex(line, 1, "");
 			if (description.isEmpty()) {
 				continue;
 			}
 
 			String sensorName = description.split("\\(")[0];
-			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, HardwareConstants.EMPTY);
+			description = ArrayHelper.getValueAtIndex(description.split(":"), 1, "");
 
 			String entityId;
 
@@ -283,7 +286,7 @@ public class IpmiHelper {
 			}
 
 			entityId = description.substring(lookupIndex + 5);
-			lookupIndex = entityId.lastIndexOf(HardwareConstants.WHITE_SPACE);
+			lookupIndex = entityId.lastIndexOf(WHITE_SPACE);
 			if (lookupIndex == -1) {
 				continue;
 			}
@@ -301,7 +304,7 @@ public class IpmiHelper {
 				state = "0x" + state.substring(18, 20) + state.substring(16, 18);
 			}
 
-			state = state.replace(HardwareConstants.DOT + HardwareConstants.COMMA, HardwareConstants.PIPE + sensorName + HardwareConstants.EQUAL);
+			state = state.replace(".,", "|" + sensorName + "=");
 
 			// Get the line of this device
 			List<String> deviceLine = deviceMap.get(entityId);
@@ -311,11 +314,7 @@ public class IpmiHelper {
 				}
 
 				// Add the list of states of this sensor to the device
-				deviceLine.set(6, deviceLine.get(6)
-						+ HardwareConstants.PIPE
-						+ sensorName
-						+ HardwareConstants.EQUAL
-						+ state);
+				deviceLine.set(6, String.format("%s|%s=%s", deviceLine.get(6), sensorName, state));
 
 				// Re-add that to the device list
 				deviceMap.put(entityId, deviceLine);
@@ -325,10 +324,10 @@ public class IpmiHelper {
 						deviceType,
 						deviceId,
 						entityId,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						HardwareConstants.EMPTY,
-						sensorName + HardwareConstants.EQUAL + state);
+						"",
+						"",
+						"",
+						String.format("%s=%s", sensorName, state));
 				deviceMap.put(entityId, deviceSensorList);
 			}
 		}
@@ -399,7 +398,7 @@ public class IpmiHelper {
 
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = HardwareConstants.EMPTY;
+			threshold1 = "";
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
@@ -415,7 +414,7 @@ public class IpmiHelper {
 
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = HardwareConstants.EMPTY;
+			threshold2 = "";
 		}
 
 		return Arrays.asList(
@@ -443,14 +442,14 @@ public class IpmiHelper {
 		if (threshold1Double != null) {
 			threshold1 = String.valueOf(threshold1Double * Math.pow(10, unitModifier));
 		} else {
-			threshold1 = HardwareConstants.EMPTY;
+			threshold1 = "";
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
 		if (threshold2Double != null) {
 			threshold2 = String.valueOf(threshold2Double * Math.pow(10, unitModifier));
 		} else {
-			threshold2 = HardwareConstants.EMPTY;
+			threshold2 = "";
 		}
 
 		return Arrays.asList(
@@ -483,7 +482,7 @@ public class IpmiHelper {
 			threshold1Double = threshold1Double * Math.pow(10, unitModifier) * 1000;
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = HardwareConstants.EMPTY;
+			threshold1 = "";
 		}
 
 		String threshold2 = ListHelper.getValueAtIndex(line, 8, "0.0");
@@ -498,7 +497,7 @@ public class IpmiHelper {
 			threshold2Double = threshold2Double * Math.pow(10, unitModifier) * 1000;
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = HardwareConstants.EMPTY;
+			threshold2 = "";
 		}
 
 		return Arrays.asList(
@@ -524,7 +523,7 @@ public class IpmiHelper {
 			threshold1Double = threshold1Double * Math.pow(10, unitModifier);
 			threshold1 = String.valueOf(threshold1Double);
 		} else {
-			threshold1 = HardwareConstants.EMPTY;
+			threshold1 = "";
 		}
 
 		Double threshold2Double = NumberHelper.parseDouble(threshold2, null);
@@ -533,7 +532,7 @@ public class IpmiHelper {
 			threshold2Double = threshold2Double * Math.pow(10, unitModifier);
 			threshold2 = String.valueOf(threshold2Double);
 		} else {
-			threshold2 = HardwareConstants.EMPTY;
+			threshold2 = "";
 		}
 
 		// Convert values based on unitModifier
@@ -589,8 +588,8 @@ public class IpmiHelper {
 	 */
 	public static List<String> ipmiAddHardwareSensorInfo(String sdrResult, List<String> ipmiTable) {
 
-		for (String sensorEntry : sdrResult.split(HardwareConstants.NEW_LINE)) {
-			sensorEntry = sensorEntry.replace(HardwareConstants.SEMICOLON, HardwareConstants.NEW_LINE);
+		for (String sensorEntry : sdrResult.split(NEW_LINE)) {
+			sensorEntry = sensorEntry.replace(TABLE_SEP, NEW_LINE);
 			String sensorName = "";
 			String sensorId = "";
 			String entityId = "";
@@ -603,14 +602,14 @@ public class IpmiHelper {
 			// example Sensor ID : Ambient (0x1)
 			// sensorName = Ambient && sensorID = 1
 			String sensorIdLine = checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_SENSORID, HardwareConstants.EMPTY,HardwareConstants.EMPTY);
+					sensorEntry, PATTERN_SENSORID, "","");
 			if (sensorIdLine.isEmpty()) {
 				continue;
 			}
-			sensorName = sensorIdLine.substring(sensorIdLine.indexOf(HardwareConstants.COLON) + 1, sensorIdLine.indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
+			sensorName = sensorIdLine.substring(sensorIdLine.indexOf(":") + 1, sensorIdLine.indexOf("(")).trim();
 			Matcher matcher = PATTERN_BTW_BRACKETS.matcher(sensorIdLine);
 			if (matcher.find()) {
-				sensorId = matcher.group(1).replace("0x", HardwareConstants.EMPTY);
+				sensorId = matcher.group(1).replace("0x", "");
 			} else {
 				continue; // we should have a sensorId !!!!
 			}
@@ -619,34 +618,34 @@ public class IpmiHelper {
 			// Entry ==> Entity ID : 39.0 (External Environment)
 			// Output ==> entityID = 39.0 && deviceType = External Environment && deviceId = 0 && location = External Environment 0
 			entityId = checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_ENTITYID, HardwareConstants.COLON, HardwareConstants.OPENING_PARENTHESIS);
+					sensorEntry, PATTERN_ENTITYID, ":", "(");
 			String entityIdLine =  checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_ENTITYID, HardwareConstants.EMPTY, HardwareConstants.EMPTY);
+					sensorEntry, PATTERN_ENTITYID, "", "");
 
 			if (!entityIdLine.isEmpty() && entityIdLine.contains(":")) {
 				matcher = PATTERN_BTW_BRACKETS.matcher(entityIdLine);
 				if (matcher.find()) {
 					deviceType = matcher.group(1);
 					// check if deviceType still contains bracket ==> example : Entity ID             : 224.0 (Unknown (0xE0))
-					if (deviceType.contains(HardwareConstants.OPENING_PARENTHESIS)) {
-						deviceType = deviceType.substring(0, deviceType.indexOf(HardwareConstants.OPENING_PARENTHESIS)).trim();
+					if (deviceType.contains("(")) {
+						deviceType = deviceType.substring(0, deviceType.indexOf("(")).trim();
 					}
 				}
 				if (entityId.contains(".")) {
 					deviceId = entityId.split("\\.")[1];
 				}
-				location = deviceType + " " + deviceId;
+				location = String.format("%s %s", deviceType, deviceId);
 			} // Entity ID
 
 			// Sensor Reading        : 1.513 (+/- 0.005) Volts
 			// careful it also can be Sensor Reading        : No Reading
 			String sensorReadingLine = checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_SENSOR_READING, HardwareConstants.EMPTY, HardwareConstants.EMPTY);
+					sensorEntry, PATTERN_SENSOR_READING, "", "");
 
-			if (!sensorReadingLine.isEmpty() && sensorReadingLine.contains(HardwareConstants.OPENING_PARENTHESIS)) {
+			if (!sensorReadingLine.isEmpty() && sensorReadingLine.contains("(")) {
 				String valueReading = sensorReadingLine
 						.substring(sensorReadingLine.indexOf(":") + 1,
-								sensorReadingLine.indexOf(HardwareConstants.OPENING_PARENTHESIS))
+								sensorReadingLine.indexOf("("))
 						.trim();
 				if (!PATTERN_IS_NUMERICAL.matcher(valueReading).matches()) {
 					continue;
@@ -703,41 +702,41 @@ public class IpmiHelper {
 			String valueReading) {
 
 		String threshold1 = checkPatternAndReturnDelimitedString(
-				sensorEntry, PATTERN_THRESHOLD_LOWER_NON_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+				sensorEntry, PATTERN_THRESHOLD_LOWER_NON_CRITICAL, ":", "");
 		if (threshold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold1).matches()
 				|| Double.parseDouble(threshold1) == 0) {
 			// if the result is not numeric or == 0 then check Lower critical
 			threshold1 = checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_THRESHOLD_LOWER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+					sensorEntry, PATTERN_THRESHOLD_LOWER_CRITICAL, ":", "");
 			if (threshold1.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold1).matches()
 					|| Double.parseDouble(threshold1) == 0) {
 
 				// if the result is not numeric or == 0 then check Lower non-recoverable
 				threshold1 = checkPatternAndReturnDelimitedString(
-						sensorEntry, PATTERN_THRESHOLD_LOWER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
+						sensorEntry, PATTERN_THRESHOLD_LOWER_NON_RECOVERABLE, ":", "");
 				if (!PATTERN_IS_NUMERICAL.matcher(threshold1).matches() || Double.parseDouble(threshold1) == 0) {
 					// if the result is not numeric reset the value
-					threshold1 = HardwareConstants.EMPTY;
+					threshold1 = "";
 				}
 			}
 		}
 
 		String threshold2 = checkPatternAndReturnDelimitedString(
-				sensorEntry, PATTERN_THRESHOLD_UPPER_NON_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+				sensorEntry, PATTERN_THRESHOLD_UPPER_NON_CRITICAL, ":", "");
 		if (threshold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold2).matches()
 				|| Double.parseDouble(threshold2) == 0) {
 
 			// if the result is not numeric then check Upper critical
 			threshold2 = checkPatternAndReturnDelimitedString(
-					sensorEntry, PATTERN_THRESHOLD_UPPER_CRITICAL, HardwareConstants.COLON, HardwareConstants.EMPTY);
+					sensorEntry, PATTERN_THRESHOLD_UPPER_CRITICAL, ":", "");
 			if (threshold2.isEmpty() || !PATTERN_IS_NUMERICAL.matcher(threshold2).matches()
 					|| Double.parseDouble(threshold2) == 0) {
 				// if the result is not numeric then check Upper non-recoverable
 				threshold2 = checkPatternAndReturnDelimitedString(
-						sensorEntry, PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE, HardwareConstants.COLON, HardwareConstants.EMPTY);
+						sensorEntry, PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE, ":", "");
 				if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches() || Double.parseDouble(threshold2) == 0) {
 					// if the result is not numeric reset the value
-					threshold2 = HardwareConstants.EMPTY;
+					threshold2 = "";
 				}
 			}
 		}
@@ -766,23 +765,23 @@ public class IpmiHelper {
 	 */
 	public static String getFanFromSensor(String sensorEntry, String sensorName, String sensorId,
 			String location, String valueReading) {
-		String threshold1 = HardwareConstants.EMPTY;
+		String threshold1 = "";
 		Matcher matcherThreshold =
 				PATTERN_THRESHOLD_LOWER_NON_CRITICAL.matcher(sensorEntry);
 		if (matcherThreshold.find()) {
 			threshold1 = matcherThreshold.group(0).trim();
-			threshold1= threshold1.substring(threshold1.indexOf(HardwareConstants.COLON)+1).trim();
+			threshold1= threshold1.substring(threshold1.indexOf(":")+1).trim();
 
 			if (!PATTERN_IS_NUMERICAL.matcher(threshold1).matches()) {// if the result is not numeric reset the value
-				threshold1 = HardwareConstants.EMPTY;
+				threshold1 = "";
 			}
 		}
-		String threshold2 = HardwareConstants.EMPTY;
+		String threshold2 = "";
 		matcherThreshold =
 				PATTERN_THRESHOLD_LOWER_CRITICAL.matcher(sensorEntry);
 		if (matcherThreshold.find()) {
 			threshold2 = matcherThreshold.group(0).trim();
-			threshold2= threshold2.substring(threshold2.indexOf(HardwareConstants.COLON)+1).trim();
+			threshold2= threshold2.substring(threshold2.indexOf(":")+1).trim();
 		}
 		if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric check Upper
 																	// non-recoverable
@@ -792,7 +791,7 @@ public class IpmiHelper {
 				threshold2 = threshold2.substring(threshold2.indexOf(":") + 1).trim();
 			}
 			if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric reset the value
-				threshold2 = HardwareConstants.EMPTY;
+				threshold2 = "";
 			}
 		}
 		return String.format("Fan;%s;%s;%s;%s;%s;%s", sensorId, sensorName, location, valueReading, threshold1, threshold2);
@@ -815,23 +814,23 @@ public class IpmiHelper {
 		String threshold1 = checkPatternAndReturnDelimitedString(
 					sensorEntry,
 					PATTERN_THRESHOLD_UPPER_NON_CRITICAL,
-					HardwareConstants.COLON,
-					HardwareConstants.EMPTY);
+					":",
+					"");
 		// priority threashold 1 = Upper non-critical >
 		if (!PATTERN_IS_NUMERICAL.matcher(threshold1).matches()) {// if the result is not numeric reset the value
-			threshold1 = HardwareConstants.EMPTY;
+			threshold1 = "";
 		}
 
 		// priority threashold 1 = Upper critical > Upper non-recoverable
 		String threshold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THRESHOLD_UPPER_CRITICAL,
-				HardwareConstants.COLON, HardwareConstants.EMPTY);
+				":", "");
 
 		if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric check Upper
 																	// non-recoverable
 			threshold2 = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_THRESHOLD_UPPER_NON_RECOVERABLE,
-					HardwareConstants.COLON, HardwareConstants.EMPTY);
+					":", "");
 			if (!PATTERN_IS_NUMERICAL.matcher(threshold2).matches()) {// if the result is not numeric reset the value
-				threshold2 = HardwareConstants.EMPTY;
+				threshold2 = "";
 			}
 		}
 
@@ -874,14 +873,14 @@ public class IpmiHelper {
 	 */
 	public static List<String> processSdrRecords(String sdrResult, Map<String, List<String>> fruMap, List<String> deviceList) {
 		// Parse the SDR records
-		for (String sensorEntry : sdrResult.split(HardwareConstants.NEW_LINE)) {
+		for (String sensorEntry : sdrResult.split(NEW_LINE)) {
 			if (!sensorEntry.startsWith(SENSOR_ID)
 					|| !sensorEntry.contains(STATES_ASSERTED)
 					|| sensorEntry.contains(NOT_READING)) { // Bypass sensors with no state asserted or sensors with "no reading"
 				continue;
 			}
 
-			sensorEntry = sensorEntry.replace(HardwareConstants.SEMICOLON, HardwareConstants.NEW_LINE);
+			sensorEntry = sensorEntry.replace(TABLE_SEP, NEW_LINE);
 
 			// Get name, ID, entity ID and device type
 			// ID, Name
@@ -890,8 +889,8 @@ public class IpmiHelper {
 			String sensorName = checkPatternAndReturnDelimitedString(
 					sensorEntry,
 					PATTERN_SENSORID,
-					HardwareConstants.COLON,
-					HardwareConstants.OPENING_PARENTHESIS);
+					":",
+					"(");
 
 			// Sensor attached to which device?
 			// Entity ID : 39.0 (External Environment)
@@ -899,30 +898,28 @@ public class IpmiHelper {
 			String entityId = checkPatternAndReturnDelimitedString(
 					sensorEntry,
 					PATTERN_ENTITYID,
-					HardwareConstants.COLON,
-					HardwareConstants.OPENING_PARENTHESIS);
+					":",
+					"(");
 
 			if (entityId == null || entityId.isEmpty()) {
 				continue;
 			}
 			String entityIdLine = checkPatternAndReturnDelimitedString(sensorEntry,
 					PATTERN_ENTITYID,
-					HardwareConstants.EMPTY,
-					HardwareConstants.EMPTY);
+					"",
+					"");
 			String deviceType = checkPatternAndReturnDelimitedString(
 							entityIdLine,
 							PATTERN_BTW_BRACKETS,
-							HardwareConstants.EMPTY,
-							HardwareConstants.EMPTY)
-					.replace(HardwareConstants.OPENING_PARENTHESIS,
-							HardwareConstants.EMPTY)
-					.replace(HardwareConstants.CLOSING_PARENTHESIS,
-							HardwareConstants.EMPTY);
-			String deviceId = entityId.contains(HardwareConstants.DOT) ? entityId.split("\\.")[1] : HardwareConstants.EMPTY;
+							"",
+							"")
+					.replace("(", "")
+					.replace(")", "");
+			String deviceId = entityId.contains(".") ? entityId.split("\\.")[1] : "";
 
 			String statusArray = getSensorStatusArray(sensorEntry, sensorName);
 
-			if (statusArray == null || statusArray.isEmpty() || statusArray.equals(HardwareConstants.PIPE)) {
+			if (statusArray == null || statusArray.isEmpty() || statusArray.equals("|")) {
 				continue;
 			}
 
@@ -970,7 +967,7 @@ public class IpmiHelper {
 			}
 
 		}
-		return HardwareConstants.EMPTY;
+		return "";
 	}
 
 	/**
@@ -1008,17 +1005,17 @@ public class IpmiHelper {
 				// get the corresponding fruID
 				Optional<String> findFirstFruDevice = Arrays.stream(fruDevice.split("\n"))
 						.filter(role -> role.trim().startsWith("Logical FRU Device")).findFirst();
-				fruDevice = findFirstFruDevice.isPresent() ? findFirstFruDevice.get() : HardwareConstants.EMPTY;
-				if (!fruDevice.isEmpty() && fruDevice.contains(HardwareConstants.COLON)) {
+				fruDevice = findFirstFruDevice.isPresent() ? findFirstFruDevice.get() : "";
+				if (!fruDevice.isEmpty() && fruDevice.contains(":")) {
 					// example : Logical FRU Device     : 09h which corresponds to FRU device ID = 9
 					int fruId = Integer
-							.parseInt(fruDevice.split(HardwareConstants.COLON)[1].trim().replace("h", ""), 16); // convert
+							.parseInt(fruDevice.split(":")[1].trim().replace("h", ""), 16); // convert
 																														// to
 																														// hexadecimal
 					// Retrieve the vendor/model/serial from the corresponding FRU
-					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + HardwareConstants.SEMICOLON)).findFirst().orElse("");
+					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + TABLE_SEP)).findFirst().orElse("");
 					if (!elt.isEmpty()) {
-						String[] fruSplit = elt.split(HardwareConstants.SEMICOLON);
+						String[] fruSplit = elt.split(TABLE_SEP);
 						vendor = fruSplit[1];
 						model = fruSplit[2];
 						serialNumber = fruSplit[3];
@@ -1030,7 +1027,7 @@ public class IpmiHelper {
 			deviceList.add(String.format("%s;%s;%s;%s;%s;%s;%s",
 					deviceType,
 					deviceId,
-					deviceType + " " + deviceId,
+					String.format("%s %s", deviceType, deviceId),
 					vendor,
 					model,
 					serialNumber,
@@ -1039,7 +1036,7 @@ public class IpmiHelper {
 			// If this entityID was already present in the list, we just need to add the
 			// statusArray to it
 			int index = deviceList.indexOf(matchedElt.get());
-			deviceList.set(index, matchedElt.get() + HardwareConstants.PIPE + statusArray);
+			deviceList.set(index, matchedElt.get() + "|" + statusArray);
 		}
 		return deviceList;
 	}
@@ -1054,7 +1051,7 @@ public class IpmiHelper {
 	public static String getSensorStatusArray(String sensorEntry, String sensorName) {
 		if (sensorName.isEmpty()) {
 			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, PATTERN_SENSORID,
-					HardwareConstants.SEMICOLON, HardwareConstants.OPENING_PARENTHESIS);
+					TABLE_SEP, "(");
 		}
 
 		StringBuilder statusArrayBuilder = new StringBuilder();
@@ -1074,13 +1071,13 @@ public class IpmiHelper {
 			StringBuilder assertion = new StringBuilder();
 
 			while (matcher.find()) {
-				assertion.append(HardwareConstants.NEW_LINE).append(matcher.group(1).trim());
+				assertion.append(NEW_LINE).append(matcher.group(1).trim());
 			}
 
-			statusArrayBuilder.append(sensorName).append(HardwareConstants.EQUAL)
-					.append(assertion.toString().trim().replaceAll(HardwareConstants.NEW_LINE,
-							HardwareConstants.NEW_LINE + sensorName + HardwareConstants.EQUAL));
-			statusArray = statusArrayBuilder.toString().replaceAll(HardwareConstants.NEW_LINE, HardwareConstants.PIPE);
+			statusArrayBuilder.append(sensorName).append("=")
+					.append(assertion.toString().trim().replaceAll(NEW_LINE,
+							NEW_LINE + sensorName + "="));
+			statusArray = statusArrayBuilder.toString().replaceAll(NEW_LINE, "|");
 		}
 		return statusArray;
 	}
@@ -1097,7 +1094,7 @@ public class IpmiHelper {
 	public static String processOemSpecific(String sensorName, String sensorEntry) {
 		if (sensorName.isEmpty()) {
 			Pattern patternSensorId = Pattern.compile(SENSOR_ID_REGEX, Pattern.MULTILINE);
-			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, patternSensorId, ":", HardwareConstants.OPENING_PARENTHESIS);
+			sensorName = checkPatternAndReturnDelimitedString(sensorEntry, patternSensorId, ":", "(");
 		}
 
 		Matcher matcher = PATTERN_OEM_SPECIFIC.matcher(sensorEntry);
@@ -1111,7 +1108,7 @@ public class IpmiHelper {
 			oemSpecific = String.format("%1$4s", oemSpecific).replace(' ', '0');
 			return sensorName + "=0x" + oemSpecific;
 		}
-		return HardwareConstants.EMPTY;
+		return "";
 	}
 
 	/**
@@ -1129,17 +1126,17 @@ public class IpmiHelper {
 		for (String fruEntry : fruResult.split("\n\n")) {
 			boolean board = fruEntry.contains(BOARD2);
 			// spot line FRU Device Description : Built in FRU Device (ID 0)
-			String fruID = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_FRUID, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String fruID = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_FRUID, ":", "").trim();
 			// retrieve the ID between brackets ==> 0
-			fruID = checkPatternAndReturnDelimitedString(fruID, PATTERN_BTW_BRACKETS, HardwareConstants.OPENING_PARENTHESIS, HardwareConstants.CLOSING_PARENTHESIS)
-					.replace("ID ", HardwareConstants.EMPTY)
+			fruID = checkPatternAndReturnDelimitedString(fruID, PATTERN_BTW_BRACKETS, "(", ")")
+					.replace("ID ", "")
 					.trim();
-			String fruVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_VENDOR, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			String fruModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_MODEL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			String fruSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_SERIAL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			String boardVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_VENDOR, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			String boardModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_MODEL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
-			String boardSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_SERIAL, HardwareConstants.COLON, HardwareConstants.EMPTY).trim();
+			String fruVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_VENDOR, ":", "").trim();
+			String fruModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_MODEL, ":", "").trim();
+			String fruSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_SERIAL, ":", "").trim();
+			String boardVendor = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_VENDOR, ":", "").trim();
+			String boardModel = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_MODEL, ":", "").trim();
+			String boardSN = checkPatternAndReturnDelimitedString(fruEntry, PATTERN_BORD_SERIAL, ":", "").trim();
 
 			String fruEntryResult = String.format("FRU;%s;%s;%s", fruVendor,fruModel,fruSN);
 			if (!board) {
@@ -1153,7 +1150,7 @@ public class IpmiHelper {
 				poorFruList.add(fruEntryResult);
 			}
 
-			fruList.add(fruID + HardwareConstants.SEMICOLON + fruEntryResult);
+			fruList.add(fruID + TABLE_SEP + fruEntryResult);
 		}
 		ipmiTable.put(GOOD_LIST, goodFruList);
 		ipmiTable.put(POOR_LIST, poorFruList);
@@ -1176,10 +1173,10 @@ public class IpmiHelper {
 		// exclude rows that start with "^BMC req" and "-- "
 		// in order to differentiate blocs of sensorID and the empty lines that will be
 		// created by the replace operation
-		sdrResult = PATTERN_BMC_REQ.matcher(sdrResult).replaceAll(HardwareConstants.EMPTY);
-		sdrResult = sdrResult.replace(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
-		sdrResult = sdrResult.replace(HardwareConstants.NEW_LINE, HardwareConstants.SEMICOLON);
-		sdrResult = sdrResult.replace(";;", HardwareConstants.NEW_LINE);
+		sdrResult = PATTERN_BMC_REQ.matcher(sdrResult).replaceAll("");
+		sdrResult = sdrResult.replace(TABLE_SEP, ",");
+		sdrResult = sdrResult.replace(NEW_LINE, TABLE_SEP);
+		sdrResult = sdrResult.replace(";;", NEW_LINE);
 
 		return sdrResult;
 	}

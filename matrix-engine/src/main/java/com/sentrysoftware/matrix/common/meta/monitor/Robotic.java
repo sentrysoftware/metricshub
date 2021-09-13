@@ -1,24 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -33,19 +20,40 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class Robotic implements IMetaMonitor {
 
 	public static final MetaParameter MOVE_COUNT = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.MOVE_COUNT_PARAMETER)
-			.unit(HardwareConstants.MOVE_COUNT_PARAMETER_UNIT)
+			.name(MOVE_COUNT_PARAMETER)
+			.unit(MOVE_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 	
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+			.name(ERROR_COUNT_PARAMETER)
+			.unit(ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -68,20 +76,20 @@ public class Robotic implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
-		map.put(HardwareConstants.MOVE_COUNT_PARAMETER, MOVE_COUNT);
-		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
-		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
-		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(MOVE_COUNT_PARAMETER, MOVE_COUNT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -116,7 +124,7 @@ public class Robotic implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -137,7 +145,7 @@ public class Robotic implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -158,7 +166,7 @@ public class Robotic implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(ERROR_COUNT_PARAMETER, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -179,7 +187,7 @@ public class Robotic implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkHighErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(HardwareConstants.ERROR_COUNT_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(ERROR_COUNT_PARAMETER, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()

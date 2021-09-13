@@ -1,18 +1,17 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 
 @Data
@@ -59,7 +58,7 @@ public class SourceTable {
 					.collect(Collectors.joining(NEW_LINE));
 		}
 
-		return EMPTY;
+		return "";
 	}
 
 	/**

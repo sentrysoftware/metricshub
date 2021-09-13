@@ -1,25 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -34,28 +20,51 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class Fan implements IMetaMonitor {
 
 	private static final String RECOMMENDED_ACTION_FOR_BAD_FAN = "Check if the fan is no longer cooling the system. If so, replace the fan.";
 
 	public static final MetaParameter SPEED = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.SPEED_PARAMETER)
-			.unit(HardwareConstants.SPEED_PARAMETER_UNIT)
+			.name(SPEED_PARAMETER)
+			.unit(SPEED_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
 	public static final MetaParameter SPEED_PERCENT = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.SPEED_PERCENT_PARAMETER)
-			.unit(HardwareConstants.SPEED_PERCENT_PARAMETER_UNIT)
+			.name(SPEED_PERCENT_PARAMETER)
+			.unit(SPEED_PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
 	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.POWER_CONSUMPTION_PARAMETER)
-			.unit(HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT)
+			.name(POWER_CONSUMPTION_PARAMETER)
+			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -71,19 +80,19 @@ public class Fan implements IMetaMonitor {
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule SPEED_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkZeroSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
+			checkZeroSpeedCondition(monitor, SPEED_PARAMETER, conditions),
 			SPEED_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule SPEED_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkOutOfRangeSpeedCondition(monitor, HardwareConstants.SPEED_PARAMETER, conditions),
+			checkOutOfRangeSpeedCondition(monitor, SPEED_PARAMETER, conditions),
 			SPEED_WARN_CONDITION,
 			ParameterState.WARN);
 	public static final AlertRule SPEED_PERCENT_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkZeroSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
+			checkZeroSpeedCondition(monitor, SPEED_PERCENT_PARAMETER, conditions),
 			SPEED_PERCENT_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule SPEED_PERCENT_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkOutOfRangeSpeedCondition(monitor, HardwareConstants.SPEED_PERCENT_PARAMETER, conditions),
+			checkOutOfRangeSpeedCondition(monitor, SPEED_PERCENT_PARAMETER, conditions),
 			SPEED_PERCENT_WARN_CONDITION,
 			ParameterState.WARN);
 
@@ -93,22 +102,22 @@ public class Fan implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.SPEED_PARAMETER, SPEED);
-		map.put(HardwareConstants.SPEED_PERCENT_PARAMETER, SPEED_PERCENT);
-		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
-		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
-		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(SPEED_PARAMETER, SPEED);
+		map.put(SPEED_PERCENT_PARAMETER, SPEED_PERCENT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.SPEED_PARAMETER, List.of(SPEED_ALARM_ALERT_RULE, SPEED_WARN_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.SPEED_PERCENT_PARAMETER, List.of(SPEED_PERCENT_ALARM_ALERT_RULE, SPEED_PERCENT_WARN_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(SPEED_PARAMETER, List.of(SPEED_ALARM_ALERT_RULE, SPEED_WARN_ALERT_RULE));
+		alertRulesMap.put(SPEED_PERCENT_PARAMETER, List.of(SPEED_PERCENT_ALARM_ALERT_RULE, SPEED_PERCENT_WARN_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -122,7 +131,7 @@ public class Fan implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -143,7 +152,7 @@ public class Fan implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()

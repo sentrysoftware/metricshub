@@ -1,8 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +51,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @AllArgsConstructor
@@ -446,7 +446,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.build();
 
 		return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, ipmiWmiCriterion);
-
 	}
 
 	@Override

@@ -3,10 +3,12 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 
 public class EnclosureFirstComparator implements Comparator<Connector> {
 
@@ -91,7 +93,7 @@ public class EnclosureFirstComparator implements Comparator<Connector> {
 	private static boolean checkEnclosureComputerJob(HardwareMonitor job) {
 		return checkEnclosureHardwareMonitor(job) &&
 				Objects.nonNull(job.getDiscovery().getParameters())
-				&& HardwareConstants.COMPUTER.equalsIgnoreCase(job.getDiscovery().getParameters().get(HardwareConstants.TYPE));
+				&& COMPUTER.equalsIgnoreCase(job.getDiscovery().getParameters().get(TYPE));
 	}
 
 }

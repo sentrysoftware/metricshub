@@ -1,26 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHEMISTRY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -35,19 +20,39 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHEMISTRY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class Battery implements IMetaMonitor {
 
 	public static final MetaParameter CHARGE = MetaParameter.builder()
 		.basicCollect(false)
-		.name(HardwareConstants.CHARGE_PARAMETER)
-		.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+		.name(CHARGE_PARAMETER)
+		.unit(PERCENT_PARAMETER_UNIT)
 		.type(ParameterType.NUMBER)
 		.build();
 
 	public static final MetaParameter TIME_LEFT = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.TIME_LEFT_PARAMETER)
-			.unit(HardwareConstants.TIME_PARAMETER_UNIT)
+			.name(TIME_LEFT_PARAMETER)
+			.unit(TIME_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -76,18 +81,18 @@ public class Battery implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.CHARGE_PARAMETER, CHARGE);
-		map.put(HardwareConstants.TIME_LEFT_PARAMETER, TIME_LEFT);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(CHARGE_PARAMETER, CHARGE);
+		map.put(TIME_LEFT_PARAMETER, TIME_LEFT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.CHARGE_PARAMETER, List.of(CHARGE_WARN_ALERT_RULE, CHARGE_ALARM_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(CHARGE_PARAMETER, List.of(CHARGE_WARN_ALERT_RULE, CHARGE_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -121,7 +126,7 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -142,7 +147,7 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmConditionChecker(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -162,12 +167,12 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkChargeWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedCharge = monitor.assertNumberParameter(HardwareConstants.CHARGE_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedCharge = monitor.assertNumberParameter(CHARGE_PARAMETER, conditions);
 		if (assertedCharge.isAbnormal()) {
 
 			return AlertDetails.builder()
 					.problem(String.format("Although not yet critical, the battery charge is abnormally low (%f %s).",
-							assertedCharge.getParameter().getValue(), HardwareConstants.PERCENT_PARAMETER_UNIT))
+							assertedCharge.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
 					.consequence("A low charge battery may lead to data loss in case of a power outage.")
 					.recommendedAction(
 							"Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible.")
@@ -185,12 +190,12 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkChargeAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedCharge = monitor.assertNumberParameter(HardwareConstants.CHARGE_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedCharge = monitor.assertNumberParameter(CHARGE_PARAMETER, conditions);
 		if (assertedCharge.isAbnormal()) {
 
 			return AlertDetails.builder()
 					.problem(String.format("The battery charge is very low and will soon run out of charge (%f %s).",
-							assertedCharge.getParameter().getValue(), HardwareConstants.PERCENT_PARAMETER_UNIT))
+							assertedCharge.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
 					.consequence("A low charge battery may lead to data loss in case of a power outage.")
 					.recommendedAction(
 							"Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible.")

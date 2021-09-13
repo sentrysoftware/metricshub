@@ -1,26 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -34,19 +19,41 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BATTERY_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class DiskController implements IMetaMonitor {
 
 	public static final MetaParameter BATTERY_STATUS = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.BATTERY_STATUS_PARAMETER)
-			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.name(BATTERY_STATUS_PARAMETER)
+			.unit(STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
 	public static final MetaParameter CONTROLLER_STATUS = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.CONTROLLER_STATUS_PARAMETER)
-			.unit(HardwareConstants.STATUS_PARAMETER_UNIT)
+			.name(CONTROLLER_STATUS_PARAMETER)
+			.unit(STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
@@ -75,21 +82,21 @@ public class DiskController implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.BATTERY_STATUS_PARAMETER, BATTERY_STATUS);
-		map.put(HardwareConstants.CONTROLLER_STATUS_PARAMETER, CONTROLLER_STATUS);
-		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
-		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
-		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(BATTERY_STATUS_PARAMETER, BATTERY_STATUS);
+		map.put(CONTROLLER_STATUS_PARAMETER, CONTROLLER_STATUS);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.BATTERY_STATUS_PARAMETER, List.of(BATTERY_STATUS_WARN_ALERT_RULE, BATTERY_STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.CONTROLLER_STATUS_PARAMETER, List.of(CONTROLLER_STATUS_WARN_ALERT_RULE, CONTROLLER_STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(BATTERY_STATUS_PARAMETER, List.of(BATTERY_STATUS_WARN_ALERT_RULE, BATTERY_STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(CONTROLLER_STATUS_PARAMETER, List.of(CONTROLLER_STATUS_WARN_ALERT_RULE, CONTROLLER_STATUS_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -125,7 +132,7 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkBatteryStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.BATTERY_STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -146,7 +153,7 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkBatteryStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.BATTERY_STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -167,7 +174,7 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkControllerStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.CONTROLLER_STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			String problem = "This disk controller is degraded or about to fail." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
@@ -189,7 +196,7 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkControllerStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.CONTROLLER_STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
