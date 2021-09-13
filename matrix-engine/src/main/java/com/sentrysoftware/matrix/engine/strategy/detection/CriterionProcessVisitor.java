@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
@@ -25,6 +24,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -124,10 +126,10 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	static List<String> getProcessDetails(final ProcessHandle processHandle) {
 		return List.of(
 				String.valueOf(processHandle.pid()),
-				processHandle.info().command().orElse(HardwareConstants.EMPTY),
-				processHandle.info().user().orElse(HardwareConstants.EMPTY),
-				processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(HardwareConstants.EMPTY),
-				processHandle.info().commandLine().orElse(HardwareConstants.EMPTY));
+				processHandle.info().command().orElse(""),
+				processHandle.info().user().orElse(""),
+				processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(""),
+				processHandle.info().commandLine().orElse(""));
 	}
 
 	/**
@@ -147,7 +149,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 						String.format(
 								"No currently running processes matches the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
 								command,
-								result.stream().map(line -> line.stream().collect(Collectors.joining(HardwareConstants.SEMICOLON))).collect(Collectors.joining(HardwareConstants.NEW_LINE)))));
+								result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP))).collect(Collectors.joining(NEW_LINE)))));
 	}
 
 	/**

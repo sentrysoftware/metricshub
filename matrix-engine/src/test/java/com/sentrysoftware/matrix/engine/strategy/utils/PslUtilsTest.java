@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,10 +15,10 @@ class PslUtilsTest {
 	void testPsl2JavaRegex() {
 
 		// pslRegex is null
-		assertEquals(EMPTY, PslUtils.psl2JavaRegex(null));
+		assertEquals("", PslUtils.psl2JavaRegex(null));
 
 		// pslRegex is empty
-		assertEquals(EMPTY, PslUtils.psl2JavaRegex(EMPTY));
+		assertEquals("", PslUtils.psl2JavaRegex(""));
 
 		// pslRegex is not null and not empty, contains a '\' in a range
 		assertEquals("[ab\\\\cd]", PslUtils.psl2JavaRegex("[ab\\cd]"));
@@ -44,24 +43,24 @@ class PslUtilsTest {
 	void testNthArgf() {
 
 		// text is null
-		assertEquals(EMPTY, PslUtils.nthArgf(null, null, null, null));
+		assertEquals("", PslUtils.nthArgf(null, null, null, null));
 
 		// text is not null, selectColumns is null
-		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, null, null, null));
+		assertEquals("", PslUtils.nthArgf("", null, null, null));
 
 		// text is not null, selectColumns is not null, separators is null
-		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, EMPTY, null, null));
+		assertEquals("", PslUtils.nthArgf("", "", null, null));
 
 		// selectColumns is not null, separators is not null, text is empty
-		assertEquals(EMPTY, PslUtils.nthArgf(EMPTY, EMPTY, EMPTY, null));
+		assertEquals("", PslUtils.nthArgf("", "", "", null));
 
 		// text is not null and not empty, separators is not null, selectColumns is empty
 		String text = "|OK|1";
-		assertEquals(EMPTY, PslUtils.nthArgf(text, EMPTY, EMPTY, null));
+		assertEquals("", PslUtils.nthArgf(text, "", "", null));
 
 		// text is not null and not empty, selectColumns is not null and not empty, separators is empty
 		String selectColumns = "3";
-		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, EMPTY, null));
+		assertEquals("", PslUtils.nthArgf(text, selectColumns, "", null));
 
 		// text is not null and not empty, separators is not null and not empty, resultSeparator is not null,
 		// selectColumns starts with '-'
@@ -82,11 +81,11 @@ class PslUtilsTest {
 		// text is not null and not empty, separators is not null and not empty, resultSeparator is not null,
 		// selectColumns is invalid
 		selectColumns = "foo-bar";
-		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+		assertEquals("", PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 		selectColumns = "3-4";
 		assertEquals("1", PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 		selectColumns = "3-1";
-		assertEquals(EMPTY, PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
+		assertEquals("", PslUtils.nthArgf(text, selectColumns, separators, WHITE_SPACE));
 
 		// text contains "\n" in columns
 		text = "OK|OK|\n|WARN|\nALARM";

@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -16,7 +15,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotic;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -30,7 +29,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -68,7 +70,7 @@ class MonitorDiscoveryVisitorTest {
 	private static final String LUN_ID = "myConnector.connector_lun_ecs1-01_1.1";
 	private static final String ENCLOSURE_ID = "myConnector.connector_enclosure_ecs1-01_1.1";
 	private static final String FAN_ID = "myConnector.connector_fan_ecs1-01_1.1";
-	private static final String ROBOTIC_ID = "myConnector.connector_robotic_ecs1-01_1.1";
+	private static final String ROBOTICS_ID = "myConnector.connector_robotics_ecs1-01_1.1";
 
 
 	@Test
@@ -80,7 +82,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -111,7 +113,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -142,7 +144,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -173,7 +175,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -204,7 +206,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -236,8 +238,8 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
-		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(ID_COUNT, _0);
+		metadata.put(TYPE, COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
@@ -274,7 +276,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -292,7 +294,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -323,7 +325,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -353,7 +355,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -383,7 +385,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -413,7 +415,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -444,7 +446,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -475,7 +477,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -506,7 +508,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -537,7 +539,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -568,7 +570,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -599,7 +601,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -629,7 +631,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -651,32 +653,32 @@ class MonitorDiscoveryVisitorTest {
 	}
 
 	@Test
-	void testVisitRobotic() {
+	void testVisitRobotics() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTIC);
-		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotic) MonitorType.ROBOTIC.getMetaMonitor());
+		final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.ROBOTICS);
+		new MonitorDiscoveryVisitor(buildingInfo).visit((Robotics) MonitorType.ROBOTICS.getMetaMonitor());
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
 
 		final Monitor expectedMonitor = Monitor.builder()
-				.id(ROBOTIC_ID)
+				.id(ROBOTICS_ID)
 				.name(MONITOR_NAME)
 				.parentId(ECS1_01)
 				.targetId(ECS1_01)
 				.metadata(metadata)
-				.monitorType(MonitorType.ROBOTIC)
-				.extendedType(MonitorType.ROBOTIC.getName())
-				.alertRules(MonitorType.ROBOTIC.getMetaMonitor().getStaticAlertRules())
+				.monitorType(MonitorType.ROBOTICS)
+				.extendedType(MonitorType.ROBOTICS.getName())
+				.alertRules(MonitorType.ROBOTICS.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
 
-		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ROBOTIC);
+		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ROBOTICS);
 
 		assertEquals(expectedMonitor, monitors.values().stream().findFirst().get());
 
@@ -769,7 +771,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -794,7 +796,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor monitor = Monitor

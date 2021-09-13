@@ -1,25 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ARRAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WWN;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.AVAILABLE_PATH_COUNT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -33,6 +19,23 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ARRAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PATHS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WWN;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.AVAILABLE_PATH_COUNT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class Lun implements IMetaMonitor {
 
 
@@ -41,14 +44,14 @@ public class Lun implements IMetaMonitor {
 
 	public static final MetaParameter AVAILABLE_PATH_COUNT = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER)
-			.unit(HardwareConstants.PATHS_PARAMETER_UNIT)
+			.name(AVAILABLE_PATH_COUNT_PARAMETER)
+			.unit(PATHS_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
 	public static final MetaParameter AVAILABLE_PATH_INFORMATION = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER)
+			.name(AVAILABLE_PATH_INFORMATION_PARAMETER)
 			.type(ParameterType.TEXT)
 			.build();
 
@@ -71,16 +74,16 @@ public class Lun implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER, AVAILABLE_PATH_COUNT);
-		map.put(HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER, AVAILABLE_PATH_INFORMATION);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(AVAILABLE_PATH_COUNT_PARAMETER, AVAILABLE_PATH_COUNT);
+		map.put(AVAILABLE_PATH_INFORMATION_PARAMETER, AVAILABLE_PATH_INFORMATION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER, Collections.singletonList(AVAILABLE_PATH_COUNT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(AVAILABLE_PATH_COUNT_PARAMETER, Collections.singletonList(AVAILABLE_PATH_COUNT_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
@@ -93,7 +96,7 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -114,7 +117,7 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			String problem = "This LUN is in critical state." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
@@ -136,7 +139,7 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkAvailablePathCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<NumberParam> assertedParam = monitor.assertNumberParameter(HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER, conditions);
+		AssertedParameter<NumberParam> assertedParam = monitor.assertNumberParameter(AVAILABLE_PATH_COUNT_PARAMETER, conditions);
 		if (assertedParam.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -157,7 +160,7 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkLowerAvailablePathCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<NumberParam> assertedParam = monitor.assertNumberParameter(HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER, conditions);
+		AssertedParameter<NumberParam> assertedParam = monitor.assertNumberParameter(AVAILABLE_PATH_COUNT_PARAMETER, conditions);
 		if (assertedParam.isAbnormal()) {
 
 			return AlertDetails.builder()

@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -52,17 +51,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE_PROTECTED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PIPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TAB;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
 public class ComputeVisitor implements IComputeVisitor {
 
-	private static final Pattern COLUMN_PATTERN =  Pattern.compile(HardwareConstants.COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
+	private static final Pattern COLUMN_PATTERN =  Pattern.compile(COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
 
 	@Getter
 	@Setter
@@ -88,11 +89,11 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION =
 		(str, translations) -> translations
-			.getOrDefault(str + HardwareConstants.COMMA + HardwareConstants.ONE, translations.get(DEFAULT));
+			.getOrDefault(str + "," + "1", translations.get(DEFAULT));
 
 	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION =
 		(str, translations) -> translations
-			.getOrDefault(str + HardwareConstants.COMMA + HardwareConstants.ZERO, translations.get(DEFAULT));
+			.getOrDefault(str + "," + "0", translations.get(DEFAULT));
 
 	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION =
 		(str, translations) -> translations.getOrDefault(str, translations.get(DEFAULT));
@@ -166,13 +167,13 @@ public class ComputeVisitor implements IComputeVisitor {
 		int columnIndex = column - 1;
 
 		String arraySeparator = arrayTranslate.getArraySeparator();
-		if (arraySeparator == null || PIPE.equals(arraySeparator)) {
-			arraySeparator = PIPE_PROTECTED;
+		if (arraySeparator == null || "|".equals(arraySeparator)) {
+			arraySeparator = "\\|";
 		}
 
 		String resultSeparator = arrayTranslate.getResultSeparator();
 		if (resultSeparator == null) {
-			resultSeparator = PIPE;
+			resultSeparator = "|";
 		}
 
 		List<List<String>> resultTable = new ArrayList<>();
@@ -196,7 +197,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				String translatedArrayValue = Arrays
 					.stream(splitArrayValue)
-					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, EMPTY))
+					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, ""))
 					.filter(value -> !value.isEmpty())
 					.collect(Collectors.joining(resultSeparator));
 
@@ -260,7 +261,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
-				? SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, true)
+				? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
 				: sourceTable.getRawData();
 		try {
 			
@@ -293,7 +294,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 
 			sourceTable.setRawData(awkResult);
-			sourceTable.setTable(SourceTable.csvToTable(awkResult, HardwareConstants.SEMICOLON));
+			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
 
 		} catch (Exception e) {
 			log.warn("Compute Operation (Awk) has failed. ", e);
@@ -318,30 +319,30 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		String selectColumnsStr = selectColumns.stream()
 				.map(String::valueOf)
-				.collect(Collectors.joining(HardwareConstants.COMMA));
+				.collect(Collectors.joining(","));
 
 		// protect the initial string that contains ";" and replace it with "," if this
 		// latest is not in Separators list. Otherwise, just remove the ";"
 		// replace all separators by ";", which is the standard separator used by MS_HW
-		if (!separators.contains(HardwareConstants.SEMICOLON) && !separators.contains(HardwareConstants.COMMA)) {
-			awkResult = awkResult.replace(HardwareConstants.SEMICOLON, HardwareConstants.COMMA);
-		} else if (!separators.contains(HardwareConstants.SEMICOLON)) {
-			awkResult = awkResult.replace(HardwareConstants.SEMICOLON, HardwareConstants.EMPTY);
+		if (!separators.contains(TABLE_SEP) && !separators.contains(",")) {
+			awkResult = awkResult.replace(TABLE_SEP, ",");
+		} else if (!separators.contains(TABLE_SEP)) {
+			awkResult = awkResult.replace(TABLE_SEP, "");
 		}
 
 		StringBuilder selectedOutput = new StringBuilder();
-		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+		for (String line : awkResult.split(NEW_LINE)) {
 
 			// if separator = tab or simple space, then ignore empty cells
 			// equivalent to ntharg
-			if (!separators.contains(HardwareConstants.TAB) && !separators.contains(HardwareConstants.WHITE_SPACE)) {
-				line = PslUtils.nthArgf(line, selectColumnsStr, separators, HardwareConstants.SEMICOLON);
+			if (!separators.contains(TAB) && !separators.contains(WHITE_SPACE)) {
+				line = PslUtils.nthArgf(line, selectColumnsStr, separators, TABLE_SEP);
 			} else {
-				line = PslUtils.nthArg(line, selectColumnsStr, separators, HardwareConstants.SEMICOLON);
+				line = PslUtils.nthArg(line, selectColumnsStr, separators, TABLE_SEP);
 			}
 
 			// mind that the joining operation do not add separator at the end and do not return new line
-			selectedOutput.append(line).append(HardwareConstants.SEMICOLON).append(HardwareConstants.NEW_LINE);
+			selectedOutput.append(line).append(TABLE_SEP).append(NEW_LINE);
 
 		}
 
@@ -368,10 +369,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		// Keep only the lines which don't match with regular expression
 		Pattern pattern = Pattern.compile(excludeRegExp);
-		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+		for (String line : awkResult.split(NEW_LINE)) {
 			Matcher matcher = pattern.matcher(line);
 			if (!matcher.find()) {
-				excludeLines.append(line).append(HardwareConstants.NEW_LINE);
+				excludeLines.append(line).append(NEW_LINE);
 			}
 		}
 		return excludeLines.toString().stripTrailing();
@@ -392,10 +393,10 @@ public class ComputeVisitor implements IComputeVisitor {
 		keepOnlyRegExp = PslUtils.psl2JavaRegex(keepOnlyRegExp);
 		// Keep only the lines matching a given regular expression
 		Pattern pattern = Pattern.compile(keepOnlyRegExp);
-		for (String line : awkResult.split(HardwareConstants.NEW_LINE)) {
+		for (String line : awkResult.split(NEW_LINE)) {
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
-				keeplines.append(line).append(HardwareConstants.NEW_LINE);
+				keeplines.append(line).append(NEW_LINE);
 			}
 		}
 		return keeplines.toString().stripTrailing();
@@ -624,9 +625,9 @@ public class ComputeVisitor implements IComputeVisitor {
 			if (columnIndex < line.size()) {
 				String columnValue = line.get(columnIndex);
 
-				for (String objectPath : columnValue.split(HardwareConstants.COMMA)) {
+				for (String objectPath : columnValue.split(",")) {
 					// objectPath here should look like "<key>=<value>".
-					String[] splitedValue = objectPath.split(HardwareConstants.EQUAL, 2);
+					String[] splitedValue = objectPath.split("=", 2);
 
 					String key = splitedValue[0];
 					/*
@@ -634,8 +635,8 @@ public class ComputeVisitor implements IComputeVisitor {
 					 * So we add a dot at the beginning of the key and see if it ends with ".<propertyName>".
 					 */
 					if (key.length() >= propertyName.length()
-							&& HardwareConstants.DOT.concat(key).toLowerCase().endsWith(HardwareConstants.DOT.concat(propertyName).toLowerCase())) {
-						line.set(columnIndex, splitedValue[1].replace(HardwareConstants.DOUBLE_QUOTE, HardwareConstants.EMPTY).trim());
+							&& ".".concat(key).toLowerCase().endsWith(".".concat(propertyName).toLowerCase())) {
+						line.set(columnIndex, splitedValue[1].replace("\"", "").trim());
 						break;
 					}
 				}
@@ -850,12 +851,12 @@ public class ComputeVisitor implements IComputeVisitor {
 				// Serialize and deserialize
 				// in case the String to concat contains a ';'
 				// so that a new column is created.
-				if (concatString.contains(HardwareConstants.SEMICOLON)) {
+				if (concatString.contains(TABLE_SEP)) {
 
 					sourceTable.setTable(
 						SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
-							HardwareConstants.SEMICOLON));
+							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+							TABLE_SEP));
 				}
 			}
 		}
@@ -1087,8 +1088,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
 			int replacementColumnIndex = Integer.parseInt(replacement.substring(
-					replacement.indexOf(HardwareConstants.OPENING_PARENTHESIS) + 1, 
-					replacement.indexOf(HardwareConstants.CLOSING_PARENTHESIS))) - 1;
+					replacement.indexOf("(") + 1, 
+					replacement.indexOf(")"))) - 1;
 
 			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
 				sourceTable.getTable()
@@ -1103,8 +1104,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(SourceTable.csvToTable(
-				SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
-				HardwareConstants.SEMICOLON));
+				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+				TABLE_SEP));
 	}
 
 	@Override
@@ -1325,7 +1326,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
 
-					needSerialization = needSerialization || newValue.contains(HardwareConstants.SEMICOLON);
+					needSerialization = needSerialization || newValue.contains(TABLE_SEP);
 				} else {
 					log.warn("The Translation Map {} does not contain the following value {}.",
 							translationTable.getName(), valueToBeReplaced);
@@ -1336,8 +1337,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		if (needSerialization) {
 			sourceTable.setTable(
 					SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), HardwareConstants.SEMICOLON, false),
-							HardwareConstants.SEMICOLON));
+							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
+							TABLE_SEP));
 		}
 	}
 

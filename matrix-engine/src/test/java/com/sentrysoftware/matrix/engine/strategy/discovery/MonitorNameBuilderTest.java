@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,21 +7,51 @@ import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
-class MonitorNameBuilderTest {
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_LABEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RAID_LEVEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+class MonitorNameBuilderTest {
 
 	@Test
 	void testHandleComputerDisplayName() {
 
 		{
 			final Monitor target = Monitor.builder()
-					.metadata(Map.of(HardwareConstants.LOCATION, HardwareConstants.REMOTE)).build();
+					.metadata(Map.of(LOCATION, REMOTE)).build();
 
 			assertEquals(MonitorNameBuilder.WINDOWS_COMPUTER,
 					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
@@ -43,7 +69,7 @@ class MonitorNameBuilderTest {
 
 		{
 			final Monitor target = Monitor.builder()
-					.metadata(Map.of(HardwareConstants.LOCATION, HardwareConstants.LOCALHOST)).build();
+					.metadata(Map.of(LOCATION, LOCALHOST)).build();
 
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
 					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
@@ -66,8 +92,8 @@ class MonitorNameBuilderTest {
 
 		assertFalse(MonitorNameBuilder.isLocalhost(null));
 		assertFalse(MonitorNameBuilder.isLocalhost(Collections.emptyMap()));
-		assertFalse(MonitorNameBuilder.isLocalhost(Map.of(HardwareConstants.LOCATION, HardwareConstants.REMOTE)));
-		assertTrue(MonitorNameBuilder.isLocalhost(Map.of(HardwareConstants.LOCATION, HardwareConstants.LOCALHOST)));
+		assertFalse(MonitorNameBuilder.isLocalhost(Map.of(LOCATION, REMOTE)));
+		assertTrue(MonitorNameBuilder.isLocalhost(Map.of(LOCATION, LOCALHOST)));
 
 	}
 
@@ -87,7 +113,7 @@ class MonitorNameBuilderTest {
 		assertEquals("12345", MonitorNameBuilder
 			.buildName(
 				"",
-				" ",
+				WHITE_SPACE,
 				"Dev DEVICE 12345",
 				"0",
 				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
@@ -97,7 +123,7 @@ class MonitorNameBuilderTest {
 		assertEquals("0 (info)", MonitorNameBuilder
 			.buildName(
 				"",
-				" ",
+				WHITE_SPACE,
 				"device 12345678901234567890",
 				"0",
 				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
@@ -107,8 +133,8 @@ class MonitorNameBuilderTest {
 		assertEquals("type Z: 0 (info)", MonitorNameBuilder
 			.buildName(
 				"type Z",
-				" ",
-				" ",
+				WHITE_SPACE,
+				WHITE_SPACE,
 				"0",
 				Pattern.compile("dev(ice)*", Pattern.CASE_INSENSITIVE),
 				"info"
@@ -120,8 +146,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " battery,  1,1 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " battery,  1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -144,12 +170,12 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " battery,  1,1 ");
-			metadata.put(HardwareConstants.DISPLAY_ID, "1.1");
-			metadata.put(HardwareConstants.VENDOR, "Intel");
-			metadata.put(HardwareConstants.MODEL, "CMOS");
-			metadata.put(HardwareConstants.TYPE, "System Board CMOS Battery");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " battery,  1,1 ");
+			metadata.put(DISPLAY_ID, "1.1");
+			metadata.put(VENDOR, "Intel");
+			metadata.put(MODEL, "CMOS");
+			metadata.put(TYPE, "System Board CMOS Battery");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -177,8 +203,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " blade,  1,1 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " blade,  1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -201,11 +227,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " blade,  1,1 ");
-			metadata.put(HardwareConstants.DISPLAY_ID, "1.1");
-			metadata.put(HardwareConstants.BLADE_NAME, "Blade 123");
-			metadata.put(HardwareConstants.MODEL, "model 1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " blade,  1,1 ");
+			metadata.put(DISPLAY_ID, "1.1");
+			metadata.put(BLADE_NAME, "Blade 123");
+			metadata.put(MODEL, "model 1");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -232,12 +258,12 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "CPU1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "CPU #1");
-			metadata.put(HardwareConstants.VENDOR, "Intel");
-			metadata.put(HardwareConstants.MODEL, "Xeon");
-			metadata.put(HardwareConstants.MAXIMUM_SPEED, "3600.0");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "CPU1.1");
+			metadata.put(DISPLAY_ID, "CPU #1");
+			metadata.put(VENDOR, "Intel");
+			metadata.put(MODEL, "Xeon");
+			metadata.put(MAXIMUM_SPEED, "3600.0");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -260,10 +286,10 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "CPU1,1");
-			metadata.put(HardwareConstants.VENDOR, "Intel");
-			metadata.put(HardwareConstants.MAXIMUM_SPEED, "999");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "CPU1,1");
+			metadata.put(VENDOR, "Intel");
+			metadata.put(MAXIMUM_SPEED, "999");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -290,8 +316,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " proc  1,1 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " proc  1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -319,11 +345,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "1,1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "1.1");
-			metadata.put(HardwareConstants.VENDOR, "vendor X");
-			metadata.put(HardwareConstants.MODEL, "model 1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "1,1");
+			metadata.put(DISPLAY_ID, "1.1");
+			metadata.put(VENDOR, "vendor X");
+			metadata.put(MODEL, "model 1");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -353,11 +379,11 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.VENDOR, "Dell");
-			metadata.put(HardwareConstants.MODEL, "2200");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(VENDOR, "Dell");
+			metadata.put(MODEL, "2200");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, COMPUTER);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -382,12 +408,12 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "PowerEdge 54dsf");
-			metadata.put(HardwareConstants.VENDOR, "Dell");
-			metadata.put(HardwareConstants.MODEL, "2200 Dell");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(DISPLAY_ID, "PowerEdge 54dsf");
+			metadata.put(VENDOR, "Dell");
+			metadata.put(MODEL, "2200 Dell");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, COMPUTER);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -412,11 +438,11 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "PowerEdge 54dsf");
-			metadata.put(HardwareConstants.VENDOR, "Dell");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(DISPLAY_ID, "PowerEdge 54dsf");
+			metadata.put(VENDOR, "Dell");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, COMPUTER);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -441,11 +467,11 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "PowerEdge 54dsf");
-			metadata.put(HardwareConstants.MODEL, "2200");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(DISPLAY_ID, "PowerEdge 54dsf");
+			metadata.put(MODEL, "2200");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, COMPUTER);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -469,10 +495,10 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "PowerEdge 54dsf");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(DISPLAY_ID, "PowerEdge 54dsf");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, COMPUTER);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -497,9 +523,9 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, STORAGE);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -524,9 +550,9 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "12345678901234567890");
-			metadata.put(HardwareConstants.ID_COUNT, "1");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
+			metadata.put(DEVICE_ID, "12345678901234567890");
+			metadata.put(ID_COUNT, "1");
+			metadata.put(TYPE, STORAGE);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -551,10 +577,10 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DISPLAY_ID, "PowerEdge 54dsf");
-			metadata.put(HardwareConstants.TYPE, HardwareConstants.STORAGE);
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DISPLAY_ID, "PowerEdge 54dsf");
+			metadata.put(TYPE, STORAGE);
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -579,9 +605,9 @@ class MonitorNameBuilderTest {
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.TYPE, "Other");
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(TYPE, "Other");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -609,10 +635,10 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "FAN 1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "Fan 1A 1.1 XYZ");
-			metadata.put(HardwareConstants.FAN_TYPE, "1A");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "FAN 1.1");
+			metadata.put(DISPLAY_ID, "Fan 1A 1.1 XYZ");
+			metadata.put(FAN_TYPE, "1A");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -634,8 +660,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "FAN 1.1");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "FAN 1.1");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -658,8 +684,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.FAN_TYPE, "1A");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(FAN_TYPE, "1A");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -686,11 +712,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "LED 1.1");
-			metadata.put(HardwareConstants.DISPLAY_ID, "LED #1");
-			metadata.put(HardwareConstants.NAME, "Network");
-			metadata.put(HardwareConstants.COLOR, "RED");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "LED 1.1");
+			metadata.put(DISPLAY_ID, "LED #1");
+			metadata.put(NAME, "Network");
+			metadata.put(COLOR, "RED");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -713,9 +739,9 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "LED 1,1");
-			metadata.put(HardwareConstants.COLOR, "green");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "LED 1,1");
+			metadata.put(COLOR, "green");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -742,11 +768,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
-			metadata.put(HardwareConstants.DISPLAY_ID, "disk-01");
-			metadata.put(HardwareConstants.SIZE, "1.09E13");
-			metadata.put(HardwareConstants.RAID_LEVEL, "5");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "disk01");
+			metadata.put(DISPLAY_ID, "disk-01");
+			metadata.put(SIZE, "1.09E13");
+			metadata.put(RAID_LEVEL, "5");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -769,10 +795,10 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
-			metadata.put(HardwareConstants.SIZE, "1073741824");
-			metadata.put(HardwareConstants.RAID_LEVEL, "Raid 2");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "disk01");
+			metadata.put(SIZE, "1073741824");
+			metadata.put(RAID_LEVEL, "Raid 2");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -799,8 +825,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " LUN,1,1 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " LUN,1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -823,11 +849,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " LUN,  1 ");
-			metadata.put(HardwareConstants.DISPLAY_ID, "LUN 1");
-			metadata.put(HardwareConstants.LOCAL_DEVICE_NAME, "local 123");
-			metadata.put(HardwareConstants.REMOTE_DEVICE_NAME, "remote 123");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " LUN,  1 ");
+			metadata.put(DISPLAY_ID, "LUN 1");
+			metadata.put(LOCAL_DEVICE_NAME, "local 123");
+			metadata.put(REMOTE_DEVICE_NAME, "remote 123");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -854,8 +880,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " memory module 11 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " memory module 11 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -878,11 +904,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.VENDOR, "Hynix Semiconductor (00AD00B300AD)");
-			metadata.put(HardwareConstants.TYPE, "DDR4");
-			metadata.put(HardwareConstants.SIZE, "16384.0");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(VENDOR, "Hynix Semiconductor (00AD00B300AD)");
+			metadata.put(TYPE, "DDR4");
+			metadata.put(SIZE, "16384.0");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -905,11 +931,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "1.1");
-			metadata.put(HardwareConstants.VENDOR, "Hynix Semiconductor (00AD00B300AD)");
-			metadata.put(HardwareConstants.TYPE, "DDR4");
-			metadata.put(HardwareConstants.SIZE, "49");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "1.1");
+			metadata.put(VENDOR, "Hynix Semiconductor (00AD00B300AD)");
+			metadata.put(TYPE, "DDR4");
+			metadata.put(SIZE, "49");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -936,8 +962,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "network 11");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "network 11");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -960,11 +986,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "0");
-			metadata.put(HardwareConstants.VENDOR, "HP Ethernet Controller Interface 10/100 base-t");
-			metadata.put(HardwareConstants.DEVICE_TYPE, "NIC");
-			metadata.put(HardwareConstants.MODEL, "1234");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "0");
+			metadata.put(VENDOR, "HP Ethernet Controller Interface 10/100 base-t");
+			metadata.put(DEVICE_TYPE, "NIC");
+			metadata.put(MODEL, "1234");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -992,9 +1018,9 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "other device 11");
-			metadata.put(HardwareConstants.ADDITIONAL_LABEL, "additional details");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "other device 11");
+			metadata.put(ADDITIONAL_LABEL, "additional details");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1017,9 +1043,9 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "01");
-			metadata.put(HardwareConstants.DEVICE_TYPE, "type C");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "01");
+			metadata.put(DEVICE_TYPE, "type C");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1047,11 +1073,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
-			metadata.put(HardwareConstants.DISPLAY_ID, "disk-01");
-			metadata.put(HardwareConstants.SIZE, "1E12");
-			metadata.put(HardwareConstants.VENDOR, "HP");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "disk01");
+			metadata.put(DISPLAY_ID, "disk-01");
+			metadata.put(SIZE, "1E12");
+			metadata.put(VENDOR, "HP");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1074,10 +1100,10 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "disk01");
-			metadata.put(HardwareConstants.SIZE, "1000000000");
-			metadata.put(HardwareConstants.VENDOR, "HP");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "disk01");
+			metadata.put(SIZE, "1000000000");
+			metadata.put(VENDOR, "HP");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1104,10 +1130,10 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "power01");
-			metadata.put(HardwareConstants.POWER_SUPPLY_POWER, "1000");
-			metadata.put(HardwareConstants.POWER_SUPPLY_TYPE, "Dell");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "power01");
+			metadata.put(POWER_SUPPLY_POWER, "1000");
+			metadata.put(POWER_SUPPLY_TYPE, "Dell");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1134,8 +1160,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " robotics,  1,1,1 ");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " robotics,  1,1,1 ");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1145,7 +1171,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.ROBOTIC)
+					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -1158,12 +1184,12 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, " robotics,  1,1,1 ");
-			metadata.put(HardwareConstants.DISPLAY_ID, "1.1.1");
-			metadata.put(HardwareConstants.VENDOR, "Quantum");
-			metadata.put(HardwareConstants.MODEL, "Quantum 123");
-			metadata.put(HardwareConstants.ROBOTIC_TYPE, "Tape Library");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, " robotics,  1,1,1 ");
+			metadata.put(DISPLAY_ID, "1.1.1");
+			metadata.put(VENDOR, "Quantum");
+			metadata.put(MODEL, "Quantum 123");
+			metadata.put(ROBOTIC_TYPE, "Tape Library");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1173,7 +1199,7 @@ class MonitorNameBuilderTest {
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
 					.connectorName("myConnector.connector")
-					.monitorType(MonitorType.ROBOTIC)
+					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -1191,8 +1217,8 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "tape drive, 01");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "tape drive, 01");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1215,11 +1241,11 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "drive 12");
-			metadata.put(HardwareConstants.DISPLAY_ID, "drive 12");
-			metadata.put(HardwareConstants.VENDOR, "Quantum");
-			metadata.put(HardwareConstants.MODEL, "Quantum 123");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "drive 12");
+			metadata.put(DISPLAY_ID, "drive 12");
+			metadata.put(VENDOR, "Quantum");
+			metadata.put(MODEL, "Quantum 123");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1247,9 +1273,9 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "temperature sensor 101");
-			metadata.put(HardwareConstants.TEMPERATURE_TYPE, "fan temperature");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "temperature sensor 101");
+			metadata.put(TEMPERATURE_TYPE, "fan temperature");
 
 			final Monitor monitor = Monitor
 					.builder()
@@ -1277,9 +1303,9 @@ class MonitorNameBuilderTest {
 
 		{
 			final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			metadata.put(HardwareConstants.ID_COUNT, "0");
-			metadata.put(HardwareConstants.DEVICE_ID, "voltage 101");
-			metadata.put(HardwareConstants.VOLTAGE_TYPE, "fan voltage");
+			metadata.put(ID_COUNT, "0");
+			metadata.put(DEVICE_ID, "voltage 101");
+			metadata.put(VOLTAGE_TYPE, "fan voltage");
 
 			final Monitor monitor = Monitor
 					.builder()

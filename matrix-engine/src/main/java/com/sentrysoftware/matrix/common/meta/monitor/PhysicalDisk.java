@@ -1,28 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -37,26 +20,54 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 public class PhysicalDisk implements IMetaMonitor {
 
 	public static final MetaParameter INTRUSION_STATUS = MetaParameter.builder()
 			.basicCollect(true)
-			.name(HardwareConstants.INTRUSION_STATUS_PARAMETER)
-			.unit(HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT)
+			.name(INTRUSION_STATUS_PARAMETER)
+			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)
 			.build();
 
 	public static final MetaParameter ENDURANCE_REMAINING = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.ENDURANCE_REMAINING_PARAMETER)
-			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+			.name(ENDURANCE_REMAINING_PARAMETER)
+			.unit(PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
 	public static final MetaParameter ERROR_COUNT= MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.ERROR_COUNT_PARAMETER)
-			.unit(HardwareConstants.ERROR_COUNT_PARAMETER_UNIT)
+			.name(ERROR_COUNT_PARAMETER)
+			.unit(ERROR_COUNT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -73,7 +84,7 @@ public class PhysicalDisk implements IMetaMonitor {
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
-			checkErrorCountCondition(monitor, HardwareConstants.ERROR_COUNT_PARAMETER, conditions),
+			checkErrorCountCondition(monitor, ERROR_COUNT_PARAMETER, conditions),
 			ERROR_COUNT_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(PhysicalDisk::checkPredictedFailureCondition,
@@ -92,24 +103,24 @@ public class PhysicalDisk implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
-		map.put(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, ENDURANCE_REMAINING);
-		map.put(HardwareConstants.ERROR_COUNT_PARAMETER, ERROR_COUNT);
-		map.put(HardwareConstants.ENERGY_PARAMETER, ENERGY);
-		map.put(HardwareConstants.ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
-		map.put(HardwareConstants.POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
+		map.put(ENDURANCE_REMAINING_PARAMETER, ENDURANCE_REMAINING);
+		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.ERROR_COUNT_PARAMETER, Collections.singletonList(ERROR_COUNT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, List.of(ENDURANCE_REMAINING_WARN_ALERT_RULE, ENDURANCE_REMAINING_ALARM_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(ERROR_COUNT_PARAMETER, Collections.singletonList(ERROR_COUNT_ALERT_RULE));
+		alertRulesMap.put(PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
+		alertRulesMap.put(ENDURANCE_REMAINING_PARAMETER, List.of(ENDURANCE_REMAINING_WARN_ALERT_RULE, ENDURANCE_REMAINING_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 
@@ -144,10 +155,10 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			final String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
+			final String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem("Although still working and available, this physical disk is degraded or about to fail."
 							+ IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
@@ -167,10 +178,10 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
+			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem("This physical disk is in critical/unrecoverable state." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
 					.consequence("If part of a RAID subsystem, a missing disk affects the performance but filesystems should still be up and running. Otherwise, the filesystems of this disk are no longer available (data loss).")
@@ -193,7 +204,7 @@ public class PhysicalDisk implements IMetaMonitor {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(errorCountParamName, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
-			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
+			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem(String.format("The physical disk encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk may be in jeopardy.")
@@ -216,7 +227,7 @@ public class PhysicalDisk implements IMetaMonitor {
 		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(errorCountParamName, conditions);
 		if (assertedErrorCount.isAbnormal()) {
 
-			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
+			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem(String.format("The physical disk encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
 					.consequence("The integrity of the data stored on this physical disk is not assured.")
@@ -235,10 +246,10 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(HardwareConstants.PREDICTED_FAILURE_PARAMETER, conditions);
+		AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
 		if (assertedPredictedFailure.isAbnormal()) {
 
-			String serialNumber = monitor.getMetadata(HardwareConstants.SERIAL_NUMBER);
+			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem("An imminent failure is predicted on this physical disk (SMART report).")
 					.consequence("A disk crash or data corruption is very likely to occur soon.")
@@ -260,7 +271,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkEnduranceRemainingWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(ENDURANCE_REMAINING_PARAMETER, conditions);
 		if (assertedEnduranceRemaining.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -281,7 +292,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkEnduranceRemainingAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(HardwareConstants.ENDURANCE_REMAINING_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedEnduranceRemaining = monitor.assertNumberParameter(ENDURANCE_REMAINING_PARAMETER, conditions);
 		if (assertedEnduranceRemaining.isAbnormal()) {
 
 			return AlertDetails.builder()
