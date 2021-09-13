@@ -232,9 +232,9 @@ class HostMonitoringCollectorServiceTest {
 
 		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
 		final Sample sample1 = new Sample("hw_enclosure_status", LABELS,
-				Arrays.asList(monitor1.getId(), monitor1.getParentId(), monitor1.getName(), null), ParameterState.OK.ordinal());
+				Arrays.asList(null, monitor1.getId(), monitor1.getName(), monitor1.getParentId()), ParameterState.OK.ordinal());
 		final Sample sample2 = new Sample("hw_enclosure_status", LABELS,
-				Arrays.asList(monitor2.getId(), monitor2.getParentId(), monitor2.getName(), null), ParameterState.OK.ordinal());
+				Arrays.asList(null, monitor2.getId(), monitor2.getName(), monitor2.getParentId()), ParameterState.OK.ordinal());
 
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
@@ -256,7 +256,7 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.CPU, monitorCpu, mfsCpu);
 
 		final Sample sample4 = new Sample("hw_cpu_maximum_speed_hertz", LABELS,
-				Arrays.asList(monitor3.getId(), monitor3.getParentId(), monitor3.getName(), null), 4000 * 1000000.0);
+				Arrays.asList(null, monitor3.getId(), monitor3.getName(), monitor3.getParentId()), 4000 * 1000000.0);
 		final MetricFamilySamples actualCpu = mfsCpu.stream().filter(p -> p.name.equals("hw_cpu_maximum_speed_hertz"))
 				.findFirst().orElse(null);
 		assertEquals(sample4, actualCpu.samples.get(0));
@@ -292,7 +292,7 @@ class HostMonitoringCollectorServiceTest {
 
 			final Sample sample5 = new Sample("hw_logicalDisk_raidlevel_counter_total",
 					LABELS,
-					Arrays.asList(monitor4.getId(), monitor4.getParentId(), monitor4.getName(), null), 5);
+					Arrays.asList(null, monitor4.getId(), monitor4.getName(), monitor4.getParentId()), 5);
 			final MetricFamilySamples actualLg = mfsDisk.stream()
 					.filter(p -> p.name.equals("hw_logicalDisk_raidlevel_counter")).findFirst().orElse(null);
 			assertEquals(sample5, actualLg.samples.get(0));
@@ -339,7 +339,7 @@ class HostMonitoringCollectorServiceTest {
 				"hw_enclosure_status",
 				"Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
 				LABELS);
-		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 0);
+		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 0);
 
 		assertEquals(expected, mfs.get(0));
 	}
@@ -363,7 +363,7 @@ class HostMonitoringCollectorServiceTest {
 
 		GaugeMetricFamily expected = new GaugeMetricFamily("hw_cpu_maximum_speed_hertz",
 				"Metric: hw_cpu_maximum_speed_hertz - Unit: hertz", LABELS);
-		expected.addMetric(Arrays.asList(monitor1.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 4000000);
+		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 4000000);
 		assertEquals(expected, mfs.get(0));
 
 		// CPU without maxSpeed, check we do not create metric if no value for metadata
@@ -718,7 +718,7 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.addMetric(gauge, monitor, STATUS_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_STATUS_METRIC, LABELS,
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), ParameterState.OK.ordinal());
+				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), ParameterState.OK.ordinal());
 
 		assertEquals(expected, actual);
 	}
@@ -738,7 +738,7 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.addMetric(gauge, monitor, ENERGY_USAGE_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_ENERGY_METRIC, LABELS,
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 3000D);
+				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 3000D);
 
 		assertEquals(expected, actual);
 	}
@@ -754,7 +754,7 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.addMetadataAsMetric(gauge, monitor, MAXIMUM_SPEED, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MAXIMUM_SPEED, LABELS,
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 4D);
+				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 4D);
 		assertEquals(expected, actual);
 
 		final CounterMetricFamily counter = new CounterMetricFamily(MAXIMUM_SPEED, HELP_DEFAULT,
@@ -762,7 +762,7 @@ class HostMonitoringCollectorServiceTest {
 		HostMonitoringCollectorService.addMetadataAsMetric(counter, monitor, MAXIMUM_SPEED, 1.0);
 		final Sample actualCounter = counter.samples.get(0);
 		final Sample expectedCounter = new Sample("maximumSpeed_total", LABELS,
-				Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null), 4D);
+				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 4D);
 		assertEquals(expectedCounter, actualCounter);
 	}
 
@@ -770,7 +770,8 @@ class HostMonitoringCollectorServiceTest {
 	void testCreateLabels() {
 		final List<String> actual = HostMonitoringCollectorService.createLabels(
 				Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE).build());
-		final List<String> expected = Arrays.asList(ID_VALUE, PARENT_ID_VALUE, LABEL_VALUE, null);
+		// fqdn, id, label, parentId
+		final List<String> expected = Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE);
 		assertEquals(expected, actual);
 	}
 
@@ -830,7 +831,7 @@ class HostMonitoringCollectorServiceTest {
 				"monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}",
 				LABELS);
-		expected.addMetric(Arrays.asList(monitor.getId(), PARENT_ID_VALUE, LABEL_VALUE, null), 1);
+		expected.addMetric(Arrays.asList(null, monitor.getId(), LABEL_VALUE, PARENT_ID_VALUE), 1);
 
 		assertEquals(expected, labeledGauge);
 	}
