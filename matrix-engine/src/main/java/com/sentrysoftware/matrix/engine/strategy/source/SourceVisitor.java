@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -46,6 +43,9 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @AllArgsConstructor
@@ -539,7 +539,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, HardwareConstants.SEMICOLON))
+				.table(SourceTable.csvToTable(key, TABLE_SEP))
 				.build();
 	}
 

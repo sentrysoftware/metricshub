@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -45,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
 
 @Data
 @NoArgsConstructor
@@ -288,11 +288,11 @@ public class HostMonitoring implements IHostMonitoring {
 
 		return new StringBuilder()
 				.append(connectorName)
-				.append(HardwareConstants.ID_SEPARATOR)
+				.append(ID_SEPARATOR)
 				.append(monitorType.getKey())
-				.append(HardwareConstants.ID_SEPARATOR)
+				.append(ID_SEPARATOR)
 				.append(targetId)
-				.append(HardwareConstants.ID_SEPARATOR)
+				.append(ID_SEPARATOR)
 				.append(id.replaceAll("\\s*", ""))
 				.toString();
 	}

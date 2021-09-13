@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -30,7 +29,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -80,7 +82,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -111,7 +113,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -142,7 +144,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -173,7 +175,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -204,7 +206,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -236,8 +238,8 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
 		metadata.put(VENDOR, DELL);
 		metadata.put(MODEL, MODEL_VALUE);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
-		metadata.put(HardwareConstants.TYPE, HardwareConstants.COMPUTER);
+		metadata.put(ID_COUNT, _0);
+		metadata.put(TYPE, COMPUTER);
 
 		final Monitor monitor = Monitor
 				.builder()
@@ -274,7 +276,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(HardwareConstants.COMPUTER)
+				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -292,7 +294,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -323,7 +325,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -353,7 +355,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -383,7 +385,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -413,7 +415,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -444,7 +446,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -475,7 +477,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -506,7 +508,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -537,7 +539,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -568,7 +570,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -599,7 +601,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -629,7 +631,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -659,7 +661,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -769,7 +771,7 @@ class MonitorDiscoveryVisitorTest {
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
 
@@ -794,7 +796,7 @@ class MonitorDiscoveryVisitorTest {
 
 		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		metadata.put(DEVICE_ID, ID);
-		metadata.put(HardwareConstants.ID_COUNT, _0);
+		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 
 		final Monitor monitor = Monitor

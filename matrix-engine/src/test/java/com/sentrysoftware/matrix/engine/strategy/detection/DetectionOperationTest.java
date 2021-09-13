@@ -1,15 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 import java.net.UnknownHostException;
 import java.util.Collections;
@@ -30,7 +20,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -50,6 +39,19 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
@@ -213,9 +215,9 @@ class DetectionOperationTest {
 		assertEquals(CONNECTOR1_ID, connector1Mo.getName());
 		assertEquals(ECS1_01, connector1Mo.getTargetId());
 
-		assertNotNull(connector1Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER));
+		assertNotNull(connector1Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(ParameterState.OK,
-				((StatusParam) connector1Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER)).getState());
+				((StatusParam) connector1Mo.getParameters().get(STATUS_PARAMETER)).getState());
 
 		Monitor connector2Mo = monitors.get(ECS1_01 + "@" + CONNECTOR2_ID);
 		assertEquals(ECS1_01, connector2Mo.getParentId());
@@ -223,9 +225,9 @@ class DetectionOperationTest {
 		assertEquals(CONNECTOR2_ID, connector2Mo.getName());
 		assertEquals(ECS1_01, connector2Mo.getTargetId());
 
-		assertNotNull(connector2Mo.getParameters().get(HardwareConstants.TEST_REPORT_PARAMETER));
+		assertNotNull(connector2Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(ParameterState.ALARM,
-				((StatusParam) connector2Mo.getParameters().get(HardwareConstants.STATUS_PARAMETER)).getState());
+				((StatusParam) connector2Mo.getParameters().get(STATUS_PARAMETER)).getState());
 	}
 
 	@Test
