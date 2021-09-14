@@ -628,12 +628,22 @@ public class CriterionVisitor implements ICriterionVisitor {
 						noPasswordCommand);
 			}
 
+			final OSCommand osCommandNoPassword = OSCommand.builder()
+					.commandLine(noPasswordCommand)
+					.executeLocally(osCommand.isExecuteLocally())
+					.timeout(osCommand.getTimeout())
+					.expectedResult(osCommand.getExpectedResult())
+					.errorMessage(osCommand.getErrorMessage())
+					.forceSerialization(osCommand.isForceSerialization())
+					.index(osCommand.getIndex() != null ? osCommand.getIndex() : 0)
+					.build();
+					
 			final Matcher matcher = Pattern
 					.compile(osCommand.getExpectedResult())
 					.matcher(commandResult);
 			return matcher.find() ?
-					CriterionTestResult.success(osCommand, commandResult) :
-						CriterionTestResult.failure(osCommand, commandResult);
+					CriterionTestResult.success(osCommandNoPassword, commandResult) :
+						CriterionTestResult.failure(osCommandNoPassword, commandResult);
 
 		} catch (final Exception e) {
 			return CriterionTestResult.error(osCommand, e);

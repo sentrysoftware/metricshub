@@ -1004,7 +1004,8 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test ran but failed:\n" + osCommand.toString() +
+				"OSCommand test ran but failed:\n" + 
+						"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=Criteria not found, executeLocally=true, timeout=null)" + 
 						"\n\n" +
 						"Actual result:\n" + result,
 						criterionTestResult.getMessage());
@@ -1082,7 +1083,8 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + 
+					"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=\\d{2}-[A-Z][a-z]{2}-\\d{2} , executeLocally=true, timeout=null)" + 
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1160,7 +1162,8 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + 
+					"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=\\d{2}-[A-Z][a-z]{2}-\\d{2} , executeLocally=true, timeout=null)" + 
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1285,7 +1288,7 @@ class CriterionVisitorTest {
 				assertNotNull(criterionTestResult);
 				assertTrue(criterionTestResult.isSuccess());
 				assertEquals(
-						"OSCommand test succeeded:\n" + osCommand.toString() + 
+						"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(updatedCommand).expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: " + result,
 					criterionTestResult.getMessage());
@@ -1340,7 +1343,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + osCommand.toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1397,7 +1400,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + osCommand.toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1455,7 +1458,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + osCommand.toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1513,7 +1516,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + osCommand.toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1604,7 +1607,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + osCommand.toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
 						"\n\n" +
 						"Result: Hard drive",
 					criterionTestResult.getMessage());
