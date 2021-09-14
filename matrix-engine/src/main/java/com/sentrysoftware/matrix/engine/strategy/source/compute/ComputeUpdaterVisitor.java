@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
@@ -32,6 +31,8 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import lombok.AllArgsConstructor;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 
 @AllArgsConstructor
 public class ComputeUpdaterVisitor implements IComputeVisitor {
@@ -159,9 +160,9 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 		}
 
 		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
-		Assert.notNull(monitor.getMetadata().get(HardwareConstants.DEVICE_ID), "monitor deviceId cannot be null.");
+		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "monitor deviceId cannot be null.");
 
-		final String deviceId = monitor.getMetadata().get(HardwareConstants.DEVICE_ID);
+		final String deviceId = monitor.getMetadata().get(DEVICE_ID);
 
 		substring.setStart(monoInstanceReplace(substring.getStart(), deviceId));
 		substring.setLength(monoInstanceReplace(substring.getLength(),deviceId));

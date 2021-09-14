@@ -13,36 +13,18 @@ public class HardwareConstants {
 	public static final String WHITE_SPACE = " ";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
-	public static final String DASH = "-";
-	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
 	public static final String BLADE_ENCLOSURE = "Blade Enclosure";
 	public static final String ENCLOSURE = "Enclosure";
 	public static final String COMPUTER = "Computer";
 	public static final String STORAGE = "Storage";
 	public static final String SWITCH = "Switch";
-	public static final String PARENTHESIS_EMPTY = "()";
-	public static final String OPENING_PARENTHESIS = "(";
-	public static final String CLOSING_PARENTHESIS = ")";
-	public static final String OPENING_SQUARE_BRACKET = "[";
-	public static final String CLOSING_SQUARE_BRACKET = "]";
 	public static final String SEMICOLON = ";";
 	public static final String TABLE_SEP = SEMICOLON;
 	public static final String COLUMN_REGEXP = "^\\s*column\\((\\d+)\\)\\s*$";
 	public static final String LOCALHOST = "localhost";
 	public static final String REMOTE = "remote";
-	public static final String COMMA = ",";
-	public static final String COLON = ":";
-	public static final String DOT = ".";
-	public static final String DOUBLE_BACKSLASH = "\\\\";
 	public static final String COLON_DOUBLE_SLASH = "://";
-	public static final String SLASH = "/";
-	public static final String CARET = "^";
-	public static final String PLUS = "+";
-	public static final String PIPE = "|";
-	public static final String PIPE_PROTECTED = "\\|";
-	public static final String DOUBLE_QUOTE = "\"";
-	public static final String EQUAL = "=";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //
@@ -309,13 +291,7 @@ public class HardwareConstants {
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
 
-	public static final String ONE = "1";
-	public static final String ZERO = "0";
-
 	public static final String DEFAULT = "default";
-
-	public static final String HTTP = "HTTP";
-	public static final String HTTPS = "HTTPS";
 
 	public static final String USERNAME_MACRO = "%{USERNAME}";
 	public static final String AUTHENTICATION_TOKEN_MACRO = "%{AUTHENTICATIONTOKEN}";
@@ -323,8 +299,6 @@ public class HardwareConstants {
 	public static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
 	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
-
-	public static final String USERNAME = "USERNAME";
 
 	public static final String AUTOMATIC_NAMESPACE = "automatic";
 

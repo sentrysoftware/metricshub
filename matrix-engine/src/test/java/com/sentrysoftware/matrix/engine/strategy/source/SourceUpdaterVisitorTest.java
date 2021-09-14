@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
@@ -386,8 +385,9 @@ class SourceUpdaterVisitorTest {
 			assertNull(sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
 					null,
 					AUTHENTICATION_TOKEN_FIELD));
-			assertEquals(HardwareConstants.EMPTY, sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
-					HardwareConstants.EMPTY,
+			assertEquals("", 
+					sourceUpdaterVisitor.extractHttpTokenFromSource(ENCLOSURE_DISCOVERY_SOURCE_2_KEY,
+					"",
 					AUTHENTICATION_TOKEN_FIELD));
 		}
 

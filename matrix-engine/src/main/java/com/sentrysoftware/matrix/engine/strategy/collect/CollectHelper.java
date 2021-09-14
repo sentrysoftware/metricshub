@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -19,6 +18,14 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 
 @Slf4j
 public class CollectHelper {
@@ -82,7 +89,7 @@ public class CollectHelper {
 
 		final ParameterState parameterState;
 		// Get the parameter state from our PREDICTED_FAILURE_MAP
-		if (HardwareConstants.PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
+		if (PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
 			parameterState = PREDICTED_FAILURE_MAP.get(status.trim());
 		} else {
 			// Get the parameter state from our STATUS_MAP
@@ -436,23 +443,23 @@ public class CollectHelper {
 
 		updateNumberParameter(
 			monitor,
-			HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-			HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+			POWER_CONSUMPTION_PARAMETER,
+			POWER_CONSUMPTION_PARAMETER_UNIT,
 			collectTime,
 			powerConsumption,
 			powerConsumption
 		);
 
-		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.POWER_CONSUMPTION_PARAMETER, true);
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, true);
 
-		final Double deltaTimeMs = CollectHelper.subtract(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+		final Double deltaTimeMs = CollectHelper.subtract(POWER_CONSUMPTION_PARAMETER,
 				collectTime.doubleValue(), collectTimePrevious);
 
 		// Convert deltaTimeMs from milliseconds (ms) to seconds
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
 		// Calculate energy usage from Power Consumption: E = P * T
-		final Double energyUsage = CollectHelper.multiply(HardwareConstants.POWER_CONSUMPTION_PARAMETER,
+		final Double energyUsage = CollectHelper.multiply(POWER_CONSUMPTION_PARAMETER,
 				powerConsumption, deltaTime);
 
 		if (energyUsage != null) {
@@ -462,7 +469,7 @@ public class CollectHelper {
 
 			// The previous value is needed to get the total energy in joules
 			Double previousEnergy = CollectHelper.getNumberParamRawValue(monitor,
-				HardwareConstants.ENERGY_PARAMETER, true);
+				ENERGY_PARAMETER, true);
 
 			// Ok, we have the previous energy value ? sum the previous energy and the current delta energy usage
 			if (previousEnergy != null) {
@@ -472,8 +479,8 @@ public class CollectHelper {
 			// Everything is good update the energy parameter in the HostMonitoring
 			updateNumberParameter(
 				monitor,
-				HardwareConstants.ENERGY_PARAMETER,
-				HardwareConstants.ENERGY_PARAMETER_UNIT,
+				ENERGY_PARAMETER,
+				ENERGY_PARAMETER_UNIT,
 				collectTime,
 				energy,
 				energy
@@ -482,8 +489,8 @@ public class CollectHelper {
 			// Update the energy usage delta parameter in the HostMonitoring
 			updateNumberParameter(
 				monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				ENERGY_USAGE_PARAMETER,
+				ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
 				energyUsage,
 				energyUsage
@@ -507,21 +514,21 @@ public class CollectHelper {
 		// Update the raw value for energy usage
 		updateNumberParameter(
 			monitor,
-			HardwareConstants.ENERGY_USAGE_PARAMETER,
-			HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+			ENERGY_USAGE_PARAMETER,
+			ENERGY_USAGE_PARAMETER_UNIT,
 			collectTime,
 			null,
 			energyRawKw
 		);
 
 		// Previous raw value
-		final Double energyRawKwPrevious = CollectHelper.getNumberParamRawValue(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+		final Double energyRawKwPrevious = CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, true);
 
 		// Previous collect time
-		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, HardwareConstants.ENERGY_USAGE_PARAMETER, true);
+		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, true);
 
 		// Calculate the delta to get the energy usage value
-		final Double energyUsageKw = CollectHelper.subtract(HardwareConstants.ENERGY_USAGE_PARAMETER, energyRawKw, energyRawKwPrevious);
+		final Double energyUsageKw = CollectHelper.subtract(ENERGY_USAGE_PARAMETER, energyRawKw, energyRawKwPrevious);
 
 		// Calculate the delta time in milliseconds
 		final Double deltaTimeMs = CollectHelper.subtract("energyUsage.collectTime", collectTime.doubleValue(), collectTimePrevious);
@@ -532,8 +539,8 @@ public class CollectHelper {
 		if (energyUsageKw != null) {
 			updateNumberParameter(
 				monitor,
-				HardwareConstants.ENERGY_USAGE_PARAMETER,
-				HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT,
+				ENERGY_USAGE_PARAMETER,
+				ENERGY_USAGE_PARAMETER_UNIT,
 				collectTime,
 				energyUsageKw * 1000 * 3600, // kW-hours to Joules
 				energyRawKw
@@ -550,8 +557,8 @@ public class CollectHelper {
 
 			updateNumberParameter(
 				monitor,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER,
-				HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT,
+				POWER_CONSUMPTION_PARAMETER,
+				POWER_CONSUMPTION_PARAMETER_UNIT,
 				collectTime,
 				powerConsumptionWatts,
 				powerConsumptionWatts
@@ -564,8 +571,8 @@ public class CollectHelper {
 		// Updating the monitor's energy parameter
 		updateNumberParameter(
 			monitor,
-			HardwareConstants.ENERGY_PARAMETER,
-			HardwareConstants.ENERGY_PARAMETER_UNIT,
+			ENERGY_PARAMETER,
+			ENERGY_PARAMETER_UNIT,
 			collectTime,
 			energyRawKw * 3600 * 1000, // value
 			energyRawKw // raw value

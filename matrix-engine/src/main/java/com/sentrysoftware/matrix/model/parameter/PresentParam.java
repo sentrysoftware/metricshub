@@ -1,12 +1,13 @@
 package com.sentrysoftware.matrix.model.parameter;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER_UNIT;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +23,7 @@ public class PresentParam extends AbstractParam {
 	@Builder
 	public PresentParam(Long collectTime, ParameterState state) {
 
-		super(HardwareConstants.PRESENT_PARAMETER, collectTime, state, HardwareConstants.PRESENT_PARAMETER_UNIT);
+		super(PRESENT_PARAMETER, collectTime, state, PRESENT_PARAMETER_UNIT);
 
 		if (state == null) {
 			return;

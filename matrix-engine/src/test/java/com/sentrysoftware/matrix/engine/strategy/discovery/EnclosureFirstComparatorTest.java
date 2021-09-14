@@ -40,7 +40,7 @@ class EnclosureFirstComparatorTest {
 	final HardwareMonitor hdfOtherDevice = HardwareMonitor.builder().type(MonitorType.OTHER_DEVICE).build();
 	final HardwareMonitor hdfPhysicalDisk = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).build();
 	final HardwareMonitor hdfPowerSupply = HardwareMonitor.builder().type(MonitorType.POWER_SUPPLY).build();
-	final HardwareMonitor hdfRobotic = HardwareMonitor.builder().type(MonitorType.ROBOTIC).build();
+	final HardwareMonitor hdfRobotic = HardwareMonitor.builder().type(MonitorType.ROBOTICS).build();
 	final HardwareMonitor hdfTapeDrive = HardwareMonitor.builder().type(MonitorType.TAPE_DRIVE).build();
 	final HardwareMonitor hdfTemperature = HardwareMonitor.builder().type(MonitorType.TEMPERATURE).build();
 	final HardwareMonitor hdfVoltage = HardwareMonitor.builder().type(MonitorType.VOLTAGE).build();

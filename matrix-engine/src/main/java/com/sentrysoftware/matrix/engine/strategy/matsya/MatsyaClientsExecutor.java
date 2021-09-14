@@ -1,9 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -22,7 +19,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
@@ -54,6 +50,9 @@ import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -531,10 +530,10 @@ public class MatsyaClientsExecutor {
 
 		String fullUrl = String.format(
 				"%s://%s:%d%s%s",
-				protocol.getHttps() != null && protocol.getHttps() ? HardwareConstants.HTTPS : HardwareConstants.HTTP,
+				protocol.getHttps() != null && protocol.getHttps() ? "HTTPS" : "HTTP",
 				httpRequest.getHostname(),
 				protocol.getPort(),
-				url.startsWith(HardwareConstants.SLASH) ? HardwareConstants.EMPTY : HardwareConstants.SLASH,
+				url.startsWith("/") ? "" : "/",
 				url
 		);
 

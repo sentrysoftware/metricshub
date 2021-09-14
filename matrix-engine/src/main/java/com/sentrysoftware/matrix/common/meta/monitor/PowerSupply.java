@@ -1,23 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_WARN_CONDITION;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -32,12 +20,28 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_WARN_CONDITION;
+
 public class PowerSupply implements IMetaMonitor {
 
 	public static final MetaParameter USED_CAPACITY = MetaParameter.builder()
 			.basicCollect(false)
-			.name(HardwareConstants.USED_CAPACITY_PARAMETER)
-			.unit(HardwareConstants.PERCENT_PARAMETER_UNIT)
+			.name(USED_CAPACITY_PARAMETER)
+			.unit(PERCENT_PARAMETER_UNIT)
 			.type(ParameterType.NUMBER)
 			.build();
 
@@ -66,17 +70,17 @@ public class PowerSupply implements IMetaMonitor {
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(HardwareConstants.STATUS_PARAMETER, STATUS);
-		map.put(HardwareConstants.PRESENT_PARAMETER, PRESENT);
-		map.put(HardwareConstants.USED_CAPACITY_PARAMETER, USED_CAPACITY);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(USED_CAPACITY_PARAMETER, USED_CAPACITY);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		alertRulesMap.put(HardwareConstants.PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(HardwareConstants.USED_CAPACITY_PARAMETER, List.of(USED_CAPACITY_WARN_ALERT_RULE, USED_CAPACITY_ALARM_ALERT_RULE));
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(USED_CAPACITY_PARAMETER, List.of(USED_CAPACITY_WARN_ALERT_RULE, USED_CAPACITY_ALARM_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
@@ -110,7 +114,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -131,7 +135,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(HardwareConstants.STATUS_PARAMETER, conditions);
+		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -152,7 +156,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkAbnormalHighUsedCapacityWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(HardwareConstants.USED_CAPACITY_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(USED_CAPACITY_PARAMETER, conditions);
 		if (assertedUsedCapacity.isAbnormal()) {
 
 			String information = getUsedCapacityInfo(monitor, assertedUsedCapacity.getParameter());
@@ -175,7 +179,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkUsedCapacityCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(HardwareConstants.USED_CAPACITY_PARAMETER, conditions);
+		final AssertedParameter<NumberParam> assertedUsedCapacity = monitor.assertNumberParameter(USED_CAPACITY_PARAMETER, conditions);
 		if (assertedUsedCapacity.isAbnormal()) {
 
 			String information = getUsedCapacityInfo(monitor, assertedUsedCapacity.getParameter());
@@ -198,7 +202,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link String} value
 	 */
 	private static String getUsedCapacityInfo(Monitor monitor, NumberParam usedCapacity) {
-		String power = monitor.getMetadata(HardwareConstants.POWER);
+		String power = monitor.getMetadata(POWER);
 		return power != null ? String.format("%f of %s W", usedCapacity.getValue(), power)
 					: usedCapacity.getValue().toString();
 	}

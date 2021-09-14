@@ -1,7 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,7 +17,6 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
 import com.sentrysoftware.hardware.prometheus.dto.TargetContext;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -30,6 +27,8 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 /**
  * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems,
@@ -42,7 +41,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	protected static final List<String> LABELS = Arrays.asList(ID, PARENT, LABEL, FQDN);
+	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired
@@ -61,12 +60,12 @@ public class HostMonitoringCollectorService extends Collector {
 		// that's why the following code looks a bit ugly...
 		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
+					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
 					convertParameterValue(monitor, parameterName, factor));
 		} else {
 			((GaugeMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
+					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
 					convertParameterValue(monitor, parameterName, factor));
 		}
@@ -83,12 +82,16 @@ public class HostMonitoringCollectorService extends Collector {
 
 		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
-					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+					// fqdn, Id, label, parentId (can be null)
+					createLabels(monitor),
+					convertMetadataValue(monitor, parameterName, factor)
+				);
 		} else {
 			((GaugeMetricFamily) labeledMetric).addMetric(
-					// Id, parentId (can be null), label, fqdn
-					createLabels(monitor), convertMetadataValue(monitor, parameterName, factor));
+					// fqdn, Id, label, parentId (can be null)
+					createLabels(monitor),
+					convertMetadataValue(monitor, parameterName, factor)
+				);
 		}
 	}
 
@@ -220,7 +223,7 @@ public class HostMonitoringCollectorService extends Collector {
 			if (ID.equals(label)) {
 				labelValues.add(monitor.getId());
 			} else if (PARENT.equals(label)) {
-				labelValues.add(getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY));
+				labelValues.add(getValueOrElse(monitor.getParentId(), ""));
 			} else if (LABEL.equals(label)) {
 				labelValues.add(monitor.getName());
 			} else if (FQDN.equals(label)) {
@@ -241,10 +244,10 @@ public class HostMonitoringCollectorService extends Collector {
 	 */
 	static String convertMetadataInfoValue(final Monitor monitor, String label) {
 		if (label == null || label.isEmpty() || monitor == null || monitor.getMetadata() == null) {
-			return HardwareConstants.EMPTY;
+			return "";
 		}
 		// check if its value needs to be converted
-		String metricValue = getValueOrElse(monitor.getMetadata(snakeCaseToCamelCase(label)), HardwareConstants.EMPTY);
+		String metricValue = getValueOrElse(monitor.getMetadata(snakeCaseToCamelCase(label)), "");
 		// check if there is a prometheus metadata specificity in order to get the factor
 		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
 				.getPrometheusMetadataToParameters(monitor.getMonitorType(), label);
@@ -458,17 +461,19 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Create Prometheus labels. The values between { } after the metric name <br>
-	 * Label order: <em>$monitorId</em>, <em>$monitorParentId</em> then <em>$monitorName</em>
+	 * Labels order: <em>$fqdn</em>, <em>$monitorId</em>, <em>$monitorName</em>, <em>$monitorParentId</em>
 	 *
 	 * @param monitor The monitor we wish to extract its id, parentId and name
 	 * @return {@link List} of {@link String} values
 	 */
 	static List<String> createLabels(final Monitor monitor) {
 
-		return Arrays.asList(monitor.getId(),
-				getValueOrElse(monitor.getParentId(), HardwareConstants.EMPTY),
-				monitor.getName(),
-				monitor.getFqdn());
+		return Arrays.asList(
+					monitor.getFqdn(),
+					monitor.getId(),
+					monitor.getName(),
+					getValueOrElse(monitor.getParentId(), "")
+				);
 	}
 
 

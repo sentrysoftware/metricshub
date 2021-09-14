@@ -1,30 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -42,7 +21,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
@@ -59,6 +37,24 @@ import com.sentrysoftware.matsya.ssh.SSHClient.CommandResult;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class MatsyaClientsExecutorTest {
@@ -141,7 +137,7 @@ class MatsyaClientsExecutorTest {
 
 		// http is not null, protocol is not null, hostname is not null, header is not null, username is not null,
 		// password is not null, header content is not null and valid, body content is not null, url is null
-		httpRequest.setHeader(StringHeader.builder().header(FOO + COLON + FOO).build());
+		httpRequest.setHeader(StringHeader.builder().header(FOO + ":" + FOO).build());
 		httpRequest.setBody(StringBody.builder().body(FOO).build());
 		assertThrows(IllegalArgumentException.class,
 			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
@@ -151,7 +147,7 @@ class MatsyaClientsExecutorTest {
 	void testExecuteHttpWithSendHttpRequest() {
 
 		HTTPRequest httpRequest = new HTTPRequest();
-		httpRequest.setHeader(StringHeader.builder().header(FOO + COLON + FOO).build());
+		httpRequest.setHeader(StringHeader.builder().header(FOO + ":" + FOO).build());
 		httpRequest.setBody(StringBody.builder().body(FOO).build());
 		httpRequest.setUrl(FOO);
 		httpRequest.setHostname(PUREM_SAN);
@@ -166,7 +162,7 @@ class MatsyaClientsExecutorTest {
 		try (MockedStatic<HttpClient> mockedHttpClient = mockStatic(HttpClient.class)) {
 
 			// protocol.getHttps() is null, logMode is true
-			String fullHttpUrl = HardwareConstants.HTTP + COLON_DOUBLE_SLASH + PUREM_SAN + COLON + DEFAULT_PORT + SLASH
+			String fullHttpUrl = "HTTP" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/"
 				+ FOO;
 			mockedHttpClient.when(() -> HttpClient.sendRequest(
 				anyString(), // URL
@@ -197,8 +193,7 @@ class MatsyaClientsExecutorTest {
 				anyInt(), isNull()));
 
 			// protocol.getHttps() is true
-			String fullHttpsUrl = HardwareConstants.HTTPS + COLON_DOUBLE_SLASH + PUREM_SAN + COLON + DEFAULT_PORT
-				+ SLASH + FOO;
+			String fullHttpsUrl = "HTTPS" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/" + FOO;
 			httpProtocol.setHttps(true);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
 			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpsUrl), isNull(), isNull(),
@@ -206,7 +201,7 @@ class MatsyaClientsExecutorTest {
 				anyInt(), isNull()));
 
 			// protocol.getHttps() is true, url starts with /
-			httpRequest.setUrl(SLASH + FOO);
+			httpRequest.setUrl("/" + FOO);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
 			mockedHttpClient.verify(times(2), () -> HttpClient.sendRequest(eq(fullHttpsUrl), isNull(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
@@ -270,7 +265,7 @@ class MatsyaClientsExecutorTest {
 			httpRequest.setResultContent(ResultContent.HEADER);
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
-			assertEquals(FOO + COLON + WHITE_SPACE + BAR + NEW_LINE, result);
+			assertEquals(FOO + ": " + BAR + NEW_LINE, result);
 			mockedHttpClient.verify(times(7), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
@@ -288,7 +283,7 @@ class MatsyaClientsExecutorTest {
 			httpRequest.setResultContent(ResultContent.ALL);
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
-			assertEquals(FOO + COLON + WHITE_SPACE + BAR + NEW_LINE + NEW_LINE + BAZ, result);
+			assertEquals(FOO + ": " + BAR + NEW_LINE + NEW_LINE + BAZ, result);
 			mockedHttpClient.verify(times(9), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
