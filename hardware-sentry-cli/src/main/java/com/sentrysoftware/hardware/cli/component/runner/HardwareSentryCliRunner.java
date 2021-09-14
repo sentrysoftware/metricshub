@@ -37,7 +37,17 @@ public class HardwareSentryCliRunner implements CommandLineRunner, ExitCodeGener
 		AnsiConsole.systemInstall();
 
 		// Run the picocli command
-		exitCode = new CommandLine(monitorHardwareCommand, factory).execute(filteredArgs);
+		CommandLine cli = new CommandLine(monitorHardwareCommand, factory);
+
+		// Keep the below line commented for future reference
+		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
+		// It can be fixed using the below line... when running in Windows Terminal
+		// and not CMD.EXE.
+		// As this is poorly documented, we keep this for future improvement.
+		//cli.setOut(new PrintWriter(AnsiConsole.out(), true, StandardCharsets.UTF_8));
+
+		// Execute the command
+		exitCode = cli.execute(filteredArgs);
 
 		// Cleanup Windows terminal settings
 		AnsiConsole.systemUninstall();

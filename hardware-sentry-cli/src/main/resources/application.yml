@@ -1,6 +1,9 @@
 logging:
   pattern:
     console: ''
+spring:
+  main:
+    banner-mode: "off"
 project:
   name: "@project.name@"
   version: "@project.version@"

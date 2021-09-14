@@ -16,6 +16,7 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.hardware.cli.service.EngineService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import lombok.Data;
@@ -182,6 +183,35 @@ public class HardwareSentryCli implements Callable<Integer> {
 		if (snmpConfig == null && httpConfig == null && ipmiConfig == null
 				&& wbemConfig == null && wmiConfig == null) {
 			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --wbem, --wmi.");
+		}
+
+		// SNMP inconsistencies
+		if (snmpConfig != null) {
+			SNMPVersion version = snmpConfig.getSnmpVersion();
+			if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+				if (snmpConfig.getCommunity() == null || snmpConfig.getCommunity().isBlank()) {
+					throw new ParameterException(spec.commandLine(), "Community string is required for SNMP " + version);
+				}
+				if (snmpConfig.getUsername() != null) {
+					throw new ParameterException(spec.commandLine(), "Username/password is not supported in SNMP " + version);
+				}
+				if (snmpConfig.getPrivacy() != null || snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION
+						|| snmpConfig.getPrivacyPassword() != null) {
+					throw new ParameterException(spec.commandLine(), "Privacy (encryption) is not supported in SNMP " + version);
+				}
+			} else {
+				if (version == SNMPVersion.V3_MD5 || version == SNMPVersion.V3_SHA) {
+					if (snmpConfig.getUsername() == null || snmpConfig.getPassword() == null) {
+						throw new ParameterException(spec.commandLine(), "Username and password are required for SNMP " + version);
+					}
+				}
+				if (snmpConfig.getCommunity() != null) {
+					throw new ParameterException(spec.commandLine(), "Community string is not supported in SNMP " + version);
+				}
+				if (snmpConfig.getPrivacy() != null && snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION) {
+					throw new ParameterException(spec.commandLine(), "A privacy password is required for SNMP encryption (--snmp-privacy-password)");
+				}
+			}
 		}
 	}
 

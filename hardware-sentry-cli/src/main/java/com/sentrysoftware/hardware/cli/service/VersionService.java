@@ -31,16 +31,22 @@ public class VersionService implements IVersionProvider {
 	@Override
 	public String[] getVersion() throws Exception {
 		return new String[] {
-				String.format("@|bold %s|@ version @|bold,blue %s|@", projectName, projectVersion),
-				String.format("@|faint Build Number:|@ @|blue,faint %s|@ @|faint (on %s)|@", buildNumber, timestamp),
+				"           __   __             __   ___     @|bold,green __|@   ___      ___  __      ",
+				"@|bold,green |__||@  /\\  |__) |  \\ @|bold,green |  ||@  /\\  |__) |__     @|bold,green /__`|@ |__  |\\ |  |  |__) \\ / ",
+				"@|bold,green |  ||@ /~~\\ |  \\ |__/ @|bold,green |/\\||@ /~~\\ |  \\ |___    @|bold,green .__/|@ |___ | \\|  |  |  \\  |  ",
+				"                                        @|faint Copyright (c) Sentry Software|@",
+				"",
+				String.format("@|bold %s|@ version @|bold,green %s|@", projectName, projectVersion),
+				String.format("@|faint - Build Number:|@ @|green %s (on %s)|@", buildNumber, timestamp),
 				String.format(
-						"Hardware Connector Library version @|cyan %s|@ (@|cyan %d|@ connectors)",
+						"- Hardware Connector Library version @|green,bold %s|@ @|green (%d connectors)|@",
 						hcVersion,
 						ConnectorStore.getInstance().getConnectors().size()
 				),
-				"Java version ${java.version} (${java.vendor} ${java.vm.name} ${java.vm.version})",
-				"Java Home: ${java.home}",
-				"System: ${os.name} ${os.version} ${os.arch}"
+				"",
+				"Java version @|green,bold ${java.version}|@ @|faint (${java.vendor} ${java.vm.name} ${java.vm.version})|@",
+				"@|faint - Java Home:|@ @|green ${java.home}|@",
+				"@|faint - System:|@ @|green ${os.name} ${os.version} ${os.arch}|@"
 		};
 	}
 

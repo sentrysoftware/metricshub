@@ -20,7 +20,7 @@ class IpmiConfigTest {
 	void testNoIpmi() {
 		HardwareSentryCli cli = new HardwareSentryCli();
 		new CommandLine(cli).parseArgs(HOSTNAME, "-t", TYPE);
-		assertNull(cli.getHttpConfig());
+		assertNull(cli.getIpmiConfig());
 	}
 
 	@Test
@@ -42,6 +42,23 @@ class IpmiConfigTest {
 		assertEquals(37, proto.getTimeout());
 		assertFalse(proto.isSkipAuth());
 		assertArrayEquals(new byte[] { 0x06, 0x66 }, proto.getBmcKey());
+	}
+
+	@Test
+	void testIpmiDefaultUsername() {
+		HardwareSentryCli cli = new HardwareSentryCli();
+		new CommandLine(cli).parseArgs(
+				HOSTNAME,
+				"-t", TYPE,
+				"--ipmi",
+				"--ipmi-skip-auth"
+		);
+		IPMIOverLanProtocol proto = cli.getIpmiConfig().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		assertNotNull(proto);
+		assertEquals(DEFAULT_USERNAME, proto.getUsername());
+		assertArrayEquals(DEFAULT_PASSWORD, proto.getPassword());
+		assertTrue(proto.isSkipAuth());
+		assertNull(proto.getBmcKey());
 	}
 
 }
