@@ -196,7 +196,7 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "maximumspeed" : "4000",
-      "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
+      "model" : "Xeon CPU E5-2620 v4 @ 2.10GHz",
       "vendor" : "Intel"
     },
     "alertRules" : {
@@ -4226,7 +4226,7 @@
       }
     },
     "metadata" : {
-      "additionalinformation1" : "Size : 0 MB ",
+      "additionalinformation1" : "Size : 0 MB",
       "additionallabel" : "",
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "SDCardDevice-1.1",
