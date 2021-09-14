@@ -245,7 +245,7 @@ class HostMonitoringCollectorServiceTest {
 
 		Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		cpuMetadata.put("deviceid", "1.1");
-		cpuMetadata.put("maximumspeed", "4000");
+		cpuMetadata.put("maximumSpeed", "4000");
 		cpuMetadata.put("model", "Xeon CPU E5-2620 v4 @ 2.10GHz");
 		cpuMetadata.put("vendor", "Intel");
 		final Monitor monitor3 = Monitor.builder().id(ID_VALUE + 3).parentId(PARENT_ID_VALUE).name(LABEL_VALUE + 3)
