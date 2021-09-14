@@ -1,3 +1,0 @@
-# Prerequisites
-
-**${project.name}** requires
