@@ -11,40 +11,71 @@ Use```http://<host>:<port_number>/metrics``` to view the metrics of all monitore
 ```
 Example:
 
+# HELP hw_target_ambient_temperature_celsius Metric: hw_target_ambient_temperature_celsius - Unit: celsius
+# TYPE hw_target_ambient_temperature_celsius gauge
+hw_target_ambient_temperature_celsius{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",parent="",} 19.0
+# HELP hw_target_cpu_temperature_celsius Metric: hw_target_cpu_temperature_celsius - Unit: celsius
+# TYPE hw_target_cpu_temperature_celsius gauge
+hw_target_cpu_temperature_celsius{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",parent="",} 34.0
+# HELP hw_target_cpu_thermal_dissipation_ratio Metric: hw_target_cpu_thermal_dissipation_ratio - Unit: ratio
+# TYPE hw_target_cpu_thermal_dissipation_ratio gauge
+hw_target_cpu_thermal_dissipation_ratio{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",parent="",} 0.23
+# HELP hw_target_energy_joules_total Metric: hw_target_energy_joules - Unit: joules
+# TYPE hw_target_energy_joules_total counter
+hw_target_energy_joules_total{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",parent="",} 1.22876352E10
 # HELP hw_target_heating_margin_celsius Metric: hw_target_heating_margin_celsius - Unit: celsius
 # TYPE hw_target_heating_margin_celsius gauge
-hw_target_heating_margin_celsius{id="ilo-dev-vm-01",parent="",label="ilo-dev-vm-01",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 22.0
+hw_target_heating_margin_celsius{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",parent="",} 23.0
 # HELP hw_target_info Metric: hw_target_info
 # TYPE hw_target_info gauge
-hw_target_info{id="ilo-dev-vm-01",parent="",label="ilo-dev-vm-01",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",location="remote",} 1.0
+hw_target_info{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",location="remote",parent="",} 1.0
 # HELP hw_connector_status Metric: hw_connector_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_connector_status gauge
-hw_connector_status{id="ilo-dev-vm-01@MS_HW_CiscoUCSBlade.connector",parent="ilo-dev-vm-01",label="MS_HW_CiscoUCSBlade.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 0.0
-hw_connector_status{id="ilo-dev-vm-01@MS_HW_CpMgServNT.connector",parent="ilo-dev-vm-01",label="MS_HW_CpMgServNT.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 0.0
-hw_connector_status{id="ilo-dev-vm-01@MS_HW_CpqDriveArrayNT.connector",parent="ilo-dev-vm-01",label="MS_HW_CpqDriveArrayNT.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 0.0
-hw_connector_status{id="ilo-dev-vm-01@MS_HW_CpMgSm2.connector",parent="ilo-dev-vm-01",label="MS_HW_CpMgSm2.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 0.0
-hw_connector_status{id="ilo-dev-vm-01@MS_HW_CpqHeResMem2.connector",parent="ilo-dev-vm-01",label="MS_HW_CpqHeResMem2.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_MIB2Linux.connector",label="MS_HW_MIB2Linux.connector",parent="ecs1-01",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellOpenManage.connector",label="MS_HW_DellOpenManage.connector",parent="ecs1-01",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellStorageManager.connector",label="MS_HW_DellStorageManager.connector",parent="ecs1-01",} 0.0
 # HELP hw_connector_info Metric: hw_connector_info
 # TYPE hw_connector_info gauge
-hw_connector_info{id="ilo-dev-vm-01@MS_HW_CiscoUCSBlade.connector",parent="ilo-dev-vm-01",label="MS_HW_CiscoUCSBlade.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",displayName="Cisco UCS Manager (Fabric Interconnect Switch)",fileName="MS_HW_CiscoUCSBlade.connector",description="This connector provides hardware monitoring for Cisco UCS Blade chassis (as well as the Cisco Fabric Interconnect Switch) through the UCS Manager (running on the Fabric Interconnect Switch).",} 1.0
-hw_connector_info{id="ilo-dev-vm-01@MS_HW_CpMgServNT.connector",parent="ilo-dev-vm-01",label="MS_HW_CpMgServNT.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",displayName="HP Insight Management Agent - Server",fileName="MS_HW_CpMgServNT.connector",description="This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers.",} 1.0
-hw_connector_info{id="ilo-dev-vm-01@MS_HW_CpqDriveArrayNT.connector",parent="ilo-dev-vm-01",label="MS_HW_CpqDriveArrayNT.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",displayName="HP Insight Management Agent - Drive Array",fileName="MS_HW_CpqDriveArrayNT.connector",description="This connector monitors the HP/Compaq Drive Arrays by connecting to the Storage Management SNMP sub-agent of the HP Insight Manager agent.",} 1.0
-hw_connector_info{id="ilo-dev-vm-01@MS_HW_CpMgSm2.connector",parent="ilo-dev-vm-01",label="MS_HW_CpMgSm2.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",displayName="HP Insight Management Agent - iLO",fileName="MS_HW_CpMgSm2.connector",description="This connector provides hardware monitoring of the HP iLO card in HP ProLiant servers through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers.",} 1.0
-hw_connector_info{id="ilo-dev-vm-01@MS_HW_CpqHeResMem2.connector",parent="ilo-dev-vm-01",label="MS_HW_CpqHeResMem2.connector",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",displayName="HP Insight Management Agent (v8.25 or higher) - Memory",fileName="MS_HW_CpqHeResMem2.connector",description="This connector provides Memory Information through the HP Insight Manager (Newer Server Agents).",} 1.0
-# HELP hw_enclosure_info Metric: hw_enclosure_info
-# TYPE hw_enclosure_info gauge
-hw_enclosure_info{id="MS_HW_CpMgServNT.connector_enclosure_ilo-dev-vm-01_0",parent="ilo-dev-vm-01",label="Computer: HP ProLiant DL360 Gen9",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",deviceId="0",serialNumber="CZJ6190871",vendor="HP",model="ProLiant DL360 Gen9",biosVersion="",type="Computer",additionalInformation1="Part Number: 755259-B21",additionalInformation2="Alternative Serial Number: ",additionalInformation3="",} 1.0
+hw_connector_info{description="This connector discovers the enclosure and Ethernet ports of a system equipped with an MIB-2 standard SNMP Agent.",display_name="MIB-2 Standard SNMP Agent - Network Interfaces - Linux",file_name="MS_HW_MIB2Linux.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_MIB2Linux.connector",label="MS_HW_MIB2Linux.connector",parent="ecs1-01",} 1.0
+hw_connector_info{description="This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",display_name="Dell OpenManage Server Administrator",file_name="MS_HW_DellOpenManage.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellOpenManage.connector",label="MS_HW_DellOpenManage.connector",parent="ecs1-01",} 1.0
+hw_connector_info{description="This connector provides Dell disk array monitoring through the Dell Storage Manager Agent which supports almost all Dell disk arrays.",display_name="Dell OpenManage Storage Manager",file_name="MS_HW_DellStorageManager.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellStorageManager.connector",label="MS_HW_DellStorageManager.connector",parent="ecs1-01",} 1.0
+# HELP hw_enclosure_energy_joules_total Metric: hw_enclosure_energy_joules - Unit: joules
+# TYPE hw_enclosure_energy_joules_total counter
+hw_enclosure_energy_joules_total{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 1.22876352E10
+# HELP hw_enclosure_intrusion_status Metric: hw_enclosure_intrusion_status - Unit: {0 = OK ; 2 = Intrusion Detected}
+# TYPE hw_enclosure_intrusion_status gauge
+hw_enclosure_intrusion_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
+# HELP hw_enclosure_status Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
+# TYPE hw_enclosure_status gauge
+hw_enclosure_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
 # HELP hw_cpu_current_speed_hertz Metric: hw_cpu_current_speed_hertz - Unit: hertz
 # TYPE hw_cpu_current_speed_hertz gauge
-hw_cpu_current_speed_hertz{id="MS_HW_CpMgServNT.connector_cpu_ilo-dev-vm-01_0",parent="MS_HW_CpMgServNT.connector_enclosure_ilo-dev-vm-01_0",label="0 (Intel - Xeon - 1.60 GHz)",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 1.6E9
-hw_cpu_current_speed_hertz{id="MS_HW_CpMgServNT.connector_cpu_ilo-dev-vm-01_1",parent="MS_HW_CpMgServNT.connector_enclosure_ilo-dev-vm-01_0",label="1 (Intel - Xeon - 1.60 GHz)",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 1.6E9
-# HELP hw_cpu_predicted_failure Metric: hw_cpu_predicted_failure - Unit: {0 = OK ; 1 = Failure Predicted}
-# TYPE hw_cpu_predicted_failure gauge
-hw_cpu_predicted_failure{id="MS_HW_CpMgServNT.connector_cpu_ilo-dev-vm-01_0",parent="MS_HW_CpMgServNT.connector_enclosure_ilo-dev-vm-01_0",label="0 (Intel - Xeon - 1.60 GHz)",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 1.0
-hw_cpu_predicted_failure{id="MS_HW_CpMgServNT.connector_cpu_ilo-dev-vm-01_1",parent="MS_HW_CpMgServNT.connector_enclosure_ilo-dev-vm-01_0",label="1 (Intel - Xeon - 1.60 GHz)",fqdn="ilo-dev-vm-01.internal.sentrysoftware.net",} 1.0
+hw_cpu_current_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 2.1E9
 # HELP hw_cpu_present Metric: hw_cpu_present - Unit: {0 = Missing ; 1 = Present}
 # TYPE hw_cpu_present gauge
-...
+hw_cpu_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+# HELP hw_cpu_status Metric: hw_cpu_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
+# TYPE hw_cpu_status gauge
+hw_cpu_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
+# HELP hw_cpu_maximum_speed_hertz Metric: hw_cpu_maximum_speed_hertz - Unit: hertz
+# TYPE hw_cpu_maximum_speed_hertz gauge
+hw_cpu_maximum_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 4.0E9
+# HELP hw_battery_present Metric: hw_battery_present - Unit: {0 = Missing ; 1 = Present}
+# TYPE hw_battery_present gauge
+hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellStorageManager.connector_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="MS_HW_DellStorageManager.connector_diskcontroller_ecs1-01_1",} 1.0
+# HELP hw_battery_status Metric: hw_battery_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
+# TYPE hw_battery_status gauge
+hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
+hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellStorageManager.connector_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="MS_HW_DellStorageManager.connector_diskcontroller_ecs1-01_1",} 0.0
+# HELP hw_power_supply_present Metric: hw_power_supply_present - Unit: {0 = Missing ; 1 = Present}
+# TYPE hw_power_supply_present gauge
+hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+# HELP hw_power_supply_status Metric: hw_power_supply_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
+# TYPE hw_power_supply_status gauge
+hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
+hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
 ```
 
 ## Metrics Descriptions
