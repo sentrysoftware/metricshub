@@ -19,9 +19,7 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
@@ -32,7 +30,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 
 public class Voltage implements IMetaMonitor {
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, VOLTAGE_TYPE, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+	private static final List<String> METADATA = List.of(DEVICE_ID, VOLTAGE_TYPE, IDENTIFYING_INFORMATION);
 
 	private static final String OUT_OF_RANGE_VOLTAGE_RECOMMENDED_ACTION = "Check why the voltage is out of the normal range (a feeble power supply unit, an unstable power converter, or a severe power overload owing to too many devices within the system).";
 

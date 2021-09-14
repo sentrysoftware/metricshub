@@ -20,9 +20,7 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
@@ -180,7 +178,7 @@ public class NetworkCard implements IMetaMonitor {
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BANDWIDTH, PHYSICAL_ADDRESS,
-			LOGICAL_ADDRESS, REMOTE_PHYSICAL_ADDRESS, ADDITIONAL_INFORMATION1, ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+			LOGICAL_ADDRESS, REMOTE_PHYSICAL_ADDRESS, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(NetworkCard::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,

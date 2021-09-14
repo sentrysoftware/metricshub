@@ -772,7 +772,7 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testSetAdditionalInformation() {
+	void testSetIdentifyingInformation() {
 
 		{
 			final Monitor monitor = Monitor.builder().build();
@@ -780,28 +780,43 @@ class DiscoveryOperationTest {
 					ADDITIONAL_INFORMATION1, INFORMATION1,
 					ADDITIONAL_INFORMATION2, INFORMATION2,
 					ADDITIONAL_INFORMATION3, INFORMATION3);
-	
-			discoveryOperation.setAdditionalInformation(parameters, monitor);
-	
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
 			final Map<String, String> metadata = monitor.getMetadata();
-	
+
 			assertEquals(String.format("%s - %s - %s", INFORMATION1, INFORMATION2, INFORMATION3), 
 					metadata.get(IDENTIFYING_INFORMATION));
 		}
-		
+
 		{
 			final Monitor monitor = Monitor.builder().build();
 			final Map<String, String> parameters = Map.of(
 					ADDITIONAL_INFORMATION1, INFORMATION1,
 					ADDITIONAL_INFORMATION2, EMPTY,
 					ADDITIONAL_INFORMATION3, INFORMATION3);
-	
-			discoveryOperation.setAdditionalInformation(parameters, monitor);
-	
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
 			final Map<String, String> metadata = monitor.getMetadata();
-	
+
 			assertEquals(String.format("%s - %s", INFORMATION1, INFORMATION3), 
 					metadata.get(IDENTIFYING_INFORMATION));
+		}
+
+		{
+			// No additionalInformation metadata 
+			final Monitor monitor = Monitor.builder().build();
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals("", metadata.get(IDENTIFYING_INFORMATION));
 		}
 	}
 

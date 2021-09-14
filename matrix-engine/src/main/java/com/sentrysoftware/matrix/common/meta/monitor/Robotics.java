@@ -1,8 +1,6 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
@@ -49,8 +47,7 @@ public class Robotics implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, ROBOTIC_TYPE, ADDITIONAL_INFORMATION1,
-			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, ROBOTIC_TYPE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Robotics::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,

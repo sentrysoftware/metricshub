@@ -20,9 +20,7 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER_UNIT;
@@ -58,8 +56,7 @@ public class Cpu implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, MAXIMUM_SPEED, ADDITIONAL_INFORMATION1,
-			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, MAXIMUM_SPEED, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Cpu::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,

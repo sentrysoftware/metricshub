@@ -34,6 +34,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3A (Aggregate)",
       "displayid" : "SB-1-+-SPS-3A (Aggregate)",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -130,6 +131,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3B (Aggregate)",
       "displayid" : "SB-1-+-SPS-3B (Aggregate)",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -264,6 +266,7 @@
       "deviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "displayid" : "000297800620",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "model" : "VMAX250F",
       "serialnumber" : "000297800620",
       "targetFqdn" : "0.0.0.0",
@@ -341,6 +344,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -471,6 +475,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -601,6 +606,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -731,6 +737,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -861,6 +868,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -991,6 +999,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1121,6 +1130,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1251,6 +1261,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "idCount" : "7",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1381,6 +1392,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "idCount" : "8",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1511,6 +1523,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1664,6 +1677,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-32",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B020",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -1820,6 +1834,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-33",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B021",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -1976,6 +1991,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-4",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B004",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2132,6 +2148,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-5",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B005",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2288,6 +2305,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-6",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B006",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2444,6 +2462,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-7",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B007",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2600,6 +2619,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-32",
       "idCount" : "10",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B060",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2756,6 +2776,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-33",
       "idCount" : "11",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B061",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2912,6 +2933,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-4",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B044",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3072,6 +3094,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-5",
       "idCount" : "7",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B045",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3228,6 +3251,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-6",
       "idCount" : "8",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B046",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3384,6 +3408,7 @@
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-7",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B047",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3518,6 +3543,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006200",
       "displayid" : "0",
       "idCount" : "0",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3654,6 +3680,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006201",
       "displayid" : "1",
       "idCount" : "1",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3790,6 +3817,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006202",
       "displayid" : "2",
       "idCount" : "2",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3926,6 +3954,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006203",
       "displayid" : "3",
       "idCount" : "3",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4062,6 +4091,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620380",
       "displayid" : "380",
       "idCount" : "5",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4198,6 +4228,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620381",
       "displayid" : "381",
       "idCount" : "6",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4334,6 +4365,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620382",
       "displayid" : "382",
       "idCount" : "7",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4470,6 +4502,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620383",
       "displayid" : "383",
       "idCount" : "8",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4606,6 +4639,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620384",
       "displayid" : "384",
       "idCount" : "14",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4742,6 +4776,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620385",
       "displayid" : "385",
       "idCount" : "15",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4878,6 +4913,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620386",
       "displayid" : "386",
       "idCount" : "16",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5014,6 +5050,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620387",
       "displayid" : "387",
       "idCount" : "17",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5150,6 +5187,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620388",
       "displayid" : "388",
       "idCount" : "9",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5286,6 +5324,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006204",
       "displayid" : "4",
       "idCount" : "4",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5422,6 +5461,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006205",
       "displayid" : "5",
       "idCount" : "10",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5558,6 +5598,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006206",
       "displayid" : "6",
       "idCount" : "11",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5694,6 +5735,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006207",
       "displayid" : "7",
       "idCount" : "12",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5830,6 +5872,7 @@
       "deviceid" : "SYMMETRIX-+-0002978006208",
       "displayid" : "8",
       "idCount" : "13",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5954,6 +5997,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6050,6 +6094,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6146,6 +6191,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6242,6 +6288,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
