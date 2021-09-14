@@ -969,7 +969,7 @@ class CriterionVisitorTest {
 		assertEquals(
 				"Error in OSCommand test:\n" + osCommand.toString() +
 						"\n\n" +
-						"TimeoutException: Command \"sleep 5\" execution has timed out after 5 s",
+						"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
 				criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
@@ -1010,7 +1010,7 @@ class CriterionVisitorTest {
 						"\n\n" +
 						"Actual result:\n" + result,
 						criterionTestResult.getMessage());
-		assertEquals( result, criterionTestResult.getResult());
+		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
@@ -1040,16 +1040,16 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
+		final String result = "\"" + new SimpleDateFormat("ddMMyy").format(new Date()) + "\"";
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test ran but failed::\n" + osCommand.toString() +
+				"OSCommand test ran but failed:\n" + osCommand.toString() +
 						"\n\n" +
 						"Actual result:\n" + result,
 						criterionTestResult.getMessage());
-		assertEquals( result, criterionTestResult.getResult());
+		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
@@ -1096,7 +1096,7 @@ class CriterionVisitorTest {
 	void testVisitOsCommandLocalLinux() {
 		final OSCommand osCommand = new OSCommand();
 		osCommand.setCommandLine("date +\"%d%m%y\"");
-		osCommand.setExpectedResult("\\d{2}/\\d{2}/\\d{2}");
+		osCommand.setExpectedResult("\\d{2}\\d{2}\\d{2}");
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
@@ -1118,7 +1118,7 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
+		final String result = "\"" + new SimpleDateFormat("ddMMyy").format(new Date()) + "\"";
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
@@ -1174,7 +1174,7 @@ class CriterionVisitorTest {
 	void testVisitOsCommandRemoteExecutedLocallyLinux() {
 		final OSCommand osCommand = new OSCommand();
 		osCommand.setCommandLine("date +\"%d%m%y\"");
-		osCommand.setExpectedResult("\\d{2}/\\d{2}/\\d{2}");
+		osCommand.setExpectedResult("\\d{2}\\d{2}\\d{2}");
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
@@ -1196,7 +1196,7 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
+		final String result = "\"" + new SimpleDateFormat("ddMMyy").format(new Date()) + "\"";
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());

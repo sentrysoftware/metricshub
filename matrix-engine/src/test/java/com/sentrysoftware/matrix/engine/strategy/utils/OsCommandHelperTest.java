@@ -323,7 +323,7 @@ class OsCommandHelperTest {
 	@EnabledOnOs(LINUX)
 	void testRunLocalCommandLinux() throws Exception {
 		assertEquals(
-				new SimpleDateFormat("ddMMyy").format(TODAY),
+				"\"" + new SimpleDateFormat("ddMMyy").format(TODAY) + "\"",
 				OsCommandHelper.runLocalCommand("date +\"%d%m%y\"", 1, null));
 	}
 
