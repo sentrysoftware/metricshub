@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -269,6 +270,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 						.build();
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
+				
+				setAdditionalInformation(parameters, monitor);
 
 				idCount++;
 			}
@@ -291,6 +294,23 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 		}
+	}
+
+	/**
+	 * Set the metadata for identifying information using the additional information 
+	 * defined in a {@link TextInstanceTable}
+	 * 
+	 * @param parameters    Key-value map from the connector discovery instance used to create hard coded metadata
+	 * @param monitor       The monitor on which we want to set the identifyingInformation metadata as metadata
+	 */
+	void setAdditionalInformation(final Map<String, String> parameters, final Monitor monitor) {
+
+		monitor.addMetadata(HardwareConstants.IDENTIFYING_INFORMATION,
+			MonitorNameBuilder.joinWords(new String[] {
+				parameters.get(HardwareConstants.ADDITIONAL_INFORMATION1),
+				parameters.get(HardwareConstants.ADDITIONAL_INFORMATION2),
+				parameters.get(HardwareConstants.ADDITIONAL_INFORMATION3)
+			}));
 	}
 
 	/**
