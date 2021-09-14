@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,8 +29,6 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 /**
  * Since we don't directly instrument the code and we are a PROXY metrics which fetches data from other systems,
@@ -246,8 +246,10 @@ public class HostMonitoringCollectorService extends Collector {
 		if (label == null || label.isEmpty() || monitor == null || monitor.getMetadata() == null) {
 			return "";
 		}
+		// get the actual label (from Matrix-Model)
+		label = snakeCaseToCamelCase(label);
 		// check if its value needs to be converted
-		String metricValue = getValueOrElse(monitor.getMetadata(snakeCaseToCamelCase(label)), "");
+		String metricValue = getValueOrElse(monitor.getMetadata(label), "");
 		// check if there is a prometheus metadata specificity in order to get the factor
 		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
 				.getPrometheusMetadataToParameters(monitor.getMonitorType(), label);

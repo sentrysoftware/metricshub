@@ -303,13 +303,22 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
       "status" : {
         "name" : "status",
         "collectTime" : 1624024821235,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nintrusionStatus: 0 (No Intrusion Detected)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)\nintrusionStatus: 0 (No Intrusion Detected)",
         "previousState" : null,
         "type" : "StatusParam"
       }
