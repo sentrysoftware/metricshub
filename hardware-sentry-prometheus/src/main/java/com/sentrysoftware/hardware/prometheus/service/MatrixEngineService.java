@@ -17,8 +17,11 @@ import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -39,8 +42,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 
 @Service
 @Slf4j
@@ -87,7 +88,7 @@ public class MatrixEngineService {
 		}
 
 		// Read the configuration
-		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile, connectors);
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = readConfiguration(targetConfigFile, connectors, targetId);
 
 		if (targetId == null) {
 
@@ -107,6 +108,10 @@ public class MatrixEngineService {
 				// Blocks until all tasks have completed execution after a shutdown request
 				pool.awaitTermination(multiHostsConfigurationDTO.getMaxHostThreadsTimeout(), TimeUnit.SECONDS);
 			} catch (Exception e) {
+				if (e instanceof InterruptedException) {
+					Thread.currentThread().interrupt();
+				}
+
 				log.error("Waiting for threads termination aborted with an error", e);
 			}
 
@@ -117,7 +122,7 @@ public class MatrixEngineService {
 				.stream()
 				.filter(hostConfiguration -> hostConfiguration.getTarget().getHostname().equals(targetId))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException(String.format("Invalid target ID: %s", targetId)));
+				.orElseThrow(() -> new BusinessException(ErrorCode.TARGET_NOT_FOUND, String.format("Invalid target ID: %s", targetId)));
 
 			performJobs(hostConfigurationDTO);
 		}
@@ -138,7 +143,7 @@ public class MatrixEngineService {
 
 		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(hostConfigurationDTO.getTarget().getHostname());
 
-		// Detection
+		// Detection, Discovery and Collect
 		EngineResult lastEngineResult = hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation(),
 			new CollectOperation());
 		log.info("Last job status: {}", lastEngineResult.getOperationStatus());
@@ -147,11 +152,15 @@ public class MatrixEngineService {
 	/**
 	 * Reads the user's configuration.
 	 * 
-	 * @return						A {@link MultiHostsConfigurationDTO} instance.
+	 * @param configFile the configuration file
+	 * @param connectors Map of connectors from the matrix store
+	 * @param targetId   the target id
+	 * 
+	 * @return A {@link MultiHostsConfigurationDTO} instance.
 	 *
-	 * @throws BusinessException	If a read error occurred.
+	 * @throws BusinessException If a read error occurred.
 	 */
-	MultiHostsConfigurationDTO readConfiguration(final File targetConfigFile, Map<String, Connector> connectors)
+	MultiHostsConfigurationDTO readConfiguration(final File configFile, @NonNull Map<String, Connector> connectors, String targetId)
 		throws BusinessException {
 
 		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -162,30 +171,81 @@ public class MatrixEngineService {
 
 		try {
 
-			MultiHostsConfigurationDTO multiHostsConfigurationDTO = mapper.readValue(targetConfigFile,
-				MultiHostsConfigurationDTO.class);
+			MultiHostsConfigurationDTO multiHostsConfigurationDTO = mapper.readValue(configFile, MultiHostsConfigurationDTO.class);
+
+			final Set<HostConfigurationDTO> invalidTargets = new HashSet<>();
 
 			multiHostsConfigurationDTO
 				.getTargets()
 				.forEach(hostConfigurationDTO -> {
 
-					final Set<String> allConnecotrs = connectors.keySet();
-					Set<String> selectedConnectors = getConnectors(allConnecotrs, hostConfigurationDTO.getSelectedConnectors());
-					Set<String> excludedConnectors =  getConnectors(allConnecotrs, hostConfigurationDTO.getExcludedConnectors());
+					final String hostname = hostConfigurationDTO.getTarget().getHostname();
 
-					EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO, selectedConnectors, excludedConnectors);
+					try {
+						validateTarget(hostConfigurationDTO.getTarget().getType(), hostname);
 
-					hostMonitoringMap.putIfAbsent(hostConfigurationDTO.getTarget().getHostname(),
-						HostMonitoringFactory.getInstance().createHostMonitoring(
-							hostConfigurationDTO.getTarget().getHostname(), engineConfiguration));
+						Set<String> selectedConnectors = getConnectors(
+								connectors, hostConfigurationDTO.getSelectedConnectors(), "selected", hostname);
+						Set<String> excludedConnectors =  getConnectors(
+								connectors, hostConfigurationDTO.getExcludedConnectors(), "excluded", hostname);
+
+						EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO,
+								selectedConnectors, excludedConnectors);
+
+						hostMonitoringMap.putIfAbsent(hostname,
+							HostMonitoringFactory.getInstance().createHostMonitoring(
+								hostname, engineConfiguration));
+					} catch (BusinessException e) {
+
+						// Means we query a specific target, in multiple hosts mode (/metrics) we can only log an error
+						if (targetId != null) {
+							throw new RuntimeException(e); // NOSONAR
+						} else {
+							invalidTargets.add(hostConfigurationDTO);
+						}
+
+					}
+
 				});
+
+			// Remove invalid targets
+			invalidTargets.forEach(invalid -> multiHostsConfigurationDTO.getTargets().remove(invalid));
 
 			return multiHostsConfigurationDTO;
 
 		} catch (IOException e) {
 
 			throw new BusinessException(ErrorCode.CANNOT_READ_CONFIGURATION,
-				"IOException when reading the configuration file: " + targetConfigFile.getAbsolutePath());
+				"IOException when reading the configuration file: " + configFile.getAbsolutePath());
+
+		} catch(Exception e) {
+			if (e.getCause() instanceof BusinessException) {
+				throw (BusinessException) e.getCause();
+			}
+
+			throw new BusinessException(ErrorCode.GENERAL_ERROR, "Error detected when reading configuration", e);
+		}
+	}
+
+	/**
+	 * validate the given target information (hostname and targetType)
+	 * 
+	 * @param targetType type of the target
+	 * @param hostname   hostname of the target
+	 * @throws BusinessException
+	 */
+	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
+
+		if (hostname == null || hostname.isBlank()) {
+			String message = String.format("Invalid hostname: %s.", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_HOSTNAME, message);
+		}
+
+		if (targetType == null) {
+			String message = String.format("No target type configured for hostname: %s.", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_TARGET_TYPE, message);
 		}
 	}
 
@@ -231,48 +291,41 @@ public class MatrixEngineService {
 	}
 
 	/**
-	 * Return configured connector names with the .connector extension. This method excludes badly configured connectors.
+	 * Return configured connector names. This method throws a BusinessException if we encounter an unknown connector
 	 * 
-	 * @param allConnectors      All connectors from the {@link ConnectorStore}
-	 * @param configConnectors   User's selected or excluded connectors
+	 * @param connectors         all connectors from the {@link ConnectorStore}
+	 * @param configConnectors   user's selected or excluded connectors
+	 * @param mode               selected or excluded
+	 * @param hostname           the hostname we currently read its configuration
 	 * 
 	 * @return {@link Set} containing the selected connector names
+	 * @throws BusinessException 
 	 */
-	static Set<String> getConnectors(final Set<String> allConnectors, final Set<String> configConnectors) {
+	static Set<String> getConnectors(final @NonNull Map<String, Connector> connectors, final Set<String> configConnectors,
+			final String mode, String hostname) throws BusinessException {
 
-		final Set<String> result = new HashSet<>();
-
-		// In connector Store, the filename extension = .connector
-		final List<String> connectorStore = getConnectorsWithoutExtension(allConnectors);
-		List<String> connectors = null;
-
-		// In the configuration, the filename extension = .hdfs
-		if (configConnectors != null && !configConnectors.isEmpty()) {
-			connectors = getConnectorsWithoutExtension(configConnectors);
+		if (configConnectors == null || configConnectors.isEmpty()) {
+			return Collections.emptySet();
 		}
 
-		// add the correct extension (.connector)
-		if (connectors != null) {
-			// Send only known connectors
-			connectors = connectors.stream().filter(connectorStore::contains).collect(Collectors.toList());
-			connectors.replaceAll(f -> f + "." + CONNECTOR);
-			result.addAll(connectors);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Remove the extension from the given set of connector names and return a new list
-	 * 
-	 * @param connectors The connector names we wish to process
-	 * @return {@link List} of String elements
-	 */
-	static List<String> getConnectorsWithoutExtension(final Set<String> connectors) {
-		return connectors
+		// Get the unknown connectors
+		final Set<String> unknownConnectors = configConnectors
 				.stream()
-				.map(f -> f.substring(0, f.lastIndexOf('.')))
-				.collect(Collectors.toList());
+				.filter(compiledFileName -> !connectors.containsKey(compiledFileName))
+				.collect(Collectors.toSet());
+
+		// Check the unknown connectors
+		if (unknownConnectors.isEmpty()) {
+			return configConnectors;
+		}
+
+		// Throw the bad configuration exception
+		String message = String.format("Configured unknown %s connector(s): %s. Hostname: %s", 
+				mode, unknownConnectors.stream().collect(Collectors.joining(", ")), hostname);
+
+		log.error(message);
+
+		throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 	}
 
 	/**

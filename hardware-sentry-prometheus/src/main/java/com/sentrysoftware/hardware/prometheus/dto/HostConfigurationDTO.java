@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /**
  * DTO to wrap the exporter configuration for one specific target.
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class HostConfigurationDTO {
 
+	@NonNull
 	private HardwareTarget target;
 
 	@Default

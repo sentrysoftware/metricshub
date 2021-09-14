@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOVE_MS_HW_PATTERN;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -7,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,7 +53,7 @@ public class ConnectorStore {
 
 		return Arrays
 				.stream(resolver.getResources(
-						ConnectorStore.class.getResource(CONNECTORS_RELATIVE_PATH).toURI().toString() + "/*.connector"))
+						ConnectorStore.class.getResource(CONNECTORS_RELATIVE_PATH).toURI().toString() + "/*"))
 				.map(resource -> {
 					try (InputStream inputStream = resource.getInputStream();
 							ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
@@ -64,8 +67,24 @@ public class ConnectorStore {
 						log.error("Exception: ", e);
 						throw new DeserializationException(message, e);
 					}
-				}).collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()));
+				})
+				.collect(Collectors.toMap(Connector::getCompiledFilename,
+						Function.identity(),
+						(first, second) -> first, 
+						() -> new TreeMap<String, Connector>(String.CASE_INSENSITIVE_ORDER)));
 
 	}
 
+	/**
+	 * Remove the extension from the file name and replace MS_HW_ prefix
+	 * 
+	 * @param filename
+	 * @return String value
+	 */
+	public static String normalizeConnectorName(String filename) {
+		// remove the extension
+		String compiledFileName = filename.substring(0, filename.lastIndexOf('.'));
+
+		return REMOVE_MS_HW_PATTERN.matcher(compiledFileName).replaceFirst("$2");
+	}
 }

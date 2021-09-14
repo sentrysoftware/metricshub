@@ -50,8 +50,8 @@ class HostMonitoringTest {
 	private static final String POWER_CONSUMPTION = "PowerConsumption";
 	private static final String SOURCE_KEY_LOWER = "enclosure.discovery.source(1)";
 	private static final String SOURCE_KEY_PASCAL = "Enclosure.discovery.Source(1)";
-	private static final String FULL_FAN_ID = "myConnector.connector_fan_targetId_fanId";
-	private static final String CONNECTOR_NAME = "myConnector.connector";
+	private static final String FULL_FAN_ID = "myConnector_fan_targetId_fanId";
+	private static final String CONNECTOR_NAME = "myConnector";
 	private static final String FAN_NAME = "fan";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String target_NAME = "target";
