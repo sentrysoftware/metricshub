@@ -407,7 +407,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = PresentParam.builder().collectTime(new Date().getTime())
+		final IParameterValue parameter = PresentParam.builder()
 				.state(ParameterState.OK).build();
 		enclosure.addParameter(parameter);
 
@@ -421,7 +421,6 @@ class HostMonitoringTest {
 
 		final PresentParam parameterAfterReset = (PresentParam) result.getParameters().get(PRESENT);
 
-		assertNull(parameterAfterReset.getCollectTime());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
 		assertEquals(1, parameterAfterReset.getPresent());
 	}
@@ -586,16 +585,16 @@ class HostMonitoringTest {
 		assertEquals(expectedFanBis, hostMonitoring.selectFromType(FAN).get(fanBisId));
 		assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
 
-		hostMonitoring.addMissingMonitor(Monitor.builder()
-				.id(ENCLOSURE_ID)
+		Monitor voltageMonitor = Monitor.builder()
+				.id("volatageID1")
 				.targetId(TARGET_ID)
 				.parentId(ENCLOSURE_ID)
-				.name(ENCLOSURE_NAME)
-				.monitorType(MonitorType.ENCLOSURE)
-				.build());
+				.name("volatageName1")
+				.monitorType(MonitorType.VOLTAGE)
+				.build();
 
-		assertNotNull(hostMonitoring.selectFromType(ENCLOSURE)); // at least present parameter is set
-		assertEquals(ENCLOSURE_ID, hostMonitoring.selectFromType(ENCLOSURE).get(ENCLOSURE_ID).getId());
+		hostMonitoring.addMissingMonitor(voltageMonitor);
+		assertNull(hostMonitoring.selectFromType(MonitorType.VOLTAGE)); // Voltage cannot be missing, we have already deleted it
 
 	}
 

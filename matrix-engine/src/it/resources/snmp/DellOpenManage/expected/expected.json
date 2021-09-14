@@ -300,6 +300,15 @@
         "previousState" : null,
         "type" : "StatusParam"
       },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
       "status" : {
         "name" : "status",
         "collectTime" : 1624024821235,

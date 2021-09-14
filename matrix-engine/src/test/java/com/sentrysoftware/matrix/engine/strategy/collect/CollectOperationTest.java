@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -524,6 +525,7 @@ class CollectOperationTest {
 
 		assertEquals(expectedEnclosure, collectedEnclosure);
 		assertFalse(collectedEnclosure.getParameters().isEmpty());
+		assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 	}
 
 	@Test
@@ -768,6 +770,7 @@ class CollectOperationTest {
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
 			assertFalse(collectedEnclosure.getParameters().isEmpty()); // at least present parameter
+			assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 		}
 
 		{
@@ -784,6 +787,7 @@ class CollectOperationTest {
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
 			assertFalse(collectedEnclosure.getParameters().isEmpty()); // at least present parameter
+			assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 		}
 	}
 
