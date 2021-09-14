@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -808,10 +809,12 @@ class DiscoveryOperationTest {
 
 		{
 			final Monitor monitor = Monitor.builder().build();
-			final Map<String, String> parameters = Map.of(
-					ADDITIONAL_INFORMATION1, INFORMATION1,
-					ADDITIONAL_INFORMATION2, INFORMATION2,
-					ADDITIONAL_INFORMATION3, INFORMATION3);
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION2, INFORMATION2,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
 
 			monitor.setMetadata(parameters);
 
@@ -825,10 +828,11 @@ class DiscoveryOperationTest {
 
 		{
 			final Monitor monitor = Monitor.builder().build();
-			final Map<String, String> parameters = Map.of(
-					ADDITIONAL_INFORMATION1, INFORMATION1,
-					ADDITIONAL_INFORMATION2, EMPTY,
-					ADDITIONAL_INFORMATION3, INFORMATION3);
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
 
 			monitor.setMetadata(parameters);
 
