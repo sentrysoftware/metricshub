@@ -253,7 +253,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }

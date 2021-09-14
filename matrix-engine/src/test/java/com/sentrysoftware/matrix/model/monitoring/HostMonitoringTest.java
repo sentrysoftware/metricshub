@@ -1,27 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -38,6 +16,29 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class HostMonitoringTest {
 
@@ -420,7 +421,7 @@ class HostMonitoringTest {
 
 		final PresentParam parameterAfterReset = (PresentParam) result.getParameters().get(PRESENT);
 
-		assertNotNull(parameterAfterReset.getCollectTime());
+		assertNull(parameterAfterReset.getCollectTime());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
 		assertEquals(1, parameterAfterReset.getPresent());
 	}
@@ -593,7 +594,9 @@ class HostMonitoringTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.build());
 
-		assertNull(hostMonitoring.selectFromType(ENCLOSURE));
+		assertNotNull(hostMonitoring.selectFromType(ENCLOSURE)); // at least present parameter is set
+		assertEquals(ENCLOSURE_ID, hostMonitoring.selectFromType(ENCLOSURE).get(ENCLOSURE_ID).getId());
+
 	}
 
 	@Test

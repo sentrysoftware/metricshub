@@ -306,7 +306,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nintrusionStatus: 0 (No Intrusion Detected)",
+        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)\nintrusionStatus: 0 (No Intrusion Detected)",
         "previousState" : null,
         "type" : "StatusParam"
       }
