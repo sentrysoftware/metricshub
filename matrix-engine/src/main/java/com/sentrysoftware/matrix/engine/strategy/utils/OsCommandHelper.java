@@ -151,7 +151,7 @@ public class OsCommandHelper {
 			final OSCommandConfig osCommandConfig) throws IOException {
 
 		final String extension = embeddedFile.getType() != null ? 
-				HardwareConstants.DOT + embeddedFile.getType() : 
+				"." + embeddedFile.getType() : 
 					HardwareConstants.EMPTY;
 
 		final File tempFile = File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension);
