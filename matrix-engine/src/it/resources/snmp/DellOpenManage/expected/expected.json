@@ -33,7 +33,6 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "type" : "System Board CMOS Battery"
     },
     "alertRules" : {
@@ -417,7 +416,6 @@
       "fantype" : "System Board1A",
       "idCount" : "0",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -563,7 +561,6 @@
       "fantype" : "System Board3B",
       "idCount" : "9",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -709,7 +706,6 @@
       "fantype" : "System Board4B",
       "idCount" : "10",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -855,7 +851,6 @@
       "fantype" : "System Board5B",
       "idCount" : "11",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1001,7 +996,6 @@
       "fantype" : "System Board6B",
       "idCount" : "12",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1147,7 +1141,6 @@
       "fantype" : "System Board7B",
       "idCount" : "13",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1293,7 +1286,6 @@
       "fantype" : "System Board2A",
       "idCount" : "1",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1439,7 +1431,6 @@
       "fantype" : "System Board3A",
       "idCount" : "2",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1585,7 +1576,6 @@
       "fantype" : "System Board4A",
       "idCount" : "3",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1731,7 +1721,6 @@
       "fantype" : "System Board5A",
       "idCount" : "4",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1877,7 +1866,6 @@
       "fantype" : "System Board6A",
       "idCount" : "5",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2023,7 +2011,6 @@
       "fantype" : "System Board7A",
       "idCount" : "6",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -4210,8 +4197,7 @@
       "devicetype" : "ESM",
       "displayid" : "1",
       "idCount" : "0",
-      "identifyingInformation" : "EventLog",
-      "targetFqdn" : "127.0.0.1"
+      "identifyingInformation" : "EventLog"
     },
     "alertRules" : {
       "present" : [ {
@@ -4286,8 +4272,7 @@
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
       "idCount" : "1",
-      "identifyingInformation" : "Size : 0 MB ",
-      "targetFqdn" : "127.0.0.1"
+      "identifyingInformation" : "Size : 0 MB "
     },
     "alertRules" : {
       "present" : [ {
@@ -4623,7 +4608,6 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Inlet",
       "warningthreshold" : "42.0"
     },
@@ -4711,7 +4695,6 @@
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Exhaust",
       "warningthreshold" : "70.0"
     },
