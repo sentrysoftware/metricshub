@@ -25,6 +25,7 @@ public class LocalOSHandler {
 
 	@Getter
 	private static final Optional<ILocalOS> OS = detectOS();
+	private static final boolean IS_WINDOWS = OS.isPresent() && OS.get().equals(WINDOWS);
 
 	/**
 	 * Detect the current Local OS.
@@ -42,7 +43,7 @@ public class LocalOSHandler {
 	 * @return true if Windows false otherwise.
 	 */
 	public static boolean isWindows() {
-		return OS.isPresent() && OS.get().equals(WINDOWS);
+		return IS_WINDOWS;
 	}
 
 	/**

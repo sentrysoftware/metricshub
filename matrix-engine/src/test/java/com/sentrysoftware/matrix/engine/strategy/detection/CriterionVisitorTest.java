@@ -730,13 +730,13 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
 		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"Error in OSCommand test:\n" + osCommand.toString() +
-						"\n\n" +
-						"Malformed OSCommand criterion.",
+				"OSCommand test succeeded:\n" + osCommand.toString() +
+					"\n\n" +
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
 				criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
 	@Test
@@ -749,13 +749,13 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
 		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"Error in OSCommand test:\n" + osCommand.toString() +
-						"\n\n" +
-						"Malformed OSCommand criterion.",
+				"OSCommand test succeeded:\n" + osCommand.toString() +
+					"\n\n" +
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
 				criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
 	@Test
@@ -850,7 +850,6 @@ class CriterionVisitorTest {
 		osCommand.setCommandLine(command);
 		osCommand.setExpectedResult(result);
 		osCommand.setErrorMessage("Connector only works on a Windows NT Server");
-		osCommand.setEmbeddedFiles(embeddedFiles);
 
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
@@ -866,6 +865,7 @@ class CriterionVisitorTest {
 
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(embeddedFiles).when(connector).getEmbeddedFiles();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiProtocol)).thenCallRealMethod();
@@ -875,7 +875,10 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(command, embeddedFiles, null)).thenThrow(new IOException("error in file1"));
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command, 
+					embeddedFiles, 
+					null)).thenThrow(new IOException("error in file1"));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
@@ -1003,8 +1006,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test ran but failed:\n" + 
-						"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=Criteria not found, executeLocally=true, timeout=null)" + 
+				"OSCommand test ran but failed:\n" + osCommand.toString() + 
 						"\n\n" +
 						"Actual result:\n" + result,
 						criterionTestResult.getMessage());
@@ -1038,7 +1040,7 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd/MM/yy").format(new Date());
+		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
@@ -1082,8 +1084,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + 
-					"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=\\d{2}-[A-Z][a-z]{2}-\\d{2} , executeLocally=true, timeout=null)" + 
+				"OSCommand test succeeded:\n" + osCommand.toString() + 
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1117,7 +1118,7 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd/MM/yy").format(new Date());
+		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
@@ -1161,8 +1162,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + 
-					"OSCommand(super=Criterion(forceSerialization=false, index=0), commandLine=date /t, errorMessage=No date., expectedResult=\\d{2}-[A-Z][a-z]{2}-\\d{2} , executeLocally=true, timeout=null)" + 
+				"OSCommand test succeeded:\n" + osCommand.toString() + 
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1196,7 +1196,7 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd/MM/yy").format(new Date());
+		final String result = new SimpleDateFormat("ddMMyy").format(new Date());
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
@@ -1234,7 +1234,6 @@ class CriterionVisitorTest {
 		osCommand.setCommandLine(command);
 		osCommand.setExpectedResult(result);
 		osCommand.setErrorMessage("Connector only works on a Windows NT Server");
-		osCommand.setEmbeddedFiles(embeddedFiles);
 
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
@@ -1250,6 +1249,7 @@ class CriterionVisitorTest {
 
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(embeddedFiles).when(connector).getEmbeddedFiles();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiProtocol)).thenCallRealMethod();
@@ -1259,7 +1259,10 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(command, embeddedFiles, null)).thenReturn(embeddedTempFiles);
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command, 
+					embeddedFiles, 
+					null)).thenReturn(embeddedTempFiles);
 
 			final String absolutePath1 = "/tmp/SEN_Embedded_1.bat";
 			final String absolutePath2 = "/tmp/SEN_Embedded_2";
@@ -1325,7 +1328,7 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(), 
-					osCommand.getEmbeddedFiles(),
+					Collections.emptyMap(),
 					null)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
@@ -1382,7 +1385,7 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(),
-					osCommand.getEmbeddedFiles(),
+					Collections.emptyMap(),
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
@@ -1440,7 +1443,7 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(),
-					osCommand.getEmbeddedFiles(),
+					Collections.emptyMap(),
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
@@ -1498,7 +1501,7 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(),
-					osCommand.getEmbeddedFiles(),
+					null,
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
@@ -1563,7 +1566,6 @@ class CriterionVisitorTest {
 		osCommand.setCommandLine("/bin/sh %EmbeddedFile(1)%");
 		osCommand.setExpectedResult("Hard drive");
 		osCommand.setErrorMessage("No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.");
-		osCommand.setEmbeddedFiles(embeddedFiles);
 
 		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
 
@@ -1577,6 +1579,7 @@ class CriterionVisitorTest {
 
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(embeddedFiles).when(connector).getEmbeddedFiles();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
@@ -1587,7 +1590,7 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(), 
-					osCommand.getEmbeddedFiles(), 
+					embeddedFiles, 
 					osCommandConfig)).thenReturn(embeddedTempFiles);
 
 			doReturn("C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").when(localFile).getAbsolutePath();

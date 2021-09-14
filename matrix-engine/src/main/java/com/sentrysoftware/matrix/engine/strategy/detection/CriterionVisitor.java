@@ -507,14 +507,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final OSCommand osCommand) {
-		if (osCommand == null ||
-				osCommand.getCommandLine() == null ||
-				osCommand.getExpectedResult() == null) {
+		if (osCommand == null) {
 			return CriterionTestResult.error(osCommand, "Malformed OSCommand criterion.");
 		}
 
-		if (osCommand.getCommandLine().isEmpty() ||
-				osCommand.getExpectedResult().isEmpty()) {
+		if (osCommand.getCommandLine() == null || osCommand.getCommandLine().isEmpty() ||
+				osCommand.getExpectedResult() == null || osCommand.getExpectedResult().isEmpty()) {
 			return CriterionTestResult.success(osCommand, "CommandLine or ExpectedResult are empty. Skipping this test.");
 		}
 
@@ -558,7 +556,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		try {
 			embeddedFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 					osCommand.getCommandLine(), 
-					osCommand.getEmbeddedFiles(),
+					connector.getEmbeddedFiles(),
 					osCommandConfig);
 		} catch (final IOException e) {
 			return CriterionTestResult.error(osCommand, e);

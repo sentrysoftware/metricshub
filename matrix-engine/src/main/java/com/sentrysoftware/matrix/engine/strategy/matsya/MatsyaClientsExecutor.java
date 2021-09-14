@@ -619,7 +619,9 @@ public class MatsyaClientsExecutor {
 	 * @throws IOException
 	 */
 	public static String runRemoteSshCommand(
+			@NonNull
 			final String hostname, 
+			@NonNull
 			final String username, 
 			final String password, 
 			final String keyFilePath,
@@ -628,10 +630,8 @@ public class MatsyaClientsExecutor {
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
 
-		notNull(hostname, "hostname cannot be null");
-		notNull(username, "username cannot be null");
-		isTrue(command != null && !command.trim().isEmpty(), "command mustn't be null or empty.");
-		isTrue(timeout > 0, "timeout mustn't be negative or zero.");
+		isTrue(command != null && !command.trim().isEmpty(), "command mustn't be null nor empty.");
+		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
 		final int timeoutInMilliseconds = timeout * 1000;
 
 		final String updatedCommand = updateCommandWithLocalList(command, localFiles);
@@ -702,6 +702,13 @@ public class MatsyaClientsExecutor {
 		}
 	}
 
+	/**
+	 * Replace in the SSH command all the local files path with their remote path.
+	 * 
+	 * @param command The SSH command.
+	 * @param localFiles The local files list.
+	 * @return The updated command.
+	 */
 	static String updateCommandWithLocalList(
 			final String command,
 			final List<File> localFiles) {

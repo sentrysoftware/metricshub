@@ -33,6 +33,8 @@ import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
+import lombok.NonNull;
+
 public class OsCommandHelper {
 
 	private OsCommandHelper() {
@@ -90,10 +92,10 @@ public class OsCommandHelper {
 	 * @throws IOException If an error occured in the temp file creation.
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
+			@NonNull
 			final String commandLine, 
 			final Map<Integer, EmbeddedFile> embeddedFiles,
 			final OSCommandConfig osCommandConfig) throws IOException {
-		notNull(commandLine, "commandLine cannot be null.");
 
 		if (embeddedFiles == null) {
 			return Collections.emptyMap();
@@ -176,7 +178,7 @@ public class OsCommandHelper {
 	public static String replaceSudo(
 			final String text, 
 			final OSCommandConfig osCommandConfig) {
-		if (text == null || text.trim().isEmpty()) {
+		if (text == null || text.isBlank()) {
 			return text;
 		}
 
@@ -209,12 +211,12 @@ public class OsCommandHelper {
 	 * @throws TimeoutException
 	 */
 	public static String runLocalCommand(
+			@NonNull
 			final String command,
 			final int timeout,
 			final String noPasswordCommand)
 					throws InterruptedException, IOException, TimeoutException {
-		notNull(command, "command cannot be null.");
-		isTrue(timeout > 0, "timeout mustn't be negative or zero.");
+		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
 
 		final String cmd = LocalOSHandler.isWindows() ? "CMD.EXE /C " + command : command;
 
@@ -255,16 +257,16 @@ public class OsCommandHelper {
 	 * @throws MatsyaException
 	 */
 	public static String runSshCommand(
+			@NonNull
 			final String command,
+			@NonNull
 			final String hostname,
+			@NonNull
 			final SSHProtocol sshProtocol,
 			final int timeout,
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
-		notNull(command, "command cannot be null.");
-		notNull(hostname, "hostname cannot be null.");
-		notNull(sshProtocol, "sshProtocol cannot be null.");
-		isTrue(timeout > 0, "timeout mustn't be negative or zero.");
+		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
 
 		final String keyFilePath = sshProtocol.getPrivateKey() == null ? null : sshProtocol.getPrivateKey().getAbsolutePath();
 
@@ -275,7 +277,8 @@ public class OsCommandHelper {
 				keyFilePath,
 				command,
 				timeout, 
-				localFiles, noPasswordCommand);
+				localFiles, 
+				noPasswordCommand);
 	}
 
 	/**
@@ -285,9 +288,9 @@ public class OsCommandHelper {
 	 * @param command The command.
 	 * @return An Optional with The file name if found otherwise an empty optional.
 	 */
-	public static Optional<String> getFileNameFromSudoCommand(final String command) {
-		notNull(command, "command cannot be null.");
-
+	public static Optional<String> getFileNameFromSudoCommand(
+			@NonNull
+			final String command) {
 		final Matcher matcher = SUDO_PATTERN.matcher(command);
 		return matcher.find() ? 
 				Optional.ofNullable(matcher.group(1)) :
@@ -301,8 +304,8 @@ public class OsCommandHelper {
 	 * @return The case insensitive regex for this string.
 	 */
 	public static String toCaseInsensitiveRegex(final String target) {
-		isTrue(target != null && !target.isEmpty(), "target cannot be null or empty.");
-		return target.trim().isEmpty() ?
+		isTrue(target != null && !target.isEmpty(), "target cannot be null nor empty.");
+		return target.isBlank() ?
 				target :
 					"(?i)" + Pattern.quote(target);
 	}
