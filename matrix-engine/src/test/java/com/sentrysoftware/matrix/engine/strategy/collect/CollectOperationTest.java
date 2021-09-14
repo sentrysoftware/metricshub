@@ -1,53 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
@@ -96,6 +48,55 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
@@ -523,7 +524,8 @@ class CollectOperationTest {
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expectedEnclosure, collectedEnclosure);
-		assertTrue(collectedEnclosure.getParameters().isEmpty());
+		assertFalse(collectedEnclosure.getParameters().isEmpty());
+		assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 	}
 
 	@Test
@@ -681,6 +683,8 @@ class CollectOperationTest {
 		final String statusInformation = new StringBuilder()
 				.append("status: 0 (Operable)")
 				.append("\n")
+				.append("present: 1 (Present)")
+				.append("\n")
 				.append("intrusionStatus: 0 (No Intrusion Detected)")
 				.append("\n")
 				.append("powerConsumption: 150.0 Watts")
@@ -695,6 +699,13 @@ class CollectOperationTest {
 				.statusInformation(statusInformation)
 				.build();
 		expected.collectParameter(statusParam);
+
+		final IParameterValue presentParam = PresentParam
+				.builder()
+				.state(ParameterState.OK)
+				.build();
+		expected.collectParameter(presentParam);
+
 
 		final IParameterValue intructionStatusParam = StatusParam
 				.builder()
@@ -758,7 +769,8 @@ class CollectOperationTest {
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
-			assertTrue(collectedEnclosure.getParameters().isEmpty());
+			assertFalse(collectedEnclosure.getParameters().isEmpty()); // at least present parameter
+			assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 		}
 
 		{
@@ -774,7 +786,8 @@ class CollectOperationTest {
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 			assertEquals(expectedEnclosure, collectedEnclosure);
-			assertTrue(collectedEnclosure.getParameters().isEmpty());
+			assertFalse(collectedEnclosure.getParameters().isEmpty()); // at least present parameter
+			assertTrue(collectedEnclosure.getParameters().values().stream().filter(p -> !p.getName().equals(PRESENT_PARAMETER)).collect(Collectors.toList()).isEmpty());
 		}
 	}
 
@@ -948,7 +961,7 @@ class CollectOperationTest {
 			.parentId(ENCLOSURE_ID)
 			.monitorType(TEMPERATURE)
 			.build();
-		
+
 		final Monitor networkCard = Monitor.builder()
 				.id("NETWORK_CARD")
 				.name("NETWORK_CARD")

@@ -1,48 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.meta.monitor.Battery;
-import com.sentrysoftware.matrix.common.meta.monitor.Blade;
-import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
-import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.common.meta.monitor.Led;
-import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.Lun;
-import com.sentrysoftware.matrix.common.meta.monitor.Memory;
-import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
-import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
-import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
-import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
-import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
-import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
-import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
@@ -98,6 +55,49 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 class MonitorCollectVisitorTest {
 
@@ -408,7 +408,7 @@ class MonitorCollectVisitorTest {
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
 		assertEquals(statusParam, actual);
-	
+
 		assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
 	}
 
@@ -870,7 +870,7 @@ class MonitorCollectVisitorTest {
 
 	@Test
 	void testStatusParamFirstComparatorCompare() {
-		assertEquals(Arrays.asList("status", "energy", "energyUsage", "intrusionStatus", "powerConsumption"),
+		assertEquals(Arrays.asList("status", "energy", "energyUsage", "intrusionStatus", "powerConsumption", "present"),
 				new Enclosure()
 				.getMetaParameters()
 				.values()
@@ -1425,11 +1425,11 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList("10"))
 		);
-		
+
 		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
 		usedCapacityParameter = monitor.getParameter(USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertEquals(10.0, usedCapacityParameter.getValue());
-		
+
 		// No used capacity, derive from used & total power
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -1504,7 +1504,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
 		assertEquals(10.0, unallocatedSpaceParameter.getValue());
 	}
-	
+
 	@Test
 	void testEstimateFanPowerConsumption() {
 
@@ -1529,7 +1529,7 @@ class MonitorCollectVisitorTest {
 		powerConsumptionParameter = monitor.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
 		assertNotNull(powerConsumptionParameter);
 		assertEquals(7.0, powerConsumptionParameter.getValue());
-		
+
 		// No fan speed, but fan speed percent set
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -1714,7 +1714,7 @@ class MonitorCollectVisitorTest {
 				9.0,
 				9.0
 			);
-	
+
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
@@ -1784,7 +1784,7 @@ class MonitorCollectVisitorTest {
 				9.0,
 				9.0
 			);
-	
+
 			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 			monitorCollectVisitor.estimateNetworkCardPowerConsumption();
@@ -1846,7 +1846,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testEestimatePhysicalDiskPowerConsumptionSas() {
 		{
-			// SAS & 15k -> 17W 
+			// SAS & 15k -> 17W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
@@ -2395,7 +2395,7 @@ class MonitorCollectVisitorTest {
 		assertNotNull(statusParameter);
 		assertEquals(ParameterState.WARN, statusParameter.getState());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardDuplexMode() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -2434,7 +2434,7 @@ class MonitorCollectVisitorTest {
 		assertNotNull(duplexModeParameter);
 		assertEquals(1.0, duplexModeParameter.getRawValue());
 		assertEquals(1.0, duplexModeParameter.getValue());
-		
+
 		// duplexMode = "Full"
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -2447,7 +2447,7 @@ class MonitorCollectVisitorTest {
 		assertNotNull(duplexModeParameter);
 		assertEquals(1.0, duplexModeParameter.getRawValue());
 		assertEquals(1.0, duplexModeParameter.getValue());
-		
+
 		// duplexMode = "1"
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -2461,7 +2461,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(1.0, duplexModeParameter.getRawValue());
 		assertEquals(1.0, duplexModeParameter.getValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardLinkSpeed() {
 
@@ -2487,7 +2487,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(10.0, linkSpeedParameter.getRawValue());
 		assertEquals(10.0, linkSpeedParameter.getValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardBytesRate() {
 
@@ -2548,7 +2548,7 @@ class MonitorCollectVisitorTest {
 		assertNotNull(bytesRateParameter);
 		assertEquals(1, bytesRateParameter.getValue().intValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardPacketsRate() {
 
@@ -2609,7 +2609,7 @@ class MonitorCollectVisitorTest {
 		assertNotNull(packetsRateParameter);
 		assertEquals(1, packetsRateParameter.getValue().intValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardBandwidthUtilization() {
 
@@ -2622,7 +2622,7 @@ class MonitorCollectVisitorTest {
 		NumberParam bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
-		
+
 		// Full-duplex mode with null transmittedBytesRate
 		bandwidthUtilizationParameter.reset();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(1.0, 1000.0, 100.0, null);
@@ -2636,28 +2636,28 @@ class MonitorCollectVisitorTest {
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
-		
-		// Full-duplex mode, when the duplex mode is null 
+
+		// Full-duplex mode, when the duplex mode is null
 		bandwidthUtilizationParameter.reset();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(null, 1000.0, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
-		
+
 		// Half-duplex mode
 		bandwidthUtilizationParameter.reset();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(0.0, 1000.0, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals((100.0 + 200.0) * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
-		
+
 		// No link speed
 		bandwidthUtilizationParameter.reset();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(0.0, null, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNull(bandwidthUtilizationParameter.getValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardErrorPercent() {
 
@@ -2684,7 +2684,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(10.0, errorCountParameter.getValue());
 		NumberParam errorPercentParameter = monitor.getParameter(ERROR_PERCENT_PARAMETER, NumberParam.class);
 		assertNull(errorPercentParameter);
-		
+
 		// Error count and last total packets set, but no last error count
 		NumberParam totalPacketsParameter = NumberParam.builder().name(TOTAL_PACKETS_PARAMETER).build();
 		totalPacketsParameter.setPreviousRawValue(500.0);
@@ -2703,7 +2703,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(100.0, errorCountParameter.getValue());
 		errorPercentParameter = monitor.getParameter(ERROR_PERCENT_PARAMETER, NumberParam.class);
 		assertNull(errorPercentParameter);
-		
+
 		// Error count, last error and last total packets set
 		errorCountParameter = NumberParam.builder().name(ERROR_COUNT_PARAMETER).build();
 		errorCountParameter.setPreviousRawValue(50.0);
@@ -2729,7 +2729,7 @@ class MonitorCollectVisitorTest {
 		assertEquals(100 * 50.0 / 150.0, errorPercentParameter.getRawValue());
 		assertEquals(100 * 50.0 / 150.0, errorPercentParameter.getValue());
 	}
-	
+
 	@Test
 	void testCollectNetworkCardZeroBufferCreditPercent() {
 

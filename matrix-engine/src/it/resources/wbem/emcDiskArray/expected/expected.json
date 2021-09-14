@@ -247,13 +247,22 @@
     "targetId" : "localhost",
     "extendedType" : "Storage",
     "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
       "status" : {
         "name" : "status",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
