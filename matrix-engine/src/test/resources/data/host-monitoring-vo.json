@@ -1,27 +1,47 @@
 {
-    "total": 2,
-    "monitors": [
-        {
-            "id": "enclosure-1",
-            "name": "enclosure-1",
-            "monitorType": "ENCLOSURE",
-            "parentId": "targetId",
-            "targetId": "targetId",
-            "extendedType": null,
-            "parameters": {},
-            "metadata": {},
-            "alertRules": {}
-        },
-        {
-            "id": "enclosure-2",
-            "name": "enclosure-2",
-            "monitorType": "ENCLOSURE",
-            "parentId": "targetId",
-            "targetId": "targetId",
-            "extendedType": null,
-            "parameters": {},
-            "metadata": {},
-            "alertRules": {}
-        }
-    ]
+	"total": 2,
+	"monitors": [
+		{
+			"id": "enclosure-1",
+			"name": "enclosure-1",
+			"monitorType": "ENCLOSURE",
+			"parentId": "targetId",
+			"targetId": "targetId",
+			"extendedType": null,
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": null,
+					"state": "OK",
+					"unit": "{0=Missing;1=Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				}
+			},
+			"metadata": {},
+			"alertRules": {}
+		},
+		{
+			"id": "enclosure-2",
+			"name": "enclosure-2",
+			"monitorType": "ENCLOSURE",
+			"parentId": "targetId",
+			"targetId": "targetId",
+			"extendedType": null,
+			"parameters": {
+				"present": {
+					"name": "present",
+					"collectTime": null,
+					"state": "OK",
+					"unit": "{0=Missing;1=Present}",
+					"present": 1,
+					"previousState": null,
+					"type": "PresentParam"
+				}
+			},
+			"metadata": {},
+			"alertRules": {}
+		}
+	]
 }
