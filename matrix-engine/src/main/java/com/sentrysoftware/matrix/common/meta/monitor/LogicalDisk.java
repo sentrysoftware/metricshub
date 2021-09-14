@@ -19,9 +19,7 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
@@ -57,8 +55,7 @@ public class LogicalDisk implements IMetaMonitor {
 			.type(ParameterType.TEXT)
 			.build();
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, ADDITIONAL_INFORMATION1,
-			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(LogicalDisk::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,

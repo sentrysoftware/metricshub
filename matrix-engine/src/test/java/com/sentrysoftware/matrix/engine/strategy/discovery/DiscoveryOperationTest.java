@@ -1,10 +1,13 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -25,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,6 +109,9 @@ class DiscoveryOperationTest {
 	private static final String ENCLOSURE_SOURCE_KEY = "Enclosure.discovery.Source(1)";
 	private static final String FAN_SOURCE_KEY = "Fan.discovery.Source(1)";
 	private static final String MY_CONNECTOR_2_NAME = "myConnector2.connector";
+	private static final String INFORMATION1 = "test information 1";
+	private static final String INFORMATION2 = "test information 2";
+	private static final String INFORMATION3 = "test information 3";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -314,6 +321,8 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(TYPE, COMPUTER);
 		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		enclosureMetadata.put(TARGET_FQDN, null);
+		enclosureMetadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		enclosureMetadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -340,6 +349,7 @@ class DiscoveryOperationTest {
 		fanMetadata.put(ID_COUNT, ID_COUNT_0);
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		fanMetadata.put(TARGET_FQDN, null);
+		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
@@ -434,6 +444,8 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -451,7 +463,6 @@ class DiscoveryOperationTest {
 						.build())
 						)
 				.build();
-
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
 
@@ -492,6 +503,8 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -535,7 +548,8 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, COMPUTER);
+				TYPE, COMPUTER,
+				ADDITIONAL_INFORMATION1, INFORMATION1);
 		final Discovery discovery = Discovery
 				.builder()
 				.instanceTable(sourceInstanceTable)
@@ -767,6 +781,7 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -787,6 +802,58 @@ class DiscoveryOperationTest {
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
+	}
+
+	@Test
+	void testSetIdentifyingInformation() {
+
+		{
+			final Monitor monitor = Monitor.builder().build();
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION2, INFORMATION2,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals(String.format("%s - %s - %s", INFORMATION1, INFORMATION2, INFORMATION3), 
+					metadata.get(IDENTIFYING_INFORMATION));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().build();
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals(String.format("%s - %s", INFORMATION1, INFORMATION3), 
+					metadata.get(IDENTIFYING_INFORMATION));
+		}
+
+		{
+			// No additionalInformation metadata 
+			final Monitor monitor = Monitor.builder().build();
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals("", metadata.get(IDENTIFYING_INFORMATION));
+		}
 	}
 
 	@Test

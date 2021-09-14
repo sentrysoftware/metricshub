@@ -32,6 +32,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "type" : "System Board CMOS Battery"
     },
     "alertRules" : {
@@ -195,6 +196,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "Location: Slot CPU1",
       "maximumspeed" : "4000",
       "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
       "vendor" : "Intel"
@@ -326,6 +328,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1",
       "idCount" : "0",
+      "identifyingInformation" : "Serial Number: FSJR3N2 - Alternative Serial Number: 34377965102",
       "model" : "PowerEdge R630",
       "type" : "Computer",
       "vendor" : "Dell"
@@ -412,6 +415,7 @@
       "deviceid" : "1.1",
       "fantype" : "System Board1A",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -556,6 +560,7 @@
       "deviceid" : "1.10",
       "fantype" : "System Board3B",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -700,6 +705,7 @@
       "deviceid" : "1.11",
       "fantype" : "System Board4B",
       "idCount" : "10",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -844,6 +850,7 @@
       "deviceid" : "1.12",
       "fantype" : "System Board5B",
       "idCount" : "11",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -988,6 +995,7 @@
       "deviceid" : "1.13",
       "fantype" : "System Board6B",
       "idCount" : "12",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1132,6 +1140,7 @@
       "deviceid" : "1.14",
       "fantype" : "System Board7B",
       "idCount" : "13",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1276,6 +1285,7 @@
       "deviceid" : "1.2",
       "fantype" : "System Board2A",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1420,6 +1430,7 @@
       "deviceid" : "1.3",
       "fantype" : "System Board3A",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1564,6 +1575,7 @@
       "deviceid" : "1.4",
       "fantype" : "System Board4A",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1708,6 +1720,7 @@
       "deviceid" : "1.5",
       "fantype" : "System Board5A",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1852,6 +1865,7 @@
       "deviceid" : "1.6",
       "fantype" : "System Board6A",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1996,6 +2010,7 @@
       "deviceid" : "1.7",
       "fantype" : "System Board7A",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2429,6 +2444,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "Location: Slot A1 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D1",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -2575,6 +2591,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.10",
       "idCount" : "9",
+      "identifyingInformation" : "Location: Slot A10 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B62303E",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -2703,6 +2720,17 @@
         "previousState" : null,
         "type" : "PresentParam"
       },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1631630238323,
+        "state" : "OK",
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "previousCollectTime" : null,
+        "type" : "NumberParam"
+      },
       "status" : {
         "name" : "status",
         "collectTime" : 1624024821235,
@@ -2721,6 +2749,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.11",
       "idCount" : "10",
+      "identifyingInformation" : "Location: Slot A11 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6232CA",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -2867,6 +2896,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.12",
       "idCount" : "11",
+      "identifyingInformation" : "Location: Slot A12 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D3",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3013,6 +3043,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.2",
       "idCount" : "1",
+      "identifyingInformation" : "Location: Slot A2 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F3",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3159,6 +3190,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.3",
       "idCount" : "2",
+      "identifyingInformation" : "Location: Slot A3 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D6",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3305,6 +3337,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.4",
       "idCount" : "3",
+      "identifyingInformation" : "Location: Slot A4 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230CF",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3451,6 +3484,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.5",
       "idCount" : "4",
+      "identifyingInformation" : "Location: Slot A5 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230EA",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3597,6 +3631,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.6",
       "idCount" : "5",
+      "identifyingInformation" : "Location: Slot A6 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F4",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3743,6 +3778,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.7",
       "idCount" : "6",
+      "identifyingInformation" : "Location: Slot A7 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623048",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -3889,6 +3925,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.8",
       "idCount" : "7",
+      "identifyingInformation" : "Location: Slot A8 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623041",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -4035,6 +4072,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.9",
       "idCount" : "8",
+      "identifyingInformation" : "Location: Slot A9 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D7",
       "size" : "16384.0",
       "type" : "DDR4",
@@ -4158,7 +4196,8 @@
       "deviceid" : "1",
       "devicetype" : "ESM",
       "displayid" : "1",
-      "idCount" : "0"
+      "idCount" : "0",
+      "identifyingInformation" : "EventLog"
     },
     "alertRules" : {
       "present" : [ {
@@ -4232,7 +4271,8 @@
       "deviceid" : "SDCardDevice-1.1",
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
-      "idCount" : "1"
+      "idCount" : "1",
+      "identifyingInformation" : "Size : 0 MB "
     },
     "alertRules" : {
       "present" : [ {
@@ -4303,6 +4343,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "powersupplypower" : "750.0",
       "powersupplytype" : "AC"
     },
@@ -4398,6 +4439,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.2",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "powersupplypower" : "750.0",
       "powersupplytype" : "AC"
     },
@@ -4565,6 +4607,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "temperaturetype" : "System Board Inlet",
       "warningthreshold" : "42.0"
     },
@@ -4651,6 +4694,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.2",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "temperaturetype" : "System Board Exhaust",
       "warningthreshold" : "70.0"
     },
@@ -4737,6 +4781,8 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.3",
       "idCount" : "2",
+      "identifyingInformation" : "",
+      "isCpuSensor" : "true",
       "temperaturetype" : "CPU1",
       "warningthreshold" : "85.0"
     },
@@ -4811,6 +4857,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.1",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 VCORE PG"
@@ -4863,6 +4910,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.10",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board DIMM PG"
@@ -4915,6 +4963,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.11",
       "idCount" : "10",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board VCCIO PG"
@@ -4967,6 +5016,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.12",
       "idCount" : "11",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VDDQ PG"
@@ -5019,6 +5069,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.13",
       "idCount" : "12",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board NDC PG"
@@ -5071,6 +5122,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.14",
       "idCount" : "13",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VPP PG"
@@ -5123,6 +5175,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.15",
       "idCount" : "14",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V PG"
@@ -5175,6 +5228,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.16",
       "idCount" : "15",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V AUX PG"
@@ -5227,6 +5281,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.17",
       "idCount" : "16",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 FIVR PG"
@@ -5279,6 +5334,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.18",
       "idCount" : "17",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS2 PG Fail"
@@ -5331,6 +5387,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.19",
       "idCount" : "18",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS1 PG Fail"
@@ -5383,6 +5440,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.2",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 3.3V PG"
@@ -5435,6 +5493,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.20",
       "idCount" : "19",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP1 5V PG"
@@ -5487,6 +5546,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.21",
       "idCount" : "20",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP2 5V PG"
@@ -5539,6 +5599,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.22",
       "idCount" : "21",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VTT PG"
@@ -5602,6 +5663,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.23",
       "idCount" : "22",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "PS1 Voltage 1"
@@ -5665,6 +5727,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.24",
       "idCount" : "23",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "PS2 Voltage 2"
@@ -5717,6 +5780,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.3",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V AUX PG"
@@ -5769,6 +5833,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.4",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VPP PG"
@@ -5821,6 +5886,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.5",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 2.5V AUX PG"
@@ -5873,6 +5939,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.6",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.05V PG"
@@ -5925,6 +5992,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.7",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VDDQ PG"
@@ -5977,6 +6045,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.8",
       "idCount" : "7",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VTT PG"
@@ -6029,6 +6098,7 @@
       "connector" : "MS_HW_DellOpenManage.connector",
       "deviceid" : "1.9",
       "idCount" : "8",
+      "identifyingInformation" : "",
       "lowerthreshold" : "",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V SWITCH PG"
