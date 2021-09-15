@@ -192,8 +192,8 @@ targets:
       username: myusername
       password: mypwd
     selectedConnectors:
-    - MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf
-    excludedConnectors: MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf
+    - VMwareESX4i.hdf,VMwareESXi.hdf
+    excludedConnectors: VMwareESXiDisksIPMI.hdf,VMwareESXiDisksStorage.hdf
 ```
 
 ### Mapping Unknown Status
