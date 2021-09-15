@@ -694,10 +694,8 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	}
 
 	@Override
-	public void parse(final String key, final String value, final Connector connector) {
-
-		notNull(key, "key cannot be null.");
-		notNull(value, "value cannot be null.");
-		notNull(connector, "Connector cannot be null.");
+	public void parse(@NonNull final String key, @NonNull final String value, @NonNull final Connector connector) {
+		// Not implemented
+		// Implementation provided by lombok
 	}
 }
