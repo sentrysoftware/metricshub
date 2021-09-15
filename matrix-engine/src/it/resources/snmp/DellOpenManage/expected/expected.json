@@ -198,7 +198,7 @@
       "idCount" : "0",
       "identifyingInformation" : "Location: Slot CPU1",
       "maximumspeed" : "4000",
-      "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
+      "model" : "Xeon CPU E5-2620 v4 @ 2.10GHz",
       "vendor" : "Intel"
     },
     "alertRules" : {
@@ -4265,14 +4265,14 @@
       }
     },
     "metadata" : {
-      "additionalinformation1" : "Size : 0 MB ",
+      "additionalinformation1" : "Size : 0 MB",
       "additionallabel" : "",
       "connector" : "DellOpenManage",
       "deviceid" : "SDCardDevice-1.1",
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
       "idCount" : "1",
-      "identifyingInformation" : "Size : 0 MB "
+      "identifyingInformation" : "Size : 0 MB"
     },
     "alertRules" : {
       "present" : [ {
