@@ -1,5 +1,15 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,17 +53,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 
 class ComputeVisitorTest {
 
@@ -2077,13 +2076,13 @@ class ComputeVisitorTest {
 		computeVisitor.visit(awkNoAttribut);
 		assertEquals(table, sourceTable.getTable());
 		
-		Awk awkNoScript = Awk.builder().awkScript(null).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(Arrays.asList(1, 2, 3)).build();
+		Awk awkNoScript = Awk.builder().awkScript(null).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		computeVisitor.visit(awkNoScript);
 		assertEquals(table, sourceTable.getTable());
 		
 		sourceTable.setTable(null);
 		sourceTable.setRawData(null);
-		Awk awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(Arrays.asList(1, 2, 3)).build();
+		Awk awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		
 		doReturn(LINE_RAW_DATA).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
@@ -2094,14 +2093,14 @@ class ComputeVisitorTest {
 	
 		sourceTable.setTable(new ArrayList<>());
 		sourceTable.setRawData(null);
-		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(Arrays.asList(1, 2, 3)).build();
+		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		doReturn(null).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
 		assertEquals(new ArrayList<>(), sourceTable.getTable());
 		
 		sourceTable.setTable(new ArrayList<>());
 		sourceTable.setRawData(null);
-		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(Arrays.asList(1, 2, 3)).build();
+		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		doReturn("").when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
 		assertEquals(new ArrayList<>(), sourceTable.getTable());
@@ -2109,51 +2108,9 @@ class ComputeVisitorTest {
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(matsyaClientsExecutor).executeAwkScript(any(), any());
-		computeVisitor.visit(Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).excludeRegExp("ID1").keepOnlyRegExp("ID2").separators(TABLE_SEP).selectColumns(Arrays.asList(2, 3)).build());
+		computeVisitor.visit(Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).excludeRegExp("ID1").keepOnlyRegExp("ID2").separators(TABLE_SEP).selectColumns(List.of("2", "3")).build());
 		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 		assertEquals(Arrays.asList(Arrays.asList("NAME2", "MANUFACTURER2")), sourceTable.getTable());
-	}
-	
-	@Test
-	void testSelectedColumnsStringInput() {
-
-		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput("", LINE_RAW_DATA, Arrays.asList(1, 2, 3))); // no separator
-		String rawData = LINE_RAW_DATA.replaceAll(TABLE_SEP, "_"); // other separator
-		assertEquals(LINE_RAW_DATA, ComputeVisitor.selectedColumnsStringInput(TABLE_SEP, LINE_RAW_DATA, Arrays.asList())); // no selected columns
-		assertEquals(";\n;\n;", ComputeVisitor.selectedColumnsStringInput(TABLE_SEP, LINE_RAW_DATA, Arrays.asList(50))); // out of bounds
-
-		String expected = "FOO;ID1;NAME1;MANUFACTURER1;\nBAR;ID2;NAME2;MANUFACTURER2;\nBAZ;ID3;NAME3;MANUFACTURER3;";
-		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput(TABLE_SEP, LINE_RAW_DATA, Arrays.asList(1,2,3,4))); // use case trad
-		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput("_", rawData, Arrays.asList(1,2,3,4))); // use case trad
-
-		expected = "ID1;NAME1;\nID2;NAME2;\nID3;NAME3;";
-		assertEquals(expected, ComputeVisitor.selectedColumnsStringInput(TABLE_SEP, LINE_RAW_DATA, Arrays.asList(2,3))); // use case trad
-		
-		String input = "id1   name1  val1\nid2   name2  val2\nid3   name3  val3";
-		String output = "name1;val1;\nname2;val2;\nname3;val3;";
-		assertEquals(output, ComputeVisitor.selectedColumnsStringInput(WHITE_SPACE, input, Arrays.asList(2,3))); // spaces separator
-
-		input = "id1   na;me1  val;1\nid2   name2  val2\nid3   name3  val3";
-		output = "na,me1;val,1;\nname2;val2;\nname3;val3;";
-		assertEquals(output, ComputeVisitor.selectedColumnsStringInput(WHITE_SPACE, input, Arrays.asList(2,3))); // make sure that we replace intial ";" by "," because we use it as separator 
-	}
-	
-	@Test
-	void testExcludeRegExpStringInput() {
-		// input : String awkResult, String excludeRegExp
-		assertEquals(LINE_RAW_DATA, ComputeVisitor.excludeRegExpStringInput(LINE_RAW_DATA, "").toString()); 
-		assertEquals("", ComputeVisitor.excludeRegExpStringInput("", "^"+BAR).toString()); 
-		String expected = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3";;
-		assertEquals(expected , ComputeVisitor.excludeRegExpStringInput(LINE_RAW_DATA, "^"+BAR).toString()); // use case trad
-	}
-	
-	@Test
-	void keepOnlyRegExpStringInput() {
-		// input : String awkResult, String excludeRegExp
-		assertEquals(LINE_RAW_DATA, ComputeVisitor.keepOnlyRegExpStringInput(LINE_RAW_DATA, "").toString()); 
-		assertEquals("", ComputeVisitor.keepOnlyRegExpStringInput("", "^"+BAR).toString()); 
-		String expected = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1";
-		assertEquals(expected , ComputeVisitor.keepOnlyRegExpStringInput(LINE_RAW_DATA, "^"+FOO).toString()); // use case trad
 	}
 
 	@Test

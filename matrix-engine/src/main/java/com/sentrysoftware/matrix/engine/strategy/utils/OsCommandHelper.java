@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TAB;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -21,17 +24,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import lombok.NonNull;
 
@@ -45,39 +52,6 @@ public class OsCommandHelper {
 	private static final Pattern EMBEDDEDFILE_PATTERN = Pattern.compile("%EmbeddedFile\\((\\d+)\\)%", Pattern.CASE_INSENSITIVE);
 
 	private static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
-
-	/**
-	 * Replace the content of the EmbeddedFiles in the given command line
-	 *
-	 * @param commandLine The command line we wish to process
-	 * @param connector   The connector instance which defines the embedded files.
-	 * @return Updated command line value
-	 */
-	public static String updateOsCommandEmbeddedFile(@NonNull final String commandLine, @NonNull final Connector connector) {
-
-		final Matcher matcher = EMBEDDEDFILE_PATTERN.matcher(commandLine);
-
-		final StringBuilder sb = new StringBuilder();
-		while (matcher.find()) {
-			// EmbeddedFile(embeddedFileIndex)
-			final Integer embeddedFileIndex = Integer.parseInt(matcher.group(1));
-
-			// The embedded file is available in the connector
-			final EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
-
-			// This means there is a design problem or the HDF developer indicated a wrong embedded file
-			notNull(embeddedFile, () -> "Cannot get the EmbeddedFile from the Connector. EmbeddedFile Index: " + embeddedFileIndex);
-			final String embeddedFileContent = embeddedFile.getContent();
-
-			// This means there is a design problem, the content can never be null
-			notNull(embeddedFileContent, () -> "EmbeddedFile content is null. EmbeddedFile Index: " + embeddedFileIndex);
-			matcher.appendReplacement(sb, embeddedFileContent);
-		}
-
-		matcher.appendTail(sb);
-
-		return sb.toString();
-	}
 
 	/**
 	 * Create the temporary embedded files in the given command line.
@@ -172,7 +146,7 @@ public class OsCommandHelper {
 	 * @param osCommandConfig
 	 * @return
 	 */
-	public static String replaceSudo(
+	static String replaceSudo(
 			final String text, 
 			final OSCommandConfig osCommandConfig) {
 		if (text == null || text.isBlank()) {
@@ -285,7 +259,7 @@ public class OsCommandHelper {
 	 * @param command The command.
 	 * @return An Optional with The file name if found otherwise an empty optional.
 	 */
-	public static Optional<String> getFileNameFromSudoCommand(
+	static Optional<String> getFileNameFromSudoCommand(
 			@NonNull
 			final String command) {
 		final Matcher matcher = SUDO_PATTERN.matcher(command);
@@ -376,4 +350,234 @@ public class OsCommandHelper {
 		return Optional.empty();
 	}
 
+	/**
+	 * <p>Run the OS Command on:
+	 * <li>Local (use java Process)</li>
+	 * <li>Remote windows (use WMI command)</li>
+	 * <li>Remote Linux (use SSH)<:li>
+	 * <p>It replace Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
+	 * <p>If necessary, it create embedded files and delete them after the command execution.</p>
+	 * </p>
+	 * 
+	 * @param commandLine The command Line. (mandatory)
+	 * @param engineConfiguration The engine configuration. (mandatory)
+	 * @param embeddedFiles Embedded files.
+	 * @param commandTimeout The OS command parameter for the timeout.
+	 * @param isExecuteLocally The OS command parameter to indicate if the command should be execute locally.
+	 * @param isLocalhost The parameter in Host Monitoring to indicate if the command is execute locally.
+	 * @return The command execution return and the command with password masked (if present).
+	 * @throws IOException When an I/O error occurred on local command execution or embedded file creation.
+	 * @throws MatsyaException When an error occurred on a remote execution.
+	 * @throws InterruptedException When the local command execution is interrupted.
+	 * @throws TimeoutException When the local command execution ended in timeout.
+	 * @throws NoCredentialProvidedException When there's no user provided for a remote command.
+	 */
+	public static OsCommandResult runOsCommand(
+			@NonNull
+			final String commandLine,
+			@NonNull
+			final EngineConfiguration engineConfiguration,
+			final Map<Integer, EmbeddedFile> embeddedFiles,
+			final Long commandTimeout,
+			final boolean isExecuteLocally,
+			final boolean isLocalhost) 
+					throws IOException, 
+					MatsyaException, 
+					InterruptedException, 
+					TimeoutException,
+					NoCredentialProvidedException {
+
+		final IProtocolConfiguration protocolConfiguration = engineConfiguration.getProtocolConfigurations().get(
+				!isLocalhost && engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS ?
+						WMIProtocol.class : 
+							SSHProtocol.class);
+
+		final Optional<String> maybeUsername = getUsername(protocolConfiguration);
+
+		// If remote command and no username
+		if ((maybeUsername.isEmpty() || maybeUsername.get().trim().isEmpty()) &&
+				!isExecuteLocally && !isLocalhost) {
+			throw new NoCredentialProvidedException();
+		}
+
+		final Optional<char[]> maybePassword = getPassword(protocolConfiguration);
+
+		final String hostname = engineConfiguration.getTarget().getHostname();
+
+		final OSCommandConfig osCommandConfig = 
+				(OSCommandConfig) engineConfiguration.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
+				commandLine, 
+				embeddedFiles,
+				osCommandConfig);
+
+		final String updatedUserCommand = maybeUsername
+				.map(username -> commandLine.replaceAll(
+						toCaseInsensitiveRegex(HardwareConstants.USERNAME_MACRO), username))
+				.orElse(commandLine);
+
+		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
+				toCaseInsensitiveRegex(HardwareConstants.HOSTNAME_MACRO), hostname);
+
+		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, osCommandConfig);
+
+		final String updatedEmbeddedFilesCommand = embeddedTempFiles.entrySet().stream()
+				.reduce(
+						updatedSudoCommand,
+						(s, enty) -> s.replaceAll(
+								toCaseInsensitiveRegex(enty.getKey()),
+								Matcher.quoteReplacement(enty.getValue().getAbsolutePath())),
+						(s1, s2) -> null);
+
+		final String command = maybePassword
+				.map(password -> updatedEmbeddedFilesCommand.replaceAll(
+						toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO), String.valueOf(password)))
+				.orElse(updatedEmbeddedFilesCommand);
+		
+		final String noPasswordCommand = maybePassword
+				.map(password -> updatedEmbeddedFilesCommand.replaceAll(
+						toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO), "********"))
+				.orElse(updatedEmbeddedFilesCommand);
+
+		try {
+			final int timeout = getTimeout(
+					commandTimeout,
+					osCommandConfig,
+					protocolConfiguration,
+					engineConfiguration.getOperationTimeout());
+
+			final String commandResult;
+
+			// Case local execution or command intended for a remote host but executed locally
+			if (HardwareConstants.LOCALHOST.equalsIgnoreCase(hostname) || isExecuteLocally) {
+				final String localCommandResult = runLocalCommand(
+						command,
+						timeout,
+						noPasswordCommand);
+				commandResult = localCommandResult != null ?
+						localCommandResult :
+							HardwareConstants.EMPTY;
+
+			// Case Windows Remote
+			} else if (engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS) {
+				final WMIProtocol  wmiProtocol = (WMIProtocol) protocolConfiguration;
+				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
+						command,
+						hostname,
+						wmiProtocol.getUsername(),
+						wmiProtocol.getPassword(),
+						timeout,
+						embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+
+			// Case others (Linux) Remote
+			} else {
+				commandResult = runSshCommand(
+						command, 
+						hostname, 
+						(SSHProtocol) protocolConfiguration, 
+						timeout, 
+						embeddedTempFiles.values().stream().collect(Collectors.toList()),
+						noPasswordCommand);
+			}
+			
+			return new OsCommandResult(commandResult, noPasswordCommand);
+		} finally {
+			embeddedTempFiles.values().forEach(File::delete);
+		}
+	}
+
+	/**
+	 * <p>Filter the lines:
+	 * <li>In removing the header if exists: all the lines from start to removeHeader number.</li>
+	 * <li>In removing the Footer if exists: all the removeFooter number lines from the end.</li>
+	 * <li>In removing all the lines matching to the excludeRegExp if exist</li>
+	 * <li>In keeping only the lines matching to the keepOnlyRegExp if exist</li>
+	 * </p>
+	 * @param lines The lines to be filtered. (mandatory)
+	 * @param removeHeader The number of lines to ignored from the start.
+	 * @param removeFooter  The number of lines to ignored from the end.
+	 * @param excludeRegExp The PSL regexp to exclude lines.
+	 * @param keepOnlyRegExp The PSL regexp for lines to keep.
+	 * @return The filterd lines.
+	 */
+	public static List<String> filterLines(
+			@NonNull
+			final List<String> lines,
+			final Integer removeHeader,
+			final Integer removeFooter,
+			final String excludeRegExp,
+			final String keepOnlyRegExp) {
+
+		// Remove header : remove number of lines from beginning
+		final int begin = removeHeader != null ? removeHeader : 0;
+
+		// Remove footer : remove number of lines from the end.
+		final int end =
+				removeFooter != null ?
+						lines.size() - removeFooter :
+							lines.size();
+		
+		final Pattern excludePattern =
+				excludeRegExp == null || excludeRegExp.isEmpty() ?
+						null :
+							Pattern.compile(PslUtils.psl2JavaRegex(excludeRegExp));
+		
+		final Pattern keepOnlyPattern =
+				keepOnlyRegExp == null || keepOnlyRegExp.isEmpty() ?
+						null :
+							Pattern.compile(PslUtils.psl2JavaRegex(keepOnlyRegExp));
+
+		// Remove lines containing a given regular expression excludeRegExp
+		// Keep only the lines containing a given regular expression
+		return IntStream.range(begin, end)
+				.mapToObj(i -> lines.get(i))
+				.filter(line -> (excludePattern == null || !excludePattern.matcher(line).find()) &&
+									(keepOnlyPattern == null || keepOnlyPattern.matcher(line).find()))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Select the columns in the lines.
+	 * Extract separators and split each line with these separators
+	 * keep only values (from the split result) which index matches with the selected column list 
+	 * @param lines The lines (mandatory)
+	 * @param separators The separators
+	 * @param selectColumns The list of the selected columns position.
+	 * 
+	 * @return The lines with the selected columns.
+	 */
+	public static List<String> selectedColumns(
+			@NonNull
+			final List<String> lines,
+			final String separators,
+			final List<String> selectColumns) {
+
+		if (separators == null || separators.isEmpty() ||
+				selectColumns == null || selectColumns.isEmpty()) {
+			return lines;
+		}
+
+		final String selectColumnsStr = selectColumns.stream().collect(Collectors.joining(","));
+
+		return lines.stream()
+				.map(line -> {
+					// protect the initial string that contains ";" and replace it with "," if this
+					// latest is not in Separators list. Otherwise, just remove the ";"
+					// replace all separators by ";", which is the standard separator used by MS_HW
+					if (!separators.contains(TABLE_SEP) && !separators.contains(",")) {
+						return line.replace(TABLE_SEP, ",");
+					} 
+					if (!separators.contains(TABLE_SEP)) {
+						return line.replace(TABLE_SEP, "");
+					} 
+					return line;
+				})
+				.map(line -> !separators.contains(TAB) && !separators.contains(WHITE_SPACE) ?
+						// if separator = tab or simple space, then ignore empty cells
+						// equivalent to ntharg
+						PslUtils.nthArgf(line, selectColumnsStr, separators, TABLE_SEP) :
+							PslUtils.nthArg(line, selectColumnsStr, separators, TABLE_SEP))
+				.collect(Collectors.toList());
+	}
 }

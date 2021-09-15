@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -39,15 +45,13 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @AllArgsConstructor
@@ -266,7 +270,57 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
-		return SourceTable.empty();
+		if (osCommandSource == null ||
+				osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()) {
+			log.error("OSCommandSource Malformed OSCommand source.");
+			return SourceTable.empty();
+		}
+
+		try {
+			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
+					osCommandSource.getCommandLine(),
+					strategyConfig.getEngineConfiguration(),
+					osCommandSource.getEmbeddedFiles(),
+					osCommandSource.getTimeout(),
+					osCommandSource.isExecuteLocally(),
+					strategyConfig.getHostMonitoring().isLocalhost());
+
+			// transform to lines
+			final List<String> resultLines = SourceTable.lineToList(
+					osCommandResult.getResult(),
+					HardwareConstants.NEW_LINE);
+
+			final List<String> filteredLines = OsCommandHelper.filterLines(
+					resultLines,
+					osCommandSource.getRemoveHeader(),
+					osCommandSource.getRemoveFooter(),
+					osCommandSource.getExcludeRegExp(),
+					osCommandSource.getKeepOnlyRegExp());
+
+			final List<String> selectedColumnsLines = OsCommandHelper.selectedColumns(
+					filteredLines,
+					osCommandSource.getSeparators(),
+					osCommandSource.getSelectColumns());
+			
+			return SourceTable.builder()
+					.rawData(selectedColumnsLines.stream()
+							// add the TABLE_SEP at the end of each lines.
+							.map(line -> line + TABLE_SEP)
+							.collect(Collectors.joining(NEW_LINE)))
+					.table(selectedColumnsLines.stream()
+							// Replace all separators by ";", which is the standard separator used by MS_HW
+							.map(line -> SourceTable.lineToList(line, TABLE_SEP))
+							.collect(Collectors.toList()))
+					.build();
+
+		} catch(NoCredentialProvidedException e) {
+			log.debug("OSCommandSource " + e.getMessage());
+			return SourceTable.empty();
+		} catch (Exception e) {
+			log.error("OSCommandSource error runing command", e.getMessage());
+			log.debug("OSCommandSource error runing command", e);
+			return SourceTable.empty();
+		}
 	}
 
 	@Override

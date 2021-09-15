@@ -2,8 +2,6 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.awk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,8 +20,8 @@ public class SelectColumnsProcessorTest {
 	private final Connector connector = new Connector();
 
 	private static final String SELECT_COLUMNS_KEY = "enclosure.collect.source(1).compute(1).selectcolumns";
-	private static final String VALUE = "2,4,5,6";
-	private static final List<Integer> VALUE_RESULT = new ArrayList<>(Arrays.asList(2, 4, 5, 6));
+	private static final String VALUE = "-2, 4-6, 8, 10-";
+	private static final List<String> VALUE_RESULT = List.of("-2", "4-6", "8", "10-");
 
 	@Test
 	void testParse() {

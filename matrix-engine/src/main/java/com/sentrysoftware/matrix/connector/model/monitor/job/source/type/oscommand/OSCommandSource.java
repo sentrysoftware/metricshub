@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_TAB;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -13,8 +17,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_TAB;
 
 @Data
 @NoArgsConstructor
@@ -33,6 +35,10 @@ public class OSCommandSource extends Source {
 	private Integer removeFooter;
 	private String separators = WHITE_SPACE_TAB;
 	private List<String> selectColumns = new ArrayList<>();
+
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	private Map<Integer, EmbeddedFile> embeddedFiles;
 
 	@Builder
 	public OSCommandSource(List<Compute> computes, boolean forceSerialization, String commandLine,

@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -8,7 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -18,10 +23,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -33,22 +37,29 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.mockito.MockedStatic;
 
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 
 class OsCommandHelperTest {
-
-	private static final Date TODAY = new Date();
 
 	private static final char[] PASSWORD = {'p', 'w', 'd'};
 
 	private static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+
+	private static final String LINE1 = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1";
+	private static final String LINE2 = "BAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2";
+	private static final String LINE3 = "BAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3";
+	private static final String NOT_A_LINE = "xxxxxxxxxx";
+	private static final List<String> LINE_RAW_DATA = List.of(LINE1, LINE2, LINE3);
 
 	@AfterAll
 	static void cleanTempEmbeddedFiles() {
@@ -70,54 +81,6 @@ class OsCommandHelperTest {
 
 	private static void checkNoTempEmbeddedFileExist() {
 		assertEquals(0, getTempEmbeddedFiles().length);
-	}
-
-	@Test
-	void testUpdateOsCommandEmbeddedFile() {
-		final String commandLine = "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat > NUL & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(1)%.bat";
-
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.updateOsCommandEmbeddedFile(null, mock(Connector.class)));
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.updateOsCommandEmbeddedFile(commandLine, null));
-
-		assertEquals("", OsCommandHelper.updateOsCommandEmbeddedFile("", mock(Connector.class)));
-		assertEquals("cmd", OsCommandHelper.updateOsCommandEmbeddedFile("cmd", mock(Connector.class)));
-
-		// case embeddedFile not found
-		{
-			final Connector connector = mock(Connector.class);
-			final EmbeddedFile embeddedFile = mock(EmbeddedFile.class);
-			final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(2, embeddedFile);
-
-			when(connector.getEmbeddedFiles()).thenReturn(embeddedFiles);
-
-			assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.updateOsCommandEmbeddedFile(commandLine, connector));
-		}
-
-		// case embeddedFile content null
-		{
-			final Connector connector = mock(Connector.class);
-			final EmbeddedFile embeddedFile = mock(EmbeddedFile.class);
-			final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, embeddedFile);
-
-			when(connector.getEmbeddedFiles()).thenReturn(embeddedFiles);
-			when(embeddedFile.getContent()).thenReturn(null);
-
-			assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.updateOsCommandEmbeddedFile(commandLine, connector));
-		}
-
-		// case OK
-		{
-			final Connector connector = mock(Connector.class);
-			final EmbeddedFile embeddedFile = mock(EmbeddedFile.class);
-			final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, embeddedFile);
-
-			when(connector.getEmbeddedFiles()).thenReturn(embeddedFiles);
-			when(embeddedFile.getContent()).thenReturn("file");
-
-			assertEquals(
-					"copy file file.bat > NUL & file.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q file.bat",
-					OsCommandHelper.updateOsCommandEmbeddedFile(commandLine, connector));
-		}
 	}
 
 	@Test
@@ -315,15 +278,13 @@ class OsCommandHelperTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testRunLocalCommandWindows() throws Exception {
-		assertTrue(OsCommandHelper.runLocalCommand("echo test", 1, null).matches("^test$"));
+		assertEquals("Test", OsCommandHelper.runLocalCommand("ECHO Test", 1, null));
 	}
 
 	@Test
 	@EnabledOnOs(LINUX)
 	void testRunLocalCommandLinux() throws Exception {
-		assertEquals(
-				"\"" + new SimpleDateFormat("ddMMyy").format(TODAY) + "\"",
-				OsCommandHelper.runLocalCommand("date +\"%d%m%y\"", 1, null));
+		assertEquals("Test", OsCommandHelper.runLocalCommand("echo Test", 1, null));
 	}
 
 	@Test
@@ -423,5 +384,829 @@ class OsCommandHelperTest {
 		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(wmiProtocol));
 
 		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(SSHProtocol.builder().username("user").password(PASSWORD).build()));
+	}
+
+	@Test
+	void testRunOsCommandCommandLineNull() {
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runOsCommand(
+				null,
+				EngineConfiguration.builder().build(),
+				Collections.emptyMap(),
+				120L,
+				false,
+				false));
+	}
+
+	@Test
+	void testRunOsCommandEngineConfigurationNull() {
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runOsCommand(
+				"cmd",
+				null,
+				Collections.emptyMap(),
+				120L,
+				false,
+				false));
+	}
+
+	@Test
+	void testRunOsCommandRemoteNoUser() {
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		assertThrows(NoCredentialProvidedException.class, () -> OsCommandHelper.runOsCommand(
+				"%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent",
+				engineConfiguration,
+				Collections.emptyMap(),
+				120L,
+				false,
+				false));
+	}
+
+	@Test
+	void testRunOsCommandRemoteWindowsEmbeddedFilesError() {
+
+		final String command = 
+				"copy %EmbeddedFile(2)% %EmbeddedFile(2)%.bat > NUL"
+				+ " & %EmbeddedFile(1)%"
+				+ " & %EmbeddedFile(2)%.bat"
+				+ " & del /F /Q %EmbeddedFile(1)%"
+				+ " & del /F /Q %EmbeddedFile(2)%.bat";
+
+		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
+		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
+
+		final WMIProtocol wmiProtocol = new WMIProtocol();
+		wmiProtocol.setUsername("user");
+		wmiProtocol.setPassword("pwd".toCharArray());
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					embeddedFiles,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command, 
+					embeddedFiles, 
+					null)).thenThrow(new IOException("error in file1"));
+
+			assertThrows(IOException.class, () -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					embeddedFiles,
+					120L,
+					false,
+					false));
+		}
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testRunOsCommandWindowsError() {
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(hardwareTarget)
+				.build();
+
+		assertThrows(TimeoutException.class, () -> OsCommandHelper.runOsCommand(
+				"PAUSE",
+				engineConfiguration,
+				null,
+				1L,
+				false,
+				true));
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testRunOsCommandLinuxError() {
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(hardwareTarget)
+				.build();
+
+		assertThrows(TimeoutException.class, () -> OsCommandHelper.runOsCommand(
+				"sleep 5",
+				engineConfiguration,
+				null,
+				1L,
+				false,
+				true));
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testRunOsCommandLocalWindows() throws Exception {
+
+		final WMIProtocol wmiProtocol = new WMIProtocol();
+		wmiProtocol.setUsername("user");
+		wmiProtocol.setPassword("pwd".toCharArray());
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		final String command = "ECHO Test";
+		final OsCommandResult expect = new OsCommandResult("Test", command);
+
+		assertEquals(
+				expect, 
+				OsCommandHelper.runOsCommand(
+						command,
+						engineConfiguration,
+						null,
+						120L,
+						false,
+						false));
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testRunOsCommandLocalLinux() throws Exception {
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		final String command = "echo Test";
+		final OsCommandResult expect = new OsCommandResult("Test", command);
+
+		assertEquals(
+				expect, 
+				OsCommandHelper.runOsCommand(
+						command,
+						engineConfiguration,
+						null,
+						120L,
+						false,
+						false));
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testRunOsCommandRemoteExecutedLocallyWindows() throws Exception {
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(hardwareTarget)
+				.build();
+
+		final String command = "ECHO Test";
+		final OsCommandResult expect = new OsCommandResult("Test", command);
+
+		assertEquals(
+				expect, 
+				OsCommandHelper.runOsCommand(
+						command,
+						engineConfiguration,
+						null,
+						120L,
+						true,
+						false));
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testRunOsCommandRemoteExecutedLocallyLinux() throws Exception {
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(hardwareTarget)
+				.build();
+
+		final String command = "echo Test";
+		final OsCommandResult expect = new OsCommandResult("Test", command);
+
+		assertEquals(
+				expect, 
+				OsCommandHelper.runOsCommand(
+						command,
+						engineConfiguration,
+						null,
+						120L,
+						true,
+						false));
+	}
+
+	@Test
+	void testRunOsCommandRemoteWindows() throws Exception {
+
+		final String command = 
+				"copy %EmbeddedFile(2)% %EmbeddedFile(2)%.bat > NUL"
+				+ " & %EmbeddedFile(1)%"
+				+ " & %EmbeddedFile(2)%.bat"
+				+ " & del /F /Q %EmbeddedFile(1)%"
+				+ " & del /F /Q %EmbeddedFile(2)%.bat";
+
+		final String result = "Windows_NT\nHello World";
+
+		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
+		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
+		
+		final File file1 = mock(File.class);
+		final File file2 = mock(File.class);
+		final Map<String, File> embeddedTempFiles = new HashMap<>();
+		embeddedTempFiles.put("%EmbeddedFile(1)%", file1);
+		embeddedTempFiles.put("%EmbeddedFile(2)%", file2);
+
+		final WMIProtocol wmiProtocol = new WMIProtocol();
+		wmiProtocol.setUsername("user");
+		wmiProtocol.setPassword("pwd".toCharArray());
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+				final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, null, wmiProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(wmiProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command, 
+					embeddedFiles, 
+					null)).thenReturn(embeddedTempFiles);
+
+			final String absolutePath1 = "/tmp/SEN_Embedded_1.bat";
+			final String absolutePath2 = "/tmp/SEN_Embedded_2";
+			final String updatedCommand = 
+					"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL"
+							+ " & /tmp/SEN_Embedded_1.bat"
+							+ " & /tmp/SEN_Embedded_2.bat"
+							+ " & del /F /Q /tmp/SEN_Embedded_1.bat"
+							+ " & del /F /Q /tmp/SEN_Embedded_2.bat";
+
+			doReturn(absolutePath1).when(file1).getAbsolutePath();
+			doReturn(absolutePath2).when(file2).getAbsolutePath();
+			
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.executeWmiRemoteCommand(
+					updatedCommand, 
+					"host", 
+					"user", 
+					"pwd".toCharArray(), 
+					120,
+					List.of(absolutePath1, absolutePath2))).thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					embeddedFiles,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, updatedCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							command,
+							engineConfiguration,
+							embeddedFiles,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testRunOsCommandRemoteLinuxOSCommandConfigNull() throws Exception {
+
+		final String commandLine = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+		final String result = "Agent Rev:";
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, null, sshProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					commandLine, 
+					Collections.emptyMap(),
+					null)).thenCallRealMethod();
+
+			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
+
+			mockedOsCommandHelper.when(() -> {
+				OsCommandHelper.runSshCommand(
+						" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
+						"host",
+						sshProtocol,
+						120,
+						Collections.emptyList(),
+						noPasswordCommand);
+			})
+			.thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine,
+					engineConfiguration,
+					null,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, noPasswordCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							commandLine,
+							engineConfiguration,
+							null,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testRunOsCommandRemoteLinuxNoSudo() throws Exception {
+
+		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+		final String result = "Agent Rev:";
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
+		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, osCommandConfig, sshProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command,
+					Collections.emptyMap(),
+					osCommandConfig)).thenCallRealMethod();
+
+			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
+					" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
+					"host",
+					sshProtocol,
+					120,
+					Collections.emptyList(),
+					noPasswordCommand))
+			.thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					null,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, noPasswordCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							command,
+							engineConfiguration,
+							null,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testRunOsCommandRemoteLinuxNotInUseSudoCommands() throws Exception {
+
+		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+		final String result = "Agent Rev:";
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
+		osCommandConfig.setUseSudo(true);
+		osCommandConfig.setUseSudoCommands(Collections.singleton("other"));
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, osCommandConfig, sshProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command,
+					Collections.emptyMap(),
+					osCommandConfig)).thenCallRealMethod();
+
+			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
+					" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
+					"host",
+					sshProtocol,
+					120,
+					Collections.emptyList(),
+					noPasswordCommand))
+			.thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					null,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, noPasswordCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							command,
+							engineConfiguration,
+							null,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testRunOsCommandRemoteLinuxWithSudoReplaced() throws Exception {
+
+		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+		final String result = "Agent Rev:";
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
+		osCommandConfig.setUseSudo(true);
+		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, osCommandConfig, sshProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command,
+					null,
+					osCommandConfig)).thenCallRealMethod();
+
+			final String noPasswordCommand = "sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
+
+			mockedOsCommandHelper.when(() -> {
+				OsCommandHelper.runSshCommand(
+						"sudo naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
+						"host",
+						sshProtocol,
+						120,
+						Collections.emptyList(),
+						noPasswordCommand);
+			})
+			.thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					null,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, noPasswordCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							command,
+							engineConfiguration,
+							null,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testRunOsCommandRemoteLinuxWithEmbeddedFilesReplaced() throws Exception {
+
+		final String embeddedContent = 
+				"# Awk (or nawk)\n" + 
+				"if [ -f /usr/xpg4/bin/awk ]; then\n" + 
+				"	AWK=\"/usr/xpg4/bin/awk\";\n" + 
+				"elif [ -f /usr/bin/nawk ]; then\n" + 
+				"	AWK=\"/usr/bin/nawk\";\n" + 
+				"else\n" + 
+				"	AWK=\"awk\";\n" + 
+				"fi\n" + 
+				"if [ -f /opt/StorMan/arcconf ]; then\n" + 
+				"       STORMAN=\"/opt/StorMan\";\n" + 
+				"elif [ -f /usr/StorMan/arcconf ]; then\n" + 
+				"       STORMAN=\"/usr/StorMan\";\n" + 
+				"else\n" + 
+				"	echo No Storman Installed; exit;\n" + 
+				"fi\n" + 
+				"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" + 
+				"for CTRL in $DEVICES\n" + 
+				"                do\n" + 
+				"                echo MSHWController $CTRL\n" + 
+				"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" + 
+				"                done";
+
+		final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, new EmbeddedFile(embeddedContent, null));
+		
+		final File localFile = mock(File.class);
+		final Map<String, File> embeddedTempFiles = new HashMap<>();
+		embeddedTempFiles.put("%EmbeddedFile(1)%", localFile);
+
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
+		osCommandConfig.setUseSudo(true);
+		osCommandConfig.setUseSudoCommands(Collections.singleton("/[opt|usr]/StorMan/arcconf"));
+
+		final String command = "/bin/sh %EmbeddedFile(1)%";
+		final String result = "Hard drive";
+
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
+				.username("user")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
+				.target(hardwareTarget)
+				.build();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getTimeout(120L, osCommandConfig, sshProtocol, 300)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshProtocol)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
+					command, 
+					embeddedFiles, 
+					osCommandConfig)).thenReturn(embeddedTempFiles);
+
+			doReturn("C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").when(localFile).getAbsolutePath();
+
+			final String updatedCommand = "/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001";
+
+			mockedOsCommandHelper.when(() -> {
+				OsCommandHelper.runSshCommand(
+						updatedCommand,
+						"host",
+						sshProtocol,
+						120,
+						List.of(localFile), 
+						updatedCommand);
+			})
+			.thenReturn(result);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					command,
+					engineConfiguration,
+					embeddedFiles,
+					120L,
+					false,
+					false)).thenCallRealMethod();
+
+			final OsCommandResult expect = new OsCommandResult(result, updatedCommand);
+
+			assertEquals(
+					expect, 
+					OsCommandHelper.runOsCommand(
+							command,
+							engineConfiguration,
+							embeddedFiles,
+							120L,
+							false,
+							false));
+		}
+	}
+
+	@Test
+	void testFilterLines() {
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.filterLines(null, 1, 1, "^BAR", "^FOO"));
+
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(LINE_RAW_DATA, null, null, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(LINE_RAW_DATA, 0, null, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3), 1, null, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3), 2, null, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), null, 2, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3, NOT_A_LINE), null, 1, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3), null, 0, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), 1, 2, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, null, null));
+		assertEquals(
+				LINE_RAW_DATA,
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), 2, 2, null, null));
+
+		assertEquals(
+				List.of(LINE1, LINE3),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", null));
+
+		assertEquals(
+				List.of(LINE1),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, null, "^FOO"));
+
+		assertEquals(
+				List.of(LINE1),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", "^FOO"));
+
+		assertEquals(
+				List.of(),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", "^BAR"));
+
+		assertEquals(
+				List.of(LINE3),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, "^BAR", null));
+
+		assertEquals(
+				List.of(),
+				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, null, "^FOO"));
+	}
+
+	@Test
+	void testSelectedColumns() {
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.selectedColumns(null, TABLE_SEP, List.of("-4")));
+
+		 // no separator
+		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, null, List.of("-3")));
+		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, "", List.of("-3")));
+
+		 // no selected columns
+		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, null)); // no selected columns
+		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, Collections.emptyList())); // no selected columns
+		
+		// out of bounds
+		assertEquals(List.of("", "", ""), OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("50")));
+
+		// other separator
+		final List<String> rawDataLinesOtherSeparator = List.of(
+				"FOO_ID1_NAME1_MANUFACTURER1_NUMBER_OF_DISKS1",
+				"BAR_ID2_NAME2_MANUFACTURER2_NUMBER_OF_DISKS2",
+				"BAZ_ID3_NAME3_MANUFACTURER3_NUMBER_OF_DISKS3");
+
+		final List<String> expected = List.of(
+				"FOO;ID1;NAME1;MANUFACTURER1",
+				"BAR;ID2;NAME2;MANUFACTURER2",
+				"BAZ;ID3;NAME3;MANUFACTURER3");
+		assertEquals(expected, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("-4"))); // use case trad
+		assertEquals(expected, OsCommandHelper.selectedColumns(rawDataLinesOtherSeparator, "_", List.of("-4"))); // use case trad
+
+		assertEquals(
+				List.of("ID1;NAME1", "ID2;NAME2", "ID3;NAME3"),
+				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("2", "3"))); // use case trad
+		
+		assertEquals(
+				List.of("name1;val1", "name2;val2", "name3;val3"),
+				OsCommandHelper.selectedColumns(List.of("id1   name1  val1", "id2   name2  val2", "id3   name3  val3"), WHITE_SPACE, List.of("2", "3"))); // spaces separator
+
+		assertEquals(
+				List.of("na,me1;val,1", "name2;val2", "name3;val3"),
+				OsCommandHelper.selectedColumns(List.of("id1   na;me1  val;1", "id2   name2  val2", "id3   name3  val3"), WHITE_SPACE, List.of("2", "3"))); // make sure that we replace intial ";" by "," because we use it as separator 
+
+		assertEquals(
+				List.of("MANUFACTURER1;NUMBER_OF_DISKS1", "MANUFACTURER2;NUMBER_OF_DISKS2", "MANUFACTURER3;NUMBER_OF_DISKS3"),
+				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("4-"))); // use case trad
+
+		assertEquals(
+				List.of("FOO;ID1;MANUFACTURER1;NUMBER_OF_DISKS1",
+						"BAR;ID2;MANUFACTURER2;NUMBER_OF_DISKS2", 
+						"BAZ;ID3;MANUFACTURER3;NUMBER_OF_DISKS3"),
+				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("-2", "4-"))); // use case trad
 	}
 }
