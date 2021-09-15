@@ -433,7 +433,7 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		log.error("Engine called for thread {}", Thread.currentThread().getName());
+		log.debug("Engine called for thread {}", Thread.currentThread().getName());
 
 		checkEngineConfiguration();
 
