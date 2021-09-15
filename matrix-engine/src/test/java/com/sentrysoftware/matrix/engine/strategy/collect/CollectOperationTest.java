@@ -116,7 +116,7 @@ class CollectOperationTest {
 	private static final String COMMUNITY = "public";
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String POWER_CONSUMPTION = "powerConsumption";
-	private static final String CONNECTOR_NAME = "myConnector.connector";
+	private static final String CONNECTOR_NAME = "myConnector";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
 	private static final String TARGET_ID = "targetId";
@@ -128,7 +128,7 @@ class CollectOperationTest {
 	private static final String FAN_ID_1 = "myConnecctor1.connector_fan_ecs1-01_1.1";
 	private static final String FAN_ID_2 = "myOtherConnecctor.connector_fan_ecs1-01_1.2";
 	private static final String ENCLOSURE_BIS_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.2";
-	private static final String MY_OTHER_CONNECTOR_NAME = "myOtherConnecctor.connector";
+	private static final String MY_OTHER_CONNECTOR_NAME = "myOtherConnecctor";
 	private static final String FAN_ID_3 = "myConnecctor1.connector_fan_ecs1-01_1.3";
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
 	private static final String VERSION = "4.2.3";

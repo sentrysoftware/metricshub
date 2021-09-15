@@ -22,9 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -41,7 +40,8 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class MatrixEngineServiceTest {
 
-	private static final String MS_HW_DELL_OPEN_MANAGE_CONNECTOR = "MS_HW_DellOpenManage.connector";
+	private static final String DELL_OPEN_MANAGE_CONNECTOR = "DellOpenManage";
+	private static final String SUN_F15K  = "SunF15K";
 
 	@Value("${target.config.file}")
 	private File targetConfigFile;
@@ -57,47 +57,38 @@ class MatrixEngineServiceTest {
 	private MatrixEngineService matrixEngineService;
 
 	@Test
-	void testGetConnectorsWithoutExtension() {
-		assertEquals(Collections.singletonList("MyConnector"),
-				MatrixEngineService.getConnectorsWithoutExtension(Collections.singleton("MyConnector.hdfs")));
-	}
+	void testGetConnectors() throws BusinessException {
+		final Map<String, Connector> connectors = Map
+				.of(DELL_OPEN_MANAGE_CONNECTOR, Connector.builder().compiledFilename(DELL_OPEN_MANAGE_CONNECTOR).build(),
+					SUN_F15K, Connector.builder().compiledFilename(SUN_F15K).build());
 
-	@Test
-	void testGetConnectors() {
+		{
+			assertTrue(MatrixEngineService.getConnectors(connectors, null, "selected", "hostname").isEmpty());
+			assertTrue(MatrixEngineService.getConnectors(connectors, Collections.emptySet(), "excluded", "hostname").isEmpty());
+		}
 
-		final Set<String> allConnectors = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs", "dd.hdfs", "ee.hdfs");
-		final Set<String> selected = Set.of("aa.hdfs", "bb.hdfs", "cc.hdfs");
-		final Set<String> excluded = Set.of("aa.hdfs", "bb.hdfs");
+		{
+			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), 
+					MatrixEngineService.getConnectors(connectors, Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), "selected", "hostname"));
+			assertEquals(Set.of(SUN_F15K), MatrixEngineService.getConnectors(connectors, Set.of(SUN_F15K), "selected", "hostname"));
+		}
 
-		final Set<String> expectedInclusion = new HashSet<>(Arrays.asList("aa.connector", "bb.connector", "cc.connector"));
-		Set<String> actual = MatrixEngineService.getConnectors(allConnectors, selected);
-		assertEquals(expectedInclusion, actual);
-
-		actual = MatrixEngineService.getConnectors(allConnectors, Collections.emptySet());
-		assertEquals(Collections.emptySet(), actual);
-
-		final Set<String> expectedExclusion = Set.of("aa.connector", "bb.connector");
-		actual = MatrixEngineService.getConnectors(allConnectors, excluded);
-		assertEquals(expectedExclusion, actual);
-
-		actual = MatrixEngineService.getConnectors(allConnectors, Collections.emptySet());
-		assertEquals(Collections.emptySet(), actual);
-
-		actual = MatrixEngineService.getConnectors(allConnectors, null);
-		assertEquals(Collections.emptySet(), actual);
-
+		{
+			assertThrows(BusinessException.class, () -> MatrixEngineService.getConnectors(connectors,
+					Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR), "selected", "hostname"));
+		}
 	}
 
 	@Test
 	void testBuildEngineConfiguration() throws BusinessException {
 
 		final Map<String, Connector> connectors = Map
-			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
-				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+			.of(DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(DELL_OPEN_MANAGE_CONNECTOR).build());
 
-		final MultiHostsConfigurationDTO hostsConfigurations = matrixEngineService.readConfiguration(targetConfigFile, connectors);
+		final MultiHostsConfigurationDTO hostsConfigurations = matrixEngineService.readConfiguration(targetConfigFile, connectors, "hostname");
 
-		final Set<String> selectedConnectors = Collections.singleton(MS_HW_DELL_OPEN_MANAGE_CONNECTOR);
+		final Set<String> selectedConnectors = Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR);
 
 		for (HostConfigurationDTO hostConfigurationDTO : hostsConfigurations.getTargets()) {
 
@@ -123,17 +114,46 @@ class MatrixEngineServiceTest {
 	@Test
 	void testReadConfigurationException() {
 
-		assertThrows(BusinessException.class, () ->  matrixEngineService.readConfiguration(new File("unknownFile.yml"), null));
+		assertThrows(BusinessException.class, () ->  matrixEngineService.readConfiguration(new File("unknownFile.yml"), Collections.emptyMap(), null));
 	}
 
 	@Test
 	void testReadConfiguration() throws BusinessException {
 
-		final Map<String, Connector> connectors = Map
-			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
-				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+		{
+			final Map<String, Connector> connectors = Map
+					.of(DELL_OPEN_MANAGE_CONNECTOR,
+						Connector.builder().compiledFilename(DELL_OPEN_MANAGE_CONNECTOR).build());
 
-		assertNotNull(matrixEngineService.readConfiguration(targetConfigFile, connectors));
+				assertNotNull(matrixEngineService.readConfiguration(targetConfigFile, connectors, "hostname"));
+		}
+
+		{
+			// Unknown connector but /metrics
+			final Map<String, Connector> connectors = Map
+					.of(SUN_F15K,
+						Connector.builder().compiledFilename(SUN_F15K).build());
+
+				assertNotNull(matrixEngineService.readConfiguration(targetConfigFile, connectors, null));
+		}
+
+		{
+			// Unknown connector but /metrics/$target
+			final Map<String, Connector> connectors = Map
+					.of(SUN_F15K,
+						Connector.builder().compiledFilename(SUN_F15K).build());
+
+				assertThrows(BusinessException.class, () -> matrixEngineService.readConfiguration(targetConfigFile, connectors, "target"));
+		}
+
+		{
+			// Unknown connector but /metrics/$target
+			final Map<String, Connector> connectors = Map
+					.of(SUN_F15K,
+						Connector.builder().compiledFilename(SUN_F15K).build());
+
+				assertThrows(BusinessException.class, () -> matrixEngineService.readConfiguration(null, connectors, "target"));
+		}
 	}
 
 	@Test
@@ -153,8 +173,8 @@ class MatrixEngineServiceTest {
 	void testPerformJobsTargetIsNull() {
 
 		final Map<String, Connector> connectors = Map
-			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
-				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+			.of(DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(DELL_OPEN_MANAGE_CONNECTOR).build());
 
 		doReturn(connectors).when(store).getConnectors();
 
@@ -171,7 +191,7 @@ class MatrixEngineServiceTest {
 				.build();
 
 			EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
-				Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
+				Set.of(DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
 
 			IHostMonitoring hostMonitoring = HostMonitoringFactory
 				.getInstance()
@@ -190,13 +210,13 @@ class MatrixEngineServiceTest {
 	void testPerformJobsTargetIsNotNull() {
 
 		final Map<String, Connector> connectors = Map
-			.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR,
-				Connector.builder().compiledFilename(MS_HW_DELL_OPEN_MANAGE_CONNECTOR).build());
+			.of(DELL_OPEN_MANAGE_CONNECTOR,
+				Connector.builder().compiledFilename(DELL_OPEN_MANAGE_CONNECTOR).build());
 
 		doReturn(connectors).when(store).getConnectors();
 
 		// Invalid targetId
-		assertThrows(IllegalArgumentException.class, () -> matrixEngineService.performJobs("FOO"));
+		assertThrows(BusinessException.class, () -> matrixEngineService.performJobs("FOO"));
 		verify(store).getConnectors();
 		verify(hostMonitoringMap, times(0)).get(anyString());
 
@@ -210,7 +230,7 @@ class MatrixEngineServiceTest {
 			.build();
 
 		EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
-			Set.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
+			Set.of(DELL_OPEN_MANAGE_CONNECTOR), Collections.emptySet());
 
 		IHostMonitoring hostMonitoring = HostMonitoringFactory
 			.getInstance()
@@ -221,5 +241,14 @@ class MatrixEngineServiceTest {
 		assertDoesNotThrow(() -> matrixEngineService.performJobs(hostname));
 		verify(store, times(2)).getConnectors();
 		verify(hostMonitoringMap).get(anyString());
+	}
+
+	@Test
+	void testValidateTarget() {
+		assertThrows(BusinessException.class, () -> MatrixEngineService.validateTarget(null, "hostname"));
+		assertThrows(BusinessException.class, () -> MatrixEngineService.validateTarget(TargetType.LINUX, ""));
+		assertThrows(BusinessException.class, () -> MatrixEngineService.validateTarget(TargetType.LINUX, null));
+		assertThrows(BusinessException.class, () -> MatrixEngineService.validateTarget(TargetType.LINUX, " 	"));
+		assertDoesNotThrow(() -> MatrixEngineService.validateTarget(TargetType.LINUX, "hostname"));
 	}
 }

@@ -1,10 +1,10 @@
 {
   "total" : 62,
   "monitors" : [ {
-    "id" : "MS_HW_DellOpenManage.connector_battery_localhost_1.1",
+    "id" : "DellOpenManage_battery_localhost_1.1",
     "name" : "1.1 (System Board CMOS Battery)",
     "monitorType" : "BATTERY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "System Board CMOS Battery",
     "parameters" : {
@@ -29,7 +29,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
@@ -96,8 +96,8 @@
       } ]
     }
   }, {
-    "id" : "localhost@MS_HW_DellOpenManage.connector",
-    "name" : "MS_HW_DellOpenManage.connector",
+    "id" : "localhost@DellOpenManage",
+    "name" : "DellOpenManage",
     "monitorType" : "CONNECTOR",
     "parentId" : "localhost",
     "targetId" : "localhost",
@@ -124,7 +124,7 @@
     },
     "metadata" : { 
         "displayName": "Dell OpenManage Server Administrator",
-        "fileName": "MS_HW_DellOpenManage.connector",
+        "fileName": "DellOpenManage",
         "description": "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
     },
     "alertRules" : {
@@ -142,10 +142,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_cpu_localhost_1.1",
+    "id" : "DellOpenManage_cpu_localhost_1.1",
     "name" : "1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",
     "monitorType" : "CPU",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "CPU",
     "parameters" : {
@@ -193,7 +193,7 @@
     },
     "metadata" : {
       "additionalinformation1" : "Location: Slot CPU1",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "Location: Slot CPU1",
@@ -263,7 +263,7 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "id" : "DellOpenManage_enclosure_localhost_1",
     "name" : "Computer: Dell PowerEdge R630",
     "monitorType" : "ENCLOSURE",
     "parentId" : "localhost",
@@ -325,7 +325,7 @@
     "metadata" : {
       "additionalinformation1" : "Serial Number: FSJR3N2",
       "additionalinformation2" : "Alternative Serial Number: 34377965102",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1",
       "idCount" : "0",
       "identifyingInformation" : "Serial Number: FSJR3N2 - Alternative Serial Number: 34377965102",
@@ -360,10 +360,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.1",
+    "id" : "DellOpenManage_fan_localhost_1.1",
     "name" : "1.1 (System Board1A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -411,7 +411,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "fantype" : "System Board1A",
       "idCount" : "0",
@@ -505,10 +505,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.10",
+    "id" : "DellOpenManage_fan_localhost_1.10",
     "name" : "1.10 (System Board3B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -556,7 +556,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.10",
       "fantype" : "System Board3B",
       "idCount" : "9",
@@ -650,10 +650,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.11",
+    "id" : "DellOpenManage_fan_localhost_1.11",
     "name" : "1.11 (System Board4B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -701,7 +701,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.11",
       "fantype" : "System Board4B",
       "idCount" : "10",
@@ -795,10 +795,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.12",
+    "id" : "DellOpenManage_fan_localhost_1.12",
     "name" : "1.12 (System Board5B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -846,7 +846,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.12",
       "fantype" : "System Board5B",
       "idCount" : "11",
@@ -940,10 +940,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.13",
+    "id" : "DellOpenManage_fan_localhost_1.13",
     "name" : "1.13 (System Board6B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -991,7 +991,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.13",
       "fantype" : "System Board6B",
       "idCount" : "12",
@@ -1085,10 +1085,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.14",
+    "id" : "DellOpenManage_fan_localhost_1.14",
     "name" : "1.14 (System Board7B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1136,7 +1136,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.14",
       "fantype" : "System Board7B",
       "idCount" : "13",
@@ -1230,10 +1230,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.2",
+    "id" : "DellOpenManage_fan_localhost_1.2",
     "name" : "1.2 (System Board2A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1281,7 +1281,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "fantype" : "System Board2A",
       "idCount" : "1",
@@ -1375,10 +1375,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.3",
+    "id" : "DellOpenManage_fan_localhost_1.3",
     "name" : "1.3 (System Board3A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1426,7 +1426,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.3",
       "fantype" : "System Board3A",
       "idCount" : "2",
@@ -1520,10 +1520,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.4",
+    "id" : "DellOpenManage_fan_localhost_1.4",
     "name" : "1.4 (System Board4A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1571,7 +1571,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.4",
       "fantype" : "System Board4A",
       "idCount" : "3",
@@ -1665,10 +1665,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.5",
+    "id" : "DellOpenManage_fan_localhost_1.5",
     "name" : "1.5 (System Board5A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1716,7 +1716,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.5",
       "fantype" : "System Board5A",
       "idCount" : "4",
@@ -1810,10 +1810,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.6",
+    "id" : "DellOpenManage_fan_localhost_1.6",
     "name" : "1.6 (System Board6A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1861,7 +1861,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.6",
       "fantype" : "System Board6A",
       "idCount" : "5",
@@ -1955,10 +1955,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.7",
+    "id" : "DellOpenManage_fan_localhost_1.7",
     "name" : "1.7 (System Board7A)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -2006,7 +2006,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.7",
       "fantype" : "System Board7A",
       "idCount" : "6",
@@ -2100,10 +2100,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.8",
+    "id" : "DellOpenManage_fan_localhost_1.8",
     "name" : "1.8 (System Board1B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -2151,7 +2151,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.8",
       "fantype" : "System Board1B",
       "idCount" : "7",
@@ -2244,10 +2244,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_fan_localhost_1.9",
+    "id" : "DellOpenManage_fan_localhost_1.9",
     "name" : "1.9 (System Board2B)",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -2295,7 +2295,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "600",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.9",
       "fantype" : "System Board2B",
       "idCount" : "8",
@@ -2388,10 +2388,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.1",
+    "id" : "DellOpenManage_memory_localhost_1.1",
     "name" : "1.1 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -2441,7 +2441,7 @@
       "additionalinformation1" : "Location: Slot A1",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "Location: Slot A1 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -2535,10 +2535,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.10",
+    "id" : "DellOpenManage_memory_localhost_1.10",
     "name" : "1.10 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -2588,7 +2588,7 @@
       "additionalinformation1" : "Location: Slot A10",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.10",
       "idCount" : "9",
       "identifyingInformation" : "Location: Slot A10 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -2682,10 +2682,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.11",
+    "id" : "DellOpenManage_memory_localhost_1.11",
     "name" : "1.11 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -2746,7 +2746,7 @@
       "additionalinformation1" : "Location: Slot A11",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.11",
       "idCount" : "10",
       "identifyingInformation" : "Location: Slot A11 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -2840,10 +2840,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.12",
+    "id" : "DellOpenManage_memory_localhost_1.12",
     "name" : "1.12 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -2893,7 +2893,7 @@
       "additionalinformation1" : "Location: Slot A12",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.12",
       "idCount" : "11",
       "identifyingInformation" : "Location: Slot A12 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -2987,10 +2987,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.2",
+    "id" : "DellOpenManage_memory_localhost_1.2",
     "name" : "1.2 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3040,7 +3040,7 @@
       "additionalinformation1" : "Location: Slot A2",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "Location: Slot A2 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3134,10 +3134,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.3",
+    "id" : "DellOpenManage_memory_localhost_1.3",
     "name" : "1.3 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3187,7 +3187,7 @@
       "additionalinformation1" : "Location: Slot A3",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.3",
       "idCount" : "2",
       "identifyingInformation" : "Location: Slot A3 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3281,10 +3281,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.4",
+    "id" : "DellOpenManage_memory_localhost_1.4",
     "name" : "1.4 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3334,7 +3334,7 @@
       "additionalinformation1" : "Location: Slot A4",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.4",
       "idCount" : "3",
       "identifyingInformation" : "Location: Slot A4 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3428,10 +3428,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.5",
+    "id" : "DellOpenManage_memory_localhost_1.5",
     "name" : "1.5 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3481,7 +3481,7 @@
       "additionalinformation1" : "Location: Slot A5",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.5",
       "idCount" : "4",
       "identifyingInformation" : "Location: Slot A5 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3575,10 +3575,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.6",
+    "id" : "DellOpenManage_memory_localhost_1.6",
     "name" : "1.6 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3628,7 +3628,7 @@
       "additionalinformation1" : "Location: Slot A6",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.6",
       "idCount" : "5",
       "identifyingInformation" : "Location: Slot A6 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3722,10 +3722,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.7",
+    "id" : "DellOpenManage_memory_localhost_1.7",
     "name" : "1.7 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3775,7 +3775,7 @@
       "additionalinformation1" : "Location: Slot A7",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.7",
       "idCount" : "6",
       "identifyingInformation" : "Location: Slot A7 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -3869,10 +3869,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.8",
+    "id" : "DellOpenManage_memory_localhost_1.8",
     "name" : "1.8 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -3922,7 +3922,7 @@
       "additionalinformation1" : "Location: Slot A8",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.8",
       "idCount" : "7",
       "identifyingInformation" : "Location: Slot A8 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -4016,10 +4016,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_memory_localhost_1.9",
+    "id" : "DellOpenManage_memory_localhost_1.9",
     "name" : "1.9 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
     "parameters" : {
@@ -4069,7 +4069,7 @@
       "additionalinformation1" : "Location: Slot A9",
       "additionalinformation2" : "Part Number: HMA82GR7MFR8N-UH",
       "additionalinformation3" : "Alternative Serial Number: 00180130",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.9",
       "idCount" : "8",
       "identifyingInformation" : "Location: Slot A9 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
@@ -4163,10 +4163,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_1",
+    "id" : "DellOpenManage_otherdevice_localhost_1",
     "name" : "ESM: 1",
     "monitorType" : "OTHER_DEVICE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "OtherDevice",
     "parameters" : {
@@ -4192,7 +4192,7 @@
     },
     "metadata" : {
       "additionalinformation1" : "EventLog",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1",
       "devicetype" : "ESM",
       "displayid" : "1",
@@ -4237,10 +4237,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_otherdevice_localhost_SDCardDevice-1.1",
+    "id" : "DellOpenManage_otherdevice_localhost_SDCardDevice-1.1",
     "name" : "vFlash: SDCardDevice-1.1",
     "monitorType" : "OTHER_DEVICE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "OtherDevice",
     "parameters" : {
@@ -4267,7 +4267,7 @@
     "metadata" : {
       "additionalinformation1" : "Size : 0 MB ",
       "additionallabel" : "",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "SDCardDevice-1.1",
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
@@ -4312,10 +4312,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.1",
+    "id" : "DellOpenManage_powersupply_localhost_1.1",
     "name" : "1.1 (AC - 750.0 W)",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -4340,7 +4340,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
@@ -4408,10 +4408,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_powersupply_localhost_1.2",
+    "id" : "DellOpenManage_powersupply_localhost_1.2",
     "name" : "1.2 (AC - 750.0 W)",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -4436,7 +4436,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
@@ -4573,10 +4573,10 @@
     },
     "alertRules" : { }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.1",
+    "id" : "DellOpenManage_temperature_localhost_1.1",
     "name" : "1.1 (System Board Inlet)",
     "monitorType" : "TEMPERATURE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
     "parameters" : {
@@ -4604,7 +4604,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "47.0",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
@@ -4660,10 +4660,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.2",
+    "id" : "DellOpenManage_temperature_localhost_1.2",
     "name" : "1.2 (System Board Exhaust)",
     "monitorType" : "TEMPERATURE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
     "parameters" : {
@@ -4691,7 +4691,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "75.0",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
@@ -4747,10 +4747,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_temperature_localhost_1.3",
+    "id" : "DellOpenManage_temperature_localhost_1.3",
     "name" : "1.3 (CPU1)",
     "monitorType" : "TEMPERATURE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
     "parameters" : {
@@ -4778,7 +4778,7 @@
     },
     "metadata" : {
       "alarmthreshold" : "90.0",
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.3",
       "idCount" : "2",
       "identifyingInformation" : "",
@@ -4835,10 +4835,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.1",
+    "id" : "DellOpenManage_voltage_localhost_1.1",
     "name" : "1.1 (CPU1 VCORE PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -4854,7 +4854,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
@@ -4888,10 +4888,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.10",
+    "id" : "DellOpenManage_voltage_localhost_1.10",
     "name" : "1.10 (System Board DIMM PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -4907,7 +4907,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.10",
       "idCount" : "9",
       "identifyingInformation" : "",
@@ -4941,10 +4941,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.11",
+    "id" : "DellOpenManage_voltage_localhost_1.11",
     "name" : "1.11 (System Board VCCIO PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -4960,7 +4960,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.11",
       "idCount" : "10",
       "identifyingInformation" : "",
@@ -4994,10 +4994,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.12",
+    "id" : "DellOpenManage_voltage_localhost_1.12",
     "name" : "1.12 (CPU1 M01 VDDQ PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5013,7 +5013,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.12",
       "idCount" : "11",
       "identifyingInformation" : "",
@@ -5047,10 +5047,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.13",
+    "id" : "DellOpenManage_voltage_localhost_1.13",
     "name" : "1.13 (System Board NDC PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5066,7 +5066,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.13",
       "idCount" : "12",
       "identifyingInformation" : "",
@@ -5100,10 +5100,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.14",
+    "id" : "DellOpenManage_voltage_localhost_1.14",
     "name" : "1.14 (CPU1 M01 VPP PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5119,7 +5119,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.14",
       "idCount" : "13",
       "identifyingInformation" : "",
@@ -5153,10 +5153,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.15",
+    "id" : "DellOpenManage_voltage_localhost_1.15",
     "name" : "1.15 (System Board 1.5V PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5172,7 +5172,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.15",
       "idCount" : "14",
       "identifyingInformation" : "",
@@ -5206,10 +5206,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.16",
+    "id" : "DellOpenManage_voltage_localhost_1.16",
     "name" : "1.16 (System Board 1.5V AUX PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5225,7 +5225,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.16",
       "idCount" : "15",
       "identifyingInformation" : "",
@@ -5259,10 +5259,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.17",
+    "id" : "DellOpenManage_voltage_localhost_1.17",
     "name" : "1.17 (CPU1 FIVR PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5278,7 +5278,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.17",
       "idCount" : "16",
       "identifyingInformation" : "",
@@ -5312,10 +5312,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.18",
+    "id" : "DellOpenManage_voltage_localhost_1.18",
     "name" : "1.18 (System Board PS2 PG Fail)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5331,7 +5331,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.18",
       "idCount" : "17",
       "identifyingInformation" : "",
@@ -5365,10 +5365,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.19",
+    "id" : "DellOpenManage_voltage_localhost_1.19",
     "name" : "1.19 (System Board PS1 PG Fail)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5384,7 +5384,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.19",
       "idCount" : "18",
       "identifyingInformation" : "",
@@ -5418,10 +5418,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.2",
+    "id" : "DellOpenManage_voltage_localhost_1.2",
     "name" : "1.2 (System Board 3.3V PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5437,7 +5437,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
@@ -5471,10 +5471,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.20",
+    "id" : "DellOpenManage_voltage_localhost_1.20",
     "name" : "1.20 (System Board BP1 5V PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5490,7 +5490,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.20",
       "idCount" : "19",
       "identifyingInformation" : "",
@@ -5524,10 +5524,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.21",
+    "id" : "DellOpenManage_voltage_localhost_1.21",
     "name" : "1.21 (System Board BP2 5V PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5543,7 +5543,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.21",
       "idCount" : "20",
       "identifyingInformation" : "",
@@ -5577,10 +5577,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.22",
+    "id" : "DellOpenManage_voltage_localhost_1.22",
     "name" : "1.22 (CPU1 M01 VTT PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5596,7 +5596,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.22",
       "idCount" : "21",
       "identifyingInformation" : "",
@@ -5630,10 +5630,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.23",
+    "id" : "DellOpenManage_voltage_localhost_1.23",
     "name" : "1.23 (PS1 Voltage 1)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5660,7 +5660,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.23",
       "idCount" : "22",
       "identifyingInformation" : "",
@@ -5694,10 +5694,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.24",
+    "id" : "DellOpenManage_voltage_localhost_1.24",
     "name" : "1.24 (PS2 Voltage 2)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5724,7 +5724,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.24",
       "idCount" : "23",
       "identifyingInformation" : "",
@@ -5758,10 +5758,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.3",
+    "id" : "DellOpenManage_voltage_localhost_1.3",
     "name" : "1.3 (System Board 5V AUX PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5777,7 +5777,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.3",
       "idCount" : "2",
       "identifyingInformation" : "",
@@ -5811,10 +5811,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.4",
+    "id" : "DellOpenManage_voltage_localhost_1.4",
     "name" : "1.4 (CPU1 M23 VPP PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5830,7 +5830,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.4",
       "idCount" : "3",
       "identifyingInformation" : "",
@@ -5864,10 +5864,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.5",
+    "id" : "DellOpenManage_voltage_localhost_1.5",
     "name" : "1.5 (System Board 2.5V AUX PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5883,7 +5883,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.5",
       "idCount" : "4",
       "identifyingInformation" : "",
@@ -5917,10 +5917,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.6",
+    "id" : "DellOpenManage_voltage_localhost_1.6",
     "name" : "1.6 (System Board 1.05V PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5936,7 +5936,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.6",
       "idCount" : "5",
       "identifyingInformation" : "",
@@ -5970,10 +5970,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.7",
+    "id" : "DellOpenManage_voltage_localhost_1.7",
     "name" : "1.7 (CPU1 M23 VDDQ PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -5989,7 +5989,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.7",
       "idCount" : "6",
       "identifyingInformation" : "",
@@ -6023,10 +6023,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.8",
+    "id" : "DellOpenManage_voltage_localhost_1.8",
     "name" : "1.8 (CPU1 M23 VTT PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -6042,7 +6042,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.8",
       "idCount" : "7",
       "identifyingInformation" : "",
@@ -6076,10 +6076,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_DellOpenManage.connector_voltage_localhost_1.9",
+    "id" : "DellOpenManage_voltage_localhost_1.9",
     "name" : "1.9 (System Board 5V SWITCH PG)",
     "monitorType" : "VOLTAGE",
-    "parentId" : "MS_HW_DellOpenManage.connector_enclosure_localhost_1",
+    "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
     "parameters" : {
@@ -6095,7 +6095,7 @@
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_DellOpenManage.connector",
+      "connector" : "DellOpenManage",
       "deviceid" : "1.9",
       "idCount" : "8",
       "identifyingInformation" : "",

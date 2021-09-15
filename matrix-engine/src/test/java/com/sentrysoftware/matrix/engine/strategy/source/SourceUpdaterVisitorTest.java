@@ -53,7 +53,7 @@ class SourceUpdaterVisitorTest {
 	private static final String EMBEDDED_FILE_CODE_CONTENT_1 = "showplatform -v,13,14";
 	private static final String EMBEDDED_FILE_CODE_CONTENT_2 = "showenvironment,7,8";
 	private static final String VALUE_VAL1 = "val1";
-	private static final String CONNECTOR_NAME = "test.connector";
+	private static final String CONNECTOR_NAME = "connector";
 
 	@Mock
 	private ISourceVisitor sourceVisitor;

@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import java.util.regex.Pattern;
+
 public class HardwareConstants {
 
 	private HardwareConstants() {
@@ -306,4 +308,9 @@ public class HardwareConstants {
 	public static final String TARGET_FQDN = "targetFqdn";
 
 	public static final int ID_MAXLENGTH = 10;
+
+	/**
+	 * Pattern to remove MS_HW_ from the compiled file name
+	 */
+	public static final Pattern REMOVE_MS_HW_PATTERN = Pattern.compile("^(MS_HW_)(.*)$", Pattern.CASE_INSENSITIVE);
 }

@@ -60,11 +60,11 @@ class DetectionOperationTest {
 	private static final String TARGET_ID = "targetId";
 	private static final String COMMUNITY = "public";
 	private static final String VERSION = "4.2.3";
-	private static final String CONNECTOR5_ID = "connector5.connector";
-	private static final String CONNECTOR4_ID = "connector4.connector";
-	private static final String CONNECTOR3_ID = "connector3.connector";
-	private static final String CONNECTOR2_ID = "connector2.connector";
-	private static final String CONNECTOR1_ID = "connector1.connector";
+	private static final String CONNECTOR5_ID = "connector5";
+	private static final String CONNECTOR4_ID = "connector4";
+	private static final String CONNECTOR3_ID = "connector3";
+	private static final String CONNECTOR2_ID = "connector2";
+	private static final String CONNECTOR1_ID = "connector1";
 	private static final String OID1 = "1.2.3.4.5";
 	private static final String OID2 = "1.2.3.4.6";
 	private static final String OID3 = "1.2.3.4.7";
@@ -304,7 +304,7 @@ class DetectionOperationTest {
 			final TestedConnector testedConnector = TestedConnector.builder()
 					.connector(Connector.builder().supersedes(expected).build()).build();
 			detectionOperation.updateSupersedes(supersedes, testedConnector);
-			assertEquals(expected.stream().map(s -> s.replace(".hdf", ".connector")).collect(Collectors.toSet()),
+			assertEquals(expected.stream().map(s -> s.replace(".hdf", "")).collect(Collectors.toSet()),
 					supersedes);
 
 		}
