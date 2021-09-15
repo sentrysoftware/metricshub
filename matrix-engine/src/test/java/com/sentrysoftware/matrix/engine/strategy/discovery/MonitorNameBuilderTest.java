@@ -156,7 +156,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.BATTERY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -184,7 +184,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.BATTERY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -213,7 +213,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.BLADE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -240,7 +240,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.BLADE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -272,7 +272,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -298,7 +298,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -326,7 +326,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.CPU_CORE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -358,7 +358,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.DISK_CONTROLLER)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -392,7 +392,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -422,7 +422,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -451,7 +451,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -479,7 +479,7 @@ class MonitorNameBuilderTest {
 					.build();
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -507,7 +507,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE).monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -534,7 +534,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -561,7 +561,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -589,7 +589,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -616,7 +616,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -647,7 +647,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.FAN).monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
 					.targetType(TargetType.LINUX)
@@ -670,7 +670,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -694,7 +694,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -725,7 +725,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LED)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -750,7 +750,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LED)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -781,7 +781,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LOGICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -807,7 +807,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LOGICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -835,7 +835,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LUN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -862,7 +862,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.LUN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -890,7 +890,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -917,7 +917,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -944,7 +944,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -972,7 +972,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.NETWORK_CARD)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -999,7 +999,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.NETWORK_CARD)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1029,7 +1029,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.OTHER_DEVICE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1054,7 +1054,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.OTHER_DEVICE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1086,7 +1086,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.PHYSICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1112,7 +1112,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.PHYSICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1142,7 +1142,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.POWER_SUPPLY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1170,7 +1170,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1198,7 +1198,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1227,7 +1227,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.TAPE_DRIVE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1254,7 +1254,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.TAPE_DRIVE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1284,7 +1284,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.TEMPERATURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
@@ -1314,7 +1314,7 @@ class MonitorNameBuilderTest {
 
 			final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo
 					.builder()
-					.connectorName("myConnector.connector")
+					.connectorName("myConnector")
 					.monitorType(MonitorType.VOLTAGE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())

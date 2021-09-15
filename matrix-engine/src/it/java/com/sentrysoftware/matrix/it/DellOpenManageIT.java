@@ -29,7 +29,7 @@ class DellOpenManageIT {
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
-				.selectedConnectors(Set.of("MS_HW_DellOpenManage.connector"))
+				.selectedConnectors(Set.of("DellOpenManage"))
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 	}
 

@@ -79,7 +79,7 @@ class SourceVisitorTest {
 	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String VALUE_LIST = "a1;b1;c1";
 	private static final String VALUE_A1 = "a1";
-	private static final String CONNECTOR_NAME = "myConnector.connector";
+	private static final String CONNECTOR_NAME = "myConnector";
 
 	@Mock
 	private StrategyConfig strategyConfig;

@@ -35,14 +35,14 @@ import com.sentrysoftware.matrix.connector.serialize.ConnectorSerializer;
 class ConnectorCompileMojoTest {
 
 	private static final String CHECK_OPTIONAL_CONNECTOR = "checkOptionalConnector";
-	private static final String MY_CONNECTOR_CONNECTOR = "MyConnector.connector";
+	private static final String MY_CONNECTOR = "MyConnector";
 	private static final String EXPECTED_EXCEPTION = "Expected exception";
 	private static final String SERIALIZE = "serialize";
 	private static final String MY_CONNECTOR_HDFS = "/MyConnector.hdfs";
 	private static final String PROJECT_DESCRIPTION = "Hardware Connector Library";
 	private static final String PROJECT_VERSION = "1.0";
-	private static final String MS_HW_DELL_OPEN_MANAGE_CONNECTOR = "MS_HW_DellOpenManage.connector";
-	private static final String MS_HW_DELL_STORAGE_MANAGER_CONNECTOR = "MS_HW_DellStorageManager.connector";
+	private static final String DELL_OPEN_MANAGE = "DellOpenManage";
+	private static final String DELL_STORAGE_MANAGER = "DellStorageManager";
 	private static final String MS_HW_DELL_OPEN_MANAGE_HDFS_PATH = "/hdf/MS_HW_DellOpenManage.hdfs";
 	private static final String MS_HW_DELL_STORAGE_MANAGER_HDFS_PATH = "/hdf/MS_HW_DellStorageManager.hdfs";
 	private static final String MS_HW_DELL_STORAGE_MANAGER_HDFS = "MS_HW_DellStorageManager.hdfs";
@@ -61,7 +61,7 @@ class ConnectorCompileMojoTest {
 		
 		try {
 			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
-					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.empty()));
+					Arrays.asList(logger, MY_CONNECTOR, Optional.empty()));
 			fail(EXPECTED_EXCEPTION);
 		} catch (Exception e) {
 			assertTrue(e.getCause() instanceof MojoExecutionException);
@@ -69,7 +69,7 @@ class ConnectorCompileMojoTest {
 		
 		try {
 			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
-					Arrays.asList(logger, MY_CONNECTOR_CONNECTOR, Optional.of(Connector.builder().build())));
+					Arrays.asList(logger, MY_CONNECTOR, Optional.of(Connector.builder().build())));
 		} catch (Exception e) {
 			fail("Unexpected exception");
 		}
@@ -79,7 +79,7 @@ class ConnectorCompileMojoTest {
 	@Test
 	void testSerialize() throws Exception {
 
-		final String expectedFilename = MY_CONNECTOR_CONNECTOR;
+		final String expectedFilename = MY_CONNECTOR;
 
 		Connector expected = Connector.builder().compiledFilename(expectedFilename).build();
 		ReflectionHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
@@ -92,7 +92,7 @@ class ConnectorCompileMojoTest {
 		assertEquals(expectedFilename, fileNames[0]);
 
 		// Integrity check
-		final File[] serializedConnectors = testDirectory.listFiles((file, name) -> name.endsWith(".connector"));
+		final File[] serializedConnectors = testDirectory.listFiles();
 
 		assertEquals(1, serializedConnectors.length);
 		try (final FileInputStream is = new FileInputStream(serializedConnectors[0]);
@@ -104,7 +104,7 @@ class ConnectorCompileMojoTest {
 	@Test
 	void testSerializeMojoExecutionException() throws Exception {
 
-		final String expectedFilename = MY_CONNECTOR_CONNECTOR;
+		final String expectedFilename = MY_CONNECTOR;
 
 		final Connector connector = Connector.builder().compiledFilename(expectedFilename).build();
 		final String connectorPath = testDirectory.getPath() + MY_CONNECTOR_HDFS;
@@ -255,7 +255,7 @@ class ConnectorCompileMojoTest {
 		final String[] fileNames = outputDirectory.list();
 
 		assertEquals(2, fileNames.length);
-		assertEquals(Stream.of(MS_HW_DELL_OPEN_MANAGE_CONNECTOR, MS_HW_DELL_STORAGE_MANAGER_CONNECTOR)
+		assertEquals(Stream.of(DELL_OPEN_MANAGE, DELL_STORAGE_MANAGER)
 				.collect(Collectors.toSet()), Arrays.stream(fileNames).collect(Collectors.toSet()));
 	}
 }
