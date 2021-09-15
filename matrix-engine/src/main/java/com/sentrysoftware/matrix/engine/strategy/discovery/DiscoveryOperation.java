@@ -1,28 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -38,8 +15,30 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -259,7 +258,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 				final Monitor monitor = Monitor.builder().build();
 
-				processSourceTableParameters(connectorName, parameters, sourceKey, row, monitor, idCount);
+				processSourceTableMetadata(connectorName, parameters, sourceKey, row, monitor, idCount);
 
 				final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 						.builder()
@@ -347,8 +346,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param monitor       The monitor on which we are going to set the metadata
 	 * @param idCount		The id used to identify the monitor by its position in {@link SourceTable} lines
 	 */
-	void processSourceTableParameters(final String connectorName, final Map<String, String> parameters,
-			final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
+	void processSourceTableMetadata(final String connectorName, final Map<String, String> parameters,
+									final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
@@ -362,8 +361,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 				final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
 
 				if (columnIndex >= 0 && columnIndex < row.size()) {
+
 					// Get the real value from the source table row
-					monitor.addMetadata(key, row.get(columnIndex));
+					String extractedValue = row.get(columnIndex);
+					if (extractedValue != null) {
+						monitor.addMetadata(key, extractedValue.trim());
+					}
 
 				} else {
 					log.warn("Column {} doesn't match the instance table source {} for connector {}", columnIndex,
@@ -381,7 +384,6 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Add the connector name to the metadata
 		monitor.addMetadata(CONNECTOR, connectorName);
-
 	}
 
 

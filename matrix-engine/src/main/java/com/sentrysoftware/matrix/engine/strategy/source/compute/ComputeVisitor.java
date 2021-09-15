@@ -273,7 +273,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 
 			if (awkResult.isEmpty()) {
-				log.warn(" {} Compute Operation (Awk) result is enmpty, the table remains unchanged.", awk.getIndex());
+				log.warn(" {} Compute Operation (Awk) result is empty, the table remains unchanged.", awk.getIndex());
 				return;
 			}
 
@@ -1215,7 +1215,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 				log.warn("substring arguments are not valid: start={}, end={},"
 						+ " startColumnIndex={}, endColumnIndex={},"
-						+ " computed beginIndex={}, computed endInex={},"
+						+ " computed beginIndex={}, computed endIndex={},"
 						+ " row={}, columnValue={}",
 						start, end,
 						startColumnIndex, endColumnIndex,
@@ -1450,7 +1450,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Given two operands, perform an addition, substraction, multiplication or division
+	 * Given two operands, perform an addition, subtraction, multiplication or division
 	 * and modify the given line on the given columnIndex.
 	 *
 	 * @param computeOperation	The {@link Compute} operation that should be performed.

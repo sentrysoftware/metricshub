@@ -11,6 +11,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
@@ -87,6 +88,7 @@ class DiscoveryOperationTest {
 	private static final String MODEL_VALUE = "2200";
 	private static final String POWER_EDGE_54DSF = "PowerEdge 54dsf";
 	private static final String ID = "1.1";
+	private static final String INSTANCETABLE_COLUMN_5 = "instancetable.column(5)";
 	private static final String INSTANCETABLE_COLUMN_4 = "instancetable.column(4)";
 	private static final String INSTANCETABLE_COLUMN_3 = " instancetable.column(3) ";
 	private static final String INSTANCETABLE_COLUMN_2 = " instancetable.column(2)";
@@ -882,10 +884,11 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				OUT_OF_RANGE, INSTANCETABLE_COLUMN_4);
-		final List<String> row = Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE);
+				SERIAL_NUMBER, INSTANCETABLE_COLUMN_4,
+				OUT_OF_RANGE, INSTANCETABLE_COLUMN_5);
+		final List<String> row = Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE, null);
 		final Monitor monitor = Monitor.builder().build();
-		discoveryOperation.processSourceTableParameters(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
+		discoveryOperation.processSourceTableMetadata(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -894,7 +897,8 @@ class DiscoveryOperationTest {
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
 		assertEquals(MODEL_VALUE, metadata.get(MODEL_PASCAL));
 		assertEquals(ID_COUNT_0, metadata.get(ID_COUNT));
-		assertNull(metadata.get(OUT_OF_RANGE));
+		assertFalse(metadata.containsKey(OUT_OF_RANGE));
+		assertFalse(metadata.containsKey(SERIAL_NUMBER));
 	}
 
 

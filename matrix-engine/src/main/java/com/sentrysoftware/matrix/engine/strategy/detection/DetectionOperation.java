@@ -114,9 +114,6 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param threadsPool				The threads pool that will be used to execute the detections.
 	 *
 	 * @return							The {@link List} of successful {@link TestedConnector}s.
-	 *
-	 * @throws LocalhostCheckException	Could be thrown by filterConnectorsByLocalAndRemoteSupport
-	 * 									if {@link NetworkHelper#isLocalhost(String)} fails.
 	 */
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost, ExecutorService threadsPool) {
 
@@ -399,7 +396,6 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param connectorStream
 	 * @param isLocalhost
 	 * @return {@link Stream} of {@link Connector} instances
-	 * @throws LocalhostCheckException when {@link NetworkHelper#isLocalhost(String)} fails
 	 */
 	Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final boolean isLocalhost) {
 		if (isLocalhost) {
