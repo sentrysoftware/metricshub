@@ -1,20 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_LABEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_ENCLOSURE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_NAME;
@@ -48,6 +33,22 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_REPEAT_REGEX;
+
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.util.Assert;
+
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 public class MonitorNameBuilder {
 
@@ -300,7 +301,7 @@ public class MonitorNameBuilder {
 
 		value *= Long.signum(bytes);
 
-		return String.format("%.0f %cB", value / 1024.0, ci.current());
+		return String.format("%.1f %cB", value / 1024.0, ci.current());
 	}
 
 	/**
@@ -327,13 +328,13 @@ public class MonitorNameBuilder {
 			return bytes + " B";
 		}
 
-		CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+		CharacterIterator ci = new StringCharacterIterator("KMGTPE");
 		while (bytes <= -999_950 || bytes >= 999_950) {
 			bytes /= 1000;
 			ci.next();
 		}
 
-		return String.format("%.0f %cB", bytes / 1000.0, ci.current());
+		return String.format("%.1f %cB", bytes / 1000.0, ci.current());
 	}
 
 	/**

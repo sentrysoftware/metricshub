@@ -31,51 +31,51 @@ hw_target_heating_margin_celsius{fqdn="ecs1-01.internal.sentrysoftware.net",id="
 hw_target_info{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01",label="ecs1-01",location="remote",parent="",} 1.0
 # HELP hw_connector_status Metric: hw_connector_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_connector_status gauge
-hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_MIB2Linux.connector",label="MS_HW_MIB2Linux.connector",parent="ecs1-01",} 0.0
-hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellOpenManage.connector",label="MS_HW_DellOpenManage.connector",parent="ecs1-01",} 0.0
-hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellStorageManager.connector",label="MS_HW_DellStorageManager.connector",parent="ecs1-01",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MIB2Linux",label="MIB2Linux",parent="ecs1-01",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@DellOpenManage",label="DellOpenManage",parent="ecs1-01",} 0.0
+hw_connector_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@DellStorageManager",label="DellStorageManager",parent="ecs1-01",} 0.0
 # HELP hw_connector_info Metric: hw_connector_info
 # TYPE hw_connector_info gauge
-hw_connector_info{description="This connector discovers the enclosure and Ethernet ports of a system equipped with an MIB-2 standard SNMP Agent.",display_name="MIB-2 Standard SNMP Agent - Network Interfaces - Linux",file_name="MS_HW_MIB2Linux.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_MIB2Linux.connector",label="MS_HW_MIB2Linux.connector",parent="ecs1-01",} 1.0
-hw_connector_info{description="This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",display_name="Dell OpenManage Server Administrator",file_name="MS_HW_DellOpenManage.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellOpenManage.connector",label="MS_HW_DellOpenManage.connector",parent="ecs1-01",} 1.0
-hw_connector_info{description="This connector provides Dell disk array monitoring through the Dell Storage Manager Agent which supports almost all Dell disk arrays.",display_name="Dell OpenManage Storage Manager",file_name="MS_HW_DellStorageManager.connector",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MS_HW_DellStorageManager.connector",label="MS_HW_DellStorageManager.connector",parent="ecs1-01",} 1.0
+hw_connector_info{description="This connector discovers the enclosure and Ethernet ports of a system equipped with an MIB-2 standard SNMP Agent.",display_name="MIB-2 Standard SNMP Agent - Network Interfaces - Linux",file_name="MIB2Linux",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@MIB2Linux",label="MIB2Linux",parent="ecs1-01",} 1.0
+hw_connector_info{description="This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",display_name="Dell OpenManage Server Administrator",file_name="DellOpenManage",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@DellOpenManage",label="DellOpenManage",parent="ecs1-01",} 1.0
+hw_connector_info{description="This connector provides Dell disk array monitoring through the Dell Storage Manager Agent which supports almost all Dell disk arrays.",display_name="Dell OpenManage Storage Manager",file_name="DellStorageManager",fqdn="ecs1-01.internal.sentrysoftware.net",id="ecs1-01@DellStorageManager",label="DellStorageManager",parent="ecs1-01",} 1.0
 # HELP hw_enclosure_energy_joules_total Metric: hw_enclosure_energy_joules - Unit: joules
 # TYPE hw_enclosure_energy_joules_total counter
-hw_enclosure_energy_joules_total{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 1.22876352E10
+hw_enclosure_energy_joules_total{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 1.22876352E10
 # HELP hw_enclosure_intrusion_status Metric: hw_enclosure_intrusion_status - Unit: {0 = OK ; 2 = Intrusion Detected}
 # TYPE hw_enclosure_intrusion_status gauge
-hw_enclosure_intrusion_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
+hw_enclosure_intrusion_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
 # HELP hw_enclosure_status Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_enclosure_status gauge
-hw_enclosure_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
+hw_enclosure_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_enclosure_ecs1-01_1",label="Computer: Dell PowerEdge R630",parent="ecs1-01",} 0.0
 # HELP hw_cpu_current_speed_hertz Metric: hw_cpu_current_speed_hertz - Unit: hertz
 # TYPE hw_cpu_current_speed_hertz gauge
-hw_cpu_current_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 2.1E9
+hw_cpu_current_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="DellOpenManage_enclosure_ecs1-01_1",} 2.1E9
 # HELP hw_cpu_present Metric: hw_cpu_present - Unit: {0 = Missing ; 1 = Present}
 # TYPE hw_cpu_present gauge
-hw_cpu_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+hw_cpu_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="DellOpenManage_enclosure_ecs1-01_1",} 1.0
 # HELP hw_cpu_status Metric: hw_cpu_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_cpu_status gauge
-hw_cpu_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
+hw_cpu_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="DellOpenManage_enclosure_ecs1-01_1",} 0.0
 # HELP hw_cpu_maximum_speed_hertz Metric: hw_cpu_maximum_speed_hertz - Unit: hertz
 # TYPE hw_cpu_maximum_speed_hertz gauge
-hw_cpu_maximum_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 4.0E9
+hw_cpu_maximum_speed_hertz{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_cpu_ecs1-01_1.1",label="1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",parent="DellOpenManage_enclosure_ecs1-01_1",} 4.0E9
 # HELP hw_battery_present Metric: hw_battery_present - Unit: {0 = Missing ; 1 = Present}
 # TYPE hw_battery_present gauge
-hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
-hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellStorageManager.connector_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="MS_HW_DellStorageManager.connector_diskcontroller_ecs1-01_1",} 1.0
+hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="DellOpenManage_enclosure_ecs1-01_1",} 1.0
+hw_battery_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellStorageManager_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="DellStorageManager_diskcontroller_ecs1-01_1",} 1.0
 # HELP hw_battery_status Metric: hw_battery_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_battery_status gauge
-hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
-hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellStorageManager.connector_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="MS_HW_DellStorageManager.connector_diskcontroller_ecs1-01_1",} 0.0
+hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_battery_ecs1-01_1.1",label="1.1 (System Board CMOS Battery)",parent="DellOpenManage_enclosure_ecs1-01_1",} 0.0
+hw_battery_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellStorageManager_battery_ecs1-01_1",label="1 (DELL Battery 0)",parent="DellStorageManager_diskcontroller_ecs1-01_1",} 0.0
 # HELP hw_power_supply_present Metric: hw_power_supply_present - Unit: {0 = Missing ; 1 = Present}
 # TYPE hw_power_supply_present gauge
-hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
-hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 1.0
+hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="DellOpenManage_enclosure_ecs1-01_1",} 1.0
+hw_power_supply_present{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="DellOpenManage_enclosure_ecs1-01_1",} 1.0
 # HELP hw_power_supply_status Metric: hw_power_supply_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}
 # TYPE hw_power_supply_status gauge
-hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
-hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="MS_HW_DellOpenManage.connector_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="MS_HW_DellOpenManage.connector_enclosure_ecs1-01_1",} 0.0
+hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_powersupply_ecs1-01_1.1",label="1.1 (AC - 750.0 W)",parent="DellOpenManage_enclosure_ecs1-01_1",} 0.0
+hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenManage_powersupply_ecs1-01_1.2",label="1.2 (AC - 750.0 W)",parent="DellOpenManage_enclosure_ecs1-01_1",} 0.0
 ```
 
 ## Metrics Descriptions
