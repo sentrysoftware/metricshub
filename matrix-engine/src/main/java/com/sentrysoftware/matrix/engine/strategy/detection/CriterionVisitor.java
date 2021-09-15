@@ -630,9 +630,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.executeLocally(osCommand.isExecuteLocally())
 					.timeout(osCommand.getTimeout())
 					.expectedResult(osCommand.getExpectedResult())
-					.errorMessage(osCommand.getErrorMessage())
-					.forceSerialization(osCommand.isForceSerialization())
-					.index(osCommand.getIndex() != null ? osCommand.getIndex() : 0)
 					.build();
 					
 			final Matcher matcher = Pattern
