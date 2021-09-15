@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.model.monitoring;
 
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -16,7 +17,6 @@ import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
 
@@ -208,10 +209,16 @@ public class HostMonitoring implements IHostMonitoring {
 
 			if (DISK_CONTROLLER_CHILDREN.contains(monitorType)) {
 
-				monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName,
-					monitor.getMetadata(DISK_CONTROLLER_NUMBER), MonitorType.DISK_CONTROLLER.getName()));
+				String diskControllerId = lookupDiskControllerId(connectorName,
+					monitor.getMetadata(DISK_CONTROLLER_NUMBER));
 
-			} else {
+				if (diskControllerId != null) {
+					monitor.setParentId(diskControllerId);
+				}
+
+			}
+
+			if (monitor.getParentId() == null) {
 
 				monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId,
 					attachedToDeviceType));
@@ -577,6 +584,34 @@ public class HostMonitoring implements IHostMonitoring {
 		configContext.getBeanFactory().autowireBean(strategyConfig);
 
 		return configContext;
+	}
+
+	/**
+	 * @param connectorName			The name of the {@link Connector} containing the {@link DiskController}
+	 *                              being searched for.
+	 * @param diskControllerNumber	The number of the {@link DiskController} being searched for.
+	 *
+	 * @return						The ID of the {@link DiskController}
+	 * 								discovered by the given {@link Connector}, and having the given number.
+	 */
+	private String lookupDiskControllerId(String connectorName, String diskControllerNumber) {
+
+		Monitor result = null;
+
+		Map<String, Monitor> diskControllers = selectFromType(MonitorType.DISK_CONTROLLER);
+		if (diskControllers != null) {
+
+			result = diskControllers
+				.values()
+				.stream()
+				.filter(Objects::nonNull)
+				.filter(monitor -> monitor.getMetadata(CONNECTOR).equalsIgnoreCase(connectorName))
+				.filter(monitor -> monitor.getMetadata(DISK_CONTROLLER_NUMBER).equals(diskControllerNumber))
+				.findFirst()
+				.orElse(null);
+		}
+
+		return result == null ? null : result.getId();
 	}
 
 	/**
