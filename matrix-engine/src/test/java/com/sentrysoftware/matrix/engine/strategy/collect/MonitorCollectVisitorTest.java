@@ -117,7 +117,7 @@ class MonitorCollectVisitorTest {
 	private static final String MONITOR_DEVICE_ID = "1.1";
 	private static final String MONITOR_ID = "myConnecctor1.connector_monitor_ecs1-01_1.1";
 	private static final String ECS1_01 = "ecs1-01";
-	private static final String MY_CONNECTOR_NAME = "myConnecctor.connector";
+	private static final String MY_CONNECTOR_NAME = "myConnecctor";
 	private static final String VALUE_TABLE = "MonitorType.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
 	private static final ParameterState UNKNOWN_STATUS_WARN = ParameterState.WARN;

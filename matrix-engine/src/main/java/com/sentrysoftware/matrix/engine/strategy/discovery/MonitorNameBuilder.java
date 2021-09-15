@@ -204,7 +204,7 @@ public class MonitorNameBuilder {
 	 *
 	 * @return {@link String} joinedWords Joined words
 	 */
-	private static String joinWords(final String[] words) {
+	public static String joinWords(final String[] words) {
 		return joinWords(words, " - ");
 	}
 

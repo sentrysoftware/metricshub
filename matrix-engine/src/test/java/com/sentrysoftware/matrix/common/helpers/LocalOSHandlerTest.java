@@ -4,11 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.LINUX;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.mockito.MockedStatic;
 
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
@@ -205,5 +208,17 @@ class LocalOSHandlerTest {
 			assertEquals(LocalOSHandler.MAC_OS_X, os);
 			assertTrue(os.isUnix());
 		}
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testIsWindows() {
+		assertTrue(LocalOSHandler.isWindows());
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testIsNotWindows() {
+		assertFalse(LocalOSHandler.isWindows());
 	}
 }

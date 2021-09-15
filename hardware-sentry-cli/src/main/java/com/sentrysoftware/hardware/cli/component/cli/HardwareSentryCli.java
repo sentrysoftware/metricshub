@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.hardware.cli.service.EngineService;
@@ -48,6 +49,9 @@ public class HardwareSentryCli implements Callable<Boolean> {
 
 	@ArgGroup(validate = false)
 	private IpmiConfig ipmiConfig;
+
+	@ArgGroup(validate = false)
+	private SshConfig sshConfig;
 
 	@Option(names = { "-hdf", "--connectors" }, split = ",", description = "Force selected hardware connectors to connect to the target")
 	private Set<String> connectors;

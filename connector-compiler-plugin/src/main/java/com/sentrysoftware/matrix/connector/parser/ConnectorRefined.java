@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import org.springframework.util.Assert;
@@ -93,6 +94,7 @@ public class ConnectorRefined {
 	 */
 	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile(".*\\.(translationtable|bittranslationtable)=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
+	
 
 	/**
 	 * Loads the specified Connector, parses it and populates the map with all values
@@ -457,13 +459,15 @@ public class ConnectorRefined {
 
 		// Sanity check (we're supposed to be provided with an .hdfs filename
 		if (hdfFilename == null) {
-			return "null.connector";
+			return "null";
 		}
 
 		if (hdfFilename.length() < 5) {
-			return "invalid.connector";
+			return "invalid";
 		}
 
-		return hdfFilename.substring(0, hdfFilename.length() - 5) + ".connector";
+		return ConnectorStore.normalizeConnectorName(hdfFilename);
+
 	}
+
 }

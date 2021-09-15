@@ -24,7 +24,7 @@ class EMCDiskArrayIT {
 
 	private static final String INPUT = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
 
-	private static final Set<String> CONNECTORS = Set.of("MS_HW_EMCDiskArray.connector");
+	private static final Set<String> CONNECTORS = Set.of("EMCDiskArray");
 
 	private static final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> PROTOCOL_CONFIGURATIONS = Map.of(
 			WBEMProtocol.class,

@@ -35,6 +35,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -165,6 +166,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// Blocks until all tasks have completed execution after a shutdown request
 			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
 	}
@@ -269,6 +273,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 
+				setIdentifyingInformation(monitor);
+
 				idCount++;
 			}
 
@@ -290,6 +296,23 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
 		}
+	}
+
+	/**
+	 * Set the metadata for identifying information using the additional information (1, 2 and 3)
+	 * defined in the InstanceTable
+	 * 
+	 * @param monitor       The monitor on which we want to set the identifyingInformation metadata as metadata
+	 */
+	void setIdentifyingInformation(final Monitor monitor) {
+
+		monitor.addMetadata(IDENTIFYING_INFORMATION,
+				MonitorNameBuilder.joinWords(new String[] {
+						monitor.getMetadata(ADDITIONAL_INFORMATION1),
+						monitor.getMetadata(ADDITIONAL_INFORMATION2),
+						monitor.getMetadata(ADDITIONAL_INFORMATION3)
+				})
+		);
 	}
 
 	/**

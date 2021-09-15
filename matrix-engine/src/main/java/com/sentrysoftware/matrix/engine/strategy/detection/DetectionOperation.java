@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -72,6 +73,9 @@ public class DetectionOperation extends AbstractStrategy {
 			// Blocks until all tasks have completed execution after a shutdown request
 			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
 
@@ -331,7 +335,7 @@ public class DetectionOperation extends AbstractStrategy {
 			return;
 		}
 		supersedes.addAll(testedConnector.getConnector().getSupersedes().stream()
-				.map(fileName -> fileName.replace(".hdf", ".connector").toLowerCase()).collect(Collectors.toSet()));
+				.map(fileName -> ConnectorStore.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
 	}
 
 	/**

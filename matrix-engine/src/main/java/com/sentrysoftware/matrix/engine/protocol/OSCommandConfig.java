@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.engine.protocol;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class OSCommandConfig implements IProtocolConfiguration {
 
 	private boolean useSudo;
 	@Default
-	private List<String> useSudoCommandList = new ArrayList<>();
+	private Set<String> useSudoCommands = new HashSet<>();
 	@Default
 	private String sudoCommand = SUDO;
 
