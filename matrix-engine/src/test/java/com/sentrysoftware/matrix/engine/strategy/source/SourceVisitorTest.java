@@ -884,8 +884,8 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		// local
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru")).thenReturn("impiResultFru");
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all")).thenReturn("impiResultSdr");
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru", 120, null)).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all", 120, null)).thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
@@ -897,8 +897,8 @@ class SourceVisitorTest {
 		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru")).thenReturn(fruResult);
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all")).thenReturn(sensorResult);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru", 120, null)).thenReturn(fruResult);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all", 120, null)).thenReturn(sensorResult);
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
 			List<List<String>> result = new ArrayList<>();
@@ -911,8 +911,8 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultFru");
-			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, matsyaClientsExecutor)).thenReturn("impiResultSdr");
+			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, null, null)).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, null, null)).thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}

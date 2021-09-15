@@ -15,6 +15,7 @@ public class HardwareConstants {
 	public static final String WHITE_SPACE = " ";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
+	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
 	public static final String BLADE_ENCLOSURE = "Blade Enclosure";
 	public static final String ENCLOSURE = "Enclosure";
@@ -301,6 +302,7 @@ public class HardwareConstants {
 	public static final String PASSWORD_MACRO = "%{PASSWORD}";
 	public static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 
 	public static final String AUTOMATIC_NAMESPACE = "automatic";
 

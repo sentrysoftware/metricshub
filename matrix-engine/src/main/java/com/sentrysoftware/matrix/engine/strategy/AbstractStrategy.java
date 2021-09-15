@@ -1,5 +1,15 @@
 package com.sentrysoftware.matrix.engine.strategy;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
+
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +27,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
-import com.sentrysoftware.matrix.engine.strategy.detection.CriterionUpdaterVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionVisitor;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -37,16 +46,6 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.util.Assert.state;
 
 @Slf4j
 public abstract class AbstractStrategy implements IStrategy {
@@ -225,7 +224,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				matsyaClientsExecutor,
 				wqlDetectionHelper,
 				connector);
-		return criterion.accept(new CriterionUpdaterVisitor(criterionVisitor, connector));
+		return criterion.accept(criterionVisitor);
 	}
 
 	/**

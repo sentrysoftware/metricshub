@@ -25,6 +25,7 @@ public class LocalOSHandler {
 
 	@Getter
 	private static final Optional<ILocalOS> OS = detectOS();
+	private static final boolean IS_WINDOWS = OS.isPresent() && OS.get().equals(WINDOWS);
 
 	/**
 	 * Detect the current Local OS.
@@ -34,6 +35,15 @@ public class LocalOSHandler {
 		return getSystemOSName()
 				.map(String::toLowerCase)
 				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
+	}
+	
+	/**
+	 * Check if the Local OS is a Windows.
+	 * 
+	 * @return true if Windows false otherwise.
+	 */
+	public static boolean isWindows() {
+		return IS_WINDOWS;
 	}
 
 	/**
