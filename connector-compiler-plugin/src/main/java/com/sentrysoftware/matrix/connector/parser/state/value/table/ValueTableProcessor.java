@@ -7,12 +7,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
+import lombok.NonNull;
+
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 
 public class ValueTableProcessor implements IConnectorStateParser {
 
@@ -30,14 +31,11 @@ public class ValueTableProcessor implements IConnectorStateParser {
 	}
 
 	@Override
-	public void parse(final String key, final String value, final Connector connector) {
-		notNull(key, "key cannot be null.");
+	public void parse(@NonNull final String key, @NonNull final String value, final @NonNull Connector connector) {
 		isTrue(
 				getKeyRegex().matcher(key).matches(),
 				"The key (" + key + ") does not match the following regex: " + getKeyRegex()
 				);
-		notNull(value, "value cannot be null.");
-		notNull(connector, "Connector cannot be null.");
 
 		final HardwareMonitor hardwareMonitor = getHardwareMonitor(key, connector);
 
@@ -57,7 +55,7 @@ public class ValueTableProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link hardwareMonitor}
 	 */
-	HardwareMonitor getHardwareMonitor(final String key, final Connector connector) {
+	HardwareMonitor getHardwareMonitor(@NonNull final String key, @NonNull final Connector connector) {
 
 		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
@@ -73,7 +71,7 @@ public class ValueTableProcessor implements IConnectorStateParser {
 	 * @param connector
 	 * @return {@link HardwareMonitor} instance
 	 */
-	HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
+	HardwareMonitor createHardwareMonitor(final String monitorName, @NonNull final Connector connector) {
 
 		final MonitorType monitorType = MonitorType.getByName(monitorName);
 

@@ -8,11 +8,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 
+import lombok.NonNull;
+
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 
 public class CollectTypeProcessor implements IConnectorStateParser {
 
@@ -30,14 +31,11 @@ public class CollectTypeProcessor implements IConnectorStateParser {
 	}
 
 	@Override
-	public void parse(final String key, final String value, final Connector connector) {
-		notNull(key, "key cannot be null.");
+	public void parse(@NonNull final String key, @NonNull final String value, @NonNull final Connector connector) {
 		isTrue(
 				getKeyRegex().matcher(key).matches(),
 				"The key (" + key + ") does not match the following regex: " + getKeyRegex()
 				);
-		notNull(value, "value cannot be null.");
-		notNull(connector, "Connector cannot be null.");
 
 		if (ConnectorParserConstants.MONO_INSTANCE.equalsIgnoreCase(value)) {
 			setCollectType(key, connector, CollectType.MONO_INSTANCE);
