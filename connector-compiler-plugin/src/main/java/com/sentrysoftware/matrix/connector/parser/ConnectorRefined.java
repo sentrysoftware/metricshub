@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import org.springframework.util.Assert;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DEFAULT;
 
@@ -121,10 +122,9 @@ public class ConnectorRefined {
 	 * @throws IOException              when there is a problem while reading the
 	 *                                  Connector file
 	 */
-	public void load(File hdfFile) throws IOException {
+	public void load(@NonNull File hdfFile) throws IOException {
 
 		// Sanity check
-		Assert.notNull(hdfFile, "Specified file is <null>");
 		Assert.isTrue(hdfFile.exists(),
 				() -> String.format("Specified file %s does not exist", hdfFile.getAbsolutePath()));
 
@@ -144,12 +144,7 @@ public class ConnectorRefined {
 	 * @throws IOException              when there is a problem while reading the
 	 *                                  Connector file
 	 */
-	public void load(String hdfFilename, File hdfParentDirectory, InputStream hdfStream) throws IOException {
-
-		// Sanity check
-		Assert.notNull(hdfStream, "Specified stream is <null>");
-		Assert.notNull(hdfParentDirectory, "Specified parent directory is <null>");
-		Assert.notNull(hdfFilename, "Specified connector filename is <null>");
+	public void load(@NonNull String hdfFilename, @NonNull File hdfParentDirectory, @NonNull InputStream hdfStream) throws IOException {
 
 		compiledFilename = getCompiledFilename(hdfFilename);
 

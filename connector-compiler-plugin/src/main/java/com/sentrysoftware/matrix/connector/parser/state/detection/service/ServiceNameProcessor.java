@@ -1,13 +1,13 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.service;
 
-import static org.springframework.util.Assert.notNull;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
+
+import lombok.NonNull;
 
 public class ServiceNameProcessor extends AbstractStateParser {
 
@@ -26,8 +26,7 @@ public class ServiceNameProcessor extends AbstractStateParser {
 	}
 
 	@Override
-	public Matcher getMatcher(final String key) {
-		notNull(key, "key cannot be null.");
+	public Matcher getMatcher(@NonNull final String key) {
 		return SERVICE_NAME_PATTERN.matcher(key);
 	}
 

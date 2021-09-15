@@ -14,6 +14,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Comp
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 import com.sentrysoftware.matrix.connector.parser.state.detection.snmp.OidProcessor;
 
+import lombok.NonNull;
+
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -33,7 +35,6 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	protected abstract String getTypeValue();
 	protected abstract Matcher getMatcher(String key);
 
-	private static final String CONNECTOR_CANNOT_BE_NULL = "Connector cannot be null.";
 	private static final String INVALID_KEY = "Invalid key: ";
 
 	/**
@@ -280,11 +281,9 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * @return						The {@link HardwareMonitor} in the given {@link Connector}
 	 *								whose name matches the given monitor name, if available.
 	 */
-	private HardwareMonitor getHardwareMonitor(Connector connector, String monitorName, String monitorJobName,
+	private HardwareMonitor getHardwareMonitor(@NonNull Connector connector, String monitorName, String monitorJobName,
 											   boolean createMonitorIfNull) {
 	
-		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
-
 		HardwareMonitor hardwareMonitor = connector
 			.getHardwareMonitors()
 			.stream()
@@ -578,9 +577,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 	 * @return			The {@link Criterion} in the given {@link Connector} matching the given {@link Matcher}.
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends Criterion> T getCriterion(Matcher matcher, Connector connector) {
-
-		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
+	protected <T extends Criterion> T getCriterion(Matcher matcher, @NonNull Connector connector) {
 
 		Detection detection = connector.getDetection();
 		if (detection == null) {
@@ -701,6 +698,6 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 
 		notNull(key, "key cannot be null.");
 		notNull(value, "value cannot be null.");
-		notNull(connector, CONNECTOR_CANNOT_BE_NULL);
+		notNull(connector, "Connector cannot be null.");
 	}
 }
