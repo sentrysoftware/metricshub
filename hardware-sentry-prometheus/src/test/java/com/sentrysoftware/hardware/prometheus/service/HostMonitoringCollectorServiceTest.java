@@ -45,6 +45,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
@@ -69,6 +71,7 @@ import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
 import io.prometheus.client.exporter.common.TextFormat;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class HostMonitoringCollectorServiceTest {
 
@@ -89,7 +92,8 @@ class HostMonitoringCollectorServiceTest {
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@InjectMocks
-	private final HostMonitoringCollectorService hostMonitoringCollectorService = new HostMonitoringCollectorService();
+	@Autowired
+	private HostMonitoringCollectorService hostMonitoringCollectorService;
 
 	@Test
 	void testCollect() throws IOException {

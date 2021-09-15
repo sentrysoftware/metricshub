@@ -16,3 +16,9 @@ trust:
   store:
     password: Sentry
 debugMode: false
+project:
+  name: "Hardware Sentry Exporter for Prometheus"
+  version: "10"
+buildNumber: "f9435eed"
+timestamp: "Sep 15, 2021 at 5:27:55 PM Central European Summer Time"
+hcVersion: "25"

@@ -4,3 +4,9 @@ target:
 server:
   port: 8080
 debugMode: false
+project:
+  name: "@project.name@"
+  version: "@project.version@"
+buildNumber: "@buildNumber@"
+timestamp: "@timestamp@"
+hcVersion: "@hardware-connectors.version@"

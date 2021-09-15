@@ -125,7 +125,7 @@ class OsCommandHelperTest {
 		final String commandLine = "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat > NUL & %EmbeddedFile(2)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(1)%.bat & del /F /Q %EmbeddedFile(2)%.bat ";
 
 		checkNoTempEmbeddedFileExist();
-		
+
 		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(null, Collections.emptyMap(), null));
 
 		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, null, null));
@@ -314,9 +314,8 @@ class OsCommandHelperTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testRunLocalCommandWindows() throws Exception {
-		assertEquals(
-				new SimpleDateFormat("dd-MMM-yy ").format(TODAY),
-				OsCommandHelper.runLocalCommand("date /t", 1, null));
+		assertTrue(OsCommandHelper.runLocalCommand("hostname", 1, null)
+				.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$"));
 	}
 
 	@Test
