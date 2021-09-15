@@ -1,17 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_LABEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLADE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR;
@@ -43,6 +31,18 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_S
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 class MonitorNameBuilderTest {
 
@@ -790,7 +790,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("disk-01 (RAID 5 - 10 TB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
+			assertEquals("disk-01 (RAID 5 - 9.9 TB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
 		}
 
 		{
@@ -816,7 +816,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("01 (Raid 2 - 1 GB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
+			assertEquals("01 (Raid 2 - 1.0 GB)", MonitorNameBuilder.buildLogicalDiskName(buildingInfo));
 		}
 	}
 
@@ -1095,7 +1095,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("disk-01 (HP - 1 TB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
+			assertEquals("disk-01 (HP - 1.0 TB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
 		}
 
 		{
@@ -1121,7 +1121,7 @@ class MonitorNameBuilderTest {
 					.hostname("ecs1-01")
 					.build();
 
-			assertEquals("01 (HP - 1 GB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
+			assertEquals("01 (HP - 1.0 GB)", MonitorNameBuilder.buildPhysicalDiskName(buildingInfo));
 		}
 	}
 

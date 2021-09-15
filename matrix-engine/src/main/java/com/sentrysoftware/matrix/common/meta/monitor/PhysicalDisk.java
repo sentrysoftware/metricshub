@@ -1,5 +1,31 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,32 +45,6 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
 public class PhysicalDisk implements IMetaMonitor {
 
@@ -81,17 +81,17 @@ public class PhysicalDisk implements IMetaMonitor {
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(PhysicalDisk::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
 			ParameterState.ALARM);
-	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) -> 
+	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) ->
 			checkErrorCountCondition(monitor, ERROR_COUNT_PARAMETER, conditions),
 			ERROR_COUNT_ALARM_CONDITION,
 			ParameterState.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(PhysicalDisk::checkPredictedFailureCondition,
 			STATUS_WARN_CONDITION,
 			ParameterState.WARN);
-	public static final AlertRule ENDURANCE_REMAINING_WARN_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingWarnCondition, 
+	public static final AlertRule ENDURANCE_REMAINING_WARN_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingWarnCondition,
 			ENDURANCE_REMAINING_WARN_CONDITION,
 			ParameterState.WARN);
-	public static final AlertRule ENDURANCE_REMAINING_ALARM_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingAlarmCondition, 
+	public static final AlertRule ENDURANCE_REMAINING_ALARM_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingAlarmCondition,
 			ENDURANCE_REMAINING_ALARM_CONDITION,
 			ParameterState.ALARM);
 
@@ -109,6 +109,7 @@ public class PhysicalDisk implements IMetaMonitor {
 		map.put(ENERGY_PARAMETER, ENERGY);
 		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
 		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(PREDICTED_FAILURE_PARAMETER, PREDICTED_FAILURE);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
@@ -126,7 +127,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Missing PhysicalDisk condition
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -147,7 +148,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the monitor status is in WARN state
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its status
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -170,7 +171,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the monitor status is in ALARM state
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its status
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -192,7 +193,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition to be used to detect too many errors
-	 * 
+	 *
 	 * @param monitor              The monitor we wish to check its error count
 	 * @param errorCountParamName  The name of the error count parameter
 	 * @param conditions           The conditions used to check the error count parameter value
@@ -215,7 +216,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the monitor error count is abnormal
-	 * 
+	 *
 	 * @param monitor              The monitor we wish to check its error count
 	 * @param errorCountParamName  The name of the error count parameter
 	 * @param conditions           The condition used to check the error count parameter value
@@ -238,7 +239,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the Disk predicted failure is in WARN state
-	 * 
+	 *
 	 * @param monitor    The Disk we wish to check its predicted failure
 	 * @param conditions The conditions used to detect the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -263,7 +264,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the Disk endurance remaining is abnormal (WARN)
-	 * 
+	 *
 	 * @param monitor   The monitor we wish to check its endurance remaining parameter
 	 * @param conditions The conditions used to check the endurance remaining parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -284,7 +285,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Condition when the Disk endurance remaining is abnormal (ALARM)
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its endurance remaining parameter
 	 * @param conditions The conditions used to check the endurance remaining parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -305,7 +306,7 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	/**
 	 * Concatenate the given action to the physical disk serial number text information
-	 * 
+	 *
 	 * @param action       The action text our sentence starts with
 	 * @param serialNumber The serial number to include in the final string result
 	 * @return String result

@@ -1,5 +1,20 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_WARN_CONDITION;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -20,20 +35,6 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_CAPACITY_WARN_CONDITION;
-
 public class PowerSupply implements IMetaMonitor {
 
 	public static final MetaParameter USED_CAPACITY = MetaParameter.builder()
@@ -43,7 +44,7 @@ public class PowerSupply implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, POWER_SUPPLY_TYPE, IDENTIFYING_INFORMATION);
+	private static final List<String> METADATA = List.of(DEVICE_ID, POWER_SUPPLY_TYPE, POWER_SUPPLY_POWER, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(PowerSupply::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
@@ -84,7 +85,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Check missing PowerSupply condition.
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check
 	 * @param conditions The conditions used to determine the abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -105,7 +106,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Check condition when the monitor status is in WARN state.
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its status
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -126,7 +127,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Condition when the monitor status is in ALARM state.
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its status
 	 * @param conditions The conditions used to detect abnormality
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -147,7 +148,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Check condition when the monitor used capacity parameter is in WARN state.
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its used capacity
 	 * @param conditions The conditions used to check the used capacity parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -170,7 +171,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Check condition when the monitor used capacity parameter is critical.
-	 * 
+	 *
 	 * @param monitor    The monitor we wish to check its used capacity
 	 * @param conditions The condition used to check the used capacity parameter value
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
@@ -193,7 +194,7 @@ public class PowerSupply implements IMetaMonitor {
 
 	/**
 	 * Build the used capacity information
-	 * 
+	 *
 	 * @param monitor      The monitor (PowerSupply) from which we want to extract the Power metadata
 	 * @param usedCapacity The used capacity parameter
 	 * @return {@link String} value
