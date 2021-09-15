@@ -3508,7 +3508,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
-    "name" : "0 (941 GB)",
+    "name" : "0 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -3645,7 +3645,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006201",
-    "name" : "1 (941 GB)",
+    "name" : "1 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -3782,7 +3782,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006202",
-    "name" : "2 (941 GB)",
+    "name" : "2 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -3919,7 +3919,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006203",
-    "name" : "3 (941 GB)",
+    "name" : "3 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4056,7 +4056,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620380",
-    "name" : "380 (941 GB)",
+    "name" : "380 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4193,7 +4193,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620381",
-    "name" : "381 (941 GB)",
+    "name" : "381 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4330,7 +4330,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620382",
-    "name" : "382 (941 GB)",
+    "name" : "382 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4467,7 +4467,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620383",
-    "name" : "383 (941 GB)",
+    "name" : "383 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4604,7 +4604,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620384",
-    "name" : "384 (941 GB)",
+    "name" : "384 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4741,7 +4741,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620385",
-    "name" : "385 (941 GB)",
+    "name" : "385 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -4878,7 +4878,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620386",
-    "name" : "386 (941 GB)",
+    "name" : "386 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5015,7 +5015,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620387",
-    "name" : "387 (941 GB)",
+    "name" : "387 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5152,7 +5152,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620388",
-    "name" : "388 (941 GB)",
+    "name" : "388 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5289,7 +5289,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006204",
-    "name" : "4 (941 GB)",
+    "name" : "4 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5426,7 +5426,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006205",
-    "name" : "5 (941 GB)",
+    "name" : "5 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5563,7 +5563,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006206",
-    "name" : "6 (941 GB)",
+    "name" : "6 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5700,7 +5700,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006207",
-    "name" : "7 (941 GB)",
+    "name" : "7 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
@@ -5837,7 +5837,7 @@
     }
   }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006208",
-    "name" : "8 (941 GB)",
+    "name" : "8 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
