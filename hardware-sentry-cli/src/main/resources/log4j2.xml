@@ -2,42 +2,12 @@
 <Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<!-- The console only outputs errors -->
-			<!-- Right now the console display is disabled, but it can be activated 
-				by replacing onMatch="DENY" by onMatch="ACCEPT" -->
-			<ThresholdFilter level="error" onMatch="DENY"
-				onMismatch="DENY" />
 			<!-- Format of the output log -->
-			<PatternLayout disableAnsi="false"
-				pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
+			<PatternLayout disableAnsi="${ctx:disableAnsi}"
+				pattern="[%highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}] %style{[%logger{1.}]}{Dim} %m%n" />
 		</Console>
-		<Routing name="Routing">
-			<Routes pattern="$${ctx:debugMode}">
-				<!-- This route is chosen if ThreadContext has debugMode = true. -->
-				<Route key="true">
-					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${ctx:outputDirectory}/hardware-sentry-cli-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
-						filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hardware-sentry-cli-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
-						<Policies>
-							<TimeBasedTriggeringPolicy />
-							<SizeBasedTriggeringPolicy size="30 MB" />
-						</Policies>
-						<DefaultRolloverStrategy>
-							<Delete basePath="${ctx:outputDirectory}" maxDepth="3">
-								<IfFileName glob="*/*hardware-sentry-cli*.log.gz" />
-								<IfLastModified age="2d" />
-							</Delete>
-						</DefaultRolloverStrategy>
-					</RollingFile>
-				</Route>
-			</Routes>
-		</Routing>
 	</Appenders>
 	<Loggers>
-		<logger name="com.sentrysoftware" level="trace">
-			<appender-ref ref="Routing" />
-		</logger>
 		<Root level="error">
 			<AppenderRef ref="Console" />
 		</Root>

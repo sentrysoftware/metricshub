@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
 
 @Data
-public class WbemConfig {
+public class WbemConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--wbem",
@@ -68,6 +68,7 @@ public class WbemConfig {
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an WBEMProtocol instance corresponding to the options specified by the user in the CLI
 	 */
+	@Override
 	public WBEMProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		return WBEMProtocol
 				.builder()

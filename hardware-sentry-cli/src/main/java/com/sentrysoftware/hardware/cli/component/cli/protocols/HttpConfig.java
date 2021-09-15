@@ -8,7 +8,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @Data
-public class HttpConfig {
+public class HttpConfig implements IProtocolConfig {
 
 	@ArgGroup(
 			exclusive = true,
@@ -71,6 +71,7 @@ public class HttpConfig {
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an HTTPProtocol instance corresponding to the options specified by the user in the CLI
 	 */
+	@Override
 	public HTTPProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		return HTTPProtocol
 				.builder()

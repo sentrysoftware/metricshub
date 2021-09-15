@@ -10,7 +10,7 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
 @Data
-public class IpmiConfig {
+public class IpmiConfig implements IProtocolConfig {
 
 	@Spec
 	CommandSpec spec;
@@ -66,6 +66,7 @@ public class IpmiConfig {
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an IPMIOverLanProtocol instance corresponding to the options specified by the user in the CLI
 	 */
+	@Override
 	public IPMIOverLanProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		try {
 			return IPMIOverLanProtocol

@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
@@ -366,6 +367,22 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
+	public Set<Monitor> findChildren(final String parentId) {
+
+		return monitors
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor ->
+					(parentId == null && monitor.getParentId() == null)
+					|| (parentId != null && parentId.equals(monitor.getParentId()))
+			)
+			.collect(Collectors.toSet());
+
+	}
+
+	@Override
 	public String toJson() {
 
 		final HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
@@ -433,7 +450,7 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		log.error("Engine called for thread {}", Thread.currentThread().getName());
+		log.trace("Engine called for thread {}", Thread.currentThread().getName());
 
 		checkEngineConfiguration();
 
@@ -441,7 +458,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		for (IStrategy strategy : strategies) {
 
-			log.info("Calling strategy {}", strategy.getClass().getSimpleName());
+			log.trace("Calling strategy {}", strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
 			log.info("{} status {}", strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
 		}
@@ -474,7 +491,24 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (ExecutionException e) {
 
-			log.error("Execution error", e);
+			Throwable cause = e.getCause();
+			if (cause != null) {
+				log.error(
+						"{} operation failed: {}: {}",
+						strategy.getClass().getSimpleName(),
+						cause.getClass().getSimpleName(),
+						cause.getMessage()
+				);
+				log.debug("Operation failed with ExecutionException", cause);
+			} else {
+				log.error(
+						"{} operation failed: {}: {}",
+						strategy.getClass().getSimpleName(),
+						e.getClass().getSimpleName(),
+						e.getMessage()
+				);
+				log.debug("Operation failed with ExecutionException", e);
+			}
 
 			return EngineResult
 				.builder()
@@ -484,7 +518,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (TimeoutException e) {
 
-			log.error("Timeout error", e);
+			log.error("{} operation timeout!", strategy.getClass().getSimpleName());
+			log.debug("Operation failed with TimeoutException", e);
 
 			return EngineResult
 				.builder()
@@ -492,9 +527,10 @@ public class HostMonitoring implements IHostMonitoring {
 				.operationStatus(OperationStatus.TIMEOUT_EXCEPTION)
 				.build();
 
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 
-			log.error("Interrupted error", e);
+			log.error("{} operation interrupted", strategy.getClass().getSimpleName());
+			log.debug("Operation failed with InterruptedException", e);
 
 			Thread.currentThread().interrupt();
 
@@ -506,7 +542,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (Exception e) {
 
-			log.error("Unknown exception", e);
+			log.error("{} operation failed with {}", strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
+			log.debug("Operation failed with unknown exception", e);
 
 			return EngineResult
 				.builder()

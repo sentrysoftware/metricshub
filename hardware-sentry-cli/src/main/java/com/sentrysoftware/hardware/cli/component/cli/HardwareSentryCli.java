@@ -1,9 +1,19 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +23,24 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
-import com.sentrysoftware.hardware.cli.service.EngineService;
+import com.sentrysoftware.hardware.cli.service.ConsoleService;
+import com.sentrysoftware.hardware.cli.service.JobResultFormatterService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.OperationStatus;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import lombok.Data;
 import picocli.CommandLine;
@@ -42,7 +65,10 @@ import picocli.CommandLine.ParameterException;
 public class HardwareSentryCli implements Callable<Integer> {
 
 	@Autowired
-	private EngineService engineService;
+	private JobResultFormatterService jobResultFormatterService;
+
+	@Autowired
+	private ConsoleService consoleService;
 
 	@Spec
 	CommandSpec spec;
@@ -102,35 +128,82 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private Set<String> connectors;
 
 	@Option(
-			names = { "-x", "--exclude-connectors" },
+			names = { "-x", "--exclude" },
 			order = 5,
 			split = ",",
-			description = "Specify hardware connectors that must be excluded from the automatic detection process"
+			description = "Exclude connectors from the automatic detection process"
 	)
 	private Set<String> excludedConnectors;
 
 	@Option(
-			names = { "-d", "--debug" },
+			names = "-v",
 			order = 6,
-			description = "Activate debug mode for logs."
+			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
-	private boolean debug;
-
-	@Option(
-			names = { "-o", "--output" },
-			order = 7,
-			description = "Output directory for logs."
-	)
-	private String outputDirectory;
+	private boolean[] verbose;
 
 	@Override
 	public Integer call() {
 
 		validate();
 
-		configureLoggerContext();
+		setLogLevel();
 
-		System.out.println(engineService.call(this)); // NOSONAR
+		EngineConfiguration engineConf = new EngineConfiguration();
+
+		engineConf.setTarget(new HardwareTarget(hostname, hostname, deviceType));
+		engineConf.setProtocolConfigurations(getProtocols());
+		if (connectors != null) {
+			engineConf.setSelectedConnectors(connectors);
+		}
+		if (excludedConnectors != null) {
+			engineConf.setExcludedConnectors(excludedConnectors);
+		}
+
+		// run jobs
+		IHostMonitoring hostMonitoring =
+				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
+
+		// Detection
+		if (consoleService.hasConsole()) {
+			System.out.printf("Performing detection on %s...\n", hostname);
+			System.out.flush();
+		}
+		EngineResult engineResult = hostMonitoring.run(new DetectionOperation());
+		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
+			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			System.out.flush();
+			return CommandLine.ExitCode.SOFTWARE;
+		}
+
+		// Discovery
+		if (consoleService.hasConsole()) {
+			System.out.println("Performing discovery... ");
+			System.out.flush();
+		}
+		engineResult = hostMonitoring.run(new DiscoveryOperation());
+		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
+			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			System.out.flush();
+			return CommandLine.ExitCode.SOFTWARE;
+		}
+
+		// Collect
+		if (consoleService.hasConsole()) {
+			System.out.println("Performing collect... ");
+			System.out.flush();
+		}
+		engineResult = hostMonitoring.run(new CollectOperation());
+		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
+			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			System.out.flush();
+			return CommandLine.ExitCode.SOFTWARE;
+		}
+
+		// And now the result
+		spec.commandLine().getOut().print("\n");
+		jobResultFormatterService.printResult(hostMonitoring, spec.commandLine().getOut());
+//		spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
 
 		return CommandLine.ExitCode.OK;
 	}
@@ -195,7 +268,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				if (snmpConfig.getUsername() != null) {
 					throw new ParameterException(spec.commandLine(), "Username/password is not supported in SNMP " + version);
 				}
-				if (snmpConfig.getPrivacy() != null || snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION
+				if (snmpConfig.getPrivacy() != null && snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION
 						|| snmpConfig.getPrivacyPassword() != null) {
 					throw new ParameterException(spec.commandLine(), "Privacy (encryption) is not supported in SNMP " + version);
 				}
@@ -213,18 +286,74 @@ public class HardwareSentryCli implements Callable<Integer> {
 				}
 			}
 		}
+
+		// Connectors
+		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
+		if (connectors != null) {
+			for (String connectorName : connectors) {
+				if (!allConnectors.containsKey(connectorName)) {
+					throw new ParameterException(spec.commandLine(), "Unknown connector: " + connectorName);
+				}
+			}
+		}
+		if (excludedConnectors != null) {
+			for (String connectorName : excludedConnectors) {
+				if (!allConnectors.containsKey(connectorName)) {
+					throw new ParameterException(spec.commandLine(), "Unknown connector: " + connectorName);
+				}
+			}
+		}
+
 	}
 
 
 	/**
-	 * Configure the logger context with the hostname, debugMode and output directory.
+	 * Set Log4j logging level according to the verbose flags
 	 */
-	private void configureLoggerContext() {
+	void setLogLevel() {
 
-		ThreadContext.put("targetId", hostname);
-		ThreadContext.put("debugMode", String.valueOf(debug));
-		if (outputDirectory != null) {
-			ThreadContext.put("outputDirectory", outputDirectory);
+		// Disable ANSI in the logging if we don't have a console
+		ThreadContext.put("disableAnsi", Boolean.toString(!consoleService.hasConsole()));
+
+		if (verbose != null) {
+
+			Level logLevel = Level.ERROR;
+
+			switch (verbose.length) {
+			case 0: logLevel = Level.ERROR; break;
+			case 1: logLevel = Level.WARN; break;
+			case 2: logLevel = Level.INFO; break;
+			case 3: logLevel = Level.DEBUG; break;
+			default: logLevel = Level.ALL;
+			}
+
+			// Update the Log level at the root level
+			LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+			Configuration config = loggerContext.getConfiguration();
+			LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+			loggerConfig.setLevel(logLevel);
+			loggerContext.updateLoggers();
+
 		}
+
 	}
+
+	/**
+	 * @param hardwareSentryCli	The {@link HardwareSentryCli} instance calling this service.
+	 *
+	 * @return A {@link Map} associating the input protocol type to its input credentials.
+	 */
+	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
+
+		return Stream.of(httpConfig, ipmiConfig, snmpConfig, wbemConfig, wmiConfig)
+				.filter(Objects::nonNull)
+				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
+				.collect(Collectors.toMap(
+						proto -> proto.getClass(),
+						Function.identity())
+		);
+
+	}
+
+
 }

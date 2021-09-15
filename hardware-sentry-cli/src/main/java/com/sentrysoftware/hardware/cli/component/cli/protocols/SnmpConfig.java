@@ -9,7 +9,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class SnmpConfig {
+public class SnmpConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--snmp",
@@ -82,6 +82,7 @@ public class SnmpConfig {
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return a SNMPProtocol instance corresponding to the options specified by the user in the CLI
 	 */
+	@Override
 	public SNMPProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		return SNMPProtocol
 				.builder()

@@ -6,7 +6,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class WmiConfig {
+public class WmiConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--wmi",
@@ -51,6 +51,7 @@ public class WmiConfig {
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an WMIProtocol instance corresponding to the options specified by the user in the CLI
 	 */
+	@Override
 	public WMIProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		return WMIProtocol
 				.builder()
