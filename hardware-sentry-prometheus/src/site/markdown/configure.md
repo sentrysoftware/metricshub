@@ -191,9 +191,8 @@ targets:
       timeout: 120
       username: myusername
       password: mypwd
-    selectedConnectors:
-    - MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf
-    excludedConnectors: MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf
+    selectedConnectors: [ VMwareESX4i, VMwareESXi ]
+    excludedConnectors: [ VMwareESXiDisksIPMI, VMwareESXiDisksStorage ]
 ```
 
 ### Mapping Unknown Status
