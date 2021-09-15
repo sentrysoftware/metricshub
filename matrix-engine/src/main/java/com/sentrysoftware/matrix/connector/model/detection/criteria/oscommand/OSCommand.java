@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand;
 
+import java.util.StringJoiner;
+
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.detection.ICriterionVisitor;
@@ -8,12 +11,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class OSCommand extends Criterion {
 
 	private static final long serialVersionUID = -2984562425705831946L;
@@ -40,5 +41,26 @@ public class OSCommand extends Criterion {
 	public CriterionTestResult accept(final ICriterionVisitor criterionVisitor) {
 		return criterionVisitor.visit(this);
 	}
-	
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		if (commandLine != null && !commandLine.isBlank()) {
+			stringJoiner.add(new StringBuilder("- CommandLine: ").append(commandLine));
+		}
+		
+		stringJoiner.add(new StringBuilder("- ExecuteLocally: ").append(executeLocally));
+		
+		if (expectedResult != null) {
+			stringJoiner.add(new StringBuilder("- ExpectedResult: ").append(expectedResult));
+		}
+		
+		if (timeout != null) {
+			stringJoiner.add(new StringBuilder("- Timeout: ").append(timeout));
+		}
+		
+		return stringJoiner.toString();
+	}
+
 }

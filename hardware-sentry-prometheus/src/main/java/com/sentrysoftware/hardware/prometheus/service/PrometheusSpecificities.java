@@ -1,6 +1,9 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABELS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -40,10 +43,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PrometheusSpecificities {
@@ -691,6 +690,10 @@ public class PrometheusSpecificities {
 		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
 				.name("hw_enclosure_status")
 				.unit(IMetaMonitor.STATUS.getUnit())
+				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
+				.name("hw_enclosure_present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
 		map.put(Enclosure.INTRUSION_STATUS.getName(), PrometheusParameter.builder()
 				.name("hw_enclosure_intrusion_status")

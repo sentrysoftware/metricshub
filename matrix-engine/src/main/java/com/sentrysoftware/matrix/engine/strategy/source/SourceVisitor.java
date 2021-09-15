@@ -7,10 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -199,14 +201,13 @@ public class SourceVisitor implements ISourceVisitor {
 		String fruResult;
 		try {
 			if (isLocalHost) {
-				fruResult = OsCommandHelper.runLocalCommand(fruCommand);
+				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
 			} else {
-				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout,
-						matsyaClientsExecutor);
+				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
 			}
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, fruCommand, fruResult);
 
-		} catch (IOException |InterruptedException  e) {
+		} catch (IOException |InterruptedException | TimeoutException | MatsyaException  e) {
 			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
 					fruCommand, hostname, e);
 			log.error(message);
@@ -219,13 +220,12 @@ public class SourceVisitor implements ISourceVisitor {
 		String sensorResult;
 		try {
 			if (isLocalHost) {
-				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand);
+				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand, defaultTimeout, null);
 			} else {
-				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,
-						matsyaClientsExecutor);
+				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,	null, null);;
 			}
 			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException | InterruptedException | TimeoutException | MatsyaException e) {
 			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
 					sdrCommand, hostname, e);
 			log.error(message);
@@ -449,17 +449,17 @@ public class SourceVisitor implements ISourceVisitor {
 				.getSourceTables();
 
 		if (sources == null ) {
-			log.error("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
+			log.warn("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
-			log.error("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
-			log.error("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
@@ -496,7 +496,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final List<String> unionTables = tableUnionSource.getTables();
 		if (unionTables == null) {
-			log.warn("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
 					tableUnionSource);
 			return SourceTable.empty();
 		}

@@ -105,7 +105,15 @@ class ConnectorRefinedTest {
 	@Test
 	void testGetCompiledFilenameKO() {
 
-		assertEquals("null.connector", ConnectorRefined.getCompiledFilename(null));
-		assertEquals("invalid.connector", ConnectorRefined.getCompiledFilename(FOO));
+		assertEquals("null", ConnectorRefined.getCompiledFilename(null));
+		assertEquals("invalid", ConnectorRefined.getCompiledFilename(FOO));
+	}
+
+	@Test
+	void testGetCompiledFilename() {
+
+		assertEquals("myConnector", ConnectorRefined.getCompiledFilename("ms_hw_myConnector.hfds"));
+		assertEquals("myConnector", ConnectorRefined.getCompiledFilename("MS_HW_myConnector.hdfs"));
+		assertEquals("myConnector", ConnectorRefined.getCompiledFilename("myConnector.hfds"));
 	}
 }

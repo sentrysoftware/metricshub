@@ -21,7 +21,7 @@ class ConnectorSerializerTest {
 	@Test
 	void testSerialize() throws IOException, ClassNotFoundException {
 
-		final String expectedFilename = "MS_HW_MyConnector.connector";
+		final String expectedFilename = "MyConnector";
 		final Connector expected = Connector.builder().compiledFilename(expectedFilename).build();
 
 		ConnectorSerializer.serialize(outputDirectory.getAbsolutePath(), expected);
@@ -33,7 +33,7 @@ class ConnectorSerializerTest {
 		assertEquals(expectedFilename, fileNames[0]);
 
 		// Integrity check
-		final File[] serializedConnectors = outputDirectory.listFiles((file, name) -> name.endsWith(".connector"));
+		final File[] serializedConnectors = outputDirectory.listFiles();
 
 		assertNotNull(serializedConnectors);
 		assertEquals(1, serializedConnectors.length);

@@ -27,7 +27,7 @@ public class IpmiConfig implements IProtocolConfig {
 			order = 2,
 			description = "Username for IPMI-over-LAN authentication"
 	)
-	String username;
+	private String username;
 
 	@Option(
 			names = "--ipmi-password",
@@ -36,14 +36,14 @@ public class IpmiConfig implements IProtocolConfig {
 			interactive = true,
 			arity = "0..1"
 	)
-	char[] password;
+	private char[] password;
 
 	@Option(
 			names = "--ipmi-bmc-key",
 			order = 4,
 			description = "BMC key for IPMI-over-LAN two-key authentication (in hexadecimal)"
 	)
-	String bmcKey;
+	private String bmcKey;
 
 	@Option(
 			names = "--ipmi-skip-auth",
@@ -51,15 +51,15 @@ public class IpmiConfig implements IProtocolConfig {
 			defaultValue =  "false",
 			description = "Whether to skip IPMI-over-LAN authentication"
 	)
-	boolean skipAuth;
+	private boolean skipAuth;
 
 	@Option(
 			names = "--ipmi-timeout",
 			order = 6,
 			defaultValue = "120",
-			description = "IPMI-over-LAN timeout, in seconds (default: 120)"
+			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)
-	long timeout;
+	private long timeout;
 
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)

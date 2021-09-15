@@ -1,14 +1,20 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -31,6 +37,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
@@ -249,11 +256,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(SSHProtocol.class);
-		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
+		final OSCommandConfig osCommandConfig = strategyConfig.getHostMonitoring().isLocalhost()
+				? (OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(OSCommandConfig.class)
+				: sshProtocol;
 
 		if (osCommandConfig == null) {
-			final String message = String.format("No OS Command Configuration for %s. Retrun empty result.",
+			final String message = String.format("No OS Command Configuration for %s. Return empty result.",
 					hostname);
 			log.error(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
@@ -311,7 +321,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// Or if the command is listed in useSudoCommandList (possible only in classic
 		// wizard) --> yes
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
-		if (osCommandConfig.isUseSudo() || osCommandConfig.getUseSudoCommandList().contains("ipmitool")) {
+		if (osCommandConfig.isUseSudo() || osCommandConfig.getUseSudoCommands().contains("ipmitool")) {
 			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replace(IPMI_TOOL_SUDO_MACRO, osCommandConfig.getSudoCommand());
 		} else {
 			ipmitoolCommand = IPMI_TOOL_COMMAND;
@@ -363,22 +373,17 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @return
 	 * @throws InterruptedException
 	 * @throws IOException
+	 * @throws TimeoutException
+	 * @throws MatsyaException
 	 */
-	public String runOsCommand(final String ipmitoolCommand, final String hostname, final SSHProtocol sshProtocol,
-			final int timeout) throws InterruptedException, IOException {
-		String result;
-		if (strategyConfig.getHostMonitoring().isLocalhost()) { // or we can use NetworkHelper.isLocalhost(hostname)
-			result = OsCommandHelper.runLocalCommand(ipmitoolCommand);
-		} else {
-			if (sshProtocol == null) {
-				return null;
-			}
-			final String keyFilePath = sshProtocol.getPrivateKey() == null ? null
-					: sshProtocol.getPrivateKey().getAbsolutePath();
-			result = matsyaClientsExecutor.runRemoteSshCommand(hostname, sshProtocol.getUsername(),
-					Arrays.toString(sshProtocol.getPassword()), keyFilePath, ipmitoolCommand, timeout);
-		}
-		return result;
+	String runOsCommand(
+			final String ipmitoolCommand,
+			final String hostname,
+			final SSHProtocol sshProtocol,
+			final int timeout) throws InterruptedException, IOException, TimeoutException, MatsyaException {
+		return strategyConfig.getHostMonitoring().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
+				OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
+					OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshProtocol, timeout, null, null);
 	}
 
 	/**
@@ -505,8 +510,143 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final OSCommand osCommand) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+		if (osCommand == null) {
+			return CriterionTestResult.error(osCommand, "Malformed OSCommand criterion.");
+		}
+
+		if (osCommand.getCommandLine() == null || osCommand.getCommandLine().isEmpty() ||
+				osCommand.getExpectedResult() == null || osCommand.getExpectedResult().isEmpty()) {
+			return CriterionTestResult.success(osCommand, "CommandLine or ExpectedResult are empty. Skipping this test.");
+		}
+
+		final boolean isLocalhost = strategyConfig.getHostMonitoring().isLocalhost();
+
+		final IProtocolConfiguration protocolConfiguration = strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
+				!isLocalhost && strategyConfig.getEngineConfiguration().getTarget().getType() == TargetType.MS_WINDOWS ?
+						WMIProtocol.class :
+							SSHProtocol.class);
+
+		final Optional<String> maybeUsername = OsCommandHelper.getUsername(
+				protocolConfiguration);
+
+		// If remote command and no username
+		if ((maybeUsername.isEmpty() || maybeUsername.get().trim().isEmpty() ) &&
+				!osCommand.isExecuteLocally() && !isLocalhost) {
+			return CriterionTestResult.error(osCommand, "No credentials provided.");
+		}
+
+		final OSCommandConfig osCommandConfig =
+				(OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
+						OSCommandConfig.class);
+
+		final int timeout = OsCommandHelper.getTimeout(
+				osCommand.getTimeout(),
+				osCommandConfig,
+				protocolConfiguration,
+				strategyConfig.getEngineConfiguration().getOperationTimeout());
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		final String updatedHostnameCommand = osCommand.getCommandLine().replaceAll(
+				OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.HOSTNAME_MACRO),
+				hostname);
+
+		final String updatedSudoCommand = OsCommandHelper.replaceSudo(
+				updatedHostnameCommand,
+				osCommandConfig);
+
+		final Map<String, File> embeddedFiles;
+		try {
+			embeddedFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
+					osCommand.getCommandLine(),
+					connector.getEmbeddedFiles(),
+					osCommandConfig);
+		} catch (final IOException e) {
+			return CriterionTestResult.error(osCommand, e);
+		}
+
+		final String updatedEmbeddedFilesCommand = embeddedFiles.entrySet().stream()
+				.reduce(
+						updatedSudoCommand,
+						(s, enty) -> s.replaceAll(
+								OsCommandHelper.toCaseInsensitiveRegex(enty.getKey()),
+								Matcher.quoteReplacement(enty.getValue().getAbsolutePath())),
+						(s1, s2) -> null);
+
+		final String updatedCommand = maybeUsername
+				.map(username -> updatedEmbeddedFilesCommand.replaceAll(
+						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.USERNAME_MACRO),
+						username))
+				.orElse(updatedEmbeddedFilesCommand);
+
+		final Optional<char[]> maybePassword = OsCommandHelper.getPassword(protocolConfiguration);
+
+		final String command = maybePassword
+				.map(password -> updatedCommand.replaceAll(
+						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO),
+						String.valueOf(password)))
+				.orElse(updatedCommand);
+
+		final String noPasswordCommand = maybePassword
+				.map(password -> updatedCommand.replaceAll(
+						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO),
+						"********"))
+				.orElse(updatedCommand);
+
+		try {
+			final String commandResult;
+
+			// Case local execution or command intended for a remote host but executed locally
+			if (HardwareConstants.LOCALHOST.equalsIgnoreCase(hostname) || osCommand.isExecuteLocally()) {
+				final String localCommandResult = OsCommandHelper.runLocalCommand(
+						command,
+						timeout,
+						noPasswordCommand);
+				commandResult = localCommandResult != null ?
+						localCommandResult :
+							HardwareConstants.EMPTY;
+
+			// Case Windows Remote
+			} else if (strategyConfig.getEngineConfiguration().getTarget().getType() == TargetType.MS_WINDOWS) {
+				final WMIProtocol  wmiProtocol = (WMIProtocol) protocolConfiguration;
+				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
+						command,
+						hostname,
+						wmiProtocol.getUsername(),
+						wmiProtocol.getPassword(),
+						timeout,
+						embeddedFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+
+			// Case others (Linux) Remote
+			} else {
+				commandResult = OsCommandHelper.runSshCommand(
+						command,
+						hostname,
+						(SSHProtocol) protocolConfiguration,
+						timeout,
+						embeddedFiles.values().stream().collect(Collectors.toList()),
+						noPasswordCommand);
+			}
+
+			final OSCommand osCommandNoPassword = OSCommand.builder()
+					.commandLine(noPasswordCommand)
+					.executeLocally(osCommand.isExecuteLocally())
+					.timeout(osCommand.getTimeout())
+					.expectedResult(osCommand.getExpectedResult())
+					.build();
+
+			final Matcher matcher = Pattern
+					.compile(osCommand.getExpectedResult())
+					.matcher(commandResult);
+			return matcher.find() ?
+					CriterionTestResult.success(osCommandNoPassword, commandResult) :
+						CriterionTestResult.failure(osCommandNoPassword, commandResult);
+
+		} catch (final Exception e) {
+			return CriterionTestResult.error(osCommand, e);
+		} finally {
+			embeddedFiles.values().forEach(File::delete);
+		}
 	}
 
 	@Override
@@ -573,7 +713,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// Our local system must be Windows
-		if (!OsCommandHelper.isWindows()) {
+		if (!LocalOSHandler.isWindows()) {
 			return CriterionTestResult.success(service, "We're not running on Windows. Skipping this test.");
 		}
 

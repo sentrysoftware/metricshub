@@ -10,7 +10,7 @@ targets:
       port: 161
       timeout: 120
     selectedConnectors:
-      - MS_HW_DellOpenManage.hdfs
+      - DellOpenManage
     excludedConnectors: []
     unknownStatus: WARN
 
@@ -23,7 +23,7 @@ targets:
       port: 161
       timeout: 120
     selectedConnectors:
-      - MS_HW_DellOpenManage.hdfs
+      - DellOpenManage
     excludedConnectors: []
     unknownStatus: WARN
 
@@ -36,6 +36,6 @@ targets:
       port: 161
       timeout: 120
     selectedConnectors:
-      - MS_HW_DellOpenManage.hdfs
+      - DellOpenManage
     excludedConnectors: []
     unknownStatus: WARN

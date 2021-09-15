@@ -19,9 +19,7 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
@@ -43,8 +41,7 @@ public class Temperature implements IMetaMonitor {
 			.type(ParameterType.NUMBER)
 			.build();
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, TEMPERATURE_TYPE, ADDITIONAL_INFORMATION1,
-			ADDITIONAL_INFORMATION2, ADDITIONAL_INFORMATION3);
+	private static final List<String> METADATA = List.of(DEVICE_ID, TEMPERATURE_TYPE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Temperature::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,

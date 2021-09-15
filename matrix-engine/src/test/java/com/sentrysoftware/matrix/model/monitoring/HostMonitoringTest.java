@@ -1,27 +1,5 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -39,6 +17,29 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
 class HostMonitoringTest {
 
 	private static final String ENCLOSURE_2 = "enclosure-2";
@@ -49,8 +50,8 @@ class HostMonitoringTest {
 	private static final String POWER_CONSUMPTION = "PowerConsumption";
 	private static final String SOURCE_KEY_LOWER = "enclosure.discovery.source(1)";
 	private static final String SOURCE_KEY_PASCAL = "Enclosure.discovery.Source(1)";
-	private static final String FULL_FAN_ID = "myConnector.connector_fan_targetId_fanId";
-	private static final String CONNECTOR_NAME = "myConnector.connector";
+	private static final String FULL_FAN_ID = "myConnector_fan_targetId_fanId";
+	private static final String CONNECTOR_NAME = "myConnector";
 	private static final String FAN_NAME = "fan";
 	private static final String ENCLOSURE_NAME = "enclosure";
 	private static final String target_NAME = "target";
@@ -406,7 +407,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = PresentParam.builder().collectTime(new Date().getTime())
+		final IParameterValue parameter = PresentParam.builder()
 				.state(ParameterState.OK).build();
 		enclosure.addParameter(parameter);
 
@@ -420,7 +421,6 @@ class HostMonitoringTest {
 
 		final PresentParam parameterAfterReset = (PresentParam) result.getParameters().get(PRESENT);
 
-		assertNotNull(parameterAfterReset.getCollectTime());
 		assertEquals(ParameterState.OK, parameterAfterReset.getState());
 		assertEquals(1, parameterAfterReset.getPresent());
 	}
@@ -585,15 +585,17 @@ class HostMonitoringTest {
 		assertEquals(expectedFanBis, hostMonitoring.selectFromType(FAN).get(fanBisId));
 		assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
 
-		hostMonitoring.addMissingMonitor(Monitor.builder()
-				.id(ENCLOSURE_ID)
+		Monitor voltageMonitor = Monitor.builder()
+				.id("volatageID1")
 				.targetId(TARGET_ID)
 				.parentId(ENCLOSURE_ID)
-				.name(ENCLOSURE_NAME)
-				.monitorType(MonitorType.ENCLOSURE)
-				.build());
+				.name("volatageName1")
+				.monitorType(MonitorType.VOLTAGE)
+				.build();
 
-		assertNull(hostMonitoring.selectFromType(ENCLOSURE));
+		hostMonitoring.addMissingMonitor(voltageMonitor);
+		assertNull(hostMonitoring.selectFromType(MonitorType.VOLTAGE)); // Voltage cannot be missing, we have already deleted it
+
 	}
 
 	@Test

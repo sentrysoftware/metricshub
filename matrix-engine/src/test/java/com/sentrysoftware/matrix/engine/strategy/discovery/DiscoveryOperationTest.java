@@ -1,5 +1,49 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -24,64 +68,27 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-import java.util.UUID;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
 
 	private static final String ID_COUNT_0 = "0";
 	private static final String FAN_NAME = "Fan 1";
-	private static final String FAN_ID = "myConnector1.connector_fan_ecs1-01_1.1";
+	private static final String FAN_ID = "myConnector1_fan_ecs1-01_1.1";
 	private static final String SPEED = "speed";
 	private static final String SPEED_VALUE = "1000";
 	private static final String FAN_1 = "Fan 1";
 	private static final String ENCLOSURE_DELL = "Enclosure: Dell";
-	private static final String HARD_CODED_ENCLOSURE_ID = "myConnector1.connector_enclosure_ecs1-01_DellEnclosure";
+	private static final String HARD_CODED_ENCLOSURE_ID = "myConnector1_enclosure_ecs1-01_DellEnclosure";
 	private static final String ENCLOSURE_NAME = "Computer: PowerEdge 54dsf (Dell 2200)";
-	private static final String ENCLOSURE_ID = "myConnector1.connector_enclosure_ecs1-01_1.1";
+	private static final String ENCLOSURE_ID = "myConnector1_enclosure_ecs1-01_1.1";
 	private static final String TYPE = "type";
 	private static final String DELL_ENCLOSURE = "Dell Enclosure";
 	private static final String OUT_OF_RANGE = "OutOfRangeParam";
 	private static final String MODEL_VALUE = "2200";
 	private static final String POWER_EDGE_54DSF = "PowerEdge 54dsf";
 	private static final String ID = "1.1";
+	private static final String INSTANCETABLE_COLUMN_5 = "instancetable.column(5)";
 	private static final String INSTANCETABLE_COLUMN_4 = "instancetable.column(4)";
 	private static final String INSTANCETABLE_COLUMN_3 = " instancetable.column(3) ";
 	private static final String INSTANCETABLE_COLUMN_2 = " instancetable.column(2)";
@@ -100,10 +107,13 @@ class DiscoveryOperationTest {
 	private static final String ECS1_01 = "ecs1-01";
 	private static final String OID_ENCLOSURE = "1.2.3.4.5";
 	private static final String OID_FAN = "1.2.3.4.6";
-	private static final String MY_CONNECTOR_1_NAME = "myConnector1.connector";
+	private static final String MY_CONNECTOR_1_NAME = "myConnector1";
 	private static final String ENCLOSURE_SOURCE_KEY = "Enclosure.discovery.Source(1)";
 	private static final String FAN_SOURCE_KEY = "Fan.discovery.Source(1)";
-	private static final String MY_CONNECTOR_2_NAME = "myConnector2.connector";
+	private static final String MY_CONNECTOR_2_NAME = "myConnector2";
+	private static final String INFORMATION1 = "test information 1";
+	private static final String INFORMATION2 = "test information 2";
+	private static final String INFORMATION3 = "test information 3";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -313,6 +323,8 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(TYPE, COMPUTER);
 		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		enclosureMetadata.put(TARGET_FQDN, null);
+		enclosureMetadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		enclosureMetadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -323,6 +335,12 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.parameters(Map.of(
+						"Present", PresentParam
+						.builder()
+						.state(ParameterState.OK)
+						.build())
+						)
 				.build();
 
 		final Map<String, String> fanMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -333,6 +351,7 @@ class DiscoveryOperationTest {
 		fanMetadata.put(ID_COUNT, ID_COUNT_0);
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		fanMetadata.put(TARGET_FQDN, null);
+		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
@@ -427,6 +446,8 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -437,8 +458,13 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.parameters(Map.of(
+						"Present", PresentParam
+						.builder()
+						.state(ParameterState.OK)
+						.build())
+						)
 				.build();
-
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
 
@@ -479,6 +505,8 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -488,6 +516,12 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
+				.parameters(Map.of(
+						"Present", PresentParam
+						.builder()
+						.state(ParameterState.OK)
+						.build())
+						)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -516,7 +550,8 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				TYPE, COMPUTER);
+				TYPE, COMPUTER,
+				ADDITIONAL_INFORMATION1, INFORMATION1);
 		final Discovery discovery = Discovery
 				.builder()
 				.instanceTable(sourceInstanceTable)
@@ -686,6 +721,12 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(ENCLOSURE)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.parameters(Map.of(
+						"Present", PresentParam
+						.builder()
+						.state(ParameterState.OK)
+						.build())
+						)
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
@@ -742,6 +783,7 @@ class DiscoveryOperationTest {
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
@@ -751,10 +793,69 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
+				.parameters(Map.of(
+						"Present", PresentParam
+						.builder()
+						.state(ParameterState.OK)
+						.build())
+						)
+
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
+	}
+
+	@Test
+	void testSetIdentifyingInformation() {
+
+		{
+			final Monitor monitor = Monitor.builder().build();
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION2, INFORMATION2,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals(String.format("%s - %s - %s", INFORMATION1, INFORMATION2, INFORMATION3), 
+					metadata.get(IDENTIFYING_INFORMATION));
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().build();
+			final Map<String, String> parameters = new HashMap<>(
+					Map.of(
+							ADDITIONAL_INFORMATION1, INFORMATION1,
+							ADDITIONAL_INFORMATION3, INFORMATION3)
+					);
+
+			monitor.setMetadata(parameters);
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals(String.format("%s - %s", INFORMATION1, INFORMATION3), 
+					metadata.get(IDENTIFYING_INFORMATION));
+		}
+
+		{
+			// No additionalInformation metadata 
+			final Monitor monitor = Monitor.builder().build();
+
+			discoveryOperation.setIdentifyingInformation(monitor);
+
+			final Map<String, String> metadata = monitor.getMetadata();
+
+			assertEquals("", metadata.get(IDENTIFYING_INFORMATION));
+		}
 	}
 
 	@Test
@@ -783,10 +884,11 @@ class DiscoveryOperationTest {
 				DISPLAY_ID, INSTANCETABLE_COLUMN_2,
 				VENDOR, DELL,
 				MODEL, INSTANCETABLE_COLUMN_3,
-				OUT_OF_RANGE, INSTANCETABLE_COLUMN_4);
-		final List<String> row = Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE);
+				SERIAL_NUMBER, INSTANCETABLE_COLUMN_4,
+				OUT_OF_RANGE, INSTANCETABLE_COLUMN_5);
+		final List<String> row = Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE, null);
 		final Monitor monitor = Monitor.builder().build();
-		discoveryOperation.processSourceTableParameters(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
+		discoveryOperation.processSourceTableMetadata(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -795,7 +897,8 @@ class DiscoveryOperationTest {
 		assertEquals(DELL, metadata.get(VENDOR_PASCAL));
 		assertEquals(MODEL_VALUE, metadata.get(MODEL_PASCAL));
 		assertEquals(ID_COUNT_0, metadata.get(ID_COUNT));
-		assertNull(metadata.get(OUT_OF_RANGE));
+		assertFalse(metadata.containsKey(OUT_OF_RANGE));
+		assertFalse(metadata.containsKey(SERIAL_NUMBER));
 	}
 
 

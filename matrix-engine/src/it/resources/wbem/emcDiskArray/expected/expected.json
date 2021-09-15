@@ -1,10 +1,10 @@
 {
   "total" : 49,
   "monitors" : [ {
-    "id" : "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)",
+    "id" : "EMCDiskArray_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)",
     "name" : "SB-1-+-SPS-3A (Aggregate)",
     "monitorType" : "BATTERY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Battery",
     "parameters" : {
@@ -30,10 +30,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3A (Aggregate)",
       "displayid" : "SB-1-+-SPS-3A (Aggregate)",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -97,10 +98,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)",
+    "id" : "EMCDiskArray_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3B(Aggregate)",
     "name" : "SB-1-+-SPS-3B (Aggregate)",
     "monitorType" : "BATTERY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Battery",
     "parameters" : {
@@ -126,10 +127,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3B (Aggregate)",
       "displayid" : "SB-1-+-SPS-3B (Aggregate)",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -193,8 +195,8 @@
       } ]
     }
   }, {
-    "id" : "localhost@MS_HW_EMCDiskArray.connector",
-    "name" : "MS_HW_EMCDiskArray.connector",
+    "id" : "localhost@EMCDiskArray",
+    "name" : "EMCDiskArray",
     "monitorType" : "CONNECTOR",
     "parentId" : "localhost",
     "targetId" : "localhost",
@@ -222,7 +224,7 @@
     "metadata" : {
       "description" : "This connector discovers the enclosure and the disks of EMC SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only.",
       "displayName" : "EMC SMI-S Agent (ECOM)",
-      "fileName" : "MS_HW_EMCDiskArray.connector",
+      "fileName" : "EMCDiskArray",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -240,30 +242,40 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "id" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "name" : "Storage: 000297800620 (EMC VMAX250F)",
     "monitorType" : "ENCLOSURE",
     "parentId" : "localhost",
     "targetId" : "localhost",
     "extendedType" : "Storage",
     "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1624024821235,
+        "state" : "OK",
+        "unit" : "{0 = Missing ; 1 = Present}",
+        "present" : 1,
+        "previousState" : null,
+        "type" : "PresentParam"
+      },
       "status" : {
         "name" : "status",
         "collectTime" : 1629129125956,
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "statusInformation" : "status: 0 (Online)\npresent: 1 (Present)",
         "previousState" : null,
         "type" : "StatusParam"
       }
     },
     "metadata" : {
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "devicehostname" : "000297800620",
       "deviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "displayid" : "000297800620",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "model" : "VMAX250F",
       "serialnumber" : "000297800620",
       "targetFqdn" : "0.0.0.0",
@@ -297,10 +309,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-FAN-0",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -337,10 +349,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -427,10 +440,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-FAN-1",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -467,10 +480,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -557,10 +571,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-FAN-2",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -597,10 +611,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -687,10 +702,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-FAN-3",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -727,10 +742,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -817,10 +833,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-FAN-4",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -857,10 +873,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -947,10 +964,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-FAN-0",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -987,10 +1004,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1077,10 +1095,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-FAN-1",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1117,10 +1135,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1207,10 +1226,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-FAN-2",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1247,10 +1266,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "idCount" : "7",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1337,10 +1357,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-FAN-3",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1377,10 +1397,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "idCount" : "8",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1467,10 +1488,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
+    "id" : "EMCDiskArray_fan_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-FAN-4",
     "monitorType" : "FAN",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
     "parameters" : {
@@ -1507,10 +1528,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -1597,10 +1619,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-32",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-32",
     "name" : "FA-1D-+-32 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -1659,11 +1681,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "1000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-32",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-32",
       "idCount" : "4",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B020",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -1753,10 +1776,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-33",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-33",
     "name" : "FA-1D-+-33 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -1815,11 +1838,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "1000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-33",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-33",
       "idCount" : "5",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B021",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -1909,10 +1933,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-4",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-4",
     "name" : "FA-1D-+-4 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -1971,11 +1995,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-4",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-4",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B004",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2065,10 +2090,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-5",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-5",
     "name" : "FA-1D-+-5 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2127,11 +2152,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-5",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-5",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B005",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2221,10 +2247,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-6",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-6",
     "name" : "FA-1D-+-6 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2283,11 +2309,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-6",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-6",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B006",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2377,10 +2404,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-1D-+-7",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-1D-+-7",
     "name" : "FA-1D-+-7 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2439,11 +2466,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-1D-+-7",
       "devicetype" : "FC Port N",
       "displayid" : "FA-1D-+-7",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B007",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2533,10 +2561,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-32",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-32",
     "name" : "FA-2D-+-32 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2595,11 +2623,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "1000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-32",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-32",
       "idCount" : "10",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B060",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2689,10 +2718,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-33",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-33",
     "name" : "FA-2D-+-33 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2751,11 +2780,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "1000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-33",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-33",
       "idCount" : "11",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B061",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -2845,10 +2875,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-4",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-4",
     "name" : "FA-2D-+-4 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -2907,11 +2937,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-4",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-4",
       "idCount" : "6",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B044",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3005,10 +3036,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-5",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-5",
     "name" : "FA-2D-+-5 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -3067,11 +3098,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-5",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-5",
       "idCount" : "7",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B045",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3161,10 +3193,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-6",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-6",
     "name" : "FA-2D-+-6 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -3223,11 +3255,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-6",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-6",
       "idCount" : "8",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B046",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3317,10 +3350,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_networkcard_localhost_FA-2D-+-7",
+    "id" : "EMCDiskArray_networkcard_localhost_FA-2D-+-7",
     "name" : "FA-2D-+-7 (FC Port N)",
     "monitorType" : "NETWORK_CARD",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
     "parameters" : {
@@ -3379,11 +3412,12 @@
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
       "bandwidth" : "16000.0",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "FA-2D-+-7",
       "devicetype" : "FC Port N",
       "displayid" : "FA-2D-+-7",
       "idCount" : "9",
+      "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B047",
       "physicaladdresstype" : "WWN",
       "targetFqdn" : "0.0.0.0"
@@ -3473,10 +3507,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
     "name" : "0 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -3514,10 +3548,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006200",
       "displayid" : "0",
       "idCount" : "0",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3609,10 +3644,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006201",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006201",
     "name" : "1 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -3650,10 +3685,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006201",
       "displayid" : "1",
       "idCount" : "1",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3745,10 +3781,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006202",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006202",
     "name" : "2 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -3786,10 +3822,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006202",
       "displayid" : "2",
       "idCount" : "2",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -3881,10 +3918,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006203",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006203",
     "name" : "3 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -3922,10 +3959,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006203",
       "displayid" : "3",
       "idCount" : "3",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4017,10 +4055,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620380",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620380",
     "name" : "380 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4058,10 +4096,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620380",
       "displayid" : "380",
       "idCount" : "5",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4153,10 +4192,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620381",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620381",
     "name" : "381 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4194,10 +4233,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620381",
       "displayid" : "381",
       "idCount" : "6",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4289,10 +4329,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620382",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620382",
     "name" : "382 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4330,10 +4370,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620382",
       "displayid" : "382",
       "idCount" : "7",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4425,10 +4466,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620383",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620383",
     "name" : "383 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4466,10 +4507,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620383",
       "displayid" : "383",
       "idCount" : "8",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4561,10 +4603,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620384",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620384",
     "name" : "384 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4602,10 +4644,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620384",
       "displayid" : "384",
       "idCount" : "14",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4697,10 +4740,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620385",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620385",
     "name" : "385 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4738,10 +4781,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620385",
       "displayid" : "385",
       "idCount" : "15",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4833,10 +4877,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620386",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620386",
     "name" : "386 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -4874,10 +4918,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620386",
       "displayid" : "386",
       "idCount" : "16",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -4969,10 +5014,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620387",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620387",
     "name" : "387 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5010,10 +5055,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620387",
       "displayid" : "387",
       "idCount" : "17",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5105,10 +5151,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-000297800620388",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-000297800620388",
     "name" : "388 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5146,10 +5192,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620388",
       "displayid" : "388",
       "idCount" : "9",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5241,10 +5288,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006204",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006204",
     "name" : "4 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5282,10 +5329,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006204",
       "displayid" : "4",
       "idCount" : "4",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5377,10 +5425,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006205",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006205",
     "name" : "5 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5418,10 +5466,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006205",
       "displayid" : "5",
       "idCount" : "10",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5513,10 +5562,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006206",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006206",
     "name" : "6 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5554,10 +5603,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006206",
       "displayid" : "6",
       "idCount" : "11",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5649,10 +5699,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006207",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006207",
     "name" : "7 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5690,10 +5740,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006207",
       "displayid" : "7",
       "idCount" : "12",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5785,10 +5836,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_physicaldisk_localhost_SYMMETRIX-+-0002978006208",
+    "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006208",
     "name" : "8 (941 GB)",
     "monitorType" : "PHYSICAL_DISK",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
     "parameters" : {
@@ -5826,10 +5877,11 @@
     "metadata" : {
       "additionalinformation1" : "Disk Type: EFD",
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-0002978006208",
       "displayid" : "8",
       "idCount" : "13",
+      "identifyingInformation" : "Disk Type: EFD",
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
@@ -5921,10 +5973,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
+    "id" : "EMCDiskArray_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-PS-A",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -5950,10 +6002,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "idCount" : "0",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6017,10 +6070,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
+    "id" : "EMCDiskArray_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
     "name" : "SB-1-+-ES-1-+-DIR-1-+-PS-B",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -6046,10 +6099,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "idCount" : "1",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6113,10 +6167,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
+    "id" : "EMCDiskArray_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-PS-A",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -6142,10 +6196,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "idCount" : "2",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -6209,10 +6264,10 @@
       } ]
     }
   }, {
-    "id" : "MS_HW_EMCDiskArray.connector_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
+    "id" : "EMCDiskArray_powersupply_localhost_SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
     "name" : "SB-1-+-ES-1-+-DIR-2-+-PS-B",
     "monitorType" : "POWER_SUPPLY",
-    "parentId" : "MS_HW_EMCDiskArray.connector_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
     "parameters" : {
@@ -6238,10 +6293,11 @@
     },
     "metadata" : {
       "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\\\"Symm_StorageSystem\\\",Name=\\\"SYMMETRIX-+-000297800620\\\"",
-      "connector" : "MS_HW_EMCDiskArray.connector",
+      "connector" : "EMCDiskArray",
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "idCount" : "3",
+      "identifyingInformation" : "",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {

@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABELS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
@@ -112,7 +112,7 @@ class HostMonitoringCollectorServiceTest {
 		enclosureMonitor.addMetadata(VENDOR, "Dell");
 		enclosureMonitor.addMetadata(MODEL, "PowerEdge R630");
 		enclosureMonitor.addMetadata(TYPE, "Computer");
-		enclosureMonitor.addMetadata(ADDITIONAL_INFORMATION1, "Additional info test");
+		enclosureMonitor.addMetadata(IDENTIFYING_INFORMATION, "Identifying info test");
 		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
 
 		Monitor fan1Monitor = Monitor.builder()

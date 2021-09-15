@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -72,6 +73,9 @@ public class DetectionOperation extends AbstractStrategy {
 			// Blocks until all tasks have completed execution after a shutdown request
 			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
 
@@ -110,9 +114,6 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param threadsPool				The threads pool that will be used to execute the detections.
 	 *
 	 * @return							The {@link List} of successful {@link TestedConnector}s.
-	 *
-	 * @throws LocalhostCheckException	Could be thrown by filterConnectorsByLocalAndRemoteSupport
-	 * 									if {@link NetworkHelper#isLocalhost(String)} fails.
 	 */
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost, ExecutorService threadsPool) {
 
@@ -334,7 +335,7 @@ public class DetectionOperation extends AbstractStrategy {
 			return;
 		}
 		supersedes.addAll(testedConnector.getConnector().getSupersedes().stream()
-				.map(fileName -> fileName.replace(".hdf", ".connector").toLowerCase()).collect(Collectors.toSet()));
+				.map(fileName -> ConnectorStore.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
 	}
 
 	/**
@@ -362,7 +363,8 @@ public class DetectionOperation extends AbstractStrategy {
 
 				} catch (InterruptedException e) {
 
-					log.error("Interrupted error", e);
+					log.warn("Connector {} detection has been interrupted", connector.getCompiledFilename());
+					log.debug("Interrupted Exception", e);
 
 					Thread.currentThread().interrupt();
 
@@ -373,7 +375,17 @@ public class DetectionOperation extends AbstractStrategy {
 
 				} catch (ExecutionException e) {
 
-					log.error("Execution error", e);
+					Throwable cause = e.getCause();
+					if (cause == null) {
+						cause = e;
+					}
+					log.error(
+							"Connector {} detection failed: {}: {}",
+							connector.getCompiledFilename(),
+							cause.getClass().getSimpleName(),
+							cause.getMessage()
+					);
+					log.debug("Execution exception", cause);
 
 					return TestedConnector
 						.builder()
@@ -395,7 +407,6 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param connectorStream
 	 * @param isLocalhost
 	 * @return {@link Stream} of {@link Connector} instances
-	 * @throws LocalhostCheckException when {@link NetworkHelper#isLocalhost(String)} fails
 	 */
 	Stream<Connector> filterConnectorsByLocalAndRemoteSupport(final Stream<Connector> connectorStream, final boolean isLocalhost) {
 		if (isLocalhost) {

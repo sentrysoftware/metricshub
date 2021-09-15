@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import java.util.regex.Pattern;
+
 public class HardwareConstants {
 
 	private HardwareConstants() {
@@ -13,6 +15,7 @@ public class HardwareConstants {
 	public static final String WHITE_SPACE = " ";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	public static final String WHITE_SPACE_REPEAT_REGEX = "[ \t]+";
+	public static final String EMPTY = "";
 	public static final String ID_SEPARATOR = "_";
 	public static final String BLADE_ENCLOSURE = "Blade Enclosure";
 	public static final String ENCLOSURE = "Enclosure";
@@ -249,6 +252,7 @@ public class HardwareConstants {
 	public static final String OFF_STATUS = "offStatus";
 	public static final String BLINKING_STATUS = "blinkingStatus";
 	public static final String POWER_CONSUMPTION = "powerConsumption";
+	public static final String IDENTIFYING_INFORMATION = "identifyingInformation";
 
 	/////////////////////
 	//                 //
@@ -298,6 +302,7 @@ public class HardwareConstants {
 	public static final String PASSWORD_MACRO = "%{PASSWORD}";
 	public static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 
 	public static final String AUTOMATIC_NAMESPACE = "automatic";
 
@@ -305,4 +310,9 @@ public class HardwareConstants {
 	public static final String TARGET_FQDN = "targetFqdn";
 
 	public static final int ID_MAXLENGTH = 10;
+
+	/**
+	 * Pattern to remove MS_HW_ from the compiled file name
+	 */
+	public static final Pattern REMOVE_MS_HW_PATTERN = Pattern.compile("^(MS_HW_)(.*)$", Pattern.CASE_INSENSITIVE);
 }

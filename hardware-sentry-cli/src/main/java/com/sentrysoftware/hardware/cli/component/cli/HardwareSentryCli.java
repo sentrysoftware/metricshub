@@ -21,6 +21,7 @@ import com.sentrysoftware.hardware.cli.component.cli.converters.TargetTypeConver
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
@@ -88,20 +89,23 @@ public class HardwareSentryCli implements Callable<Integer> {
 	)
 	private TargetType deviceType;
 
+	@ArgGroup(exclusive = false, heading = "@|bold HTTP Options|@%n")
+	private HttpConfig httpConfig;
+
+	@ArgGroup(exclusive = false, heading = "@|bold IPMI Options|@%n")
+	private IpmiConfig ipmiConfig;
+
 	@ArgGroup(exclusive = false, heading = "@|bold SNMP Options|@%n")
 	private SnmpConfig snmpConfig;
+
+	@ArgGroup(exclusive = false, heading = "@|bold SSH Options|@")
+	private SshConfig sshConfig;
 
 	@ArgGroup(exclusive = false, heading = "@|bold WBEM Options|@%n")
 	private WbemConfig wbemConfig;
 
 	@ArgGroup(exclusive = false, heading = "@|bold WMI Options|@%n")
 	private WmiConfig wmiConfig;
-
-	@ArgGroup(exclusive = false, heading = "@|bold HTTP Options|@%n")
-	private HttpConfig httpConfig;
-
-	@ArgGroup(exclusive = false, heading = "@|bold IPMI Options|@%n")
-	private IpmiConfig ipmiConfig;
 
 	@Option(
 			names = { "-u", "--username" },
@@ -149,10 +153,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		setLogLevel();
 
+		// Configure the Matrix engine for the specified host
 		EngineConfiguration engineConf = new EngineConfiguration();
 
+		// Target
 		engineConf.setTarget(new HardwareTarget(hostname, hostname, deviceType));
-		engineConf.setProtocolConfigurations(getProtocols());
+
+		// Protocols
+		Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocols = getProtocols();
+		engineConf.setProtocolConfigurations(protocols);
+
+		// Connectors
 		if (connectors != null) {
 			engineConf.setSelectedConnectors(connectors);
 		}
@@ -160,13 +171,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 			engineConf.setExcludedConnectors(excludedConnectors);
 		}
 
-		// run jobs
+		// Create a new HostMonitoring
 		IHostMonitoring hostMonitoring =
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
 
 		// Detection
 		if (consoleService.hasConsole()) {
-			System.out.printf("Performing detection on %s...\n", hostname);
+			String protocolDisplay = protocols.values()
+					.stream()
+					.map(proto -> proto.getClass().getSimpleName())
+					.collect(Collectors.joining(", "));
+			System.out.printf("Performing detection on %s using %s...\n", hostname, protocolDisplay);
 			System.out.flush();
 		}
 		EngineResult engineResult = hostMonitoring.run(new DetectionOperation());
@@ -222,14 +237,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 			if (username != null && password == null) {
 				password = System.console().readPassword("%s password: ", username);
 			}
-			if (snmpConfig != null) {
-				if (snmpConfig.getUsername() != null && snmpConfig.getPassword() == null) {
-					snmpConfig.setPassword(System.console().readPassword("%s password for SNMP: ", snmpConfig.getUsername()));
-				}
-				if (snmpConfig.getPrivacy() == Privacy.AES || snmpConfig.getPrivacy() == Privacy.DES) {
-					snmpConfig.setPrivacyPassword(System.console().readPassword("SNMP Privacy password: "));
-				}
-			}
 			if (httpConfig != null) {
 				if (httpConfig.getUsername() != null && httpConfig.getPassword() == null) {
 					httpConfig.setPassword(System.console().readPassword("%s password for HTTP: ", httpConfig.getUsername()));
@@ -238,6 +245,19 @@ public class HardwareSentryCli implements Callable<Integer> {
 			if (ipmiConfig != null) {
 				if (ipmiConfig.getUsername() != null && ipmiConfig.getPassword() == null) {
 					ipmiConfig.setPassword(System.console().readPassword("%s password for IPMI: ", ipmiConfig.getUsername()));
+				}
+			}
+			if (snmpConfig != null) {
+				if (snmpConfig.getUsername() != null && snmpConfig.getPassword() == null) {
+					snmpConfig.setPassword(System.console().readPassword("%s password for SNMP: ", snmpConfig.getUsername()));
+				}
+				if (snmpConfig.getPrivacy() == Privacy.AES || snmpConfig.getPrivacy() == Privacy.DES) {
+					snmpConfig.setPrivacyPassword(System.console().readPassword("SNMP Privacy password: "));
+				}
+			}
+			if (sshConfig != null) {
+				if (sshConfig.getUsername() != null && sshConfig.getPassword() == null) {
+					sshConfig.setPassword(System.console().readPassword("%s password for SSH: ", sshConfig.getUsername()));
 				}
 			}
 			if (wbemConfig != null) {
@@ -253,9 +273,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 
 		// No protocol at all?
-		if (snmpConfig == null && httpConfig == null && ipmiConfig == null
-				&& wbemConfig == null && wmiConfig == null) {
-			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --wbem, --wmi.");
+		if (httpConfig == null && ipmiConfig == null && snmpConfig == null
+				&& sshConfig == null && wbemConfig == null && wmiConfig == null) {
+			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi.");
 		}
 
 		// SNMP inconsistencies
@@ -345,7 +365,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
 
-		return Stream.of(httpConfig, ipmiConfig, snmpConfig, wbemConfig, wmiConfig)
+		return Stream.of(httpConfig, ipmiConfig, snmpConfig, sshConfig, wbemConfig, wmiConfig)
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(
