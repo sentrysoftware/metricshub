@@ -3,14 +3,14 @@ package com.sentrysoftware.matrix.connector.parser.state.instance;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
+
+import lombok.NonNull;
 
 public class InstanceTableProcessor extends AbstractInstanceProcessor {
 
@@ -25,9 +25,7 @@ public class InstanceTableProcessor extends AbstractInstanceProcessor {
 	private static final Pattern SOURCE_PATTERN = Pattern.compile("^\\s*%(.*)\\.(discovery|collect)\\.source\\(([0-9]+)\\)%\\s*$", Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void parse(final String key, final String value, final Connector connector) {
-
-		Assert.notNull(connector, "connector cannot be null.");
+	public void parse(final String key, final String value, @NonNull final Connector connector) {
 
 		// First get the HardwareMonitor to update
 		final HardwareMonitor hardwareMonitor = super.getHardwareMonitor(key, connector);

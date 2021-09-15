@@ -47,6 +47,9 @@ public class HostMonitoringCollectorService extends Collector {
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
+	@Autowired
+	private ExporterInfoService exporterInfoService;
+
 	/**
 	 * Add a metric sample in the given Gauge metric
 	 *
@@ -140,6 +143,8 @@ public class HostMonitoringCollectorService extends Collector {
 	public List<MetricFamilySamples> collect() {
 
 		final List<MetricFamilySamples> metricFamilySamplesList = new ArrayList<>();
+
+		metricFamilySamplesList.add(exporterInfoService.getExporterInfoMetric());
 
 		// Loop over all the monitors and create metrics (Prometheus samples)
 		hostMonitoringMap.entrySet()

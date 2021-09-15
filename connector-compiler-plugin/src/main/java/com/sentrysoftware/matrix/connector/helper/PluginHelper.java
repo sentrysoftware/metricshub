@@ -8,7 +8,8 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.springframework.util.Assert;
+
+import lombok.NonNull;
 
 /**
  * Class with various utilities that will help developing this Maven plugin
@@ -24,10 +25,7 @@ public class PluginHelper {
 	 * @throws MojoExecutionException if specified directory cannot be created
 	 * @throws IllegalArgumentException if specified directory is null
 	 */
-	public static void validateOutputDirectory(File dir) throws MojoExecutionException {
-
-		// Sanity check
-		Assert.notNull(dir, "outputDirectory is not defined");
+	public static void validateOutputDirectory(@NonNull File dir) throws MojoExecutionException {
 
 		// Do we need to create it?
 		if (!dir.exists() && !dir.mkdirs()) {

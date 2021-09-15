@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Disabled;
@@ -978,8 +979,8 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindowsFailedToMatchCriteria() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("date /t");
-		osCommand.setExpectedResult("Criteria not found");
+		osCommand.setCommandLine("hostname");
+		osCommand.setExpectedResult(UUID.randomUUID().toString()); // Random string so that id dosn't match
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
@@ -1001,16 +1002,14 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd-MMM-yy ").format(new Date());
-
 		assertNotNull(criterionTestResult);
+		assertNotNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test ran but failed:\n" + osCommand.toString() +
 						"\n\n" +
-						"Actual result:\n" + result,
+						"Actual result:\n" + criterionTestResult.getResult(),
 						criterionTestResult.getMessage());
-		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
@@ -1056,8 +1055,8 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindows() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("date /t");
-		osCommand.setExpectedResult("\\d{2}-[A-Z][a-z]{2}-\\d{2} ");
+		osCommand.setCommandLine("hostname");
+		osCommand.setExpectedResult("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$");
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
@@ -1079,16 +1078,14 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd-MMM-yy ").format(new Date());
-
 		assertNotNull(criterionTestResult);
+		assertNotNull(criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: " + result,
+					"Result: " + criterionTestResult.getResult(),
 				criterionTestResult.getMessage());
-		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
@@ -1134,8 +1131,8 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandRemoteExecutedLocallyWindows() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("date /t");
-		osCommand.setExpectedResult("\\d{2}-[A-Z][a-z]{2}-\\d{2} ");
+		osCommand.setCommandLine("hostname");
+		osCommand.setExpectedResult("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$");
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
@@ -1157,16 +1154,15 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = new SimpleDateFormat("dd-MMM-yy ").format(new Date());
-
 		assertNotNull(criterionTestResult);
+		assertNotNull(criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: " + result,
+					"Result: " + criterionTestResult.getResult(),
 				criterionTestResult.getMessage());
-		assertEquals(result, criterionTestResult.getResult());
+		
 	}
 
 	@Test

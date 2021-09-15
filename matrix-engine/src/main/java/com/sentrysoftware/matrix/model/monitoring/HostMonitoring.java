@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.model.monitoring;
 
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -16,7 +17,6 @@ import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -45,6 +45,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
 
 @Data
@@ -62,6 +64,9 @@ public class HostMonitoring implements IHostMonitoring {
 	private static final String STRATEGY_TIME = "strategyTime";
 	private static final String STRATEGY_BEAN_NAME = "strategy";
 	private static final String STRATEGY_CONFIG_BEAN_NAME = "strategyConfig";
+
+	private static final List<MonitorType> DISK_CONTROLLER_CHILDREN = List.of(MonitorType.BATTERY,
+		MonitorType.LOGICAL_DISK, MonitorType.PHYSICAL_DISK, MonitorType.TAPE_DRIVE);
 
 	public static final HostMonitoring HOST_MONITORING = new HostMonitoring();
 
@@ -189,6 +194,7 @@ public class HostMonitoring implements IHostMonitoring {
 	public void addMonitor(final Monitor monitor, final String id,
 			final String connectorName, final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
+
 		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(connectorName, CONNECTOR_NAME_CANNOT_BE_NULL);
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
@@ -201,7 +207,23 @@ public class HostMonitoring implements IHostMonitoring {
 		}
 
 		if (monitor.getParentId() == null) {
-			monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId, attachedToDeviceType));
+
+			if (DISK_CONTROLLER_CHILDREN.contains(monitorType)) {
+
+				String diskControllerId = lookupDiskControllerId(connectorName,
+					monitor.getMetadata(DISK_CONTROLLER_NUMBER));
+
+				if (diskControllerId != null) {
+					monitor.setParentId(diskControllerId);
+				}
+
+			}
+
+			if (monitor.getParentId() == null) {
+
+				monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId,
+					attachedToDeviceType));
+			}
 		}
 
 		addMonitor(monitor);
@@ -599,6 +621,34 @@ public class HostMonitoring implements IHostMonitoring {
 		configContext.getBeanFactory().autowireBean(strategyConfig);
 
 		return configContext;
+	}
+
+	/**
+	 * @param connectorName			The name of the {@link Connector} containing the {@link DiskController}
+	 *                              being searched for.
+	 * @param diskControllerNumber	The number of the {@link DiskController} being searched for.
+	 *
+	 * @return						The ID of the {@link DiskController}
+	 * 								discovered by the given {@link Connector}, and having the given number.
+	 */
+	private String lookupDiskControllerId(String connectorName, String diskControllerNumber) {
+
+		Monitor result = null;
+
+		Map<String, Monitor> diskControllers = selectFromType(MonitorType.DISK_CONTROLLER);
+		if (diskControllers != null) {
+
+			result = diskControllers
+				.values()
+				.stream()
+				.filter(Objects::nonNull)
+				.filter(monitor -> monitor.getMetadata(CONNECTOR).equalsIgnoreCase(connectorName))
+				.filter(monitor -> monitor.getMetadata(DISK_CONTROLLER_NUMBER).equals(diskControllerNumber))
+				.findFirst()
+				.orElse(null);
+		}
+
+		return result == null ? null : result.getId();
 	}
 
 	/**
