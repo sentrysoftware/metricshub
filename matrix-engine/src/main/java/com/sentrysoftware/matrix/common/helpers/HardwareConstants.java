@@ -250,6 +250,7 @@ public class HardwareConstants {
 	public static final String OFF_STATUS = "offStatus";
 	public static final String BLINKING_STATUS = "blinkingStatus";
 	public static final String POWER_CONSUMPTION = "powerConsumption";
+	public static final String IDENTIFYING_INFORMATION = "identifyingInformation";
 
 	/////////////////////
 	//                 //
