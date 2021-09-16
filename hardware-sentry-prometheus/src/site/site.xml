@@ -37,6 +37,7 @@
 
 		<menu name="Troubleshooting">
 			<item name="Enabling Debug Mode" href="debug.html"/>
+			<item name="Resolving Timeout Issues" href="timeout-issues.html"/>
 		</menu>
 		
 	</body>
