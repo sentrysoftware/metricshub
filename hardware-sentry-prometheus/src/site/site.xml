@@ -19,11 +19,11 @@
 
 		<menu name="Getting Started">
 			<!--<item name="Release Notes" href="release-notes.html" / -->	
-			<item name="Getting Started" href="index.html"/>
-			<item name="Supported Platforms" href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html"/>
-			<item name="Components Monitored and Metrics" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
+			<item name="What is ${project.name}?" href="index.html"/>
+			<item name="Prerequisites" href="prerequisites.html"/>
+			<item name="Getting the Installation Packages" href="install.html"/>	
 		</menu>
-		
+
 		<menu name="Using the Exporter">
 			<item name="Configuring" href="configure.html"/>
 			<item name="Operating" href="operate.html"/>
@@ -37,7 +37,12 @@
 
 		<menu name="Troubleshooting">
 			<item name="Enabling Debug Mode" href="debug.html"/>
+			<item name="Resolving Timeout Issues" href="timeout-issues.html"/>
 		</menu>
-		
+
+		<menu name="Appendix">
+			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
+			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
+		</menu>
 	</body>
 </project>
