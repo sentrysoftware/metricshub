@@ -96,8 +96,9 @@ hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenMa
 
 The table below provides detailed information about the metrics scrapped by **${project.name}** for each Monitor and metric type.
 
-| monitor         | metric type | metric name                                 | labels                                                                                                                                                           |
+| Monitor         | Metric Type | Metric Name                                 | Labels                                                                                                                                                           |
 | --------------- | ----------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| N/A             | Gauge       | hw_exporter_info                            | build_number, hc_version, project_name, project_version, timestamp                                                                                               |
 | Connector       | Gauge       | hw_connector_info                           | description, display_name, file_name, fqdn, id, label, parent                                                                                                    |
 | Connector       | Gauge       | hw_connector_status                         | fqdn, id, label, parent                                                                                                                                          |
 | Target          | Gauge       | hw_target_info                              | fqdn, id, label, location, parent                                                                                                                                |
