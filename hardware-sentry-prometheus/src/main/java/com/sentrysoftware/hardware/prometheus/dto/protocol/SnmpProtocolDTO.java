@@ -35,6 +35,11 @@ public class SnmpProtocolDTO {
 	private String username;
 	private char[] password;
 
+	/**
+	 * Create a new {@link SNMPProtocol} instance based on the current members
+	 * 
+	 * @return The {@link SNMPProtocol} instance
+	 */
 	public IProtocolConfiguration toProtocol() {
 		return SNMPProtocol
 				.builder()

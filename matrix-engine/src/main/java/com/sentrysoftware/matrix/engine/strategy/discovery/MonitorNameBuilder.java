@@ -70,7 +70,6 @@ public class MonitorNameBuilder {
 	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
 
 	// Error messages
-	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";

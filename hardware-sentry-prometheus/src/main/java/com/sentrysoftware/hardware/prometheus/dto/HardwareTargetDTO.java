@@ -22,7 +22,7 @@ public class HardwareTargetDTO {
 	private TargetType type;
 
 	/**
-	 * Create a new {@link HardwareTarget} instance based on the current memebers
+	 * Create a new {@link HardwareTarget} instance based on the current members
 	 * 
 	 * @return The {@link HardwareTarget} instance
 	 */
