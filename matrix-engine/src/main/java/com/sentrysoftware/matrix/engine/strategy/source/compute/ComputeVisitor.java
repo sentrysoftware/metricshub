@@ -1,22 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
+import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -52,12 +38,29 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -65,6 +68,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ComputeVisitor implements IComputeVisitor {
 
 	private static final Pattern COLUMN_PATTERN =  Pattern.compile(COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
+
+	private static final String LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE = "\nExecuting {} [{}] operation on table:\n{}\n";
+
+	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s.compute(%d)";
+
+	private String sourceKey;
 
 	@Getter
 	@Setter
@@ -115,6 +124,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Add add) {
+
 		if (add == null) {
 			log.warn("Compute Operation (Add) is null, the table remains unchanged.");
 			return;
@@ -165,6 +175,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, arrayTranslate.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			arrayTranslate.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		int columnIndex = column - 1;
 
 		String arraySeparator = arrayTranslate.getArraySeparator();
@@ -209,10 +226,16 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"ArrayTranslate operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), resultTable));
 	}
 
 	@Override
 	public void visit(final And and) {
+
 		if (and == null) {
 			log.warn("Compute Operation (And) is null, the table remains unchanged.");
 			return;
@@ -232,6 +255,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, and.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			and.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		int colOperand2 = getColumnIndex(operand2);
 
 		for (List<String> line : sourceTable.getTable()) {
@@ -245,6 +275,11 @@ public class ComputeVisitor implements IComputeVisitor {
 				log.warn("Data is not correctly formatted.");
 			}
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"And operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -264,17 +299,20 @@ public class ComputeVisitor implements IComputeVisitor {
 		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
 				? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
 				: sourceTable.getRawData();
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, awk.getIndex());
+
 		try {
-			
+
 			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
 
 			if (awkResult == null) {
-				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", awk.getIndex());
+				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", computeKey);
 				return;
 			}
 
 			if (awkResult.isEmpty()) {
-				log.warn(" {} Compute Operation (Awk) result is empty, the table remains unchanged.", awk.getIndex());
+				log.warn(" {} Compute Operation (Awk) result is empty, the table remains unchanged.", computeKey);
 				return;
 			}
 
@@ -288,7 +326,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					awk.getKeepOnlyRegExp());
 
 			if (awk.getSeparators() == null || awk.getSeparators().isEmpty()) {
-				log.debug("No Separators {} indicated in Awk operation, the result remains unchanged.", awk.getSeparators());
+				log.info("No Separators {} indicated in Awk operation, the result remains unchanged.", awk.getSeparators());
 			}
 
 			final List<String> awkResultLines = OsCommandHelper.selectedColumns(
@@ -306,11 +344,18 @@ public class ComputeVisitor implements IComputeVisitor {
 		} catch (Exception e) {
 			log.warn("Compute Operation (Awk) has failed. ", e);
 		}
-
 	}
 
 	@Override
 	public void visit(final Convert convert) {
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, convert.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			convert.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		if (!checkConvert(convert)) {
 			log.warn("The convert {} is not valid, the table remains unchanged.", convert);
 			return;
@@ -324,6 +369,11 @@ public class ComputeVisitor implements IComputeVisitor {
 		} else if (ConversionType.ARRAY_2_SIMPLE_STATUS.equals(conversionType)) {
 			convertArray2SimpleStatus(columnIndex);
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Convert operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -345,7 +395,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Get the worst status of the given values. Changing this method requires an update on
-	 * {@link CollectHelper#translateStatus(String, ParameterState, String, String, String)}
+	 * {@link CollectHelper#translateStatus(String, Optional, String, String, String)} (String, ParameterState, String, String, String)}
 	 * 
 	 * @param values The array of string statuses to check, expected values are 'OK', 'WARN', 'ALARM'
 	 * 
@@ -429,16 +479,23 @@ public class ComputeVisitor implements IComputeVisitor {
 	public void visit(final DuplicateColumn duplicateColumn) {
 
 		if (duplicateColumn == null) {
-			log.debug("DuplicateColumn object is null, the table remains unchanged.");
+			log.warn("DuplicateColumn object is null, the table remains unchanged.");
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, duplicateColumn.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			duplicateColumn.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
-			log.debug("The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.");
+			log.warn("The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.");
 			return;
 		}
 
-		// for each list in the list, duplicate the column of the given index  
+		// for each list in the list, duplicate the column of the given index
 		int columnIndex = duplicateColumn.getColumn() -1;
 
 		for (List<String> elementList : sourceTable.getTable()) {
@@ -447,6 +504,10 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"DuplicateColumn",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -462,6 +523,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Extract object is null, the table remains unchanged.");
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, extract.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			extract.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		Integer column = extract.getColumn();
 		if (column == null || column < 1) {
@@ -508,20 +576,37 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Extract operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
 	public void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
+
 		if (extractPropertyFromWbemPath == null) {
 			log.warn("Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.");
 			return;
 		}
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, extractPropertyFromWbemPath.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			extractPropertyFromWbemPath.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+
 		Integer columnIndex = extractPropertyFromWbemPath.getColumn();
 		String propertyName = extractPropertyFromWbemPath.getPropertyName();
 
 		if (columnIndex == null || columnIndex < 1 || propertyName == null) {
-			log.warn("Arguments in Compute Operation (ExtractPropertyFromWbemPath) : {} are wrong, the table remains unchanged.", extractPropertyFromWbemPath);
+
+			log.warn("Arguments in Compute Operation (ExtractPropertyFromWbemPath) : {} are wrong, the table remains unchanged.",
+				extractPropertyFromWbemPath);
+
 			return;
 		}
 
@@ -549,13 +634,29 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			}
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"ExtractPropertyFromWbemPath operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
 	public void visit(final Json2CSV json2csv) {
+
 		if (json2csv == null) {
 			log.warn("Compute Operation (Json2CSV) is null, the table remains unchanged.");
 			return;
+		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, json2csv.getIndex());
+
+		if (LoggerHelper.canBeLogged(sourceTable.getRawData())) {
+
+			log.info("\nExecuting {} [{}] operation on raw data:\n{}\n",
+				json2csv.toString(),
+				computeKey,
+				sourceTable.getRawData());
 		}
 
 		try {
@@ -569,6 +670,14 @@ public class ComputeVisitor implements IComputeVisitor {
 		} catch (Exception e) {
 			log.warn("Compute Operation (Json2CSV) has failed. ", e);
 		}
+
+		if (LoggerHelper.canBeLogged(sourceTable.getTable())) {
+
+			log.info(LOG_RESULT_TEMPLATE,
+				"Json2CSV conversion",
+				computeKey,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+		}
 	}
 
 	@Override
@@ -578,6 +687,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("KeepColumns object is null, the table remains unchanged.");
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, keepColumns.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			keepColumns.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		if (keepColumns.getColumnNumbers() == null || keepColumns.getColumnNumbers().isEmpty()) {
 			log.warn("The column number list in KeepColumns cannot be null or empty. The table remains unchanged.");
@@ -606,6 +722,11 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"KeepColumns operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -632,6 +753,13 @@ public class ComputeVisitor implements IComputeVisitor {
 				&& sourceTable.getTable() != null
 				&& !sourceTable.getTable().isEmpty()) {
 
+			String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, abstractMatchingLines.getIndex());
+
+			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+				abstractMatchingLines.toString(),
+				computeKey,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 			int columnIndex = abstractMatchingLines.getColumn() - 1;
 
 			String pslRegexp = abstractMatchingLines.getRegExp();
@@ -652,6 +780,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			sourceTable.setTable(filteredTable);
 
+			log.info(LOG_RESULT_TEMPLATE,
+				String.format("%s operation", abstractMatchingLines.getClass().getSimpleName()),
+				computeKey,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 		}
 	}
 
@@ -710,6 +842,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			&& !sourceTable.getTable().isEmpty()
 			&& abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
 
+			String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, abstractConcat.getIndex());
+
+			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+				abstractConcat.toString(),
+				computeKey,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 			int columnIndex = abstractConcat.getColumn() - 1;
 			String concatString = abstractConcat.getString();
 
@@ -741,6 +880,11 @@ public class ComputeVisitor implements IComputeVisitor {
 							TABLE_SEP));
 				}
 			}
+
+			log.info(LOG_RESULT_TEMPLATE,
+				String.format("%s operation", abstractConcat.getClass().getSimpleName()),
+				computeKey,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 		}
 	}
 
@@ -824,6 +968,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, perBitTranslation.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			perBitTranslation.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		Map<String, String> translations = perBitTranslation.getBitTranslationTable().getTranslations();
 		int columnIndex = perBitTranslation.getColumn() - 1;
 		List<Integer> bitList = perBitTranslation.getBitList();
@@ -835,7 +986,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				long valueToBeReplacedLong;
 
 				try {
-					// The integer value could be modified and converted to a double by a prior compute 
+					// The integer value could be modified and converted to a double by a prior compute
 					valueToBeReplacedLong = (long) Double.parseDouble(line.get(columnIndex));
 				} catch (NumberFormatException e) {
 					log.warn("Data is not correctly formatted.");
@@ -854,6 +1005,11 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			}
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"PerBitTranslation operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -946,10 +1102,18 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Replace replace) {
+
 		if (replace == null) {
 			log.warn("Compute Operation (Replace) is null, the table remains unchanged.");
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, replace.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			replace.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		Integer columnToReplace = replace.getColumn();
 		String strToReplace = replace.getReplace();
@@ -970,13 +1134,13 @@ public class ComputeVisitor implements IComputeVisitor {
 		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
 			int replacementColumnIndex = Integer.parseInt(replacement.substring(
-					replacement.indexOf("(") + 1, 
+					replacement.indexOf("(") + 1,
 					replacement.indexOf(")"))) - 1;
 
 			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
 				sourceTable.getTable()
 				.forEach(column -> column.set(
-						columnIndex, 
+						columnIndex,
 						column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
 						);
 			}
@@ -988,6 +1152,11 @@ public class ComputeVisitor implements IComputeVisitor {
 		sourceTable.setTable(SourceTable.csvToTable(
 				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
 				TABLE_SEP));
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"replace operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -1025,10 +1194,18 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Substring substring) {
+
 		if (!checkSubstring(substring)) {
 			log.warn("The substring {} is not valid, the table remains unchanged.", substring);
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, substring.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			substring.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		final String start = substring.getStart();
 		final String length = substring.getLength();
@@ -1046,6 +1223,11 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		performSubstring(substring.getColumn() - 1, start, startColumnIndex, length, lengthColumnIndex);
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Substring operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -1178,6 +1360,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, translate.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			translate.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		TranslationTable translationTable = translate.getTranslationTable();
 		if (translationTable == null) {
 			log.warn("TranslationTable is null, the translate computation cannot be performed.");
@@ -1222,14 +1411,27 @@ public class ComputeVisitor implements IComputeVisitor {
 							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
 							TABLE_SEP));
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Translate operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
 	public void visit(final Xml2Csv xml2csv) {
+
 		if (xml2csv == null) {
 			log.warn("Compute Operation (Xml2Csv) is null, the table remains unchanged.");
 			return;
 		}
+
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, xml2csv.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			xml2csv.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		try {
 			final List<List<String>> xmlResult = matsyaClientsExecutor.executeXmlParsing(
@@ -1244,6 +1446,11 @@ public class ComputeVisitor implements IComputeVisitor {
 		} catch (Exception e) {
 			log.warn("Compute Operation (Xml2Csv) has failed. ", e);
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Xml2Csv operation",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 
@@ -1296,10 +1503,22 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathComputeOnTable(final Compute computeOperation, Integer columnIndex, String op2, int op2Index) {
 
+		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, computeOperation.getIndex());
+
+		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
+			computeOperation.toString(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		for (List<String> line : sourceTable.getTable()) {
 
 			performMathComputeOnLine(computeOperation, columnIndex, op2, op2Index, line);
 		}
+
+		log.info(LOG_RESULT_TEMPLATE,
+			computeOperation.getClass().getSimpleName(),
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -1343,9 +1562,11 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathComputeOnLine(final Class<? extends Compute> computeOperation, final Integer columnIndex,
 			final List<String> line, final String op1, final String op2) {
+
 		if (op1.isBlank() || op2.isBlank()) {
 			return;
 		}
+
 		try {
 			if(MATH_FUNCTIONS_MAP.containsKey(computeOperation)) {
 				String resultFunction = MATH_FUNCTIONS_MAP.get(computeOperation).apply(op1, op2);

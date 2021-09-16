@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
+import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -143,7 +145,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			} else {
 
-				message = String.format("Successful HTTP Test on %s. Returned Result: %s.", hostname, result);
+				String returnedResultMessage = LoggerHelper.canBeLogged(result)
+					? String.format(" Returned result: %s", result)
+					: EMPTY;
+
+				message = String.format("Successful HTTP Test on %s.%s", hostname, returnedResultMessage);
 				success = true;
 			}
 
@@ -152,7 +158,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult));
 			if (result != null && pattern.matcher(result).find()) {
 
-				message = String.format("Successful HTTP Test on %s. Returned Result: %s.", hostname, result);
+				message = String.format("Successful HTTP Test on %s. Returned result: %s", hostname, result);
 				success = true;
 
 			} else {
@@ -263,7 +269,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		if (osCommandConfig == null) {
 			final String message = String.format("No OS Command Configuration for %s. Return empty result.",
 					hostname);
-			log.error(message);
+			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
 		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
@@ -486,7 +492,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	/**
 	 * Return true if on of the osType in the osTypeList is included in the OS detection.
-	 * @param osType
+	 * @param osTypeList
 	 * @param os
 	 * @return
 	 */
