@@ -315,8 +315,7 @@ class OsCommandHelperTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testRunLocalCommandWindows() throws Exception {
-		assertTrue(OsCommandHelper.runLocalCommand("hostname", 1, null)
-				.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$"));
+		assertTrue(OsCommandHelper.runLocalCommand("echo test", 1, null).matches("^test$"));
 	}
 
 	@Test

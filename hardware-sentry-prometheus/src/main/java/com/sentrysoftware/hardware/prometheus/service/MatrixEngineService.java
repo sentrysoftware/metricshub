@@ -1,33 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
-import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
-import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
-import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.EngineResult;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
-import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
-import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -42,6 +14,35 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
+import com.sentrysoftware.hardware.prometheus.dto.HardwareTargetDTO;
+import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -184,23 +185,26 @@ public class MatrixEngineService {
 					try {
 						validateTarget(hostConfigurationDTO.getTarget().getType(), hostname);
 
-						Set<String> selectedConnectors = getConnectors(
+						final Set<String> selectedConnectors = getConnectors(
 								connectors, hostConfigurationDTO.getSelectedConnectors(), "selected", hostname);
-						Set<String> excludedConnectors =  getConnectors(
+						final Set<String> excludedConnectors =  getConnectors(
 								connectors, hostConfigurationDTO.getExcludedConnectors(), "excluded", hostname);
 
-						EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO,
+						final EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDTO,
 								selectedConnectors, excludedConnectors);
 
-						hostMonitoringMap.putIfAbsent(hostname,
-							HostMonitoringFactory.getInstance().createHostMonitoring(
-								hostname, engineConfiguration));
+						hostMonitoringMap.putIfAbsent(
+								hostname,
+								HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConfiguration)
+						);
+
 					} catch (BusinessException e) {
 
 						// Means we query a specific target, in multiple hosts mode (/metrics) we can only log an error
 						if (targetId != null) {
 							throw new RuntimeException(e); // NOSONAR
 						} else {
+							log.warn("The given target has been staged as invalid. Target: {}", hostConfigurationDTO);
 							invalidTargets.add(hostConfigurationDTO);
 						}
 
@@ -261,15 +265,14 @@ public class MatrixEngineService {
 	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO exporterConfig,
 														final Set<String> selectedConnectors, Set<String> excludedConnectors) {
 
-		final HardwareTarget target = exporterConfig.getTarget();
+		final HardwareTargetDTO target = exporterConfig.getTarget();
 
 		// The id is the hostname itself
 		target.setId(target.getHostname());
 
 		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
 			new HashMap<>(Stream
-			.of(exporterConfig.getSnmp(),
-				exporterConfig.getCiscoUcs(),
+			.of(exporterConfig.getSnmp() != null ? exporterConfig.getSnmp().toProtocol() : null,
 				exporterConfig.getSsh(),
 				exporterConfig.getHttp(),
 				exporterConfig.getWbem(),
@@ -285,7 +288,7 @@ public class MatrixEngineService {
 			.protocolConfigurations(protocolConfigurations)
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
-			.target(target)
+			.target(target.toHardwareTarget())
 			.unknownStatus(exporterConfig.getUnknownStatus())
 			.build();
 	}
