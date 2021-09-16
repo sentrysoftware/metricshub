@@ -1,7 +1,33 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import com.sentrysoftware.hardware.prometheus.dto.HardwareTargetDTO;
 import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -12,29 +38,6 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -94,9 +97,9 @@ class MatrixEngineServiceTest {
 
 			EngineConfiguration actual = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO, selectedConnectors, Collections.emptySet());
 
-			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp());
+			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp().toProtocol());
 
-			HardwareTarget target = hostConfigurationDTO.getTarget();
+			HardwareTarget target = hostConfigurationDTO.getTarget().toHardwareTarget();
 			target.setId(target.getHostname());
 
 			EngineConfiguration expected = EngineConfiguration.builder()
@@ -186,8 +189,8 @@ class MatrixEngineServiceTest {
 
 			HostConfigurationDTO hostConfigurationDTO = HostConfigurationDTO
 				.builder()
-				.target(HardwareTarget.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
-				.snmp(SNMPProtocol.builder().build())
+				.target(HardwareTargetDTO.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
+				.snmp(SnmpProtocolDTO.builder().build())
 				.build();
 
 			EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,
@@ -225,8 +228,8 @@ class MatrixEngineServiceTest {
 
 		HostConfigurationDTO hostConfigurationDTO = HostConfigurationDTO
 			.builder()
-			.target(HardwareTarget.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
-			.snmp(SNMPProtocol.builder().build())
+			.target(HardwareTargetDTO.builder().id(hostname).hostname(hostname).type(TargetType.LINUX).build())
+			.snmp(SnmpProtocolDTO.builder().build())
 			.build();
 
 		EngineConfiguration engineConfiguration = MatrixEngineService.buildEngineConfiguration(hostConfigurationDTO,

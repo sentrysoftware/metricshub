@@ -27,6 +27,15 @@ public class WBEMProtocol implements IProtocolConfiguration {
 
 	char[] password;
 
+	@Override
+	public String toString() {
+		String desc = protocol + "/" + port;
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
+
 	/**
 	 * Represents the transport protocol for WBEM: HTTP or HTTPS
 	 */

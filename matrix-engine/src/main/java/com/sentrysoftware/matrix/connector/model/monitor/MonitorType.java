@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
@@ -32,36 +30,39 @@ import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 @AllArgsConstructor
 public enum MonitorType {
 
-	CONNECTOR("Connector", new MetaConnector(), "connector"),
-	TARGET("Target", new Target(), "target"),
-	BATTERY("Battery", new Battery(), "battery"),
-	BLADE("Blade", new Blade(), "blade"),
-	CPU("CPU", new Cpu(), "cpu"),
-	CPU_CORE("CpuCore", new CpuCore(), "cpucore"),
-	DISK_CONTROLLER("DiskController", new DiskController(), "diskcontroller"),
-	ENCLOSURE("Enclosure", new Enclosure(), "enclosure"),
-	FAN("Fan", new Fan(), "fan"),
-	LED("LED", new Led(), "led"),
-	LOGICAL_DISK("LogicalDisk", new LogicalDisk(), "logicaldisk"),
-	LUN("Lun", new Lun(), "lun"),
-	MEMORY("Memory", new Memory(), "memory"),
-	NETWORK_CARD("NetworkCard", new NetworkCard(), "networkcard"),
-	OTHER_DEVICE("OtherDevice", new OtherDevice(), "otherdevice"),
-	PHYSICAL_DISK("PhysicalDisk", new PhysicalDisk(), "physicaldisk"),
-	POWER_SUPPLY("PowerSupply", new PowerSupply(), "powersupply"),
-	ROBOTICS("Robotic", new Robotics(), "robotics"),
-	TAPE_DRIVE("TapeDrive", new TapeDrive(), "tapedrive"),
-	TEMPERATURE("Temperature", new Temperature(), "temperature"),
-	VOLTAGE("Voltage", new Voltage(), "voltage");
+	CONNECTOR("Connector", "Connector", "Connectors", new MetaConnector(), "connector"),
+	TARGET("Target", "Target", "Targets", new Target(), "target"),
+	BATTERY("Battery", "Battery", "Batteries", new Battery(), "battery"),
+	BLADE("Blade", "Blade", "Blades", new Blade(), "blade"),
+	CPU("CPU", "CPU", "CPUs", new Cpu(), "cpu"),
+	CPU_CORE("CpuCore", "CPU Core", "CPU Cores", new CpuCore(), "cpucore"),
+	DISK_CONTROLLER("DiskController", "Disk Controller", "Disk Controllers", new DiskController(), "diskcontroller"),
+	ENCLOSURE("Enclosure", "Enclosure", "Enclosures", new Enclosure(), "enclosure"),
+	FAN("Fan", "Fan", "Fans", new Fan(), "fan"),
+	LED("LED", "LED", "LEDs", new Led(), "led"),
+	LOGICAL_DISK("LogicalDisk", "Logical Disk", "Logical Disks", new LogicalDisk(), "logicaldisk"),
+	LUN("Lun", "LUN", "LUNs", new Lun(), "lun"),
+	MEMORY("Memory", "Memory Module", "Memory Modules", new Memory(), "memory"),
+	NETWORK_CARD("NetworkCard", "Network Card", "Network Cards", new NetworkCard(), "networkcard"),
+	OTHER_DEVICE("OtherDevice", "Other", "Other Devices", new OtherDevice(), "otherdevice"),
+	PHYSICAL_DISK("PhysicalDisk", "Physical Disk", "Physical Disks", new PhysicalDisk(), "physicaldisk"),
+	POWER_SUPPLY("PowerSupply", "Power Supply", "Power Supplies", new PowerSupply(), "powersupply"),
+	ROBOTICS("Robotics", "Robotics", "Robotics", new Robotics(), "robotics"),
+	TAPE_DRIVE("TapeDrive", "Tape Drive", "Tape Drives", new TapeDrive(), "tapedrive"),
+	TEMPERATURE("Temperature", "Temperature", "Temperatures", new Temperature(), "temperature"),
+	VOLTAGE("Voltage", "Voltage", "Voltages", new Voltage(), "voltage");
 
 	public static final List<MonitorType> MONITOR_TYPES = Collections.unmodifiableList(Arrays.asList(MonitorType.values()));
 
 	private String name;
+	private String displayName;
+	private String displayNamePlural;
 	private IMetaMonitor metaMonitor;
 	private String key;
 
@@ -70,8 +71,7 @@ public enum MonitorType {
 	 * @param name
 	 * @return {@link MonitorType} instance
 	 */
-	public static MonitorType getByName(final String name) {
-		Assert.notNull(name, "name cannot be null.");
+	public static MonitorType getByName(@NonNull final String name) {
 		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
 	}
@@ -98,6 +98,8 @@ public enum MonitorType {
 			case MEMORY:
 			case POWER_SUPPLY:
 				return name.replace("y", "ies");
+			case ROBOTICS:
+				return name;
 			default:
 				return name.concat("s");
 		}

@@ -16,6 +16,7 @@ public class CriterionTestResult {
 	private String result;
 	private boolean success;
 	private String message;
+	private Throwable exception;
 
 	public static CriterionTestResult empty() {
 		return CriterionTestResult.builder().build();
@@ -43,13 +44,14 @@ public class CriterionTestResult {
 	 * <p>
 	 * @param criterion The failed criterion
 	 * @param reason The reason why it failed
+	 * @param t the Exception that made the test fail
 	 * @return a new {@link CriterionTestResult} instance
 	 */
-	public static CriterionTestResult error(Criterion criterion, String reason) {
+	public static CriterionTestResult error(Criterion criterion, String reason, Throwable t) {
 
 		String message;
 		if (criterion == null) {
-			message = "Error with a <null> Criterion. " + reason;
+			message = "Error with a <null> Criterion: " + reason;
 		} else {
 			message = String.format(
 					"Error in %s test:\n%s\n\n%s",
@@ -58,7 +60,18 @@ public class CriterionTestResult {
 					reason
 			);
 		}
-		return CriterionTestResult.builder().success(false).message(message).build();
+		return CriterionTestResult.builder().success(false).message(message).exception(t).build();
+	}
+
+	/**
+	 * Create a detection error report.
+	 * <p>
+	 * @param criterion The failed criterion
+	 * @param reason The reason why it failed
+	 * @return a new {@link CriterionTestResult} instance
+	 */
+	public static CriterionTestResult error(Criterion criterion, String reason) {
+		return error(criterion, reason, null);
 	}
 
 	/**
@@ -81,8 +94,10 @@ public class CriterionTestResult {
 			.append(cause.getClass().getSimpleName())
 			.append(": ")
 			.append(cause.getMessage());
+		} else {
+			cause = t;
 		}
-		return error(criterion, messageBuilder.toString());
+		return error(criterion, messageBuilder.toString(), cause);
 	}
 
 	/**

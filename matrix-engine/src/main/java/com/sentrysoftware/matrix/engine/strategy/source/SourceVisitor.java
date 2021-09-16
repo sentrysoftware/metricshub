@@ -449,17 +449,17 @@ public class SourceVisitor implements ISourceVisitor {
 				.getSourceTables();
 
 		if (sources == null ) {
-			log.error("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
+			log.warn("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getLeftTable() == null || sources.get(tableJoinSource.getLeftTable()) == null ||  sources.get(tableJoinSource.getLeftTable()).getTable() == null) {
-			log.error("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getRightTable() == null || sources.get(tableJoinSource.getRightTable()) == null || sources.get(tableJoinSource.getRightTable()).getTable() == null) {
-			log.error("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
 			return SourceTable.empty();
 		}
 
@@ -496,7 +496,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final List<String> unionTables = tableUnionSource.getTables();
 		if (unionTables == null) {
-			log.warn("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
 					tableUnionSource);
 			return SourceTable.empty();
 		}

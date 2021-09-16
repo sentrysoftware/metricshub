@@ -119,7 +119,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Run the discovery for the given connector
-	 * 
+	 *
 	 * @param connector      The connector we wish to interpret and discover
 	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname       The system hostname
@@ -176,7 +176,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	/**
 	 * Discover monitors of the same type. This method processes all the sources of
 	 * the discovery stage then creates the required monitors
-	 * 
+	 *
 	 * @param hardwareMonitor Defines the discovery {@link InstanceTable}, the {@link Source}
 	 *                        to process and all the metadata
 	 * @param connector   	  The connector we currently process
@@ -212,7 +212,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * Create monitors from the same type, most of time this method is called with a {@link SourceInstanceTable},
 	 * In that case we loop over all the rows referenced in the {@link InstanceTable}, for each row we create a new
 	 * {@link Monitor} instance then we set the discovery metadata on each created monitor
-	 * 
+	 *
 	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
 	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
 	 * @param instanceTable  Defines the source key or the hard coded key
@@ -246,7 +246,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 			// No sourceTable no monitor
 			if (sourceTable == null) {
-				log.error(
+				log.debug(
 						"No source table created with source key {} for connector {} on system {}",
 						sourceKey, connectorName, hostname);
 				return;
@@ -301,7 +301,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	/**
 	 * Set the metadata for identifying information using the additional information (1, 2 and 3)
 	 * defined in the InstanceTable
-	 * 
+	 *
 	 * @param monitor       The monitor on which we want to set the identifyingInformation metadata as metadata
 	 */
 	void setIdentifyingInformation(final Monitor monitor) {
@@ -318,7 +318,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	/**
 	 * Process the parameters defined in a {@link TextInstanceTable}. I.e. Hard
 	 * coded instance table
-	 * 
+	 *
 	 * @param parameters    Key-value map from the connector discovery instance used to create hard coded metadata
 	 * @param monitor       The monitor on which we want to set the parameter values as metadata
 	 * @param connectorName The name of the connector to be set as metadata
@@ -337,7 +337,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Process the given row to create discovery metadata on the {@link Monitor} instance
-	 * 
+	 *
 	 * @param connectorName The connector unique name used for logging purpose
 	 * @param parameters    Key-value map from the connector discovery instance used to create metadata
 	 * @param sourceKey     The unique identifier of the source used for logging purpose
@@ -397,7 +397,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * </ol>
 	 * This methods outputs a warning message when one of the above conditions is not met<br>
 	 * <br>
-	 * 
+	 *
 	 * @param hardwareMonitor The {@link HardwareMonitor} we wish to validate its fields
 	 * @param connectorName   The name of the connector used for debug purpose
 	 * @param hostname        The system hostname used for debug purpose
@@ -447,8 +447,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Detect the CPU temperature sensors and set the average CPU temperature warning 
-	 * 
+	 * Detect the CPU temperature sensors and set the average CPU temperature warning
+	 *
 	 * @param hostMonitoring The wrapper of the monitors
 	 */
 	void handleCpuTemperatures(final IHostMonitoring hostMonitoring) {
@@ -467,7 +467,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		double cpuTemperatureSensorCount = 0;
 		double cpuTemperatureWarningAverage = 0.0;
 
-		// Loop over all the temperature monitors to detect cpu temperature sensors then compute the CPU temperature warning 
+		// Loop over all the temperature monitors to detect cpu temperature sensors then compute the CPU temperature warning
 		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
 
 			final String name = temperatureMonitor.getName();
@@ -476,7 +476,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			final String additionalInformation3 = temperatureMonitor.getMetadata(ADDITIONAL_INFORMATION3);
 			final Double warningThreshold = getTemperatureWarningThreshold(temperatureMonitor.getMetadata());
 
-			// Is this a cpu sensor? check all the information name, addtional information and the warning threshold 
+			// Is this a cpu sensor? check all the information name, addtional information and the warning threshold
 			if (isCpuSensor(warningThreshold, name, additionalInformation1, additionalInformation2, additionalInformation3)) {
 				temperatureMonitor.addMetadata(IS_CPU_SENSOR, Boolean.TRUE.toString());
 				cpuTemperatureSensorCount++;
@@ -496,7 +496,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Check if the given information match a CPU sensor
-	 * 
+	 *
 	 * @param warningThreshold The warning threshold previously computed
 	 * @param data             The string data to check
 	 * @return <code>true</code> the warning threshold is greater than 10 degrees and the data contains "cpu" or "proc" otherwise
@@ -509,7 +509,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Check whether the given value matches a CPU sensor
-	 * 
+	 *
 	 * @param value string value to check
 	 * @return <code>true</code> if the given value matches "cpu" or "proc" otherwise <code>false</code>
 	 */
@@ -518,8 +518,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Detect Missing Monitors 
-	 * 
+	 * Detect Missing Monitors
+	 *
 	 * @param hostMonitoring The wrapper of the monitors
 	 */
 	void handleMissingMonitorDetection(final IHostMonitoring hostMonitoring) {
@@ -558,7 +558,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Process missing monitor
-	 * 
+	 *
 	 * @param previousMonitor   The previous monitor instance we wish to check
 	 * @param currentMonitorIds The current identifiers of the discovered monitor instances
 	 * @param hostMonitoring    The monitors wrapper
@@ -575,7 +575,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 	/**
 	 * Reset the present parameter
-	 * 
+	 *
 	 * @param presentParam The parameter we wish to reset
 	 */
 	static void resetPresentParam(final PresentParam presentParam) {

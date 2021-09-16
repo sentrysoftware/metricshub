@@ -322,10 +322,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 * @param osCommandSource The {@link OSCommandSource} we wish to update
 	 * @param connector       The connector defining all the {@link EmbeddedFile} instances
 	 */
-	void replaceEmbeddedFilesInOsCommandLine(final OSCommandSource osCommandSource, final Connector connector) {
-		Assert.notNull(osCommandSource, "osCommandSource cannot be null.");
+	void replaceEmbeddedFilesInOsCommandLine(@NonNull final OSCommandSource osCommandSource, @NonNull final Connector connector) {
 		Assert.notNull(osCommandSource.getCommandLine(), "osCommandSource CommandLine cannot be null.");
-		Assert.notNull(connector, "connector cannot be null.");
 
 		// Nothing to replace
 		if (connector.getEmbeddedFiles().isEmpty()) {
@@ -343,8 +341,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 * @param snmpSource The Source we wish to update
 	 * @param monitor The monitor passed by the mono instance collect
 	 */
-	void replaceDeviceIdInSNMPOid(final SNMPSource snmpSource, final Monitor monitor) {
-		Assert.notNull(snmpSource, "snmpSource cannot be null.");
+	void replaceDeviceIdInSNMPOid(@NonNull final SNMPSource snmpSource, final Monitor monitor) {
 		Assert.notNull(snmpSource.getOid(), "snmpSource Oid cannot be null.");
 
 		snmpSource.setOid(replaceDeviceId(snmpSource.getOid(), monitor));

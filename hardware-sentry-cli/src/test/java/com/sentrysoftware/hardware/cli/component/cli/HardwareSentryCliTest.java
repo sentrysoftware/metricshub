@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HardwareSentryCliTest {
 
 	private static final String HOST_OPTION = "-host";
-	private static final String DEVICE_TYPE_OPTION = "-dt";
+	private static final String DEVICE_TYPE_OPTION = "--type";
 
 	private static final String HTTP_OPTION = "--http";
 	private static final String HTTP_PORT_OPTION = "--http-port";
@@ -27,12 +27,12 @@ class HardwareSentryCliTest {
 	@Test
 	void snmpArgumentsTest() {
 		String[] args_hdfs = { "-host", "hostaa",
-				"-dt", "HP_UX",
+				"-t", "hpux",
 				"--snmp", "v2c",
 				"--snmp-port", "200",
 				"--snmp-community", "private",
 				"--snmp-timeout", "60",
-				"-hdf", "hdfs1,hdfs2,hdfs3" };
+				"-f", "hdfs1,hdfs2,hdfs3" };
 		HardwareSentryCli sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
@@ -47,12 +47,12 @@ class HardwareSentryCliTest {
 
 
 		String[] args_exclud_hdfs = { "-host", "hosta",
-				"-dt", "HP_UX",
+				"-t", "hp-ux",
 				"--snmp", "2",
 				"--snmp-port", "200",
 				"--snmp-community", "private",
 				"--snmp-timeout", "60",
-				"-exclude", "hdfs1,hdfs2" };
+				"-x", "hdfs1,hdfs2" };
 
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_exclud_hdfs);
@@ -66,9 +66,9 @@ class HardwareSentryCliTest {
 		assertNull(sentryCli.getConnectors());
 
 		String[] args_default_snmp = { "-host", "hostaa",
-				"-dt", "HP_UX",
+				"-t", "HPUX",
 				"--snmp", "1",
-				"-hdf", "hdfs1,hdfs2" };
+				"-f", "hdfs1,hdfs2" };
 
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_default_snmp);
@@ -82,8 +82,8 @@ class HardwareSentryCliTest {
 		assertNull(sentryCli.getExcludedConnectors());
 
 		String[] args_required_host = {
-				"-dt", "HP_UX",
-				"-hdf", "hdfs1,hdfs2" };
+				"-t", "hpux",
+				"-f", "hdfs1,hdfs2" };
 
 		final CommandLine commandLine = new CommandLine(new HardwareSentryCli());
 
@@ -94,14 +94,14 @@ class HardwareSentryCliTest {
 	@Test
 	void wbemArgumentsTest() {
 		String[] args_hdfs = { "-host", "hostaa",
-				"-dt", "HP_UX",
+				"-t", "hpux",
 				"--wbem-transport", "HTTP",
 				"--wbem-port", "5989",
 				"--wbem-force-namespace", "root/emc",
 				"--wbem-timeout", "120",
 				"--wbem-username", "admin",
 				"--wbem-password", "#1Password",
-				"-hdf", "hdfs1,hdfs2,hdfs3" };
+				"-f", "hdfs1,hdfs2,hdfs3" };
 		HardwareSentryCli sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
@@ -117,14 +117,14 @@ class HardwareSentryCliTest {
 		assertNull(sentryCli.getExcludedConnectors());
 
 		String[] args_hdfs2 = { "-host", "dev-hv-01",
-				"-dt", "MS_WINDOWS",
+				"-t", "win",
 				"--wbem-transport", "https",
 				"--wbem-port", "5989",
 				"--wbem-force-namespace", "root/emc",
 				"--wbem-timeout", "120",
 				"--wbem-username", "admin",
 				"--wbem-password", "#1Password",
-				"-hdf", "hdfs1,hdfs2,hdfs3" };
+				"-f", "hdfs1,hdfs2,hdfs3" };
 
 		new CommandLine(sentryCli).parseArgs(args_hdfs2);
 
@@ -168,7 +168,7 @@ class HardwareSentryCliTest {
 		HttpConfig httpConfig = hardwareSentryCli.getHttpConfig();
 		assertNotNull(httpConfig);
 		assertNull(httpConfig.getHttpOrHttps());
-		assertEquals(443, httpConfig.getPort());
+		assertNull(httpConfig.getPort());
 		assertEquals(120L, httpConfig.getTimeout());
 		assertEquals(USER, httpConfig.getUsername());
 		assertEquals(PASS, new String(httpConfig.getPassword()));
@@ -193,11 +193,11 @@ class HardwareSentryCliTest {
 	void wmiArgumentsTest() {
 		{
 			String[] args_hdfs = { "-host", "hostaa",
-					"-dt", "MS_WINDOWS",
+					"-t", "win",
 					"--wmi-force-namespace", "root\\ibmsd",
 					"--wmi-username", "admin",
 					"--wmi-password", "#1Password",
-					"-hdf", "hdfs1,hdfs2,hdfs3" };
+					"-f", "hdfs1,hdfs2,hdfs3" };
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
@@ -213,7 +213,7 @@ class HardwareSentryCliTest {
 		{
 			String[] args_hdfs = {
 					"-host", "localhost",
-					"-dt", "MS_WINDOWS",
+					"-t", "windows",
 					"--wmi"
 			};
 			HardwareSentryCli sentryCli = new HardwareSentryCli();

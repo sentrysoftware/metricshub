@@ -25,9 +25,12 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,25 +53,13 @@ public class WqlDetectionHelper {
 					"directory",
 					"subscription",
 					"vm",
-					"root\\SECURITY",
-					"root\\RSOP",
-					"root\\Cli",
-					"root\\aspnet",
-					"root\\SecurityCenter",
-					"root\\WMI",
-					"root\\wmi",
-					"root\\Policy",
-					"root\\DEFAULT",
-					"root\\directory",
-					"root\\subscription",
-					"root\\vm",
-					"root\\perfmon",
-					"root\\MSCluster",
-					"root\\MicrosoftActiveDirectory",
-					"root\\MicrosoftNLB",
-					"root\\Microsoft",
-					"root\\ServiceModel",
-					"root\\nap");
+					"perform",
+					"MSCluster",
+					"MicrosoftActiveDirectory",
+					"MicrosoftNLB",
+					"Microsoft",
+					"ServiceModel",
+					"nap");
 
 	private static final List<WqlQuery> WBEM_INTEROP_QUERIES = List.of(
 			new WqlQuery("SELECT Name FROM __NAMESPACE", "root"),
@@ -133,20 +124,11 @@ public class WqlDetectionHelper {
 				// That's why we return in failure if and only if the error type is neither "invalid namespace",
 				// nor "invalid class", nor "not found".
 
-				boolean giveUp = true;
-				Throwable cause = e.getCause();
-				if (cause != null && cause instanceof WBEMException) {
-					final int cimErrorType = ((WBEMException) cause).getID();
-					giveUp =
-							cimErrorType != WBEMException.CIM_ERR_INVALID_NAMESPACE
-							&& cimErrorType != WBEMException.CIM_ERR_INVALID_CLASS
-							&& cimErrorType != WBEMException.CIM_ERR_NOT_FOUND;
-				}
-
-				if (giveUp) {
+				if (!isAcceptableException(e)) {
 
 					// This error indicates that the CIM server will probably never respond to anything
 					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
+					Throwable cause = e.getCause();
 					String message = String.format(
 							"%s does not respond to WBEM requests. %s: %s\nCancelling namespace detection.",
 							hostname,
@@ -223,6 +205,8 @@ public class WqlDetectionHelper {
 			.filter(namespace -> !namespace.isBlank())
 			.filter(namespace -> !namespace.toLowerCase().contains("interop"))
 			.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
+			.filter(namespace -> !IGNORED_WMI_NAMESPACES.stream().anyMatch(ignoredNamespace -> ("root/" + ignoredNamespace).equalsIgnoreCase(namespace)))
+			.filter(namespace -> !IGNORED_WMI_NAMESPACES.stream().anyMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace)))
 			.map(namespace -> "root/" + namespace)
 			.forEach(namespace -> possibleWmiNamespaces.add(namespace));
 
@@ -266,11 +250,13 @@ public class WqlDetectionHelper {
 
 
 	/**
-	 * Detect the WBEM/WMI namespace
-	 *
+	 * Detect the WBEM/WMI namespace applicable to the specified WBEM/WMI criterion.
+	 * <p>
+	 * The namespace in the criterion must be "Automatic".
+	 * <p>
 	 * @param hostname The hostname of the target
 	 * @param protoConfig WBEM/WMI configuration (credentials, timeout)
-	 * @param criterion WQL detection properties (WQL, namespace, expected result)
+	 * @param criterion WQL detection properties (WQL, expected result, namespace must be "Automatic")
 	 * @param possibleNamespacesResult The possible namespaces to execute the WQL on
 	 *
 	 * @return A {@link NamespaceResult} wrapping the detected namespace
@@ -298,12 +284,31 @@ public class WqlDetectionHelper {
 
 			// If the result matched then the namespace is selected
 			if (testResult.isSuccess()) {
-				namespaces.put(namespace, testResult);
-			}
 
+				namespaces.put(namespace, testResult);
+
+			} else {
+
+				// If the test failed with an exception, we probably don't need to go further
+				Throwable e = testResult.getException();
+				if (e != null && !isAcceptableException(e)) {
+
+					// This error indicates that the CIM server will probably never respond to anything
+					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
+					log.debug(
+							"%s does not respond to %s requests. %s: %s\nCancelling namespace detection.",
+							criterion.getClass().getSimpleName(),
+							hostname,
+							e.getClass().getSimpleName(),
+							e.getMessage()
+					);
+
+					return NamespaceResult.builder().result(testResult).build();
+				}
+			}
 		}
 
-		// No namespace then stop
+		// No namespace => failure
 		if (namespaces.isEmpty()) {
 			String formattedNamespaceList = possibleNamespaces.stream().collect(Collectors.joining("\n- "));
 			return NamespaceResult.builder().result(CriterionTestResult.failure(
@@ -346,8 +351,8 @@ public class WqlDetectionHelper {
 	 */
 	public CriterionTestResult performDetectionTest(
 			final String hostname,
-			final IProtocolConfiguration protoConfig,
-			final WqlCriterion criterion
+			@NonNull final IProtocolConfiguration protoConfig,
+			@NonNull final WqlCriterion criterion
 	) {
 
 		// Make the WBEM query
@@ -389,6 +394,41 @@ public class WqlDetectionHelper {
 		// No match!
 		return CriterionTestResult.failure(criterion, actualResult);
 	}
+
+
+	/**
+	 * Assess whether an exception (or any of its causes) is simply an error saying that the
+	 * requested namespace of class doesn't exist, which is considered okay.
+	 * <p>
+	 * @param t Exception to verify
+	 * @return whether specified exception is acceptable while performing namespace detection
+	 */
+	boolean isAcceptableException(Throwable t) {
+
+		if (t == null) {
+			return false;
+		}
+
+		if (t instanceof WBEMException) {
+			final int cimErrorType = ((WBEMException) t).getID();
+			return cimErrorType == WBEMException.CIM_ERR_INVALID_NAMESPACE
+					|| cimErrorType == WBEMException.CIM_ERR_INVALID_CLASS
+					|| cimErrorType == WBEMException.CIM_ERR_NOT_FOUND;
+		} else if (t instanceof WmiComException) {
+			final String message = t.getMessage();
+			return message != null && (
+					message.contains("WBEM_E_NOT_FOUND")
+					|| message.contains("WBEM_E_INVALID_NAMESPACE")
+					|| message.contains("WBEM_E_INVALID_CLASS")
+			);
+		} else if (t instanceof WqlQuerySyntaxException) {
+			return true;
+		}
+
+		// Now check recursively the cause
+		return isAcceptableException(t.getCause());
+	}
+
 
 	@Data
 	@Builder

@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>com.sentrysoftware.hardware.prometheus</groupId>
-	<artifactId>hardware-sentry-prometheus</artifactId>
+	<artifactId>hardware-sentry-exporter</artifactId>
 	<name>Hardware Sentry Exporter for Prometheus</name>
 	<description>Hardware Sentry Exporter for Prometheus</description>
 	<properties>

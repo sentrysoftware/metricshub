@@ -3,16 +3,14 @@ package com.sentrysoftware.hardware.prometheus.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sentrysoftware.hardware.prometheus.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.CiscoUcsProtocol;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
@@ -32,14 +30,12 @@ import lombok.NonNull;
 public class HostConfigurationDTO {
 
 	@NonNull
-	private HardwareTarget target;
+	private HardwareTargetDTO target;
 
 	@Default
 	private int operationTimeout = EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
-	private SNMPProtocol snmp;
-
-	private CiscoUcsProtocol ciscoUcs;
+	private SnmpProtocolDTO snmp;
 
 	private IPMIOverLanProtocol ipmi;
 

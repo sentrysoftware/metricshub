@@ -2,10 +2,9 @@ package com.sentrysoftware.matrix.connector.model.common;
 
 import java.util.Arrays;
 
-import org.springframework.util.Assert;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public enum ConversionType {
@@ -22,8 +21,7 @@ public enum ConversionType {
 	 * @param name The name in the connector defining a {@link ConversionType}. E.g. hex2dec
 	 * @return {@link ConversionType} instance
 	 */
-	public static ConversionType getByName(final String name) {
-		Assert.notNull(name, "name cannot be null.");
+	public static ConversionType getByName(@NonNull final String name) {
 		return Arrays.stream(ConversionType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined conversion type: " + name));
 	}

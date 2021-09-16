@@ -289,10 +289,10 @@ public class MatsyaClientsExecutor {
 
 				// Get the CSV
 				return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[propertyList.size()]), separator).toString();
-			} catch(IllegalArgumentException e) {
+			} catch (IllegalArgumentException e) {
 				log.error("Error detected in the arguments when translating the JSON structure into CSV.");
-			} catch(Exception e) {
-				log.error("Error detected when running jsonFlat parsing.");
+			} catch (Exception e) {
+				log.warn("Error detected when running jsonFlat parsing:\n{}", jsonSource);
 			}
 
 			return null;
@@ -504,13 +504,11 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @return			The result of the execution of the given HTTP request.
 	 */
-	public String executeHttp(HTTPRequest httpRequest, boolean logMode) {
-
-		notNull(httpRequest, "httpRequest cannot be null");
-
+	public String executeHttp(@NonNull HTTPRequest httpRequest, boolean logMode) {
 		HTTPProtocol protocol = httpRequest.getHttpProtocol();
-		notNull(httpRequest.getHttpProtocol(), PROTOCOL_CANNOT_BE_NULL);
-		notNull(httpRequest.getHostname(), HOSTNAME_CANNOT_BE_NULL);
+		String hostName = httpRequest.getHostname();
+		notNull(protocol, PROTOCOL_CANNOT_BE_NULL);
+		notNull(hostName, HOSTNAME_CANNOT_BE_NULL);
 
 		String method = httpRequest.getMethod();
 
@@ -531,7 +529,7 @@ public class MatsyaClientsExecutor {
 		String fullUrl = String.format(
 				"%s://%s:%d%s%s",
 				protocol.getHttps() != null && protocol.getHttps() ? "HTTPS" : "HTTP",
-				httpRequest.getHostname(),
+				hostName,
 				protocol.getPort(),
 				url.startsWith("/") ? "" : "/",
 				url
@@ -750,16 +748,20 @@ public class MatsyaClientsExecutor {
 	 * @return new instance of MATSYA {@link IpmiConfiguration}
 	 */
 	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol) {
-		notNull(ipmiOverLanProtocol.getUsername(), USERNAME_CANNOT_BE_NULL);
-		notNull(ipmiOverLanProtocol.getPassword(), PASSWORD_CANNOT_BE_NULL);
-		notNull(ipmiOverLanProtocol.getTimeout(), TIMEOUT_CANNOT_BE_NULL);
+		String username = ipmiOverLanProtocol.getUsername();
+		char[] password = ipmiOverLanProtocol.getPassword();
+		Long timeout = ipmiOverLanProtocol.getTimeout();
+		
+		notNull(username, USERNAME_CANNOT_BE_NULL);
+		notNull(password, PASSWORD_CANNOT_BE_NULL);
+		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);
 
 		return new IpmiConfiguration(hostname,
-				ipmiOverLanProtocol.getUsername(),
-				ipmiOverLanProtocol.getPassword(),
+				username,
+				password,
 				ipmiOverLanProtocol.getBmcKey(),
 				ipmiOverLanProtocol.isSkipAuth(),
-				ipmiOverLanProtocol.getTimeout());
+				timeout);
 	}
 
 	/**

@@ -27,23 +27,42 @@ public class SNMPProtocol implements IProtocolConfiguration {
 	private String username;
 	private char[] password;
 
+	@Override
+	public String toString() {
+		String desc = version.getDisplayName();
+		if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+			desc = desc + " (" + community + ")";
+		} else {
+			if (username != null) {
+				desc = desc + " as " + username;
+			}
+			if (privacy != null && privacy != Privacy.NO_ENCRYPTION) {
+				desc = desc + " (" + privacy + "-encrypted)";
+			}
+		}
+		return desc;
+	}
+
 	/**
 	 * Enum of SNMP versions and authentication types.
 	 */
 	@AllArgsConstructor
 	public enum SNMPVersion {
 
-		V1(1, null),
-		V2C(2, null),
-		V3_NO_AUTH(3, null),
-		V3_MD5(3, "MD5"),
-		V3_SHA(3, "SHA");
+		V1(1, null, "SNMP v1"),
+		V2C(2, null, "SNMP v2c"),
+		V3_NO_AUTH(3, null, "SNMP v3"),
+		V3_MD5(3, "MD5", "SNMP v3 with MD5 auth"),
+		V3_SHA(3, "SHA", "SNMP v3 with SHA auth");
 
 		@Getter
 		private int intVersion;
 
 		@Getter
 		private String authType;
+
+		@Getter
+		private String displayName;
 
 		/**
 		 * Interpret the specified label and returns corresponding value.

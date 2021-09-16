@@ -50,6 +50,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import lombok.NonNull;
+
 public class MonitorNameBuilder {
 
 	private MonitorNameBuilder() {}
@@ -68,7 +70,6 @@ public class MonitorNameBuilder {
 	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
 
 	// Error messages
-	private static final String ID_COUNT_CANNOT_BE_NULL = "idCount cannot be null.";
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
@@ -253,10 +254,7 @@ public class MonitorNameBuilder {
 	 *
 	 * @return {@link String} value to append with the full monitor name
 	 */
-	public static String handleComputerDisplayName(final Monitor targetMonitor, final TargetType targetType) {
-		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
-		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
-
+	public static String handleComputerDisplayName(@NonNull final Monitor targetMonitor, @NonNull final TargetType targetType) {
 		if (isLocalhost(targetMonitor.getMetadata())) {
 			// TODO Handle localhost machine type, processor architecture detection
 			return LOCALHOST_ENCLOSURE;
@@ -354,12 +352,9 @@ public class MonitorNameBuilder {
 			final String type,
 			final String displayId,
 			final String deviceId,
-			final String idCount,
+			@NonNull final String idCount,
 			final Pattern trimPattern,
 			final String ...additionalLabelFields) {
-
-		// Make sure the ID count is set
-		Assert.notNull(idCount, ID_COUNT_CANNOT_BE_NULL);
 
 		final StringBuilder fullName = new StringBuilder();
 

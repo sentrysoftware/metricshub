@@ -47,9 +47,9 @@ class OsCommandHelperTest {
 	private static final Date TODAY = new Date();
 
 	private static final char[] PASSWORD = {'p', 'w', 'd'};
-	
+
 	private static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
-	
+
 	@AfterAll
 	static void cleanTempEmbeddedFiles() {
 		for (final File file : getTempEmbeddedFiles()) {
@@ -61,6 +61,7 @@ class OsCommandHelperTest {
 		final File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
 
 		return  tempDirectory.listFiles(new FilenameFilter() {
+			@Override
 			public boolean accept(final File directory, final String fileName) {
 				return fileName.startsWith(EMBEDDED_TEMP_FILE_PREFIX);
 			}
@@ -157,27 +158,27 @@ class OsCommandHelperTest {
 		{
 			checkNoTempEmbeddedFileExist();
 
-			final String embeddedContent = 
-					"# Awk (or nawk)\n" + 
-					"if [ -f /usr/xpg4/bin/awk ]; then\n" + 
-					"	AWK=\"/usr/xpg4/bin/awk\";\n" + 
-					"elif [ -f /usr/bin/nawk ]; then\n" + 
-					"	AWK=\"/usr/bin/nawk\";\n" + 
-					"else\n" + 
-					"	AWK=\"awk\";\n" + 
-					"fi\n" + 
-					"if [ -f /opt/StorMan/arcconf ]; then\n" + 
-					"       STORMAN=\"/opt/StorMan\";\n" + 
-					"elif [ -f /usr/StorMan/arcconf ]; then\n" + 
-					"       STORMAN=\"/usr/StorMan\";\n" + 
-					"else\n" + 
-					"	echo No Storman Installed; exit;\n" + 
-					"fi\n" + 
-					"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" + 
-					"for CTRL in $DEVICES\n" + 
-					"                do\n" + 
-					"                echo MSHWController $CTRL\n" + 
-					"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" + 
+			final String embeddedContent =
+					"# Awk (or nawk)\n" +
+					"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+					"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+					"elif [ -f /usr/bin/nawk ]; then\n" +
+					"	AWK=\"/usr/bin/nawk\";\n" +
+					"else\n" +
+					"	AWK=\"awk\";\n" +
+					"fi\n" +
+					"if [ -f /opt/StorMan/arcconf ]; then\n" +
+					"       STORMAN=\"/opt/StorMan\";\n" +
+					"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+					"       STORMAN=\"/usr/StorMan\";\n" +
+					"else\n" +
+					"	echo No Storman Installed; exit;\n" +
+					"fi\n" +
+					"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+					"for CTRL in $DEVICES\n" +
+					"                do\n" +
+					"                echo MSHWController $CTRL\n" +
+					"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" +
 					"                done";
 
 			final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
@@ -185,7 +186,7 @@ class OsCommandHelperTest {
 			embeddedFiles.put(2, new EmbeddedFile(embeddedContent, null));
 
 			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
-					commandLine, 
+					commandLine,
 					embeddedFiles,
 					OSCommandConfig.builder()
 						.useSudo(true)
@@ -200,40 +201,40 @@ class OsCommandHelperTest {
 				assertTrue(file.exists());
 				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX+"\\w+\\.bat"));
 				assertEquals(
-						"ECHO %OS%", 
+						"ECHO %OS%",
 						Files.readAllLines(Paths.get(file.getAbsolutePath())).stream().collect(Collectors.joining()));
 				file.delete();
 			}
 			{
-				final String expectedContent = 
-						"# Awk (or nawk)\n" + 
-						"if [ -f /usr/xpg4/bin/awk ]; then\n" + 
-						"	AWK=\"/usr/xpg4/bin/awk\";\n" + 
-						"elif [ -f /usr/bin/nawk ]; then\n" + 
-						"	AWK=\"/usr/bin/nawk\";\n" + 
-						"else\n" + 
-						"	AWK=\"awk\";\n" + 
-						"fi\n" + 
-						"if [ -f /opt/StorMan/arcconf ]; then\n" + 
-						"       STORMAN=\"/opt/StorMan\";\n" + 
-						"elif [ -f /usr/StorMan/arcconf ]; then\n" + 
-						"       STORMAN=\"/usr/StorMan\";\n" + 
-						"else\n" + 
-						"	echo No Storman Installed; exit;\n" + 
-						"fi\n" + 
-						"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" + 
-						"for CTRL in $DEVICES\n" + 
-						"                do\n" + 
-						"                echo MSHWController $CTRL\n" + 
-						"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" + 
+				final String expectedContent =
+						"# Awk (or nawk)\n" +
+						"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+						"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+						"elif [ -f /usr/bin/nawk ]; then\n" +
+						"	AWK=\"/usr/bin/nawk\";\n" +
+						"else\n" +
+						"	AWK=\"awk\";\n" +
+						"fi\n" +
+						"if [ -f /opt/StorMan/arcconf ]; then\n" +
+						"       STORMAN=\"/opt/StorMan\";\n" +
+						"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+						"       STORMAN=\"/usr/StorMan\";\n" +
+						"else\n" +
+						"	echo No Storman Installed; exit;\n" +
+						"fi\n" +
+						"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+						"for CTRL in $DEVICES\n" +
+						"                do\n" +
+						"                echo MSHWController $CTRL\n" +
+						"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
 						"                done";
-				
+
 				final File file = embeddedTempFiles.get("%EmbeddedFile(2)%");
 				assertNotNull(file);
 				assertTrue(file.exists());
 				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX+"\\w+"));
 				assertEquals(
-						expectedContent.replaceAll("[\r\n]", HardwareConstants.EMPTY), 
+						expectedContent.replaceAll("[\r\n]", HardwareConstants.EMPTY),
 						Files.readAllLines(Paths.get(file.getAbsolutePath())).stream().collect(Collectors.joining()));
 				file.delete();
 			}
@@ -259,11 +260,11 @@ class OsCommandHelperTest {
 		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OSCommandConfig.builder().build()));
 		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OSCommandConfig.builder().useSudo(true).build()));
 		assertEquals(" key\n key", OsCommandHelper.replaceSudo("%{SUDO:key} key\n%{SUDO:key} key", OSCommandConfig.builder().useSudo(true).build()));
-		
+
 		assertEquals("sudo key", OsCommandHelper.replaceSudo(
 				"%{SUDO:key} key",
 				OSCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
-		
+
 		assertEquals("sudo key\nsudo key", OsCommandHelper.replaceSudo(
 				"%{SUDO:key} key\n%{SUDO:key} key",
 				OSCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
@@ -314,8 +315,7 @@ class OsCommandHelperTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testRunLocalCommandWindows() throws Exception {
-		assertTrue(OsCommandHelper.runLocalCommand("hostname", 1, null)
-				.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$"));
+		assertTrue(OsCommandHelper.runLocalCommand("echo test", 1, null).matches("^test$"));
 	}
 
 	@Test
@@ -340,17 +340,17 @@ class OsCommandHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runSshCommand(command, hostname, sshProtocol, 0, null, null));
 
 		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
-			
+
 			when(sshProtocol.getUsername()).thenReturn("user");
 			when(sshProtocol.getPassword()).thenReturn(PASSWORD);
 
 			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(
-					hostname, 
-					"user", 
-					String.valueOf(PASSWORD), 
-					null, 
-					command, 
-					timeout, 
+					hostname,
+					"user",
+					String.valueOf(PASSWORD),
+					null,
+					command,
+					timeout,
 					null,
 					null)).thenReturn("result");
 
@@ -384,7 +384,7 @@ class OsCommandHelperTest {
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setTimeout(3L);
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", PASSWORD, null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password(PASSWORD).build();
 		sshProtocol.setTimeout(4L);
 
 		assertEquals(1, OsCommandHelper.getTimeout(1L, osCommandConfig, sshProtocol, 5));
@@ -392,9 +392,9 @@ class OsCommandHelperTest {
 		assertEquals(3, OsCommandHelper.getTimeout(null, null, wmiProtocol, 5));
 		assertEquals(4, OsCommandHelper.getTimeout(null, null, sshProtocol, 5));
 		assertEquals(5, OsCommandHelper.getTimeout(null, null, null, 5));
-		assertEquals(120, OsCommandHelper.getTimeout(null, new OSCommandConfig(), sshProtocol, 5));
+		assertEquals(30, OsCommandHelper.getTimeout(null, new OSCommandConfig(), sshProtocol, 5));
 		assertEquals(120, OsCommandHelper.getTimeout(null, null, new WMIProtocol(), 5));
-		assertEquals(120, OsCommandHelper.getTimeout(null, null, new SSHProtocol("user", PASSWORD, null), 5));
+		assertEquals(30, OsCommandHelper.getTimeout(null, null, SSHProtocol.builder().username("user").password(PASSWORD).build(), 5));
 	}
 
 	@Test
@@ -402,13 +402,13 @@ class OsCommandHelperTest {
 		assertEquals(Optional.empty(), OsCommandHelper.getUsername(null));
 		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new OSCommandConfig()));
 		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new WMIProtocol()));
-		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new SSHProtocol(null, PASSWORD, null)));
+		assertEquals(Optional.empty(), OsCommandHelper.getUsername(SSHProtocol.builder().password(PASSWORD).build()));
 
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
 		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(wmiProtocol));
 
-		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(new SSHProtocol("user", PASSWORD, null)));
+		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(SSHProtocol.builder().username("user").password(PASSWORD).build()));
 	}
 
 	@Test
@@ -416,12 +416,12 @@ class OsCommandHelperTest {
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(null));
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new OSCommandConfig()));
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new WMIProtocol()));
-		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new SSHProtocol("user", null, null)));
+		assertEquals(Optional.empty(), OsCommandHelper.getPassword(SSHProtocol.builder().username("user").build()));
 
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setPassword(PASSWORD);
 		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(wmiProtocol));
 
-		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(new SSHProtocol("user", PASSWORD, null)));
+		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(SSHProtocol.builder().username("user").password(PASSWORD).build()));
 	}
 }
