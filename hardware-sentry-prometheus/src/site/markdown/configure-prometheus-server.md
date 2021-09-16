@@ -29,6 +29,6 @@ Example
     - targets: ['centos01:8080']
 ```
 
-Once the Prometheus server is configured, you can access the collected metrics by connecting to ```http://<hostname>:<port_number>/metrics```. In our example, ```http://centos01:8080/metrics```.
+Once the Prometheus server is configured, it starts collecting metrics by connecting to `http://<hostname>:<port_number>/metrics` API endpoint. In our example, `http://centos01:8080/metrics`.
 
 Refer to <a href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/" target="_blank">Prometheus documentation</a> for detailed information about the Prometheus Server configuration.
