@@ -12,6 +12,8 @@ import picocli.CommandLine.Spec;
 @Data
 public class IpmiConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 120;
+
 	@Spec
 	CommandSpec spec;
 
@@ -56,7 +58,7 @@ public class IpmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--ipmi-timeout",
 			order = 6,
-			defaultValue = "120",
+			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private long timeout;

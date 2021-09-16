@@ -11,6 +11,8 @@ import picocli.CommandLine.Option;
 @Data
 public class SnmpConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 10;
+
 	@Option(
 			names = "--snmp",
 			order = 1,
@@ -72,7 +74,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-timeout",
 			order = 8,
-			defaultValue = "120",
+			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
 	)
 	long timeout;

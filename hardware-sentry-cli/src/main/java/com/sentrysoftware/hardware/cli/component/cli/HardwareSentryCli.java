@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.converters.TargetTypeConverter;
+import com.sentrysoftware.hardware.cli.component.cli.printer.PrettyPrinter;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
@@ -241,7 +242,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// And now the result
 		spec.commandLine().getOut().print("\n");
-		jobResultFormatterService.printResult(hostMonitoring, spec.commandLine().getOut());
+		PrettyPrinter.print(spec.commandLine().getOut(), hostMonitoring, true, true);
 //		spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
 
 		return CommandLine.ExitCode.OK;
