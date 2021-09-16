@@ -21,4 +21,4 @@ Because metrics are returned once the whole collect is completed, you may be fac
     - targets:['centos01:8080']
 ```
 
-In this example, **${project.name}** creates the HTTP instances: `http://centos01:8080/metrics/host001` and `http://centos01:8080/metrics/host002` to respectively expose metrics collected from the `host001` and `host002` hosts.
+In this example, the Prometheus server scrapes the **${project.name}** targets: `http://centos01:8080/metrics/host001` and `http://centos01:8080/metrics/host002` to respectively collect metrics from the `host001` and `host002` hosts.
