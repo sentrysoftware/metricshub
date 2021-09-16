@@ -51,12 +51,12 @@ public class NetworkHelper {
 		try {
 			inetAddress = InetAddress.getByName(hostname);
 		} catch (UnknownHostException e) {
-			log.error("Unknown host %s. Assuming non-local.", hostname);
+			log.warn("Unknown host %s. Assuming non-local.", hostname);
 			return false;
 		}
 
 		if (inetAddress == null) {
-			log.error("Could not resolve %s into an IP addrress. Assuming non-local.", hostname);
+			log.warn("Could not resolve %s into an IP addrress. Assuming non-local.", hostname);
 			return false;
 		}
 
@@ -68,7 +68,7 @@ public class NetworkHelper {
 		try {
 			return NetworkInterface.getByInetAddress(inetAddress) != null;
 		} catch (SocketException e) {
-			log.error("Error while checking network interfaces. Assuming non-local.", e);
+			log.warn("Error while checking network interfaces. Assuming non-local.", e);
 			return false;
 		}
 	}

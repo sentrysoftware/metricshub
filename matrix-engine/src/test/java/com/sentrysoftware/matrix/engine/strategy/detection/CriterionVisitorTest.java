@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.io.IOException;
@@ -338,15 +337,15 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			assertEquals(CriterionTestResult.builder().result("").success(false)
-					.message("No OS Command Configuration for " + HOST_LINUX + ". Retrun empty result.").build(),
+					.message("No OS Command Configuration for " + HOST_LINUX + ". Return empty result.").build(),
 					criterionVisitor.visit(new IPMI()));
 		}
-		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
 		{
 			// wrong IPMIToolCommand
 			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
-					.protocolConfigurations(Map.of(HTTPProtocol.class, OSCommandConfig.builder().build(),
+					.protocolConfigurations(Map.of(HTTPProtocol.class, HTTPProtocol.builder().build(),
 							OSCommandConfig.class, OSCommandConfig.builder().build(),
 							SSHProtocol.class, ssh))
 					.build();
@@ -355,7 +354,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn("blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(), any(),
-					eq(120));
+					anyInt());
 			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
 
 		}
@@ -373,9 +372,9 @@ class CriterionVisitorTest {
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 			doReturn("PATH=blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(),
-					any(), eq(120));
+					any(), anyInt());
 
-			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand("PATH=blabla", HOST_LINUX, ssh, 120);
+			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand(eq("PATH=blabla"), eq(HOST_LINUX), eq(ssh), anyInt());
 			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
 
 		}
@@ -397,7 +396,7 @@ class CriterionVisitorTest {
 				+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), any(SSHProtocol.class), eq(120), isNull(), isNull())).thenReturn(ipmiResultExample);
+			oscmd.when(() -> OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), any(SSHProtocol.class), anyInt(), isNull(), isNull())).thenReturn(ipmiResultExample);
 			assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
 					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
 					criterionVisitor.visit(new IPMI()));
@@ -419,7 +418,7 @@ class CriterionVisitorTest {
 		// Otherwise even for other contexts/methods it will always return the same
 		// result (it is static..)
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), eq(120), isNull())).thenReturn(ipmiResultExample);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), anyInt(), isNull())).thenReturn(ipmiResultExample);
 			assertEquals(CriterionTestResult.builder().result(ipmiResultExample).success(true)
 					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.").build(),
 					criterionVisitor.visit(new IPMI()));
@@ -429,7 +428,7 @@ class CriterionVisitorTest {
 
 	@Test
 	void testRunOsCommand() throws Exception {
-		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 			final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -453,7 +452,7 @@ class CriterionVisitorTest {
 
 	@Test
 	void testBuildIpmiCommand() {
-		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
 		final OSCommandConfig osCommandConfig = OSCommandConfig.builder().build();
 		{
 			// test Solaris
@@ -715,9 +714,7 @@ class CriterionVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-				"Error with a <null> Criterion. Malformed OSCommand criterion.",
-				criterionTestResult.getMessage());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("malformed"));
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -735,7 +732,7 @@ class CriterionVisitorTest {
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 				criterionTestResult.getMessage());
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
@@ -754,7 +751,7 @@ class CriterionVisitorTest {
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 				criterionTestResult.getMessage());
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
@@ -774,7 +771,7 @@ class CriterionVisitorTest {
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 				criterionTestResult.getMessage());
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
@@ -794,7 +791,7 @@ class CriterionVisitorTest {
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: CommandLine or ExpectedResult are empty. Skipping this test.", 
+					"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 				criterionTestResult.getMessage());
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
@@ -806,7 +803,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Agent Rev:");
 		osCommand.setErrorMessage("Unable to connect using Navisphere");
 
-		final SSHProtocol sshProtocol = new SSHProtocol(" ", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username(" ").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
 
@@ -834,7 +831,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitOsCommandRemoteWindowsEmbeddedFilesError() throws Exception {
 
-		final String command = 
+		final String command =
 				"copy %EmbeddedFile(2)% %EmbeddedFile(2)%.bat > NUL"
 				+ " & %EmbeddedFile(1)%"
 				+ " & %EmbeddedFile(2)%.bat"
@@ -877,8 +874,8 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command, 
-					embeddedFiles, 
+					command,
+					embeddedFiles,
 					null)).thenThrow(new IOException("error in file1"));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -906,7 +903,7 @@ class CriterionVisitorTest {
 		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setTimeout(1L);
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
 
@@ -947,7 +944,7 @@ class CriterionVisitorTest {
 		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setTimeout(1L);
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
 
@@ -984,7 +981,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
 
@@ -1006,7 +1003,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test ran but failed:\n" + osCommand.toString() + 
+				"OSCommand test ran but failed:\n" + osCommand.toString() +
 						"\n\n" +
 						"Actual result:\n" + criterionTestResult.getResult(),
 						criterionTestResult.getMessage());
@@ -1021,7 +1018,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
 
@@ -1060,7 +1057,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
 
@@ -1082,7 +1079,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
 					"Result: " + criterionTestResult.getResult(),
 				criterionTestResult.getMessage());
@@ -1097,7 +1094,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
 
@@ -1120,7 +1117,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1136,7 +1133,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
 
@@ -1158,11 +1155,11 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
 					"Result: " + criterionTestResult.getResult(),
 				criterionTestResult.getMessage());
-		
+
 	}
 
 	@Test
@@ -1174,7 +1171,7 @@ class CriterionVisitorTest {
 		osCommand.setExecuteLocally(true);
 		osCommand.setErrorMessage("No date.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
 
@@ -1197,7 +1194,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test succeeded:\n" + osCommand.toString() + 
+				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
 					"Result: " + result,
 				criterionTestResult.getMessage());
@@ -1207,7 +1204,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitOsCommandRemoteWindows() throws Exception {
 
-		final String command = 
+		final String command =
 				"copy %EmbeddedFile(2)% %EmbeddedFile(2)%.bat > NUL"
 				+ " & %EmbeddedFile(1)%"
 				+ " & %EmbeddedFile(2)%.bat"
@@ -1219,7 +1216,7 @@ class CriterionVisitorTest {
 		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
 		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
-		
+
 		final File file1 = mock(File.class);
 		final File file2 = mock(File.class);
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
@@ -1256,13 +1253,13 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command, 
-					embeddedFiles, 
+					command,
+					embeddedFiles,
 					null)).thenReturn(embeddedTempFiles);
 
 			final String absolutePath1 = "/tmp/SEN_Embedded_1.bat";
 			final String absolutePath2 = "/tmp/SEN_Embedded_2";
-			final String updatedCommand = 
+			final String updatedCommand =
 					"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL"
 							+ " & /tmp/SEN_Embedded_1.bat"
 							+ " & /tmp/SEN_Embedded_2.bat"
@@ -1271,13 +1268,13 @@ class CriterionVisitorTest {
 
 			doReturn(absolutePath1).when(file1).getAbsolutePath();
 			doReturn(absolutePath2).when(file2).getAbsolutePath();
-			
+
 			try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
 				mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.executeWmiRemoteCommand(
-						updatedCommand, 
-						"host", 
-						"user", 
-						"pwd".toCharArray(), 
+						updatedCommand,
+						"host",
+						"user",
+						"pwd".toCharArray(),
 						120,
 						List.of(absolutePath1, absolutePath2))).thenReturn(result);
 
@@ -1286,7 +1283,7 @@ class CriterionVisitorTest {
 				assertNotNull(criterionTestResult);
 				assertTrue(criterionTestResult.isSuccess());
 				assertEquals(
-						"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(updatedCommand).expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+						"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(updatedCommand).expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: " + result,
 					criterionTestResult.getMessage());
@@ -1302,7 +1299,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Agent Rev:");
 		osCommand.setErrorMessage("Unable to connect using Navisphere");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
 
@@ -1323,17 +1320,17 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					osCommand.getCommandLine(), 
+					osCommand.getCommandLine(),
 					Collections.emptyMap(),
 					null)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
-					" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
-					"host",
-					sshProtocol,
-					120,
-					Collections.emptyList(),
-					" naviseccli -User user -Password ******** -Address host -Scope 1 getagent"))
+					eq(" naviseccli -User user -Password pwd -Address host -Scope 1 getagent"),
+					any(),
+					eq(sshProtocol),
+					anyInt(),
+					eq(Collections.emptyList()),
+					eq(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent")))
 			.thenReturn("Agent Rev:");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -1341,7 +1338,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1356,7 +1353,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Agent Rev:");
 		osCommand.setErrorMessage("Unable to connect using Navisphere");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
@@ -1385,12 +1382,12 @@ class CriterionVisitorTest {
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
-					" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
-					"host",
-					sshProtocol,
-					120,
-					Collections.emptyList(),
-					" naviseccli -User user -Password ******** -Address host -Scope 1 getagent"))
+					eq(" naviseccli -User user -Password pwd -Address host -Scope 1 getagent"),
+					any(),
+					eq(sshProtocol),
+					anyInt(),
+					eq(Collections.emptyList()),
+					eq(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent")))
 			.thenReturn("Agent Rev:");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -1398,7 +1395,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1413,7 +1410,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Agent Rev:");
 		osCommand.setErrorMessage("Unable to connect using Navisphere");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudo(true);
@@ -1443,12 +1440,12 @@ class CriterionVisitorTest {
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
-					" naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
-					"host",
-					sshProtocol,
-					120,
-					Collections.emptyList(),
-					" naviseccli -User user -Password ******** -Address host -Scope 1 getagent"))
+					eq(" naviseccli -User user -Password pwd -Address host -Scope 1 getagent"),
+					any(),
+					eq(sshProtocol),
+					anyInt(),
+					eq(Collections.emptyList()),
+					eq(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent")))
 			.thenReturn("Agent Rev:");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -1456,7 +1453,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine(" naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1471,7 +1468,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Agent Rev:");
 		osCommand.setErrorMessage("Unable to connect using Navisphere");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudo(true);
@@ -1501,12 +1498,12 @@ class CriterionVisitorTest {
 					osCommandConfig)).thenCallRealMethod();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
-					"sudo naviseccli -User user -Password pwd -Address host -Scope 1 getagent",
-					"host",
-					sshProtocol,
-					120,
-					Collections.emptyList(),
-					"sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent"))
+					eq("sudo naviseccli -User user -Password pwd -Address host -Scope 1 getagent"),
+					any(),
+					eq(sshProtocol),
+					anyInt(),
+					eq(Collections.emptyList()),
+					eq("sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent")))
 			.thenReturn("Agent Rev:");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -1514,7 +1511,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: Agent Rev:",
 					criterionTestResult.getMessage());
@@ -1525,31 +1522,31 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitOsCommandRemoteLinuxWithEmbeddedFilesReplaced() {
 
-		final String embeddedContent = 
-				"# Awk (or nawk)\n" + 
-				"if [ -f /usr/xpg4/bin/awk ]; then\n" + 
-				"	AWK=\"/usr/xpg4/bin/awk\";\n" + 
-				"elif [ -f /usr/bin/nawk ]; then\n" + 
-				"	AWK=\"/usr/bin/nawk\";\n" + 
-				"else\n" + 
-				"	AWK=\"awk\";\n" + 
-				"fi\n" + 
-				"if [ -f /opt/StorMan/arcconf ]; then\n" + 
-				"       STORMAN=\"/opt/StorMan\";\n" + 
-				"elif [ -f /usr/StorMan/arcconf ]; then\n" + 
-				"       STORMAN=\"/usr/StorMan\";\n" + 
-				"else\n" + 
-				"	echo No Storman Installed; exit;\n" + 
-				"fi\n" + 
-				"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" + 
-				"for CTRL in $DEVICES\n" + 
-				"                do\n" + 
-				"                echo MSHWController $CTRL\n" + 
-				"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" + 
+		final String embeddedContent =
+				"# Awk (or nawk)\n" +
+				"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+				"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+				"elif [ -f /usr/bin/nawk ]; then\n" +
+				"	AWK=\"/usr/bin/nawk\";\n" +
+				"else\n" +
+				"	AWK=\"awk\";\n" +
+				"fi\n" +
+				"if [ -f /opt/StorMan/arcconf ]; then\n" +
+				"       STORMAN=\"/opt/StorMan\";\n" +
+				"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+				"       STORMAN=\"/usr/StorMan\";\n" +
+				"else\n" +
+				"	echo No Storman Installed; exit;\n" +
+				"fi\n" +
+				"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+				"for CTRL in $DEVICES\n" +
+				"                do\n" +
+				"                echo MSHWController $CTRL\n" +
+				"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" +
 				"                done";
 
 		final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, new EmbeddedFile(embeddedContent, null));
-		
+
 		final File localFile = mock(File.class);
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		embeddedTempFiles.put("%EmbeddedFile(1)%", localFile);
@@ -1563,7 +1560,7 @@ class CriterionVisitorTest {
 		osCommand.setExpectedResult("Hard drive");
 		osCommand.setErrorMessage("No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.");
 
-		final SSHProtocol sshProtocol = new SSHProtocol("user", "pwd".toCharArray(), null);
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
 
@@ -1585,19 +1582,19 @@ class CriterionVisitorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					osCommand.getCommandLine(), 
-					embeddedFiles, 
+					osCommand.getCommandLine(),
+					embeddedFiles,
 					osCommandConfig)).thenReturn(embeddedTempFiles);
 
 			doReturn("C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").when(localFile).getAbsolutePath();
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runSshCommand(
-					"/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001",
-					"host",
-					sshProtocol,
-					120,
-					List.of(localFile), 
-					"/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001"))
+					eq("/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001"),
+					any(),
+					eq(sshProtocol),
+					anyInt(),
+					eq(List.of(localFile)),
+					eq("/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001")))
 			.thenReturn("Hard drive");
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
@@ -1605,7 +1602,7 @@ class CriterionVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
 			assertEquals(
-					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() + 
+					"OSCommand test succeeded:\n" + OSCommand.builder().commandLine("/bin/sh C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").expectedResult(osCommand.getExpectedResult()).errorMessage(osCommand.getErrorMessage()).build().toString() +
 						"\n\n" +
 						"Result: Hard drive",
 					criterionTestResult.getMessage());

@@ -1,28 +1,24 @@
 package com.sentrysoftware.matrix.engine.protocol;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@Builder
-public class OSCommandConfig implements IProtocolConfiguration {
+public class OSCommandConfig extends AbstractCommand {
 
-	private static final String SUDO = "sudo";
+	@Builder
+	public OSCommandConfig(boolean useSudo, Set<String> useSudoCommands, String sudoCommand, Long timeout) {
+		super(useSudo, useSudoCommands, sudoCommand, timeout);
+	}
 
-	private boolean useSudo;
-	@Default
-	private Set<String> useSudoCommands = new HashSet<>();
-	@Default
-	private String sudoCommand = SUDO;
-
-	@Default
-	private Long timeout = 120L;
+	@Override
+	public String toString() {
+		return "Local Commands";
+	}
 }

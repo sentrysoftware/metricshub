@@ -17,4 +17,13 @@ public class WMIProtocol implements IProtocolConfiguration {
 	private String namespace;
 	@Default
 	private Long timeout = 120L;
+
+	@Override
+	public String toString() {
+		String desc = "WMI";
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
 }

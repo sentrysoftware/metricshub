@@ -12,7 +12,7 @@ public abstract class WqlCriterion extends Criterion {
 	private static final long serialVersionUID = 1L;
 
 	private String wbemQuery;
-	private String wbemNamespace;
+	private String wbemNamespace = "root/cimv2";
 	private String expectedResult;
 	private String errorMessage;
 

@@ -23,4 +23,14 @@ public class HTTPProtocol implements IProtocolConfiguration {
 
 	private String username;
 	private char[] password;
+
+	@Override
+	public String toString() {
+		return String.format(
+				"%s/%d%s",
+				https ? "HTTPS" : "HTTP",
+				port,
+				username != null ? " as " + username : ""
+		);
+	}
 }

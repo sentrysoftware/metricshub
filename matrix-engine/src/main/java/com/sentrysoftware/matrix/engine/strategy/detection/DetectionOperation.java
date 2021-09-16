@@ -363,7 +363,8 @@ public class DetectionOperation extends AbstractStrategy {
 
 				} catch (InterruptedException e) {
 
-					log.error("Interrupted error", e);
+					log.warn("Connector {} detection has been interrupted", connector.getCompiledFilename());
+					log.debug("Interrupted Exception", e);
 
 					Thread.currentThread().interrupt();
 
@@ -374,7 +375,17 @@ public class DetectionOperation extends AbstractStrategy {
 
 				} catch (ExecutionException e) {
 
-					log.error("Execution error", e);
+					Throwable cause = e.getCause();
+					if (cause == null) {
+						cause = e;
+					}
+					log.error(
+							"Connector {} detection failed: {}: {}",
+							connector.getCompiledFilename(),
+							cause.getClass().getSimpleName(),
+							cause.getMessage()
+					);
+					log.debug("Execution exception", cause);
 
 					return TestedConnector
 						.builder()

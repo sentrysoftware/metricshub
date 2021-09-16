@@ -130,7 +130,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Run the collect for the given connector
-	 * 
+	 *
 	 * @param connector        The connector we wish to interpret and collect
 	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
 	 * @param hostMonitoring   The monitors container, it also wraps the {@link SourceTable} objects
@@ -180,7 +180,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Run the collect for the given <code>connectorMonitor</code>
-	 * 
+	 *
 	 * @param connector        The connector we wish to test
 	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
 	 * @param hostname         The system hostname
@@ -206,7 +206,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Collect monitors of the same type. This method processes all the sources of the collect stage then collect the required monitors
-	 * 
+	 *
 	 * @param hardwareMonitor Defines the {@link Collect} valueTable, the {@link Source} to process and all the parameters
 	 * @param connector       The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping {@link Monitor} and {@link SourceTable} instances
@@ -240,7 +240,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Perform a MultiInstance collect. Process sources and computes then process the value table to collect monitors.
-	 * 
+	 *
 	 * @param hardwareMonitor Defines the {@link Collect} valueTable, the {@link Source} to process and all the mapping
 	 * @param connector       The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping {@link Monitor} and {@link SourceTable} instances
@@ -269,7 +269,7 @@ public class CollectOperation extends AbstractStrategy {
 	/**
 	 * Collect monitors from the given valueTable, for each row we collect the {@link Monitor} instance then we set the parameters on each
 	 * existing monitor
-	 * 
+	 *
 	 * @param valueTable     The unique key of the {@link Source} used to collect metrics
 	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
 	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
@@ -288,7 +288,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		// No sourceTable no monitor
 		if (sourceTable == null) {
-			log.error(NO_SOURCE_TABLE_CREATE_MSG,
+			log.debug(NO_SOURCE_TABLE_CREATE_MSG,
 					valueTable, connectorName, hostname);
 			return;
 		}
@@ -305,7 +305,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Loop over the given {@link SourceTable} and collect each monitor identified with {@link HardwareConstants#DEVICE_ID}
-	 * 
+	 *
 	 * @param valueTable     The unique key of the {@link Source} used to collect metrics
 	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
 	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping all the monitors
@@ -358,7 +358,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Get the monitor to collect using the given row and the parameters mapping.
-	 * 
+	 *
 	 * @param valueTable               The unique key of the {@link Source} used for debug purpose
 	 * @param monitorType              The type of the monitor we wish to collect
 	 * @param hostMonitoring           The {@link IHostMonitoring} instance wrapping source tables and monitors
@@ -398,7 +398,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Perform a MonoInstance collect. Process sources and computes then process the value table per monitor
-	 * 
+	 *
 	 * @param hardwareMonitor Defines the {@link Collect} valueTable, the {@link Source} to process and all the mapping
 	 * @param connector       The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping {@link Monitor} and {@link SourceTable} instances
@@ -431,13 +431,13 @@ public class CollectOperation extends AbstractStrategy {
 					parameters,
 					monitorType,
 					hostname);
-			
+
 		});
 	}
 
 	/**
 	 * Get the monitors with the same type and discovered from the connector identified by the given <code>connectorName</code>
-	 * 
+	 *
 	 * @param monitorType    The type of the monitor used to fetch monitors from the {@link HostMonitoring}
 	 * @param connectorName  The unique name of the {@link Connector}
 	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping {@link Monitor} instances
@@ -463,7 +463,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * Collect the {@link Monitor} instance from the given valueTable.<br>
 	 * This method extracts the first row from the {@link SourceTable}, then collects the {@link Monitor} instance to set the parameters on
 	 * the monitor instance via the {@link MonitorCollectVisitor}
-	 * 
+	 *
 	 * @param monitor        The monitor we wish to collect
 	 * @param valueTable     The unique key of the {@link Source} used to collect metrics
 	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
@@ -477,8 +477,8 @@ public class CollectOperation extends AbstractStrategy {
 			final MonitorType monitorType, final String hostname) {
 
 		PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
-		if (presentParam != null 
-				&& presentParam.getPresent() != null 
+		if (presentParam != null
+				&& presentParam.getPresent() != null
 				&& presentParam.getPresent() == 0) {
 			return;
 		}
@@ -490,7 +490,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		// No sourceTable no monitor
 		if (sourceTable == null) {
-			log.error(NO_SOURCE_TABLE_CREATE_MSG, valueTable, connectorName, hostname);
+			log.debug(NO_SOURCE_TABLE_CREATE_MSG, valueTable, connectorName, hostname);
 			return;
 		}
 
@@ -532,7 +532,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * </ol>
 	 * This methods outputs a warning message when one of the above conditions is not met<br>
 	 * <br>
-	 * 
+	 *
 	 * @param hardwareMonitor The {@link HardwareMonitor} we wish to validate its fields
 	 * @param connectorName   The name of the connector used for debug purpose
 	 * @param hostname        The system hostname used for debug purpose
@@ -570,7 +570,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Check the valueTable key
 		if (hardwareMonitor.getCollect().getValueTable() == null) {
-			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}", 
+			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}",
 					monitorType.getName(), connectorName, hostname);
 			return false;
 		}
@@ -800,7 +800,7 @@ public class CollectOperation extends AbstractStrategy {
 		// Sets the host ambient temperature as the minimum of all temperature sensors
 		if (ambientTemperature < 100) {
 
-			// Update the parameter 
+			// Update the parameter
 			CollectHelper.updateNumberParameter(
 				targetMonitor,
 				AMBIENT_TEMPERATURE_PARAMETER,
@@ -838,7 +838,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit).
-	 * 
+	 *
 	 * @param targetMonitor         The target monitor we wish to update its heat dissipation rate
 	 * @param ambientTemperature    The ambient temperature of the host
 	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
@@ -869,7 +869,7 @@ public class CollectOperation extends AbstractStrategy {
 			}
 		}
 	}
-	
+
 	/**
 	 * Compute network card parameters for the current target monitor:
 	 * <ul>
@@ -901,7 +901,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			// Get the link speed value
 			final Double linkSpeed = CollectHelper.getNumberParamValue(networkCardMonitor, LINK_SPEED_PARAMETER);
-			
+
 			// If there is a speed add it.
 			if (linkSpeed != null) {
 				totalBandwidth += linkSpeed;
@@ -916,7 +916,7 @@ public class CollectOperation extends AbstractStrategy {
 				.value(connectedPortsCount)
 				.rawValue(connectedPortsCount)
 				.build();
-		
+
 		// Create the parameter for totalBandwidth
 		final NumberParam totalBandwidthParam = NumberParam.builder()
 				.name(TOTAL_BANDWIDTH_PARAMETER)
@@ -1101,11 +1101,11 @@ public class CollectOperation extends AbstractStrategy {
 	 * Estimates the power dissipation of a processor, based on some characteristics Inspiration:
 	 * https://en.wikipedia.org/wiki/List_of_CPU_power_dissipation_figures Page 11 of
 	 * http://www.cse.iitd.ernet.in/~srsarangi/files/papers/powersurvey.pdf
-	 * 
+	 *
 	 * @param cpu         The CPU monitor we wish to estimate its power dissipation
 	 * @param target      The target root parent monitor from which we extract the overall dissipation rate of the processors
 	 * @param collectTime The current strategy collect time
-	 * @param hostname    The system hostname 
+	 * @param hostname    The system hostname
 	 */
 	void estimateCpuPowerConsumption(@NonNull final Monitor cpu, @NonNull final Monitor target,
 			@NonNull final Long collectTime, @NonNull String hostname) {

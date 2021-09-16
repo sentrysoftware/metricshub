@@ -35,6 +35,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -256,11 +257,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(SSHProtocol.class);
-		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(OSCommandConfig.class);
+
+		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
+		final AbstractCommand osCommandConfig = strategyConfig.getHostMonitoring().isLocalhost()
+				? (OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(OSCommandConfig.class)
+				: sshProtocol;
 
 		if (osCommandConfig == null) {
-			final String message = String.format("No OS Command Configuration for %s. Retrun empty result.",
+			final String message = String.format("No OS Command Configuration for %s. Return empty result.",
 					hostname);
 			log.error(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
@@ -312,7 +316,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @return
 	 */
 	public String buildIpmiCommand(final TargetType targetType, final String hostname, final SSHProtocol sshProtocol,
-			final OSCommandConfig osCommandConfig, final int defaultTimeout) {
+			final AbstractCommand osCommandConfig, final int defaultTimeout) {
 		// do we need to use sudo or not?
 		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
 		// Or if the command is listed in useSudoCommandList (possible only in classic
@@ -371,11 +375,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 * @throws TimeoutException
-	 * @throws MatsyaException 
+	 * @throws MatsyaException
 	 */
 	String runOsCommand(
-			final String ipmitoolCommand, 
-			final String hostname, 
+			final String ipmitoolCommand,
+			final String hostname,
 			final SSHProtocol sshProtocol,
 			final int timeout) throws InterruptedException, IOException, TimeoutException, MatsyaException {
 		return strategyConfig.getHostMonitoring().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
@@ -520,7 +524,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final IProtocolConfiguration protocolConfiguration = strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
 				!isLocalhost && strategyConfig.getEngineConfiguration().getTarget().getType() == TargetType.MS_WINDOWS ?
-						WMIProtocol.class : 
+						WMIProtocol.class :
 							SSHProtocol.class);
 
 		final Optional<String> maybeUsername = OsCommandHelper.getUsername(
@@ -532,7 +536,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(osCommand, "No credentials provided.");
 		}
 
-		final OSCommandConfig osCommandConfig = 
+		final OSCommandConfig osCommandConfig =
 				(OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
 						OSCommandConfig.class);
 
@@ -549,13 +553,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 				hostname);
 
 		final String updatedSudoCommand = OsCommandHelper.replaceSudo(
-				updatedHostnameCommand, 
+				updatedHostnameCommand,
 				osCommandConfig);
 
 		final Map<String, File> embeddedFiles;
 		try {
 			embeddedFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
-					osCommand.getCommandLine(), 
+					osCommand.getCommandLine(),
 					connector.getEmbeddedFiles(),
 					osCommandConfig);
 		} catch (final IOException e) {
@@ -617,10 +621,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 			// Case others (Linux) Remote
 			} else {
 				commandResult = OsCommandHelper.runSshCommand(
-						command, 
-						hostname, 
-						(SSHProtocol) protocolConfiguration, 
-						timeout, 
+						command,
+						hostname,
+						(SSHProtocol) protocolConfiguration,
+						timeout,
 						embeddedFiles.values().stream().collect(Collectors.toList()),
 						noPasswordCommand);
 			}
@@ -631,7 +635,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.timeout(osCommand.getTimeout())
 					.expectedResult(osCommand.getExpectedResult())
 					.build();
-					
+
 			final Matcher matcher = Pattern
 					.compile(osCommand.getExpectedResult())
 					.matcher(commandResult);
