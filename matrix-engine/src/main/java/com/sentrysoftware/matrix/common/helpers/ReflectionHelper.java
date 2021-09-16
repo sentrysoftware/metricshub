@@ -8,6 +8,8 @@ import java.util.List;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
+import lombok.NonNull;
+
 /**
  * Use this class only when strictly necessary.
  */
@@ -36,12 +38,9 @@ public class ReflectionHelper {
 	 *                                      to handle the exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T invokeMethod(final Object object, final String methodName, final List<Class<?>> parameterTypes,
-			final List<Object> parameters) {
+	public static <T> T invokeMethod(final Object object, @NonNull final String methodName, @NonNull final List<Class<?>> parameterTypes,
+			@NonNull final List<Object> parameters) {
 
-		Assert.notNull(methodName, "methodName cannot be null.");
-		Assert.notNull(parameterTypes, "parameterTypes cannot be null.");
-		Assert.notNull(parameters, "parameters cannot be null.");
 		Assert.isTrue(parameterTypes.size() == parameters.size(), "parameterTypes.size() != parameters.size().");
 
 		final Method method = ReflectionUtils.findMethod(object.getClass(), methodName,
@@ -67,11 +66,7 @@ public class ReflectionHelper {
 	 * @throws UndeclaredThrowableException when {@link ReflectionUtils} is unable
 	 *                                      to handle the exception
 	 **/
-	public static <T> void setField(final T object, final String parameter, final Object value) {
-
-		Assert.notNull(object, "object cannot be null.");
-		Assert.notNull(parameter, "parameter cannot be null.");
-		Assert.notNull(value, "value cannot be null.");
+	public static <T> void setField(@NonNull final T object, @NonNull final String parameter, @NonNull final Object value) {
 
 		Field field = ReflectionUtils.findField(object.getClass(), parameter);
 

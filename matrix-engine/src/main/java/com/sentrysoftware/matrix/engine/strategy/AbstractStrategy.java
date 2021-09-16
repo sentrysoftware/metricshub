@@ -7,7 +7,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static org.springframework.util.Assert.notNull;
 import static org.springframework.util.Assert.state;
 
 import java.math.RoundingMode;
@@ -44,6 +43,7 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -316,9 +316,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param metadata The {@link Monitor}'s metadata.
 	 * @return Double value
 	 */
-	protected Double getTemperatureWarningThreshold(final Map<String, String> metadata) {
-		notNull(metadata, "metadata cannot be null.");
-
+	protected Double getTemperatureWarningThreshold(@NonNull final Map<String, String> metadata) {
 		final String warningThresholdMetadata = metadata.get(WARNING_THRESHOLD);
 		final String alamThresholdMetadata = metadata.get(ALARM_THRESHOLD);
 

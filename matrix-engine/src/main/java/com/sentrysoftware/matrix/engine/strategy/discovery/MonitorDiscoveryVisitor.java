@@ -26,6 +26,8 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -50,13 +52,11 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null.";
 	public static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
-	private static final String MONITOR_BUILDING_INFO_CANNOT_BE_NULL = "monitorBuildingInfo cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
 
 	private MonitorBuildingInfo monitorBuildingInfo;
 
-	public MonitorDiscoveryVisitor(MonitorBuildingInfo monitorBuildingInfo) {
-		Assert.notNull(monitorBuildingInfo, MONITOR_BUILDING_INFO_CANNOT_BE_NULL);
+	public MonitorDiscoveryVisitor(@NonNull MonitorBuildingInfo monitorBuildingInfo) {
 		checkBuildingInfo(monitorBuildingInfo);
 		this.monitorBuildingInfo = monitorBuildingInfo;
 	}

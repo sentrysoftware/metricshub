@@ -1,14 +1,13 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import org.springframework.util.Assert;
+import lombok.NonNull;
 
 @FunctionalInterface
 public interface TriConsumer<A, B, C> {
 
 	void accept(A a, B b, C c);
 
-	default TriConsumer<A, B, C> andThen(TriConsumer<? super A, ? super B, ? super C> after) {
-		Assert.notNull(after, "after TriConsumer cannot be null.");
+	default TriConsumer<A, B, C> andThen(@NonNull TriConsumer<? super A, ? super B, ? super C> after) {
 		return (a, b, c) ->
 			{
 				accept(a, b, c);

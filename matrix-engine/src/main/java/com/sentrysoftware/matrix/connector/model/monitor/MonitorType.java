@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
@@ -32,6 +30,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 @AllArgsConstructor
@@ -72,8 +71,7 @@ public enum MonitorType {
 	 * @param name
 	 * @return {@link MonitorType} instance
 	 */
-	public static MonitorType getByName(final String name) {
-		Assert.notNull(name, "name cannot be null.");
+	public static MonitorType getByName(@NonNull final String name) {
 		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
 	}

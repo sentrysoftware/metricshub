@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
+import lombok.NonNull;
+
 public class ResourceHelper {
 
 	private ResourceHelper() {
@@ -19,10 +21,9 @@ public class ResourceHelper {
 	 * @param clazz class used to load the resource as stream
 	 * @return Resource file as {@link String}
 	 */
-	public static String getResourceAsString(final String path, final Class<?> clazz) {
+	public static String getResourceAsString(final String path, @NonNull final Class<?> clazz) {
 
 		Assert.isTrue(path != null && !path.isEmpty(), "path cannot be null or empty");
-		Assert.notNull(clazz, "clazz cannot be null");
 
 		try (
 				BufferedReader reader = new BufferedReader(

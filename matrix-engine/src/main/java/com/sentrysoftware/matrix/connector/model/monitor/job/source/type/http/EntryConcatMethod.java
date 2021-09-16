@@ -2,10 +2,9 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http;
 
 import java.util.Arrays;
 
-import org.springframework.util.Assert;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 @AllArgsConstructor
@@ -23,8 +22,7 @@ public enum EntryConcatMethod {
 	 * @param name
 	 * @return {@link EntryConcatMethod} instance
 	 */
-	public static EntryConcatMethod getByName(final String name) {
-		Assert.notNull(name, "name cannot be null.");
+	public static EntryConcatMethod getByName(@NonNull final String name) {
 		return Arrays.stream(EntryConcatMethod.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined EntryConcatMethod name: " + name));
 	}
