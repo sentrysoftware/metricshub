@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +34,7 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import lombok.AllArgsConstructor;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public class ComputeUpdaterVisitor implements IComputeVisitor {
@@ -159,10 +161,11 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 			return;
 		}
 
-		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
-		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "monitor deviceId cannot be null.");
+		Map<String, String> metadata = monitor.getMetadata();
+		Assert.notNull(metadata, "monitor metadata cannot be null.");
 
-		final String deviceId = monitor.getMetadata().get(DEVICE_ID);
+		final String deviceId = metadata.get(DEVICE_ID);
+		Assert.notNull(deviceId, "monitor deviceId cannot be null.");
 
 		substring.setStart(monoInstanceReplace(substring.getStart(), deviceId));
 		substring.setLength(monoInstanceReplace(substring.getLength(),deviceId));
@@ -175,10 +178,7 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 	 * @param replacement The new string to use
 	 * @return {@link String} value
 	 */
-	static String monoInstanceReplace(final String value, final String replacement) {
-
-		Assert.notNull(value, "value cannot be null.");
-		Assert.notNull(replacement, "replacement cannot be null.");
+	static String monoInstanceReplace(@NonNull final String value, @NonNull final String replacement) {
 
 		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(value);
 

@@ -7,8 +7,6 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -74,18 +72,13 @@ public class CollectHelper {
 	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
 	 * @return {@link ParameterState} value
 	 */
-	public static ParameterState translateStatus(final String status, final ParameterState unknownStatus,
-			final String monitorId, String hostname,
-			final String parameterName) {
+	public static ParameterState translateStatus(final String status, @NonNull final ParameterState unknownStatus,
+			@NonNull final String monitorId, @NonNull String hostname,
+			@NonNull final String parameterName) {
 
 		if (status == null) {
 			return null;
 		}
-
-		Assert.notNull(unknownStatus, "unknownStatus cannot be null.");
-		Assert.notNull(monitorId, "monitorId cannot be null.");
-		Assert.notNull(hostname, "hostname cannot be null.");
-		Assert.notNull(parameterName, "parameterName cannot be null.");
 
 		final ParameterState parameterState;
 		// Get the parameter state from our PREDICTED_FAILURE_MAP
@@ -128,18 +121,13 @@ public class CollectHelper {
 	 * @param valueTableColumn The column index formatted as `ValueTable.Column($number)`
 	 * @return {@link String} value
 	 */
-	public static String getValueTableColumnValue(final String valueTable, final String parameterKey,
-			final MonitorType monitorType, final List<String> row,
+	public static String getValueTableColumnValue(@NonNull final String valueTable, @NonNull final String parameterKey,
+			@NonNull final MonitorType monitorType, @NonNull final List<String> row,
 			final String valueTableColumn) {
 
 		if (valueTableColumn == null) {
 			return null;
 		}
-
-		Assert.notNull(valueTable, "valueTable cannot be null.");
-		Assert.notNull(parameterKey, "parameterKey cannot be null.");
-		Assert.notNull(monitorType, "monitorType cannot be null.");
-		Assert.notNull(row, "row cannot be null.");
 
 		final Matcher matcher = VALUE_TABLE_PATTERN.matcher(valueTableColumn);
 

@@ -138,10 +138,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
 
-	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null";
 	private static final String VALUE_TABLE_CANNOT_BE_NULL = "valueTable cannot be null";
 	private static final String DATA_CANNOT_BE_NULL = "row cannot be null.";
-	private static final String MONITOR_COLLECT_INFO_CANNOT_BE_NULL = "monitorCollectInfo cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null.";
@@ -161,8 +159,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		STATUS_INFORMATION_MAP = Collections.unmodifiableMap(map);
 	}
 
-	public MonitorCollectVisitor(MonitorCollectInfo monitorCollectInfo) {
-		Assert.notNull(monitorCollectInfo, MONITOR_COLLECT_INFO_CANNOT_BE_NULL);
+	public MonitorCollectVisitor(@NonNull MonitorCollectInfo monitorCollectInfo) {
 		checkCollectInfo(monitorCollectInfo);
 		this.monitorCollectInfo = monitorCollectInfo;
 	}
@@ -477,9 +474,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
 	 */
-	void collectStatusParameter(final MonitorType monitorType, final String parameterName, final String unit) {
-
-		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+	void collectStatusParameter(@NonNull final MonitorType monitorType, final String parameterName, final String unit) {
 
 		checkCollectInfo(monitorCollectInfo);
 
@@ -598,9 +593,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
 	 */
-	void collectNumberParameter(final MonitorType monitorType, final String parameterName, final String unit) {
-
-		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
+	void collectNumberParameter(@NonNull final MonitorType monitorType, final String parameterName, final String unit) {
 
 		checkCollectInfo(monitorCollectInfo);
 

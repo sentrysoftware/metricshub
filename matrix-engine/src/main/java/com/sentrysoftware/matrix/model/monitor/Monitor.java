@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.springframework.util.Assert;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -132,9 +130,7 @@ public class Monitor {
 	 * @param key   The metadata key, example: serialNumber
 	 * @param value The metadata value we wish to add
 	 */
-	public void addMetadata(final String key, final String value) {
-		Assert.notNull(key, "key cannot be null");
-
+	public void addMetadata(@NonNull final String key, final String value) {
 		metadata.put(key, value);
 	}
 

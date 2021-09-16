@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.Base64;
 
@@ -14,7 +15,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_A
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
-import static org.springframework.util.Assert.notNull;
 
 @Data
 @NoArgsConstructor
@@ -27,14 +27,11 @@ public class EmbeddedFileBody implements Body {
 	private EmbeddedFile body;
 
 	@Override
-	public String getContent(String username, char[] password, String authenticationToken) {
+	public String getContent(@NonNull String username, @NonNull char[] password, String authenticationToken) {
 
 		if (body == null) {
 			return null;
 		}
-
-		notNull(username, "username cannot be null");
-		notNull(password, "password cannot be null");
 
 		String passwordAsString = String.valueOf(password);
 

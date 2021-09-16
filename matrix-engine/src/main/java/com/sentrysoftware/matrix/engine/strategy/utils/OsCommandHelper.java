@@ -53,10 +53,7 @@ public class OsCommandHelper {
 	 * @param connector   The connector instance which defines the embedded files.
 	 * @return Updated command line value
 	 */
-	public static String updateOsCommandEmbeddedFile(final String commandLine, final Connector connector) {
-
-		notNull(commandLine, "commandLine cannot be null.");
-		notNull(connector, "connector cannot be null.");
+	public static String updateOsCommandEmbeddedFile(@NonNull final String commandLine, @NonNull final Connector connector) {
 
 		final Matcher matcher = EMBEDDEDFILE_PATTERN.matcher(commandLine);
 
