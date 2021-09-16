@@ -35,10 +35,10 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @Service
@@ -136,9 +136,7 @@ public class EngineService {
 	 *
 	 * @return A new {@link SNMPProtocol} based on the given CLI SNMP credentials input.
 	 */
-	public SNMPProtocol getSnmpProtocol(SnmpConfig snmpConfig) {
-
-		notNull(snmpConfig, "snmpCredentials cannot be null.");
+	public SNMPProtocol getSnmpProtocol(@NonNull SnmpConfig snmpConfig) {
 
 		SNMPProtocol snmpProtocol = new SNMPProtocol();
 
@@ -160,9 +158,7 @@ public class EngineService {
 	 *
 	 * @return A new {@link HTTPProtocol} based on the given CLI HTTP credentials input.
 	 */
-	public HTTPProtocol getHttpProtocol(HttpConfig httpConfig) {
-
-		notNull(httpConfig, "httpCredentials cannot be null.");
+	public HTTPProtocol getHttpProtocol(@NonNull HttpConfig httpConfig) {
 
 		HTTPProtocol httpProtocol = new HTTPProtocol();
 
