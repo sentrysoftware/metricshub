@@ -148,7 +148,6 @@ public class PrettyPrinter {
 		// Add identifying information if it's there
 		String identifying = monitor.getMetadata(HardwareConstants.IDENTIFYING_INFORMATION);
 		if (identifying != null && !identifying.isBlank()) {
-			margin(indentation);
 			out.println(Ansi.ansi()
 					.a(Attribute.INTENSITY_FAINT)
 					.a("More info: ")

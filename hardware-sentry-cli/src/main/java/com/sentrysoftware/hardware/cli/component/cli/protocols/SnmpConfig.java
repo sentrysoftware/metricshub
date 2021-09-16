@@ -11,7 +11,7 @@ import picocli.CommandLine.Option;
 @Data
 public class SnmpConfig implements IProtocolConfig {
 
-	public static final int DEFAULT_TIMEOUT = 10;
+	public static final int DEFAULT_TIMEOUT = 30;
 
 	@Option(
 			names = "--snmp",
