@@ -28,21 +28,21 @@ targets:
 
 where:
 
-* `<hostname>` corresponds to the name of the target, or its IP address
-* `<target-type>` corresponds to the operating system or the type of the target to be monitored. Possible values are:
+- `<hostname>` corresponds to the name of the target, or its IP address
+- `<target-type>` corresponds to the operating system or the type of the target to be monitored. Possible values are:
 
-    * `HP_OPEN_VMS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
-    * `HP_TRU64_UNIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    * `HP_UX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    * `IBM_AIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    * `LINUX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    * `MGMT_CARD_BLADE_ESXI` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    * `MS_WINDOWS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    * `NETWORK_SWITCH` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank">network devices</a>
-    * `STORAGE` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    * `SUN_SOLARIS` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#oracle-solaris" target="_blank">Oracle solaris systems</a>
+    - `HP_OPEN_VMS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
+    - `HP_TRU64_UNIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
+    - `HP_UX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
+    - `IBM_AIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
+    - `LINUX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
+    - `MGMT_CARD_BLADE_ESXI` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
+    - `MS_WINDOWS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
+    - `NETWORK_SWITCH` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank">network devices</a>
+    - `STORAGE` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
+    - `SUN_SOLARIS` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#oracle-solaris" target="_blank">Oracle solaris systems</a>
 
-- `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -204,20 +204,20 @@ targets:
       password: mypwd
 ```
 
-## Other Configurations
+## Other Configuration Settings
 
 ### Specifying the connectors to be used
 
-The **${project.name}** comes with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors (\*.hdf files) that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the protocol enabled. You can however indicate to **${project.name}** which connectors should be used or excluded.
+The **${project.name}** comes with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
 
-Use the parameters below to configure **${project.name}** to run in manual mode:
+Use the parameters below to select or exclude connectors:
 
-| Parameter          | Description                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| selectedConnectors | Enter the file name(s) of the collector(s) you want to use (.hdf or .hdfs file).     |
-| excludedConnectors | Enter the file name(s) of the collector you do NOT want to use (.hdf or .hdfs file). |
+| Parameter          | Description                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| selectedConnectors | Enter the name of the connector(s) you want to use to collect hardware metrics.        |
+| excludedConnectors | Enter the name of the connector(s) you do NOT want to use to collect hardware metrics. |
 
-Connector file names must be comma-separated, as shown in the example below:
+Connector names must be comma-separated, as shown in the example below:
 
 ```
 targets:
@@ -230,20 +230,20 @@ targets:
       username: myusername
       password: mypwd
     selectedConnectors: [ VMwareESX4i, VMwareESXi ]
-    excludedConnectors: [ VMwareESXiDisksIPMI, VMwareESXiDisksStorage ]
+    excludedConnectors: [ VMwareESXiDisksStorage ]
 ```
 
 The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>.
 
 ### Configuring the Unknown Status
 
-On rare occasions, **${project.name}** may collect an unexpected value from a Monitor and return an _Unknown Status_. You can configure the `unknownStatus` settings to trigger a specific action:
+On rare occasions, **${project.name}** may collect an unexpected value from a Monitor and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
 
-- **0** to set the Monitor's status to **OK**
-- **1** to trigger a **WARNING** on the Monitor's status (WARN)
-- **2** to trigger an **ALARM** on the Monitor's status (ALARM)
+- **OK** to expose the value **0**
+- **WARN** to expose the value **1**
+- **ALARM** to expose the value **2**.
 
-Default is **1** (WARN) as shown below:
+Default is **WARN** (1) as shown below:
 
 ```
 targets:
