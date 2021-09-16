@@ -2,7 +2,6 @@ package com.sentrysoftware.hardware.cli.service;
 
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 

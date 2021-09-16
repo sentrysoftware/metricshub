@@ -68,7 +68,7 @@ public class SshConfig implements IProtocolConfig {
 	@Override
 	public IProtocolConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
 		return SSHProtocol
-				.sshProtocolBuilder()
+				.builder()
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)
 				.privateKey(privateKey)

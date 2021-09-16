@@ -3,23 +3,21 @@ package com.sentrysoftware.matrix.engine.protocol;
 import java.io.File;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Data
-@ToString(callSuper = true)
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-public class SSHProtocol extends OSCommandConfig implements IProtocolConfiguration {
+public class SSHProtocol extends AbstractCommand {
 
 	private String username;
 	private char[] password;
 	private File privateKey;
 
-	@Builder(builderMethodName = "sshProtocolBuilder")
+	@Builder()
 	public SSHProtocol(boolean useSudo, Set<String> useSudoCommands, String sudoCommand, Long timeout, String username,
 			char[] password, File privateKey) {
 		super(useSudo, useSudoCommands, sudoCommand, timeout);
@@ -27,6 +25,15 @@ public class SSHProtocol extends OSCommandConfig implements IProtocolConfigurati
 		this.username = username;
 		this.password = password;
 		this.privateKey = privateKey;
+	}
+
+	@Override
+	public String toString() {
+		String desc = "SSH";
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
 	}
 
 }

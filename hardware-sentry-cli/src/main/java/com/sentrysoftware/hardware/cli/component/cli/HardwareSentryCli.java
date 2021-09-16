@@ -1,5 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.fusesource.jansi.Ansi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,7 @@ import com.sentrysoftware.hardware.cli.service.JobResultFormatterService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
@@ -76,6 +79,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Parameters(
 			index = "0",
+			paramLabel = "HOSTNAME",
 			description = "Hostname of IP address of the target to monitor"
 	)
 	private String hostname;
@@ -84,6 +88,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			names = { "-t", "--type" },
 			order = 1,
 			required = true,
+			paramLabel = "TYPE",
 			description = "Type of the host to monitor (lin, linux, win, windows, mgmt, management, storage, network, aix, hpux, solaris, tru64, vms)",
 			converter = TargetTypeConverter.class
 	)
@@ -110,6 +115,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@Option(
 			names = { "-u", "--username" },
 			order = 2,
+			paramLabel = "USER",
 			description = "Username for authentication"
 	)
 	String username;
@@ -117,6 +123,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@Option(
 			names = { "-p", "--password" },
 			order = 3,
+			paramLabel = "P4SSW0RD",
 			description = "Associated password",
 			arity = "0..1",
 			interactive = true
@@ -127,6 +134,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			names = { "-f", "--force" },
 			order = 4,
 			split = ",",
+			paramLabel = "CONNECTOR",
 			description = "Force selected hardware connectors to connect to the target"
 	)
 	private Set<String> connectors;
@@ -135,6 +143,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			names = { "-x", "--exclude" },
 			order = 5,
 			split = ",",
+			paramLabel = "CONNECTOR",
 			description = "Exclude connectors from the automatic detection process"
 	)
 	private Set<String> excludedConnectors;
@@ -179,39 +188,54 @@ public class HardwareSentryCli implements Callable<Integer> {
 		if (consoleService.hasConsole()) {
 			String protocolDisplay = protocols.values()
 					.stream()
-					.map(proto -> proto.getClass().getSimpleName())
+					.map(proto -> Ansi.ansi().bold().a(proto.toString()).boldOff().toString())
 					.collect(Collectors.joining(", "));
-			System.out.printf("Performing detection on %s using %s...\n", hostname, protocolDisplay);
-			System.out.flush();
+			spec.commandLine().getOut().print("Performing detection on ");
+			spec.commandLine().getOut().print(Ansi.ansi().bold().a(hostname).boldOff().toString());
+			spec.commandLine().getOut().print(" using ");
+			spec.commandLine().getOut().print(protocolDisplay);
+			spec.commandLine().getOut().println("...");
+			spec.commandLine().getOut().flush();
 		}
 		EngineResult engineResult = hostMonitoring.run(new DetectionOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
-			System.out.flush();
+			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Discovery
 		if (consoleService.hasConsole()) {
-			System.out.println("Performing discovery... ");
-			System.out.flush();
+			int connectorCount = hostMonitoring.selectFromType(MonitorType.CONNECTOR).size();
+			spec.commandLine().getOut().print("Performing discovery with ");
+			spec.commandLine().getOut().print(Ansi.ansi().bold().a(connectorCount).boldOff().toString());
+			spec.commandLine().getOut().println(connectorCount > 1 ? " connectors..." : " connector...");
+			spec.commandLine().getOut().flush();
 		}
 		engineResult = hostMonitoring.run(new DiscoveryOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
-			System.out.flush();
+			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Collect
 		if (consoleService.hasConsole()) {
-			System.out.println("Performing collect... ");
-			System.out.flush();
+			long monitorCount = hostMonitoring.getMonitors()
+					.values()
+					.stream()
+					.map(Map::values)
+					.flatMap(Collection::stream)
+					.count();
+			spec.commandLine().getOut().print("Performing collect on ");
+			spec.commandLine().getOut().print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
+			spec.commandLine().getOut().println(monitorCount > 1 ? " monitors..." : " monitor...");
+			spec.commandLine().getOut().flush();
 		}
 		engineResult = hostMonitoring.run(new CollectOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			System.out.println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
-			System.out.flush();
+			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
@@ -309,19 +333,15 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// Connectors
 		Map<String, Connector> allConnectors = ConnectorStore.getInstance().getConnectors();
-		if (connectors != null) {
-			for (String connectorName : connectors) {
-				if (!allConnectors.containsKey(connectorName)) {
-					throw new ParameterException(spec.commandLine(), "Unknown connector: " + connectorName);
-				}
-			}
-		}
+		Stream<String> connectorsToCheck = connectors != null ? connectors.stream() : Stream.empty();
 		if (excludedConnectors != null) {
-			for (String connectorName : excludedConnectors) {
-				if (!allConnectors.containsKey(connectorName)) {
-					throw new ParameterException(spec.commandLine(), "Unknown connector: " + connectorName);
-				}
-			}
+			connectorsToCheck = Stream.concat(connectorsToCheck, excludedConnectors.stream());
+		}
+		String invalidConnectors = connectorsToCheck
+				.filter(connectorName -> !allConnectors.containsKey(connectorName))
+				.collect(Collectors.joining(", "));
+		if (invalidConnectors != null && !invalidConnectors.isBlank()) {
+			throw new ParameterException(spec.commandLine(), "Unknown connector: " + invalidConnectors);
 		}
 
 	}
@@ -337,7 +357,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		if (verbose != null) {
 
-			Level logLevel = Level.ERROR;
+			Level logLevel;
 
 			switch (verbose.length) {
 			case 0: logLevel = Level.ERROR; break;

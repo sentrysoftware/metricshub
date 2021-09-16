@@ -35,6 +35,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -258,7 +259,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SSHProtocol.class);
 
 		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
-		final OSCommandConfig osCommandConfig = strategyConfig.getHostMonitoring().isLocalhost()
+		final AbstractCommand osCommandConfig = strategyConfig.getHostMonitoring().isLocalhost()
 				? (OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(OSCommandConfig.class)
 				: sshProtocol;
 
@@ -315,7 +316,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @return
 	 */
 	public String buildIpmiCommand(final TargetType targetType, final String hostname, final SSHProtocol sshProtocol,
-			final OSCommandConfig osCommandConfig, final int defaultTimeout) {
+			final AbstractCommand osCommandConfig, final int defaultTimeout) {
 		// do we need to use sudo or not?
 		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
 		// Or if the command is listed in useSudoCommandList (possible only in classic

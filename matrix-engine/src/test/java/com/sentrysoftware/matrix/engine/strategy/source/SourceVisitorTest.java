@@ -1,11 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
@@ -869,7 +865,7 @@ class SourceVisitorTest {
 	void testPocessUnixIpmiSource() {
 
 		// classic case
-		final SSHProtocol ssh = SSHProtocol.sshProtocolBuilder().username("root").password("nationale".toCharArray()).build();
+		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
 		EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX)
 						.build())
@@ -884,8 +880,8 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		// local
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru", 120, null)).thenReturn("impiResultFru");
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all", 120, null)).thenReturn("impiResultSdr");
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "fru"), anyInt(), any())).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "-v sdr elist all"), anyInt(), any())).thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
@@ -897,8 +893,8 @@ class SourceVisitorTest {
 		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "fru", 120, null)).thenReturn(fruResult);
-			oscmd.when(() -> OsCommandHelper.runLocalCommand("ipmiCommand"+ "-v sdr elist all", 120, null)).thenReturn(sensorResult);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "fru"), anyInt(), any())).thenReturn(fruResult);
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "-v sdr elist all"), anyInt(), any())).thenReturn(sensorResult);
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
 			List<List<String>> result = new ArrayList<>();
@@ -911,8 +907,8 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "fru", "localhost", ssh, 120, null, null)).thenReturn("impiResultFru");
-			oscmd.when(() -> OsCommandHelper.runSshCommand("ipmiCommand"+ "-v sdr elist all", "localhost", ssh, 120, null, null)).thenReturn("impiResultSdr");
+			oscmd.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand"+ "fru"), any(), any(), anyInt(), any(), any())).thenReturn("impiResultFru");
+			oscmd.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand"+ "-v sdr elist all"), any(), any(), anyInt(), any(), any())).thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}

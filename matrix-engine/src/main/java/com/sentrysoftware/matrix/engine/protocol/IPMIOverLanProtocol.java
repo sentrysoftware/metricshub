@@ -19,4 +19,13 @@ public class IPMIOverLanProtocol implements IProtocolConfiguration {
 	private char[] password;
 	private byte[] bmcKey;
 	private boolean skipAuth;
+
+	@Override
+	public String toString() {
+		String desc = "IPMI";
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
 }
