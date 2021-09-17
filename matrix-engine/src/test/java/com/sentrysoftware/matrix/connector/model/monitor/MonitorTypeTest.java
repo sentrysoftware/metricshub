@@ -14,7 +14,7 @@ class MonitorTypeTest {
 	private static final String UNKNOWN_MONITOR_TEST = "unknownMonitorTest";
 
 	@Test
-	void MonitorTypejsonKeytest() {
+	void MonitorTypeJsonKeyTest() {
 		MonitorType monitor = MonitorType.CONNECTOR;
 		assertEquals("Connectors", monitor.jsonKey());
 
@@ -81,19 +81,19 @@ class MonitorTypeTest {
 
 	@Test
 	void testGetByName() {
-		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY_LOWER));
-		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY_PASCAL));
-		assertEquals(MonitorType.BATTERY, MonitorType.getByName(BATTERY));
-		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByName(null));
-		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByName(UNKNOWN_MONITOR_TEST));
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnector(BATTERY_LOWER));
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnector(BATTERY_PASCAL));
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnector(BATTERY));
+		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByNameInConnector(null));
+		assertThrows(IllegalArgumentException.class, () -> MonitorType.getByNameInConnector(UNKNOWN_MONITOR_TEST));
 	}
 
 	@Test
 	void testGetByNameOptional() {
-		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY_LOWER).get());
-		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY_PASCAL).get());
-		assertEquals(MonitorType.BATTERY, MonitorType.getByNameOptional(BATTERY).get());
-		assertTrue(MonitorType.getByNameOptional(null).isEmpty());
-		assertTrue(MonitorType.getByNameOptional(UNKNOWN_MONITOR_TEST).isEmpty());
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnectorOptional(BATTERY_LOWER).get());
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnectorOptional(BATTERY_PASCAL).get());
+		assertEquals(MonitorType.BATTERY, MonitorType.getByNameInConnectorOptional(BATTERY).get());
+		assertTrue(MonitorType.getByNameInConnectorOptional(null).isEmpty());
+		assertTrue(MonitorType.getByNameInConnectorOptional(UNKNOWN_MONITOR_TEST).isEmpty());
 	}
 }

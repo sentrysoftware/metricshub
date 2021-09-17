@@ -53,14 +53,14 @@ public enum MonitorType {
 	OTHER_DEVICE("OtherDevice", "Other", "Other Devices", new OtherDevice(), "otherdevice"),
 	PHYSICAL_DISK("PhysicalDisk", "Physical Disk", "Physical Disks", new PhysicalDisk(), "physicaldisk"),
 	POWER_SUPPLY("PowerSupply", "Power Supply", "Power Supplies", new PowerSupply(), "powersupply"),
-	ROBOTICS("Robotics", "Robotics", "Robotics", new Robotics(), "robotics"),
+	ROBOTICS("Robotic", "Robotics", "Robotics", new Robotics(), "robotics"),
 	TAPE_DRIVE("TapeDrive", "Tape Drive", "Tape Drives", new TapeDrive(), "tapedrive"),
 	TEMPERATURE("Temperature", "Temperature", "Temperatures", new Temperature(), "temperature"),
 	VOLTAGE("Voltage", "Voltage", "Voltages", new Voltage(), "voltage");
 
 	public static final List<MonitorType> MONITOR_TYPES = Collections.unmodifiableList(Arrays.asList(MonitorType.values()));
 
-	private String name;
+	private String nameInConnector;
 	private String displayName;
 	private String displayNamePlural;
 	private IMetaMonitor metaMonitor;
@@ -71,8 +71,8 @@ public enum MonitorType {
 	 * @param name
 	 * @return {@link MonitorType} instance
 	 */
-	public static MonitorType getByName(@NonNull final String name) {
-		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
+	public static MonitorType getByNameInConnector(@NonNull final String name) {
+		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getNameInConnector())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Undefined monitor name: " + name));
 	}
 
@@ -81,11 +81,11 @@ public enum MonitorType {
 	 * @param name
 	 * @return {@link Optional} of {@link MonitorType} instance
 	 */
-	public static Optional<MonitorType> getByNameOptional(final String name) {
+	public static Optional<MonitorType> getByNameInConnectorOptional(final String name) {
 		if (name == null) {
 			return Optional.empty();
 		}
-		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst();
+		return MONITOR_TYPES.stream().filter(n -> name.equalsIgnoreCase(n.getNameInConnector())).findFirst();
 	}
 
 	/**
@@ -97,11 +97,9 @@ public enum MonitorType {
 			case BATTERY:
 			case MEMORY:
 			case POWER_SUPPLY:
-				return name.replace("y", "ies");
-			case ROBOTICS:
-				return name;
+				return nameInConnector.replace("y", "ies");
 			default:
-				return name.concat("s");
+				return nameInConnector.concat("s");
 		}
 	}
 

@@ -201,7 +201,7 @@ public class HostMonitoringCollectorService extends Collector {
 		}
 
 		final List<String> labels = PrometheusSpecificities.getLabels(monitorType);
-		Assert.state(labels != null && !labels.isEmpty(), () -> "The labels are not defined for the monitor type: " + monitorType.getName());
+		Assert.state(labels != null && !labels.isEmpty(), () -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName());
 
 		final String help = String.format("Metric: %s", metricName);
 

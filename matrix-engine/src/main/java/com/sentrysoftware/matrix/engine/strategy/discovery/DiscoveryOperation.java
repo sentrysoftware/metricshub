@@ -236,7 +236,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			if (sourceKey == null) {
 				log.error(
 						"No source key found with monitor {} for connector {} on system {}",
-						monitorType.getName(), connectorName, hostname);
+						monitorType.getNameInConnector(), connectorName, hostname);
 				return;
 			}
 
@@ -414,14 +414,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		if (hardwareMonitor.getDiscovery() == null) {
 			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (hardwareMonitor.getDiscovery().getInstanceTable() == null) {
 			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
@@ -429,7 +429,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 

@@ -40,7 +40,7 @@ public abstract class AbstractInstanceProcessor implements IConnectorStateParser
 				.stream()
 				.filter(hm -> hm
 						.getType()
-						.getName()
+						.getNameInConnector()
 						.equalsIgnoreCase(monitorName))
 				.findFirst();
 
@@ -67,7 +67,7 @@ public abstract class AbstractInstanceProcessor implements IConnectorStateParser
 	 */
 	protected HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
 
-		final MonitorType monitorType = MonitorType.getByName(monitorName);
+		final MonitorType monitorType = MonitorType.getByNameInConnector(monitorName);
 
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
