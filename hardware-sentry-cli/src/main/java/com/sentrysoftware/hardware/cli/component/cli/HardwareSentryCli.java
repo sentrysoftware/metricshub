@@ -241,7 +241,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 
 		// And now the result
-		spec.commandLine().getOut().print("\n");
+		if (consoleService.hasConsole()) {
+			spec.commandLine().getOut().print("\n");
+		}
 		PrettyPrinter.print(spec.commandLine().getOut(), hostMonitoring, true, true);
 //		spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
 
