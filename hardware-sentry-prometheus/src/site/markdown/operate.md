@@ -6,7 +6,7 @@ description: How to customize the Hardware Sentry Exporter for Prometheus config
 Run the command below to execute **${project.name}**:
 
 ```
-$ java -jar ${project.artifactId}-<version>.jar
+$ java -jar ${project.artifactId}-${project.version}.jar
 ```
 
 ## Using specific arguments
@@ -14,7 +14,7 @@ $ java -jar ${project.artifactId}-<version>.jar
 Use the following arguments to launch **${project.name}** with specific conditions:
 
 ```
-$ java -jar ${project.artifactId}-<version>.jar <argument(s)>
+$ java -jar ${project.artifactId}-${project.version}.jar <argument(s)>
 ```
 
 |Argument | Description |
