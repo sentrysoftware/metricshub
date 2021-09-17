@@ -225,7 +225,7 @@ class HostMonitoringTest {
 			final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 					.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 			assertEquals(enclosure, hostMonitoring.selectFromType(ENCLOSURE).get(ENCLOSURE_ID));
 		}
@@ -242,7 +242,7 @@ class HostMonitoringTest {
 
 			final Monitor fan = Monitor.builder().name(FAN_NAME).targetId(TARGET_ID).monitorType(FAN).id(null).parentId(null).build();
 
-			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, ENCLOSURE_ID, ENCLOSURE.getName());
+			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, ENCLOSURE_ID, ENCLOSURE.getNameInConnector());
 
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
@@ -263,7 +263,7 @@ class HostMonitoringTest {
 
 			final Monitor fan = Monitor.builder().name(FAN_NAME).targetId(TARGET_ID).monitorType(FAN).id(null).parentId(null).build();
 
-			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getName());
+			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getNameInConnector());
 
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
@@ -284,7 +284,7 @@ class HostMonitoringTest {
 
 			final Monitor fan = Monitor.builder().name(FAN_NAME).targetId(TARGET_ID).monitorType(FAN).id(null).parentId(null).build();
 
-			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getName());
+			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getNameInConnector());
 
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
@@ -300,7 +300,7 @@ class HostMonitoringTest {
 
 			final Monitor fan = Monitor.builder().name(FAN_NAME).targetId(TARGET_ID).monitorType(FAN).id(null).parentId(null).build();
 
-			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getName());
+			hostMonitoring.addMonitor(fan, FAN_ID, CONNECTOR_NAME, FAN, null, ENCLOSURE.getNameInConnector());
 
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
@@ -332,7 +332,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.clearCurrent();
 
@@ -346,7 +346,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.backup();
 
@@ -361,7 +361,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.backup();
 
@@ -382,7 +382,7 @@ class HostMonitoringTest {
 				.collectTime(now).value(100.0).rawValue(100.0).build();
 		enclosure.addParameter(parameter);
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.resetParameters();
 
@@ -411,7 +411,7 @@ class HostMonitoringTest {
 				.state(ParameterState.OK).build();
 		enclosure.addParameter(parameter);
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.resetParameters();
 
@@ -436,7 +436,7 @@ class HostMonitoringTest {
 				.value("test").build();
 		enclosure.addParameter(parameter);
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.resetParameters();
 
@@ -463,7 +463,7 @@ class HostMonitoringTest {
 				.state(ParameterState.WARN).build();
 		enclosure.addParameter(parameter);
 
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 		hostMonitoring.resetParameters();
 

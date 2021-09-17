@@ -216,7 +216,7 @@ class CollectOperationTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor enclosure = buildEnclosure(metadata);
-			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.prepare();
@@ -239,7 +239,7 @@ class CollectOperationTest {
 					.build();
 			enclosure.collectParameter(parameter);
 
-			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.prepare();

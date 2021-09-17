@@ -243,7 +243,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 			// Get the monitorType parent
 			// By default, get the Enclosure
-			final MonitorType monitorType = MonitorType.getByNameOptional(attachedToDeviceType)
+			final MonitorType monitorType = MonitorType.getByNameInConnectorOptional(attachedToDeviceType)
 					.orElse(MonitorType.ENCLOSURE);
 			return buildMonitorId(connectorName, monitorType, targetId, attachedToDeviceId);
 

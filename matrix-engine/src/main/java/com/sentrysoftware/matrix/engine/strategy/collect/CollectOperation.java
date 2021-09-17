@@ -329,7 +329,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			if (monitorOpt.isEmpty()) {
 				log.warn("Collect - Couldn't find monitor {} associated with row {}. Connector {}",
-						monitorType.getName(), row, connectorName);
+						monitorType.getNameInConnector(), row, connectorName);
 				continue;
 			}
 
@@ -549,14 +549,14 @@ public class CollectOperation extends AbstractStrategy {
 
 		if (hardwareMonitor.getCollect() == null) {
 			log.warn("Collect - No {} monitor job specified during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the collectType
 		if (hardwareMonitor.getCollect().getType() == null) {
 			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
@@ -564,14 +564,14 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, String> parameters = hardwareMonitor.getCollect().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("Collect - No parameter found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the valueTable key
 		if (hardwareMonitor.getCollect().getValueTable() == null) {
 			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 

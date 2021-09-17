@@ -76,7 +76,7 @@ public class CollectTypeProcessor implements IConnectorStateParser {
 		final String monitorName = key.substring(0, key.indexOf(ConnectorParserConstants.DOT));
 
 		final Optional<HardwareMonitor> hardwareMonitorOpt = connector.getHardwareMonitors().stream()
-				.filter(hm -> hm.getType().getName().equalsIgnoreCase(monitorName)).findFirst();
+				.filter(hm -> hm.getType().getNameInConnector().equalsIgnoreCase(monitorName)).findFirst();
 
 		return hardwareMonitorOpt.isPresent() ? hardwareMonitorOpt.get() : createHardwareMonitor(monitorName, connector);
 	}
@@ -89,7 +89,7 @@ public class CollectTypeProcessor implements IConnectorStateParser {
 	 */
 	HardwareMonitor createHardwareMonitor(final String monitorName, final Connector connector) {
 
-		final MonitorType monitorType = MonitorType.getByName(monitorName);
+		final MonitorType monitorType = MonitorType.getByNameInConnector(monitorName);
 
 		final HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()

@@ -289,7 +289,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 			.stream()
 			.filter(instance -> instance
 				.getType()
-				.getName()
+				.getNameInConnector()
 				.equalsIgnoreCase(monitorName))
 			.findFirst()
 			.orElseGet(() -> createMonitorIfNull ? createHardwareMonitor(monitorName, connector) : null);
@@ -319,7 +319,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 			.builder()
 			.discovery(Discovery.builder().build())
 			.collect(Collect.builder().build())
-			.type(MonitorType.getByName(monitorName))
+			.type(MonitorType.getByNameInConnector(monitorName))
 			.build();
 
 		// Add the hardware monitor to the connector

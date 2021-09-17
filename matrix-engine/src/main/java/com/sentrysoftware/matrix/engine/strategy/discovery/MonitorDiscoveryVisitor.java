@@ -247,7 +247,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		if (monitorName == null) {
 			log.error(CANNOT_CREATE_MONITOR_NULL_NAME_MSG,
-					monitorType.getName(),
+					monitorType.getNameInConnector(),
 					connectorName,
 					hostname);
 			return null;
@@ -258,14 +258,14 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = metadata.get(DEVICE_ID);
 		if (!checkNotBlankDataValue(id)) {
 			log.error(CANNOT_CREATE_MONITOR_ERROR_MSG,
-					monitorType.getName(),
+					monitorType.getNameInConnector(),
 					id,
 					connectorName,
 					hostname);
 			return null;
 		}
 
-		final String extendedType = getTextDataValueOrElse(metadata.get(TYPE), monitorType.getName());
+		final String extendedType = getTextDataValueOrElse(metadata.get(TYPE), monitorType.getNameInConnector());
 		final String attachedToDeviceId = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_ID), null);
 		final String attachedToDeviceType = getTextDataValueOrElse(metadata.get(ATTACHED_TO_DEVICE_TYPE), null);
 
