@@ -280,7 +280,7 @@ public class SourceVisitor implements ISourceVisitor {
 			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
 					osCommandSource.getCommandLine(),
 					strategyConfig.getEngineConfiguration(),
-					osCommandSource.getEmbeddedFiles(),
+					connector.getEmbeddedFiles(),
 					osCommandSource.getTimeout(),
 					osCommandSource.isExecuteLocally(),
 					strategyConfig.getHostMonitoring().isLocalhost());

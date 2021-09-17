@@ -237,26 +237,11 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 		// We must copy the source so that we don't modify the original source 
 		// which needs to be passed for each monitor when running the mono instance collect.
-		final OSCommandSource copy = OSCommandSource.builder()
-				.commandLine(
-						monitor != null ?
-								replaceDeviceId(osCommandSource.getCommandLine(), monitor) :
-									osCommandSource.getCommandLine())
-				.computes(osCommandSource.getComputes())
-				.executeLocally(osCommandSource.isExecuteLocally())
-				.excludeRegExp(osCommandSource.getExcludeRegExp())
-				.forceSerialization(osCommandSource.isForceSerialization())
-				.index(osCommandSource.getIndex() != null ? osCommandSource.getIndex() : 0)
-				.keepOnlyRegExp(osCommandSource.getKeepOnlyRegExp())
-				.key(osCommandSource.getKey())
-				.removeFooter(osCommandSource.getRemoveFooter())
-				.removeHeader(osCommandSource.getRemoveHeader())
-				.selectColumns(osCommandSource.getSelectColumns())
-				.separators(osCommandSource.getSeparators())
-				.timeout(osCommandSource.getTimeout())
-				.build();
-
-		copy.setEmbeddedFiles(connector.getEmbeddedFiles());
+		final OSCommandSource copy = osCommandSource.copy();
+		if (monitor != null) {
+			copy.setCommandLine(
+					replaceDeviceId(osCommandSource.getCommandLine(), monitor));
+		}
 
 		return copy.accept(sourceVisitor);
 	}

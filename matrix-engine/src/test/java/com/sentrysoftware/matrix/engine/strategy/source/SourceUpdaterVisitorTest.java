@@ -205,7 +205,6 @@ class SourceUpdaterVisitorTest {
 	void testVisitOSCommandSource() {
 
 		doReturn(Map.of(DEVICE_ID, "id")).when(monitor).getMetadata();
-		doReturn(Map.of(1, new EmbeddedFile("ECHO %OS%", "bat"))).when(connector).getEmbeddedFiles();
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(OSCommandSource.class));
 
 		assertEquals(

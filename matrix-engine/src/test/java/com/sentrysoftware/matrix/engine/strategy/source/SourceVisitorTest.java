@@ -243,6 +243,7 @@ class SourceVisitorTest {
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(connector).getEmbeddedFiles();
 		
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(

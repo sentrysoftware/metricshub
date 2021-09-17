@@ -19,10 +19,8 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -906,8 +904,6 @@ class CriterionVisitorTest {
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
-		final String result = "\"" + new SimpleDateFormat("ddMMyy").format(new Date()) + "\"";
-
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
@@ -915,7 +911,7 @@ class CriterionVisitorTest {
 						"\n\n" +
 						"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
 				criterionTestResult.getMessage());
-		assertEquals(result, criterionTestResult.getResult());
+		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test

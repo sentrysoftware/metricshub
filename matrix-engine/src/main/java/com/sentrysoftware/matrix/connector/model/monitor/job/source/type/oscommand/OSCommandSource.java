@@ -4,9 +4,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_S
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -36,10 +35,6 @@ public class OSCommandSource extends Source {
 	private String separators = WHITE_SPACE_TAB;
 	private List<String> selectColumns = new ArrayList<>();
 
-	@EqualsAndHashCode.Exclude
-	@ToString.Exclude
-	private Map<Integer, EmbeddedFile> embeddedFiles;
-
 	@Builder
 	public OSCommandSource(List<Compute> computes, boolean forceSerialization, String commandLine,
 			Long timeout, boolean executeLocally,
@@ -63,4 +58,26 @@ public class OSCommandSource extends Source {
 		return sourceVisitor.visit(this);
 	}
 
+	/**
+	 * Copy the current instance
+	 * 
+	 * @return new {@link OSCommandSource} instance
+	 */
+	public OSCommandSource copy() {
+		return OSCommandSource.builder()
+				.commandLine(commandLine)
+				.computes(getComputes() != null ? getComputes().stream().collect(Collectors.toList()) : null)
+				.executeLocally(executeLocally)
+				.excludeRegExp(excludeRegExp)
+				.forceSerialization(isForceSerialization())
+				.index(getIndex() != null ? getIndex() : 0)
+				.keepOnlyRegExp(keepOnlyRegExp)
+				.key(getKey())
+				.removeFooter(removeFooter)
+				.removeHeader(removeHeader)
+				.selectColumns(selectColumns)
+				.separators(separators)
+				.timeout(timeout)
+				.build();
+	}
 }
