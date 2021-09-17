@@ -108,29 +108,39 @@ class DetectionOperationTest {
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 
 		criterion1 = SNMPGetNext.builder().oid(OID1).build();
-		connector1 = Connector.builder().compiledFilename(CONNECTOR1_ID)
+		connector1 = Connector.builder()
+				.compiledFilename(CONNECTOR1_ID)
+				.displayName(CONNECTOR1_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.supersedes(Collections.singleton("connector2.hdf"))
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion1)).build()).build();
 
 		criterion2 = SNMPGetNext.builder().oid(OID2).build();
-		connector2 = Connector.builder().compiledFilename(CONNECTOR2_ID)
+		connector2 = Connector.builder()
+				.compiledFilename(CONNECTOR2_ID)
+				.displayName(CONNECTOR2_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion2)).build()).build();
 
 		criterion3 = SNMPGetNext.builder().oid(OID3).build();
-		connector3 = Connector.builder().compiledFilename(CONNECTOR3_ID)
+		connector3 = Connector.builder()
+				.compiledFilename(CONNECTOR3_ID)
+				.displayName(CONNECTOR3_ID)
 				.appliesToOS(Stream.of(OSType.HP, OSType.STORAGE).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion3)).build()).build();
 
 		criterion4 = SNMPGetNext.builder().oid(OID4).build();
-		connector4 = Connector.builder().compiledFilename(CONNECTOR4_ID)
+		connector4 = Connector.builder()
+				.compiledFilename(CONNECTOR4_ID)
+				.displayName(CONNECTOR4_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).localSupport(true)
 				.remoteSupport(false)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion4)).build()).build();
 
 		criterion5 = SNMPGetNext.builder().oid(OID5).build();
-		connector5 = Connector.builder().compiledFilename(CONNECTOR5_ID)
+		connector5 = Connector.builder()
+				.compiledFilename(CONNECTOR5_ID)
+				.displayName(CONNECTOR5_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion5)).build()).build();
 

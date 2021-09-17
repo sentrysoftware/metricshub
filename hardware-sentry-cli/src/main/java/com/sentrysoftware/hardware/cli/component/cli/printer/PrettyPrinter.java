@@ -31,7 +31,7 @@ public class PrettyPrinter {
 			HardwareConstants.ATTACHED_TO_DEVICE_TYPE.toLowerCase(),
 			HardwareConstants.DISPLAY_ID.toLowerCase(),
 			HardwareConstants.DESCRIPTION.toLowerCase(),
-			HardwareConstants.FILE_NAME.toLowerCase()
+			HardwareConstants.COMPILED_FILE_NAME.toLowerCase()
 	);
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#########.###");

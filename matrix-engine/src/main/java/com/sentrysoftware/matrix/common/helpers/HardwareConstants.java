@@ -193,7 +193,7 @@ public class HardwareConstants {
 	public static final String ATTACHED_TO_DEVICE_ID = "attachedToDeviceId";
 	public static final String ATTACHED_TO_DEVICE_TYPE = "attachedToDeviceType";
 	public static final String DESCRIPTION = "description";
-	public static final String FILE_NAME = "fileName";
+	public static final String COMPILED_FILE_NAME = "compiledFileName";
 	public static final String DISPLAY_NAME = "displayName";
 	public static final String FAN_TYPE = "fanType";
 	public static final String VOLTAGE_TYPE = "voltageType";
