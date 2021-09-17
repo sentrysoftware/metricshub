@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.cli.component.cli.printer;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,11 @@ public class PrettyPrinter {
 			HardwareConstants.ATTACHED_TO_DEVICE_TYPE.toLowerCase(),
 			HardwareConstants.DISPLAY_ID.toLowerCase(),
 			HardwareConstants.DESCRIPTION.toLowerCase(),
-			HardwareConstants.FILE_NAME.toLowerCase()
+			HardwareConstants.FILE_NAME.toLowerCase(),
+			HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING.toLowerCase(),
+			HardwareConstants.CPU_TEMPERATURE_PARAMETER.toLowerCase(),
+			HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER.toLowerCase(),
+			HardwareConstants.DISK_CONTROLLER_NUMBER.toLowerCase()
 	);
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#########.###");
@@ -67,7 +72,16 @@ public class PrettyPrinter {
 	 * Initiate the recursive printing
 	 */
 	private void start() {
-		printChildrenOf(null, 0);
+
+		// Extract the target from the result
+		Map<String, Monitor> targetMap = result.selectFromType(MonitorType.TARGET);
+		if (targetMap == null || targetMap.size() != 1) {
+			throw new IllegalStateException("Invalid results");
+		}
+		Monitor target = targetMap.values().stream().findFirst().orElseThrow();
+
+		// Print what is under the target
+		printChildrenOf(target.getId(), 0);
 	}
 
 	/**
@@ -88,26 +102,31 @@ public class PrettyPrinter {
 					.sorted((m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()))
 					.collect(Collectors.toList());
 
-			if (monitorsOfType.size() > 0) {
+			if (!monitorsOfType.isEmpty()) {
 
 				if (type != MonitorType.TARGET) {
-					out.println();
 					margin(indentation);
 					out.println(Ansi.ansi().bold().a(type.getDisplayNamePlural()).boldOff().a(":").toString());
 				}
 				for (Monitor monitor : monitorsOfType) {
 
-					out.print(" ".repeat(indentation));
-					out.print("- ");
-					out.print(Ansi.ansi().a(Attribute.INTENSITY_FAINT).a(type.getDisplayName()).reset().toString());
+					margin(indentation);
+					if (type != MonitorType.TARGET) {
+						out.print("- ");
+					}
+					out.print(type.getDisplayName());
 					out.print(": ");
-					out.println(monitor.getName());
+					out.println(Ansi.ansi().fgCyan().a(monitor.getName()).reset().toString());
+
 					if (showMetadata) {
 						printMetadata(monitor, indentation + 2);
 					}
+
 					if (showParameters) {
 						printParameters(monitor, indentation + 2);
 					}
+
+					out.println();
 					out.flush();
 
 					printChildrenOf(monitor.getId(), indentation + 4);
@@ -125,46 +144,32 @@ public class PrettyPrinter {
 
 		margin(indentation);
 
-		monitor.getMetadata()
+		out.print(monitor.getMetadata()
 				.entrySet()
 				.stream()
 				.filter(e -> !EXCLUDED_METADATA.contains(e.getKey().toLowerCase()))
 				.filter(e -> e.getValue() != null && !e.getValue().isBlank())
 				.sorted((e1, e2) -> e1.getKey().compareToIgnoreCase(e2.getKey()))
-				.forEachOrdered(metadata -> {
-					out.print(Ansi.ansi()
+				.map(metadata -> Ansi.ansi()
 							.a(Attribute.INTENSITY_FAINT)
 							.a(metadata.getKey())
 							.a(": ")
 							.reset()
-							.fgCyan()
 							.a(metadata.getValue().trim())
-							.fgDefault()
-							.a(" - ")
 							.toString()
-					);
-				});
+				)
+				.collect(Collectors.joining(" - "))
+		);
 
 		// Add identifying information if it's there
 		String identifying = monitor.getMetadata(HardwareConstants.IDENTIFYING_INFORMATION);
 		if (identifying != null && !identifying.isBlank()) {
-			out.println(Ansi.ansi()
-					.a(Attribute.INTENSITY_FAINT)
-					.a("More info: ")
-					.reset()
-					.fgCyan()
-					.a(identifying.trim())
-					.fgDefault()
-					.toString()
-			);
+			out.println(" - " + identifying);
 		} else {
 			out.println();
 		}
 	}
 
-	public static void main(String[] args) {
-		System.out.println("[" + new DecimalFormat("000.##").format(37.2) + "]");
-	}
 	/**
 	 * Print the parameters associated to a monitor
 	 * @param monitor The monitor whose parameters must be printed
@@ -175,35 +180,38 @@ public class PrettyPrinter {
 				.entrySet()
 				.stream()
 				.sorted((e1, e2) -> e1.getKey().compareToIgnoreCase(e2.getKey()))
-				.map(e -> e.getValue())
+				.map(Map.Entry::getValue)
 				.filter(param -> param.getClass() != TextParam.class && param.getClass() != PresentParam.class)
 				.filter(param -> param.numberValue() != null)
 				.forEachOrdered(param -> {
 					margin(indentation);
+					String paramNameFormat = "%-" + (30 - indentation) + "s";
 					if (param instanceof NumberParam) {
 						out.println(Ansi.ansi()
-								.a(String.format("%-" + (30 - indentation) + "s", param.getName()))
+								.a(String.format(paramNameFormat, param.getName()))
 								.bold()
 								.a(formatValue(param.numberValue()))
 								.boldOff()
 								.a(" ")
+								.a(Attribute.INTENSITY_FAINT)
 								.a(((NumberParam) param).getUnit())
+								.reset()
 								.toString()
 						);
 					} else if (param instanceof StatusParam) {
-						out.print(String.format("%-" + (30 - indentation) + "s", param.getName()));
+						out.print(String.format(paramNameFormat, param.getName()));
 						switch (((StatusParam) param).getState()) {
 						case OK:
-							out.println(Ansi.ansi().fgBrightGreen().a("        OK").fgDefault().toString());
+							out.println(Ansi.ansi().bold().fgBrightGreen().a(String.format("%10s", "OK")).reset().toString());
 							break;
 						case WARN:
-							out.println(Ansi.ansi().fgBrightYellow().a("      WARN").fgDefault().toString());
+							out.println(Ansi.ansi().bold().fgYellow().a(String.format("%10s", "WARN")).reset().toString());
 							break;
 						case ALARM:
-							out.println(Ansi.ansi().fgBrightRed().a("     ALARM").fgDefault().toString());
+							out.println(Ansi.ansi().bold().fgRed().a(String.format("%10s", "ALARM")).reset().toString());
 							break;
 						default:
-							out.println(Ansi.ansi().a(Attribute.INTENSITY_FAINT).a("   Unknown").reset().toString());
+							out.println(Ansi.ansi().a(Attribute.INTENSITY_FAINT).a(String.format("%10s", "Unknown")).reset().toString());
 							break;
 						}
 					}
@@ -224,6 +232,5 @@ public class PrettyPrinter {
 		String leftPart = valueParts[0];
 		String rightPart = valueParts.length == 2 ? "." + valueParts[1] : "";
 		return String.format("%10s%s", leftPart, rightPart);
-
 	}
 }
