@@ -265,7 +265,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 *                     source
 	 * @param connector    the connector the criterion belongs to
 	 * @param objToProcess the object to process used for debug purpose
-	 * @param type         the object to process description used in the debug messages
+	 * @param description  the object to process description used in the debug messages
 	 * @param defaultValue the default value to return in case of any glitch
 	 * @return T instance
 	 */
@@ -312,7 +312,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Get the Connector Namespace lock
 	 *   
-	 * @param connector the connector we currently process its source or 
+	 * @param connector the connector we currently process its criteria/sources/computes/
 	 * @return {@link ReentrantLock} instance. never null.
 	 */
 	ReentrantLock getLock(final Connector connector) {
