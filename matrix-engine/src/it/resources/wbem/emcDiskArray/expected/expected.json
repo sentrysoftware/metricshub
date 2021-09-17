@@ -196,7 +196,7 @@
     }
   }, {
     "id" : "localhost@EMCDiskArray",
-    "name" : "EMCDiskArray",
+    "name" : "EMC SMI-S Agent (ECOM)",
     "monitorType" : "CONNECTOR",
     "parentId" : "localhost",
     "targetId" : "localhost",
@@ -224,7 +224,7 @@
     "metadata" : {
       "description" : "This connector discovers the enclosure and the disks of EMC SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only.",
       "displayName" : "EMC SMI-S Agent (ECOM)",
-      "fileName" : "EMCDiskArray",
+      "compiledFileName" : "EMCDiskArray",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {

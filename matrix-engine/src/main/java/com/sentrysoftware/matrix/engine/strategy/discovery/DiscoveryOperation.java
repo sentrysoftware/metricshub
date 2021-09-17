@@ -39,6 +39,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -96,16 +97,20 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return false;
 		}
 
-		final Set<String> detectedConnectorNames = connectorMonitors.values().stream().map(Monitor::getName)
+		final Set<String> detectedConnectorFileNames = connectorMonitors
+				.values()
+				.stream()
+				.map(monitor -> monitor.getMetadata(COMPILED_FILE_NAME))
 				.collect(Collectors.toSet());
 
+		// Keep only detected/selected connectors, in the store they are indexed by the compiled file name
 		// Create a list with connectors defining enclosures on the top since we need to
 		// discover the enclosures first
 		final List<Connector> connectors = store
 				.getConnectors()
 				.entrySet()
 				.stream()
-				.filter(entry -> detectedConnectorNames.contains(entry.getKey()))
+				.filter(entry -> detectedConnectorFileNames.contains(entry.getKey()))
 				.map(Entry::getValue)
 				.sorted(new EnclosureFirstComparator())
 				.collect(Collectors.toList());

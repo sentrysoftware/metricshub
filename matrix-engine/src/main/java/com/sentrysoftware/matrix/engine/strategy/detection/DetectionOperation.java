@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
@@ -195,7 +195,7 @@ public class DetectionOperation extends AbstractStrategy {
 		final Connector connector = testedConnector.getConnector();
 
 		final Monitor monitor = Monitor.builder().id(target.getId() + "@" + connector.getCompiledFilename())
-				.name(connector.getCompiledFilename())
+				.name(connector.getDisplayName())
 				.targetId(target.getId())
 				.parentId(target.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
@@ -208,7 +208,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
-		monitor.addMetadata(FILE_NAME, connector.getCompiledFilename());
+		monitor.addMetadata(COMPILED_FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
 
 		monitor.getMonitorType().getMetaMonitor()
