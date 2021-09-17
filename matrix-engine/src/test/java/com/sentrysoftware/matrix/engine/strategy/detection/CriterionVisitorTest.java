@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Disabled;
@@ -976,10 +975,10 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindowsFailedToMatchCriteria() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("hostname");
-		osCommand.setExpectedResult(UUID.randomUUID().toString()); // Random string so that id dosn't match
+		osCommand.setCommandLine("echo test");
+		osCommand.setExpectedResult("^test12345$");
 		osCommand.setExecuteLocally(true);
-		osCommand.setErrorMessage("No date.");
+		osCommand.setErrorMessage("No data.");
 
 		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
@@ -1000,12 +999,12 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
 		assertNotNull(criterionTestResult);
-		assertNotNull(criterionTestResult.getResult());
+		assertEquals("test", criterionTestResult.getResult());
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test ran but failed:\n" + osCommand.toString() +
 						"\n\n" +
-						"Actual result:\n" + criterionTestResult.getResult(),
+						"Actual result:\n" + "test",
 						criterionTestResult.getMessage());
 	}
 
@@ -1052,10 +1051,10 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindows() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("hostname");
-		osCommand.setExpectedResult("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$");
+		osCommand.setCommandLine("echo test");
+		osCommand.setExpectedResult("^test$");
 		osCommand.setExecuteLocally(true);
-		osCommand.setErrorMessage("No date.");
+		osCommand.setErrorMessage("No data.");
 
 		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
@@ -1076,12 +1075,12 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
 		assertNotNull(criterionTestResult);
-		assertNotNull(criterionTestResult.getResult());
+		assertEquals("test", criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: " + criterionTestResult.getResult(),
+					"Result: " + "test",
 				criterionTestResult.getMessage());
 	}
 
@@ -1128,10 +1127,10 @@ class CriterionVisitorTest {
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandRemoteExecutedLocallyWindows() {
 		final OSCommand osCommand = new OSCommand();
-		osCommand.setCommandLine("hostname");
-		osCommand.setExpectedResult("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$");
+		osCommand.setCommandLine("echo test");
+		osCommand.setExpectedResult("^test$");
 		osCommand.setExecuteLocally(true);
-		osCommand.setErrorMessage("No date.");
+		osCommand.setErrorMessage("No data.");
 
 		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password("pwd".toCharArray()).build();
 
@@ -1152,12 +1151,12 @@ class CriterionVisitorTest {
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
 
 		assertNotNull(criterionTestResult);
-		assertNotNull(criterionTestResult.getResult());
+		assertEquals("test", criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
 				"OSCommand test succeeded:\n" + osCommand.toString() +
 					"\n\n" +
-					"Result: " + criterionTestResult.getResult(),
+					"Result: " + "test",
 				criterionTestResult.getMessage());
 
 	}

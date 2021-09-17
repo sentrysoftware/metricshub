@@ -360,7 +360,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.metadata(fanMetadata)
 				.monitorType(MonitorType.FAN)
-				.extendedType(MonitorType.FAN.getName())
+				.extendedType(MonitorType.FAN.getNameInConnector())
 				.parameters(Map.of(
 						PRESENT_PARAMETER,
 						PresentParam.builder().state(ParameterState.OK).build()))

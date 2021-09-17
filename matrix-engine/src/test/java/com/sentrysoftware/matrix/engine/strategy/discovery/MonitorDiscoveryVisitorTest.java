@@ -96,7 +96,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.BATTERY)
-				.extendedType(MonitorType.BATTERY.getName())
+				.extendedType(MonitorType.BATTERY.getNameInConnector())
 				.alertRules(MonitorType.BATTERY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -127,7 +127,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.BLADE)
-				.extendedType(MonitorType.BLADE.getName())
+				.extendedType(MonitorType.BLADE.getNameInConnector())
 				.alertRules(MonitorType.BLADE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -158,7 +158,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU)
-				.extendedType(MonitorType.CPU.getName())
+				.extendedType(MonitorType.CPU.getNameInConnector())
 				.alertRules(MonitorType.CPU.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -189,7 +189,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU_CORE)
-				.extendedType(MonitorType.CPU_CORE.getName())
+				.extendedType(MonitorType.CPU_CORE.getNameInConnector())
 				.alertRules(MonitorType.CPU_CORE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -220,7 +220,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.DISK_CONTROLLER)
-				.extendedType(MonitorType.DISK_CONTROLLER.getName())
+				.extendedType(MonitorType.DISK_CONTROLLER.getNameInConnector())
 				.alertRules(MonitorType.DISK_CONTROLLER.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -314,7 +314,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
-				.extendedType(MonitorType.FAN.getName())
+				.extendedType(MonitorType.FAN.getNameInConnector())
 				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -345,7 +345,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.LED)
-				.extendedType(MonitorType.LED.getName())
+				.extendedType(MonitorType.LED.getNameInConnector())
 				.alertRules(MonitorType.LED.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -375,7 +375,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.LOGICAL_DISK)
-				.extendedType(MonitorType.LOGICAL_DISK.getName())
+				.extendedType(MonitorType.LOGICAL_DISK.getNameInConnector())
 				.alertRules(MonitorType.LOGICAL_DISK.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -405,7 +405,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.LUN)
-				.extendedType(MonitorType.LUN.getName())
+				.extendedType(MonitorType.LUN.getNameInConnector())
 				.alertRules(MonitorType.LUN.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -435,7 +435,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.MEMORY)
-				.extendedType(MonitorType.MEMORY.getName())
+				.extendedType(MonitorType.MEMORY.getNameInConnector())
 				.alertRules(MonitorType.MEMORY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -466,7 +466,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.NETWORK_CARD)
-				.extendedType(MonitorType.NETWORK_CARD.getName())
+				.extendedType(MonitorType.NETWORK_CARD.getNameInConnector())
 				.alertRules(MonitorType.NETWORK_CARD.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -497,7 +497,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.OTHER_DEVICE)
-				.extendedType(MonitorType.OTHER_DEVICE.getName())
+				.extendedType(MonitorType.OTHER_DEVICE.getNameInConnector())
 				.alertRules(MonitorType.OTHER_DEVICE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -528,7 +528,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.PHYSICAL_DISK)
-				.extendedType(MonitorType.PHYSICAL_DISK.getName())
+				.extendedType(MonitorType.PHYSICAL_DISK.getNameInConnector())
 				.alertRules(MonitorType.PHYSICAL_DISK.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -559,7 +559,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.POWER_SUPPLY)
-				.extendedType(MonitorType.POWER_SUPPLY.getName())
+				.extendedType(MonitorType.POWER_SUPPLY.getNameInConnector())
 				.alertRules(MonitorType.POWER_SUPPLY.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -590,7 +590,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.TAPE_DRIVE)
-				.extendedType(MonitorType.TAPE_DRIVE.getName())
+				.extendedType(MonitorType.TAPE_DRIVE.getNameInConnector())
 				.alertRules(MonitorType.TAPE_DRIVE.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -621,7 +621,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.TEMPERATURE)
-				.extendedType(MonitorType.TEMPERATURE.getName())
+				.extendedType(MonitorType.TEMPERATURE.getNameInConnector())
 				.alertRules(MonitorType.TEMPERATURE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -651,7 +651,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.VOLTAGE)
-				.extendedType(MonitorType.VOLTAGE.getName())
+				.extendedType(MonitorType.VOLTAGE.getNameInConnector())
 				.alertRules(MonitorType.VOLTAGE.getMetaMonitor().getStaticAlertRules())
 				.build();
 
@@ -682,7 +682,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ROBOTICS)
-				.extendedType(MonitorType.ROBOTICS.getName())
+				.extendedType(MonitorType.ROBOTICS.getNameInConnector())
 				.alertRules(MonitorType.ROBOTICS.getMetaMonitor().getStaticAlertRules())
 				.build();
 		expectedMonitor.setAsPresent();
@@ -791,7 +791,7 @@ class MonitorDiscoveryVisitorTest {
 				.targetId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
-				.extendedType(MonitorType.FAN.getName())
+				.extendedType(MonitorType.FAN.getNameInConnector())
 				.build();
 		expectedFan.setAsPresent();
 

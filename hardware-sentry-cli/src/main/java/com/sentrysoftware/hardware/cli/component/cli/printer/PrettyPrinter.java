@@ -32,7 +32,7 @@ public class PrettyPrinter {
 			HardwareConstants.ATTACHED_TO_DEVICE_TYPE.toLowerCase(),
 			HardwareConstants.DISPLAY_ID.toLowerCase(),
 			HardwareConstants.DESCRIPTION.toLowerCase(),
-			HardwareConstants.FILE_NAME.toLowerCase(),
+			HardwareConstants.COMPILED_FILE_NAME.toLowerCase(),
 			HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING.toLowerCase(),
 			HardwareConstants.CPU_TEMPERATURE_PARAMETER.toLowerCase(),
 			HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER.toLowerCase(),

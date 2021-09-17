@@ -39,6 +39,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -96,16 +97,20 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return false;
 		}
 
-		final Set<String> detectedConnectorNames = connectorMonitors.values().stream().map(Monitor::getName)
+		final Set<String> detectedConnectorFileNames = connectorMonitors
+				.values()
+				.stream()
+				.map(monitor -> monitor.getMetadata(COMPILED_FILE_NAME))
 				.collect(Collectors.toSet());
 
+		// Keep only detected/selected connectors, in the store they are indexed by the compiled file name
 		// Create a list with connectors defining enclosures on the top since we need to
 		// discover the enclosures first
 		final List<Connector> connectors = store
 				.getConnectors()
 				.entrySet()
 				.stream()
-				.filter(entry -> detectedConnectorNames.contains(entry.getKey()))
+				.filter(entry -> detectedConnectorFileNames.contains(entry.getKey()))
 				.map(Entry::getValue)
 				.sorted(new EnclosureFirstComparator())
 				.collect(Collectors.toList());
@@ -236,7 +241,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			if (sourceKey == null) {
 				log.error(
 						"No source key found with monitor {} for connector {} on system {}",
-						monitorType.getName(), connectorName, hostname);
+						monitorType.getNameInConnector(), connectorName, hostname);
 				return;
 			}
 
@@ -414,14 +419,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		if (hardwareMonitor.getDiscovery() == null) {
 			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (hardwareMonitor.getDiscovery().getInstanceTable() == null) {
 			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
@@ -429,7 +434,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 

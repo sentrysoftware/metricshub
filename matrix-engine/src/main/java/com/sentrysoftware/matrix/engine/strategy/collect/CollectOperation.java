@@ -66,6 +66,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_M
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+
 import static org.springframework.util.Assert.state;
 
 @Slf4j
@@ -97,18 +99,19 @@ public class CollectOperation extends AbstractStrategy {
 			return false;
 		}
 
-		final Set<String> detectedConnectorNames = connectorMonitors
+		final Set<String> detectedConnectorFileNames = connectorMonitors
 				.values()
 				.stream()
-				.map(Monitor::getName)
+				.map(monitor -> monitor.getMetadata(COMPILED_FILE_NAME))
 				.collect(Collectors.toSet());
 
+		// Keep only detected/selected connectors, in the store they are indexed by the compiled file name
 		// Build the list of the connectors
 		final List<Connector> connectors = store
 				.getConnectors()
 				.entrySet()
 				.stream()
-				.filter(entry -> detectedConnectorNames.contains(entry.getKey()))
+				.filter(entry -> detectedConnectorFileNames.contains(entry.getKey()))
 				.map(Entry::getValue)
 				.collect(Collectors.toList());
 
@@ -119,7 +122,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			// Get the connector monitor
 			final Monitor connectorMonitor = connectorMonitors.values().stream()
-			.filter(monitor -> connector.getCompiledFilename().equals(monitor.getName()))
+			.filter(monitor -> connector.getCompiledFilename().equals(monitor.getMetadata(COMPILED_FILE_NAME)))
 			.findFirst().orElseThrow();
 
 			collect(connector, connectorMonitor, hostMonitoring, hostname);
@@ -329,7 +332,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			if (monitorOpt.isEmpty()) {
 				log.warn("Collect - Couldn't find monitor {} associated with row {}. Connector {}",
-						monitorType.getName(), row, connectorName);
+						monitorType.getNameInConnector(), row, connectorName);
 				continue;
 			}
 
@@ -549,14 +552,14 @@ public class CollectOperation extends AbstractStrategy {
 
 		if (hardwareMonitor.getCollect() == null) {
 			log.warn("Collect - No {} monitor job specified during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the collectType
 		if (hardwareMonitor.getCollect().getType() == null) {
 			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
@@ -564,14 +567,14 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, String> parameters = hardwareMonitor.getCollect().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
 			log.warn("Collect - No parameter found with {} during the collect for the connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 
 		// Check the valueTable key
 		if (hardwareMonitor.getCollect().getValueTable() == null) {
 			log.error("Collect - No valueTable found with monitor {} for connector {} on system {}",
-					monitorType.getName(), connectorName, hostname);
+					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
 

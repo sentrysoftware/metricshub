@@ -28,6 +28,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_RE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
@@ -180,6 +181,7 @@ class CollectOperationTest {
 
 		connector = Connector.builder()
 				.compiledFilename(CONNECTOR_NAME)
+				.displayName(CONNECTOR_NAME)
 				.detection(Detection.builder()
 						.criteria(Collections.singletonList(criterion))
 						.build())
@@ -216,7 +218,7 @@ class CollectOperationTest {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
 			final Monitor enclosure = buildEnclosure(metadata);
-			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.prepare();
@@ -239,7 +241,7 @@ class CollectOperationTest {
 					.build();
 			enclosure.collectParameter(parameter);
 
-			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getName());
+			hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.prepare();
@@ -395,7 +397,7 @@ class CollectOperationTest {
 	}
 
 	private static Monitor buildConnectorMonitor() {
-		return Monitor
+		Monitor monitor = Monitor
 				.builder()
 				.monitorType(MonitorType.CONNECTOR)
 				.name(CONNECTOR_NAME)
@@ -403,6 +405,8 @@ class CollectOperationTest {
 				.targetId(ECS1_01)
 				.id(CONNECTOR_NAME)
 				.build();
+		monitor.addMetadata(COMPILED_FILE_NAME, CONNECTOR_NAME);
+		return monitor;
 	}
 
 	@Test
