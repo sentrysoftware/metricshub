@@ -10,6 +10,8 @@ import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportPro
 @Data
 public class WbemConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 30;
+
 	@Option(
 			names = "--wbem",
 			order = 1,
@@ -52,7 +54,7 @@ public class WbemConfig implements IProtocolConfig {
 	@Option(
 			names = "--wbem-timeout",
 			order = 6,
-			defaultValue = "120",
+			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)")
 	long timeout;
 

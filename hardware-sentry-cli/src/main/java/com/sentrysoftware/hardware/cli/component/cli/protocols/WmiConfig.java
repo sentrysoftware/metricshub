@@ -8,6 +8,8 @@ import picocli.CommandLine.Option;
 @Data
 public class WmiConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 30;
+
 	@Option(
 			names = "--wmi",
 			order = 1,
@@ -34,7 +36,7 @@ public class WmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--wmi-timeout",
 			order = 4,
-			defaultValue = "120",
+			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private Long timeout;

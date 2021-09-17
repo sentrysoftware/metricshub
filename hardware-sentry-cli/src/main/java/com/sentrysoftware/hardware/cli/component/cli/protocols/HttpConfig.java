@@ -10,9 +10,11 @@ import picocli.CommandLine.Option;
 @Data
 public class HttpConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 30;
+
 	@ArgGroup(
 			exclusive = true,
-			multiplicity = "1"
+			multiplicity = "0..1"
 	)
 	HttpOrHttps httpOrHttps;
 
@@ -61,7 +63,7 @@ public class HttpConfig implements IProtocolConfig {
 	@Option(
 			names = "--http-timeout",
 			order = 6,
-			defaultValue = "120",
+			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private long timeout;

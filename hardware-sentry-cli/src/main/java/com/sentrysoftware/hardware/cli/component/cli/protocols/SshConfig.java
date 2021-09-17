@@ -14,6 +14,8 @@ import lombok.Data;
 @Data
 public class SshConfig implements IProtocolConfig {
 
+	public static final int DEFAULT_TIMEOUT = 30;
+
 	@Spec
 	CommandSpec spec;
 
@@ -47,7 +49,7 @@ public class SshConfig implements IProtocolConfig {
 	@Option(
 			names = "--ssh-timeout",
 			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)",
-			defaultValue ="120"
+			defaultValue = "" + DEFAULT_TIMEOUT
 	)
 	private long timeout;
 
