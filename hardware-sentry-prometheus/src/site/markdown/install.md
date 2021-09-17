@@ -3,6 +3,6 @@ description: Where to download the installation package of the Hardware Sentry E
 
 # Installing ${project.name}
 
-The package `hardware-sentry-prometheus-<version>.jar` is available to download on [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html#hardware-sentry-exporter-0.9).
+The package `${project.artifactId}-<version>.jar` is available to download on [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html#hardware-sentry-exporter-0.9).
 
-There is no installation *per se*. Simply copy the `hardware-sentry-prometheus-<version>.jar` file in a directory of your choice.
+There is no installation *per se*. Simply copy the `${project.artifactId}-<version>.jar` file in a directory of your choice.
