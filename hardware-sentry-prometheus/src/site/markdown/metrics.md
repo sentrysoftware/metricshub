@@ -86,13 +86,13 @@ hw_power_supply_status{fqdn="ecs1-01.internal.sentrysoftware.net",id="DellOpenMa
 
 - **Metric Type**: Typically `counter`
 - **Metric Name**: Composed of the _product name_, _monitor label_, _metric_, _total_ (example: `hw_cpu_corrected_errors_total`)
-- **Label**: Monitor's additional properties
+- **Label**: Metric's additional properties
 
 **Gauges** are metrics that represent a single numerical value that can arbitrarily go up and down. Gauge-type metrics are composed of:
 
 - **Metric Type**: Typically `gauge`
 - **Metric Name**: Composed of the _product name_, _monitor label_, _metric_, _status/units_ (example: `hw_cpu_core_used_time_ratio`)
-- **Label**: Monitor's additional properties
+- **Label**: Metric's additional properties
 
 The table below provides detailed information about the metrics scrapped by **${project.name}** for each Monitor and metric type.
 
