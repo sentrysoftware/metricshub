@@ -237,7 +237,7 @@ The exhaustive list of connectors is available in the <a href="https://www.sentr
 
 ### Configuring the Unknown Status
 
-On rare occasions, **${project.name}** may collect an unexpected value from a Monitor and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
+On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
 
 - **OK** to expose the value **0**
 - **WARN** to expose the value **1**
