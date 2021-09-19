@@ -23,7 +23,7 @@ public class ConnectorNamespace {
 	private String automaticWbemNamespace;
 
 	@Default
-	private ReentrantLock lock = new ReentrantLock();
+	private ReentrantLock forceSerializationLock = new ReentrantLock(true);
 
 	public void addSourceTable(@NonNull String key, @NonNull SourceTable sourceTable) {
 		sourceTables.put(key, sourceTable);

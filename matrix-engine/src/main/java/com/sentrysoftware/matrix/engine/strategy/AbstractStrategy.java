@@ -272,54 +272,54 @@ public abstract class AbstractStrategy implements IStrategy {
 	<T> T forceSerialization(@NonNull Supplier<T> executable, @NonNull final Connector connector,
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
-		final ReentrantLock lock = getLock(connector);
+		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
 
+		final boolean isLockAcquired;
 		try {
-			// Permit barging on a fair lock, that's why we combine the timed and un-timed forms together
-			boolean isLockAcquired = lock.tryLock() 
-					|| lock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
-
-			if (isLockAcquired) {
-				return executable.get();
-			} else {
-				log.error("Could not acquire lock to process {} {}. Connector: {}.",
-						description,
-						objToProcess,
-						connector.getCompiledFilename());
-
-				return defaultValue;
-			}
-
-		} catch (Exception e) {
-			log.error("Error detected when trying to acquire lock to process {} {}. Connector: {}.",
+			// Try to get the lock
+			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			log.error("Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
 					description,
 					objToProcess,
 					connector.getCompiledFilename());
 			log.debug("Exception: ", e);
 
-			if (e instanceof InterruptedException) {
-				Thread.currentThread().interrupt();
-			}
+			Thread.currentThread().interrupt();
 
 			return defaultValue;
-
-		} finally {
-			// Release the lock 
-			lock.unlock();
 		}
+
+		if (isLockAcquired) {
+
+			try {
+				return executable.get();
+			} finally {
+				// Release the lock when the executable is terminated
+				forceSerializationLock.unlock();
+			}
+		} else {
+			log.error("Could not acquire the force serialization lock to process {} {}. Connector: {}.",
+					description,
+					objToProcess,
+					connector.getCompiledFilename());
+
+			return defaultValue;
+		}
+
 	}
 
 	/**
-	 * Get the Connector Namespace lock
+	 * Get the Connector Namespace force serialization lock
 	 *   
 	 * @param connector the connector we currently process its criteria/sources/computes/
 	 * @return {@link ReentrantLock} instance. never null.
 	 */
-	ReentrantLock getLock(final Connector connector) {
+	ReentrantLock getForceSerializationLock(final Connector connector) {
 		return strategyConfig
 				.getHostMonitoring()
 				.getConnectorNamespace(connector)
-				.getLock();
+				.getForceSerializationLock();
 	}
 
 	/**
