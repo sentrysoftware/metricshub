@@ -9,7 +9,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class SnmpConfig implements IProtocolConfig {
+public class SnmpConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -17,6 +17,7 @@ public class SnmpConfig implements IProtocolConfig {
 			names = "--snmp",
 			order = 1,
 			defaultValue = "1",
+			paramLabel = "VERSION",
 			description = "Enables SNMP protocol version: 1, 2, 3-md5, 3-sha or 3-noauth",
 			converter = SnmpVersionConverter.class
 	)
@@ -25,6 +26,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = { "--snmp-community", "--community" },
 			order = 2,
+			paramLabel = "COMMUNITY",
 			defaultValue = "public",
 			description = "Community string for SNMP version 1 and 2 (default: ${DEFAULT-VALUE})"
 	)
@@ -33,6 +35,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-username",
 			order = 3,
+			paramLabel = "USER",
 			description = "Username for SNMP version 3 with MD5 or SHA"
 	)
 	String username;
@@ -40,6 +43,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-password",
 			order = 4,
+			paramLabel = "P4SSW0RD",
 			description = "Password for SNMP version 3 with MD5 or SHA",
 			interactive = true,
 			arity = "0..1"
@@ -49,6 +53,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-privacy",
 			order = 5,
+			paramLabel = "DES|AES",
 			description = "Privacy (encryption type) for SNMP version 3 (DES, AES, or none)",
 			converter = SnmpPrivacyConverter.class
 	)
@@ -57,6 +62,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-privacy-password",
 			order = 6,
+			paramLabel = "P4SSW0RD",
 			description = "Privacy (encryption) password",
 			interactive = true,
 			arity = "0..1"
@@ -66,6 +72,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-port",
 			order = 7,
+			paramLabel = "PORT",
 			defaultValue = "161",
 			description = "Port of the SNMP agent (default: ${DEFAULT-VALUE})"
 	)
@@ -74,6 +81,7 @@ public class SnmpConfig implements IProtocolConfig {
 	@Option(
 			names = "--snmp-timeout",
 			order = 8,
+			paramLabel = "TIMEOUT",
 			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
 	)

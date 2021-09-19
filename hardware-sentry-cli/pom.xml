@@ -79,7 +79,7 @@
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
 		</dependency>
-		
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -135,7 +135,8 @@
 					</execution>
 				</executions>
 			</plugin>
-		<!-- site -->
+
+			<!-- site -->
 			<!-- Configuration of the site plugin, to also generate automatic reports (Reference Guide, etc.)
 				 and leverage the Sentry Maven Skin (which requires the "Velocity Tools", i.e. Java code that
 				 handles most advanced parsing operations -->
@@ -167,6 +168,27 @@
 						</goals>
 						<configuration>
 							<attach>true</attach>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>distributable-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/dist.xml</descriptor>
+							</descriptors>
+							<finalName>hws-${project.version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
 					</execution>
 				</executions>
