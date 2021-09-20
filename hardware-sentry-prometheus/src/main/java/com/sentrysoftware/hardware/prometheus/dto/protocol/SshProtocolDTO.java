@@ -1,9 +1,13 @@
 package com.sentrysoftware.hardware.prometheus.dto.protocol;
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class IPMIOverLanProtocolDTO {
+public class SshProtocolDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeoutDeserializer.class)
@@ -23,22 +27,30 @@ public class IPMIOverLanProtocolDTO {
 
 	private String username;
 	private char[] password;
-	private byte[] bmcKey;
-	private boolean skipAuth;
+	private File privateKey;
+	private boolean useSudo;
+
+	@Default
+	private Set<String> useSudoCommands = new HashSet<>();
+
+	@Default
+	private String sudoCommand = "sudo";
 
 	/**
-	 * Create a new {@link IPMIOverLanProtocol} instance based on the current members
+	 * Create a new {@link SSHProtocol} instance based on the current members
 	 *
-	 * @return The {@link IPMIOverLanProtocol} instance
+	 * @return The {@link SSHProtocol} instance
 	 */
 	public IProtocolConfiguration toProtocol() {
-		return IPMIOverLanProtocol
+		return SSHProtocol
 				.builder()
 				.username(username)
 				.password(password)
-				.bmcKey(bmcKey)
-				.skipAuth(skipAuth)
+				.privateKey(privateKey)
 				.timeout(timeout)
+				.useSudo(useSudo)
+				.useSudoCommands(useSudoCommands)
+				.sudoCommand(sudoCommand)
 				.build();
 	}
 }

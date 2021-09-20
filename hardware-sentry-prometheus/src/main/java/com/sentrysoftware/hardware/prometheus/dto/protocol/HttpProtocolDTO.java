@@ -2,8 +2,8 @@ package com.sentrysoftware.hardware.prometheus.dto.protocol;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,27 +15,33 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WMIProtocolDTO {
+public class HttpProtocolDTO {
 
-	private String username;
-	private char[] password;
-	private String namespace;
+	@Default
+	private Boolean https = true;
+
+	@Default
+	private Integer port = 443;
 
 	@Default
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout = 120L;
 
+	private String username;
+	private char[] password;
+
 	/**
-	 * Create a new {@link WMIProtocol} instance based on the current members
+	 * Create a new {@link HTTPProtocol} instance based on the current members
 	 *
-	 * @return The {@link WMIProtocol} instance
+	 * @return The {@link HTTPProtocol} instance
 	 */
 	public IProtocolConfiguration toProtocol() {
-		return WMIProtocol
+		return HTTPProtocol
 				.builder()
-				.namespace(namespace)
+				.https(https)
 				.username(username)
 				.password(password)
+				.port(port)
 				.timeout(timeout)
 				.build();
 	}

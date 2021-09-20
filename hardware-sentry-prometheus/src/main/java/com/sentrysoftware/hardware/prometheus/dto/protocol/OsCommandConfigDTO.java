@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OSCommandConfigDTO {
+public class OsCommandConfigDTO {
 
 	private boolean useSudo;
 	
