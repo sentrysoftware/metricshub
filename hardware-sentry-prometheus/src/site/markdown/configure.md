@@ -11,7 +11,7 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which must be located in the same directory as the `hardware-sentry-prometheus-<version>.jar` file. The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly.
+This information must be provided in a `hardware-sentry-config.yml` file, which must be located in the same directory as the `${project.artifactId}-${project.version}.jar` file. The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly.
 
 ## Specifying the target to be monitored
 

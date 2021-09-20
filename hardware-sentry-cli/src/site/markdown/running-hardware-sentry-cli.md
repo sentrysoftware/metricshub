@@ -14,11 +14,11 @@ When running the **${project.name}**, the connectors are automatically selected 
 To run the **${project.name}**, use one of these commands:
 
 ```batch
-   $ java -jar hardware-sentry-cli-<version>.jar -host <hostname> -dt <device-type> <protocol-configuration>
+   $ java -jar ${project.artifactId}-<version>.jar -host <hostname> -dt <device-type> <protocol-configuration>
 ```
   
 ```batch
-   $ java -jar hardware-sentry-cli-<version>.jar --hostname <hostname> --device-type <device-type> <protocol-configuration>
+   $ java -jar ${project.artifactId}-<version>.jar --hostname <hostname> --device-type <device-type> <protocol-configuration>
 ```
 
 where:
@@ -64,7 +64,7 @@ Use the options below to configure the HTTP protocol:
 In the example below, we use the HTTP protocol to establish the connection to the **purem-san** device:
    
    ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname purem-san  --device-type STORAGE --http-port 443 --http-username pureuser --http-password ****** -hdfs MS_HW_PureStorageREST.hdf
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname purem-san  --device-type STORAGE --http-port 443 --http-username pureuser --http-password ****** -hdfs MS_HW_PureStorageREST.hdf
    ```
 
 <a name="snmp"></a>
@@ -91,7 +91,7 @@ Use the options below to configure the SNMP protocol:
 In the example below, we use the SNMP protocol v1 to establish the connection to the **ecs1-01** device running on Linux:
    
    ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1
    ```
 
 ##### SNMP v3
@@ -99,12 +99,13 @@ In the example below, we use the SNMP protocol v1 to establish the connection to
 In the example below, we use the SNMP protocol v3 to establish the connection to the **10.0.11.80** device:
 
    ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname 10.0.11.80 --device-type MGMT_CARD_BLADE_ESXI --snmp-version V3_NO_AUTH --snmp-port 161 --snmp-community public --snmp-timeout 120
-    ```
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname 10.0.11.80 --device-type MGMT_CARD_BLADE_ESXI --snmp-version V3_NO_AUTH --snmp-port 161 --snmp-community public --snmp-timeout 120
+  ```
 
 <a name="wbem"></a>
 
 ### Using the WBEM Protocol
+
 
 Use the options below to configure the WBEM protocol:
 
@@ -122,7 +123,7 @@ Use the options below to configure the WBEM protocol:
 In the example below, we use the WBEM protocol to establish the connection to the **dev-hv-01** device:
    
    ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname dev-hv-01  --device-type STORAGE --wbem-protocol https --wbem-namespace root/emc --wbem-username admin --wbem-password ****** -hdfs MS_HW_EMCDiskArray.connector
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname dev-hv-01  --device-type STORAGE --wbem-protocol https --wbem-namespace root/emc --wbem-username admin --wbem-password ****** -hdfs MS_HW_EMCDiskArray.connector
    ```
 
 <a name="wmi"></a>
@@ -143,7 +144,7 @@ Use the options below to configure the WMI protocol:
 In the example below, we use the WMI protocol to establish the connection to the **hpb7k-l1** device:
 
    ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname hpb7k-l1 --device-type MS_WINDOWS --wmi-namespace root\wmi --wmi-username hpb7k-l1\administrator  --wmi-timeout 180
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname hpb7k-l1 --device-type MS_WINDOWS --wmi-namespace root\wmi --wmi-username hpb7k-l1\administrator  --wmi-timeout 180
   ```
 
 <a name="manual"></a>
@@ -159,13 +160,13 @@ The exhaustive list of connectors is available in the <a href="https://www.sentr
 ###### Example:
 
 ```batch
-$ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
  ```
 
    or
 
 ```batch
-$ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 --connectors MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 --connectors MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
  ```
 
 ###### Result:
@@ -253,13 +254,13 @@ The exhaustive list of connectors is available in the <a href="https://www.sentr
 ###### Example:
 
 ```batch
-$ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfsExcluded MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfsExcluded MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
 ```
 
    or
 
 ```batch
-$ java -jar hardware-sentry-cli-0.0.1-SNAPSHOT.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 --connectorsExcluded MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 --connectorsExcluded MS_HW_DellOpenManage.connector,MS_HW_DellStorageManager.connector
 ```
 
 ###### Result:

@@ -3,18 +3,18 @@ description: How to customize the Hardware Sentry Exporter for Prometheus config
 
 # Launching ${project.name}
 
-The simplest way to execute **${project.name}** consists in executing the following command:
+Run the command below to execute **${project.name}**:
 
 ```
-$ java -jar hardware-sentry-prometheus-<version>.jar
+$ java -jar ${project.artifactId}-${project.version}.jar
 ```
 
 ## Using specific arguments
 
-Use the following arguments to launch **${project.name}** with specific conditions.
+Use the following arguments to launch **${project.name}** with specific conditions:
 
 ```
-$ java -jar hardware-sentry-prometheus-<version>jar <argument(s)>
+$ java -jar ${project.artifactId}-${project.version}.jar <argument(s)>
 ```
 
 |Argument | Description |

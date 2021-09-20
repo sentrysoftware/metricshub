@@ -8,11 +8,11 @@ Use the `-h` or `--help` option to list all the available options:
  ###### Example:
 
 ```batch
-$ java -jar ${project.artifactId}-[project.version}.jar -h
+$ java -jar ${project.artifactId}-${project.version}.jar -h
 ```
 
 or
 
 ```batch
-$ java -jar ${project.artifactId}-[project.version}.jar --help
+$ java -jar ${project.artifactId}-${project.version}.jar --help
 ```

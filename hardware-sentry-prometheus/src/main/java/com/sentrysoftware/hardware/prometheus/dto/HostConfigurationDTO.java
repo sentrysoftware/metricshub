@@ -3,14 +3,14 @@ package com.sentrysoftware.hardware.prometheus.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sentrysoftware.hardware.prometheus.dto.protocol.HttpProtocolDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.IpmiOverLanProtocolDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.OsCommandConfigDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.SshProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.SnmpProtocolDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.WbemProtocolDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.WmiProtocolDTO;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
@@ -37,17 +37,17 @@ public class HostConfigurationDTO {
 
 	private SnmpProtocolDTO snmp;
 
-	private IPMIOverLanProtocol ipmi;
+	private IpmiOverLanProtocolDTO ipmi;
 
-	private SSHProtocol ssh;
+	private SshProtocolDTO ssh;
 
-	private WBEMProtocol wbem;
+	private WbemProtocolDTO wbem;
 
-	private WMIProtocol wmi;
+	private WmiProtocolDTO wmi;
 
-	private HTTPProtocol http;
+	private HttpProtocolDTO http;
 
-	private OSCommandConfig osCommand;
+	private OsCommandConfigDTO osCommand;
 
 	@Default
 	private Set<String> selectedConnectors = new HashSet<>();

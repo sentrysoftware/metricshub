@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
@@ -27,44 +28,84 @@ public class AwkScriptProcessorTest {
 	@Test
 	void testParse() {
 
-		Awk awk = Awk
-				.builder()
-				.index(1)
-				.build();
+		{
+			final Awk awk = Awk
+					.builder()
+					.index(1)
+					.build();
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
-				.builder()
-				.index(1)
-				.computes(Collections.singletonList(awk))
-				.build();
+			final SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+					.builder()
+					.index(1)
+					.computes(Collections.singletonList(awk))
+					.build();
 
-		Discovery discovery = Discovery
-				.builder()
-				.sources(Collections.singletonList(snmpGetTableSource))
-				.build();
+			final Discovery discovery = Discovery
+					.builder()
+					.sources(Collections.singletonList(snmpGetTableSource))
+					.build();
 
-		HardwareMonitor hardwareMonitor = HardwareMonitor
-				.builder()
-				.type(MonitorType.ENCLOSURE)
-				.discovery(discovery)
-				.build();
+			final HardwareMonitor hardwareMonitor = HardwareMonitor
+					.builder()
+					.type(MonitorType.ENCLOSURE)
+					.discovery(discovery)
+					.build();
 
-		connector
-		.getHardwareMonitors()
-		.add(hardwareMonitor);
+			connector
+			.getHardwareMonitors()
+			.add(hardwareMonitor);
 
-		assertThrows(IllegalStateException.class, () -> awkScriptProcessor.parse(AWK_SCRIPT_KEY, VALUE, connector));
+			assertThrows(IllegalStateException.class, () -> awkScriptProcessor.parse(AWK_SCRIPT_KEY, VALUE, connector));
 
-		EmbeddedFile embeddedFile = EmbeddedFile
-				.builder()
-				.content("Embedded File content.")
-				.type("Embedded")
-				.build();
+			final EmbeddedFile embeddedFile = EmbeddedFile
+					.builder()
+					.content("Embedded File content.")
+					.type("Embedded")
+					.build();
 
-		connector.setEmbeddedFiles(Collections.singletonMap(1, embeddedFile));
+			connector.setEmbeddedFiles(Collections.singletonMap(1, embeddedFile));
 
-		awkScriptProcessor.parse(AWK_SCRIPT_KEY, VALUE, connector);
+			awkScriptProcessor.parse(AWK_SCRIPT_KEY, VALUE, connector);
 
-		assertEquals(embeddedFile, ((Awk) snmpGetTableSource.getComputes().get(0)).getAwkScript());
+			assertEquals(embeddedFile, ((Awk) snmpGetTableSource.getComputes().get(0)).getAwkScript());
+		}
+		
+		// case embedded file directely in AwkScript
+		{
+			final String key = "PhysicalDisk.Collect.Source(1).Compute(1).AwkScript";
+			final String value = "/^PV Status/ {print \"\"MSHW;\"\" $3 \"\"-\"\" $4}";
+			
+			final Awk awk = Awk
+					.builder()
+					.index(1)
+					.build();
+
+			final SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+					.builder()
+					.index(1)
+					.computes(Collections.singletonList(awk))
+					.build();
+
+			final Collect collect = Collect
+					.builder()
+					.sources(Collections.singletonList(snmpGetTableSource))
+					.build();
+
+			final HardwareMonitor hardwareMonitor = HardwareMonitor
+					.builder()
+					.type(MonitorType.PHYSICAL_DISK)
+					.collect(collect)
+					.build();
+
+			connector
+			.getHardwareMonitors()
+			.add(hardwareMonitor);
+
+			awkScriptProcessor.parse(key, value, connector);
+
+			assertEquals(
+					EmbeddedFile.builder().content(value).build(), 
+					((Awk) snmpGetTableSource.getComputes().get(0)).getAwkScript());
+		}
 	}
 }
