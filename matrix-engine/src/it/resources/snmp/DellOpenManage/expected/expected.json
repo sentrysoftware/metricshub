@@ -23,7 +23,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -186,7 +186,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\ncurrentSpeed: 2100.0 MHz\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -317,7 +317,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)\nintrusionStatus: 0 (No Intrusion Detected)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -404,7 +404,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -549,7 +549,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -694,7 +694,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -839,7 +839,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4320.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -984,7 +984,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1129,7 +1129,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1274,7 +1274,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1419,7 +1419,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5760.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1564,7 +1564,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1709,7 +1709,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5520.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1854,7 +1854,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -1999,7 +1999,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 5640.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2144,7 +2144,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2288,7 +2288,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nspeed: 4200.0 RPM\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2432,7 +2432,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2579,7 +2579,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2737,7 +2737,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -2884,7 +2884,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3031,7 +3031,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3178,7 +3178,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3325,7 +3325,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3472,7 +3472,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3619,7 +3619,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3766,7 +3766,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -3913,7 +3913,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4060,7 +4060,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nerrorCount: 0.0 errors\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4185,7 +4185,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4259,7 +4259,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4334,7 +4334,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (AC Switch On - AC Power On)\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (AC Switch On - AC Power On)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4430,7 +4430,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (AC Switch On - AC Power On)\npresent: 1 (Present)",
+        "statusInformation" : "status: 0 (AC Switch On - AC Power On)",
         "previousState" : null,
         "type" : "StatusParam"
       }
@@ -4586,7 +4586,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\ntemperature: 23.0 degrees Celsius",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -4673,7 +4673,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\ntemperature: 30.0 degrees Celsius",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -4760,7 +4760,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\ntemperature: 37.0 degrees Celsius",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -5643,7 +5643,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nvoltage: 228000.0 mV",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },
@@ -5707,7 +5707,7 @@
         "state" : "OK",
         "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
         "status" : 0,
-        "statusInformation" : "status: 0 (OK)\nvoltage: 224000.0 mV",
+        "statusInformation" : "status: 0 (OK)",
         "previousState" : null,
         "type" : "StatusParam"
       },

@@ -1,5 +1,87 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OFF_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ON_STATUS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_RATE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WATTS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
@@ -31,109 +113,10 @@ import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BATTERY_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEEDS_CLEANING_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OFF_STATUS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ON_STATUS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS_RATE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_PACKETS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_BYTES_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_PACKETS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_BYTES_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WATTS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -163,7 +146,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		checkCollectInfo(monitorCollectInfo);
 		this.monitorCollectInfo = monitorCollectInfo;
 	}
-	
+
 
 	private void checkCollectInfo(MonitorCollectInfo monitorCollectInfo) {
 		Assert.notNull(monitorCollectInfo.getMonitor(), MONITOR_CANNOT_BE_NULL);
@@ -180,8 +163,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(MetaConnector metaConnector) {
 		collectBasicParameters(metaConnector);
-
-		appendValuesToStatusParameter(TEST_REPORT_PARAMETER);
 	}
 
 	@Override
@@ -196,31 +177,16 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectBatteryCharge();
 		collectBatteryTimeLeft();
-
-		appendValuesToStatusParameter(
-			PRESENT_PARAMETER,
-			CHARGE_PARAMETER,
-			TIME_LEFT_PARAMETER);
 	}
 
 	@Override
 	public void visit(Blade blade) {
 		collectBasicParameters(blade);
-
-		appendValuesToStatusParameter(
-				POWER_STATE_PARAMETER,
-				PRESENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(Cpu cpu) {
 		collectBasicParameters(cpu);
-
-		appendValuesToStatusParameter(
-				CORRECTED_ERROR_COUNT_PARAMETER,
-				CURRENT_SPEED_PARAMETER,
-				PREDICTED_FAILURE_PARAMETER,
-				PRESENT_PARAMETER);
 	}
 
 	@Override
@@ -229,21 +195,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(cpuCore);
 
 		collectCpuCoreUsedTimePercent();
-
-		appendValuesToStatusParameter(
-				CURRENT_SPEED_PARAMETER,
-				USED_TIME_PERCENT_PARAMETER,
-				PRESENT_PARAMETER);
 	}
 
 	@Override
 	public void visit(DiskController diskController) {
 		collectBasicParameters(diskController);
-
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
-				BATTERY_STATUS_PARAMETER,
-				CONTROLLER_STATUS_PARAMETER);
 
 		estimateDiskControllerPowerConsumption();
 	}
@@ -253,22 +209,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(enclosure);
 
 		collectPowerConsumption();
-
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
-				INTRUSION_STATUS_PARAMETER,
-				ENERGY_USAGE_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER);
 	}
 
 	@Override
 	public void visit(Fan fan) {
 		collectBasicParameters(fan);
-
-		appendValuesToStatusParameter(
-				SPEED_PARAMETER,
-				PRESENT_PARAMETER,
-				SPEED_PERCENT_PARAMETER);
 
 		estimateFanPowerConsumption();
 	}
@@ -280,9 +225,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectLedColor();
 		collectLedStatus();
 
-		appendValuesToStatusParameter(
-				COLOR_PARAMETER,
-				LED_INDICATOR_PARAMETER);
 	}
 
 	@Override
@@ -291,20 +233,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 		collectLogicalDiskUnallocatedSpace();
-		
-		appendValuesToStatusParameter(
-				ERROR_COUNT_PARAMETER,
-				UNALLOCATED_SPACE_PARAMETER,
-				LAST_ERROR_PARAMETER);
+
 	}
 
 	@Override
 	public void visit(Lun lun) {
 		collectBasicParameters(lun);
-
-		appendValuesToStatusParameter(
-				AVAILABLE_PATH_COUNT_PARAMETER,
-				AVAILABLE_PATH_INFORMATION_PARAMETER);
 	}
 
 	@Override
@@ -313,20 +247,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		appendValuesToStatusParameter(
-				ERROR_COUNT_PARAMETER,
-				ERROR_STATUS_PARAMETER,
-				PREDICTED_FAILURE_PARAMETER,
-				PRESENT_PARAMETER,
-				LAST_ERROR_PARAMETER);
-
 		estimateMemoryPowerConsumption();
 	}
 
 	@Override
 	public void visit(NetworkCard networkCard) {
 		collectBasicParameters(networkCard);
-		
+
 		final Double duplexMode = collectNetworkCardDuplexMode();
 		final Double linkSpeed = collectNetworkCardLinkSpeed();
 		final Double receivedBytesRate = collectNetworkCardBytesRate(
@@ -355,19 +282,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectNetworkCardErrorPercent(receivedPackets, transmittedPackets);
 		collectNetworkCardZeroBufferCreditPercent();
 
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER, 
-				BANDWIDTH_UTILIZATION_PARAMETER,
-				ERROR_COUNT_PARAMETER,
-				ERROR_PERCENT_PARAMETER, 
-				LINK_SPEED_PARAMETER, 
-				LINK_STATUS_PARAMETER, 
-				RECEIVED_BYTES_RATE_PARAMETER, 
-				RECEIVED_PACKETS_RATE_PARAMETER, 
-				TRANSMITTED_BYTES_RATE_PARAMETER, 
-				TRANSMITTED_PACKETS_RATE_PARAMETER, 
-				ZERO_BUFFER_CREDIT_PERCENT_PARAMETER);
-
 		estimateNetworkCardPowerConsumption();
 
 	}
@@ -375,11 +289,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(OtherDevice otherDevice) {
 		collectBasicParameters(otherDevice);
-
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
-				USAGE_COUNT_PARAMETER,
-				VALUE_PARAMETER);
 	}
 
 	@Override
@@ -390,30 +299,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
-				USAGE_COUNT_PARAMETER,
-				INTRUSION_STATUS_PARAMETER,
-				ENDURANCE_REMAINING_PARAMETER,
-				ERROR_COUNT_PARAMETER,
-				PREDICTED_FAILURE_PARAMETER);
-
 		estimatePhysicalDiskPowerConsumption();
 	}
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
 		collectBasicParameters(powerSupply);
-		
+
 		collectPowerSupplyUsedCapacity();
 
-		appendValuesToStatusParameter(
-				USED_CAPACITY_PARAMETER,
-				PRESENT_PARAMETER,
-				MOVE_COUNT_PARAMETER,
-				ERROR_COUNT_PARAMETER);
 	}
-	
+
 	@Override
 	public void visit(Robotics robotics) {
 		collectBasicParameters(robotics);
@@ -422,13 +318,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		appendValuesToStatusParameter(
-				ERROR_COUNT_PARAMETER,
-				MOVE_COUNT_PARAMETER);
-
 		estimateRoboticsPowerConsumption();
 	}
-	
+
 	@Override
 	public void visit(TapeDrive tapeDrive) {
 		collectBasicParameters(tapeDrive);
@@ -439,13 +331,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		appendValuesToStatusParameter(
-				PRESENT_PARAMETER,
-				ERROR_COUNT_PARAMETER, 
-				MOUNT_COUNT_PARAMETER, 
-				NEEDS_CLEANING_PARAMETER,
-				UNMOUNT_COUNT_PARAMETER);
-
 		estimateTapeDrivePowerConsumption();
 	}
 
@@ -454,8 +339,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(temperature);
 
 		collectTemperature();
-
-		appendValuesToStatusParameter(TEMPERATURE_PARAMETER);
 	}
 
 	@Override
@@ -464,12 +347,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectVoltage();
 
-		appendValuesToStatusParameter(VOLTAGE_PARAMETER);
 	}
 
 	/**
 	 * Collect the Status of the current {@link Monitor} instance
-	 * 
+	 *
 	 * @param monitorType   The type of the monitor we currently collect
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
@@ -531,64 +413,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Append the given parameter information to the status information
-	 * 
-	 * @param statusParam The {@link StatusParam} we wish to update its statusInformation field value
-	 * @param parameter   The parameter we wish to append its value
-	 */
-	static void appendToStatusInformation(final StatusParam statusParam, final IParameterValue parameter) {
-		if (statusParam == null || parameter == null) {
-			return;
-		}
-
-		final String value = parameter.formatValueAsString();
-
-		if (value == null) {
-			return;
-		}
-
-		String existingStatusInformation = statusParam.getStatusInformation();
-
-		if (existingStatusInformation == null) {
-			existingStatusInformation = "";
-		} else {
-			existingStatusInformation += NEW_LINE;
-		}
-
-		final StringBuilder builder = new StringBuilder(existingStatusInformation)
-				.append(value);
-
-		statusParam.setStatusInformation(builder.toString());
-	}
-
-	/**
-	 * Get the parameter identified by the given name from the current monitor then append the values to the StatusInformation fiend of the
-	 * Status parameter
-	 * 
-	 * @param parameterNames The name of the parameters we wish to append in the StatusInformation of the Status parameter
-	 */
-	void appendValuesToStatusParameter(final String... parameterNames) {
-
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-		Assert.notNull(monitor, MONITOR_CANNOT_BE_NULL);
-
-		// Cannot be null
-		final Map<String, IParameterValue> parameters = monitor.getParameters();
-
-		final StatusParam statusParam = (StatusParam) parameters.get(STATUS_PARAMETER);
-		if (statusParam == null) {
-			// Nothing to append
-			return;
-		}
-
-		for (String parameterName : parameterNames) {
-			appendToStatusInformation(statusParam, parameters.get(parameterName));
-		}
-	}
-
-	/**
 	 * Collect a number parameter
-	 * 
+	 *
 	 * @param monitorType   The type of the monitor we currently collect
 	 * @param parameterName The name of the status parameter to collect
 	 * @param unit          The unit to set in the {@link IParameterValue} instance
@@ -617,7 +443,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Collect the parameter string from the current value
-	 * 
+	 *
 	 * @param monitorType   The type of the monitor
 	 * @param parameterName The unique name of the parameter
 	 * @return {@link String} value
@@ -642,7 +468,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Extract the parameter value from the current row
-	 * 
+	 *
 	 * @param monitorType   The type of the monitor
 	 * @param parameterName The unique name of the parameter
 	 * @return {@link Double} value
@@ -679,10 +505,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return null;
 	}
-	
+
 	/**
 	 * Extract the parameter string from the current row
-	 * 
+	 *
 	 * @param monitorType   The type of the monitor
 	 * @param parameterName The unique name of the parameter
 	 * @return {@link String} value
@@ -710,14 +536,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			return "No Intrusion Detected";
 		case ALARM:
 			return "Intrusion Detected";
-		default: 
+		default:
 			return "Unexpected Intrusion Status";
 		}
 	}
 
 	/**
 	 * Collect the basic parameters as defined by the given {@link IMetaMonitor}
-	 * 
+	 *
 	 * @param metaMonitor Defines all the meta information of the parameters to collect (name, type, unit and basic or not)
 	 */
 	private void collectBasicParameters(final IMetaMonitor metaMonitor) {
@@ -737,7 +563,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		.stream()
 		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
 		.forEach(metaParam -> collectNumberParameter(
-			metaMonitor.getMonitorType(), 
+			metaMonitor.getMonitorType(),
 			metaParam.getName(),
 			metaParam.getUnit()
 		));
@@ -1009,9 +835,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects the incremental parameters, namely 
+	 * Collects the incremental parameters, namely
 	 * {@link TapeDrive} unmount, mount & {@link Robotics} move count.
-	 * 
+	 *
 	 * @param countParameter		The name of the count parameter, like mountCount
 	 * @param countParameterUnit	The unit of the count parameter, like mounts
 	 */
@@ -1024,7 +850,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			// Getting the previous value
 			Double previousRawCount = CollectHelper.getNumberParamRawValue(monitor, countParameter, true);
-			
+
 			CollectHelper.updateNumberParameter(
 				monitor,
 				countParameter,
@@ -1035,7 +861,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			);
 		}
 	}
-	
+
 	/**
 	 * Collects the used capacity of {@link PowerSupply}.
 	 */
@@ -1049,11 +875,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			USED_PERCENT_PARAMETER);
 
 		if (usedPercentRaw == null) {
-		
+
 			// Getting the used capacity
 			final Double powerSupplyUsedWatts = extractParameterValue(monitor.getMonitorType(),
 				USED_WATTS_PARAMETER);
-			
+
 			// Getting the power
 			final Double power = extractParameterValue(monitor.getMonitorType(),
 				POWER_SUPPLY_POWER);
@@ -1078,7 +904,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			);
 		}
 	}
-	
+
 	/**
 	 * Collects the unallocated space in GB for {@link LogicalDisk}.
 	 */
@@ -1139,7 +965,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Estimated power consumption: 4W 
+	 * Estimated power consumption: 4W
 	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
 	 */
 	void estimateMemoryPowerConsumption() {
@@ -1268,7 +1094,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Estimate SATA physical disk power dissipation. Default is 11W.
-	 * 
+	 *
 	 * @param data the physical disk information
 	 * @return double value
 	 */
@@ -1290,7 +1116,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Estimate SCSI and IDE physical disk power dissipation
-	 * 
+	 *
 	 * @param data the physical disk information
 	 * @return double value
 	 */
@@ -1315,7 +1141,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Estimate SAS physical disk power dissipation
-	 * 
+	 *
 	 * @param data the physical disk information
 	 * @return double value
 	 */
@@ -1330,7 +1156,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Estimate SSD physical disk power dissipation
-	 * 
+	 *
 	 * @param data the physical disk information
 	 * @return double value
 	 */
@@ -1393,7 +1219,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Estimate the tape drive power consumption based on its name and its activity
-	 * 
+	 *
 	 * @param active        Whether the tape drive is active or not
 	 * @param lowerCaseName The name of the tape drive in lower case
 	 * @return double value
@@ -1432,7 +1258,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		} else {
 			final Double fanSpeedPercent = extractParameterValue(monitor.getMonitorType(),
 					SPEED_PERCENT_PARAMETER);
-			
+
 			if (fanSpeedPercent != null) {
 				// Approximately 5 Watt for 100%
 				powerConsumption = fanSpeedPercent * 0.05;
@@ -1559,7 +1385,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Collect the {@link NetworkCard} duplex mode parameter.
 	 */
@@ -1572,7 +1398,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (duplexModeRaw != null) {
 
-			final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") || 
+			final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") ||
 					duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
 			CollectHelper.updateNumberParameter(
 					monitor,
@@ -1597,7 +1423,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return null;
 	}
-	
+
 	/**
 	 * Collect the {@link NetworkCard} link speed parameter.
 	 */
@@ -1621,14 +1447,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return linkSpeed;
 	}
-	
+
 	/**
 	 * Collects the {@link NetworkCard} bytes rate and usage.
-	 * 
+	 *
 	 * @param bytesParameterName       The name of the bytes parameter where the raw value is collected
 	 * @param byteRateParameterName    The name of the byte rate parameter to be calculated
 	 * @param usageReportParameterName The name of the usage report parameter to be calculated
-	 * 
+	 *
 	 * @return bytesRate               Calculated byte rate in MB/s
 	 */
 	Double collectNetworkCardBytesRate(final String bytesParameterName, final String byteRateParameterName, final String usageReportParameterName) {
@@ -1653,7 +1479,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				bytesValue,
 				bytesValue
 		);
-		
+
 		// Getting the previous value
 		Double lastBytesValue = CollectHelper.getNumberParamRawValue(monitor, bytesParameterName, true);
 		if (lastBytesValue == null) {
@@ -1686,7 +1512,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			log.warn("No denominator for collect time difference to calculate the byte rate.");
 		} else {
 			final double timeDelta = timeDeltaMs / 1000.0;
-	
+
 			// Setting the byte rate (in MB/s)
 			bytesRate = bytesDeltaMb / timeDelta;
 			CollectHelper.updateNumberParameter(monitor,
@@ -1711,14 +1537,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return bytesRate;
 	}
-	
+
 	/**
 	 * Collects the {@link NetworkCard} packets rate and usage.
-	 * 
+	 *
 	 * @param packetsParameterName       The name of the packets parameter where the raw value is collected
 	 * @param packetRateParameterName    The name of the packets rate parameter to be calculated
 	 * @param usageReportParameterName   The name of the usage report parameter to be calculated
-	 * 
+	 *
 	 * @return packetsValue              Number of packets
 	 */
 	Double collectNetworkCardPacketsRate(final String packetsParameterName, final String packetRateParameterName, final String usageReportParameterName) {
@@ -1735,7 +1561,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Getting the current value's collect time
 		Long collectTime = monitorCollectInfo.getCollectTime();
-		
+
 		// Setting the packets parameter
 		CollectHelper.updateNumberParameter(
 				monitor,
@@ -1799,7 +1625,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		return packetsValue;
 	}
-	
+
 	/**
 	 * Collect the {@link NetworkCard} bandwidth utilization.
 	 */
@@ -1841,16 +1667,16 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			);
 		}
 	}
-	
+
 	/**
 	 * Collect the {@link NetworkCard} error count/percentage.
 	 */
 	void collectNetworkCardErrorPercent(final Double receivedPackets, final Double tranmittedPackets) {
-		
+
 		if (receivedPackets == null || tranmittedPackets == null) {
 			return;
 		}
-		
+
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		// Getting the current error count
@@ -1870,7 +1696,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				errorCount,
 				errorCount
 		);
-		
+
 		// Setting the total packets
 		final Double totalPackets = receivedPackets + tranmittedPackets;
 		CollectHelper.updateNumberParameter(
@@ -1885,7 +1711,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the previous error count
 		final Double lastErrorCount = CollectHelper.getNumberParamRawValue(monitor,
 			ERROR_COUNT_PARAMETER, true);
-		
+
 		if (lastErrorCount == null) {
 			return;
 		}
@@ -1893,7 +1719,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the previous total packets count
 		final Double lastTotalPackets = CollectHelper.getNumberParamRawValue(monitor,
 				TOTAL_PACKETS_PARAMETER, true);
-		
+
 		if (lastTotalPackets == null) {
 			return;
 		}
@@ -1901,18 +1727,18 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Computing the total packets delta
 		final Double totalPacketsDelta = CollectHelper.subtract(TOTAL_PACKETS_PARAMETER,
 				totalPackets, lastTotalPackets);
-		
+
 		// Setting the error percent
 		if (totalPacketsDelta != null && totalPacketsDelta > 10) {
-			
+
 			// Computing the error count delta
 			final Double errorCountDelta = CollectHelper.subtract(ERROR_COUNT_PARAMETER,
 				errorCount, lastErrorCount);
-			
+
 			if (errorCountDelta != null) {
 				// Computing the error percent
 				final Double errorPercent = Math.min(100 * errorCountDelta / totalPacketsDelta, 100);
-			
+
 				CollectHelper.updateNumberParameter(
 						monitor,
 						ERROR_PERCENT_PARAMETER,
@@ -1924,7 +1750,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Collect the {@link NetworkCard} zero credit buffer count/percent
 	 */
@@ -1934,11 +1760,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the current zero buffer credit count
 		final Double zeroBufferCreditCount = extractParameterValue(monitor.getMonitorType(),
 				ZERO_BUFFER_CREDIT_COUNT_PARAMETER);
-		
+
 		// Getting the previous zero buffer credit count
 		final Double lastZeroBufferCreditCount = CollectHelper.getNumberParamRawValue(monitor,
 			ZERO_BUFFER_CREDIT_COUNT_PARAMETER, true);
-		
+
 		// Setting the zero buffer credit count
 		CollectHelper.updateNumberParameter(
 				monitor,
@@ -1952,11 +1778,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (zeroBufferCreditCount == null || lastZeroBufferCreditCount == null) {
 			return;
 		}
-		
+
 		// Getting the transmitted packets since last collect
 		final Double transmittedPacketsSinceLastCollect = CollectHelper.getNumberParamValue(monitor,
 				USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER);
-		
+
 		if (transmittedPacketsSinceLastCollect == null) {
 			return;
 		}
@@ -1964,7 +1790,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Computing the zero buffer credit delta delta
 		final Double zeroBufferCreditDelta = CollectHelper.subtract(ZERO_BUFFER_CREDIT_COUNT_PARAMETER,
 				zeroBufferCreditCount, lastZeroBufferCreditCount);
-		
+
 		if (zeroBufferCreditDelta != null) {
 			// Setting the zero buffer credit percent
 			final Double lastZeroBufferCreditPercent = 100 * zeroBufferCreditDelta / (zeroBufferCreditDelta + transmittedPacketsSinceLastCollect);
