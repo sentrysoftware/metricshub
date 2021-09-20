@@ -120,20 +120,7 @@ targets:
       timeout: 120
       useSudo: true
       useSudoCommands: [ cmd1, cmd2 ]
-      sudoCommand: "sudo"
-```
-
-#### Example
-
-```
-targets:
-
-- target:
-    hostname: myhost-01
-    type: OOB
-  ipmi:
-    username: myusername
-    password: mypwd
+      sudoCommand: sudo
 ```
 
 ### SSH
@@ -162,10 +149,10 @@ targets:
       timeout: 120
       useSudo: true
       useSudoCommands: [ cmd1, cmd2 ]
-      sudoCommand: "sudo"
-      username: "myusername"
-      password: "mypwd"
-      privateKey: "/tmp/ssh-key.txt"
+      sudoCommand: sudo
+      username: myusername
+      password: mypwd
+      privateKey: /tmp/ssh-key.txt
 
 ```
 
