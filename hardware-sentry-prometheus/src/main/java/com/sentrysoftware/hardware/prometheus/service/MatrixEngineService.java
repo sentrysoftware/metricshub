@@ -273,12 +273,12 @@ public class MatrixEngineService {
 		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
 			new HashMap<>(Stream
 			.of(exporterConfig.getSnmp() != null ? exporterConfig.getSnmp().toProtocol() : null,
-				exporterConfig.getSsh(),
-				exporterConfig.getHttp(),
-				exporterConfig.getWbem(),
-				exporterConfig.getWmi(),
-				exporterConfig.getOsCommand(),
-				exporterConfig.getIpmi())
+				exporterConfig.getSsh() != null ? exporterConfig.getSsh().toProtocol() : null,
+				exporterConfig.getHttp() != null ? exporterConfig.getHttp().toProtocol() : null,
+				exporterConfig.getWbem() != null ? exporterConfig.getWbem().toProtocol() : null,
+				exporterConfig.getWmi() != null ? exporterConfig.getWmi().toProtocol() : null,
+				exporterConfig.getOsCommand() != null ? exporterConfig.getOsCommand().toProtocol() : null,
+				exporterConfig.getIpmi() != null ? exporterConfig.getIpmi().toProtocol() : null)
 			.filter(Objects::nonNull)
 			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 
