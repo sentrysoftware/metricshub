@@ -174,16 +174,6 @@ class MonitorCollectVisitorTest {
 			.statusInformation("status: 0 (Operable)")
 			.build();
 
-	private static IParameterValue statusParamWithIntrusion = StatusParam
-			.builder()
-			.name(STATUS_PARAMETER)
-			.collectTime(collectTime)
-			.state(ParameterState.OK)
-			.unit(STATUS_PARAMETER_UNIT)
-			.statusInformation("status: 0 (Operable)\nintrusionStatus: 0 (No Intrusion Detected)")
-			.build();
-
-
 	@Test
 	void testVisitConcreteConnector() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -470,7 +460,7 @@ class MonitorCollectVisitorTest {
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
-		assertEquals(statusParamWithIntrusion, actual);
+		assertEquals(statusParam, actual);
 	}
 
 	@Test

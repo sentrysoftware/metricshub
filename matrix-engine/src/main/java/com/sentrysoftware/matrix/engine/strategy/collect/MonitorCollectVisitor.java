@@ -393,7 +393,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		appendValuesToStatusParameter(
 				PRESENT_PARAMETER,
 				USAGE_COUNT_PARAMETER,
-				INTRUSION_STATUS_PARAMETER,
 				ENDURANCE_REMAINING_PARAMETER,
 				ERROR_COUNT_PARAMETER,
 				PREDICTED_FAILURE_PARAMETER);
