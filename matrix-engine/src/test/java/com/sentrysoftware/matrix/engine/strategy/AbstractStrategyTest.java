@@ -199,7 +199,7 @@ class AbstractStrategyTest {
 				"source",
 				SourceTable.empty());
 
-		// This only check the behavior for two parallel threads to validate there is no crash.
+		// This only checks the behavior for two parallel threads to validate there is no crash.
 
 		final Future<SourceTable> future1 = threadsPool.submit(callable1);
 		final Future<SourceTable> future2 = threadsPool.submit(callable2);
