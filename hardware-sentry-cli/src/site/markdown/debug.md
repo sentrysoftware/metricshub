@@ -12,13 +12,13 @@ Use the `-d` or `--debug` option to enable the debug mode.
 ###### Example:
 
 ```batch
-$ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d
 ```
 
    or
 
 ```batch
-$ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug
+$ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug
 ```
 
 ###### Result:
@@ -32,11 +32,11 @@ Use the `-o` or `--output` option to specify where the log should be stored.
 ###### Examples:
 
 ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d -o D:/hardware-logs
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector -d -o D:/hardware-logs
 ```
   
 ```batch
-   $ java -jar hardware-sentry-cli-0.9.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug --output D:/hardware-logs
+   $ java -jar ${project.artifactId}-${project.version}.jar --hostname ecs1-01 --device-type LINUX --snmp-version V1 -hdfs MS_HW_DellOpenManage.connector --debug --output D:/hardware-logs
 ```
 
 ###### Result:
