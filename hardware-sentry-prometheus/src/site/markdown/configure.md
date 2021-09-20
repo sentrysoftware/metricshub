@@ -1,4 +1,4 @@
-keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http
+keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
 description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
@@ -11,7 +11,7 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which must be located in the same directory as the `${project.artifactId}-${project.version}.jar` file. The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly.
+<div class="alert alert-danger"><i class="icon-remove-sign"></i><strong>Warning: </strong>This information must be provided in a <b>hardware-sentry-config.yml</b> file. By default, this file <b>MUST</b> be located in the directory from where you launch the <b>${project.artifactId}-${project.version}.jar</b> file. The format, indentation and syntax of the configuration file must be strictly respected for <b>${project.name}</b> to operate correctly.</div>
 
 ## Specifying the target to be monitored
 
@@ -101,17 +101,17 @@ targets:
 
 Use the parameters below to configure the SNMP protocol:
 
-| Parameter        | Description                                                                    |
-| ---------------- | ------------------------------------------------------------------------------ |
-| snmp             | Protocol used to access the target.                                            |
-| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).        |
-| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
-| port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
-| timeout          | How long until the SNMP request times out (default: 120s).                     |
-| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).    |
-| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                  |
-| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
-| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.               |
+| Parameter        | Description                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| snmp             | Protocol used to access the target.                                                                                                                   |
+| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).                                                                               |
+| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                                                                        |
+| port             | The SNMP port number used to perform SNMP queries (Default: 161).                                                                                     |
+| timeout          | How long until the SNMP request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).                                                                                    |
+| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                                                                                         |
+| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                                                                                           |
+| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                                                                                       |
 
 #### Example
 
@@ -125,7 +125,7 @@ targets:
     version: v1
     community: public
     port: 161
-    timeout: 120
+    timeout: 120s
 
 - target:
     hostname: myhost-01
@@ -134,7 +134,7 @@ targets:
     version: v2c
     community: public
     port: 161
-    timeout: 120
+    timeout: 120s
 
 - target:
     hostname: myhost-01
@@ -143,7 +143,7 @@ targets:
     version: v3-md5
     community: public
     port: 161
-    timeout: 120
+    timeout: 120s
     privacy: DES
     privacyPassword: myprivacypwd
     username: myusername
@@ -154,14 +154,14 @@ targets:
 
 Use the parameters below to configure the WBEM protocol:
 
-| Parameter | Description                                                                                    |
-| --------- | ---------------------------------------------------------------------------------------------- |
-| wbem      | Protocol used to access the target.                                                            |
-| protocol  | The protocol used to access the target.                                                        |
-| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP). |
-| timeout   | How long until the WBEM request times out (default: 120s).                                     |
-| username  | Name used to establish the connection with the target via the WBEM protocol.                   |
-| password  | Password used to establish the connection with the target via the WBEM protocol.               |
+| Parameter | Description                                                                                                                                           |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| wbem      | Protocol used to access the target.                                                                                                                   |
+| protocol  | The protocol used to access the target.                                                                                                               |
+| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).                                                        |
+| timeout   | How long until the WBEM request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| username  | Name used to establish the connection with the target via the WBEM protocol.                                                                          |
+| password  | Password used to establish the connection with the target via the WBEM protocol.                                                                      |
 
 #### Example
 
@@ -174,7 +174,7 @@ targets:
     wbem:
       protocol: HTTPS
       port: 5989
-      timeout: 120
+      timeout: 120s
       username: myusername
       password: mypwd
 ```
@@ -183,12 +183,12 @@ targets:
 
 Use the parameters below to configure the WMI protocol:
 
-| Parameter | Description                                                                     |
-| --------- | ------------------------------------------------------------------------------- |
-| wmi       | Protocol used to access the target.                                             |
-| timeout   | How long until the WMI request times out (default: 120s).                       |
-| username  | Name used to establish the connection with the target via the WMI protocol.     |
-| password  | Password used to establish the connection with the target via the WMI protocol. |
+| Parameter | Description                                                                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| wmi       | Protocol used to access the target.                                                                                                                  |
+| timeout   | How long until the WMI request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| username  | Name used to establish the connection with the target via the WMI protocol.                                                                          |
+| password  | Password used to establish the connection with the target via the WMI protocol.                                                                      |
 
 #### Example
 
@@ -199,7 +199,7 @@ targets:
       hostname: myhost-01
       type: WIN
     wmi:
-      timeout: 120
+      timeout: 120s
       username: myusername
       password: mypwd
 ```
@@ -226,7 +226,7 @@ targets:
       hostname: myhost-01
       type: WIN
     wmi:
-      timeout: 120
+      timeout: 120s
       username: myusername
       password: mypwd
     selectedConnectors: [ VMwareESX4i, VMwareESXi ]
@@ -254,8 +254,20 @@ targets:
     wbem:
       protocol: HTTPS
       port: 5989
-      timeout: 120
+      timeout: 120s
       username: myusername
       password: mypwd
     unknownStatus: WARN
 ```
+### Configuring Timeout Durations
+
+**${project.name}** supports the Prometheus time duration formats.Timeout durations are specified as a number, immetidatly followed by one or a combination of the following units:
+
+| Unit | Description                     | Examples         |
+| ---- | ------------------------------- | ---------------- |
+| s    | seconds                         | 120s (default)   |
+| m    | minutes                         | 90m, 30m15s      |
+| h    | hours                           | 1h, 1h30m        |
+| d    | days (based on a 24-hour day)   | 1d, 2d5h45m15s   |
+| w    | weeks (based on a 7-day week)   | 1w, 1w2d3h15m20s |
+| y    | years (based on a 365-day year) | 1y, 1y1w1h30m10s |
