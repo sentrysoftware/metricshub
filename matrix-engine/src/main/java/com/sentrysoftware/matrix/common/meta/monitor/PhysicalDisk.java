@@ -8,8 +8,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
@@ -47,13 +45,6 @@ import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 public class PhysicalDisk implements IMetaMonitor {
-
-	public static final MetaParameter INTRUSION_STATUS = MetaParameter.builder()
-			.basicCollect(true)
-			.name(INTRUSION_STATUS_PARAMETER)
-			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
-			.build();
 
 	public static final MetaParameter ENDURANCE_REMAINING = MetaParameter.builder()
 			.basicCollect(false)
@@ -103,7 +94,6 @@ public class PhysicalDisk implements IMetaMonitor {
 
 		map.put(STATUS_PARAMETER, STATUS);
 		map.put(PRESENT_PARAMETER, PRESENT);
-		map.put(INTRUSION_STATUS_PARAMETER, INTRUSION_STATUS);
 		map.put(ENDURANCE_REMAINING_PARAMETER, ENDURANCE_REMAINING);
 		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(ENERGY_PARAMETER, ENERGY);

@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.model.monitoring;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
@@ -20,6 +21,9 @@ public class ConnectorNamespace {
 	private String automaticWmiNamespace;
 
 	private String automaticWbemNamespace;
+
+	@Default
+	private ReentrantLock forceSerializationLock = new ReentrantLock(true);
 
 	public void addSourceTable(@NonNull String key, @NonNull SourceTable sourceTable) {
 		sourceTables.put(key, sourceTable);
