@@ -231,7 +231,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param connector The {@link Connector} defining the criterion
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
-	CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
+	protected CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
 
 		final CriterionVisitor criterionVisitor = new CriterionVisitor(strategyConfig,
 				matsyaClientsExecutor,
@@ -269,7 +269,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param defaultValue the default value to return in case of any glitch
 	 * @return T instance
 	 */
-	<T> T forceSerialization(@NonNull Supplier<T> executable, @NonNull final Connector connector,
+	protected <T> T forceSerialization(@NonNull Supplier<T> executable, @NonNull final Connector connector,
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
