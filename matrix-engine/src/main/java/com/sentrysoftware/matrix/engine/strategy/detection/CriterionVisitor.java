@@ -1,20 +1,20 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import java.io.File;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -38,7 +38,6 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
@@ -48,6 +47,7 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.NamespaceResult;
@@ -59,9 +59,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Slf4j
 @AllArgsConstructor
@@ -511,142 +508,43 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final OSCommand osCommand) {
-		if (osCommand == null) {
+		if (osCommand == null || osCommand.getCommandLine() == null) {
 			return CriterionTestResult.error(osCommand, "Malformed OSCommand criterion.");
 		}
 
-		if (osCommand.getCommandLine() == null || osCommand.getCommandLine().isEmpty() ||
+		if (osCommand.getCommandLine().isEmpty() ||
 				osCommand.getExpectedResult() == null || osCommand.getExpectedResult().isEmpty()) {
 			return CriterionTestResult.success(osCommand, "CommandLine or ExpectedResult are empty. Skipping this test.");
 		}
 
-		final boolean isLocalhost = strategyConfig.getHostMonitoring().isLocalhost();
 
-		final IProtocolConfiguration protocolConfiguration = strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
-				!isLocalhost && strategyConfig.getEngineConfiguration().getTarget().getType() == TargetType.MS_WINDOWS ?
-						WMIProtocol.class :
-							SSHProtocol.class);
-
-		final Optional<String> maybeUsername = OsCommandHelper.getUsername(
-				protocolConfiguration);
-
-		// If remote command and no username
-		if ((maybeUsername.isEmpty() || maybeUsername.get().trim().isEmpty() ) &&
-				!osCommand.isExecuteLocally() && !isLocalhost) {
-			return CriterionTestResult.error(osCommand, "No credentials provided.");
-		}
-
-		final OSCommandConfig osCommandConfig =
-				(OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(
-						OSCommandConfig.class);
-
-		final int timeout = OsCommandHelper.getTimeout(
-				osCommand.getTimeout(),
-				osCommandConfig,
-				protocolConfiguration,
-				strategyConfig.getEngineConfiguration().getOperationTimeout());
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
-		final String updatedHostnameCommand = osCommand.getCommandLine().replaceAll(
-				OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.HOSTNAME_MACRO),
-				hostname);
-
-		final String updatedSudoCommand = OsCommandHelper.replaceSudo(
-				updatedHostnameCommand,
-				osCommandConfig);
-
-		final Map<String, File> embeddedFiles;
 		try {
-			embeddedFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
+			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
 					osCommand.getCommandLine(),
+					strategyConfig.getEngineConfiguration(),
 					connector.getEmbeddedFiles(),
-					osCommandConfig);
-		} catch (final IOException e) {
-			return CriterionTestResult.error(osCommand, e);
-		}
-
-		final String updatedEmbeddedFilesCommand = embeddedFiles.entrySet().stream()
-				.reduce(
-						updatedSudoCommand,
-						(s, enty) -> s.replaceAll(
-								OsCommandHelper.toCaseInsensitiveRegex(enty.getKey()),
-								Matcher.quoteReplacement(enty.getValue().getAbsolutePath())),
-						(s1, s2) -> null);
-
-		final String updatedCommand = maybeUsername
-				.map(username -> updatedEmbeddedFilesCommand.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.USERNAME_MACRO),
-						username))
-				.orElse(updatedEmbeddedFilesCommand);
-
-		final Optional<char[]> maybePassword = OsCommandHelper.getPassword(protocolConfiguration);
-
-		final String command = maybePassword
-				.map(password -> updatedCommand.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO),
-						String.valueOf(password)))
-				.orElse(updatedCommand);
-
-		final String noPasswordCommand = maybePassword
-				.map(password -> updatedCommand.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO),
-						"********"))
-				.orElse(updatedCommand);
-
-		try {
-			final String commandResult;
-
-			// Case local execution or command intended for a remote host but executed locally
-			if (HardwareConstants.LOCALHOST.equalsIgnoreCase(hostname) || osCommand.isExecuteLocally()) {
-				final String localCommandResult = OsCommandHelper.runLocalCommand(
-						command,
-						timeout,
-						noPasswordCommand);
-				commandResult = localCommandResult != null ?
-						localCommandResult :
-							HardwareConstants.EMPTY;
-
-			// Case Windows Remote
-			} else if (strategyConfig.getEngineConfiguration().getTarget().getType() == TargetType.MS_WINDOWS) {
-				final WMIProtocol  wmiProtocol = (WMIProtocol) protocolConfiguration;
-				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
-						command,
-						hostname,
-						wmiProtocol.getUsername(),
-						wmiProtocol.getPassword(),
-						timeout,
-						embeddedFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
-
-			// Case others (Linux) Remote
-			} else {
-				commandResult = OsCommandHelper.runSshCommand(
-						command,
-						hostname,
-						(SSHProtocol) protocolConfiguration,
-						timeout,
-						embeddedFiles.values().stream().collect(Collectors.toList()),
-						noPasswordCommand);
-			}
+					osCommand.getTimeout(),
+					osCommand.isExecuteLocally(),
+					strategyConfig.getHostMonitoring().isLocalhost());
 
 			final OSCommand osCommandNoPassword = OSCommand.builder()
-					.commandLine(noPasswordCommand)
+					.commandLine(osCommandResult.getNoPasswordCommand())
 					.executeLocally(osCommand.isExecuteLocally())
 					.timeout(osCommand.getTimeout())
 					.expectedResult(osCommand.getExpectedResult())
 					.build();
 
 			final Matcher matcher = Pattern
-					.compile(osCommand.getExpectedResult())
-					.matcher(commandResult);
-			return matcher.find() ?
-					CriterionTestResult.success(osCommandNoPassword, commandResult) :
-						CriterionTestResult.failure(osCommandNoPassword, commandResult);
+					.compile(PslUtils.psl2JavaRegex(osCommand.getExpectedResult()))
+					.matcher(osCommandResult.getResult());
+			return matcher.find()?
+					CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult()) :
+						CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
 
-		} catch (final Exception e) {
+		} catch(NoCredentialProvidedException e) {
+			return CriterionTestResult.error(osCommand, e.getMessage());
+		} catch (Exception e) {
 			return CriterionTestResult.error(osCommand, e);
-		} finally {
-			embeddedFiles.values().forEach(File::delete);
 		}
 	}
 

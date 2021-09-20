@@ -8,6 +8,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
@@ -55,6 +57,7 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
@@ -220,7 +223,88 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitOSCommandSource() {
+		assertEquals(SourceTable.empty(), sourceVisitor.visit((OSCommandSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new OSCommandSource()));
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(OSCommandSource.builder().commandLine("").build()));
+
+		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
+		final String keepOnlyRegExp = ":ext_bus:";
+		final String separators = ":";
+		final List<String> selectColumns = List.of("2-4", "5", "6");
+
+		final OSCommandSource commandSource = new OSCommandSource();
+		commandSource.setCommandLine(commandLine);
+		commandSource.setKeepOnlyRegExp(keepOnlyRegExp);
+		commandSource.setSeparators(separators);
+		commandSource.setSelectColumns(selectColumns);
+
+		final HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(true);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		doReturn(null).when(connector).getEmbeddedFiles();
+		
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine, 
+					engineConfiguration,
+					null, 
+					null, 
+					false, 
+					hostMonitoring.isLocalhost())).thenThrow(NoCredentialProvidedException.class);
+			
+			assertEquals(SourceTable.empty(), sourceVisitor.visit(commandSource));
+		}
+		
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine, 
+					engineConfiguration, 
+					null, 
+					null, 
+					false, 
+					hostMonitoring.isLocalhost())).thenThrow(IOException.class);
+			
+			assertEquals(SourceTable.empty(), sourceVisitor.visit(commandSource));
+		}
+		
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+
+			final String result = 
+					"xxxxxx\n"
+					+ "xxxxxx\n"
+					+ "0:1:ext_bus:3:4:5:6:7:8\n"
+					+ "xxxxxx\n"
+					+ "xxxxxx\n";
+			final OsCommandResult commandResult = new OsCommandResult(result, commandLine);
+			
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine, 
+					engineConfiguration, 
+					null, 
+					null, 
+					false, 
+					hostMonitoring.isLocalhost())).thenReturn(commandResult);
+			
+			mockedOsCommandHelper.when(() -> OsCommandHelper.filterLines(
+					List.of("xxxxxx", "xxxxxx", "0:1:ext_bus:3:4:5:6:7:8", "xxxxxx", "xxxxxx"),
+					null,
+					null,
+					null,
+					keepOnlyRegExp)).thenCallRealMethod();
+			
+			mockedOsCommandHelper.when(() -> OsCommandHelper.selectedColumns(
+					List.of("0:1:ext_bus:3:4:5:6:7:8"),
+					":",
+					selectColumns)).thenCallRealMethod();
+
+			final SourceTable expected = SourceTable.builder()
+					.rawData("1;ext_bus;3;4;5;")
+					.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
+					.build();
+			assertEquals(expected, sourceVisitor.visit(commandSource));
+		}
 	}
 
 	@Test

@@ -11,7 +11,7 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which must be located in the same directory as the `hardware-sentry-prometheus-<version>.jar` file. The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly.
+This information must be provided in a `hardware-sentry-config.yml` file, which must be located in the same directory as the `${project.artifactId}-${project.version}.jar` file. The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate properly.
 
 ## Specifying the target to be monitored
 
@@ -66,7 +66,7 @@ targets:
 
   - target:
       hostname: myhost-01
-      type: STORAGE
+      type: storage
     http:
       https: true
       port: 443
@@ -97,6 +97,65 @@ targets:
     password: mypwd
 ```
 
+### OS Commands
+
+Use the parameters below to configure OS Commands:
+
+| Parameter       | Description                                                           |
+| --------------- | --------------------------------------------------------------------- |
+| osCommand       | Protocol used to access the target.                                   |
+| timeout         | How long until the local OS Commands time out (default: 120s).        |
+| useSudo         | Whether sudo is used or not for the local OS Command (true or false). |
+| useSudoCommands | List of commands for which sudo is required.                          |
+| sudoCommand     | Sudo command to be used (Default: sudo).                              |
+
+#### Example
+
+```
+targets:
+  - target:
+      hostname: myhost-01
+      type: linux
+    osCommand:
+      timeout: 120
+      useSudo: true
+      useSudoCommands: [ cmd1, cmd2 ]
+      sudoCommand: sudo
+```
+
+### SSH
+
+Use the parameters below to configure the SSH protocol:
+
+| Parameter       | Description                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| ssh             | Protocol used to access the target.                                                      |
+| timeout         | How long until the SNMP request times out (default: 120s).                               |
+| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                         |
+| useSudoCommands | List of commands for which sudo is required.                                             |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                 |
+| username        | Name to use for performing the SSH query.                                                |
+| password        | Password to use for performing the SSH query.                                            |
+| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol |
+
+#### Example
+
+```
+targets:
+  - target:
+      hostname: myhost-01
+      type: linux
+    ssh:
+      timeout: 120
+      useSudo: true
+      useSudoCommands: [ cmd1, cmd2 ]
+      sudoCommand: sudo
+      username: myusername
+      password: mypwd
+      privateKey: /tmp/ssh-key.txt
+
+```
+
 ### SNMP
 
 Use the parameters below to configure the SNMP protocol:
@@ -108,10 +167,10 @@ Use the parameters below to configure the SNMP protocol:
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
 | timeout          | How long until the SNMP request times out (default: 120s).                     |
-| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).    |
+| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).             |
 | privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                  |
 | username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
-| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.               |
+| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                |
 
 #### Example
 

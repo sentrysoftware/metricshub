@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -50,8 +49,6 @@ class SourceUpdaterVisitorTest {
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
 	private static final String VALUE_TABLE = "enclosure.collect.source(1)";
 	private static final String DEVICE_ID = "deviceId";
-	private static final String EMBEDDED_FILE_CODE_CONTENT_1 = "showplatform -v,13,14";
-	private static final String EMBEDDED_FILE_CODE_CONTENT_2 = "showenvironment,7,8";
 	private static final String VALUE_VAL1 = "val1";
 	private static final String CONNECTOR_NAME = "connector";
 
@@ -74,9 +71,6 @@ class SourceUpdaterVisitorTest {
 	private SourceUpdaterVisitor sourceUpdaterVisitor;
 
 	private static Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-	private static EmbeddedFile embeddedFile1 = EmbeddedFile.builder().content(EMBEDDED_FILE_CODE_CONTENT_1).build();
-	private static EmbeddedFile embeddedFile2 = EmbeddedFile.builder().content(EMBEDDED_FILE_CODE_CONTENT_2).build();
 
 	@BeforeAll
 	public static void setUp() {
@@ -208,8 +202,14 @@ class SourceUpdaterVisitorTest {
 
 	@Test
 	void testVisitOSCommandSource() {
+
+		doReturn(Map.of(DEVICE_ID, "id")).when(monitor).getMetadata();
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(OSCommandSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(OSCommandSource.builder().commandLine("cmd --version").build()));
+
+		assertEquals(
+				SourceTable.empty(), 
+				new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(OSCommandSource.builder()
+						.commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()));
 	}
 
 	@Test
@@ -348,37 +348,6 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
-	void testReplaceEmbeddedFilesInOsCommandLine() {
-
-		{
-			// No embedded file in the connector
-			final OSCommandSource osCommandSource = buildOSCommandSource("pw system version %EmbeddedFile(1)% and %EmbeddedFile(2)%");
-			doReturn(Collections.emptyMap()).when(connector).getEmbeddedFiles();
-			sourceUpdaterVisitor.replaceEmbeddedFilesInOsCommandLine(osCommandSource, connector);
-
-			assertEquals("pw system version %EmbeddedFile(1)% and %EmbeddedFile(2)%", osCommandSource.getCommandLine());
-		}
-
-		{
-			// No replacements
-			final OSCommandSource osCommandSource = buildOSCommandSource("pw system version");
-			doReturn(Map.of(1, embeddedFile1, 2, embeddedFile2)).when(connector).getEmbeddedFiles();
-			sourceUpdaterVisitor.replaceEmbeddedFilesInOsCommandLine(osCommandSource, connector);
-
-			assertEquals("pw system version", osCommandSource.getCommandLine());
-		}
-
-		{
-			final OSCommandSource osCommandSource = buildOSCommandSource("pw system version %EmbeddedFile(1)% and %EmbeddedFile(2)%");
-			doReturn(Map.of(1, embeddedFile1, 2, embeddedFile2)).when(connector).getEmbeddedFiles();
-			sourceUpdaterVisitor.replaceEmbeddedFilesInOsCommandLine(osCommandSource, connector);
-
-			assertEquals("pw system version "+ EMBEDDED_FILE_CODE_CONTENT_1 + " and " + EMBEDDED_FILE_CODE_CONTENT_2, osCommandSource.getCommandLine());
-		}
-
-	}
-
-	@Test
 	void testExtractHttpTokenFromSource() {
 
 		{
@@ -475,15 +444,6 @@ class SourceUpdaterVisitorTest {
 					AUTHENTICATION_TOKEN_FIELD);
 			assertEquals("token", value);
 		}
-	}
-
-	private static OSCommandSource buildOSCommandSource(final String commandLine) {
-		return OSCommandSource
-				.builder()
-				.commandLine(commandLine)
-				.key(VALUE_TABLE)
-				.computes(Collections.emptyList())
-				.build();
 	}
 
 	private static SNMPGetTableSource buildSNMPGetTableSource(final String oid) {

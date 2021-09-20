@@ -29,26 +29,29 @@ public class AwkScriptProcessor extends AwkProcessor {
 
 		super.parse(key, value, connector);
 
-		Matcher embeddedFileMatcher = EMBEDDED_PATTERN.matcher(value);
-		embeddedFileMatcher.find();
+		final Matcher embeddedFileMatcher = EMBEDDED_PATTERN.matcher(value);
+		if (embeddedFileMatcher.find()) {
+			int embeddedFileIndex;
 
-		int embeddedFileIndex;
+			try {
+				embeddedFileIndex = Integer.parseInt(embeddedFileMatcher.group(1));
+			} catch(NumberFormatException e) {
+				throw new IllegalStateException(
+						"AwkScriptProcessor parse: Could not instantiate EmbeddedFile from Source ("
+								+ value
+								+ "): "
+								+ e.getMessage());
+			}
 
-		try {
-			embeddedFileIndex = Integer.parseInt(embeddedFileMatcher.group(1));
-		} catch(NumberFormatException e) {
-			throw new IllegalStateException(
-					"AwkScriptProcessor parse: Could not instantiate EmbeddedFile from Source ("
-							+ value
-							+ "): "
-							+ e.getMessage());
+			EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
+
+			Assert.state(embeddedFile != null, () -> "AwkScriptProcessor parse: Could not find EmbeddedFile in Source (" + value + ")");
+
+			((Awk) getCompute(key, connector)).setAwkScript(embeddedFile);
+		} else {
+			((Awk) getCompute(key, connector)).setAwkScript(
+					EmbeddedFile.builder().content(value).build());
 		}
-
-		EmbeddedFile embeddedFile = connector.getEmbeddedFiles().get(embeddedFileIndex);
-
-		Assert.state(embeddedFile != null, () -> "AwkScriptProcessor parse: Could not find EmbeddedFile in Source (" + value + ")");
-
-		((Awk) getCompute(key, connector)).setAwkScript(embeddedFile);
 	}
 
 }
