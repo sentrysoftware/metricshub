@@ -31,16 +31,16 @@ where:
 - `<hostname>` corresponds to the name of the target, or its IP address
 - `<target-type>` corresponds to the operating system or the type of the target to be monitored. Possible values are:
 
-    - `HP_OPEN_VMS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
-    - `HP_TRU64_UNIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    - `HP_UX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    - `IBM_AIX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    - `LINUX` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    - `MGMT_CARD_BLADE_ESXI` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    - `MS_WINDOWS` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    - `NETWORK_SWITCH` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank">network devices</a>
-    - `STORAGE` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    - `SUN_SOLARIS` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#oracle-solaris" target="_blank">Oracle solaris systems</a>
+    - `win` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
+    - `linux` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
+    - `network` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank">network devices</a>
+    - `oob` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
+    - `storage` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
+    - `tru64` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
+    - `hpux` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
+    - `aix` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
+    - `solaris` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#oracle-solaris" target="_blank">Oracle solaris systems</a>
+    - `vms` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
 
 * `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
@@ -104,14 +104,14 @@ Use the parameters below to configure the SNMP protocol:
 | Parameter        | Description                                                                    |
 | ---------------- | ------------------------------------------------------------------------------ |
 | snmp             | Protocol used to access the target.                                            |
-| version          | The version of the SNMP protocol (V1, V2c, V3_no_auth, V3_md5, V3_sha).        |
+| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).        |
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
 | timeout          | How long until the SNMP request times out (default: 120s).                     |
-| privacy          | _SNMP V3 only_ - The type of encryption protocol (NO_ENCRYPTION, AES, DES).    |
-| privacy password | _SNMP V3 only_ - Password associated to the privacy protocol.                  |
-| username         | _SNMP V3 only_ - Name to use for performing the SNMP query.                    |
-| password         | _SNMP V3 only_ - Password to use for performing the SNMP query.                |
+| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).    |
+| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                  |
+| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
+| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.               |
 
 #### Example
 
@@ -122,7 +122,7 @@ targets:
     hostname: myhost-01
     type: LINUX
   snmp:
-    version: V1
+    version: v1
     community: public
     port: 161
     timeout: 120
@@ -131,7 +131,7 @@ targets:
     hostname: myhost-01
     type: LINUX
   snmp:
-    version: V2c
+    version: v2c
     community: public
     port: 161
     timeout: 120
@@ -140,7 +140,7 @@ targets:
     hostname: myhost-01
     type: LINUX
   snmp:
-    version: v3_md5
+    version: v3-md5
     community: public
     port: 161
     timeout: 120
@@ -237,7 +237,7 @@ The exhaustive list of connectors is available in the <a href="https://www.sentr
 
 ### Configuring the Unknown Status
 
-On rare occasions, **${project.name}** may collect an unexpected value from a Monitor and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
+On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
 
 - **OK** to expose the value **0**
 - **WARN** to expose the value **1**
