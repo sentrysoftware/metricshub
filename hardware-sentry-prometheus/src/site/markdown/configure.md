@@ -11,7 +11,9 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-<div class="alert alert-danger"><i class="icon-remove-sign"></i><strong>Warning: </strong>This information must be provided in a <b>hardware-sentry-config.yml</b> file. By default, this file <b>MUST</b> be located in the directory from where you launch the <b>${project.artifactId}-${project.version}.jar</b> file. The format, indentation and syntax of the configuration file must be strictly respected for <b>${project.name}</b> to operate correctly.</div>
+This information must be provided in a `hardware-sentry-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html ) while running ${project.description}.
+
+The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
 
 ## Specifying the target to be monitored
 
@@ -261,7 +263,7 @@ targets:
 ```
 ### Configuring Timeout Durations
 
-**${project.name}** supports the Prometheus time duration formats.Timeout durations are specified as a number, immetidatly followed by one or a combination of the following units:
+**${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:
 
 | Unit | Description                     | Examples         |
 | ---- | ------------------------------- | ---------------- |
