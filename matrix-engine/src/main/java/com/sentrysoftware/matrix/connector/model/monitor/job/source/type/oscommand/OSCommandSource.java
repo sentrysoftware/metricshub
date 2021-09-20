@@ -1,7 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_TAB;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
@@ -13,8 +16,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_TAB;
 
 @Data
 @NoArgsConstructor
@@ -57,4 +58,26 @@ public class OSCommandSource extends Source {
 		return sourceVisitor.visit(this);
 	}
 
+	/**
+	 * Copy the current instance
+	 * 
+	 * @return new {@link OSCommandSource} instance
+	 */
+	public OSCommandSource copy() {
+		return OSCommandSource.builder()
+				.commandLine(commandLine)
+				.computes(getComputes() != null ? getComputes().stream().collect(Collectors.toList()) : null)
+				.executeLocally(executeLocally)
+				.excludeRegExp(excludeRegExp)
+				.forceSerialization(isForceSerialization())
+				.index(getIndex() != null ? getIndex() : 0)
+				.keepOnlyRegExp(keepOnlyRegExp)
+				.key(getKey())
+				.removeFooter(removeFooter)
+				.removeHeader(removeHeader)
+				.selectColumns(selectColumns)
+				.separators(separators)
+				.timeout(timeout)
+				.build();
+	}
 }

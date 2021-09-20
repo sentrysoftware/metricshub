@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.ipmi.ConnectorIpmiProperty;
+import com.sentrysoftware.matrix.connector.parser.state.source.oscommand.ConnectorOsCommandProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.reference.ConnectorReferenceProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.snmpget.ConnectorSnmpGetProperty;
 import com.sentrysoftware.matrix.connector.parser.state.source.snmptable.ConnectorSnmpTableProperty;
@@ -30,6 +31,7 @@ public class ConnectorSourceProperty {
 				ConnectorWmiProperty.getConnectorProperties(),
 				ConnectorHttpProperty.getConnectorProperties(),
 				ConnectorReferenceProperty.getConnectorProperties(),
+				ConnectorOsCommandProperty.getConnectorProperties(),
 				ConnectorIpmiProperty.getConnectorProperties())
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());

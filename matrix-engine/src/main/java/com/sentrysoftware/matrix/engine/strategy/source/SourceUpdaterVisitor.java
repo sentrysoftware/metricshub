@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -10,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
@@ -29,7 +31,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -38,9 +39,6 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @Slf4j
@@ -236,8 +234,16 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
-		replaceEmbeddedFilesInOsCommandLine(osCommandSource, connector);
-		return osCommandSource.accept(sourceVisitor);
+
+		// We must copy the source so that we don't modify the original source 
+		// which needs to be passed for each monitor when running the mono instance collect.
+		final OSCommandSource copy = osCommandSource.copy();
+		if (monitor != null) {
+			copy.setCommandLine(
+					replaceDeviceId(osCommandSource.getCommandLine(), monitor));
+		}
+
+		return copy.accept(sourceVisitor);
 	}
 
 	@Override
@@ -314,25 +320,6 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	public SourceTable visit(final WMISource wmiSource) {
 		
 		return wmiSource.accept(sourceVisitor);
-	}
-
-	/**
-	 * Replace the content of the EmbeddedFiles in the command line of the given {@link OSCommandSource}
-	 * 
-	 * @param osCommandSource The {@link OSCommandSource} we wish to update
-	 * @param connector       The connector defining all the {@link EmbeddedFile} instances
-	 */
-	void replaceEmbeddedFilesInOsCommandLine(@NonNull final OSCommandSource osCommandSource, @NonNull final Connector connector) {
-		Assert.notNull(osCommandSource.getCommandLine(), "osCommandSource CommandLine cannot be null.");
-
-		// Nothing to replace
-		if (connector.getEmbeddedFiles().isEmpty()) {
-			return;
-		}
-
-		osCommandSource.setCommandLine(OsCommandHelper
-				.updateOsCommandEmbeddedFile(osCommandSource.getCommandLine(), connector));
-
 	}
 
 	/**
