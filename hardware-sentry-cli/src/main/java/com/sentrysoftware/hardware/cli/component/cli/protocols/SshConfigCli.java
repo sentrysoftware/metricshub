@@ -56,7 +56,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 			names = "--ssh-timeout",
 			order = 5,
 			paramLabel = "TIMEOUT",
-			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)",
+			description = "Timeout in seconds for SSH operations (default: ${DEFAULT-VALUE} s)",
 			defaultValue = "" + DEFAULT_TIMEOUT
 	)
 	private long timeout;
@@ -87,6 +87,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 				.password(username == null ? defaultPassword : password)
 				.privateKey(privateKey)
 				.useSudoCommands(useSudoCommands)
+				.useSudo(true)
 				.sudoCommand(sudoCommand)
 				.timeout(timeout)
 				.build();

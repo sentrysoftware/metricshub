@@ -57,7 +57,7 @@ goto error
 @REM Ready to execute
 :init
 
-set HWS_JAR="%HWS_HOME%"\lib\${project.artifactId}-${project.version}.jar
+set HWS_JAR=%HWS_HOME%\lib\${project.artifactId}-${project.version}.jar
 
 "%JAVACMD%" %HWS_JAVA_OPTS% -jar "%HWS_JAR%" %*
 if ERRORLEVEL 1 goto error

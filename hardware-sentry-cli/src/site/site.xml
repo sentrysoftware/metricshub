@@ -10,7 +10,7 @@
 	<custom>
 		<projectVersion>${project.version}</projectVersion>
 		<bodyClass>sentry-hardware</bodyClass>
-		<keywords>hardware,cli</keywords>
+		<keywords>hardware,cli,tool,command,shell,matrix,hws</keywords>
 		<publishDate>${timestamp}</publishDate>
 		<noDefaultLinks>true</noDefaultLinks>
 	</custom>
@@ -18,21 +18,19 @@
 	<body>
 
 		<menu name="Getting Started">
-			<!--<item name="Release Notes" href="release-notes.html" / -->	
-			<item name="What is ${project.name}?" href="index.html"/>
-			<item name="Prerequisites" href="prerequisites.html"/>
-			<item name="Getting the Installation Packages" href="install.html"/>
+			<!--<item name="Release Notes" href="release-notes.html" / -->
+			<item name="Overview" href="index.html"/>
+			<item name="Install" href="install.html"/>
 		</menu>
 
 		<menu name="Using the CLI">
-			<item name="Running Hardware Sentry CLI" href="running-hardware-sentry-cli.html"/>
-			<item name="Getting Help" href="help.html"/>
-			<item name="Generating Logs" href="debug.html"/>
+			<item name="Execute" href="execute.html"/>
+			<item name="Troubleshoot" href="troubleshoot.html"/>
 		</menu>
-		
+
 		<menu name="Appendix">
-			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
+			<item name="Supported Platforms &lt;i class='fas fa-external-link-alt'&gt;&lt;/i&gt;" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank" />
 		</menu>
-		
+
 	</body>
 </project>

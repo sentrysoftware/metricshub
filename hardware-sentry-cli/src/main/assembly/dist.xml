@@ -29,7 +29,7 @@
 			<filtered>true</filtered>
 		</file>
 
-		<!-- Our Windows script -->
+		<!-- Our JAR -->
 		<file>
 			<source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
 			<outputDirectory>lib</outputDirectory>

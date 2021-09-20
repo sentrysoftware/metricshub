@@ -166,7 +166,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			order = 4,
 			split = ",",
 			paramLabel = "CONNECTOR",
-			description = "Force selected hardware connectors to connect to the target"
+			description = "Force selected hardware connectors to connect to the target (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	private Set<String> connectors;
 
@@ -175,7 +175,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			order = 5,
 			split = ",",
 			paramLabel = "CONNECTOR",
-			description = "Exclude connectors from the automatic detection process"
+			description = "Exclude connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	private Set<String> excludedConnectors;
 
