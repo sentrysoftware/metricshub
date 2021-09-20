@@ -46,7 +46,7 @@ public class Led implements IMetaMonitor {
 		.build();
 
 	public static final MetaParameter LED_INDICATOR = MetaParameter.builder()
-			.basicCollect(true)
+			.basicCollect(false)
 			.name(LED_INDICATOR_PARAMETER)
 			.unit(LED_INDICATOR_PARAMETER_UNIT)
 			.type(ParameterType.STATUS)

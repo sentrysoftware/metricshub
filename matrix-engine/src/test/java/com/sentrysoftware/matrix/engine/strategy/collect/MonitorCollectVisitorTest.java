@@ -13,6 +13,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
@@ -345,7 +346,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.state(ParameterState.OK)
 			.unit(STATUS_PARAMETER_UNIT)
-			.statusInformation("status: 0 (OK)")
+			.statusInformation("status: 0 (OK)\nledIndicator: 0 (OK)")
 			.build();
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
@@ -2336,7 +2337,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectLedStatus() {
+	void testCollectLedStatusAndLedIndicatorStatus() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
@@ -2351,8 +2352,9 @@ class MonitorCollectVisitorTest {
 				monitor,
 				row)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		assertNull(monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class));
 
 		// statusRaw.equals("on")
 		List<String> customRow = new ArrayList<>(row);
@@ -2363,8 +2365,11 @@ class MonitorCollectVisitorTest {
 				monitor,
 				customRow)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		StatusParam ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.ALARM, ledIndicatorParameter.getState());
 
 		// statusRaw.equals("blinking"), no blinking status metadata
 		customRow = new ArrayList<>(row);
@@ -2375,15 +2380,21 @@ class MonitorCollectVisitorTest {
 				monitor,
 				customRow)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.WARN, ledIndicatorParameter.getState());
 
 		// statusRaw.equals("blinking"), blinking status meta data found
 		monitor.addMetadata("blinkingstatus", "WARN");
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		StatusParam statusParameter = monitor.getParameter(STATUS_PARAMETER, StatusParam.class);
 		assertNotNull(statusParameter);
 		assertEquals(ParameterState.WARN, statusParameter.getState());
+		ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.WARN, ledIndicatorParameter.getState());
 	}
 
 	@Test
