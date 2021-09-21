@@ -327,7 +327,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.state(ParameterState.OK)
 			.unit(STATUS_PARAMETER_UNIT)
-			.statusInformation("status: 0 (OK)\nledIndicator: 0 (OK)")
+			.statusInformation("status: 0 (OK)")
 			.build();
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
