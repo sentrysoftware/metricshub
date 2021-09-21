@@ -40,11 +40,6 @@ public class StatusParam extends AbstractParam {
 	}
 
 	@Override
-	public String formatValueAsString() {
-		return statusInformation;
-	}
-
-	@Override
 	public Number numberValue() {
 		return status;
 	}

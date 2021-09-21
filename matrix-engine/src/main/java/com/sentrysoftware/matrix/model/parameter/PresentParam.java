@@ -1,13 +1,13 @@
 package com.sentrysoftware.matrix.model.parameter;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER_UNIT;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER_UNIT;
 
 @Data
 @NoArgsConstructor
@@ -35,14 +35,6 @@ public class PresentParam extends AbstractParam {
 	@Override
 	public void reset() {
 		// Do nothing
-	}
-
-	@Override
-	public String formatValueAsString() {
-
-		return present == 1
-			? "present: 1 (Present)"
-			: "present: 0 (Missing)";
 	}
 
 	/**
