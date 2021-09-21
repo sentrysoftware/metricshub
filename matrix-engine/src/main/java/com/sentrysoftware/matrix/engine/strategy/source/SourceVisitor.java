@@ -352,6 +352,10 @@ public class SourceVisitor implements ISourceVisitor {
 
 		sourceTable.setTable(table);
 
+		if (origin.getRawData() != null) {
+			sourceTable.setRawData(origin.getRawData());
+		}
+
 		return sourceTable;
 	}
 

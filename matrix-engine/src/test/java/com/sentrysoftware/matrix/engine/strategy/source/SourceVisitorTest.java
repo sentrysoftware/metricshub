@@ -320,6 +320,7 @@ class SourceVisitorTest {
 
 		SourceTable table = SourceTable.builder()
 				.table(expectedTable)
+				.rawData("rawData")
 				.build();
 
 		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
