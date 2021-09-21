@@ -6,7 +6,7 @@ import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class WmiConfig implements IProtocolConfig {
+public class WmiConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -20,6 +20,7 @@ public class WmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--wmi-username",
 			order = 2,
+			paramLabel = "USER",
 			description = "Username for WMI authentication"
 	)
 	private String username;
@@ -27,6 +28,7 @@ public class WmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--wmi-password",
 			order = 3,
+			paramLabel = "P4SSW0RD",
 			description = "Password for WMI authentication",
 			interactive = true,
 			arity = "0..1"
@@ -36,6 +38,7 @@ public class WmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--wmi-timeout",
 			order = 4,
+			paramLabel = "TIMEOUT",
 			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)"
 	)
@@ -44,6 +47,7 @@ public class WmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--wmi-force-namespace",
 			order = 5,
+			paramLabel = "NAMESPACE",
 			description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	private String namespace;

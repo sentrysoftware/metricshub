@@ -20,7 +20,7 @@ class IpmiConfigTest {
 	void testNoIpmi() {
 		HardwareSentryCli cli = new HardwareSentryCli();
 		new CommandLine(cli).parseArgs(HOSTNAME, "-t", TYPE);
-		assertNull(cli.getIpmiConfig());
+		assertNull(cli.getIpmiConfigCli());
 	}
 
 	@Test
@@ -35,7 +35,7 @@ class IpmiConfigTest {
 				"--ipmi-bmc-key", "0666",
 				"--ipmi-timeout", "37"
 		);
-		IPMIOverLanProtocol proto = cli.getIpmiConfig().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		IPMIOverLanProtocol proto = cli.getIpmiConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertEquals("custom", proto.getUsername());
 		assertArrayEquals("other".toCharArray(), proto.getPassword());
@@ -53,7 +53,7 @@ class IpmiConfigTest {
 				"--ipmi",
 				"--ipmi-skip-auth"
 		);
-		IPMIOverLanProtocol proto = cli.getIpmiConfig().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		IPMIOverLanProtocol proto = cli.getIpmiConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertEquals(DEFAULT_USERNAME, proto.getUsername());
 		assertArrayEquals(DEFAULT_PASSWORD, proto.getPassword());

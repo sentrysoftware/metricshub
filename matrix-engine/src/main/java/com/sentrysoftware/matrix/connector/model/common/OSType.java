@@ -1,17 +1,24 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
 public enum OSType {
 
-	VMS,
-	OSF1,
-	HP,
-	RS6000,
-	LINUX,
-	OOB,
-	NT,
-	NETWORK,
-	STORAGE,
-	SOLARIS,
-	SUNOS;
+	VMS("OpenVMS"),
+	OSF1("Tru64"),
+	HP("HP-UX"),
+	RS6000("AIX"),
+	LINUX("Linux"),
+	OOB("Management"),
+	NT("Windows"),
+	NETWORK("Network"),
+	STORAGE("Storage"),
+	SOLARIS("Solaris"),
+	SUNOS("Solaris");
+
+	@Getter
+	private String displayName;
 
 }

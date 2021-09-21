@@ -12,7 +12,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import lombok.Data;
 
 @Data
-public class SshConfig implements IProtocolConfig {
+public class SshConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -28,12 +28,16 @@ public class SshConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--ssh-username",
+			order = 2,
+			paramLabel = "USER",
 			description = "Username for SSH authentication"
 	)
 	private String username;
 
 	@Option(
 			names = "--ssh-password",
+			order = 3,
+			paramLabel = "P4SSW0RD",
 			description = "Password or SSH authentication",
 			interactive = true,
 			arity = "0..1"
@@ -42,19 +46,25 @@ public class SshConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--ssh-privatekey",
+			order = 4,
+			paramLabel = "PATH",
 			description = "Path to the private key file for SSH authentication"
 	)
 	private File privateKey;
 
 	@Option(
 			names = "--ssh-timeout",
-			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)",
+			order = 5,
+			paramLabel = "TIMEOUT",
+			description = "Timeout in seconds for SSH operations (default: ${DEFAULT-VALUE} s)",
 			defaultValue = "" + DEFAULT_TIMEOUT
 	)
 	private long timeout;
 
 	@Option(
 			names = "--ssh-usesudo-commands",
+			order = 6,
+			paramLabel = "COMMAND",
 			description = "List of commands for which @|italic sudo|@ is required",
 			split = ","
 	)
@@ -62,6 +72,8 @@ public class SshConfig implements IProtocolConfig {
 
 	@Option(
 			names = "--ssh-sudo-command",
+			order = 7,
+			paramLabel = "SUDO",
 			description = "@|italic sudo|@ command (default: ${DEFAULT-VALUE})",
 			defaultValue ="sudo"
 	)
@@ -75,6 +87,7 @@ public class SshConfig implements IProtocolConfig {
 				.password(username == null ? defaultPassword : password)
 				.privateKey(privateKey)
 				.useSudoCommands(useSudoCommands)
+				.useSudo(true)
 				.sudoCommand(sudoCommand)
 				.timeout(timeout)
 				.build();
