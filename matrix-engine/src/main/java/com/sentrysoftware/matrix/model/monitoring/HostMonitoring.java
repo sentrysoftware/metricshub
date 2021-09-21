@@ -618,9 +618,9 @@ public class HostMonitoring implements IHostMonitoring {
 			result = diskControllers
 				.values()
 				.stream()
-				.filter(Objects::nonNull)
-				.filter(monitor -> monitor.getMetadata(CONNECTOR).equalsIgnoreCase(connectorName))
-				.filter(monitor -> monitor.getMetadata(DISK_CONTROLLER_NUMBER).equals(diskControllerNumber))
+				.filter(monitor -> monitor != null &&
+											monitor.getMetadata(CONNECTOR) != null && monitor.getMetadata(CONNECTOR).equalsIgnoreCase(connectorName) &&
+											monitor.getMetadata(DISK_CONTROLLER_NUMBER) != null && monitor.getMetadata(DISK_CONTROLLER_NUMBER).equals(diskControllerNumber))
 				.findFirst()
 				.orElse(null);
 		}
