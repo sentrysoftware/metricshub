@@ -26,6 +26,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_W
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor.METADATA_CANNOT_BE_NULL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -689,8 +691,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				OtherDevice::checkValueWarnCondition,
 				OtherDevice::checkValueAlarmCondition));
 
-		final Double usageCountWarningThreshold = NumberHelper.parseDouble(metadata.get(VALUE_WARNING_THRESHOLD), null);
-		final Double usageCountAlarmThreshold = NumberHelper.parseDouble(metadata.get(VALUE_ALARM_THRESHOLD), null);
+		final Double usageCountWarningThreshold = NumberHelper.parseDouble(metadata.get(USAGE_COUNT_WARNING_THRESHOLD), null);
+		final Double usageCountAlarmThreshold = NumberHelper.parseDouble(metadata.get(USAGE_COUNT_ALARM_THRESHOLD), null);
 
 		parametersWithAlertRules.addAll(updateWarningToAlarmEnhancedAlertRules(monitor,
 				USAGE_COUNT_PARAMETER,
