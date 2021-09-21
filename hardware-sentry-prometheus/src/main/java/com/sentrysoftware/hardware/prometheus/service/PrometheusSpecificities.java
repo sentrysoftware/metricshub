@@ -4,6 +4,23 @@ import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringColle
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -47,6 +64,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PrometheusSpecificities {
 
+	private static final String VOLTS = "volts";
+	private static final String TIMES = "times";
 	private static final String HERTZ = "hertz";
 	private static final String PACKETS = "packets";
 	private static final String BYTES = "bytes";
@@ -156,6 +175,14 @@ public class PrometheusSpecificities {
 		prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, logicalDiskMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.MEMORY, memoryMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.PHYSICAL_DISK, physicalDiskMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.FAN, fanMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.LUN, lunMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.NETWORK_CARD, networkCardMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.OTHER_DEVICE, otherDeviceMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.TAPE_DRIVE, tapeDriveMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.TEMPERATURE, temperatureMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.VOLTAGE, voltageMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.ROBOTICS, roboticsMetadataToPrometheusParameters());
 
 		prometheusMetadataToParameters = Collections.unmodifiableMap(prometheusMetadataParametersMap);
 	}
@@ -198,8 +225,200 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Convert some PhysicalDisk Metadata to Prometheus metrics
-	 * @return
+	 * Create Robotics Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> roboticsMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(ERROR_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_robotics_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(ERROR_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_robotics_errors_alarm")
+				.unit(ERRORS)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create Voltage Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> voltageMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(UPPER_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_voltage_volts_upper")
+				.unit(VOLTS)
+				.factor(0.001)
+				.build());
+
+		map.put(LOWER_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_voltage_volts_lower")
+				.unit(VOLTS)
+				.factor(0.001)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create Temperature Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> temperatureMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_temperature_celsius_warning")
+				.unit(CELSIUS)
+				.build());
+
+		map.put(ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_temperature_celsius_alarm")
+				.unit(CELSIUS)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create Tape Drive Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> tapeDriveMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(ERROR_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_tape_drive_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(ERROR_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_tape_drive_errors_alarm")
+				.unit(ERRORS)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create Other Device Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> otherDeviceMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(USAGE_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_other_device_usage_times_warning")
+				.unit(TIMES)
+				.build());
+		map.put(USAGE_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_other_device_usage_times_alarm")
+				.unit(TIMES)
+				.build());
+
+		map.put(VALUE_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_other_device_value_warning")
+				.build());
+		map.put(VALUE_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_other_device_value_alarm")
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create NetworkCard Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> networkCardMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(ERROR_PERCENT_WARNING_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_network_card_error_ratio_warning")
+				.unit(RATIO)
+				.factor(0.01)
+				.build());
+
+		map.put(ERROR_PERCENT_ALARM_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_network_card_error_ratio_alarm")
+				.unit(RATIO)
+				.factor(0.01)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create LUN Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> lunMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(AVAILABLE_PATH_WARNING, PrometheusParameter
+				.builder()
+				.name("hw_lun_available_paths_warning")
+				.unit(Lun.AVAILABLE_PATH_COUNT.getUnit())
+				.build());
+		return map;
+	}
+
+	/**
+	 * Create Fan Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> fanMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(WARNING_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_fan_speed_rpm_warning")
+				.unit("rpm")
+				.build());
+
+		map.put(ALARM_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_fan_speed_rpm_alarm")
+				.unit("rpm")
+				.build());
+
+		map.put(PERCENT_WARNING_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_fan_speed_ratio_warning")
+				.unit(RATIO)
+				.factor(0.01)
+				.build());
+
+		map.put(PERCENT_ALARM_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_fan_speed_ratio_alarm")
+				.unit(RATIO)
+				.factor(0.01)
+				.build());
+
+		return map;
+	}
+
+	/**
+	 * Create PhysicalDisk Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
 	 */
 	private static Map<String, PrometheusParameter> physicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -207,12 +426,23 @@ public class PrometheusSpecificities {
 		map.put(SIZE, PrometheusParameter.builder().name("hw_physical_disk_size_bytes")
 				.unit(BYTES_PARAMETER_UNIT).build());
 
+		map.put(ERROR_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_physical_disk_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(ERROR_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_physical_disk_errors_alarm")
+				.unit(ERRORS)
+				.build());
+
 		return map;
 	}
 
 	/**
-	 * Convert some Memory Metadata to Prometheus metrics
-	 * @return
+	 * Create Memory Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
 	 */
 	private static Map<String, PrometheusParameter> memoryMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -221,12 +451,23 @@ public class PrometheusSpecificities {
 				.factor(1000000.0) // MB to Bytes
 				.build());
 
+		map.put(ERROR_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_memory_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(ERROR_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_memory_errors_alarm")
+				.unit(ERRORS)
+				.build());
+
 		return map;
 	}
 
 	/**
-	 * Convert some LogicalDisk Metadata to Prometheus metrics
-	 * @return
+	 * Create LogicalDisk Metadata to Prometheus metrics map
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
 	 */
 	private static Map<String, PrometheusParameter> logicalDiskMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -234,18 +475,45 @@ public class PrometheusSpecificities {
 		map.put(SIZE, PrometheusParameter.builder().name("hw_logical_disk_size_bytes")
 				.unit(BYTES_PARAMETER_UNIT).build());
 
+		map.put(ERROR_COUNT_WARNING_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_logical_disk_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(ERROR_COUNT_ALARM_THRESHOLD, PrometheusParameter.builder()
+				.name("hw_logical_disk_errors_alarm")
+				.unit(ERRORS)
+				.build());
+
 		return map;
 	}
 
 	/**
 	 * Convert some CPU Metadata to Prometheus metrics
-	 * @return
+	 * 
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
 	 */
 	private static Map<String, PrometheusParameter> cpuMetadataToPrometheusParameters() {
 		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		map.put(MAXIMUM_SPEED,
-				PrometheusParameter.builder().name("hw_cpu_maximum_speed_hertz").unit(HERTZ).factor(1000000.0).build());
+		map.put(MAXIMUM_SPEED, PrometheusParameter
+				.builder()
+				.name("hw_cpu_maximum_speed_hertz")
+				.unit(HERTZ)
+				.factor(1000000.0)
+				.build());
+
+		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_cpu_corrected_errors_warning")
+				.unit(ERRORS)
+				.build());
+
+		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, PrometheusParameter
+				.builder()
+				.name("hw_cpu_corrected_errors_alarm")
+				.unit(ERRORS)
+				.build());
 
 		return map;
 	}
@@ -263,7 +531,7 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(Voltage._VOLTAGE.getName(), PrometheusParameter.builder()
 				.name("hw_voltage_volts")
-				.unit("volts")
+				.unit(VOLTS)
 				.factor(0.001)
 				.build());
 
@@ -451,7 +719,7 @@ public class PrometheusSpecificities {
 				.build());
 		map.put(OtherDevice.USAGE_COUNT.getName(), PrometheusParameter.builder()
 				.name("hw_other_device_usage_times")
-				.unit("times")
+				.unit(TIMES)
 				.type(PrometheusMetricType.COUNTER)
 				.build());
 		map.put(OtherDevice.VALUE.getName(), PrometheusParameter.builder()
@@ -529,6 +797,11 @@ public class PrometheusSpecificities {
 				.name("hw_network_card_energy_joules")
 				.unit(JOULES)
 				.type(PrometheusMetricType.COUNTER)
+				.build());
+		map.put(NetworkCard.ERROR_PERCENT.getName(), PrometheusParameter.builder()
+				.name("hw_network_card_error_ratio")
+				.unit(RATIO)
+				.factor(0.01)
 				.build());
 		return map;
 	}
@@ -951,4 +1224,5 @@ public class PrometheusSpecificities {
 		final Map<String, PrometheusParameter> parametersMap = prometheusMetadataToParameters.get(monitorType);
 		return (parametersMap == null || matrixMetadata == null) ? Optional.empty() : Optional.ofNullable(parametersMap.get(matrixMetadata));
 	}
+
 }

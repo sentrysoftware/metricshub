@@ -4,6 +4,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -322,23 +323,20 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
-		// for each monitor check if some metadata needs to be also created as metrics
-		// get metadata and check if they need to be converted to metrci
-		List<String> monitorMetadata = monitorType.getMetaMonitor().getMetadata();
+		// Get metadata that need to be converted to metrics
+		final Map<String, PrometheusParameter> monitorMetadataMap = PrometheusSpecificities
+						.getPrometheusMetadataToParameters()
+						.getOrDefault(monitorType, Collections.emptyMap());
 
-		for (String metadata : monitorMetadata) {
-			// Get the prometheus metadata
-			final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
-					.getPrometheusMetadataToParameters(monitorType, metadata);
+		for (final Entry<String, PrometheusParameter> entry : monitorMetadataMap.entrySet()) {
 
-			// Check if the metadata is reported and if it is available at least in one
-			// monitor
-			if (!maybePrometheusParameter.isPresent() || !isMetadataFamilyAvailableOnMonitors(metadata, monitors)) {
+			final String matrixMetadataName = entry.getKey();
+			final PrometheusParameter prometheusParameter = entry.getValue();
+
+			// Check if the metadata is available at least in one monitor
+			if (!isMetadataFamilyAvailableOnMonitors(matrixMetadataName, monitors)) {
 				continue;
 			}
-
-			// Ok, now we can get the prometheus parameter related to the given metadata
-			final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
 
 			// Create the help section
 			final String help = buildHelp(prometheusParameter);
@@ -349,8 +347,8 @@ public class HostMonitoringCollectorService extends Collector {
 			// For each monitor, check if the metadata is available then add its value
 			monitors.values()
 					.stream()
-					.filter(monitor -> checkMetadata(monitor, metadata))
-					.forEach(monitor -> addMetadataAsMetric(labeledMetric, monitor, metadata, prometheusParameter.getFactor()));
+					.filter(monitor -> checkMetadata(monitor, matrixMetadataName))
+					.forEach(monitor -> addMetadataAsMetric(labeledMetric, monitor, matrixMetadataName, prometheusParameter.getFactor()));
 
 			mfs.add(labeledMetric);
 		}
@@ -484,7 +482,7 @@ public class HostMonitoringCollectorService extends Collector {
 	}
 
 
-	/*
+	/**
 	 * Converts a {@link String} written in snake_case to its camelCase version.<br>
 	 * <b>Example: "parent_id" -> "parentId"</b>
 	 *
