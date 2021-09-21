@@ -8,7 +8,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @Data
-public class HttpConfig implements IProtocolConfig {
+public class HttpConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -40,6 +40,7 @@ public class HttpConfig implements IProtocolConfig {
 	@Option(
 			names = "--http-port",
 			order = 3,
+			paramLabel = "PORT",
 			description = "Port for HTTP/HTTPS connections (default: 80 for HTTP, 443 for HTTPS)"
 	)
 	private Integer port;
@@ -47,6 +48,7 @@ public class HttpConfig implements IProtocolConfig {
 	@Option(
 			names = "--http-username",
 			order = 4,
+			paramLabel = "USER",
 			description = "Username for HTTP authentication"
 	)
 	private String username;
@@ -54,6 +56,7 @@ public class HttpConfig implements IProtocolConfig {
 	@Option(
 			names = "--http-password",
 			order = 5,
+			paramLabel = "P4SSW0RD",
 			description = "Password for the HTTP protocol",
 			arity = "0..1",
 			interactive = true
@@ -63,6 +66,7 @@ public class HttpConfig implements IProtocolConfig {
 	@Option(
 			names = "--http-timeout",
 			order = 6,
+			paramLabel = "TIMEOUT",
 			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)

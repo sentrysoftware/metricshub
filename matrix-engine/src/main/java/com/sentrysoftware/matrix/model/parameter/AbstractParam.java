@@ -3,8 +3,6 @@ package com.sentrysoftware.matrix.model.parameter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-
 @Data
 @NoArgsConstructor
 public abstract class AbstractParam implements IParameterValue {
@@ -25,31 +23,6 @@ public abstract class AbstractParam implements IParameterValue {
 	public void reset() {
 		this.collectTime = null;
 		this.state = ParameterState.OK;
-	}
-
-	/**
-	 * Get the parameter value as {@link String}. Useful for status information
-	 * @param <T>
-	 * @param value the value we wish to append in the final result
-	 * @return {@link String} value
-	 */
-	protected <T> String getValueAsString(T value) {
-		if (value == null) {
-			return null;
-		}
-
-		final StringBuilder builder = new StringBuilder(getName());
-
-		builder
-		.append(":")
-		.append(WHITE_SPACE)
-		.append(value);
-
-		if (getUnit() != null) {
-			builder.append(WHITE_SPACE).append(getUnit());
-		}
-
-		return builder.toString();
 	}
 
 }

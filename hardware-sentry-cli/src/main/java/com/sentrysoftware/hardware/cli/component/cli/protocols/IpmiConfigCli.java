@@ -10,7 +10,7 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
 @Data
-public class IpmiConfig implements IProtocolConfig {
+public class IpmiConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 120;
 
@@ -27,6 +27,7 @@ public class IpmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--ipmi-username",
 			order = 2,
+			paramLabel = "USER",
 			description = "Username for IPMI-over-LAN authentication"
 	)
 	private String username;
@@ -34,6 +35,7 @@ public class IpmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--ipmi-password",
 			order = 3,
+			paramLabel = "P4SSW0RD",
 			description = "Password for IPMI-over-LAN authentication",
 			interactive = true,
 			arity = "0..1"
@@ -43,6 +45,7 @@ public class IpmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--ipmi-bmc-key",
 			order = 4,
+			paramLabel = "KEY",
 			description = "BMC key for IPMI-over-LAN two-key authentication (in hexadecimal)"
 	)
 	private String bmcKey;
@@ -58,6 +61,7 @@ public class IpmiConfig implements IProtocolConfig {
 	@Option(
 			names = "--ipmi-timeout",
 			order = 6,
+			paramLabel = "TIMEOUT",
 			defaultValue = "" + DEFAULT_TIMEOUT,
 			description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)

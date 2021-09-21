@@ -11,7 +11,7 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html ) while running ${project.description}.
+This information must be provided in a `hardware-sentry-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.description}.
 
 The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
 
@@ -68,7 +68,7 @@ targets:
 
   - target:
       hostname: myhost-01
-      type: STORAGE
+      type: storage
     http:
       https: true
       port: 443
@@ -97,6 +97,65 @@ targets:
   ipmi:
     username: myusername
     password: mypwd
+```
+
+### OS Commands
+
+Use the parameters below to configure OS Commands:
+
+| Parameter       | Description                                                                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| osCommand       | Protocol used to access the target.                                                                                                                       |
+| timeout         | How long until the local OS Commands time out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| useSudo         | Whether sudo is used or not for the local OS Command (true or false).                                                                                     |
+| useSudoCommands | List of commands for which sudo is required.                                                                                                              |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                                  |
+
+#### Example
+
+```
+targets:
+  - target:
+      hostname: myhost-01
+      type: linux
+    osCommand:
+      timeout: 120
+      useSudo: true
+      useSudoCommands: [ cmd1, cmd2 ]
+      sudoCommand: sudo
+```
+
+### SSH
+
+Use the parameters below to configure the SSH protocol:
+
+| Parameter       | Description                                                                                                                                           |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ssh             | Protocol used to access the target.                                                                                                                   |
+| timeout         | How long until the SNMP request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
+| useSudoCommands | List of commands for which sudo is required.                                                                                                          |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                              |
+| username        | Name to use for performing the SSH query.                                                                                                             |
+| password        | Password to use for performing the SSH query.                                                                                                         |
+| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol                                                              |
+
+#### Example
+
+```
+targets:
+  - target:
+      hostname: myhost-01
+      type: linux
+    ssh:
+      timeout: 120
+      useSudo: true
+      useSudoCommands: [ cmd1, cmd2 ]
+      sudoCommand: sudo
+      username: myusername
+      password: mypwd
+      privateKey: /tmp/ssh-key.txt
+
 ```
 
 ### SNMP
@@ -261,6 +320,7 @@ targets:
       password: mypwd
     unknownStatus: WARN
 ```
+
 ### Configuring Timeout Durations
 
 **${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:

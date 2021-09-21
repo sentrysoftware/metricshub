@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
@@ -28,7 +29,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_RE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
@@ -686,12 +686,6 @@ class CollectOperationTest {
 
 		final String statusInformation = new StringBuilder()
 				.append("status: 0 (Operable)")
-				.append("\n")
-				.append("present: 1 (Present)")
-				.append("\n")
-				.append("intrusionStatus: 0 (No Intrusion Detected)")
-				.append("\n")
-				.append("powerConsumption: 150.0 Watts")
 				.toString();
 
 		final IParameterValue statusParam = StatusParam

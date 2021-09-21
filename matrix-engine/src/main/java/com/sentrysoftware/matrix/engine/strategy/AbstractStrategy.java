@@ -12,6 +12,9 @@ import static org.springframework.util.Assert.state;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +71,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	protected static final int MAX_THREADS_COUNT = 50;
 	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
+	public static final int DEFAULT_LOCK_TIMEOUT = 2 * 60; // 2 minutes
 
 	@Override
 	public void prepare() {
@@ -116,7 +120,16 @@ public abstract class AbstractStrategy implements IStrategy {
 		for (final Source source : sources) {
 
 			final ISourceVisitor sourceVisitor = new SourceVisitor(strategyConfig, matsyaClientsExecutor, connector);
-			final SourceTable sourceTable = source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
+			final SourceTable sourceTable;
+
+			final Supplier<SourceTable> executable = () -> 
+				source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
+
+			if (source.isForceSerialization()) {
+				sourceTable = forceSerialization(executable, connector, source, "source", SourceTable.empty());
+			} else {
+				sourceTable = executable.get();
+			}
 
 			if (sourceTable == null) {
 				log.warn("Received null source table for source key {}. Connector {}. Monitor {}. System {}",
@@ -218,13 +231,95 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param connector The {@link Connector} defining the criterion
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
-	CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
+	protected CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
 
-		CriterionVisitor criterionVisitor = new CriterionVisitor(strategyConfig,
+		final CriterionVisitor criterionVisitor = new CriterionVisitor(strategyConfig,
 				matsyaClientsExecutor,
 				wqlDetectionHelper,
 				connector);
-		return criterion.accept(criterionVisitor);
+
+		final Supplier<CriterionTestResult> executable = () -> criterion.accept(criterionVisitor);
+
+		if (criterion.isForceSerialization()) {
+			return forceSerialization(executable,
+					connector, criterion, "criterion", CriterionTestResult.empty());
+
+		} else {
+
+			return executable.get();
+
+		}
+
+	}
+
+	/**
+	 * Force the serialization when processing the given object, this method tries
+	 * to acquire the connector namespace <em>lock</em> before running the
+	 * executable, if the lock cannot be acquired or there is an exception or an
+	 * interruption then the defaultValue is returned
+	 * 
+	 * @param <T>          for example {@link CriterionTestResult} or a
+	 *                     {@link SourceTable}
+	 * 
+	 * @param executable   the supplier executable function, e.g. visiting a criterion or a
+	 *                     source
+	 * @param connector    the connector the criterion belongs to
+	 * @param objToProcess the object to process used for debug purpose
+	 * @param description  the object to process description used in the debug messages
+	 * @param defaultValue the default value to return in case of any glitch
+	 * @return T instance
+	 */
+	protected <T> T forceSerialization(@NonNull Supplier<T> executable, @NonNull final Connector connector,
+			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
+
+		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
+
+		final boolean isLockAcquired;
+		try {
+			// Try to get the lock
+			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			log.error("Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
+					description,
+					objToProcess,
+					connector.getCompiledFilename());
+			log.debug("Exception: ", e);
+
+			Thread.currentThread().interrupt();
+
+			return defaultValue;
+		}
+
+		if (isLockAcquired) {
+
+			try {
+				return executable.get();
+			} finally {
+				// Release the lock when the executable is terminated
+				forceSerializationLock.unlock();
+			}
+		} else {
+			log.error("Could not acquire the force serialization lock to process {} {}. Connector: {}.",
+					description,
+					objToProcess,
+					connector.getCompiledFilename());
+
+			return defaultValue;
+		}
+
+	}
+
+	/**
+	 * Get the Connector Namespace force serialization lock
+	 *   
+	 * @param connector the connector we currently process its criteria/sources/computes/
+	 * @return {@link ReentrantLock} instance. never null.
+	 */
+	ReentrantLock getForceSerializationLock(final Connector connector) {
+		return strategyConfig
+				.getHostMonitoring()
+				.getConnectorNamespace(connector)
+				.getForceSerializationLock();
 	}
 
 	/**

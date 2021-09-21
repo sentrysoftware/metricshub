@@ -1,25 +1,47 @@
-keywords: command-line tool, hardware monitoring
-description: The Hardware Sentry CLI is a free command-line tool to check the platform prerequisites of the Sentry Software's Hardware Monitoring solutions.
+keywords: overview
+description: The ${project.name} (hws) is the core Hardware Sentry engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
 
-# What is ${project.name}?
+# Overview
 
-The **${project.name}** is the core Hardware Sentry engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
+The **${project.name}** (`hws`) is the core *Hardware Sentry engine* wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
 
-The **${project.name}** can be used to troubleshoot the monitoring performed by other Hardware Sentry products such as the KM for PATROL, or the Exporter for Prometheus.
+Discovered components include:
 
-As the  **${project.name}** runs on Java, it can be used similarly on Windows or Linux to monitor the local system or any remote host.
+* Enclosure (manufacturer, model, serial number)
+* Processors
+* Memory modules
+* GPUs
+* Disks (HDD, SDD, RAID)
+* Network and Fiber Channel Adapters
+* Sensors (temperature, voltage, fans, power, LEDs)
 
-![The ${project.name}](./images/running-hardware-sentry-cli.png)
+Supported systems include:
 
-Only a few options are required to run the **${project.name}**:
+* Servers (Linux, AIX, HP-UX, Solaris, Windows, in-band and out-of-band)
+* Blade chassis
+* Network switches
+* SAN switches
+* Storage systems (disk arrays, filers, tape libraries)
 
-* the hostname or IP address of the device to be monitored
-* the device type
-* the protocol to be used. The **${project.name}** currently supports:
+The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/library/hc/platform-requirements.html).
 
+The quantity and quality of the information that **${project.name}** will be able to gather depends on the instrumentation stack available on the targeted host.
+
+![Output example for an HP ProLiant system](./images/hws-proliant.png)
+
+Only a few options are required to run the `hws` command:
+
+* Hostname or IP address of the device to be monitored
+* Device type
+* Protocols to be used:
     * HTTP
-    * IPMI
+    * IPMI-over-LAN
     * SSH
     * SNMP
     * WBEM
-    * WMI.
+    * WMI (on Windows only)
+* Credentials
+
+![Usage of hws](./images/hws-usage.png)
+
+The `hws` command can be used to troubleshoot the monitoring performed by other *Hardware Sentry* products such as the KM for PATROL, or the Exporter for Prometheus.

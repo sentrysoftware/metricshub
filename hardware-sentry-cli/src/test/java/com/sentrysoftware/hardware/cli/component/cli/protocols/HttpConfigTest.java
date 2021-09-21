@@ -21,7 +21,7 @@ class HttpConfigTest {
 	void testNoHttp() {
 		HardwareSentryCli cli = new HardwareSentryCli();
 		new CommandLine(cli).parseArgs(HOSTNAME, "-t", TYPE);
-		assertNull(cli.getHttpConfig());
+		assertNull(cli.getHttpConfigCli());
 	}
 
 	@Test
@@ -36,7 +36,7 @@ class HttpConfigTest {
 				"--http-timeout", "37",
 				"--http-port", "8080"
 		);
-		HTTPProtocol proto = cli.getHttpConfig().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertFalse(proto.getHttps());
 		assertEquals("custom", proto.getUsername());
@@ -54,7 +54,7 @@ class HttpConfigTest {
 				"--http",
 				"--http-timeout", "37"
 		);
-		HTTPProtocol proto = cli.getHttpConfig().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertFalse(proto.getHttps());
 		assertEquals(DEFAULT_USERNAME, proto.getUsername());
@@ -71,7 +71,7 @@ class HttpConfigTest {
 				"-t", TYPE,
 				"--https"
 		);
-		HTTPProtocol proto = cli.getHttpConfig().toProtocol(null, null);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(null, null);
 		assertNotNull(proto);
 		assertTrue(proto.getHttps());
 		assertNull(proto.getUsername());

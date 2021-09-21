@@ -11,8 +11,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
@@ -156,15 +156,6 @@ class MonitorCollectVisitorTest {
 			.rawValue(Double.parseDouble(POWER_CONSUMPTION))
 			.build();
 
-	private static IParameterValue intructionStatusParam = StatusParam
-			.builder()
-			.name(INTRUSION_STATUS_PARAMETER)
-			.collectTime(collectTime)
-			.state(ParameterState.OK)
-			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
-			.statusInformation("intrusionStatus: 0 (No Intrusion Detected)")
-			.build();
-
 	private static IParameterValue statusParam = StatusParam
 			.builder()
 			.name(STATUS_PARAMETER)
@@ -173,16 +164,6 @@ class MonitorCollectVisitorTest {
 			.unit(STATUS_PARAMETER_UNIT)
 			.statusInformation("status: 0 (Operable)")
 			.build();
-
-	private static IParameterValue statusParamWithIntrusion = StatusParam
-			.builder()
-			.name(STATUS_PARAMETER)
-			.collectTime(collectTime)
-			.state(ParameterState.OK)
-			.unit(STATUS_PARAMETER_UNIT)
-			.statusInformation("status: 0 (Operable)\nintrusionStatus: 0 (No Intrusion Detected)")
-			.build();
-
 
 	@Test
 	void testVisitConcreteConnector() {
@@ -280,22 +261,13 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.visit(new Enclosure());
 
-
-		final String statusInformation = new StringBuilder()
-				.append("status: 0 (Operable)")
-				.append("\n")
-				.append("intrusionStatus: 0 (No Intrusion Detected)")
-				.append("\n")
-				.append("powerConsumption: 150.0 Watts")
-				.toString();
-
 		final IParameterValue expected = StatusParam
 				.builder()
 				.name(STATUS_PARAMETER)
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
 				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation(statusInformation)
+				.statusInformation("status: 0 (Operable)")
 				.build();
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
@@ -470,7 +442,7 @@ class MonitorCollectVisitorTest {
 
 		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
 
-		assertEquals(statusParamWithIntrusion, actual);
+		assertEquals(statusParam, actual);
 	}
 
 	@Test
@@ -667,105 +639,6 @@ class MonitorCollectVisitorTest {
 						monitor,
 						row)
 				);
-	}
-
-	@Test
-	void testAppendToStatusInformation() {
-		final StatusParam statusParam = StatusParam
-				.builder()
-				.name(STATUS_PARAMETER)
-				.collectTime(collectTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation(null)
-				.build();
-
-		MonitorCollectVisitor.appendToStatusInformation(statusParam, intructionStatusParam);
-
-		assertNotNull(statusParam.getStatusInformation());
-	}
-
-	@Test
-	void testAppendToStatusInformationNullParameters() {
-
-		assertDoesNotThrow(() -> MonitorCollectVisitor.appendToStatusInformation(null, null));
-		assertDoesNotThrow(() -> MonitorCollectVisitor.appendToStatusInformation(new StatusParam(), null));
-		assertDoesNotThrow(() -> MonitorCollectVisitor.appendToStatusInformation(null, intructionStatusParam));
-	}
-
-	@Test
-	void testAppendToStatusInformationNullValue() {
-
-		final StatusParam statusParam = StatusParam
-				.builder()
-				.name(STATUS_PARAMETER)
-				.collectTime(collectTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation(null)
-				.build();
-
-		MonitorCollectVisitor.appendToStatusInformation(statusParam, NumberParam.builder().build());
-
-		assertNull(statusParam.getStatusInformation());
-	}
-
-	@Test
-	void testAppendValuesToStatusParameterButNoStatusParam() {
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = new Monitor();
-		monitor.collectParameter(intructionStatusParam);
-		monitor.collectParameter(powerConsumptionParam);
-
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-		monitorCollectVisitor.appendValuesToStatusParameter(INTRUSION_STATUS_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER);
-		assertNull(monitor.getParameters().get(STATUS_PARAMETER));
-	}
-
-	@Test
-	void testAppendValuesToStatusParameter() {
-		final IParameterValue statusParam = StatusParam
-				.builder()
-				.name(STATUS_PARAMETER)
-				.collectTime(collectTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation("status: 0 (Operable)")
-				.build();
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = new Monitor();
-		monitor.collectParameter(statusParam);
-		monitor.collectParameter(intructionStatusParam);
-		monitor.collectParameter(powerConsumptionParam);
-
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-
-		monitorCollectVisitor.appendValuesToStatusParameter(INTRUSION_STATUS_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER);
-
-		final IParameterValue actual = monitor.getParameters().get(STATUS_PARAMETER);
-
-		final String statusInformation = new StringBuilder()
-				.append("status: 0 (Operable)")
-				.append("\n")
-				.append("intrusionStatus: 0 (No Intrusion Detected)")
-				.append("\n")
-				.append("powerConsumption: 150.0 Watts")
-				.toString();
-
-		final IParameterValue expected = StatusParam
-				.builder()
-				.name(STATUS_PARAMETER)
-				.collectTime(collectTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation(statusInformation)
-				.build();
-
-		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -1471,7 +1344,7 @@ class MonitorCollectVisitorTest {
 				.collectTime(collectTime)
 				.state(ParameterState.OK)
 				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation("status: 0 (OK)\nlastError: " + MEMORY_LAST_ERROR)
+				.statusInformation("status: 0 (OK)")
 				.build();
 
 		final IParameterValue actual = parameters.get(STATUS_PARAMETER);
@@ -2346,7 +2219,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectLedStatus() {
+	void testCollectLedStatusAndLedIndicatorStatus() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
@@ -2361,8 +2234,9 @@ class MonitorCollectVisitorTest {
 				monitor,
 				row)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		assertNull(monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class));
 
 		// statusRaw.equals("on")
 		List<String> customRow = new ArrayList<>(row);
@@ -2373,8 +2247,11 @@ class MonitorCollectVisitorTest {
 				monitor,
 				customRow)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		StatusParam ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.ALARM, ledIndicatorParameter.getState());
 
 		// statusRaw.equals("blinking"), no blinking status metadata
 		customRow = new ArrayList<>(row);
@@ -2385,15 +2262,21 @@ class MonitorCollectVisitorTest {
 				monitor,
 				customRow)
 		);
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		assertNull(monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.WARN, ledIndicatorParameter.getState());
 
 		// statusRaw.equals("blinking"), blinking status meta data found
 		monitor.addMetadata("blinkingstatus", "WARN");
-		monitorCollectVisitor.collectLedStatus();
+		monitorCollectVisitor.collectLedStatusAndLedIndicatorStatus();
 		StatusParam statusParameter = monitor.getParameter(STATUS_PARAMETER, StatusParam.class);
 		assertNotNull(statusParameter);
 		assertEquals(ParameterState.WARN, statusParameter.getState());
+		ledIndicatorParameter = monitor.getParameter(LED_INDICATOR_PARAMETER, StatusParam.class);
+		assertNotNull(ledIndicatorParameter);
+		assertEquals(ParameterState.WARN, ledIndicatorParameter.getState());
 	}
 
 	@Test

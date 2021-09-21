@@ -16,17 +16,18 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.converters.TargetTypeConverter;
 import com.sentrysoftware.hardware.cli.component.cli.printer.PrettyPrinter;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfig;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfig;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
 import com.sentrysoftware.hardware.cli.service.JobResultFormatterService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
@@ -60,11 +61,26 @@ import picocli.CommandLine.ParameterException;
 @Component
 @Command(
 		name = "hws",
-		mixinStandardHelpOptions = true,
-		abbreviateSynopsis = true,
 		sortOptions = false,
 		usageHelpAutoWidth = true,
-		versionProvider = VersionService.class
+		versionProvider = VersionService.class,
+		headerHeading = "%n",
+		header = "Gather hardware-related information from the specified host.",
+		synopsisHeading = "%n@|bold,underline Usage|@:%n%n",
+		descriptionHeading = "%n@|bold,underline Description|@:%n%n",
+		description = "This tool is the CLI version of the @|italic Hardware Sentry|@ engine. " +
+				"It leverages various system management protocols to discover the hardware components of a system, " +
+				"and report their operational status.%n%n" +
+				"Additionally, the power consumption of the system is measured, or estimated if no power sensor is detected.",
+		parameterListHeading = "%n@|bold,underline Parameters|@:%n",
+		optionListHeading = "%n@|bold,underline Options|@:%n",
+		customSynopsis = {
+				"@|bold ${ROOT-COMMAND-NAME}|@ " +
+						"@|yellow HOSTNAME|@ " +
+						"@|yellow -t|@=@|italic TYPE|@ " +
+						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@> " +
+						"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
+		}
 )
 @Data
 public class HardwareSentryCli implements Callable<Integer> {
@@ -77,6 +93,20 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Spec
 	CommandSpec spec;
+
+	@Option(
+			names = {"-V", "--version"},
+			versionHelp = true,
+			description = "Prints version information and exits"
+	)
+	boolean versionInfoRequested;
+
+	@Option(
+			names = {"-h", "-?", "--help"},
+			usageHelp = true,
+			description = "Shows this help message and exits"
+	)
+	boolean usageHelpRequested;
 
 	@Parameters(
 			index = "0",
@@ -95,23 +125,23 @@ public class HardwareSentryCli implements Callable<Integer> {
 	)
 	private TargetType deviceType;
 
-	@ArgGroup(exclusive = false, heading = "@|bold HTTP Options|@%n")
-	private HttpConfig httpConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
+	private HttpConfigCli httpConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "@|bold IPMI Options|@%n")
-	private IpmiConfig ipmiConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
+	private IpmiConfigCli ipmiConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "@|bold SNMP Options|@%n")
-	private SnmpConfig snmpConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
+	private SnmpConfigCli snmpConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "@|bold SSH Options|@")
-	private SshConfig sshConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SSH Options|@:%n")
+	private SshConfigCli sshConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "@|bold WBEM Options|@%n")
-	private WbemConfig wbemConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WBEM Options|@:%n")
+	private WbemConfigCli wbemConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "@|bold WMI Options|@%n")
-	private WmiConfig wmiConfig;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
+	private WmiConfigCli wmiConfigCli;
 
 	@Option(
 			names = { "-u", "--username" },
@@ -136,7 +166,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			order = 4,
 			split = ",",
 			paramLabel = "CONNECTOR",
-			description = "Force selected hardware connectors to connect to the target"
+			description = "Force selected hardware connectors to connect to the target (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	private Set<String> connectors;
 
@@ -145,13 +175,21 @@ public class HardwareSentryCli implements Callable<Integer> {
 			order = 5,
 			split = ",",
 			paramLabel = "CONNECTOR",
-			description = "Exclude connectors from the automatic detection process"
+			description = "Exclude connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	private Set<String> excludedConnectors;
 
 	@Option(
-			names = "-v",
+			names = { "-l", "--list" },
 			order = 6,
+			description = "Lists all connectors bundled in the engine, that can be selected or excluded",
+			help = true
+	)
+	private boolean listConnectors;
+
+	@Option(
+			names = "-v",
+			order = 7,
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
@@ -159,8 +197,15 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@Override
 	public Integer call() {
 
+		// First, process special "help" options
+		if (listConnectors) {
+			return listConnectors();
+		}
+
+		// Validate inputs
 		validate();
 
+		// Setup Log4j
 		setLogLevel();
 
 		// Configure the Matrix engine for the specified host
@@ -264,71 +309,71 @@ public class HardwareSentryCli implements Callable<Integer> {
 			if (username != null && password == null) {
 				password = System.console().readPassword("%s password: ", username);
 			}
-			if (httpConfig != null) {
-				if (httpConfig.getUsername() != null && httpConfig.getPassword() == null) {
-					httpConfig.setPassword(System.console().readPassword("%s password for HTTP: ", httpConfig.getUsername()));
+			if (httpConfigCli != null) {
+				if (httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
+					httpConfigCli.setPassword(System.console().readPassword("%s password for HTTP: ", httpConfigCli.getUsername()));
 				}
 			}
-			if (ipmiConfig != null) {
-				if (ipmiConfig.getUsername() != null && ipmiConfig.getPassword() == null) {
-					ipmiConfig.setPassword(System.console().readPassword("%s password for IPMI: ", ipmiConfig.getUsername()));
+			if (ipmiConfigCli != null) {
+				if (ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
+					ipmiConfigCli.setPassword(System.console().readPassword("%s password for IPMI: ", ipmiConfigCli.getUsername()));
 				}
 			}
-			if (snmpConfig != null) {
-				if (snmpConfig.getUsername() != null && snmpConfig.getPassword() == null) {
-					snmpConfig.setPassword(System.console().readPassword("%s password for SNMP: ", snmpConfig.getUsername()));
+			if (snmpConfigCli != null) {
+				if (snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
+					snmpConfigCli.setPassword(System.console().readPassword("%s password for SNMP: ", snmpConfigCli.getUsername()));
 				}
-				if (snmpConfig.getPrivacy() == Privacy.AES || snmpConfig.getPrivacy() == Privacy.DES) {
-					snmpConfig.setPrivacyPassword(System.console().readPassword("SNMP Privacy password: "));
-				}
-			}
-			if (sshConfig != null) {
-				if (sshConfig.getUsername() != null && sshConfig.getPassword() == null) {
-					sshConfig.setPassword(System.console().readPassword("%s password for SSH: ", sshConfig.getUsername()));
+				if (snmpConfigCli.getPrivacy() == Privacy.AES || snmpConfigCli.getPrivacy() == Privacy.DES) {
+					snmpConfigCli.setPrivacyPassword(System.console().readPassword("SNMP Privacy password: "));
 				}
 			}
-			if (wbemConfig != null) {
-				if (wbemConfig.getUsername() != null && wbemConfig.getPassword() == null) {
-					wbemConfig.setPassword(System.console().readPassword("%s password for WBEM: ", wbemConfig.getUsername()));
+			if (sshConfigCli != null) {
+				if (sshConfigCli.getUsername() != null && sshConfigCli.getPassword() == null) {
+					sshConfigCli.setPassword(System.console().readPassword("%s password for SSH: ", sshConfigCli.getUsername()));
 				}
 			}
-			if (wmiConfig != null) {
-				if (wmiConfig.getUsername() != null && wmiConfig.getPassword() == null) {
-					wmiConfig.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfig.getUsername()));
+			if (wbemConfigCli != null) {
+				if (wbemConfigCli.getUsername() != null && wbemConfigCli.getPassword() == null) {
+					wbemConfigCli.setPassword(System.console().readPassword("%s password for WBEM: ", wbemConfigCli.getUsername()));
+				}
+			}
+			if (wmiConfigCli != null) {
+				if (wmiConfigCli.getUsername() != null && wmiConfigCli.getPassword() == null) {
+					wmiConfigCli.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfigCli.getUsername()));
 				}
 			}
 		}
 
 		// No protocol at all?
-		if (httpConfig == null && ipmiConfig == null && snmpConfig == null
-				&& sshConfig == null && wbemConfig == null && wmiConfig == null) {
+		if (httpConfigCli == null && ipmiConfigCli == null && snmpConfigCli == null
+				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null) {
 			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi.");
 		}
 
 		// SNMP inconsistencies
-		if (snmpConfig != null) {
-			SNMPVersion version = snmpConfig.getSnmpVersion();
+		if (snmpConfigCli != null) {
+			SNMPVersion version = snmpConfigCli.getSnmpVersion();
 			if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
-				if (snmpConfig.getCommunity() == null || snmpConfig.getCommunity().isBlank()) {
+				if (snmpConfigCli.getCommunity() == null || snmpConfigCli.getCommunity().isBlank()) {
 					throw new ParameterException(spec.commandLine(), "Community string is required for SNMP " + version);
 				}
-				if (snmpConfig.getUsername() != null) {
+				if (snmpConfigCli.getUsername() != null) {
 					throw new ParameterException(spec.commandLine(), "Username/password is not supported in SNMP " + version);
 				}
-				if (snmpConfig.getPrivacy() != null && snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION
-						|| snmpConfig.getPrivacyPassword() != null) {
+				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION
+						|| snmpConfigCli.getPrivacyPassword() != null) {
 					throw new ParameterException(spec.commandLine(), "Privacy (encryption) is not supported in SNMP " + version);
 				}
 			} else {
 				if (version == SNMPVersion.V3_MD5 || version == SNMPVersion.V3_SHA) {
-					if (snmpConfig.getUsername() == null || snmpConfig.getPassword() == null) {
+					if (snmpConfigCli.getUsername() == null || snmpConfigCli.getPassword() == null) {
 						throw new ParameterException(spec.commandLine(), "Username and password are required for SNMP " + version);
 					}
 				}
-				if (snmpConfig.getCommunity() != null) {
+				if (snmpConfigCli.getCommunity() != null) {
 					throw new ParameterException(spec.commandLine(), "Community string is not supported in SNMP " + version);
 				}
-				if (snmpConfig.getPrivacy() != null && snmpConfig.getPrivacy() != Privacy.NO_ENCRYPTION) {
+				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION) {
 					throw new ParameterException(spec.commandLine(), "A privacy password is required for SNMP encryption (--snmp-privacy-password)");
 				}
 			}
@@ -388,7 +433,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
 
-		return Stream.of(httpConfig, ipmiConfig, snmpConfig, sshConfig, wbemConfig, wmiConfig)
+		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli)
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(
@@ -396,6 +441,43 @@ public class HardwareSentryCli implements Callable<Integer> {
 						Function.identity())
 		);
 
+	}
+
+	/**
+	 * Prints the list of connectors embedded in the engine.
+	 * @return success exit code
+	 */
+	private int listConnectors() {
+
+		ConnectorStore.getInstance().getConnectors()
+		.entrySet()
+		.stream()
+		.filter(Objects::nonNull)
+		.filter(e -> e.getValue() != null && e.getValue().getDisplayName() != null)
+		.sorted((e1, e2) -> e1.getValue().getDisplayName().compareToIgnoreCase(e2.getValue().getDisplayName()))
+		.forEachOrdered(connectorEntry -> {
+
+			String connectorName = connectorEntry.getKey();
+			Connector connector = connectorEntry.getValue();
+			String osList = connector.getAppliesToOS().stream().map(os -> os.getDisplayName()).collect(Collectors.joining(", "));
+
+			spec.commandLine().getOut().println(
+					Ansi.ansi()
+							.fgYellow()
+							.a(connectorName)
+							.fgDefault()
+							.a(" ".repeat(30 - connectorName.length()))
+							.a(Attribute.ITALIC)
+							.fgCyan()
+							.a(String.format("%-20s ", osList))
+							.fgDefault()
+							.a(Attribute.ITALIC_OFF)
+							.a(connectorEntry.getValue().getDisplayName())
+							.toString()
+			);
+		});
+
+		return CommandLine.ExitCode.OK;
 	}
 
 

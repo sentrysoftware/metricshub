@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
 
 @Data
-public class WbemConfig implements IProtocolConfig {
+public class WbemConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -23,6 +23,7 @@ public class WbemConfig implements IProtocolConfig {
 			names = "--wbem-transport",
 			order = 2,
 			defaultValue = "HTTPS",
+			paramLabel = "HTTP|HTTPS",
 			description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})",
 			converter = WbemTransportProtocolConverter.class
 	)
@@ -31,6 +32,7 @@ public class WbemConfig implements IProtocolConfig {
 	@Option(
 			names = "--wbem-port",
 			order = 3,
+			paramLabel = "PORT",
 			description = "Port of the WBEM server (default: 5988 for HTTP, 5989 for HTTPS)"
 	)
 	Integer port;
@@ -38,6 +40,7 @@ public class WbemConfig implements IProtocolConfig {
 	@Option(
 			names = "--wbem-username",
 			order = 4,
+			paramLabel = "USER",
 			description = "Username for WBEM authentication"
 	)
 	String username;
@@ -45,6 +48,7 @@ public class WbemConfig implements IProtocolConfig {
 	@Option(
 			names = "--wbem-password",
 			order = 5,
+			paramLabel = "P4SSW0RD",
 			description = "Password for WBEM authentication",
 			interactive = true,
 			arity = "0..1"
@@ -55,12 +59,14 @@ public class WbemConfig implements IProtocolConfig {
 			names = "--wbem-timeout",
 			order = 6,
 			defaultValue = "" + DEFAULT_TIMEOUT,
+			paramLabel = "TIMEOUT",
 			description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)")
 	long timeout;
 
 	@Option(
 			names = "--wbem-force-namespace",
 			order = 7,
+			paramLabel = "NAMESPACE",
 			description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	String namespace;
