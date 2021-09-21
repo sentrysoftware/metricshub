@@ -410,10 +410,6 @@ public class PrometheusSpecificities {
 				.name("hw_physical_disk_present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.build());
-		map.put(PhysicalDisk.INTRUSION_STATUS.getName(), PrometheusParameter.builder()
-				.name("hw_physical_disk_intrusion_status")
-				.unit(PhysicalDisk.INTRUSION_STATUS.getUnit())
-				.build());
 		map.put(PhysicalDisk.ENDURANCE_REMAINING.getName(), PrometheusParameter.builder()
 				.name("hw_physical_disk_endurance_remaining_ratio")
 				.unit(RATIO)

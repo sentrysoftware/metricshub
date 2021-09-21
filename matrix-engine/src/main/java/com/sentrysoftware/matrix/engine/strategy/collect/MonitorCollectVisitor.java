@@ -18,6 +18,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
@@ -223,7 +225,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectBasicParameters(led);
 		collectLedColor();
-		collectLedStatus();
+		collectLedStatusAndLedIndicatorStatus();
 
 	}
 
@@ -444,9 +446,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Collect the parameter string from the current value
 	 *
-	 * @param monitorType   The type of the monitor
 	 * @param parameterName The unique name of the parameter
-	 * @return {@link String} value
+	 * @param value   		The value of the text parameter
 	 */
 	void collectTextParameter(@NonNull final String parameterName, final String value) {
 
@@ -1339,9 +1340,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects the status for a {@link Led}.
+	 * Collects the status and indicator status parameters for a {@link Led}.
 	 */
-	void collectLedStatus() {
+	void collectLedStatusAndLedIndicatorStatus() {
 
 		// Getting the raw status from the current row
 		final String statusRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
@@ -1353,6 +1354,27 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (statusRaw != null) {
 
 			final Monitor monitor = monitorCollectInfo.getMonitor();
+
+			// Translating the LED indicator status
+			ParameterState translatedIndicatorStatus;
+			switch (statusRaw.toUpperCase()) {
+				case "ON":
+					translatedIndicatorStatus = ParameterState.ALARM;
+					break;
+				case "BLINKING":
+					translatedIndicatorStatus = ParameterState.WARN;
+					break;
+				case "OFF":
+				default:
+					translatedIndicatorStatus = ParameterState.OK;
+			}
+
+			CollectHelper.updateStatusParameter(monitor,
+				LED_INDICATOR_PARAMETER,
+				LED_INDICATOR_PARAMETER_UNIT,
+				monitorCollectInfo.getCollectTime(),
+				translatedIndicatorStatus,
+				translatedIndicatorStatus.name());
 
 			// Translating the status
 			Map<String, String> metadata = monitor.getMetadata();
