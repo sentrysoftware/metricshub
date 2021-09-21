@@ -630,28 +630,28 @@ public class ComputeVisitor implements IComputeVisitor {
 				&& abstractMatchingLines.getColumn() > 0
 				&& sourceTable != null
 				&& sourceTable.getTable() != null
-				&& !sourceTable.getTable().isEmpty()
-				&& abstractMatchingLines.getColumn() <= sourceTable.getTable().get(0).size()) {
+				&& !sourceTable.getTable().isEmpty()) {
 
 			int columnIndex = abstractMatchingLines.getColumn() - 1;
 
 			String pslRegexp = abstractMatchingLines.getRegExp();
 			List<String> valueList = abstractMatchingLines.getValueList();
 
-			List<List<String>> table = sourceTable.getTable();
+			final Predicate<String> pslPredicate = pslRegexp != null && !pslRegexp.isEmpty() ?
+					getPredicate(pslRegexp, abstractMatchingLines) : null;
+
+			final Predicate<String> valuePredicate = valueList != null && !valueList.isEmpty() ?
+					getPredicate(valueList, abstractMatchingLines) : null;
 
 			// If there are both a regex and a valueList, both are applied, one after the other.
-			if (pslRegexp != null && !pslRegexp.isEmpty()) {
+			final List<List<String>> filteredTable = sourceTable.getTable().stream()
+					.filter(line -> columnIndex < line.size() &&
+							(pslPredicate == null || pslPredicate.test(line.get(columnIndex))) &&
+							(valuePredicate == null || valuePredicate.test(line.get(columnIndex))))
+					.collect(Collectors.toList());
 
-				table = filterTable(table, columnIndex, getPredicate(pslRegexp, abstractMatchingLines));
-			}
+			sourceTable.setTable(filteredTable);
 
-			if (valueList != null && !valueList.isEmpty()) {
-
-				table = filterTable(table, columnIndex, getPredicate(valueList, abstractMatchingLines));
-			}
-
-			sourceTable.setTable(table);
 		}
 	}
 
@@ -691,31 +691,6 @@ public class ComputeVisitor implements IComputeVisitor {
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
 			? valueList::contains
 			: value -> !valueList.contains(value);
-	}
-
-	/**
-	 * @param table			The table that is being filtered.
-	 * @param columnIndex	The index of the column
-	 *                      whose values should evaluate to true against the given {@link Predicate}.
-	 * @param predicate		The {@link Predicate} against which
-	 *                      each value at the given column in the resulting table
-	 *                      must evaluate to true.
-	 *
-	 * @return				A new table
-	 * 						having just the rows of the given table
-	 * 						for which values at the given column evaluate to true against the given {@link Predicate}.
-	 */
-	private List<List<String>> filterTable(List<List<String>> table, int columnIndex, Predicate<String> predicate) {
-
-		List<List<String>> sourceTableTmp = new ArrayList<>();
-		for (List<String> line : table) {
-
-			if (predicate.test(line.get(columnIndex))) {
-				sourceTableTmp.add(line);
-			}
-		}
-
-		return sourceTableTmp;
 	}
 
 	@Override
