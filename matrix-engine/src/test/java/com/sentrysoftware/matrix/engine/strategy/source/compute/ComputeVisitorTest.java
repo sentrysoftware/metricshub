@@ -202,7 +202,7 @@ class ComputeVisitorTest {
 						.build());
 		keepOnlyMatchingLines.setColumn(2);
 		computeVisitor.visit(keepOnlyMatchingLines);
-		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
 	}
 
 	@Test
@@ -336,7 +336,7 @@ class ComputeVisitorTest {
 						.build());
 		excludeMatchingLines.setColumn(2);
 		computeVisitor.visit(excludeMatchingLines);
-		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
 	}
 
 	@Test
