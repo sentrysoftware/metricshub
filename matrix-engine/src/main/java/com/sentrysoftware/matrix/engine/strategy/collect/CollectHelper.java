@@ -73,7 +73,7 @@ public class CollectHelper {
 	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
 	 * @return {@link ParameterState} value
 	 */
-	public static ParameterState translateStatus(final String status, final Optional<ParameterState> unknownStatus,
+	public static ParameterState translateStatus(final String status, @NonNull final Optional<ParameterState> unknownStatus,
 			@NonNull final String monitorId, @NonNull String hostname,
 			@NonNull final String parameterName) {
 
