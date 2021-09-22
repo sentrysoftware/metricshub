@@ -1,21 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
@@ -27,6 +11,23 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 class CollectHelperTest {
 
@@ -43,91 +44,91 @@ class CollectHelperTest {
 	@Test
 	void testTranslateStatus() {
 		assertNull(CollectHelper.translateStatus(null,
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("OK",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("1",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("WARN",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("2",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("ALARM",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_OK, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				UNKNOWN_STATUS_OK,
+				Optional.of(UNKNOWN_STATUS_OK),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(UNKNOWN_STATUS_ALARM, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				UNKNOWN_STATUS_ALARM,
+				Optional.of(UNKNOWN_STATUS_ALARM),
 				ID,
 				HOST_NAME,
 				STATUS_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				PREDICTED_FAILURE_PARAMETER));
 
 		assertEquals(ParameterState.OK, CollectHelper.translateStatus("FALSE",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				PREDICTED_FAILURE_PARAMETER));
 
 		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("1",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				PREDICTED_FAILURE_PARAMETER));
 
 		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("TRUE",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				PREDICTED_FAILURE_PARAMETER));
 
 		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("blabla",
-				UNKNOWN_STATUS_WARN,
+				Optional.of(UNKNOWN_STATUS_WARN),
 				ID,
 				HOST_NAME,
 				PREDICTED_FAILURE_PARAMETER));

@@ -152,11 +152,11 @@ public class MatrixEngineService {
 
 	/**
 	 * Reads the user's configuration.
-	 * 
+	 *
 	 * @param configFile the configuration file
 	 * @param connectors Map of connectors from the matrix store
 	 * @param targetId   the target id
-	 * 
+	 *
 	 * @return A {@link MultiHostsConfigurationDTO} instance.
 	 *
 	 * @throws BusinessException If a read error occurred.
@@ -233,7 +233,7 @@ public class MatrixEngineService {
 
 	/**
 	 * validate the given target information (hostname and targetType)
-	 * 
+	 *
 	 * @param targetType type of the target
 	 * @param hostname   hostname of the target
 	 * @throws BusinessException
@@ -255,7 +255,7 @@ public class MatrixEngineService {
 
 	/**
 	 * Build the {@link EngineConfiguration} instance from the given {@link HostConfigurationDTO}
-	 * 
+	 *
 	 * @param exporterConfig		User's configuration
 	 * @param selectedConnectors	The connector names, the matrix engine will run
 	 * @param excludedConnectors    The connector names, the matrix engine will skip
@@ -295,14 +295,14 @@ public class MatrixEngineService {
 
 	/**
 	 * Return configured connector names. This method throws a BusinessException if we encounter an unknown connector
-	 * 
+	 *
 	 * @param connectors         all connectors from the {@link ConnectorStore}
 	 * @param configConnectors   user's selected or excluded connectors
 	 * @param mode               selected or excluded
 	 * @param hostname           the hostname we currently read its configuration
-	 * 
+	 *
 	 * @return {@link Set} containing the selected connector names
-	 * @throws BusinessException 
+	 * @throws BusinessException
 	 */
 	static Set<String> getConnectors(final @NonNull Map<String, Connector> connectors, final Set<String> configConnectors,
 			final String mode, String hostname) throws BusinessException {
@@ -323,7 +323,7 @@ public class MatrixEngineService {
 		}
 
 		// Throw the bad configuration exception
-		String message = String.format("Configured unknown %s connector(s): %s. Hostname: %s", 
+		String message = String.format("Configured unknown %s connector(s): %s. Hostname: %s",
 				mode, unknownConnectors.stream().collect(Collectors.joining(", ")), hostname);
 
 		log.error(message);

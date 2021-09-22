@@ -1,8 +1,17 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,14 +25,6 @@ import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 
 @Slf4j
 public class CollectHelper {
@@ -72,7 +73,7 @@ public class CollectHelper {
 	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
 	 * @return {@link ParameterState} value
 	 */
-	public static ParameterState translateStatus(final String status, @NonNull final ParameterState unknownStatus,
+	public static ParameterState translateStatus(final String status, @NonNull final Optional<ParameterState> unknownStatus,
 			@NonNull final String monitorId, @NonNull String hostname,
 			@NonNull final String parameterName) {
 
@@ -91,18 +92,18 @@ public class CollectHelper {
 
 
 		// Means it is an unknown status
-		if (parameterState == null) {
-			switch(unknownStatus) {
+		if (parameterState == null && unknownStatus.isPresent()) {
+			switch(unknownStatus.get()) {
 			case OK:
 				log.debug(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.OK);
-				return unknownStatus;
+				return unknownStatus.get();
 			case WARN:
 				log.warn(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.WARN);
-				return unknownStatus;
+				return unknownStatus.get();
 			case ALARM:
 			default:
 				log.error(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.ALARM);
-				return unknownStatus;
+				return unknownStatus.get();
 			}
 
 		}
@@ -192,7 +193,7 @@ public class CollectHelper {
 
 	/**
 	 * Get the {@link StatusParam} state value
-	 * 
+	 *
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link StatusParam} state
 	 * @param parameterName The name of the {@link StatusParam} instance
 	 * @return a {@link ParameterState} value (OK, WARN or ALARM)
@@ -339,7 +340,7 @@ public class CollectHelper {
 
 	/**
 	 * Update the number parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to collect the number parameter value
 	 * @param parameterName The unique name of the parameter
 	 * @param unit          The unit of the parameter
@@ -374,7 +375,7 @@ public class CollectHelper {
 
 	/**
 	 * Update the status parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
-	 * 
+	 *
 	 * @param monitor           The monitor we wish to collect the status parameter value
 	 * @param parameterName     The unique name of the parameter
 	 * @param unit              The unit of the parameter
@@ -409,7 +410,7 @@ public class CollectHelper {
 
 	/**
 	 * Build the status information text value
-	 * 
+	 *
 	 * @param parameterName The name of the parameter e.g. intrusionStatus, status
 	 * @param ordinal       The numeric value of the status (0, 1, 2)
 	 * @param value         The text value of the status information
@@ -421,7 +422,7 @@ public class CollectHelper {
 
 	/**
 	 * Collect the energy usage based on the power consumption
-	 * 
+	 *
 	 * @param monitor          The monitor instance we wish to collect
 	 * @param collectTime      The current collect time
 	 * @param powerConsumption The power consumption value. Never null
@@ -520,7 +521,7 @@ public class CollectHelper {
 
 		// Calculate the delta time in milliseconds
 		final Double deltaTimeMs = CollectHelper.subtract("energyUsage.collectTime", collectTime.doubleValue(), collectTimePrevious);
-	
+
 		// Convert delta time milliseconds to seconds
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
@@ -569,7 +570,7 @@ public class CollectHelper {
 
 	/**
 	 * Check if the given value is a valid positive
-	 * 
+	 *
 	 * @param value The {@link Double} value to check
 	 * @return <code>true</code> if the value is not null and greater than equals 0
 	 */
@@ -580,7 +581,7 @@ public class CollectHelper {
 
 	/**
 	 * Check if the given percentage value is not null and greater than equals 0 and latest than equals 100
-	 * 
+	 *
 	 * @param percent The percentage value to check
 	 * @return boolean value, <code>true</code> if the percentage is valid otherwise <code>false</code>
 	 */

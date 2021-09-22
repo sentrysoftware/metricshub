@@ -1,8 +1,9 @@
 package com.sentrysoftware.matrix.engine;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -39,6 +40,6 @@ public class EngineConfiguration {
 	private Set<String> excludedConnectors = new HashSet<>();
 
 	@Default
-	private ParameterState unknownStatus = ParameterState.WARN;
+	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
 
 }

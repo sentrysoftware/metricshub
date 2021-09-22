@@ -71,7 +71,7 @@ class MatrixEngineServiceTest {
 		}
 
 		{
-			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), 
+			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K),
 					MatrixEngineService.getConnectors(connectors, Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), "selected", "hostname"));
 			assertEquals(Set.of(SUN_F15K), MatrixEngineService.getConnectors(connectors, Set.of(SUN_F15K), "selected", "hostname"));
 		}

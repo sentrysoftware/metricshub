@@ -1,9 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Optional;
 
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -33,5 +34,5 @@ public class MonitorCollectInfo {
 
 	private Long collectTime;
 
-	private ParameterState unknownStatus;
+	private Optional<ParameterState> unknownStatus;
 }
