@@ -68,8 +68,6 @@ class UnkonwStatusDeserializerTest {
 		assertEquals(WARN, new UnknownStatusDeserializer().deserialize(yamlParser, null));
 		doReturn("wArN").when(yamlParser).getValueAsString();
 		assertEquals(WARN, new UnknownStatusDeserializer().deserialize(yamlParser, null));
-		doReturn("unknown").when(yamlParser).getValueAsString();
-		assertEquals(WARN, new UnknownStatusDeserializer().deserialize(yamlParser, null));
 	}
 
 	@Test
