@@ -28,7 +28,7 @@ public enum ParameterState {
 	 *  	<li>{0, ok, OK} as OK</li>
 	 *  	<li>{1, warn, WARN} as WARN</li>
 	 *  	<li>{2, alarm, ALARM} as ALARM</li>
-	 *  <ul>
+	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return {@link Optional} of {@link ParameterState}
 	 */
