@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -108,7 +107,7 @@ class MatrixEngineServiceTest {
 				.protocolConfigurations(protocolConfigurations)
 				.selectedConnectors(selectedConnectors)
 				.target(target)
-				.unknownStatus(Optional.of(hostConfigurationDTO.getUnknownStatus()))
+				.unknownStatus(hostConfigurationDTO.getUnknownStatus())
 				.build();
 
 			assertEquals(expected, actual);

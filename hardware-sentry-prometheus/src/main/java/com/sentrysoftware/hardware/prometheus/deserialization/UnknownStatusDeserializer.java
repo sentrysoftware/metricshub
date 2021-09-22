@@ -1,6 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.deserialization;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -9,12 +10,12 @@ import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.NonNull;
 
-public class UnkownStatusDeserializer extends JsonDeserializer<ParameterState> {
+public class UnknownStatusDeserializer extends JsonDeserializer<Optional<ParameterState>> {
 	@Override
-	public ParameterState deserialize(JsonParser parser, DeserializationContext ctxt)
+	public Optional<ParameterState> deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
 		if (parser == null) {
-			return null;
+			return Optional.empty();
 		}
 
 		try {
@@ -25,24 +26,30 @@ public class UnkownStatusDeserializer extends JsonDeserializer<ParameterState> {
 	}
 
 	/**
-	 * Interpret the specified unkonwStatus OK {0, ok, OK}, WARN{1, warn,unkown}, ALARM{alarm, 2}.
-	 * @param status
-	 * @return
+	 * Interpret the specified unkonwStatus OK {0, ok, OK}, WARN {1, warn, WARN, unknown},
+	 * ALARM {2, alarm, ALARM}.
+	 * 
+	 * @param status String to be interpreted
+	 * @return {@link Optional} of {@link ParameterState}
 	 */
-	public static ParameterState interpretValueOf(@NonNull final String status) {
+	public static Optional<ParameterState> interpretValueOf(@NonNull final String status) {
 
 		final String lCaseStatus = status.toLowerCase();
 
+		if (lCaseStatus.isBlank()) {
+			return Optional.empty();
+		}
+
 		if ("0".equals(lCaseStatus) || "ok".equals(lCaseStatus)) {
-			return ParameterState.OK;
+			return Optional.of(ParameterState.OK);
 		}
 
 		if ("1".equals(lCaseStatus) || "warn".equals(lCaseStatus) || "unknown".equals(lCaseStatus)) {
-			return ParameterState.WARN;
+			return Optional.of(ParameterState.WARN);
 		}
 
 		if ("2".equals(lCaseStatus) || "alarm".equals(lCaseStatus)) {
-			return ParameterState.ALARM;
+			return Optional.of(ParameterState.ALARM);
 		}
 
 		throw new IllegalArgumentException("Invalid Parameter State for UnkownStatus: " + status);

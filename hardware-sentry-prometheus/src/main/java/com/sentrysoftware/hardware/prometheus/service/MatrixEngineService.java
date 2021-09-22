@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -290,7 +289,7 @@ public class MatrixEngineService {
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
 			.target(target.toHardwareTarget())
-			.unknownStatus(Optional.of(exporterConfig.getUnknownStatus()))
+			.unknownStatus(exporterConfig.getUnknownStatus())
 			.build();
 	}
 

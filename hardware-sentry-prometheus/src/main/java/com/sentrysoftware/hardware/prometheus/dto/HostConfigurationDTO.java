@@ -1,10 +1,11 @@
 package com.sentrysoftware.hardware.prometheus.dto;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.hardware.prometheus.deserialization.UnkownStatusDeserializer;
+import com.sentrysoftware.hardware.prometheus.deserialization.UnknownStatusDeserializer;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.HttpProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.IpmiOverLanProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.OsCommandConfigDTO;
@@ -58,6 +59,6 @@ public class HostConfigurationDTO {
 	private Set<String> excludedConnectors = new HashSet<>();
 
 	@Default
-	@JsonDeserialize(using = UnkownStatusDeserializer.class)
-	private ParameterState unknownStatus = ParameterState.WARN;
+	@JsonDeserialize(using = UnknownStatusDeserializer.class)
+	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
 }
