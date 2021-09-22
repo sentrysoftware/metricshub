@@ -102,7 +102,7 @@ public class PrometheusSpecificities {
 		labelsMap.put(MonitorType.LOGICAL_DISK, concatLabelsWithMetadata(MonitorType.LOGICAL_DISK));
 		labelsMap.put(MonitorType.LUN, concatLabelsWithMetadata(MonitorType.LUN));
 		labelsMap.put(MonitorType.TARGET, concatLabelsWithMetadata(MonitorType.TARGET));
-		labelsMap.put(MonitorType.MEMORY, concatLabelsWithMetadata(MonitorType.BATTERY));
+		labelsMap.put(MonitorType.MEMORY, concatLabelsWithMetadata(MonitorType.MEMORY));
 		labelsMap.put(MonitorType.NETWORK_CARD, concatLabelsWithMetadata(MonitorType.NETWORK_CARD));
 		labelsMap.put(MonitorType.OTHER_DEVICE, concatLabelsWithMetadata(MonitorType.OTHER_DEVICE));
 		labelsMap.put(MonitorType.PHYSICAL_DISK, concatLabelsWithMetadata(MonitorType.PHYSICAL_DISK));
