@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ class MatrixEngineServiceTest {
 		}
 
 		{
-			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), 
+			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K),
 					MatrixEngineService.getConnectors(connectors, Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), "selected", "hostname"));
 			assertEquals(Set.of(SUN_F15K), MatrixEngineService.getConnectors(connectors, Set.of(SUN_F15K), "selected", "hostname"));
 		}
@@ -107,7 +108,7 @@ class MatrixEngineServiceTest {
 				.protocolConfigurations(protocolConfigurations)
 				.selectedConnectors(selectedConnectors)
 				.target(target)
-				.unknownStatus(hostConfigurationDTO.getUnknownStatus())
+				.unknownStatus(Optional.of(hostConfigurationDTO.getUnknownStatus()))
 				.build();
 
 			assertEquals(expected, actual);

@@ -63,6 +63,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -713,7 +714,7 @@ class MonitorCollectVisitorTest {
 		.mapping(mapping)
 		.monitor(monitor)
 		.row(row)
-		.unknownStatus(UNKNOWN_STATUS_WARN)
+		.unknownStatus(Optional.of(UNKNOWN_STATUS_WARN))
 		.valueTable(VALUE_TABLE)
 		.build();
 	}
@@ -729,7 +730,7 @@ class MonitorCollectVisitorTest {
 			.mapping(mapping)
 			.monitor(monitor)
 			.row(row)
-			.unknownStatus(UNKNOWN_STATUS_WARN)
+			.unknownStatus(Optional.of(UNKNOWN_STATUS_WARN))
 			.valueTable(VALUE_TABLE)
 			.build();
 	}

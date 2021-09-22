@@ -174,7 +174,7 @@ class CollectOperationTest {
 						.type(TargetType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
-				.unknownStatus(UNKNOWN_STATUS_WARN)
+				.unknownStatus(Optional.of(UNKNOWN_STATUS_WARN))
 				.build();
 
 		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();

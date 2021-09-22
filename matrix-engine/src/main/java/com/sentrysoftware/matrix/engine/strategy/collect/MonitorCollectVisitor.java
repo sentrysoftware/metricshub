@@ -80,6 +80,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.springframework.util.Assert;
@@ -367,7 +368,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
-		final ParameterState unknownStatus = monitorCollectInfo.getUnknownStatus();
+		final Optional<ParameterState> unknownStatus = monitorCollectInfo.getUnknownStatus();
 		final Long collectTime = monitorCollectInfo.getCollectTime();
 
 		// Get the status raw value
