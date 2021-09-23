@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -828,12 +826,16 @@ class ComputeVisitorTest {
 	@Test
 	void testTranslation() {
 		
-		final Map<String, String> translationMap = Stream.of(new String[][] { 
-			{ "NAME1", "NAME1_resolved" }, { "NAME2", "NAME2_resolved" }, { "NAME3", "NAME3_resolved" }, 
-			{ "ID1", "ID1_resolved" }, { "ID2", "ID2_resolved" }, { "ID3", "ID3_resolved" }, 
-			{ "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1_resolved" }, { "NUMBER_OF_DISKS2", "NUMBER_OF_DISKS2_resolved" }, { "NUMBER_OF_DISKS3", "NUMBER_OF_DISKS3_resolved" }, 
-			})
-				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		final Map<String, String> translationMap = Map.of(
+				"name1", "NAME1_resolved",
+				"name2", "NAME2_resolved",
+				"name3", "NAME3_resolved",
+				"id1", "ID1_resolved",
+				"id2", "ID2_resolved",
+				"id3", "ID3_resolved",
+				"number_of_disks1", "NUMBER_OF_DISKS1_resolved",
+				"number_of_disks2", "NUMBER_OF_DISKS2_resolved",
+				"number_of_disks3", "NUMBER_OF_DISKS3_resolved");
 
 		// test null source to visit
 		initializeSourceTable();
@@ -925,12 +927,16 @@ class ComputeVisitorTest {
 				sourceTable.getTable());
 
 		// test with semi colon
-		final Map<String, String> translationMapSemiColon = Stream.of(new String[][] {
-			{ "NAME1", "NAME1_resolved" }, { "NAME2", "NAME2_resolved" }, { "NAME3", "NAME3_resolved" },
-			{ "ID1", "ID1_resolved" }, { "ID2", "ID2_resolved" }, { "ID3", "ID3_resolved" },
-			{ "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1_resolved;new_column_1" }, { "NUMBER_OF_DISKS2", "NUMBER_OF_DISKS2_resolved;new_column_2" }, { "NUMBER_OF_DISKS3", "NUMBER_OF_DISKS3_resolved;new_column_3" },
-		})
-				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		final Map<String, String> translationMapSemiColon = Map.of(
+				"name1", "NAME1_resolved",
+				"name2", "NAME2_resolved",
+				"name3", "NAME3_resolved",
+				"id1", "ID1_resolved",
+				"id2", "ID2_resolved",
+				"id3", "ID3_resolved",
+				"number_of_disks1", "NUMBER_OF_DISKS1_resolved;new_column_1",
+				"number_of_disks2", "NUMBER_OF_DISKS2_resolved;new_column_2",
+				"number_of_disks3", "NUMBER_OF_DISKS3_resolved;new_column_3");
 
 		initializeSourceTable();
 		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMapSemiColon).build()).build();
@@ -1306,17 +1312,16 @@ class ComputeVisitorTest {
 	@Test
 	void testPerBitTranslation() {
 
-		final Map<String, String> translationMap = Stream.of(new String[][] {
-			{"0,1","No Network"},
-			{"1,0","Authentication Failure"},
-			{"1,1","Not Ready"},
-			{"2,1","Fan Failure"},
-			{"3,1","AC Switch On"},
-			{"4,1","AC Power On"},
-			{"5,1","Ready"},
-			{"6,1","Failed"},
-			{"7,1","Predicted Failure"}
-		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		final Map<String, String> translationMap = Map.of(
+				"0,1","No Network",
+				"1,0","Authentication Failure",
+				"1,1","Not Ready",
+				"2,1","Fan Failure",
+				"3,1","AC Switch On",
+				"4,1","AC Power On",
+				"5,1","Ready",
+				"6,1","Failed",
+				"7,1","Predicted Failure");
 
 		List<Integer> bitList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7);
 
@@ -1325,9 +1330,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255"));
 
-		sourceTable.getTable().add(table.get(0));
-		sourceTable.getTable().add(table.get(1));
-		sourceTable.getTable().add(table.get(2));
+		sourceTable.setTable(table);
 
 		// test null source to visit
 		computeVisitor.visit((PerBitTranslation) null);
@@ -2044,11 +2047,11 @@ class ComputeVisitorTest {
 		translations = Map
 			.of(
 				"", "NO_VALUE",
-				"STATUS11", "TRANSLATED_STATUS11",
-				"STATUS12", "TRANSLATED_STATUS12",
-				"STATUS13", "TRANSLATED_STATUS13",
-				"STATUS22", "TRANSLATED_STATUS22", // No translation for STATUS23
-				"STATUS31", "TRANSLATED_STATUS31"
+				"status11", "TRANSLATED_STATUS11",
+				"status12", "TRANSLATED_STATUS12",
+				"status13", "TRANSLATED_STATUS13",
+				"status22", "TRANSLATED_STATUS22", // No translation for STATUS23
+				"status31", "TRANSLATED_STATUS31"
 			);
 
 		arrayTranslate.getTranslationTable().setTranslations(translations);
