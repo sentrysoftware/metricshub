@@ -215,7 +215,7 @@ public class MatsyaClientsExecutor {
 			} catch (Exception e) {
 
 				if (logMode) {
-					log.error("Error detected when running SNMP {} query OID: {} on HOST: {}", request, oid, hostname);
+					log.warn("Error detected when running SNMP {} query OID: {} on HOST: {}. Error message: {}", request, oid, hostname, e.getMessage());
 				}
 				return null;
 
