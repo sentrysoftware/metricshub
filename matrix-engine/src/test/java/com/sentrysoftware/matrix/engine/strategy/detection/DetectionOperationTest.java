@@ -27,9 +27,17 @@ import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -113,21 +121,27 @@ class DetectionOperationTest {
 				.displayName(CONNECTOR1_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.supersedes(Collections.singleton("connector2.hdf"))
-				.detection(Detection.builder().criteria(Collections.singletonList(criterion1)).build()).build();
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion1)).build())
+				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.build();
 
 		criterion2 = SNMPGetNext.builder().oid(OID2).build();
 		connector2 = Connector.builder()
 				.compiledFilename(CONNECTOR2_ID)
 				.displayName(CONNECTOR2_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
-				.detection(Detection.builder().criteria(Collections.singletonList(criterion2)).build()).build();
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion2)).build())
+				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.build();
 
 		criterion3 = SNMPGetNext.builder().oid(OID3).build();
 		connector3 = Connector.builder()
 				.compiledFilename(CONNECTOR3_ID)
 				.displayName(CONNECTOR3_ID)
 				.appliesToOS(Stream.of(OSType.HP, OSType.STORAGE).collect(Collectors.toSet())).remoteSupport(true)
-				.detection(Detection.builder().criteria(Collections.singletonList(criterion3)).build()).build();
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion3)).build())
+				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.build();
 
 		criterion4 = SNMPGetNext.builder().oid(OID4).build();
 		connector4 = Connector.builder()
@@ -135,14 +149,18 @@ class DetectionOperationTest {
 				.displayName(CONNECTOR4_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).localSupport(true)
 				.remoteSupport(false)
-				.detection(Detection.builder().criteria(Collections.singletonList(criterion4)).build()).build();
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion4)).build())
+				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.build();
 
 		criterion5 = SNMPGetNext.builder().oid(OID5).build();
 		connector5 = Connector.builder()
 				.compiledFilename(CONNECTOR5_ID)
 				.displayName(CONNECTOR5_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
-				.detection(Detection.builder().criteria(Collections.singletonList(criterion5)).build()).build();
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion5)).build())
+				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.build();
 
 		engineConfigurationSelection = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
@@ -399,5 +417,83 @@ class DetectionOperationTest {
 				DetectionOperation.filterExcludedConnectors(
 				Collections.singleton(connector4.getCompiledFilename()), localStore)
 				.collect(Collectors.toSet()));
+	}
+
+	@Test
+	void testDetermineAcceptedProtocols() {
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.MS_WINDOWS,
+					Collections.singleton(WBEMProtocol.class));
+			final Set<String> expected = Collections.singleton(WBEMSource.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.MS_WINDOWS,
+					Collections.singleton(WMIProtocol.class));
+			final Set<String> expected = Set.of(IPMI.PROTOCOL, WMISource.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
+					Collections.singleton(WMIProtocol.class));
+			final Set<String> expected = Collections.singleton(WMISource.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
+					Collections.singleton(SSHProtocol.class));
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.SUN_SOLARIS,
+					Collections.singleton(SSHProtocol.class));
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.MS_WINDOWS,
+					Collections.emptySet());
+			final Set<String> expected = Collections.singleton(OSCommandSource.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.LINUX,
+					Collections.emptySet());
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.SUN_SOLARIS,
+					Collections.emptySet());
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.SUN_SOLARIS,
+					Collections.singleton(SSHProtocol.class));
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			assertEquals(expected, actual);
+		}
+	}
+
+	@Test
+	void testFilterConnectorsByAcceptedProtocols() {
+		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2), Set.of(SNMPGetTableSource.PROTOCOL));
+		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
+
+		result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SNMPGetTableSource.PROTOCOL));
+		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
+
+		result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OSCommandSource.PROTOCOL));
+		assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 	}
 }

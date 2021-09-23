@@ -55,4 +55,7 @@ public class Connector implements Serializable {
 
 	@Default
 	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+
+	@Default
+	private Set<String> sourceProtocols = new HashSet<>();
 }

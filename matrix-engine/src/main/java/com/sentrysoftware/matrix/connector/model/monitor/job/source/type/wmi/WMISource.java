@@ -21,6 +21,8 @@ public class WMISource extends Source {
 
 	private static final long serialVersionUID = 218584585059836958L;
 
+	public static final String PROTOCOL = "WMI";
+
 	private String wbemQuery;
 	private String wbemNamespace;
 
@@ -36,6 +38,11 @@ public class WMISource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL;
 	}
 
 }

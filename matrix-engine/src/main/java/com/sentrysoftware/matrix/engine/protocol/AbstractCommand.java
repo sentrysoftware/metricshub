@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractCommand implements IProtocolConfiguration {
 
 	private static final String SUDO = "sudo";
-	private static final Long DEFAULT_TIMEOUT = 30L;
+	public static final Long DEFAULT_TIMEOUT = 30L;
 
 	/**
 	 * @param useSudo

@@ -62,6 +62,8 @@ public class TypeProcessor extends AbstractStateParser {
 
 			monitorJob.getSources().add(source);
 
+			connector.getSourceProtocols().add(source.getProtocol());
+
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 
 			throw new IllegalStateException(
