@@ -16,7 +16,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 @ExtendWith(MockitoExtension.class)
-class UnkonwStatusDeserializerTest {
+class UnknownStatusDeserializerTest {
 
 	private static final Optional<ParameterState> OK = Optional.of(ParameterState.OK);
 	private static final Optional<ParameterState> WARN = Optional.of(ParameterState.WARN);
