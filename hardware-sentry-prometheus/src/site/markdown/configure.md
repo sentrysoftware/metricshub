@@ -298,13 +298,14 @@ The exhaustive list of connectors is available in the <a href="https://www.sentr
 
 ### Configuring the Unknown Status
 
-On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` settings to indicate the value to be exposed in Prometheus:
+On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` setting to indicate the value to be exposed in Prometheus:
 
-- **OK** to expose the value **0**
-- **WARN** to expose the value **1**
-- **ALARM** to expose the value **2**.
+- **0** to expose the value **0 (OK)**
+- **1** to expose the value **1 (WARN)**
+- **2** to expose the value **2 (ALARM)**
+- **""** (empty) not to expose the metric. 
 
-Default is **WARN** (1) as shown below:
+Default is **1** as shown below:
 
 ```
 targets:
@@ -318,7 +319,7 @@ targets:
       timeout: 120s
       username: myusername
       password: mypwd
-    unknownStatus: WARN
+    unknownStatus: 1
 ```
 
 ### Configuring Timeout Durations
