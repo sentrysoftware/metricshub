@@ -19,15 +19,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
-import org.springframework.util.Assert;
 
 import lombok.Getter;
 import lombok.NonNull;
-
-import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.DEFAULT;
 
 /**
  * Based on HDV Maven Plugin HardwareConnector Bertrand's implementation.
@@ -263,9 +262,11 @@ public class ConnectorRefined {
 				String key = translationTableMatcher
 					.group(1)
 					.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-					.trim();
+					.trim()
+					.toLowerCase();
 
-				translationTable.getTranslations().put(DEFAULT.equalsIgnoreCase(key) ? DEFAULT : key,
+				translationTable.getTranslations().put(
+						key,
 						translationTableMatcher
 							.group(2)
 							.replaceAll(ConnectorParserConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
