@@ -43,4 +43,9 @@ public class OsCommandConfigDTO {
 				.timeout(timeout)
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		return "Local Commands";
+	}
 }

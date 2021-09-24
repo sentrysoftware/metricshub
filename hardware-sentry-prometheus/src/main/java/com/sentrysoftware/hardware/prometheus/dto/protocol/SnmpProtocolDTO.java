@@ -56,5 +56,21 @@ public class SnmpProtocolDTO {
 				.build();
 	}
 
+	@Override
+	public String toString() {
+		String desc = version.getDisplayName();
+		if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+			desc = desc + " (" + community + ")";
+		} else {
+			if (username != null) {
+				desc = desc + " as " + username;
+			}
+			if (privacy != null && privacy != Privacy.NO_ENCRYPTION) {
+				desc = desc + " (" + privacy + "-encrypted)";
+			}
+		}
+		return desc;
+	}
+
 
 }
