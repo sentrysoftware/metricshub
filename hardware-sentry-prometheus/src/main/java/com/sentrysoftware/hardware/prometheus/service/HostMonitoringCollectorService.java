@@ -1,6 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.GaugeMetricFamily;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -78,23 +80,23 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Add a metadata as metric sample
 	 *
-	 * @param labeledMetric Prometheus {@link MetricFamilySamples}
-	 * @param monitor       Collected {@link Monitor} instance
-	 * @param parameterName The parameter name we wish to add
+	 * @param labeledMetric      Prometheus {@link MetricFamilySamples}
+	 * @param monitor            Collected {@link Monitor} instance
+	 * @param matrixMetadataName The name of the metadata
 	 */
-	static void addMetadataAsMetric(final MetricFamilySamples labeledMetric, final Monitor monitor, final String parameterName, final double factor) {
+	static void addMetadataAsMetric(final MetricFamilySamples labeledMetric, final Monitor monitor, final String matrixMetadataName, final double factor) {
 
 		if (labeledMetric instanceof CounterMetricFamily) {
 			((CounterMetricFamily) labeledMetric).addMetric(
 					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
-					convertMetadataValue(monitor, parameterName, factor)
+					convertMetadataValue(monitor.getMetadata(matrixMetadataName), factor)
 				);
 		} else {
 			((GaugeMetricFamily) labeledMetric).addMetric(
 					// fqdn, Id, label, parentId (can be null)
 					createLabels(monitor),
-					convertMetadataValue(monitor, parameterName, factor)
+					convertMetadataValue(monitor.getMetadata(matrixMetadataName), factor)
 				);
 		}
 	}
@@ -128,16 +130,14 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Convert metadata value according to the given factor
-	 * @param monitor
-	 * @param metadata
-	 * @param factor
-	 * @return
+	 * 
+	 * @param metadataValue cannot be null and must be a number
+	 * @return {@link Double} value
 	 */
-	static Double convertMetadataValue(final Monitor monitor, final String metadata, double factor) {
+	static Double convertMetadataValue(@NonNull final String metadataValue, double factor) {
 
-		// monitor.getMetadata(metadata) can never return null when the current method is called
-		// Because the precedent method has been filtred
-		return NumberHelper.parseDouble(monitor.getMetadata(metadata), null) * factor;
+		// metadataValue can never be null and not a number as it is already checked and validated before calling this method
+		return NumberHelper.parseDouble(metadataValue, null) * factor;
 	}
 
 	@Override
@@ -246,26 +246,40 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Check if the metadata value stored in metric_info needs to be converted
 	 * @param monitor
 	 * @param label
-	 * @return
+	 * @return String value
 	 */
-	static String convertMetadataInfoValue(final Monitor monitor, String label) {
+	static String convertMetadataInfoValue(final Monitor monitor, final String label) {
 		if (label == null || label.isEmpty() || monitor == null || monitor.getMetadata() == null) {
-			return "";
+			return EMPTY;
 		}
-		// get the actual label (from Matrix-Model)
-		label = snakeCaseToCamelCase(label);
-		// check if its value needs to be converted
-		String metricValue = getValueOrElse(monitor.getMetadata(label), "");
-		// check if there is a prometheus metadata specificity in order to get the factor
-		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
-				.getPrometheusMetadataToParameters(monitor.getMonitorType(), label);
 
-		if (maybePrometheusParameter.isPresent() && !metricValue.isEmpty()) {
-			// Ok, now we can get the prometheus parameter related to the given metadata
-			final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
-			metricValue = convertMetadataValue(monitor, label, prometheusParameter.getFactor()).toString() ;
+		// Get the actual label (from Matrix-Model)
+		final String matrixMetadataName = snakeCaseToCamelCase(label);
+
+		// Check if its value needs to be converted
+		String metricValue = getValueOrElse(monitor.getMetadata(matrixMetadataName), EMPTY);
+
+		// Check if there is a Prometheus metadata specificity in order to get the factor
+		final Optional<PrometheusParameter> maybePrometheusParameter = PrometheusSpecificities
+				.getPrometheusMetadataToParameters(monitor.getMonitorType(), matrixMetadataName);
+
+		if (!maybePrometheusParameter.isPresent()) {
+			return metricValue;
 		}
-		return metricValue;
+
+		// Check the metadata is a number value
+		if (canParseDoubleValue(metricValue)) {
+			// Ok, now we can get the Prometheus parameter related to the given metadata
+			final PrometheusParameter prometheusParameter = maybePrometheusParameter.get();
+
+			return convertMetadataValue(metricValue, prometheusParameter.getFactor()).toString() ;
+		}
+
+		// This is an unexpected metadata value (expected as number value)
+		// Let's use empty instead of a bad non-number value in number label.
+		return EMPTY;
+
+
 	}
 
 	/**
@@ -440,18 +454,28 @@ public class HostMonitoringCollectorService extends Collector {
 
 
 	/**
-	 * Check if the metadata exists in the given monitor
+	 * Check if the metadata is collected and available as a number in the given monitor
 	 *
 	 * @param monitor       The monitor we wish to check its metadata
-	 * @param metadata The name of the metadata
+	 * @param metadata      The name of the metadata
 	 * @return <code>true</code> if the metric is collected otherwise <code>false</code>
 	 */
 	static boolean checkMetadata(final Monitor monitor, final String metadata) {
 		return monitor != null
 				&& monitor.getMetadata() != null
-				&& monitor.getMetadata(metadata) != null
-				&& NumberHelper.parseDouble(monitor.getMetadata(metadata), null) != null;
+				&& canParseDoubleValue(monitor.getMetadata(metadata));
 	}
+
+	/**
+	 * Check if the given value can be parsed as double
+	 * 
+	 * @param value The value we wish to check
+	 * @return <code>true</code> if the value is not <code>null</code> and the parse succeeds otherwise <code>false</code>
+	 */
+	static boolean canParseDoubleValue(final String value) {
+		return value != null && NumberHelper.parseDouble(value, null) != null;
+	}
+
 	/**
 	 * Get actual value or other if actual is null
 	 *
