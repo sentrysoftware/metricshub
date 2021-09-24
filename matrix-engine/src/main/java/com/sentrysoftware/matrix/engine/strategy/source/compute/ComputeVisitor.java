@@ -166,6 +166,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			resultSeparator = "|";
 		}
 
+		final String defaultTranslation = translations.get(DEFAULT);
+		
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 		for (List<String> row : sourceTable.getTable()) {
@@ -187,7 +189,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				String translatedArrayValue = Arrays
 					.stream(splitArrayValue)
-					.map(value -> translations.getOrDefault(value.toLowerCase(), translations.get(DEFAULT)))
+					.map(value -> translations.getOrDefault(value.toLowerCase(), defaultTranslation))
 					.filter(value -> value != null && !value.isBlank())
 					.collect(Collectors.joining(resultSeparator));
 
@@ -831,14 +833,17 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 
-				final String columnResult = bitList.stream()
+				final List<String> columnResult = bitList.stream()
 						.map(bit -> String.format("%d,%d", bit, ((int) Math.pow(2, bit) & valueToBeReplacedLong) != 0 ? 1 : 0))
 						.map(key -> translations.get(key))
-						.filter(value -> value != null && !value.isBlank())
-						.collect(Collectors.joining(" - "));
+						.collect(Collectors.toList());
 
 				if (!columnResult.isEmpty()) {
-					line.set(columnIndex, columnResult);
+					line.set(
+							columnIndex, 
+							columnResult.stream()
+							.filter(value -> value != null && !value.isBlank())
+							.collect(Collectors.joining(" - ")));
 				}
 			}
 		}
@@ -1143,11 +1148,13 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		boolean needSerialization = false;
 
+		final String defaultTranslation = translations.get(DEFAULT);
+
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
 				final String valueToBeReplaced = line.get(columnIndex).toLowerCase();
-				final String newValue = translations.getOrDefault(valueToBeReplaced, translations.get(DEFAULT));
+				final String newValue = translations.getOrDefault(valueToBeReplaced, defaultTranslation);
 
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
