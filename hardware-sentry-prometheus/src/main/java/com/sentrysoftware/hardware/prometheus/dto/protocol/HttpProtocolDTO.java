@@ -45,4 +45,14 @@ public class HttpProtocolDTO {
 				.timeout(timeout)
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		return String.format(
+				"%s/%d%s",
+				https ? "HTTPS" : "HTTP",
+				port,
+				username != null ? " as " + username : ""
+		);
+	}
 }

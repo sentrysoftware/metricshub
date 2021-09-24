@@ -53,4 +53,13 @@ public class SshProtocolDTO {
 				.sudoCommand(sudoCommand)
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		String desc = "SSH";
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
 }
