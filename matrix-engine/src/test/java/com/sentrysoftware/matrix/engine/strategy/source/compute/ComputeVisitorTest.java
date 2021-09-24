@@ -1355,11 +1355,6 @@ class ComputeVisitorTest {
 		computeVisitor.visit(translate);
 		assertEquals(table, sourceTable.getTable());
 
-		// test bitList is empty
-		translate.setColumn(4);
-		computeVisitor.visit(translate);
-		assertEquals(table, sourceTable.getTable());
-
 		// test bitList is null
 		translate.setBitList(null);
 		computeVisitor.visit(translate);

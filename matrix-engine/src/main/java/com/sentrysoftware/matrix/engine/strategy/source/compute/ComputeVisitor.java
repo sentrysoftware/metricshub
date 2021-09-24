@@ -833,18 +833,13 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 
-				final List<String> columnResult = bitList.stream()
+				final String columnResult = bitList.stream()
 						.map(bit -> String.format("%d,%d", bit, ((int) Math.pow(2, bit) & valueToBeReplacedLong) != 0 ? 1 : 0))
 						.map(key -> translations.get(key))
-						.collect(Collectors.toList());
+						.filter(value -> value != null && !value.isBlank())
+						.collect(Collectors.joining(" - "));
 
-				if (!columnResult.isEmpty()) {
-					line.set(
-							columnIndex, 
-							columnResult.stream()
-							.filter(value -> value != null && !value.isBlank())
-							.collect(Collectors.joining(" - ")));
-				}
+				line.set(columnIndex, columnResult);
 			}
 		}
 	}
