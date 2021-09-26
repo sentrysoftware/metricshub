@@ -2284,16 +2284,16 @@ class MonitorCollectVisitorTest {
 	void testCollectNetworkCardDuplexMode() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.NETWORK_CARD).build();
+		monitor.addParameter(StatusParam.builder().name(LINK_STATUS_PARAMETER).state(ParameterState.WARN).build());
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		// duplexMode = null
 		monitorCollectVisitor.collectNetworkCardDuplexMode();
 		NumberParam duplexModeParameter = monitor.getParameter(DUPLEX_MODE_PARAMETER, NumberParam.class);
-		assertNotNull(duplexModeParameter);
-		assertEquals(0.0, duplexModeParameter.getRawValue());
-		assertEquals(0.0, duplexModeParameter.getValue());
+		assertNull(duplexModeParameter);
 
 		// duplexMode = blabla
+		monitor.addParameter(StatusParam.builder().name(LINK_STATUS_PARAMETER).state(ParameterState.OK).build());
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map.of(DUPLEX_MODE_PARAMETER, VALUETABLE_COLUMN_1),
