@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
-import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -145,11 +143,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			} else {
 
-				String returnedResultMessage = LoggerHelper.canBeLogged(result)
-					? String.format(" Returned result: %s", result)
-					: EMPTY;
-
-				message = String.format("Successful HTTP Test on %s.%s", hostname, returnedResultMessage);
+				message = String.format("Successful HTTP Test on %s. Returned result: %s", hostname, result);
 				success = true;
 			}
 

@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
@@ -308,11 +307,8 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator) throws InterruptedException, ExecutionException, TimeoutException {
 
-		if (LoggerHelper.canBeLogged(jsonSource) && LoggerHelper.canBeLogged(jsonEntryKey) && LoggerHelper.canBeLogged(propertyList)) {
-
-			log.debug("\nConverting JSON to CSV:\nJSON source:\n{}\nJSON entry key:\n{}\nProperty list:\n{}\nSeparator:\n{}\n",
-				jsonSource, jsonEntryKey, propertyList, separator);
-		}
+		log.debug("\nConverting JSON to CSV:\nJSON source:\n{}\nJSON entry key:\n{}\nProperty list:\n{}\nSeparator:\n{}\n",
+			jsonSource, jsonEntryKey, propertyList, separator);
 
 		final Callable<String> jflatToCSV = () -> {
 
@@ -334,9 +330,7 @@ public class MatsyaClientsExecutor {
 
 		String result = execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 
-		if (LoggerHelper.canBeLogged(result)) {
-			log.debug(LOG_MATSYA_RESULT_TEMPLATE, "JSON to CSV", result);
-		}
+		log.debug(LOG_MATSYA_RESULT_TEMPLATE, "JSON to CSV", result);
 
 		return result;
 	}
@@ -355,15 +349,11 @@ public class MatsyaClientsExecutor {
 			final String properties,
 			final String recordTag) throws XFlatException {
 
-		if (LoggerHelper.canBeLogged(xml) && LoggerHelper.canBeLogged(properties) && LoggerHelper.canBeLogged(recordTag)) {
-			log.debug("\nParsing XML:\nXML source:\n{}\nProperties:\n{}\nRecord tag:\n{}\n", xml, properties, recordTag);
-		}
+		log.debug("\nParsing XML:\nXML source:\n{}\nProperties:\n{}\nRecord tag:\n{}\n", xml, properties, recordTag);
 
 		List<List<String>> result = XFlat.parseXml(xml, properties, recordTag);
 
-		if (LoggerHelper.canBeLogged(result)) {
-			log.debug(LOG_MATSYA_RESULT_TEMPLATE, "XML parsing", TextTableHelper.generateTextTable(properties, result));
-		}
+		log.debug(LOG_MATSYA_RESULT_TEMPLATE, "XML parsing", TextTableHelper.generateTextTable(properties, result));
 
 		return result;
 	}
@@ -577,10 +567,10 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param httpRequest		The {@link HTTPRequest} values.
-	 * @param logMode	Whether or not logging is enabled.
+	 * @param httpRequest	The {@link HTTPRequest} values.
+	 * @param logMode		Whether or not logging is enabled.
 	 *
-	 * @return			The result of the execution of the given HTTP request.
+	 * @return				The result of the execution of the given HTTP request.
 	 */
 	public String executeHttp(@NonNull HTTPRequest httpRequest, boolean logMode) {
 
@@ -614,9 +604,7 @@ public class MatsyaClientsExecutor {
 				url
 		);
 
-		if (LoggerHelper.canBeLogged(fullUrl) && LoggerHelper.canBeLogged(headerContent) && LoggerHelper.canBeLogged(bodyContent)) {
-			log.debug("\nExecuting HTTP request:\n{} {} [{}]\n", method, fullUrl, httpRequest.getResultContent());
-		}
+		log.debug("\nExecuting HTTP request:\n{} {} [{}]\n", method, fullUrl, httpRequest.getResultContent());
 
 		try {
 
@@ -642,9 +630,7 @@ public class MatsyaClientsExecutor {
 				default: throw new IllegalArgumentException("Unsupported ResultContent: " + httpRequest.getResultContent());
 			}
 
-			if (LoggerHelper.canBeLogged(result)) {
-				log.debug(LOG_MATSYA_RESULT_TEMPLATE, "HTTP request", result);
-			}
+			log.debug(LOG_MATSYA_RESULT_TEMPLATE, "HTTP request", result);
 
 			return result;
 
@@ -720,12 +706,9 @@ public class MatsyaClientsExecutor {
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
 
-		if (LoggerHelper.canBeLogged(command)) {
-
-			log.debug("\nExecuting Remote SSH command:\nHostname:\n{}\nUsername:\n{}\nKey file path:\n{}\nCommand:\n{}\n"
+		log.debug("\nExecuting Remote SSH command:\nHostname:\n{}\nUsername:\n{}\nKey file path:\n{}\nCommand:\n{}\n"
 					+ "Timeout:\n{}\nLocal files:\n{}\n",
 				hostname, username, keyFilePath, command, timeout, localFiles);
-		}
 
 		isTrue(command != null && !command.trim().isEmpty(), "command mustn't be null nor empty.");
 		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
@@ -786,9 +769,7 @@ public class MatsyaClientsExecutor {
 
 			String result = commandResult.result;
 
-			if (LoggerHelper.canBeLogged(result)) {
-				log.debug(LOG_MATSYA_RESULT_TEMPLATE, "Remote SSH command", result);
-			}
+			log.debug(LOG_MATSYA_RESULT_TEMPLATE, "Remote SSH command", result);
 
 			return result;
 

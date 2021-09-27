@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
@@ -237,9 +236,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
 
-		if (LoggerHelper.canBeLogged(osCommandSource.toString())) {
-			log.info(LOG_BEGIN_OPERATION_TEMPLATE, "OSCommand source", osCommandSource.getKey(), osCommandSource.toString());
-		}
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "OSCommand source", osCommandSource.getKey(), osCommandSource.toString());
 
 		// We must copy the source so that we don't modify the original source 
 		// which needs to be passed for each monitor when running the mono instance collect.

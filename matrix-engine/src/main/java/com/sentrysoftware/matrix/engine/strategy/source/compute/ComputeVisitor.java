@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
@@ -57,8 +56,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
@@ -651,13 +650,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, json2csv.getIndex());
 
-		if (LoggerHelper.canBeLogged(sourceTable.getRawData())) {
-
-			log.info("\nExecuting {} [{}] operation on raw data:\n{}\n",
+		log.info("\nExecuting {} [{}] operation on raw data:\n{}\n",
 				json2csv.toString(),
 				computeKey,
 				sourceTable.getRawData());
-		}
 
 		try {
 			String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
@@ -671,13 +667,10 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Compute Operation (Json2CSV) has failed. ", e);
 		}
 
-		if (LoggerHelper.canBeLogged(sourceTable.getTable())) {
-
-			log.info(LOG_RESULT_TEMPLATE,
-				"Json2CSV conversion",
-				computeKey,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-		}
+		log.info(LOG_RESULT_TEMPLATE,
+			"Json2CSV conversion",
+			computeKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override

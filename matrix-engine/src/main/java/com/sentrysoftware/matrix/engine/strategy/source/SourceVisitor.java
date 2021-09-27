@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.LoggerHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
@@ -111,9 +110,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 			if (result != null) {
 
-				if (LoggerHelper.canBeLogged(result)) {
-					log.info(LOG_RESULT_TEMPLATE, "HTTP source", httpSource.getKey(), result);
-				}
+				log.info(LOG_RESULT_TEMPLATE, "HTTP source", httpSource.getKey(), result);
 
 				return SourceTable
 					.builder()
@@ -151,7 +148,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		log.info("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI. Returning an empty table.",
-				target.getHostname(), targetType.name());
+			target.getHostname(), targetType.name());
 
 		return SourceTable.empty();
 	}
@@ -371,13 +368,10 @@ public class SourceVisitor implements ISourceVisitor {
 					.collect(Collectors.toList()))
 				.build();
 
-			if (LoggerHelper.canBeLogged(sourceTable.getTable())) {
-
-				log.info(LOG_RESULT_TEMPLATE,
-					"OSCommand source",
-					osCommandSource.getKey(),
-					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-			}
+			log.info(LOG_RESULT_TEMPLATE,
+				"OSCommand source",
+				osCommandSource.getKey(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
 
