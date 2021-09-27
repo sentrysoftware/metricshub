@@ -31,23 +31,53 @@ public class TextTableHelper {
 	private static final String TABLE_VALUE_SPLIT_SYMBOL = "|";
 	private static final String TABLE_BORDER_SYMBOL = "-";
 
+	/**
+	 * Creates a text table for the given <code>rows</code>.<br><br>
+	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
+	 * The headers are generated as <i>Column 1, Column 2, ...</i>,
+	 * with the number of columns being based on the number of columns in the longest row.
+	 *
+	 * @param rows	The {@link List} of rows.
+	 *
+	 * @return		A formatted text table representing the given rows.
+	 */
 	public static String generateTextTable(List<List<String>> rows) {
 
 		if (rows == null || rows.isEmpty()) {
 			return EMPTY;
 		}
 
-		List<String> firstRow = rows.get(0);
-		Assert.notNull(firstRow, "firstRow cannot be null.");
+		List<String> longestRow = null;
+		for (List<String> row : rows) {
+
+			longestRow = longestRow == null || (row != null && row.size() > longestRow.size())
+				? row
+				: longestRow;
+		}
+
+		if (longestRow == null || longestRow.isEmpty()) {
+			return EMPTY;
+		}
 
 		List<TableHeader> headers = IntStream
-			.range(1, firstRow.size() + 1)
+			.range(1, longestRow.size() + 1)
 			.mapToObj(index -> new TableHeader(String.format("Column %d", index), TextDataType.STRING))
 			.collect(Collectors.toList());
 
 		return generateTextTable(headers, rows);
 	}
 
+	/**
+	 * Creates a text table for the given <code>rows</code>.<br><br>
+	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
+	 * The headers are generated based on <emp>semiColonSeparatedColumns</emp> (e.g. : <emp>column1;column2</emp>).
+	 *
+	 * @param semiColonSeparatedColumns	A semicolon-separated list of column names.
+	 * @param rows						The {@link List} of rows.
+	 *
+	 * @return							A formatted text table representing the given rows,
+	 * 									with the given column names as the headers.
+	 */
 	public static String generateTextTable(String semiColonSeparatedColumns, List<List<String>> rows) {
 
 		return (semiColonSeparatedColumns == null || semiColonSeparatedColumns.isBlank())
@@ -55,6 +85,17 @@ public class TextTableHelper {
 		: generateTextTable(semiColonSeparatedColumns.split(SEMICOLON), rows);
 	}
 
+	/**
+	 * Creates a text table for the given <code>rows</code>.<br><br>
+	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
+	 * The headers are generated based on <emp>columns</emp> (e.g. : <emp>new String[] {column1, column2}</emp>).
+	 *
+	 * @param columns	An array of column names.
+	 * @param rows		The {@link List} of rows.
+	 *
+	 * @return			A formatted text table representing the given rows,
+	 * 					with the given column names as the headers.
+	 */
 	public static String generateTextTable(String[] columns, List<List<String>> rows) {
 
 		if (columns == null || columns.length == 0) {
@@ -69,6 +110,17 @@ public class TextTableHelper {
 		return generateTextTable(headers, rows);
 	}
 
+	/**
+	 * Creates a text table for the given <code>rows</code>.<br><br>
+	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
+	 * The headers are generated based on <emp>columns</emp> (e.g. : <emp>Arrays.asList(column1, column2)</emp>).
+	 *
+	 * @param columns	An {@link Collection} of column names.
+	 * @param rows		The {@link List} of rows.
+	 *
+	 * @return			A formatted text table representing the given rows,
+	 * 					with the given column names as the headers.
+	 */
 	public static String generateTextTable(Collection<String> columns, List<List<String>> rows) {
 
 		if (columns == null || columns.isEmpty()) {
@@ -173,13 +225,14 @@ public class TextTableHelper {
 	 */
 	private static List<String> cleanRow(final List<String> row, final int headersSize) {
 
+		// Creating a copy of the row
 		ArrayList<String> result = new ArrayList<>(row);
 
-		// Replace null cells
+		// Replacing null cells
 		// noinspection ResultOfMethodCallIgnored
 		Collections.replaceAll(result, null, N_A);
 
-		// Create missing cells
+		// Creating missing cells
 		if (result.size() < headersSize) {
 
 			return Stream
@@ -188,7 +241,7 @@ public class TextTableHelper {
 
 		} else if (result.size() > headersSize) {
 
-			// Remove extra cells
+			// Removing extra cells
 			return result
 				.stream()
 				.limit(headersSize)
@@ -205,22 +258,6 @@ public class TextTableHelper {
 
 		final int indexOfNull = headers.indexOf(null);
 		Assert.isTrue(indexOfNull == -1, () -> String.format("Header at index '%d' cannot be null.", indexOfNull));
-
-//		// Checking all rows are the same size
-//		int commonRowSize = -1;
-//		for (List<String> row : rows) {
-//
-//			Assert.notNull(row, "row cannot be null.");
-//
-//			if (commonRowSize == -1) {
-//
-//				commonRowSize = row.size();
-//				continue;
-//			}
-//
-//			Assert.isTrue(row.size() == commonRowSize,
-//				String.format("The following row was expected to have %d column(s): %s", commonRowSize, row));
-//		}
 	}
 
 	/**

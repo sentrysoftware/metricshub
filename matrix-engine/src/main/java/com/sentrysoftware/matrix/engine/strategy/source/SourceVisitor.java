@@ -177,7 +177,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 			if (result != null) {
 
-				log.info(LOG_RESULT_TEMPLATE, "Out of Bound IPMI source", sourceKey, result);
+				log.info(LOG_RESULT_TEMPLATE, "IPMI-over-LAN source", sourceKey, result);
 
 				return SourceTable
 					.builder()
