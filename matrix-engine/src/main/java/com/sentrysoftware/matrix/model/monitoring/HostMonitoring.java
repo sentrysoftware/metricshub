@@ -648,7 +648,9 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public ConnectorNamespace getConnectorNamespace(final String connectorName) {
-		return connectorNamespaces.computeIfAbsent(connectorName, cn -> ConnectorNamespace.builder().build());
+		synchronized (connectorNamespaces) {
+			return connectorNamespaces.computeIfAbsent(connectorName, cn -> ConnectorNamespace.builder().build());
+		}
 	}
 
 	@Override
