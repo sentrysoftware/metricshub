@@ -438,7 +438,7 @@ class DetectionOperationTest {
 		{
 			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
 					Collections.singleton(WMIProtocol.class));
-			final Set<String> expected = Collections.singleton(WMISource.PROTOCOL);
+			final Set<String> expected = Collections.emptySet();
 			assertEquals(expected, actual);
 		}
 

@@ -69,17 +69,16 @@ public class DetectionOperation extends AbstractStrategy {
 
 	static {
 
-		final Map<Class<? extends IProtocolConfiguration>, String> configurationToProtocolMap = new HashMap<>();
-		configurationToProtocolMap.put(SNMPProtocol.class, SNMPSource.PROTOCOL);
-		configurationToProtocolMap.put(WMIProtocol.class, WMISource.PROTOCOL);
-		configurationToProtocolMap.put(WBEMProtocol.class, WBEMSource.PROTOCOL);
-		configurationToProtocolMap.put(SSHProtocol.class, OSCommandSource.PROTOCOL);
-		configurationToProtocolMap.put(HTTPProtocol.class, HTTPSource.PROTOCOL);
-		configurationToProtocolMap.put(IPMIOverLanProtocol.class, IPMI.PROTOCOL);
-		configurationToProtocolMap.put(OSCommandConfig.class, OSCommandSource.PROTOCOL);
-		configurationToProtocolMap.put(SSHInteractive.class, TelnetInteractiveSource.PROTOCOL);
+		CONFIGURATION_TO_PROTOCOL_MAP = Map.of(
+				SNMPProtocol.class, SNMPSource.PROTOCOL,
+				WMIProtocol.class, WMISource.PROTOCOL,
+				WBEMProtocol.class, WBEMSource.PROTOCOL,
+				SSHProtocol.class, OSCommandSource.PROTOCOL,
+				HTTPProtocol.class, HTTPSource.PROTOCOL,
+				IPMIOverLanProtocol.class, IPMI.PROTOCOL,
+				OSCommandConfig.class, OSCommandSource.PROTOCOL,
+				SSHInteractive.class, TelnetInteractiveSource.PROTOCOL);
 
-		CONFIGURATION_TO_PROTOCOL_MAP = Collections.unmodifiableMap(configurationToProtocolMap);
 	}
 
 	@Override
@@ -238,6 +237,11 @@ public class DetectionOperation extends AbstractStrategy {
 				.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
 				.map(Entry::getValue)
 				.collect(Collectors.toSet());
+
+		// Remove WMI for non-windows target
+		if (!TargetType.MS_WINDOWS.equals(targetType)) {
+			protocols.remove(WMISource.PROTOCOL);
+		}
 
 		// Add IPMI through WMI
 		if (TargetType.MS_WINDOWS.equals(targetType) && protocols.contains(WMISource.PROTOCOL)) {
