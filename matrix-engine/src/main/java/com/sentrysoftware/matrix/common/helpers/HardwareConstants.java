@@ -315,4 +315,5 @@ public class HardwareConstants {
 	 * Pattern to remove MS_HW_ from the compiled file name
 	 */
 	public static final Pattern REMOVE_MS_HW_PATTERN = Pattern.compile("^(MS_HW_)(.*)$", Pattern.CASE_INSENSITIVE);
+
 }

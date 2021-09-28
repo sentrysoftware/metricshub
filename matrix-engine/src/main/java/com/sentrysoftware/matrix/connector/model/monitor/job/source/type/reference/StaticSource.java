@@ -33,4 +33,9 @@ public class StaticSource  extends Source {
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
 	}
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL_NONE;
+	}
 }

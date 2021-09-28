@@ -25,6 +25,8 @@ public class HTTPSource extends Source {
 
 	private static final long serialVersionUID = -6658120832080657988L;
 
+	public static final String PROTOCOL = "HTTP";
+
 	private String method;
 	private String url;
 	// String or EmbeddedFile reference
@@ -79,6 +81,11 @@ public class HTTPSource extends Source {
 				.entryConcatStart(entryConcatStart)
 				.entryConcatEnd(entryConcatEnd)
 				.build();
+	}
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL;
 	}
 
 }

@@ -820,12 +820,12 @@ class SourceVisitorTest {
 					.builder()
 					.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
 					.build()).when(hostMonitoring).getConnectorNamespace(connector);
-			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
+			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource));
 		}
 
 		{
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace(ROOT_IBMSD_WMI_NAMESPACE).build();
-			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource, WMIProtocol.builder().build()));
+			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource));
 		}
 	}
 
