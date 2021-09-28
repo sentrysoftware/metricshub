@@ -3,15 +3,20 @@
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout disableAnsi="false"
-				pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
+						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
+			<ThresholdFilter level="warn"/>
+		</Console>
+		<Console name="SpringConsole" target="SYSTEM_OUT">
+			<PatternLayout disableAnsi="false"
+						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
 		</Console>
 		<Routing name="Routing">
 			<Routes pattern="$${ctx:targetId}">
 				<!-- This route is chosen if ThreadContext has debugMode = true. -->
 				<Route>
 					<RollingFile name="Rolling-${ctx:targetId}"
-						fileName="${ctx:outputDirectory}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
-						filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+								 fileName="${ctx:outputDirectory}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
+								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
@@ -29,17 +34,25 @@
 		</Routing>
 	</Appenders>
 	<Loggers>
-		<logger name="com.sentrysoftware" level="trace">
+		<Root level="error" additivity="false">
+			<appender-ref ref="Console" />
+		</Root>
+		<!--	Requests handling logger	-->
+		<logger name="com.sentrysoftware" level="error">
 			<appender-ref ref="Routing">
-				<ThreadContextMapFilter onMatch="DENY"
-					onMismatch="ACCEPT">
+				<ThreadContextMapFilter onMatch="DENY" onMismatch="ACCEPT">
 					<KeyValuePair key="debugMode" value="" />
 					<KeyValuePair key="debugMode" value="false" />
 				</ThreadContextMapFilter>
 			</appender-ref>
 		</logger>
-		<Root level="info">
-			<AppenderRef ref="Console" />
-		</Root>
+		<!--	Prometheus logger	-->
+		<logger name="com.sentrysoftware.hardware.prometheus" level="trace">
+			<appender-ref ref="SpringConsole" />
+		</logger>
+		<!--	Tomcat logger	-->
+		<logger name="org.springframework.boot.web.embedded.tomcat.TomcatWebServer" level="trace">
+			<appender-ref ref="SpringConsole" />
+		</logger>
 	</Loggers>
 </Configuration>
