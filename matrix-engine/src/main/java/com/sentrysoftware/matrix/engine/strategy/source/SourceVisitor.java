@@ -898,7 +898,7 @@ public class SourceVisitor implements ISourceVisitor {
 			result = Collections.emptyList();
 		}
 
-		log.info("\nIPMI query for [{}] result:\n{}\n", sourceKey, TextTableHelper.generateTextTable(result));
+		log.info("IPMI query for [{}] result:\n{}\n", sourceKey, TextTableHelper.generateTextTable(result));
 
 		return result;
 	}

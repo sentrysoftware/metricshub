@@ -68,7 +68,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private static final Pattern COLUMN_PATTERN =  Pattern.compile(COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
 
-	private static final String LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE = "\nExecuting {} [{}] operation on table:\n{}\n";
+	private static final String LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE = "Executing {} [{}] operation on table:\n{}\n";
 
 	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s.compute(%d)";
 
@@ -650,7 +650,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, json2csv.getIndex());
 
-		log.info("\nExecuting {} [{}] operation on raw data:\n{}\n",
+		log.info("Executing {} [{}] operation on raw data:\n{}\n",
 				json2csv.toString(),
 				computeKey,
 				sourceTable.getRawData());

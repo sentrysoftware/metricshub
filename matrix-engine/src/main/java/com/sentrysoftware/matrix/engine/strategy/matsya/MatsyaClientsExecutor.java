@@ -64,7 +64,7 @@ public class MatsyaClientsExecutor {
 	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
 	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
-	private static final String LOG_MATSYA_RESULT_TEMPLATE = "\n{} result:\n{}\n";
+	private static final String LOG_MATSYA_RESULT_TEMPLATE = "{} result:\n{}\n";
 
 	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
@@ -113,7 +113,7 @@ public class MatsyaClientsExecutor {
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nExecuting SNMP GetNext request: OID={}", oid);
+		log.debug("Executing SNMP GetNext request: OID={}", oid);
 
 		String result = executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
 
@@ -141,7 +141,7 @@ public class MatsyaClientsExecutor {
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nExecuting SNMP Get request: OID={}", oid);
+		log.debug("Executing SNMP Get request: OID={}", oid);
 
 		String result = executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, null, logMode);
 
@@ -170,7 +170,7 @@ public class MatsyaClientsExecutor {
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nExecuting SNMP Table request: OID={}\tcolumns={}", oid, Arrays.toString(selectColumnArray));
+		log.debug("Executing SNMP Table request: OID={}\tcolumns={}", oid, Arrays.toString(selectColumnArray));
 
 		List<List<String>> result = executeSNMPGetRequest(SNMPGetRequest.TABLE, oid, protocol,
 			hostname, selectColumnArray, logMode);
@@ -266,7 +266,7 @@ public class MatsyaClientsExecutor {
 			final boolean wbemKeyType,
 			boolean caseInsensitive){
 
-		log.debug("\nExecuting Table Join request on:\nLeft table:\n{}\nRight table:\n{}\n",
+		log.debug("Executing Table Join request on:\nLeft table:\n{}\nRight table:\n{}\n",
 			TextTableHelper.generateTextTable(leftTable), TextTableHelper.generateTextTable(rightTable));
 
 		List<List<String>> result = TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber,
@@ -307,7 +307,7 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator) throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nConverting JSON to CSV:\nJSON source:\n{}\nJSON entry key:\n{}\nProperty list:\n{}\nSeparator:\n{}\n",
+		log.debug("Converting JSON to CSV:\nJSON source:\n{}\nJSON entry key:\n{}\nProperty list:\n{}\nSeparator:\n{}\n",
 			jsonSource, jsonEntryKey, propertyList, separator);
 
 		final Callable<String> jflatToCSV = () -> {
@@ -349,7 +349,7 @@ public class MatsyaClientsExecutor {
 			final String properties,
 			final String recordTag) throws XFlatException {
 
-		log.debug("\nParsing XML:\nXML source:\n{}\nProperties:\n{}\nRecord tag:\n{}\n", xml, properties, recordTag);
+		log.debug("Parsing XML:\nXML source:\n{}\nProperties:\n{}\nRecord tag:\n{}\n", xml, properties, recordTag);
 
 		List<List<String>> result = XFlat.parseXml(xml, properties, recordTag);
 
@@ -406,7 +406,7 @@ public class MatsyaClientsExecutor {
 			@NonNull final String namespace
 	) throws MatsyaException {
 
-		log.debug("\nExecuting WBEM query:\nHostname:\n{}\nProtocol configuration:\n{}\nQuery:\n{}\nNamespace:\n{}\n",
+		log.debug("Executing WBEM query:\nHostname: {}\nProtocol configuration: {}\nQuery: {}\nNamespace: {}\n",
 			hostname, wbemConfig.toString(), query, namespace);
 
 		try {
@@ -458,7 +458,7 @@ public class MatsyaClientsExecutor {
 			@NonNull final String namespace
 	) throws MatsyaException {
 
-		log.debug("\nExecuting WMI query:\nHostname:\n{}\nProtocol configuration:\n{}\nQuery:\n{}\nNamespace:\n{}\n",
+		log.debug("Executing WMI query:\nHostname: {}\nProtocol configuration: {}\nQuery: {}\nNamespace: {}\n",
 			hostname, wmiConfig.toString(), wbemQuery, namespace);
 
 		// Where to connect to?
@@ -515,7 +515,7 @@ public class MatsyaClientsExecutor {
 			final List<String> localFiles) throws MatsyaException {
 		try {
 
-			log.debug("\nExecuting WMI remote command:\nCommand:\n{}\nHostname:\n{}\nUsername:\n{}\nTimeout:\n{}\n"
+			log.debug("Executing WMI remote command:\nCommand: {}\nHostname: {}\nUsername: {}\nTimeout: {}\n"
 					+ "Local files:\n{}\n",
 				command, hostname, username, timeout, localFiles.toString());
 
@@ -604,7 +604,7 @@ public class MatsyaClientsExecutor {
 				url
 		);
 
-		log.debug("\nExecuting HTTP request:\n{} {} [{}]\n", method, fullUrl, httpRequest.getResultContent());
+		log.debug("Executing HTTP request:\n{} {} [{}]\n", method, fullUrl, httpRequest.getResultContent());
 
 		try {
 
@@ -706,8 +706,8 @@ public class MatsyaClientsExecutor {
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
 
-		log.debug("\nExecuting Remote SSH command:\nHostname:\n{}\nUsername:\n{}\nKey file path:\n{}\nCommand:\n{}\n"
-					+ "Timeout:\n{}\nLocal files:\n{}\n",
+		log.debug("Executing Remote SSH command:\nHostname: {}\nUsername: {}\nKey file path: {}\nCommand: {}\n"
+					+ "Timeout: {}\nLocal files: {}\n",
 				hostname, username, keyFilePath, command, timeout, localFiles);
 
 		isTrue(command != null && !command.trim().isEmpty(), "command mustn't be null nor empty.");
@@ -824,7 +824,7 @@ public class MatsyaClientsExecutor {
 	public String executeIpmiDetection(String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nExecuting IPMI detection:\nHostname:\n{}\nProtocol:\n{}\n",
+		log.debug("Executing IPMI detection:\nHostname: {}\nProtocol: {}\n",
 			hostname, ipmiOverLanProtocol.toString());
 
 		String result = MatsyaIpmiClient.getChassisStatusAsStringResult(buildIpmiConfiguration(hostname,
@@ -872,7 +872,7 @@ public class MatsyaClientsExecutor {
 	public String executeIpmiGetSensors(String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
-		log.debug("\nExecuting IPMI FRUs and sensors request:\nHostname:\n{}\nProtocol:\n{}\n",
+		log.debug("Executing IPMI FRUs and sensors request:\nHostname: {}\nProtocol: {}\n",
 			hostname, ipmiOverLanProtocol.toString());
 
 		String result = MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname,

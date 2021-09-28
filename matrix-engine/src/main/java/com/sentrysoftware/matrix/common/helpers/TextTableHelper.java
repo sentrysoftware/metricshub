@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 
 public class TextTableHelper {
@@ -82,7 +82,7 @@ public class TextTableHelper {
 
 		return (semiColonSeparatedColumns == null || semiColonSeparatedColumns.isBlank())
 		? generateTextTable(rows)
-		: generateTextTable(semiColonSeparatedColumns.split(SEMICOLON), rows);
+		: generateTextTable(semiColonSeparatedColumns.split(TABLE_SEP), rows);
 	}
 
 	/**
