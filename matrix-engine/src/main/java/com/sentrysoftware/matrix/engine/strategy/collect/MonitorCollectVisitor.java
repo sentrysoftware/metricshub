@@ -1415,34 +1415,29 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	Double collectNetworkCardDuplexMode() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		// Getting the duplex mode
-		final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(),
-				DUPLEX_MODE_PARAMETER);
+		// Not possible to monitor if the cable is not connected
+		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, LINK_STATUS_PARAMETER);
+		if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
 
-		if (duplexModeRaw != null) {
+			// Getting the duplex mode
+			final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(), DUPLEX_MODE_PARAMETER);
 
-			final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") ||
-					duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
-			CollectHelper.updateNumberParameter(
-					monitor,
-					DUPLEX_MODE_PARAMETER,
-					DUPLEX_MODE_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					duplexMode,
-					duplexMode
-			);
-
-			return duplexMode;
+			if (duplexModeRaw != null) {
+	
+				final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") ||
+						duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
+				CollectHelper.updateNumberParameter(
+						monitor,
+						DUPLEX_MODE_PARAMETER,
+						DUPLEX_MODE_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						duplexMode,
+						duplexMode
+				);
+	
+				return duplexMode;
+			}
 		}
-
-		CollectHelper.updateNumberParameter(
-				monitor,
-				DUPLEX_MODE_PARAMETER,
-				DUPLEX_MODE_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				0D,
-				0D
-		);
 
 		return null;
 	}
