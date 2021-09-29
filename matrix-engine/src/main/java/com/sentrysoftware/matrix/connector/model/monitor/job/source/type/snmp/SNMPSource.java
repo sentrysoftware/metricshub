@@ -18,8 +18,6 @@ public abstract class SNMPSource extends Source {
 
 	private static final long serialVersionUID = 4987906836798379805L;
 
-	public static final String PROTOCOL = "SNMP";
-
 	private String oid;
 
 	protected SNMPSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key) {
@@ -28,8 +26,4 @@ public abstract class SNMPSource extends Source {
 		this.oid = oid;
 	}
 
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
-	}
 }

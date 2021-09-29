@@ -21,8 +21,6 @@ public class WBEMSource extends Source {
 
 	private static final long serialVersionUID = -1068957824633332862L;
 
-	public static final String PROTOCOL = "WBEM";
-
 	private String wbemQuery;
 	private String wbemNamespace;
 
@@ -38,11 +36,6 @@ public class WBEMSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
-	}
-
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
 	}
 
 }

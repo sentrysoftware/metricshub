@@ -48,4 +48,5 @@ public class SNMPGetSource extends SNMPSource {
 								.collect(Collectors.toList()) : null)
 				.build();
 	}
+
 }
