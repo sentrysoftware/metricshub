@@ -109,7 +109,7 @@ public class SourceVisitor implements ISourceVisitor {
 					.build(),
 					true);
 
-			if (result != null) {
+			if (result != null && !result.isEmpty()) {
 
 				log.info(LOG_RESULT_TEMPLATE, "HTTP source", httpSource.getKey(), result);
 

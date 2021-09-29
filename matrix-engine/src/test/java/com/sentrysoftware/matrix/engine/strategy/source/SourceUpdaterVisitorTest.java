@@ -133,15 +133,15 @@ class SourceUpdaterVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
-		expectedResult = "expectedVal1,\n" +
-				"expectedVal2";
+		expectedResult = "[expectedVal1,\n" +
+				"expectedVal2]";
 		assertEquals(expectedResult, result.getRawData());
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
-		expectedResult = "{\n" +
+		expectedResult = "[{\n" +
 				"\"Entry\":{\n" +
 				"\"Full\":\"val1,val2,val3\",\n" +
 				"\"Column(1)\":\"val1\",\n" +
@@ -158,7 +158,7 @@ class SourceUpdaterVisitorTest {
 				"\"Column(3)\":\"c1\",\n" +
 				"\"Value\":expectedVal2\n" +
 				"}\n" +
-				"}";
+				"}]";
 
 		assertEquals(expectedResult, result.getRawData());
 

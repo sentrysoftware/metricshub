@@ -614,10 +614,10 @@ public class MatsyaClientsExecutor {
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
-
-				return "HTTP Error "
-						+ httpResponse.getStatusCode()
-						+ httpResponse;
+				if (logMode) {
+					log.warn("Bad response when running HTTP request {} {} : {}", method, fullUrl, httpResponse.getStatusCode());
+				}
+				return "";
 			}
 
 			// The request has been successful
