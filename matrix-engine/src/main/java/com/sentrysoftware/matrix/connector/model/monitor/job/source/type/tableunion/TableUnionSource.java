@@ -36,4 +36,9 @@ public class TableUnionSource extends Source {
 		return sourceVisitor.visit(this);
 	}
 
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL_NONE;
+	}
 }

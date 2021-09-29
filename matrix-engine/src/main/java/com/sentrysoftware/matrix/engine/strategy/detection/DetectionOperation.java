@@ -1,26 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.connector.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
-import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -31,18 +27,59 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHInteractive;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
+
+	private static final Map<Class<? extends IProtocolConfiguration>, String> CONFIGURATION_TO_PROTOCOL_MAP;
+
+	static {
+
+		CONFIGURATION_TO_PROTOCOL_MAP = Map.of(
+				SNMPProtocol.class, SNMPSource.PROTOCOL,
+				WMIProtocol.class, WMISource.PROTOCOL,
+				WBEMProtocol.class, WBEMSource.PROTOCOL,
+				SSHProtocol.class, OSCommandSource.PROTOCOL,
+				HTTPProtocol.class, HTTPSource.PROTOCOL,
+				IPMIOverLanProtocol.class, IPMI.PROTOCOL,
+				OSCommandConfig.class, OSCommandSource.PROTOCOL,
+				SSHInteractive.class, TelnetInteractiveSource.PROTOCOL);
+
+	}
 
 	@Override
 	public Boolean call() throws Exception {
@@ -128,13 +165,21 @@ public class DetectionOperation extends AbstractStrategy {
 				.getConnectors()
 				.values());
 
+		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+
 		// Filter Connectors by the TargetType (target type: NT, LINUX, ESX, ...etc)
-		connectorStream = filterConnectorsByTargetType(connectorStream,
-				strategyConfig.getEngineConfiguration().getTarget().getType());
+		connectorStream = filterConnectorsByTargetType(connectorStream, targetType);
 
 		// Now based on the target location (Local or Remote) filter connectors by
 		// localSupport or remoteSupport
 		connectorStream = filterConnectorsByLocalAndRemoteSupport(connectorStream, isLocalhost);
+
+		// Based on the user's configuration, determine the source protocols that we can actually accept
+		Set<String> acceptedSources = determineAcceptedProtocols(isLocalhost, targetType,
+					strategyConfig.getEngineConfiguration().getProtocolConfigurations().keySet());
+
+		// Now we know what would be executed, filter the connectors based on the accepted protocols
+		connectorStream = filterConnectorsByAcceptedProtocols(connectorStream, acceptedSources);
 
 		// Now detect the connectors, try to run the detection criteria for each
 		// connector and select only the connectors
@@ -155,6 +200,72 @@ public class DetectionOperation extends AbstractStrategy {
 						.map(c -> c.getConnector().getCompiledFilename()).collect(Collectors.toList()));
 
 		return testedConnectorList;
+	}
+
+	/**
+	 * Filter the given stream of {@link Connector} instances based on the source
+	 * protocols we actually accept
+	 * 
+	 * @param connectorStream   Stream of connector instances from the singleton
+	 *                          store
+	 * @param acceptedProtocols Set of the source protocols we should accept in the
+	 *                          current host monitoring configuration
+	 * @return new {@link Stream} of connectors
+	 */
+	Stream<Connector> filterConnectorsByAcceptedProtocols(final Stream<Connector> connectorStream,
+			Set<String> acceptedProtocols) {
+
+		return connectorStream.filter(connector -> acceptedProtocols
+				.stream().anyMatch(sourceProtocol -> connector.getSourceProtocols().contains(sourceProtocol)));
+	}
+
+	/**
+	 * Determine the configured and the enabled protocols (e.g OSCommand on localhost) for the current host
+	 * monitoring.
+	 * 
+	 * @param isLocalhost   Whether the target should be localhost or not
+	 * @param protocolTypes Set of configured protocols
+	 * @param targetType    The type of the target
+	 * @return {@link Set} of accepted source types
+	 */
+	Set<String> determineAcceptedProtocols(final boolean isLocalhost, final TargetType targetType,
+			final Set<Class<? extends IProtocolConfiguration>> protocolTypes) {
+
+		final Set<String> protocols = CONFIGURATION_TO_PROTOCOL_MAP
+				.entrySet()
+				.stream()
+				.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
+				.map(Entry::getValue)
+				.collect(Collectors.toSet());
+
+		// Remove WMI for non-windows target
+		if (!TargetType.MS_WINDOWS.equals(targetType)) {
+			protocols.remove(WMISource.PROTOCOL);
+		}
+
+		// Add IPMI through WMI
+		if (TargetType.MS_WINDOWS.equals(targetType) && protocols.contains(WMISource.PROTOCOL)) {
+			protocols.add(IPMI.PROTOCOL);
+		}
+
+		// Add IPMI through OSCommand remote (SSH)
+		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
+				&& protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
+			protocols.add(IPMI.PROTOCOL);
+		}
+
+		// Handle localhost protocols
+		if (isLocalhost) {
+			// OS Command always enabled locally
+			protocols.add(OSCommandSource.PROTOCOL);
+
+			// IPMI executed locally on Linux through OS Command
+			if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+				protocols.add(IPMI.PROTOCOL);
+			}
+		}
+
+		return protocols;
 	}
 
 	/**

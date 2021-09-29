@@ -589,11 +589,11 @@ class HostMonitoringCollectorServiceTest {
 		// make sure that the conversion is well done : factor 1000.0
 		// Note that the monitor metadata value can never be null when the
 		// convertMetadataValue is called
-		assertEquals(4000.0, HostMonitoringCollectorService.convertMetadataValue(monitor, MAXIMUM_SPEED, 1000.0));
+		assertEquals(4000.0, HostMonitoringCollectorService.convertMetadataValue(monitor.getMetadata(MAXIMUM_SPEED), 1000.0));
 
 		final Monitor monitor2 = new Monitor();
-		assertThrows(NullPointerException.class,
-				() -> HostMonitoringCollectorService.convertMetadataValue(monitor2, MAXIMUM_SPEED, 1000.0));
+		String maximumSpeed = monitor2.getMetadata(MAXIMUM_SPEED);
+		assertThrows(IllegalArgumentException.class, () -> HostMonitoringCollectorService.convertMetadataValue(maximumSpeed, 1000.0));
 	}
 
 	@Test
@@ -858,5 +858,18 @@ class HostMonitoringCollectorServiceTest {
 			prometheusSpecificities.when(() -> PrometheusSpecificities.getInfoMetricName(MonitorType.ENCLOSURE)).thenReturn(" 	");
 			assertTrue(mfs.isEmpty());
 		}
+	}
+
+	@Test
+	void testCanParseDoubleMetadata() {
+
+		assertFalse(HostMonitoringCollectorService.canParseDoubleValue(null));
+		assertFalse(HostMonitoringCollectorService.canParseDoubleValue(""));
+		assertFalse(HostMonitoringCollectorService.canParseDoubleValue(" "));
+		assertFalse(HostMonitoringCollectorService.canParseDoubleValue("a"));
+		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8"));
+		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8 "));
+		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8.0"));
+
 	}
 }

@@ -25,6 +25,8 @@ public class OSCommandSource extends Source {
 
 	private static final long serialVersionUID = -5755243135604830670L;
 
+	public static final String PROTOCOL = "OSCommand";
+
 	private String commandLine;
 	private Long timeout;
 	private boolean executeLocally;
@@ -79,5 +81,10 @@ public class OSCommandSource extends Source {
 				.separators(separators)
 				.timeout(timeout)
 				.build();
+	}
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL;
 	}
 }

@@ -41,4 +41,13 @@ public class IpmiOverLanProtocolDTO {
 				.timeout(timeout)
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		String desc = "IPMI";
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
 }

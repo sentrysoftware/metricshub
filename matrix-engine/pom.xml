@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sentrysoftware</groupId>
 		<artifactId>matrix</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.9.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>matrix-engine</artifactId>
 	<name>Matrix Engine</name>
@@ -205,7 +205,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.70</minimum>
+											<minimum>0.73</minimum>
 										</limit>
 									</limits>
 								</rule>

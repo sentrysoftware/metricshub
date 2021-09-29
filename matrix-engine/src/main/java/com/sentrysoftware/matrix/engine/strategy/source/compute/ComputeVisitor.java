@@ -96,17 +96,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_MATCHES_TRANSLATION_FUNCTION =
-		(str, translations) -> translations
-			.getOrDefault(str + "," + "1", translations.get(DEFAULT));
-
-	private static final BiFunction<String, Map<String, String>, String> PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION =
-		(str, translations) -> translations
-			.getOrDefault(str + "," + "0", translations.get(DEFAULT));
-
-	private static final BiFunction<String, Map<String, String>, String> TRANSLATION_FUNCTION =
-		(str, translations) -> translations.getOrDefault(str, translations.get(DEFAULT));
-
 	static {
 		MATH_FUNCTIONS_MAP = Map.of(
 			Add.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)),
@@ -193,6 +182,8 @@ public class ComputeVisitor implements IComputeVisitor {
 			resultSeparator = "|";
 		}
 
+		final String defaultTranslation = translations.get(DEFAULT);
+		
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 		for (List<String> row : sourceTable.getTable()) {
@@ -214,8 +205,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				String translatedArrayValue = Arrays
 					.stream(splitArrayValue)
-					.map(value -> translate(value, translations, TRANSLATION_FUNCTION, ""))
-					.filter(value -> !value.isEmpty())
+					.map(value -> translations.getOrDefault(value.toLowerCase(), defaultTranslation))
+					.filter(value -> value != null && !value.isBlank())
 					.collect(Collectors.joining(resultSeparator));
 
 				resultRow.set(columnIndex, translatedArrayValue);
@@ -986,16 +977,13 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 
-				List<String> columnResult = translate(bitList, valueToBeReplacedLong, translations);
+				final String columnResult = bitList.stream()
+						.map(bit -> String.format("%d,%d", bit, ((int) Math.pow(2, bit) & valueToBeReplacedLong) != 0 ? 1 : 0))
+						.map(key -> translations.get(key))
+						.filter(value -> value != null && !value.isBlank())
+						.collect(Collectors.joining(" - "));
 
-				if (!columnResult.isEmpty()) {
-
-					line.set(columnIndex,
-						columnResult
-							.stream()
-							.filter(value -> !value.trim().isEmpty())
-							.collect(Collectors.joining(" - ")));
-				}
+				line.set(columnIndex, columnResult);
 			}
 		}
 
@@ -1005,31 +993,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
-	/**
-	 * @param bitList			The list of bits that need to be checked.
-	 * @param valueToReplace	The long value that is being translated.
-	 * @param translations		The reference dictionary used for translations.
-	 *
-	 * @return					A {@link List} of all the available translations for the given integer value.
-	 */
-	private List<String> translate(List<Integer> bitList, long valueToReplace, Map<String, String> translations) {
-
-		List<String> result = new ArrayList<>();
-
-		String translation;
-		for (Integer bit : bitList) {
-
-			translation = ((int) Math.pow(2, bit) & valueToReplace) != 0
-						? translate(bit.toString(), translations, PER_BIT_MATCHES_TRANSLATION_FUNCTION, null)
-						: translate(bit.toString(), translations, PER_BIT_NOT_MATCHES_TRANSLATION_FUNCTION, null);
-
-			if (translation != null) {
-				result.add(translation);
-			}
-		}
-
-		return result;
-	}
 
 	/**
 	 * PerBitTranslation visit check.
@@ -1072,25 +1035,6 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Translates <i>valueToTranslate</i> using <i>translationMap</i> in <i>translationFunction</i>.
-	 *
-	 * @param valueToTranslate		The value being translated.
-	 * @param translationMap		The reference dictionary used for the translation.
-	 * @param translationFunction	The function used to perform the translation.
-	 * @param defaultResult         The value that should be returned if the translation function returns null.
-	 *
-	 *  @return						The translation of <i>valueToTranslate</i>.
-	 */
-	private String translate(final String valueToTranslate, final Map<String, String> translationMap,
-							 final BiFunction<String, Map<String, String>, String> translationFunction,
-							 String defaultResult) {
-
-		String result = translationFunction.apply(valueToTranslate, translationMap);
-
-		return result == null ? defaultResult : result;
 	}
 
 	@Override
@@ -1381,18 +1325,20 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		boolean needSerialization = false;
 
+		final String defaultTranslation = translations.get(DEFAULT);
+
 		for (List<String> line : sourceTable.getTable()) {
 
 			if (columnIndex < line.size()) {
-				String valueToBeReplaced = line.get(columnIndex);
-				String newValue = translate(valueToBeReplaced, translations, TRANSLATION_FUNCTION, null);
+				final String valueToBeReplaced = line.get(columnIndex).toLowerCase();
+				final String newValue = translations.getOrDefault(valueToBeReplaced, defaultTranslation);
 
 				if (newValue != null) {
 					line.set(columnIndex, newValue);
 
 					needSerialization = needSerialization || newValue.contains(TABLE_SEP);
 				} else {
-					log.warn("The Translation Map {} does not contain the following value {}.",
+					log.warn("The Translation Map {} does not contain the following value {} or default.",
 							translationTable.getName(), valueToBeReplaced);
 				}
 			}

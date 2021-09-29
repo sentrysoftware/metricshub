@@ -36,6 +36,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
@@ -215,28 +216,29 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
+		boolean isLocalHost = strategyConfig.getHostMonitoring().isLocalhost();
+
 		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(SSHProtocol.class);
 		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(OSCommandConfig.class);
 
-		if (osCommandConfig == null) {
-			final String message = String.format("No OS Command Configuration for %s. Return empty result.", hostname);
-			log.warn(message);
-			return SourceTable.empty();
-		}
-		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
+		final int defaultTimeout = osCommandConfig != null ? osCommandConfig.getTimeout().intValue()
+				: AbstractCommand.DEFAULT_TIMEOUT.intValue();
 
-		boolean isLocalHost = strategyConfig.getHostMonitoring().isLocalhost();
 		// fru command
 		String fruCommand = ipmitoolCommand + "fru";
 		String fruResult;
 		try {
 			if (isLocalHost) {
 				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
-			} else {
+			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
+			} else {
+				log.warn("Couldn't process unix IPMI Source. SSH Protocol credentials missing.");
+				return SourceTable.empty();
 			}
+
 			log.debug("processUnixIpmiSource({}): OS Command: {}:\n{}", hostname, fruCommand, fruResult);
 
 		} catch (IOException |InterruptedException | TimeoutException | MatsyaException  e) {
@@ -797,7 +799,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		// Get the namespace
-		final String namespace = getNamespace(wmiSource, protocol);
+		final String namespace = getNamespace(wmiSource);
 
 		if (namespace == null) {
 			log.error("Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.", wmiSource.getKey());
@@ -841,10 +843,9 @@ public class SourceVisitor implements ISourceVisitor {
 	 *
 	 * @param wmiSource {@link WMISource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
 	 *                  string</em>
-	 * @param protocol The {@link WMIProtocol} from which we get the default namespace when the mode is not automatic
 	 * @return {@link String} value
 	 */
-	String getNamespace(final WMISource wmiSource, final WMIProtocol protocol) {
+	String getNamespace(final WMISource wmiSource) {
 
 		final String sourceNamespace = wmiSource.getWbemNamespace();
 

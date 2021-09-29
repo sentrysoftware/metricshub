@@ -50,4 +50,13 @@ public class WbemProtocolDTO {
 				.timeout(timeout)
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		String desc = protocol + "/" + port;
+		if (username != null) {
+			desc = desc + " as " + username;
+		}
+		return desc;
+	}
 }

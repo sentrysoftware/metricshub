@@ -23,6 +23,8 @@ public class TelnetInteractiveSource extends Source {
 
 	private static final long serialVersionUID = 7662516386312299806L;
 
+	public static final String PROTOCOL = "Telnet";
+
 	private Integer port;
 	private String excludeRegExp;
 	private String keepOnlyRegExp;
@@ -51,6 +53,11 @@ public class TelnetInteractiveSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	@Override
+	public String getProtocol() {
+		return PROTOCOL;
 	}
 
 }
