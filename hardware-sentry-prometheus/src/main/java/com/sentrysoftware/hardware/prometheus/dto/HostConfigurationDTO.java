@@ -61,4 +61,7 @@ public class HostConfigurationDTO {
 	@Default
 	@JsonDeserialize(using = UnknownStatusDeserializer.class)
 	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
+
+	private Integer collectPeriod;
+	private Integer discoveryCycle;
 }
