@@ -325,9 +325,6 @@ class MatsyaClientsExecutorTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> matsyaClientsExecutor.executeIpmiDetection(null, ipmiOverLanProtocol));
 
-		assertThrows(IllegalArgumentException.class,
-				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, null));
-
 		ipmiOverLanProtocol.setUsername(null);
 		assertThrows(IllegalArgumentException.class,
 				() -> matsyaClientsExecutor.executeIpmiDetection(FOO, ipmiOverLanProtocol));

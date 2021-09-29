@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_BEGIN_OPERATION_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
@@ -19,6 +21,7 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
@@ -72,6 +75,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
+
 		if (httpSource == null) {
 			log.error("HTTPSource cannot be null, the HTTPSource operation will return an empty result.");
 			return SourceTable.empty();
@@ -81,14 +85,17 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(HTTPProtocol.class);
 
 		if (protocol == null) {
+
 			log.debug("The HTTP Credentials are not configured. Returning an empty table for HTTPSource {}.",
 					httpSource);
+
 			return SourceTable.empty();
 		}
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
+
 			final String result = matsyaClientsExecutor.executeHttp(
 					HTTPRequest.builder()
 					.hostname(strategyConfig.getEngineConfiguration().getTarget().getHostname())
@@ -103,15 +110,19 @@ public class SourceVisitor implements ISourceVisitor {
 					true);
 
 			if (result != null) {
+
+				log.info(LOG_RESULT_TEMPLATE, "HTTP source", httpSource.getKey(), result);
+
 				return SourceTable
-						.builder()
-						.rawData(result)
-						.build();
+					.builder()
+					.rawData(result)
+					.build();
 			}
 
 		} catch (Exception e) {
+
 			final String message = String.format(
-					"HTTP request of %s was unsuccessful due to an exception. Message: %s.",
+					"HTTP request of %s was unsuccessful due to an exception Returning an empty table. Message: %s.",
 					hostname, e.getMessage());
 			log.debug(message, e);
 		}
@@ -121,19 +132,24 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final IPMI ipmi) {
+
 		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 		final TargetType targetType = target.getType();
 
+		String sourceKey = ipmi.getKey();
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "IPMI source", sourceKey, ipmi.toString());
+
 		if (TargetType.MS_WINDOWS.equals(targetType)) {
-			return processWindowsIpmiSource();
+			return processWindowsIpmiSource(sourceKey);
 		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			return processUnixIpmiSource();
+			return processUnixIpmiSource(sourceKey);
 		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
-			return processOutOfBandIpmiSource();
+			return processOutOfBandIpmiSource(sourceKey);
 		}
 
-		log.debug("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI.",
-				target.getHostname(), targetType.name());
+		log.info("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI. Returning an empty table.",
+			target.getHostname(), targetType.name());
 
 		return SourceTable.empty();
 	}
@@ -141,9 +157,11 @@ public class SourceVisitor implements ISourceVisitor {
 	/**
 	 * Process IPMI source via IPMI Over-LAN
 	 *
+	 * @param sourceKey The key of the source
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processOutOfBandIpmiSource() {
+	SourceTable processOutOfBandIpmiSource(String sourceKey) {
 
 		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
@@ -159,9 +177,16 @@ public class SourceVisitor implements ISourceVisitor {
 			String result = matsyaClientsExecutor.executeIpmiGetSensors(hostname, protocol);
 
 			if (result != null) {
-				return SourceTable.builder().rawData(result).build();
+
+				log.info(LOG_RESULT_TEMPLATE, "IPMI-over-LAN source", sourceKey, result);
+
+				return SourceTable
+					.builder()
+					.rawData(result)
+					.build();
+
 			} else {
-				log.error("IPMI-over-LAN request on system {} returned <null> result.", hostname);
+				log.error("IPMI-over-LAN request on system {} returned <null> result. Returning an empty table.", hostname);
 			}
 		} catch (Exception e) {
 			log.error("IPMI-over-LAN request on system {} was unsuccessful due to an exception.", hostname);
@@ -174,9 +199,12 @@ public class SourceVisitor implements ISourceVisitor {
 	/**
 	 * Process IPMI Source for the Unix system
 	 *
+	 * @param sourceKey The key of the source
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processUnixIpmiSource() {
+	SourceTable processUnixIpmiSource(String sourceKey) {
+
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// get the ipmiTool command to execute
@@ -228,9 +256,9 @@ public class SourceVisitor implements ISourceVisitor {
 			if (isLocalHost) {
 				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand, defaultTimeout, null);
 			} else {
-				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,	null, null);;
+				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,	null, null);
 			}
-			log.debug("processUnixIpmiSource(%s): OS Command: %s:\n%s", hostname, sdrCommand, sensorResult);
+			log.debug("processUnixIpmiSource({}): OS Command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (IOException | InterruptedException | TimeoutException | MatsyaException e) {
 			final String message = String.format("Failed to execute the OS Command %s for %s. Return empty result. Exception : %s",
 					sdrCommand, hostname, e);
@@ -239,16 +267,28 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
+		SourceTable sourceTable = SourceTable
+			.builder()
+			.table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult))
+			.build();
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"Unix IPMI source",
+			sourceKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+		return sourceTable;
 	}
 
 	/**
 	 * Process IPMI source for the Windows (NT) system
 	 *
+	 * @param sourceKey The key of the source
+	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processWindowsIpmiSource() {
+	SourceTable processWindowsIpmiSource(String sourceKey) {
+
 		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
 		if (wmiProtocol == null) {
 			return SourceTable.empty();
@@ -259,19 +299,33 @@ public class SourceVisitor implements ISourceVisitor {
 		final String nameSpaceRootHardware = "root/hardware";
 
 		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
-		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2);
+		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2,
+			sourceKey);
 
 		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
-		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware,
+			sourceKey);
 
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware);
+		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery,
+			nameSpaceRootHardware, sourceKey);
 
-		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3)).build();
+		SourceTable sourceTable = SourceTable
+			.builder()
+			.table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3))
+			.build();
+
+		log.info(LOG_RESULT_TEMPLATE,
+			"Windows IPMI source",
+			sourceKey,
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+		return sourceTable;
 	}
 
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
+
 		if (osCommandSource == null ||
 				osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()) {
 			log.error("OSCommandSource Malformed OSCommand source.");
@@ -303,34 +357,45 @@ public class SourceVisitor implements ISourceVisitor {
 					filteredLines,
 					osCommandSource.getSeparators(),
 					osCommandSource.getSelectColumns());
-			
-			return SourceTable.builder()
-					.rawData(selectedColumnsLines.stream()
-							// add the TABLE_SEP at the end of each lines.
-							.map(line -> line + TABLE_SEP)
-							.collect(Collectors.joining(NEW_LINE)))
-					.table(selectedColumnsLines.stream()
-							// Replace all separators by ";", which is the standard separator used by MS_HW
-							.map(line -> SourceTable.lineToList(line, TABLE_SEP))
-							.collect(Collectors.toList()))
-					.build();
+
+			SourceTable sourceTable = SourceTable
+				.builder()
+				.rawData(selectedColumnsLines.stream()
+					// add the TABLE_SEP at the end of each lines.
+					.map(line -> line + TABLE_SEP)
+					.collect(Collectors.joining(NEW_LINE)))
+				.table(selectedColumnsLines.stream()
+					// Replace all separators by ";", which is the standard separator used by MS_HW
+					.map(line -> SourceTable.lineToList(line, TABLE_SEP))
+					.collect(Collectors.toList()))
+				.build();
+
+			log.info(LOG_RESULT_TEMPLATE,
+				"OSCommand source",
+				osCommandSource.getKey(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+			return sourceTable;
 
 		} catch(NoCredentialProvidedException e) {
 			log.debug("OSCommandSource " + e.getMessage());
 			return SourceTable.empty();
 		} catch (Exception e) {
-			log.error("OSCommandSource error runing command", e.getMessage());
-			log.debug("OSCommandSource error runing command", e);
+			log.error("OSCommandSource error running command: {}", e.getMessage());
+			log.debug("OSCommandSource error running command", e);
 			return SourceTable.empty();
 		}
 	}
 
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
+
 		if (referenceSource == null) {
 			log.error("ReferenceSource cannot be null, the ReferenceSource operation will return an empty result.");
 			return SourceTable.empty();
 		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "Reference source", referenceSource.getKey(), referenceSource.toString());
 
 		final String reference = referenceSource.getReference();
 
@@ -358,15 +423,23 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"Reference source",
+			referenceSource.getKey(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		return sourceTable;
 	}
 
 	@Override
 	public SourceTable visit(final StaticSource staticSource) {
+
 		if (staticSource == null) {
 			log.error("StaticSource cannot be null, the StaticSource operation will return an empty result.");
 			return SourceTable.empty();
 		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "Static source", staticSource.getKey(), staticSource.toString());
 
 		final String staticValue = staticSource.getStaticValue();
 
@@ -377,7 +450,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final SourceTable sourceTable = new SourceTable();
 
-		// Call getSpourceTable, in case there are ';' in the static source and it's needed to be separated into multiple columns
+		// Call getSourceTable, in case there are ';' in the static source and it's needed to be separated into multiple columns
 		// Note: In case of the static source getSourceTable never returns null
 		final List<List<String>> table = getSourceTable(staticValue).getTable()
 				.stream()
@@ -387,15 +460,20 @@ public class SourceVisitor implements ISourceVisitor {
 
 		sourceTable.setTable(table);
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"Static source",
+			staticSource.getKey(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		return sourceTable;
 	}
 
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
+
 		if (snmpGetSource == null) {
 			log.error("SNMPGetSource cannot be null, the SNMP Get operation will return an empty result.");
 			return SourceTable.empty();
-
 		}
 
 		if (snmpGetSource.getOid() == null) {
@@ -423,10 +501,18 @@ public class SourceVisitor implements ISourceVisitor {
 					true);
 
 			if (result != null) {
-					return SourceTable
-							.builder()
-							.table(Stream.of(Stream.of(result).collect(Collectors.toList())).collect(Collectors.toList()))
-							.build();
+
+				SourceTable sourceTable = SourceTable
+					.builder()
+					.table(Stream.of(Stream.of(result).collect(Collectors.toList())).collect(Collectors.toList()))
+					.build();
+
+				log.info(LOG_RESULT_TEMPLATE,
+					"SNMPGet source",
+					snmpGetSource.getKey(),
+					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+				return sourceTable;
 			}
 
 		} catch (Exception e) {
@@ -441,10 +527,10 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
+
 		if (snmpGetTableSource == null) {
 			log.error("SNMPGetTableSource cannot be null, the SNMP GetTable operation will return an empty result.");
 			return SourceTable.empty();
-
 		}
 
 		if (snmpGetTableSource.getOid() == null) {
@@ -486,6 +572,11 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setHeaders(selectedColumns);
 			sourceTable.setTable(result);
 
+			log.info(LOG_RESULT_TEMPLATE,
+				"SNMP GetTable source",
+				snmpGetTableSource.getKey(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 			return sourceTable;
 
 		} catch (Exception e) {
@@ -499,10 +590,13 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
+
 		if (tableJoinSource == null) {
 			log.error("TableJoinSource cannot be null, the Table Join will return an empty result.");
 			return SourceTable.empty();
 		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "TableJoin source", tableJoinSource.getKey(), tableJoinSource.toString());
 
 		final Map<String, SourceTable> sources = strategyConfig.getHostMonitoring()
 				.getConnectorNamespace(connector)
@@ -543,6 +637,11 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setTable(executeTableJoin);
 		}
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"TableJoin source",
+			tableJoinSource.getKey(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		return sourceTable;
 	}
 
@@ -553,6 +652,8 @@ public class SourceVisitor implements ISourceVisitor {
 			log.warn("TableUnionSource cannot be null, the Table Union operation will return an empty result.");
 			return SourceTable.empty();
 		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "TableUnion source", tableUnionSource.getKey(), tableUnionSource.toString());
 
 		final List<String> unionTables = tableUnionSource.getTables();
 		if (unionTables == null) {
@@ -576,13 +677,18 @@ public class SourceVisitor implements ISourceVisitor {
 
 		sourceTable.setTable(executeTableUnion);
 
+		log.info(LOG_RESULT_TEMPLATE,
+			"TableUnion source",
+			tableUnionSource.getKey(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 		return sourceTable;
 	}
 
 	/**
 	 * Get source table based on the key
 	 *
-	 * @param key
+	 * @param key	The key of the source
 	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
 	 */
 	SourceTable getSourceTable(final String key) {
@@ -621,6 +727,8 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "WBEM source", wbemSource.getKey(), wbemSource.toString());
+
 		final WBEMProtocol protocol = (WBEMProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(WBEMProtocol.class);
 
@@ -648,23 +756,38 @@ public class SourceVisitor implements ISourceVisitor {
 
 			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, protocol, wbemSource.getWbemQuery(), namespace);
 
-			return SourceTable.builder().table(table).build();
+			SourceTable sourceTable = SourceTable
+				.builder()
+				.table(table)
+				.build();
+
+			log.info(LOG_RESULT_TEMPLATE,
+				"WBEM source",
+				wbemSource.getKey(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+			return sourceTable;
 
 		} catch (Exception e) {
+
 			log.error("Error detected when running WBEM Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wbemSource.getWbemQuery(), hostname, protocol.getUsername(), protocol.getTimeout(),
 					wbemSource.getWbemNamespace());
 			log.error(EXCEPTION, e);
+
 			return SourceTable.empty();
 		}
 	}
 
 	@Override
 	public SourceTable visit(final WMISource wmiSource) {
+
 		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
 			log.warn("Malformed WMISource {}. Returning an empty table.", wmiSource);
 			return SourceTable.empty();
 		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "WMI source", wmiSource.getKey(), wmiSource.toString());
 
 		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(WMIProtocol.class);
@@ -690,14 +813,26 @@ public class SourceVisitor implements ISourceVisitor {
 			final List<List<String>> table =
 					matsyaClientsExecutor.executeWmi(hostname, protocol, wmiSource.getWbemQuery(), namespace);
 
-			return SourceTable.builder().table(table).build();
+			SourceTable sourceTable = SourceTable
+				.builder()
+				.table(table)
+				.build();
+
+			log.info(LOG_RESULT_TEMPLATE,
+				"WMI source",
+				wmiSource.getKey(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+			return sourceTable;
 
 		} catch (Exception e) {
+
 			log.error("Error detected when running WMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wmiSource.getWbemQuery(), hostname,
 					protocol.getUsername(), protocol.getTimeout(),
 					wmiSource.getWbemNamespace());
 			log.error(EXCEPTION, e);
+
 			return SourceTable.empty();
 		}
 
@@ -728,32 +863,44 @@ public class SourceVisitor implements ISourceVisitor {
 
 	/**
 	 * Call the matsya client executor to execute a WMI request.
-	 * @param hostname
-	 * @param wmiProtocol
-	 * @param wmiQuery
-	 * @param namespace
-	 * @return
+	 *
+	 * @param hostname		The host against the query will be run.
+	 * @param wmiProtocol	The information used to connect to the host and perform the query.
+	 * @param wmiQuery		The query that will be executed.
+	 * @param namespace		The namespace in which the query will be executed.
+	 * @param sourceKey		The key of the source.
+	 *
+	 * @return				The result of the execution of the query.
 	 */
 	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
-			final String wmiQuery, final String namespace) {
+			final String wmiQuery, final String namespace, final String sourceKey) {
 
-		log.debug("Executing IPMI Query ({}): WMI Query: {}:\n", hostname, wmiQuery);
+		log.info("Executing IPMI Query for [{}] on {}:\nWMI Query: {}:\n", sourceKey, hostname, wmiQuery);
+
+		List<List<String>> result;
 
 		try {
-			return matsyaClientsExecutor.executeWmi(
-					hostname,
-					wmiProtocol,
-					wmiQuery,
-					namespace
+
+			result = matsyaClientsExecutor.executeWmi(
+				hostname,
+				wmiProtocol,
+				wmiQuery,
+				namespace
 			);
 		} catch (Exception e) {
+
 			log.error("Error detected when running IPMI Query: {}. hostname={}, username={}, timeout={}, namespace={}",
 					wmiQuery,
 					hostname,
 					wmiProtocol.getUsername(),
 					wmiProtocol.getTimeout(),
 					namespace);
-			return Collections.emptyList();
+
+			result = Collections.emptyList();
 		}
+
+		log.info("IPMI query for [{}] result:\n{}\n", sourceKey, TextTableHelper.generateTextTable(result));
+
+		return result;
 	}
 }
