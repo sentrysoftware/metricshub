@@ -12,10 +12,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_
 
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -32,21 +30,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
@@ -62,21 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
-
-	private static final Map<Class<? extends IProtocolConfiguration>, Set<String>> CONFIGURATION_TO_PROTOCOL_MAP;
-
-	static {
-
-		CONFIGURATION_TO_PROTOCOL_MAP = Map.of(
-				SNMPProtocol.class, Collections.singleton(SNMPSource.PROTOCOL),
-				WMIProtocol.class, Collections.singleton(WMISource.PROTOCOL),
-				WBEMProtocol.class, Collections.singleton(WBEMSource.PROTOCOL),
-				SSHProtocol.class, Set.of(OSCommandSource.PROTOCOL, TelnetInteractiveSource.PROTOCOL),
-				HTTPProtocol.class, Collections.singleton(HTTPSource.PROTOCOL),
-				IPMIOverLanProtocol.class, Collections.singleton(IPMI.PROTOCOL),
-				OSCommandConfig.class, Collections.singleton(OSCommandSource.PROTOCOL));
-
-	}
 
 	@Override
 	public Boolean call() throws Exception {
@@ -171,12 +140,12 @@ public class DetectionOperation extends AbstractStrategy {
 		// localSupport or remoteSupport
 		connectorStream = filterConnectorsByLocalAndRemoteSupport(connectorStream, isLocalhost);
 
-		// Based on the user's configuration, determine the source protocols that we can actually accept
-		Set<String> acceptedSources = determineAcceptedProtocols(isLocalhost, targetType,
-					strategyConfig.getEngineConfiguration().getProtocolConfigurations().keySet());
+		// Based on the user's configuration, determine the sources that we can actually accept
+		Set<Class<? extends Source>> acceptedSources = strategyConfig.getEngineConfiguration()
+				.determineAcceptedSources(isLocalhost);
 
 		// Now we know what would be executed, filter the connectors based on the accepted protocols
-		connectorStream = filterConnectorsByAcceptedProtocols(connectorStream, acceptedSources);
+		connectorStream = filterConnectorsByAcceptedSources(connectorStream, acceptedSources);
 
 		// Now detect the connectors, try to run the detection criteria for each
 		// connector and select only the connectors
@@ -201,69 +170,20 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Filter the given stream of {@link Connector} instances based on the source
-	 * protocols we actually accept
+	 * types we actually accept
 	 * 
-	 * @param connectorStream   Stream of connector instances from the singleton
-	 *                          store
-	 * @param acceptedProtocols Set of the source protocols we should accept in the
-	 *                          current host monitoring configuration
+	 * @param connectorStream Stream of connector instances from the singleton store
+	 * @param acceptedSources Set of the sources we should accept in the current
+	 *                        host monitoring detection
 	 * @return new {@link Stream} of connectors
 	 */
-	Stream<Connector> filterConnectorsByAcceptedProtocols(final Stream<Connector> connectorStream,
-			Set<String> acceptedProtocols) {
+	Stream<Connector> filterConnectorsByAcceptedSources(final Stream<Connector> connectorStream,
+			Set<Class<? extends Source>> acceptedSources) {
 
-		return connectorStream.filter(connector -> acceptedProtocols
-				.stream().anyMatch(sourceProtocol -> connector.getSourceProtocols().contains(sourceProtocol)));
+		return connectorStream.filter(connector -> acceptedSources
+				.stream().anyMatch(sourceProtocol -> connector.getSourceTypes().contains(sourceProtocol)));
 	}
 
-	/**
-	 * Determine the configured and the enabled protocols (e.g OSCommand on localhost) for the current host
-	 * monitoring.
-	 * 
-	 * @param isLocalhost   Whether the target should be localhost or not
-	 * @param protocolTypes Set of configured protocols
-	 * @param targetType    The type of the target
-	 * @return {@link Set} of accepted source types
-	 */
-	Set<String> determineAcceptedProtocols(final boolean isLocalhost, final TargetType targetType,
-			final Set<Class<? extends IProtocolConfiguration>> protocolTypes) {
-
-		final Set<String> protocols = CONFIGURATION_TO_PROTOCOL_MAP
-				.entrySet()
-				.stream()
-				.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
-				.flatMap(v -> v.getValue().stream())
-				.collect(Collectors.toSet());
-
-		// Remove WMI for non-windows target
-		if (!TargetType.MS_WINDOWS.equals(targetType)) {
-			protocols.remove(WMISource.PROTOCOL);
-		}
-
-		// Add IPMI through WMI
-		if (TargetType.MS_WINDOWS.equals(targetType) && protocols.contains(WMISource.PROTOCOL)) {
-			protocols.add(IPMI.PROTOCOL);
-		}
-
-		// Add IPMI through OSCommand remote (SSH)
-		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
-				&& protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
-			protocols.add(IPMI.PROTOCOL);
-		}
-
-		// Handle localhost protocols
-		if (isLocalhost) {
-			// OS Command always enabled locally
-			protocols.add(OSCommandSource.PROTOCOL);
-
-			// IPMI executed locally on Linux through OS Command
-			if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-				protocols.add(IPMI.PROTOCOL);
-			}
-		}
-
-		return protocols;
-	}
 
 	/**
 	 * Filter excluded connectors from the given collection of connectors.

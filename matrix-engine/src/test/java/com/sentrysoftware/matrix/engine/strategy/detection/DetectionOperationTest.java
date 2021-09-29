@@ -1,6 +1,19 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,18 +40,11 @@ import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -48,19 +54,6 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
@@ -123,7 +116,7 @@ class DetectionOperationTest {
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.supersedes(Collections.singleton("connector2.hdf"))
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion1)).build())
-				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
 				.build();
 
 		criterion2 = SNMPGetNext.builder().oid(OID2).build();
@@ -132,7 +125,7 @@ class DetectionOperationTest {
 				.displayName(CONNECTOR2_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion2)).build())
-				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
 				.build();
 
 		criterion3 = SNMPGetNext.builder().oid(OID3).build();
@@ -141,7 +134,7 @@ class DetectionOperationTest {
 				.displayName(CONNECTOR3_ID)
 				.appliesToOS(Stream.of(OSType.HP, OSType.STORAGE).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion3)).build())
-				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
 				.build();
 
 		criterion4 = SNMPGetNext.builder().oid(OID4).build();
@@ -151,7 +144,7 @@ class DetectionOperationTest {
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).localSupport(true)
 				.remoteSupport(false)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion4)).build())
-				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
 				.build();
 
 		criterion5 = SNMPGetNext.builder().oid(OID5).build();
@@ -160,7 +153,7 @@ class DetectionOperationTest {
 				.displayName(CONNECTOR5_ID)
 				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion5)).build())
-				.sourceProtocols(Collections.singleton(SNMPGetTableSource.PROTOCOL))
+				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
 				.build();
 
 		engineConfigurationSelection = EngineConfiguration.builder()
@@ -420,81 +413,16 @@ class DetectionOperationTest {
 				.collect(Collectors.toSet()));
 	}
 
-	@Test
-	void testDetermineAcceptedProtocols() {
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.MS_WINDOWS,
-					Collections.singleton(WBEMProtocol.class));
-			final Set<String> expected = Collections.singleton(WBEMSource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.MS_WINDOWS,
-					Collections.singleton(WMIProtocol.class));
-			final Set<String> expected = Set.of(IPMI.PROTOCOL, WMISource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
-					Collections.singleton(WMIProtocol.class));
-			final Set<String> expected = Collections.emptySet();
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
-					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.SUN_SOLARIS,
-					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.MS_WINDOWS,
-					Collections.emptySet());
-			final Set<String> expected = Collections.singleton(OSCommandSource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.LINUX,
-					Collections.emptySet());
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.SUN_SOLARIS,
-					Collections.emptySet());
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-
-		{
-			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.SUN_SOLARIS,
-					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
-			assertEquals(expected, actual);
-		}
-	}
 
 	@Test
 	void testFilterConnectorsByAcceptedProtocols() {
-		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2), Set.of(SNMPGetTableSource.PROTOCOL));
+		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2), Set.of(SNMPGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SNMPGetTableSource.PROTOCOL));
+		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SNMPGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedProtocols(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OSCommandSource.PROTOCOL));
+		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OSCommandSource.class));
 		assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 	}
 }

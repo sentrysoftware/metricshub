@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet;
+package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +19,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class TelnetInteractiveSource extends Source {
+public class SshInteractiveSource extends Source {
 
 	private static final long serialVersionUID = 7662516386312299806L;
-
-	public static final String PROTOCOL = "SSHInteractive";
 
 	private Integer port;
 	private String excludeRegExp;
@@ -35,7 +33,7 @@ public class TelnetInteractiveSource extends Source {
 	private List<Step> steps = new ArrayList<>();
 
 	@Builder
-	public TelnetInteractiveSource(List<Compute> computes, boolean forceSerialization, Integer port,
+	public SshInteractiveSource(List<Compute> computes, boolean forceSerialization, Integer port,
 			String excludeRegExp, String keepOnlyRegExp, Integer removeHeader, Integer removeFooter,
 			String separators, List<String> selectColumns, List<Step> steps, int index, String key) {
 
@@ -53,11 +51,6 @@ public class TelnetInteractiveSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
-	}
-
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
 	}
 
 }
