@@ -30,6 +30,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -445,14 +446,14 @@ class DetectionOperationTest {
 		{
 			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.LINUX,
 					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
 			assertEquals(expected, actual);
 		}
 
 		{
 			final Set<String> actual = detectionOperation.determineAcceptedProtocols(false, TargetType.SUN_SOLARIS,
 					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
 			assertEquals(expected, actual);
 		}
 
@@ -480,7 +481,7 @@ class DetectionOperationTest {
 		{
 			final Set<String> actual = detectionOperation.determineAcceptedProtocols(true, TargetType.SUN_SOLARIS,
 					Collections.singleton(SSHProtocol.class));
-			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL);
+			final Set<String> expected = Set.of(OSCommandSource.PROTOCOL, IPMI.PROTOCOL, TelnetInteractiveSource.PROTOCOL);
 			assertEquals(expected, actual);
 		}
 	}

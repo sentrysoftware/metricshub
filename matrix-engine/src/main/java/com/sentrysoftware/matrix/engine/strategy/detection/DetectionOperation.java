@@ -13,7 +13,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHInteractive;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
@@ -65,19 +63,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DetectionOperation extends AbstractStrategy {
 
-	private static final Map<Class<? extends IProtocolConfiguration>, String> CONFIGURATION_TO_PROTOCOL_MAP;
+	private static final Map<Class<? extends IProtocolConfiguration>, Set<String>> CONFIGURATION_TO_PROTOCOL_MAP;
 
 	static {
 
 		CONFIGURATION_TO_PROTOCOL_MAP = Map.of(
-				SNMPProtocol.class, SNMPSource.PROTOCOL,
-				WMIProtocol.class, WMISource.PROTOCOL,
-				WBEMProtocol.class, WBEMSource.PROTOCOL,
-				SSHProtocol.class, OSCommandSource.PROTOCOL,
-				HTTPProtocol.class, HTTPSource.PROTOCOL,
-				IPMIOverLanProtocol.class, IPMI.PROTOCOL,
-				OSCommandConfig.class, OSCommandSource.PROTOCOL,
-				SSHInteractive.class, TelnetInteractiveSource.PROTOCOL);
+				SNMPProtocol.class, Collections.singleton(SNMPSource.PROTOCOL),
+				WMIProtocol.class, Collections.singleton(WMISource.PROTOCOL),
+				WBEMProtocol.class, Collections.singleton(WBEMSource.PROTOCOL),
+				SSHProtocol.class, Set.of(OSCommandSource.PROTOCOL, TelnetInteractiveSource.PROTOCOL),
+				HTTPProtocol.class, Collections.singleton(HTTPSource.PROTOCOL),
+				IPMIOverLanProtocol.class, Collections.singleton(IPMI.PROTOCOL),
+				OSCommandConfig.class, Collections.singleton(OSCommandSource.PROTOCOL));
 
 	}
 
@@ -235,7 +232,7 @@ public class DetectionOperation extends AbstractStrategy {
 				.entrySet()
 				.stream()
 				.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
-				.map(Entry::getValue)
+				.flatMap(v -> v.getValue().stream())
 				.collect(Collectors.toSet());
 
 		// Remove WMI for non-windows target

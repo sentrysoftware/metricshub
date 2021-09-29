@@ -23,7 +23,7 @@ public class TelnetInteractiveSource extends Source {
 
 	private static final long serialVersionUID = 7662516386312299806L;
 
-	public static final String PROTOCOL = "Telnet";
+	public static final String PROTOCOL = "SSHInteractive";
 
 	private Integer port;
 	private String excludeRegExp;
