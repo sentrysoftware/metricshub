@@ -710,7 +710,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SshInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
 		return SourceTable.empty();
 	}
 

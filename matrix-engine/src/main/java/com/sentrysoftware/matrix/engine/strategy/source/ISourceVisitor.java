@@ -34,7 +34,7 @@ public interface ISourceVisitor {
 
 	SourceTable visit(final TableUnionSource tableUnionSource);
 
-	SourceTable visit(final SshInteractiveSource telnetInteractiveSource);
+	SourceTable visit(final SshInteractiveSource sshInteractiveSource);
 
 	SourceTable visit(final UCSSource ucsSource);
 

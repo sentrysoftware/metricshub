@@ -294,7 +294,7 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractiveSource() {
+	void testVisitSshInteractiveSource() {
 		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(SshInteractiveSource.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(SshInteractiveSource.builder().build()));
 	}

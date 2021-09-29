@@ -306,9 +306,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SshInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
 		
-		return telnetInteractiveSource.accept(sourceVisitor);
+		return sshInteractiveSource.accept(sourceVisitor);
 	}
 
 	@Override

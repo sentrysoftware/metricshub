@@ -613,7 +613,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractiveSource() {
+	void testVisitSshInteractiveSource() {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new SshInteractiveSource()));
 	}
 
