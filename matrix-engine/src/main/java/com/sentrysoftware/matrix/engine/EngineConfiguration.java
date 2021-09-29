@@ -88,7 +88,7 @@ public class EngineConfiguration {
 		final Set<Class<? extends IProtocolConfiguration>> protocolTypes = protocolConfigurations.keySet();
 		final TargetType targetType = target.getType();
 
-		final Set<Class<? extends Source>> protocols = PROTOCOL_TO_SOURCES_MAP
+		final Set<Class<? extends Source>> sources = PROTOCOL_TO_SOURCES_MAP
 				.entrySet()
 				.stream()
 				.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
@@ -97,32 +97,32 @@ public class EngineConfiguration {
 
 		// Remove WMI for non-windows target
 		if (!TargetType.MS_WINDOWS.equals(targetType)) {
-			protocols.remove(WMISource.class);
+			sources.remove(WMISource.class);
 		}
 
 		// Add IPMI through WMI
-		if (TargetType.MS_WINDOWS.equals(targetType) && protocols.contains(WMISource.class)) {
-			protocols.add(IPMI.class);
+		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(WMISource.class)) {
+			sources.add(IPMI.class);
 		}
 
 		// Add IPMI through OSCommand remote (SSH)
 		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
 				&& protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
-			protocols.add(IPMI.class);
+			sources.add(IPMI.class);
 		}
 
 		// Handle localhost protocols
 		if (isLocalhost) {
 			// OS Command always enabled locally
-			protocols.add(OSCommandSource.class);
+			sources.add(OSCommandSource.class);
 
 			// IPMI executed locally on Linux through OS Command
 			if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-				protocols.add(IPMI.class);
+				sources.add(IPMI.class);
 			}
 		}
 
-		return protocols;
+		return sources;
 	}
 
 }
