@@ -614,9 +614,7 @@ public class MatsyaClientsExecutor {
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
-				if (logMode) {
-					log.warn("Bad response when running HTTP request {} {} : {}", method, fullUrl, httpResponse.getStatusCode());
-				}
+				log.warn("Bad response for HTTP request {} {}: {}", method, fullUrl, httpResponse.getStatusCode());
 				return "";
 			}
 

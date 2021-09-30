@@ -132,7 +132,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
 
-			if (thisSourceTable != null && thisSourceTable.getRawData() != null) {
+			if (thisSourceTable.getRawData() != null) {
 				if (httpSource.getEntryConcatMethod() == null) {
 					result.setRawData(
 							result.getRawData()
