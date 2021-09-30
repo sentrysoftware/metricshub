@@ -46,7 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -228,7 +227,7 @@ class MatsyaClientsExecutorTest {
 				.thenReturn(httpResponse);
 			String result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
-			assertTrue(result.startsWith("HTTP Error " + HTTP_BAD_REQUEST));
+			assertEquals("", result);
 			mockedHttpClient.verify(times(5), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));

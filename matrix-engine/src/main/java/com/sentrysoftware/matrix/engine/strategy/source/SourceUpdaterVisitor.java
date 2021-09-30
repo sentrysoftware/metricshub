@@ -5,6 +5,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -82,7 +83,13 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final String sourceTableKey = copy.getExecuteForEachEntryOf();
 
 		if (sourceTableKey != null && !sourceTableKey.isEmpty()) {
-			return processExecuteForEachEntryOf(copy, sourceTableKey);
+			SourceTable result =  processExecuteForEachEntryOf(copy, sourceTableKey);
+			if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
+					|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod()))
+					&& result != null) {
+				result.setRawData(String.format("[%s]", result.getRawData()));
+			}
+			return result;
 		}
 
 		if (monitor != null) {
@@ -125,12 +132,14 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
 
-			if (httpSource.getEntryConcatMethod() == null) {
-				result.setRawData(
-						result.getRawData()
-						.concat(thisSourceTable.getRawData()));
-			} else {
-				concatHttpResult(httpSource, result, row, thisSourceTable);
+			if (thisSourceTable.getRawData() != null) {
+				if (httpSource.getEntryConcatMethod() == null) {
+					result.setRawData(
+							result.getRawData()
+							.concat(thisSourceTable.getRawData()));
+				} else {
+					concatHttpResult(httpSource, result, row, thisSourceTable);
+				}
 			}
 		}
 
