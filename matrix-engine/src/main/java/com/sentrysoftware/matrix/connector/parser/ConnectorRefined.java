@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 
@@ -462,7 +461,7 @@ public class ConnectorRefined {
 			return "invalid";
 		}
 
-		return ConnectorStore.normalizeConnectorName(hdfFilename);
+		return ConnectorParser.normalizeConnectorName(hdfFilename);
 
 	}
 

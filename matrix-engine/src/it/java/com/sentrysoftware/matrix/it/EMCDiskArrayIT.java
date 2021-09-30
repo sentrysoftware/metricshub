@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.it;
 
+import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -16,22 +19,26 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 class EMCDiskArrayIT {
 
-	private static final String INPUT = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
+	private static final String INPUT_PATH = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
 
-	private static final Set<String> CONNECTORS = Set.of("EMCDiskArray");
+	private static final String CONNECTOR_NAME = "EMCDiskArray";
+
+	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();
 
 	private static final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> PROTOCOL_CONFIGURATIONS = Map.of(
 			WBEMProtocol.class,
 			WBEMProtocol.builder()
 				.protocol(WBEMProtocols.HTTPS)
 				.port(5900)
-				.namespace("root/emc")
 				.username("username")
 				.password("password".toCharArray())
 				.timeout(120L)
@@ -41,9 +48,16 @@ class EMCDiskArrayIT {
 
 	@BeforeAll
 	static void setUp() {
+
+		// Compile the connector and add it to the store
+		ConnectorParser connectorParser = new ConnectorParser();
+		final Optional<Connector> optionalConnector = connectorParser.parse(CONNECTOR_PATH);
+		assertTrue(optionalConnector.isPresent());
+		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, optionalConnector.get());
+
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("0.0.0.0").id("localhost").type(TargetType.STORAGE).build())
-				.selectedConnectors(CONNECTORS)
+				.selectedConnectors(Set.of(CONNECTOR_NAME))
 				.protocolConfigurations(PROTOCOL_CONFIGURATIONS).build();
 	}
 
@@ -54,7 +68,7 @@ class EMCDiskArrayIT {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		itJob
-			.withServerRecordData(INPUT)
+			.withServerRecordData(INPUT_PATH)
 			.prepareEngine(engineConfiguration, hostMonitoring)
 			.executeStrategy(new DetectionOperation())
 			.executeStrategy(new DiscoveryOperation())

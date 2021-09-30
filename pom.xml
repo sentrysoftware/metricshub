@@ -47,8 +47,9 @@
 	</properties>
 
 	<modules>
+		<module>connector-serializer</module>
+		<module>matrix-connectors</module>
 		<module>matrix-engine</module>
-		<module>connector-compiler-plugin</module>
 		<module>hardware-sentry-cli</module>
 		<module>hardware-sentry-prometheus</module>
 	</modules>
@@ -92,6 +93,16 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.sentrysoftware</groupId>
+				<artifactId>matrix-connectors</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware</groupId>
+				<artifactId>connector-serializer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
@@ -107,7 +118,7 @@
 				<groupId>com.sentrysoftware.shared</groupId>
 				<artifactId>hardware-connectors</artifactId>
 				<version>${hardware-connectors.version}</version>
-				<classifier>matrix</classifier>
+				<classifier>sources</classifier>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.emulation</groupId>
@@ -310,6 +321,16 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
 					<version>1.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.0.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -5,6 +5,8 @@ import com.sentrysoftware.matrix.connector.parser.state.ConnectorState;
 import lombok.Data;
 import org.springframework.util.Assert;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOVE_MS_HW_PATTERN;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -81,5 +83,18 @@ public class ConnectorParser {
 
 		Optional<ConnectorState> firstConnectorState = connectorStates.stream().findFirst();
 		firstConnectorState.ifPresent(connectorState -> connectorState.parse(key, value, connector));
+	}
+
+	/**
+	 * Remove the extension from the file name and replace MS_HW_ prefix
+	 * 
+	 * @param filename
+	 * @return String value
+	 */
+	public static String normalizeConnectorName(String filename) {
+		// remove the extension
+		String compiledFileName = filename.substring(0, filename.lastIndexOf('.'));
+	
+		return REMOVE_MS_HW_PATTERN.matcher(compiledFileName).replaceFirst("$2");
 	}
 }

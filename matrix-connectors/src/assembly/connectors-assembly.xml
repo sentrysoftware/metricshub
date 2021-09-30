@@ -6,14 +6,14 @@
 	<formats>
 		<format>jar</format>
 	</formats>
-	<includeBaseDirectory>false</includeBaseDirectory>	
+	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
-        <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>${file.separator}</outputDirectory>
-            <includes>
-                <include>/matrix/connector/**</include>
-            </includes>
-        </fileSet>
-    </fileSets>
+		<fileSet>
+			<directory>${project.build.directory}</directory>
+			<outputDirectory>${file.separator}</outputDirectory>
+			<includes>
+				<include>/matrix/connector/**</include>
+			</includes>
+		</fileSet>
+	</fileSets>
 </assembly>

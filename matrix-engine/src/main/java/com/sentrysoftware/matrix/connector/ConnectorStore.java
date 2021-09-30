@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOVE_MS_HW_PATTERN;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -73,18 +71,5 @@ public class ConnectorStore {
 						(first, second) -> first, 
 						() -> new TreeMap<String, Connector>(String.CASE_INSENSITIVE_ORDER)));
 
-	}
-
-	/**
-	 * Remove the extension from the file name and replace MS_HW_ prefix
-	 * 
-	 * @param filename
-	 * @return String value
-	 */
-	public static String normalizeConnectorName(String filename) {
-		// remove the extension
-		String compiledFileName = filename.substring(0, filename.lastIndexOf('.'));
-
-		return REMOVE_MS_HW_PATTERN.matcher(compiledFileName).replaceFirst("$2");
 	}
 }

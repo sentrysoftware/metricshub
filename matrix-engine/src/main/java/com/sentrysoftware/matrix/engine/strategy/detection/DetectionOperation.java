@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -38,6 +37,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SN
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -444,7 +444,7 @@ public class DetectionOperation extends AbstractStrategy {
 			return;
 		}
 		supersedes.addAll(testedConnector.getConnector().getSupersedes().stream()
-				.map(fileName -> ConnectorStore.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
+				.map(fileName -> ConnectorParser.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
 	}
 
 	/**
