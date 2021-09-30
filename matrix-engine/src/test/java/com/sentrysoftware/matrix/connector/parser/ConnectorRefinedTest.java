@@ -20,7 +20,7 @@ class ConnectorRefinedTest {
 	private ConnectorRefined connectorRefined;
 
 	private static final String DELL_OPEN_MANAGE_HDFS =
-		"src/it/success/hardware-connectors/src/main/hdf/MS_HW_DellOpenManage.hdfs";
+		"src/test/resources/hdf/MS_HW_DellOpenManage.hdfs";
 
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";
