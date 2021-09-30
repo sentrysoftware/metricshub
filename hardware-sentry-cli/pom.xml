@@ -185,7 +185,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/main/assembly/dist.xml</descriptor>
+								<descriptor>src/assembly/dist.xml</descriptor>
 							</descriptors>
 							<finalName>hws-${project.version}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>

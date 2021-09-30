@@ -120,7 +120,7 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-	
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -284,7 +284,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/main/assembly/dist.xml</descriptor>
+								<descriptor>src/assembly/dist.xml</descriptor>
 							</descriptors>
 							<finalName>${project.artifactId}-${project.version}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
