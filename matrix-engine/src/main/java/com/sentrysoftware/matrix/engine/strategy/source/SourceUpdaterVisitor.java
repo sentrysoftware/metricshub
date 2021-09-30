@@ -1,22 +1,11 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -25,9 +14,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -35,10 +24,21 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_BEGIN_OPERATION_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @Slf4j
@@ -69,6 +69,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "HTTP source", httpSource.getKey(), httpSource.toString());
+
 		// Very important! otherwise we will overlap in multi-host mode
 		final HTTPSource copy = httpSource.copy();
 
@@ -81,7 +83,13 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final String sourceTableKey = copy.getExecuteForEachEntryOf();
 
 		if (sourceTableKey != null && !sourceTableKey.isEmpty()) {
-			return processExecuteForEachEntryOf(copy, sourceTableKey);
+			SourceTable result =  processExecuteForEachEntryOf(copy, sourceTableKey);
+			if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
+					|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod()))
+					&& result != null) {
+				result.setRawData(String.format("[%s]", result.getRawData()));
+			}
+			return result;
 		}
 
 		if (monitor != null) {
@@ -124,12 +132,14 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
 
-			if (httpSource.getEntryConcatMethod() == null) {
-				result.setRawData(
-						result.getRawData()
-						.concat(thisSourceTable.getRawData()));
-			} else {
-				concatHttpResult(httpSource, result, row, thisSourceTable);
+			if (thisSourceTable.getRawData() != null) {
+				if (httpSource.getEntryConcatMethod() == null) {
+					result.setRawData(
+							result.getRawData()
+							.concat(thisSourceTable.getRawData()));
+				} else {
+					concatHttpResult(httpSource, result, row, thisSourceTable);
+				}
 			}
 		}
 
@@ -235,6 +245,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
 
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "OSCommand source", osCommandSource.getKey(), osCommandSource.toString());
+
 		// We must copy the source so that we don't modify the original source 
 		// which needs to be passed for each monitor when running the mono instance collect.
 		final OSCommandSource copy = osCommandSource.copy();
@@ -261,6 +273,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "SNMP Get source", snmpGetSource.getKey(), snmpGetSource.toString());
+
 		if (monitor != null) {
 			// We must copy the source so that we don't modify the original source 
 			// which needs to be passed for each monitor when running the mono instance collect.
@@ -274,6 +288,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, "SNMP Table source", snmpGetTableSource.getKey(), snmpGetTableSource.toString());
 
 		if (monitor != null) {
 			// We must copy the source so that we don't modify the original source 
@@ -299,9 +315,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final TelnetInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
 		
-		return telnetInteractiveSource.accept(sourceVisitor);
+		return sshInteractiveSource.accept(sourceVisitor);
 	}
 
 	@Override

@@ -29,9 +29,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -133,15 +133,15 @@ class SourceUpdaterVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
-		expectedResult = "expectedVal1,\n" +
-				"expectedVal2";
+		expectedResult = "[expectedVal1,\n" +
+				"expectedVal2]";
 		assertEquals(expectedResult, result.getRawData());
 
 		httpSource.setEntryConcatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(expected1, expected2).when(sourceVisitor).visit(any(HTTPSource.class));
 		result = new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(httpSource);
-		expectedResult = "{\n" +
+		expectedResult = "[{\n" +
 				"\"Entry\":{\n" +
 				"\"Full\":\"val1,val2,val3\",\n" +
 				"\"Column(1)\":\"val1\",\n" +
@@ -158,7 +158,7 @@ class SourceUpdaterVisitorTest {
 				"\"Column(3)\":\"c1\",\n" +
 				"\"Value\":expectedVal2\n" +
 				"}\n" +
-				"}";
+				"}]";
 
 		assertEquals(expectedResult, result.getRawData());
 
@@ -294,9 +294,9 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractiveSource() {
-		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(TelnetInteractiveSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(TelnetInteractiveSource.builder().build()));
+	void testVisitSshInteractiveSource() {
+		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(SshInteractiveSource.class));
+		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(SshInteractiveSource.builder().build()));
 	}
 
 	@Test

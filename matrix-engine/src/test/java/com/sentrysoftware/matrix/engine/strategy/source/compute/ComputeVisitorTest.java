@@ -57,7 +57,7 @@ class ComputeVisitorTest {
 	private ComputeVisitor computeVisitor;
 	private SourceTable sourceTable;
 
-	private MatsyaClientsExecutor matsyaClientsExecutor = Mockito.spy(MatsyaClientsExecutor.class);
+	private final MatsyaClientsExecutor matsyaClientsExecutor = Mockito.spy(MatsyaClientsExecutor.class);
 
 	private static final String FOO = "FOO";
 	private static final String BAR = "BAR";

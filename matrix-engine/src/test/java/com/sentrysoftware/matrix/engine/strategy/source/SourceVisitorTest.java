@@ -39,9 +39,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -613,8 +613,8 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractiveSource() {
-		assertEquals(SourceTable.empty(), sourceVisitor.visit(new TelnetInteractiveSource()));
+	void testVisitSshInteractiveSource() {
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new SshInteractiveSource()));
 	}
 
 	@Test
@@ -909,7 +909,7 @@ class SourceVisitorTest {
 						"",
 						"",
 						"sensorName=state"));
-		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource());
+		assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.processWindowsIpmiSource(null));
 	}
 
 	@Test
@@ -930,7 +930,7 @@ class SourceVisitorTest {
 				wmiProtocol,
 				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
 				"root/cimv2");
-		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
+		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource(null));
 	}
 
 	@Test
@@ -942,12 +942,12 @@ class SourceVisitorTest {
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource());
+		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource(null));
 	}
 
 
 	@Test
-	void testPocessUnixIpmiSource() {
+	void testProcessUnixIpmiSource() {
 
 		// classic case
 		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
@@ -967,7 +967,7 @@ class SourceVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "fru"), anyInt(), any())).thenReturn("impiResultFru");
 			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "-v sdr elist all"), anyInt(), any())).thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource(null);
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
 
@@ -980,7 +980,7 @@ class SourceVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "fru"), anyInt(), any())).thenReturn(fruResult);
 			oscmd.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand"+ "-v sdr elist all"), anyInt(), any())).thenReturn(sensorResult);
-			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource(null);
 			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
 			List<List<String>> result = new ArrayList<>();
 			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
@@ -994,20 +994,20 @@ class SourceVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 			oscmd.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand"+ "fru"), any(), any(), anyInt(), any(), any())).thenReturn("impiResultFru");
 			oscmd.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand"+ "-v sdr elist all"), any(), any(), anyInt(), any(), any())).thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource();
+			final SourceTable ipmiResult = sourceVisitor.processUnixIpmiSource(null);
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
 
 		// ipmiToolCommand is empty
 		hostMonitoring.setIpmitoolCommand("");
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		SourceTable ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		SourceTable ipmiResultEmpty = sourceVisitor.processUnixIpmiSource(null);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 
 		// ipmiToolCommand is null
 		hostMonitoring.setIpmitoolCommand(null);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource(null);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 
 		// osCommandConfig is null
@@ -1022,7 +1022,7 @@ class SourceVisitorTest {
 		hostMonitoring2.setLocalhost(true);
 		hostMonitoring2.setIpmitoolCommand("ipmiCommand");
 		doReturn(hostMonitoring2).when(strategyConfig).getHostMonitoring();
-		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource();
+		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource(null);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 	}
 

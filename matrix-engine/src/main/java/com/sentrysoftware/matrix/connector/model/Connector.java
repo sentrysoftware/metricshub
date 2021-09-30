@@ -13,6 +13,7 @@ import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,5 +58,5 @@ public class Connector implements Serializable {
 	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 
 	@Default
-	private Set<String> sourceProtocols = new HashSet<>();
+	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
 }

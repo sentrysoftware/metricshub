@@ -22,8 +22,6 @@ public class UCSSource extends Source {
 
 	private static final long serialVersionUID = 2010036387689462346L;
 
-	public static final String PROTOCOL = "UCS";
-
 	private List<String> queries = new ArrayList<>();
 	private String excludeRegExp;
 	private String keepOnlyRegExp;
@@ -43,11 +41,6 @@ public class UCSSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
-	}
-
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
 	}
 
 }

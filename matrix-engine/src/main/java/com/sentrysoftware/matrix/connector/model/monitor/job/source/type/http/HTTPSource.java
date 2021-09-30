@@ -1,8 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
@@ -10,12 +7,14 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,8 +23,6 @@ import lombok.ToString;
 public class HTTPSource extends Source {
 
 	private static final long serialVersionUID = -6658120832080657988L;
-
-	public static final String PROTOCOL = "HTTP";
 
 	private String method;
 	private String url;
@@ -67,9 +64,7 @@ public class HTTPSource extends Source {
 				.index(getIndex())
 				.key(getKey())
 				.forceSerialization(isForceSerialization())
-				.computes(
-						getComputes() != null ? getComputes().stream()
-								.collect(Collectors.toList()) : null)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
 				.method(method)
 				.url(url)
 				.header(header != null ? header.copy() : null)
@@ -81,11 +76,6 @@ public class HTTPSource extends Source {
 				.entryConcatStart(entryConcatStart)
 				.entryConcatEnd(entryConcatEnd)
 				.build();
-	}
-
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
 	}
 
 }

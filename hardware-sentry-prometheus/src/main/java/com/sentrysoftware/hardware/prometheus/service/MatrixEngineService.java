@@ -1,25 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -40,9 +20,27 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -324,7 +322,7 @@ public class MatrixEngineService {
 
 		// Throw the bad configuration exception
 		String message = String.format("Configured unknown %s connector(s): %s. Hostname: %s",
-				mode, unknownConnectors.stream().collect(Collectors.joining(", ")), hostname);
+				mode, String.join(", ", unknownConnectors), hostname);
 
 		log.error(message);
 

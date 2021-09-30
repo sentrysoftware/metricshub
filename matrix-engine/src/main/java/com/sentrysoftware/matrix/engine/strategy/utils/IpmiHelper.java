@@ -574,7 +574,7 @@ public class IpmiHelper {
 		//  Now process the numeric sensor list
 		ipmiTable = ipmiAddHardwareSensorInfo(sdrResult, ipmiTable);
 		// convert imptTable to list<list<String>>
-		ipmiTable.stream().forEach(line -> result.add(Stream.of(line.split(";")).collect(Collectors.toList())));
+		ipmiTable.forEach(line -> result.add(Stream.of(line.split(";")).collect(Collectors.toList())));
 
 		return result;
 
