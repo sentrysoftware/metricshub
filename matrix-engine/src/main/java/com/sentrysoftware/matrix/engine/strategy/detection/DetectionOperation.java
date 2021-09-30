@@ -12,8 +12,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_
 
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -205,7 +203,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Filter the given stream of {@link Connector} instances based on the source
 	 * protocols we actually accept
-	 * 
+	 *
 	 * @param connectorStream   Stream of connector instances from the singleton
 	 *                          store
 	 * @param acceptedProtocols Set of the source protocols we should accept in the
@@ -222,7 +220,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Determine the configured and the enabled protocols (e.g OSCommand on localhost) for the current host
 	 * monitoring.
-	 * 
+	 *
 	 * @param isLocalhost   Whether the target should be localhost or not
 	 * @param protocolTypes Set of configured protocols
 	 * @param targetType    The type of the target

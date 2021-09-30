@@ -58,22 +58,22 @@ class ConnectorCompileMojoTest {
 
 	@Test
 	void testCheckOptionalConnector() throws Exception {
-		
+
 		try {
-			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class),
 					Arrays.asList(logger, MY_CONNECTOR, Optional.empty()));
 			fail(EXPECTED_EXCEPTION);
 		} catch (Exception e) {
 			assertTrue(e.getCause() instanceof MojoExecutionException);
 		}
-		
+
 		try {
-			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class), 
+			ReflectionHelper.invokeMethod(connectorCompileMojo, CHECK_OPTIONAL_CONNECTOR, Arrays.asList(Log.class, String.class, Optional.class),
 					Arrays.asList(logger, MY_CONNECTOR, Optional.of(Connector.builder().build())));
 		} catch (Exception e) {
 			fail("Unexpected exception");
 		}
-		
+
 	}
 
 	@Test
@@ -97,7 +97,7 @@ class ConnectorCompileMojoTest {
 		assertEquals(1, serializedConnectors.length);
 		try (final FileInputStream is = new FileInputStream(serializedConnectors[0]);
 				final ObjectInputStream in = new ObjectInputStream(is);) {
-			assertEquals(expected, (Connector) in.readObject());
+			assertEquals(expected, in.readObject());
 		}
 	}
 
@@ -110,7 +110,7 @@ class ConnectorCompileMojoTest {
 		final String connectorPath = testDirectory.getPath() + MY_CONNECTOR_HDFS;
 		try (MockedStatic<ConnectorSerializer> connectorSerializer = Mockito.mockStatic(ConnectorSerializer.class)) {
 			connectorSerializer.when(() -> ConnectorSerializer.serialize(eq(testDirectory.getAbsolutePath()), eq(connector))).thenThrow(new IOException("exception from test"));
-			
+
 			try {
 				ReflectionHelper.invokeMethod(connectorCompileMojo, SERIALIZE,
 						Arrays.asList(Log.class, File.class, String.class, Connector.class),
@@ -122,7 +122,7 @@ class ConnectorCompileMojoTest {
 
 		}
 	}
-	
+
 	@Test
 	void testCompileHdfsFilesIllegalStateException() throws Exception {
 
@@ -169,7 +169,7 @@ class ConnectorCompileMojoTest {
 
 	@Test
 	void testCompileHdfsFilesNoHdfs() throws Exception {
-	
+
 		final MavenProject project = new MavenProject();
 		project.setVersion(PROJECT_VERSION);
 		project.setDescription(PROJECT_DESCRIPTION);
@@ -193,7 +193,7 @@ class ConnectorCompileMojoTest {
 			} catch (Exception e) {
 				assertTrue(e instanceof IllegalStateException);
 			}
-		  }
+		}
 	}
 	@Test
 	void testCompileHdfsFiles() throws Exception {
@@ -231,7 +231,7 @@ class ConnectorCompileMojoTest {
 		project.setVersion(PROJECT_VERSION);
 		project.setDescription(PROJECT_DESCRIPTION);
 		project.setFile(testDirectory);
-		
+
 		final File outputDirectory = new File(testDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
 		outputDirectory.mkdir();
 
