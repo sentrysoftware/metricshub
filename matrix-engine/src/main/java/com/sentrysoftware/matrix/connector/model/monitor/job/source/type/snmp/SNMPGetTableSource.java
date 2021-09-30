@@ -57,4 +57,5 @@ public class SNMPGetTableSource extends SNMPSource {
 								.collect(Collectors.toList()) : null)
 				.build();
 	}
+
 }

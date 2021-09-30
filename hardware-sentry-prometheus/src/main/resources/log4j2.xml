@@ -4,7 +4,7 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout disableAnsi="false"
 						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
-			<ThresholdFilter level="warn"/>
+			<ThresholdFilter level="error"/>
 		</Console>
 		<Console name="SpringConsole" target="SYSTEM_OUT">
 			<PatternLayout disableAnsi="false"
@@ -38,7 +38,7 @@
 			<appender-ref ref="Console" />
 		</Root>
 		<!--	Requests handling logger	-->
-		<logger name="com.sentrysoftware" level="error">
+		<logger name="com.sentrysoftware" level="trace">
 			<appender-ref ref="Routing">
 				<ThreadContextMapFilter onMatch="DENY" onMismatch="ACCEPT">
 					<KeyValuePair key="debugMode" value="" />

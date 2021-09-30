@@ -21,8 +21,6 @@ public class IPMI extends Source {
 
 	private static final long serialVersionUID = 2314585274202787684L;
 
-	public static final String PROTOCOL = "IPMI";
-
 	@Builder
 	public IPMI(List<Compute> computes, boolean forceSerialization, int index, String key) {
 
@@ -34,8 +32,4 @@ public class IPMI extends Source {
 		return sourceVisitor.visit(this);
 	}
 
-	@Override
-	public String getProtocol() {
-		return PROTOCOL;
-	}
 }
