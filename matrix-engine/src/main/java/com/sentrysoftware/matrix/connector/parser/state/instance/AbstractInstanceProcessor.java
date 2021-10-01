@@ -31,6 +31,7 @@ public abstract class AbstractInstanceProcessor implements IConnectorStateParser
 
 		final Matcher matcher = getMatcher(key);
 
+		//noinspection ResultOfMethodCallIgnored
 		matcher.find();
 
 		final String monitorName = matcher.group(1);
