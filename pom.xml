@@ -29,9 +29,6 @@
 		<maven-reporting-impl.version>3.0.0</maven-reporting-impl.version>
 		<maven-reporting-api.version>3.0</maven-reporting-api.version>
 		<plexus-utils.version>3.0.8</plexus-utils.version>
-		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
-		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
-		<jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
 		<hardware-connectors.version>25-SNAPSHOT</hardware-connectors.version>
 		<maven-filtering.version>3.1.1</maven-filtering.version>
 		<spring.version>5.3.5</spring.version>
@@ -42,7 +39,6 @@
 		<prometheus-client.version>0.10.0</prometheus-client.version>
 		<jackson.version>2.12.3</jackson.version>
 		<jaxb.version>2.4.0-b180830.0359</jaxb.version>
-		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<snmp4j.version>3.5.1</snmp4j.version>
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
@@ -51,8 +47,9 @@
 	</properties>
 
 	<modules>
+		<module>connector-serializer</module>
+		<module>matrix-connectors</module>
 		<module>matrix-engine</module>
-		<module>connector-compiler-plugin</module>
 		<module>hardware-sentry-cli</module>
 		<module>hardware-sentry-prometheus</module>
 	</modules>
@@ -96,6 +93,16 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.sentrysoftware</groupId>
+				<artifactId>matrix-connectors</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware</groupId>
+				<artifactId>connector-serializer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
@@ -111,7 +118,7 @@
 				<groupId>com.sentrysoftware.shared</groupId>
 				<artifactId>hardware-connectors</artifactId>
 				<version>${hardware-connectors.version}</version>
-				<classifier>matrix</classifier>
+				<classifier>sources</classifier>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.emulation</groupId>
@@ -283,22 +290,22 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
-					<version>${maven-plugin-plugin.version}</version>
+					<version>3.6.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${maven-surefire-plugin.version}</version>
+					<version>3.0.0-M3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>${jacoco-maven-plugin.version}</version>
+					<version>0.8.6</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>${maven-failsafe-plugin.version}</version>
+					<version>3.0.0-M5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -314,6 +321,16 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
 					<version>1.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.0.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -47,6 +47,10 @@
 			<groupId>com.sentrysoftware</groupId>
 			<artifactId>matrix-engine</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware</groupId>
+			<artifactId>matrix-connectors</artifactId>
+		</dependency>
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -120,7 +124,7 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-	
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

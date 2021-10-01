@@ -23,11 +23,6 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.shared</groupId>
-			<artifactId>hardware-connectors</artifactId>
-			<classifier>matrix</classifier>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>

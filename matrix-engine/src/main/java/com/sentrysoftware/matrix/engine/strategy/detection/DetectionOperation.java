@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
@@ -171,7 +171,7 @@ public class DetectionOperation extends AbstractStrategy {
 	/**
 	 * Filter the given stream of {@link Connector} instances based on the source
 	 * types we actually accept
-	 * 
+	 *
 	 * @param connectorStream Stream of connector instances from the singleton store
 	 * @param acceptedSources Set of the sources we should accept in the current
 	 *                        host monitoring detection
@@ -363,7 +363,7 @@ public class DetectionOperation extends AbstractStrategy {
 			return;
 		}
 		supersedes.addAll(testedConnector.getConnector().getSupersedes().stream()
-				.map(fileName -> ConnectorStore.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
+				.map(fileName -> ConnectorParser.normalizeConnectorName(fileName).toLowerCase()).collect(Collectors.toSet()));
 	}
 
 	/**

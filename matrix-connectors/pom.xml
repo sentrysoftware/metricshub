@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sentrysoftware</groupId>
+		<artifactId>matrix</artifactId>
+		<version>0.9.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>matrix-connectors</artifactId>
+	<name>Hardware Connectors Library</name>
+	<description>Hardware Connectors Library for Sentry Software's Matrix-based projects</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sentrysoftware.shared</groupId>
+			<artifactId>hardware-connectors</artifactId>
+			<classifier>sources</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>com.bmc.patrol</groupId>
+					<artifactId>default-image</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<!-- dependency -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+
+					<!-- Get the dependencies -->
+					<execution>
+						<id>unpack-dependencies</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+					</execution>
+
+				</executions>
+
+			</plugin>
+
+			<!-- maven-exec-plugin -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>serialize-connectors</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>com.sentrysoftware.matrix.connector.ConnectorStoreSerializer</mainClass>
+							<arguments>
+								<argument>${project.build.directory}/dependency</argument>
+								<argument>${project.build.directory}/matrix/connector</argument>
+							</arguments>
+							<includePluginDependencies>true</includePluginDependencies>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.sentrysoftware</groupId>
+						<artifactId>connector-serializer</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- assembly -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<manifestSections>
+							<manifestSection>
+								<name>com/sentrysoftware/matrix</name>
+							</manifestSection>
+						</manifestSections>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>assemble-artifact</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/connectors-assembly.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>
