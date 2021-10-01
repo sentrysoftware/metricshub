@@ -15,13 +15,30 @@ import java.util.stream.Stream;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.exception.ConnectorSerializationException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 
 import lombok.NonNull;
 
+/**
+ * Class designed to be called by the <b>exec-maven-plugin</b>
+ * <p>
+ * The <i>main(...)</i> method will parse all connector source files
+ * and serialize them in a target directory.
+ */
 public class ConnectorStoreSerializer {
 
+	/**
+	 * Main method to be called by the exec-maven-plugin.
+	 * <p>
+	 * Arguments are expected to be:
+	 * <ol>
+	 * <li>Path to the source directory (with the *.hdfs files)
+	 * <li>Path to the target directory where to store serialized files
+	 * </ol>
+	 * @param args sourceDirectory and targetDirectory as an array of String
+	 */
 	public static void main(String[] args) {
 
 		compileHdfsFiles(Paths.get(args[0]), Paths.get(args[1]));
@@ -32,12 +49,9 @@ public class ConnectorStoreSerializer {
 	 * Get all .hdfs files from the connectorDirectory and serialize them using
 	 * ConnectorParser
 	 *
-	 * @param logger
-	 * @param connectorDirectory
-	 * @param outputDirectory
-	 * @param project
-	 * @return number of compiled .hdfs files
-	 * @throws MojoExecutionException
+	 * @param connectorDirectory Directory with the source connectors (*.hdfs files)
+	 * @param outputDirectory Directory where to store serialized connectors
+	 * @throws ConnectorSerializationException when anything wrong happens (so this interrupts the build)
 	 */
 	private static void compileHdfsFiles(final Path connectorDirectory, final Path outputDirectory) {
 
@@ -52,7 +66,7 @@ public class ConnectorStoreSerializer {
 		try {
 			connectorNameList = getConnectorList(connectorDirectory);
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to list directory: " + connectorDirectory.toString(), e);
+			throw new ConnectorSerializationException("Failed to list directory: " + connectorDirectory.toString(), e);
 		}
 
 		int count = 0;
@@ -64,7 +78,7 @@ public class ConnectorStoreSerializer {
 			// Parse
 			final Optional<Connector> optionalConnector = connectorParser.parse(connectorPath);
 			if (optionalConnector.isEmpty()) {
-				throw new RuntimeException("Failed to parse connector: " + connectorName);
+				throw new ConnectorSerializationException("Failed to parse connector: " + connectorName);
 			}
 
 			// Serialize
@@ -72,7 +86,7 @@ public class ConnectorStoreSerializer {
 			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath))) {
 				objectOutputStream.writeObject(optionalConnector.get());
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to serialize connector: " + connectorName, e);
+				throw new ConnectorSerializationException("Failed to serialize connector: " + connectorName, e);
 			}
 
 			System.out.format("Serialized %s%n", connectorName);
@@ -87,19 +101,19 @@ public class ConnectorStoreSerializer {
 	 * Make sure the specified directory exists and create it if it doesn't.
 	 * <p>
 	 * @param dir Directory to be tested
-	 * @throws MojoExecutionException if specified directory cannot be created
+	 * @throws ConnectorSerializationException if specified directory cannot be created
 	 * @throws IllegalArgumentException if specified directory is null
 	 */
 	public static void validateOutputDirectory(@NonNull Path dir) {
 
 		// Do we need to create it?
-		if (!Files.exists(dir)) {
+		if (!Files.isDirectory(dir)) {
 
 			try {
 				// Create it!
 				Files.createDirectories(dir);
 			} catch (IOException e) {
-				throw new RuntimeException("Could not create outputDirectory: " + dir.toString());
+				throw new ConnectorSerializationException("Could not create outputDirectory: " + dir.toString());
 			}
 
 		}

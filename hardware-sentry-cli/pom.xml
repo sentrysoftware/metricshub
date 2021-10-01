@@ -2,31 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>com.sentrysoftware</groupId>
+		<groupId>com.sentrysoftware.hardware.matrix</groupId>
 		<artifactId>matrix</artifactId>
 		<version>0.9.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.sentrysoftware.hardware.cli</groupId>
 	<artifactId>hardware-sentry-cli</artifactId>
+
 	<name>Hardware Sentry CLI</name>
-	<description>Hardware Sentry CLI</description>
+	<description>Hardware Sentry CLI (hws)</description>
+
 	<properties>
-		<java.version>11</java.version>
 
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
 		<sentrySkinVersion>4.0</sentrySkinVersion>
+
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.sentrysoftware</groupId>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-engine</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware</groupId>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
 		</dependency>
 		<dependency>
@@ -109,6 +112,7 @@
 
 		<plugins>
 
+			<!-- resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -120,6 +124,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- spring-boot-maven-plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -127,6 +132,14 @@
 				<configuration>
 					<!-- MATSYA is already wrapped in matrix-engine -->
 					<excludeGroupIds>com.sentrysoftware.patrol.matsya</excludeGroupIds>
+					<excludes>
+						<!-- We don't want the sources of the connectors in the JAR -->
+						<exclude>
+							<groupId>com.sentrysoftware.shared</groupId>
+							<artifactId>hardware-connectors</artifactId>
+							<classifier>sources</classifier>
+						</exclude>
+					</excludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -177,6 +190,7 @@
 				</executions>
 			</plugin>
 
+			<!-- assembly -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
