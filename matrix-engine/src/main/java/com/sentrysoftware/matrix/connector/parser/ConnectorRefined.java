@@ -28,9 +28,9 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
- * Based on HDV Maven Plugin HardwareConnector Bertrand's implementation.
+ * Based on HDF Maven Plugin HardwareConnector Bertrand's implementation.
  * The aim of this bean is to provide a refined Connector content to be processed by the {@link ConnectorParser}
- * 
+ *
  * @author Nassim BOUTEKEDJIRET
  *
  */
@@ -43,7 +43,7 @@ public class ConnectorRefined {
 	@Getter
 	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 	@Getter
-	private Map<String, TranslationTable> translationTables = new HashMap<>(); 
+	private Map<String, TranslationTable> translationTables = new HashMap<>();
 	private ArrayList<String> problemList = new ArrayList<>();
 
 	/**
@@ -93,7 +93,7 @@ public class ConnectorRefined {
 	 */
 	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile(".*\\.(translationtable|bittranslationtable)=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-	
+
 
 	/**
 	 * Loads the specified Connector, parses it and populates the map with all values
@@ -142,7 +142,8 @@ public class ConnectorRefined {
 	 * @throws IOException              when there is a problem while reading the
 	 *                                  Connector file
 	 */
-	public void load(@NonNull String hdfFilename, @NonNull File hdfParentDirectory, @NonNull InputStream hdfStream) throws IOException {
+	public void load(@NonNull String hdfFilename, @NonNull File hdfParentDirectory, @NonNull InputStream hdfStream)
+			throws IOException {
 
 		compiledFilename = getCompiledFilename(hdfFilename);
 
@@ -245,9 +246,13 @@ public class ConnectorRefined {
 		}
 
 		Map<String, Pattern> translationTablePatterns = translationTableNames.stream()
-				.collect(Collectors.toMap(Function.identity(), translationTableName -> Pattern.compile(
-						"^\\s*" + translationTableName + "\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
-						Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)));
+				.collect(Collectors.toMap(
+						Function.identity(),
+						translationTableName -> Pattern.compile(
+								"^\\s*" + translationTableName + "\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
+								Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+						)
+				));
 
 		for (Entry<String, Pattern> entry : translationTablePatterns.entrySet()) {
 			final String translationTableName = entry.getKey();
@@ -282,13 +287,11 @@ public class ConnectorRefined {
 		return rawCode;
 	}
 
-	private String processIncludeDirectives(File hdfParentDirectory, String hdfSourceFilename,
-			String rawCode) throws IOException {
+	private String processIncludeDirectives(File hdfParentDirectory, String hdfSourceFilename, String rawCode)
+			throws IOException {
 
-		// We will process "recursively" the #include directives, that is: we will find
-		// the #include
-		// and replace with the content of the included file, and then look again on the
-		// resulting
+		// We will process "recursively" the #include directives, that is: we will find the #include
+		// and replace with the content of the included file, and then look again on the resulting
 		// code with there are still new #include directives
 		int ttl = 100;
 
@@ -325,7 +328,8 @@ public class ConnectorRefined {
 				}
 			}
 			// Replace the #include statement with the actual content
-			rawCode = rawCode.substring(0, includeMatcher.start(1)) + includeStringBuilder.toString()
+			rawCode = rawCode.substring(0, includeMatcher.start(1))
+					+ includeStringBuilder.toString()
 					+ rawCode.substring(includeMatcher.end(1));
 
 			ttl--;
@@ -354,12 +358,9 @@ public class ConnectorRefined {
 
 		for (Entry<String, String> defineEntry : defineMap.entrySet()) {
 
-			// Protect the defined value as it's going to be a replacement string in regex
-			// functions below
-			// backslash and dollars needs to be protected as they are normally used to
-			// reference groups, etc.
-			// Replacing backslashes with double backslashes with double protection means
-			// (gasp) 8 backslashes! :-D
+			// Protect the defined value as it's going to be a replacement string in regex functions below
+			// backslash and dollars needs to be protected as they are normally used to reference groups, etc.
+			// Replacing backslashes with double backslashes with double protection means (gasp) 8 backslashes! :-D
 			String defineValue = defineEntry.getValue().replace("\\\\", "\\\\\\\\").replace("\\$", "\\\\\\$");
 
 			// Usual regex replacement code loop
@@ -446,7 +447,7 @@ public class ConnectorRefined {
 	/**
 	 * Return the compiled Connector file name corresponding to the specified connector
 	 * file name
-	 * 
+	 *
 	 * @param hdfFilename The connector file name (ending with .hdfs)
 	 * @return The corresponding HTML page filename
 	 */

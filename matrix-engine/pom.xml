@@ -156,13 +156,26 @@
 	</dependencies>
 
 	<build>
+
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/it/resources</directory>
+			</testResource>
+		</testResources>
+
 		<plugins>
+
+			<!-- surefire -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -175,6 +188,8 @@
 					</classpathDependencyExcludes>
 				</configuration>
 			</plugin>
+
+			<!-- jacoco -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -247,39 +262,39 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<!-- assembly -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-						<manifestSections>
-							<manifestSection>
-								<name>com/sentrysoftware/matrix</name>
-							</manifestSection>
-						</manifestSections>
-					</archive>
-				</configuration>
-
 				<executions>
 					<execution>
-						<id>make-my-jar-with-dependencies</id>
+						<id>matrix-jar</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/assembly/matrix-assembly-descriptor.xml</descriptor>
+								<descriptor>src/assembly/matrix-jar.xml</descriptor>
 							</descriptors>
 							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								</manifest>
+								<manifestSections>
+									<manifestSection>
+										<name>com/sentrysoftware/matrix</name>
+									</manifestSection>
+								</manifestSections>
+							</archive>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- build-helper-maven-plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -298,6 +313,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- failsafe -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -311,14 +328,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-			</testResource>
-			<testResource>
-				<directory>src/it/resources</directory>
-			</testResource>
-		</testResources>
+
 	</build>
 </project>

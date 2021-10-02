@@ -19,11 +19,8 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 class EMCDiskArrayIT {
@@ -51,9 +48,8 @@ class EMCDiskArrayIT {
 
 		// Compile the connector and add it to the store
 		ConnectorParser connectorParser = new ConnectorParser();
-		final Optional<Connector> optionalConnector = connectorParser.parse(CONNECTOR_PATH);
-		assertTrue(optionalConnector.isPresent());
-		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, optionalConnector.get());
+		final Connector connector = connectorParser.parse(CONNECTOR_PATH);
+		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("0.0.0.0").id("localhost").type(TargetType.STORAGE).build())

@@ -5,15 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.exception.ConnectorSerializationException;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -27,7 +25,7 @@ import lombok.NonNull;
  * The <i>main(...)</i> method will parse all connector source files
  * and serialize them in a target directory.
  */
-public class ConnectorStoreSerializer {
+public class ConnectorLibrarySerializer {
 
 	/**
 	 * Main method to be called by the exec-maven-plugin.
@@ -41,7 +39,7 @@ public class ConnectorStoreSerializer {
 	 */
 	public static void main(String[] args) {
 
-		compileHdfsFiles(Paths.get(args[0]), Paths.get(args[1]));
+		serializeConnectorSources(Paths.get(args[0]), Paths.get(args[1]));
 
 	}
 
@@ -49,13 +47,15 @@ public class ConnectorStoreSerializer {
 	 * Get all .hdfs files from the connectorDirectory and serialize them using
 	 * ConnectorParser
 	 *
-	 * @param connectorDirectory Directory with the source connectors (*.hdfs files)
+	 * @param sourceDirectory Directory with the source connectors (*.hdfs files)
 	 * @param outputDirectory Directory where to store serialized connectors
 	 * @throws ConnectorSerializationException when anything wrong happens (so this interrupts the build)
 	 */
-	private static void compileHdfsFiles(final Path connectorDirectory, final Path outputDirectory) {
+	static void serializeConnectorSources(final Path sourceDirectory, final Path outputDirectory) {
 
-		Assert.state(Files.isDirectory(connectorDirectory), "connectorDirectory is not a directory");
+		if (!Files.isDirectory(sourceDirectory)) {
+			throw new ConnectorSerializationException("sourceDirectory must be a directory");
+		}
 		validateOutputDirectory(outputDirectory);
 
 		// Get the connectorParser
@@ -64,36 +64,40 @@ public class ConnectorStoreSerializer {
 		// List all .hdfs files in connectorDirectory
 		List<String> connectorNameList;
 		try {
-			connectorNameList = getConnectorList(connectorDirectory);
+			connectorNameList = getConnectorList(sourceDirectory);
 		} catch (IOException e) {
-			throw new ConnectorSerializationException("Failed to list directory: " + connectorDirectory.toString(), e);
+			throw new ConnectorSerializationException("Failed to list directory: " + sourceDirectory.toString(), e);
 		}
 
 		int count = 0;
 		for (final String connectorName : connectorNameList) {
 
 			// Full path of the connector
-			String connectorPath = connectorDirectory.resolve(connectorName).toString();
+			Path connectorPath = sourceDirectory.resolve(connectorName);
+			Path serializePath = outputDirectory.resolve(ConnectorParser.normalizeConnectorName(connectorName));
 
-			// Parse
-			final Optional<Connector> optionalConnector = connectorParser.parse(connectorPath);
-			if (optionalConnector.isEmpty()) {
-				throw new ConnectorSerializationException("Failed to parse connector: " + connectorName);
+			// Is the connector source more recent that the serialized one (if if exists)?
+			if (getLastModifiedTime(connectorPath) < getLastModifiedTime(serializePath)) {
+				// In which case, skip
+				continue;
 			}
 
+			System.out.format("Parsing %s%n", connectorName);
+
+			// Parse
+			final Connector connector = connectorParser.parse(connectorPath.toString());
+
 			// Serialize
-			String serializePath = outputDirectory.resolve(optionalConnector.get().getCompiledFilename()).toString();
-			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath))) {
-				objectOutputStream.writeObject(optionalConnector.get());
+			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath.toFile()))) {
+				objectOutputStream.writeObject(connector);
 			} catch (IOException e) {
 				throw new ConnectorSerializationException("Failed to serialize connector: " + connectorName, e);
 			}
 
-			System.out.format("Serialized %s%n", connectorName);
 			count++;
 		}
 
-		System.out.format("Successfully serialized %d connectors%n", count);
+		System.out.format("Successfully parsed and serialized %d connectors%n", count);
 
 	}
 
@@ -104,18 +108,24 @@ public class ConnectorStoreSerializer {
 	 * @throws ConnectorSerializationException if specified directory cannot be created
 	 * @throws IllegalArgumentException if specified directory is null
 	 */
-	public static void validateOutputDirectory(@NonNull Path dir) {
+	public static void validateOutputDirectory(@NonNull final Path dir) {
 
-		// Do we need to create it?
-		if (!Files.isDirectory(dir)) {
-
-			try {
-				// Create it!
-				Files.createDirectories(dir);
-			} catch (IOException e) {
-				throw new ConnectorSerializationException("Could not create outputDirectory: " + dir.toString());
+		// If it already exists
+		if (Files.exists(dir)) {
+			// But it's not a directory
+			if (!Files.isDirectory(dir)) {
+				// Throw an exception
+				throw new ConnectorSerializationException("outputDirectory " + dir.toString() + " must be a directory, not a file");
 			}
+			// Or else do nothing
+			return;
+		}
 
+		// Create it!
+		try {
+			Files.createDirectories(dir);
+		} catch (IOException e) {
+			throw new ConnectorSerializationException("Could not create outputDirectory: " + dir.toString());
 		}
 
 	}
@@ -126,8 +136,10 @@ public class ConnectorStoreSerializer {
 	 * @param sourceDirectory The directory to search for files
 	 * @return List of matching {@link File} objects
 	 * @throws IOException on directory listing issues
+	 * @throws IllegalArgumentException if specified directory is null
+	 *
 	 */
-	public static List<String> getConnectorList(final Path sourceDirectory) throws IOException {
+	public static List<String> getConnectorList(@NonNull final Path sourceDirectory) throws IOException {
 
 		try (Stream<Path> fileStream = Files.list(sourceDirectory)) {
 			return fileStream
@@ -139,6 +151,25 @@ public class ConnectorStoreSerializer {
 					.collect(Collectors.toUnmodifiableList());
 		}
 	}
+
+
+	/**
+	 * Returns the time of last modification of specified Path in milliseconds since
+	 * EPOCH.
+	 *
+	 * @param path Path to the file
+	 * @return Milliseconds since EPOCH, or 0 (zero) if file does not exist
+	 * @throws IllegalArgumentException if specified path is null
+	 */
+	public static long getLastModifiedTime(@NonNull Path path) {
+
+		try {
+			return Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS).toMillis();
+		} catch (IOException e) {
+			return 0;
+		}
+	}
+
 
 
 }
