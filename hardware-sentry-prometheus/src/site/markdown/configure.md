@@ -33,16 +33,16 @@ where:
 - `<hostname>` corresponds to the name of the target, or its IP address
 - `<target-type>` corresponds to the operating system or the type of the target to be monitored. Possible values are:
 
-    - `win` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    - `linux` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    - `network` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#network-device" target="_blank">network devices</a>
-    - `oob` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    - `storage` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    - `tru64` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    - `hpux` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    - `aix` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    - `solaris` for these <a href="https://www.sentrysoftware.com/library/hc/24/platform-requirements.html#oracle-solaris" target="_blank">Oracle solaris systems</a>
-    - `vms` for these <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
+    - `win` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
+    - `linux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux" target="_blank">Linux systems</a>
+    - `network` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device" target="_blank">network devices</a>
+    - `oob` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
+    - `storage` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system" target="_blank">storage systems</a>
+    - `tru64` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
+    - `hpux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
+    - `aix` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
+    - `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
+    - `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
 
 * `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
@@ -294,7 +294,7 @@ targets:
     excludedConnectors: [ VMwareESXiDisksStorage ]
 ```
 
-The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>.
+The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>.
 
 ### Configuring the Unknown Status
 

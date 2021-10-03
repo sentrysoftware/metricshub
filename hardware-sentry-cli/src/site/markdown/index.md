@@ -23,7 +23,7 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/library/hc/platform-requirements.html).
+The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html).
 
 The quantity and quality of the information that **${project.name}** will be able to gather depends on the instrumentation stack available on the targeted host.
 
