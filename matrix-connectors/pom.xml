@@ -1,13 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>com.sentrysoftware</groupId>
+		<groupId>com.sentrysoftware.hardware.matrix</groupId>
 		<artifactId>matrix</artifactId>
 		<version>0.9.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>matrix-connectors</artifactId>
+	<packaging>pom</packaging>
+
 	<name>Hardware Connectors Library</name>
 	<description>Hardware Connectors Library for Sentry Software's Matrix-based projects</description>
 
@@ -59,7 +64,7 @@
 							<goal>java</goal>
 						</goals>
 						<configuration>
-							<mainClass>com.sentrysoftware.matrix.connector.ConnectorStoreSerializer</mainClass>
+							<mainClass>com.sentrysoftware.matrix.connector.ConnectorLibrarySerializer</mainClass>
 							<arguments>
 								<argument>${project.build.directory}/dependency</argument>
 								<argument>${project.build.directory}/matrix/connector</argument>
@@ -70,7 +75,7 @@
 				</executions>
 				<dependencies>
 					<dependency>
-						<groupId>com.sentrysoftware</groupId>
+						<groupId>com.sentrysoftware.hardware.matrix</groupId>
 						<artifactId>connector-serializer</artifactId>
 						<version>${project.version}</version>
 					</dependency>

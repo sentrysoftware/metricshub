@@ -3,8 +3,8 @@
 	<formats>
 		<format>zip</format>
 		<format>tar.gz</format>
-		<format>dir</format>
 	</formats>
+
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<includeSiteDirectory>true</includeSiteDirectory>
 	<baseDirectory>hws-exporter</baseDirectory>

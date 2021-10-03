@@ -20,7 +20,7 @@ public class ConnectorParser {
 	 * @param connectorFilePath	The path of the {@link Connector} file
 	 * @return {@link Optional} of {@link Connector} instance
 	 */
-	public Optional<Connector> parse(final String connectorFilePath) {
+	public Connector parse(final String connectorFilePath) {
 
 		Assert.isTrue(
 				connectorFilePath != null && !connectorFilePath.trim().isEmpty(),
@@ -33,18 +33,15 @@ public class ConnectorParser {
 
 			connectorRefined.load(connectorFilePath);
 
-			return Optional.of(parseContent(connectorRefined));
+			return parseContent(connectorRefined);
 
 		} catch (Exception e) {
 
-			throw new IllegalStateException(
-
-					String.format(
-							"Cannot load Connector file %s. Message: %s",
-							connectorFilePath,
-							e.getMessage()
-					)
-			);
+			throw new IllegalStateException(String.format(
+					"Cannot load Connector file %s: %s",
+					connectorFilePath,
+					e.getMessage()
+			));
 		}
 	}
 
@@ -87,14 +84,14 @@ public class ConnectorParser {
 
 	/**
 	 * Remove the extension from the file name and replace MS_HW_ prefix
-	 * 
+	 *
 	 * @param filename
 	 * @return String value
 	 */
 	public static String normalizeConnectorName(String filename) {
 		// remove the extension
 		String compiledFileName = filename.substring(0, filename.lastIndexOf('.'));
-	
+
 		return REMOVE_MS_HW_PATTERN.matcher(compiledFileName).replaceFirst("$2");
 	}
 }

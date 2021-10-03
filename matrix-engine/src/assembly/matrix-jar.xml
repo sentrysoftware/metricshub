@@ -6,7 +6,7 @@
 	<formats>
 		<format>jar</format>
 	</formats>
-	<includeBaseDirectory>false</includeBaseDirectory>	
+	<includeBaseDirectory>false</includeBaseDirectory>
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
@@ -14,7 +14,6 @@
 			<unpack>true</unpack>
 			<unpackOptions>
 				<includes>
-					<include>matrix/connector/**</include>
 					<include>com/**</include>
 					<include>org/**</include>
 					<include>uk/**</include>

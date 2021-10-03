@@ -39,7 +39,7 @@ class ConnectorParserTest {
         assertThrows(IllegalStateException.class, () -> connectorParser.parse(FOO));
 
         // Valid path, no Exception thrown
-        Connector connector = connectorParser.parse(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH).orElse(null);
+        Connector connector = connectorParser.parse(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH);
         assertNotNull(connector);
 
         Detection detection = connector.getDetection();

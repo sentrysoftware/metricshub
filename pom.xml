@@ -2,35 +2,31 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>com.sentrysoftware.integration</groupId>
 		<artifactId>java-parent</artifactId>
 		<version>13</version>
 	</parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.sentrysoftware</groupId>
+	<groupId>com.sentrysoftware.hardware.matrix</groupId>
 	<artifactId>matrix</artifactId>
 	<version>0.9.1-SNAPSHOT</version>
+
 	<packaging>pom</packaging>
+
 	<name>Matrix</name>
 	<description>Matrix Parent</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.release>11</maven.compiler.release>
 		<lombok.version>1.18.12</lombok.version>
 		<slf4j.version>1.7.30</slf4j.version>
 		<jupiter.version>5.6.2</jupiter.version>
 		<mockito.version>3.6.28</mockito.version>
-		<maven-plugin-api.version>2.0</maven-plugin-api.version>
-		<maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
-		<maven-reporting-impl.version>3.0.0</maven-reporting-impl.version>
-		<maven-reporting-api.version>3.0</maven-reporting-api.version>
-		<plexus-utils.version>3.0.8</plexus-utils.version>
 		<hardware-connectors.version>25-SNAPSHOT</hardware-connectors.version>
-		<maven-filtering.version>3.1.1</maven-filtering.version>
 		<spring.version>5.3.5</spring.version>
 		<matsya.version>3.14.00-SNAPSHOT</matsya.version>
 		<io.springfox.version>2.9.2</io.springfox.version>
@@ -57,48 +53,17 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.apache.maven.reporting</groupId>
-				<artifactId>maven-reporting-impl</artifactId>
-				<version>${maven-reporting-impl.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.reporting</groupId>
-				<artifactId>maven-reporting-api</artifactId>
-				<version>${maven-reporting-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-utils</artifactId>
-				<version>${plexus-utils.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-plugin-api</artifactId>
-				<version>${maven-plugin-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.plugin-tools</groupId>
-				<artifactId>maven-plugin-annotations</artifactId>
-				<version>${maven-plugin-annotations.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.shared</groupId>
-				<artifactId>maven-filtering</artifactId>
-				<version>${maven-filtering.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware</groupId>
+				<groupId>com.sentrysoftware.hardware.matrix</groupId>
 				<artifactId>matrix-engine</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware</groupId>
+				<groupId>com.sentrysoftware.hardware.matrix</groupId>
 				<artifactId>matrix-connectors</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware</groupId>
+				<groupId>com.sentrysoftware.hardware.matrix</groupId>
 				<artifactId>connector-serializer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -289,8 +254,8 @@
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-plugin-plugin</artifactId>
-					<version>3.6.0</version>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

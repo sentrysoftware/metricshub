@@ -24,7 +24,7 @@ public class OsCommandTest {
 	void testDetectionOSCommandTest() {
 
 		// Load the test connector
-		Connector connector = connectorParser.parse("src/test/resources/hdf/DetectionOSCommandTest.hdfs").orElse(null);
+		Connector connector = connectorParser.parse("src/test/resources/hdf/DetectionOSCommandTest.hdfs");
 		assertNotNull(connector);
 
 		// Check it has Detection criteria
