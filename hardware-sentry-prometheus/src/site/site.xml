@@ -41,8 +41,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank"/>
-			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/library/hc/24/hdf-reference.html"/>
+			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank"/>
+			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/hdf-reference.html"/>
 		</menu>
 	</body>
 </project>

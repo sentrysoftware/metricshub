@@ -5,7 +5,7 @@ description: Where to download the installation package of the Hardware Sentry E
 
 ## Download
 
-First, download **${project.artifactId}-${project.version}.zip** or **${project.artifactId}-${project.version}.tar.gz** from [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html#hardware-sentry-exporter-0.9). The package contains:
+First, download **${project.artifactId}-${project.version}.zip** or **${project.artifactId}-${project.version}.tar.gz** from [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html). The package contains:
 
 * the user documentation
 * the license agreement
