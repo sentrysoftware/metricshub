@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WmiProtocolDTO {
+public class WmiProtocolDTO implements IProtocolConfigDTO {
 
 	private String username;
 	private char[] password;
@@ -30,6 +30,7 @@ public class WmiProtocolDTO {
 	 *
 	 * @return The {@link WMIProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return WMIProtocol
 				.builder()

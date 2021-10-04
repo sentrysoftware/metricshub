@@ -104,6 +104,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -196,6 +201,8 @@
 						<exclude>com/sentrysoftware/hardware/prometheus/configuration/**</exclude>
 						<exclude>com/sentrysoftware/hardware/prometheus/dto/**</exclude>
 						<exclude>com/sentrysoftware/hardware/prometheus/exception/**</exclude>
+						<exclude>com/sentrysoftware/hardware/prometheus/service/task/StrategyTaskInfo.*</exclude>
+						<exclude>com/sentrysoftware/hardware/prometheus/service/task/*StrategyTaskInfoBuilder.*</exclude>
 					</excludes>
 					<outputDirectory>${project.build.directory}/coverage-reports/jacoco</outputDirectory>
 				</configuration>

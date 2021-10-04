@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SshProtocolDTO {
+public class SshProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeoutDeserializer.class)
@@ -41,6 +41,7 @@ public class SshProtocolDTO {
 	 *
 	 * @return The {@link SSHProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return SSHProtocol
 				.builder()

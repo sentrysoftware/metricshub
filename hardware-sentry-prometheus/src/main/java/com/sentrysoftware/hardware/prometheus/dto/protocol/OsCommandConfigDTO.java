@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OsCommandConfigDTO {
+public class OsCommandConfigDTO implements IProtocolConfigDTO {
 
 	private boolean useSudo;
 	
@@ -34,6 +34,7 @@ public class OsCommandConfigDTO {
 	 *
 	 * @return The {@link OSCommandConfig} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return OSCommandConfig
 				.builder()

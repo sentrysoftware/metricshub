@@ -23,9 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PrometheusService {
 
 	@Autowired
-	private MatrixEngineService matrixEngineService;
-
-	@Autowired
 	private HostMonitoringCollectorService hostMonitoringCollectorService;
 
 	/**
@@ -35,14 +32,11 @@ public class PrometheusService {
 	 * @return						Text version 0.0.4 of the {@link MetricFamilySamples}.
 	 * @throws BusinessException	If an error occurs.
 	 */
-	public String collectMetrics(String targetId) throws BusinessException {
+	public String collectMetrics() throws BusinessException {
 
 		// Need to create a new registry so that we have fresh data, we also avoid errors
 		// metric already set...etc when using the CollectorRegistry.defaultRegistry
 		CollectorRegistry collectorRegistry = new CollectorRegistry(true);
-
-		// Call the Matrix engine to run the detection, discovery and collect
-		matrixEngineService.performJobs(targetId);
 
 		// Register the Prometheus collector with the new registry
 		hostMonitoringCollectorService.register(collectorRegistry);
