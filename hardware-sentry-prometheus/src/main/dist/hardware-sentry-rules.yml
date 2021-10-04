@@ -168,11 +168,11 @@ groups:
 - name: Fan-Speed
   rules:
   - alert: Fan-Speed-warn
-    expr: ms_hw_fan_speed_rpm >= 0 AND ms_hw_fan_speed_rpm <= hw_fan_speed_rpm_warning
+    expr: hw_fan_speed_rpm >= 0 AND hw_fan_speed_rpm <= hw_fan_speed_rpm_warning
     labels:
       severity: 'warn'
   - alert: Fan-Speed-critical
-    expr: ms_hw_fan_speed_rpm >= 0 AND ms_hw_fan_speed_rpm <= hw_fan_speed_rpm_alarm
+    expr: hw_fan_speed_rpm >= 0 AND hw_fan_speed_rpm <= hw_fan_speed_rpm_alarm
     labels:
       severity: 'critical'
 
