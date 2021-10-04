@@ -41,23 +41,34 @@ class ConfigHelperTest {
 		final Set<String> connectors = Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K);
 
 		{
-			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, null, "selected", "hostname").isEmpty());
-			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, Collections.emptySet(), "excluded", "hostname")
-					.isEmpty());
+			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, null, "hostname").isEmpty());
+			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, Collections.emptySet(), "hostname").isEmpty());
 		}
 
 		{
-			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), ConfigHelper.validateAndGetConnectors(connectors,
-					Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K), "selected", "hostname"));
+			assertEquals(
+					Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K),
+					ConfigHelper.validateAndGetConnectors(
+						connectors,
+						Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K),
+						"hostname"
+					)
+			);
+
 			assertEquals(Set.of(SUN_F15K),
-					ConfigHelper.validateAndGetConnectors(connectors, Set.of(SUN_F15K), "selected", "hostname"));
+					ConfigHelper.validateAndGetConnectors(connectors, Set.of(SUN_F15K), "hostname"));
 		}
 
 		{
-			assertThrows(BusinessException.class, () -> ConfigHelper.validateAndGetConnectors(connectors,
-					Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR), "selected", "hostname"));
+			assertThrows(BusinessException.class, () -> 
+				ConfigHelper.validateAndGetConnectors(
+					connectors,
+					Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR),
+					"hostname"
+				)
+			);
 			assertThrows(Exception.class,
-					() -> ConfigHelper.validateAndGetConnectors(null, Collections.emptySet(), "selected", "hostname"));
+					() -> ConfigHelper.validateAndGetConnectors(null, Collections.emptySet(), "hostname"));
 		}
 
 	}

@@ -20,6 +20,7 @@ import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
 import com.sentrysoftware.hardware.prometheus.dto.HardwareTargetDTO;
 import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.dto.protocol.IProtocolConfigDTO;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -71,13 +72,13 @@ public class ConfigHelper {
 	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
 
 		if (hostname == null || hostname.isBlank()) {
-			String message = String.format("Invalid hostname: %s.", hostname);
+			String message = String.format("Invalid hostname: %s", hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_HOSTNAME, message);
 		}
 
 		if (targetType == null) {
-			String message = String.format("No target type configured for hostname: %s.", hostname);
+			String message = String.format("No target type configured for hostname: %s", hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.NO_TARGET_TYPE, message);
 		}
@@ -98,17 +99,21 @@ public class ConfigHelper {
 
 		final HardwareTargetDTO target = hostConfigurationDto.getTarget();
 
-		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
-			new HashMap<>(Stream
-			.of(hostConfigurationDto.getSnmp() != null ? hostConfigurationDto.getSnmp().toProtocol() : null,
-				hostConfigurationDto.getSsh() != null ? hostConfigurationDto.getSsh().toProtocol() : null,
-				hostConfigurationDto.getHttp() != null ? hostConfigurationDto.getHttp().toProtocol() : null,
-				hostConfigurationDto.getWbem() != null ? hostConfigurationDto.getWbem().toProtocol() : null,
-				hostConfigurationDto.getWmi() != null ? hostConfigurationDto.getWmi().toProtocol() : null,
-				hostConfigurationDto.getOsCommand() != null ? hostConfigurationDto.getOsCommand().toProtocol() : null,
-				hostConfigurationDto.getIpmi() != null ? hostConfigurationDto.getIpmi().toProtocol() : null)
-			.filter(Objects::nonNull)
-			.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
+		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = 
+				new HashMap<>(
+						Stream.of(
+								hostConfigurationDto.getSnmp(),
+								hostConfigurationDto.getSsh(),
+								hostConfigurationDto.getHttp(),
+								hostConfigurationDto.getWbem(),
+								hostConfigurationDto.getWmi(),
+								hostConfigurationDto.getOsCommand(),
+								hostConfigurationDto.getIpmi()
+						)
+						.filter(Objects::nonNull)
+						.map(IProtocolConfigDTO::toProtocol)
+						.filter(Objects::nonNull)
+						.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 
 		return EngineConfiguration
 			.builder()
@@ -127,14 +132,13 @@ public class ConfigHelper {
 	 *
 	 * @param acceptedConnectorNames Known connector names (connector compiled file names)
 	 * @param configConnectors       user's selected or excluded connectors
-	 * @param mode                   selected or excluded used for the debug
 	 * @param hostname               target hostname
 	 *
 	 * @return {@link Set} containing the selected connector names
 	 * @throws BusinessException
 	 */
 	static Set<String> validateAndGetConnectors(final @NonNull Set<String> acceptedConnectorNames,
-			final Set<String> configConnectors, final String mode, final String hostname) throws BusinessException {
+			final Set<String> configConnectors, final String hostname) throws BusinessException {
 
 		if (configConnectors == null || configConnectors.isEmpty()) {
 			return Collections.emptySet();
@@ -152,8 +156,11 @@ public class ConfigHelper {
 		}
 
 		// Throw the bad configuration exception
-		String message = String.format("Configured unknown %s connector(s): %s. Hostname: %s",
-				mode, String.join(", ", unknownConnectors), hostname);
+		String message = String.format(
+				"Configured unknown connector(s): %s. Hostname: %s",
+				String.join(", ", unknownConnectors),
+				hostname
+		);
 
 		log.error(message);
 
@@ -193,7 +200,7 @@ public class ConfigHelper {
 
 			return multiHostsConfig;
 		} catch (Exception e) {
-			log.info("Cannot read the configuration file {}.", configFile.getAbsoluteFile());
+			log.info("Cannot read the configuration file {}", configFile.getAbsoluteFile());
 			log.debug("Exception: ", e);
 			return MultiHostsConfigurationDTO.empty();
 
@@ -240,12 +247,21 @@ public class ConfigHelper {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
 
 			final Set<String> selectedConnectors = validateAndGetConnectors(
-					acceptedConnectorNames, hostConfigurationDto.getSelectedConnectors(), "selected", hostname);
+					acceptedConnectorNames,
+					hostConfigurationDto.getSelectedConnectors(),
+					hostname
+			);
 			final Set<String> excludedConnectors =  validateAndGetConnectors(
-					acceptedConnectorNames, hostConfigurationDto.getExcludedConnectors(), "excluded", hostname);
+					acceptedConnectorNames,
+					hostConfigurationDto.getExcludedConnectors(),
+					hostname
+			);
 
-			final EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDto,
-					selectedConnectors, excludedConnectors);
+			final EngineConfiguration engineConfiguration = buildEngineConfiguration(
+					hostConfigurationDto,
+					selectedConnectors,
+					excludedConnectors
+			);
 
 			// targetId can never be null here
 			final String targetId = hostConfigurationDto.getTarget().getId();

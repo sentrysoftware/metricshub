@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WbemProtocolDTO {
+public class WbemProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	WBEMProtocols protocol = WBEMProtocols.HTTPS;
@@ -39,6 +39,7 @@ public class WbemProtocolDTO {
 	 *
 	 * @return The {@link WBEMProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return WBEMProtocol
 				.builder()
