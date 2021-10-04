@@ -19,7 +19,8 @@
 
 		<menu name="Getting Started">
 			<!--<item name="Release Notes" href="release-notes.html" / -->
-			<item name="Overview" href="index.html"/>
+			<item name="Overview" href="index.html" />
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Install" href="install.html"/>
 		</menu>
 
@@ -30,6 +31,7 @@
 
 		<menu name="Appendix">
 			<item name="Supported Platforms &lt;i class='fas fa-external-link-alt'&gt;&lt;/i&gt;" href="https://www.sentrysoftware.com/library/hc/platform-requirements.html" target="_blank" />
+			<item name="About" href="about.html" />
 		</menu>
 
 	</body>
