@@ -18,10 +18,11 @@
 	<body>
 
 		<menu name="Getting Started">
-			<!--<item name="Release Notes" href="release-notes.html" / -->	
+			<!--<item name="Release Notes" href="release-notes.html" / -->
 			<item name="What is ${project.name}?" href="index.html"/>
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Prerequisites" href="prerequisites.html"/>
-			<item name="Getting the Installation Package" href="install.html"/>	
+			<item name="Getting the Installation Package" href="install.html"/>
 		</menu>
 
 		<menu name="Using the Exporter">
@@ -43,6 +44,7 @@
 		<menu name="Appendix">
 			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank"/>
 			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/hdf-reference.html"/>
+			<item name="About" href="about.html" />
 		</menu>
 	</body>
 </project>

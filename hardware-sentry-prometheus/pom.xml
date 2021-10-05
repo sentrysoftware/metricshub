@@ -345,6 +345,11 @@
 			<plugin>
 				<groupId>com.sentrysoftware.maven</groupId>
 				<artifactId>about-maven-plugin</artifactId>
+				<configuration>
+					<jql><![CDATA[
+					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
+				]]></jql>
+				</configuration>
 			</plugin>
 		</plugins>
 	</reporting>

@@ -216,6 +216,7 @@
 
 	<reporting>
 		<plugins>
+
 			<!-- Disable the projec-info-report plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -228,12 +229,19 @@
 					</reportSet>
 				</reportSets>
 			</plugin>
+
 			<!-- about -->
 			<!-- (to generate about.html and release-notes.html -->
 			<plugin>
 				<groupId>com.sentrysoftware.maven</groupId>
 				<artifactId>about-maven-plugin</artifactId>
+				<configuration>
+					<jql><![CDATA[
+					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (CLI, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
+				]]></jql>
+				</configuration>
 			</plugin>
+
 		</plugins>
 	</reporting>
 

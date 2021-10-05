@@ -19,6 +19,11 @@
 	<name>Matrix</name>
 	<description>Matrix Parent</description>
 
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/MAT</url>
+	</issueManagement>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>11</maven.compiler.release>
@@ -297,10 +302,16 @@
 					<artifactId>exec-maven-plugin</artifactId>
 					<version>3.0.0</version>
 				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
 		<plugins>
+
 			<!-- buildnumber -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -308,7 +319,7 @@
 				<executions>
 
 					<!-- initialize -->
-					<!-- Create ${buildNumber} in the form of yyMMdd.HHmm -->
+					<!-- Create ${buildNumber} based on the build number -->
 					<execution>
 						<phase>initialize</phase>
 						<goals>
@@ -322,12 +333,46 @@
 							<items>
 								<item>scmVersion</item>
 							</items>
-							<timestampFormat>{0,date,medium} at {0,time,full}</timestampFormat>
+							<timestampFormat>{0,date,medium} at {0,time,medium}</timestampFormat>
 						</configuration>
 					</execution>
 
 				</executions>
 			</plugin>
+
+			<!-- build-helper -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<!-- Parse the version into its components -->
+					<execution>
+						<id>parse-version</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+					</execution>
+
+					<!-- Set parsedVersion.noSnapshot -->
+					<execution>
+						<id>remove-snapshot</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>parsedVersion.noSnapshot</name>
+							<value>${project.version}</value>
+							<regex>^([0-9a-zA-Z.]+)(-SNAPSHOT)?$</regex>
+							<replacement>$1</replacement>
+							<failIfNoMatch>false</failIfNoMatch>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
