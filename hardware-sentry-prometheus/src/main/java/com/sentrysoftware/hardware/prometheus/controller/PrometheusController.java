@@ -32,7 +32,7 @@ public class PrometheusController {
 	)
 	public String metrics() throws BusinessException {
 
-		return prometheusService.collectMetrics(null);
+		return prometheusService.collectMetrics();
 	}
 
 	@GetMapping("metrics/{targetId}")
@@ -42,21 +42,15 @@ public class PrometheusController {
 		response = String.class
 	)
 	public String metrics(
-
-		@PathVariable("targetId")
-		@ApiParam(
-			value = "The target identifier",
-			example = "ecs1-01"
-		)
-			String targetId
-
-	) throws BusinessException {
+					@PathVariable("targetId")
+					@ApiParam(value = "The target identifier", example = "ecs1-01")
+					String targetId) throws BusinessException {
 
 		try {
 
 			TargetContext.setTargetId(targetId);
 
-			return prometheusService.collectMetrics(targetId);
+			return prometheusService.collectMetrics();
 
 		} finally {
 

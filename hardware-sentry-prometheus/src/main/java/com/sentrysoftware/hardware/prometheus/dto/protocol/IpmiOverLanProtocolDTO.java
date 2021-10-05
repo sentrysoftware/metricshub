@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class IpmiOverLanProtocolDTO {
+public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeoutDeserializer.class)
@@ -31,6 +31,7 @@ public class IpmiOverLanProtocolDTO {
 	 *
 	 * @return The {@link IPMIOverLanProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return IPMIOverLanProtocol
 				.builder()

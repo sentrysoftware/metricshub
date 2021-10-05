@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SnmpProtocolDTO {
+public class SnmpProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	@JsonDeserialize(using = SnmpVersionDeserializer.class)
@@ -42,6 +42,7 @@ public class SnmpProtocolDTO {
 	 * 
 	 * @return The {@link SNMPProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return SNMPProtocol
 				.builder()

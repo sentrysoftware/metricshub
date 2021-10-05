@@ -1172,6 +1172,11 @@ public class PrometheusSpecificities {
 			.name("hw_vm_power_state")
 			.unit(Vm.POWER_STATE.getUnit())
 			.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+			.name("hw_vm_energy_joules")
+			.unit(JOULES)
+			.type(PrometheusMetricType.COUNTER)
+			.build());
 
 		return map;
 	}

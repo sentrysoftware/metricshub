@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
@@ -248,7 +247,6 @@ class MonitorCollectVisitorTest {
 
 		assertEquals(statusParam, actual);
 
-		assertEquals(15.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
@@ -382,7 +380,6 @@ class MonitorCollectVisitorTest {
 
 		assertEquals(statusParam, actual);
 
-		assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
@@ -1469,28 +1466,6 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testEstimateDiskControllerPowerConsumption() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.DISK_CONTROLLER).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-
-		monitorCollectVisitor.estimateDiskControllerPowerConsumption();
-
-		assertEquals(15.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-	}
-
-	@Test
-	void testEstimateMemoryPowerConsumption() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.MEMORY).build();
-		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-
-		monitorCollectVisitor.estimateMemoryPowerConsumption();
-
-		assertEquals(4.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-	}
-
-	@Test
 	void testEstimateNetworkCardPowerConsumptionVirtOrWan() {
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -1678,189 +1653,6 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor.estimateNetworkCardPowerConsumption();
 
 		assertEquals(10.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-	}
-
-	@Test
-	void testEestimatePhysicalDiskPowerConsumptionSsd() {
-		{
-			// SSD & PCIE -> 18W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "pcie 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(18.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-		{
-			// SSD & NVM -> 6W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "nvm 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(6.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// SOLID -> 3W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Solid 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(3.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-	}
-
-	@Test
-	void testEestimatePhysicalDiskPowerConsumptionSas() {
-		{
-			// SAS & 15k -> 17W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(17.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// SOLID -> 3W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(12.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-	}
-
-	@Test
-	void testEestimatePhysicalDiskPowerConsumptionScsiAndIde() {
-		{
-			// SCSI & 10k -> 32W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(32.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-		{
-			// SCSI & 15k -> 35W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(35.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// SCSI & 5400 -> 19W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(19.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-		{
-			// IDE & 5.4 -> 19W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("IDE 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(19.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// SCSI -> 30W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(30.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-	}
-
-	@Test
-	void estimateSataOrDefault() {
-		{
-			// SATA & 10k -> 27W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(27.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-		{
-			// SATA & 15k -> 32W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(32.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// SATA & 5400 -> 7W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(7.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-		{
-			// SATA & 5.4 -> 7W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(7.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
-
-		{
-			// Default -> 11W
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
-			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
-			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-			monitorCollectVisitor.estimatePhysicalDiskPowerConsumption();
-			assertEquals(11.0, CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER));
-		}
 	}
 
 	@Test

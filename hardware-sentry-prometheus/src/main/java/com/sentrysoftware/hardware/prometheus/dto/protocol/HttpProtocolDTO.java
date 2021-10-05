@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HttpProtocolDTO {
+public class HttpProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	private Boolean https = true;
@@ -35,6 +35,7 @@ public class HttpProtocolDTO {
 	 *
 	 * @return The {@link HTTPProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return HTTPProtocol
 				.builder()
@@ -50,7 +51,7 @@ public class HttpProtocolDTO {
 	public String toString() {
 		return String.format(
 				"%s/%d%s",
-				https ? "HTTPS" : "HTTP",
+				Boolean.TRUE.equals(https) ? "HTTPS" : "HTTP",
 				port,
 				username != null ? " as " + username : ""
 		);
