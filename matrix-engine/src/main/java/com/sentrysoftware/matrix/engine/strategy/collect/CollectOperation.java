@@ -183,6 +183,11 @@ public class CollectOperation extends AbstractStrategy {
 			// Blocks until all tasks have completed execution after a shutdown request
 			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
+
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
+
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
 	}
@@ -956,8 +961,11 @@ public class CollectOperation extends AbstractStrategy {
 		// Compute temperatures
 		computeTargetTemperatureParameters();
 
-		// Estimate the DiskController, Memory and PhysicalDisk power consumption, this estimation has been moved here, because it doesn't need collect parameters to compute the value.
-		// Also, if the connector doesn't define a collect for this monitorType (ex: CpqIDEDriveArray.hdf) the estimation is skipped for DiskController
+		// Estimate power consumption for DiskControllers, Memories and PhysicalDisks.
+		// This estimation is computed here, as a post collect, because it doesn't rely on the collected parameters
+		// that are currently computed through the MonitorCollectVisitor.
+		// Also, if the connector doesn't define the collect job for the monitorType (e.g. CpqIDEDriveArray.hdf)
+		// we don't want to skip the estimation.
 		estimateDiskControllersPowerConsumption();
 		estimateMemoriesPowerConsumption();
 		estimatePhysicalDisksPowerConsumption();
@@ -1216,7 +1224,8 @@ public class CollectOperation extends AbstractStrategy {
 
 
 	/**
-	 * Estimates the power dissipation for each physical disk, based on its characteristics: vendor, model, location, type, etc. all mixed up
+	 * Estimates the power dissipation for each physical disk, based on its characteristics:
+	 * vendor, model, location, type, etc. all mixed up
 	 * Inspiration: https://outervision.com/power-supply-calculator
 	 */
 	void estimatePhysicalDisksPowerConsumption() {
@@ -1231,52 +1240,56 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		physicalDisks.values().stream().filter(disk -> !disk.isMissing()).forEach(monitor -> {
+		physicalDisks
+			.values()
+			.stream()
+			.filter(disk -> !disk.isMissing())
+			.forEach(monitor -> {
 
-			// Physical disk characteristics
-			final List<String> dataList = new ArrayList<>();
-			dataList.add(monitor.getName());
-			dataList.add(monitor.getMetadata(MODEL));
-			dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
-			dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
-			dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
+				// Physical disk characteristics
+				final List<String> dataList = new ArrayList<>();
+				dataList.add(monitor.getName());
+				dataList.add(monitor.getMetadata(MODEL));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
+	
+				final Monitor parent = hostMonitoring.findById(monitor.getParentId());
+				if (parent != null) {
+					dataList.add(parent.getName());
+				} else {
+					log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
+							monitor.getId(), monitor.getName());
+				}
+	
+				final String[] data = dataList.toArray(new String[dataList.size()]);
+	
+				final double powerConsumption;
+	
+				// SSD
+				if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
+					powerConsumption = estimateSsdPowerConsumption(data);
+				}
+	
+				// HDD (non-SSD), depending on the interface
+				// SAS
+				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
+					powerConsumption = estimateSasPowerConsumption(data);
+				}
+	
+				// SCSI and IDE
+				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
+					powerConsumption = estimateScsiAndIde(data);
+				}
+	
+				// SATA (and unknown, we'll assume it's the most common case)
+				else {
+					powerConsumption = estimateSataOrDefault(data);
+				}
+	
+				CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 
-			final Monitor parent = hostMonitoring.findById(monitor.getParentId());
-			if (parent != null) {
-				dataList.add(parent.getName());
-			} else {
-				log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
-						monitor.getId(), monitor.getName());
-			}
-
-			final String[] data = dataList.toArray(new String[dataList.size()]);
-
-			final double powerConsumption;
-
-			// SSD
-			if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
-				powerConsumption = estimateSsdPowerConsumption(data);
-			}
-
-			// HDD (non-SSD), depending on the interface
-			// SAS
-			else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
-				powerConsumption = estimateSasPowerConsumption(data);
-			}
-
-			// SCSI and IDE
-			else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
-				powerConsumption = estimateScsiAndIde(data);
-			}
-
-			// SATA (and unknown, we'll assume it's the most common case)
-			else {
-				powerConsumption = estimateSataOrDefault(data);
-			}
-
-			CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
-
-		});
+			});
 
 	}
 
@@ -1334,7 +1347,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @return double value
 	 */
 	double estimateSasPowerConsumption(final String[] data) {
-		// Factor in the rotationnal speed
+		// Factor in the rotational speed
 		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
 			return 17.0;
 		}
