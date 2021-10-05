@@ -1,8 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
@@ -22,7 +19,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_IND
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
@@ -74,7 +70,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -85,7 +80,6 @@ import java.util.function.Function;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -204,7 +198,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	public void visit(DiskController diskController) {
 		collectBasicParameters(diskController);
 
-		estimateDiskControllerPowerConsumption();
 	}
 
 	@Override
@@ -250,7 +243,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		estimateMemoryPowerConsumption();
 	}
 
 	@Override
@@ -302,7 +294,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount();
 
-		estimatePhysicalDiskPowerConsumption();
 	}
 
 	@Override
@@ -953,33 +944,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Set the power consumption (15W by default for disk controllers) Source:
-	 * https://forums.servethehome.com/index.php?threads/raid-controllers-power-consumption.9189/
-	 */
-	void estimateDiskControllerPowerConsumption() {
-
-		CollectHelper.collectEnergyUsageFromPower(
-			monitorCollectInfo.getMonitor(),
-			monitorCollectInfo.getCollectTime(),
-			15.0,
-			monitorCollectInfo.getHostname()
-		);
-	}
-
-	/**
-	 * Estimated power consumption: 4W
-	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
-	 */
-	void estimateMemoryPowerConsumption() {
-		CollectHelper.collectEnergyUsageFromPower(
-			monitorCollectInfo.getMonitor(),
-			monitorCollectInfo.getCollectTime(),
-			4.0,
-			monitorCollectInfo.getHostname()
-		);
-	}
-
-	/**
 	 * Estimates the power dissipation of a network card, based on some characteristics Inspired by:
 	 * https://www.cl.cam.ac.uk/~acr31/pubs/sohan-10gbpower.pdf
 	 */
@@ -1037,138 +1001,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				monitorCollectInfo.getCollectTime(),
 				NumberHelper.round(powerConsumption, 2, RoundingMode.HALF_UP),
 				monitorCollectInfo.getHostname());
-	}
-
-	/**
-	 * Estimates the power dissipation of a physical disk, based on its characteristics: vendor, model, location, type, etc. all mixed up
-	 * Inspiration: https://outervision.com/power-supply-calculator
-	 */
-	void estimatePhysicalDiskPowerConsumption() {
-		// Physical disk
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-
-		// Physical disk characteristics
-		final List<String> dataList = new ArrayList<>();
-		dataList.add(monitor.getName());
-		dataList.add(monitor.getMetadata(MODEL));
-		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
-		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
-		dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
-
-		final Monitor parent = monitorCollectInfo.getHostMonitoring().findById(monitor.getParentId());
-		if (parent != null) {
-			dataList.add(parent.getName());
-		} else {
-			log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
-					monitor.getId(), monitor.getName());
-		}
-
-		final String[] data = dataList.toArray(new String[dataList.size()]);
-
-		final double powerConsumption;
-
-		// SSD
-		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
-			powerConsumption = estimateSsdPowerConsumption(data);
-		}
-
-		// HDD (non-SSD), depending on the interface
-		// SAS
-		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
-			powerConsumption = estimateSasPowerConsumption(data);
-		}
-
-		// SCSI and IDE
-		else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
-			powerConsumption = estimateScsiAndIde(data);
-		}
-
-		// SATA (and unknown, we'll assume it's the most common case)
-		else {
-			powerConsumption  = estimateSataOrDefault(data);
-		}
-
-		CollectHelper.collectEnergyUsageFromPower(monitor,
-				monitorCollectInfo.getCollectTime(),
-				powerConsumption,
-				monitorCollectInfo.getHostname());
-	}
-
-	/**
-	 * Estimate SATA physical disk power dissipation. Default is 11W.
-	 *
-	 * @param data the physical disk information
-	 * @return double value
-	 */
-	double estimateSataOrDefault(final String[] data) {
-
-		// Factor in the rotational speed
-		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
-			return 27.0;
-		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
-			return 32.0;
-		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
-			return 7.0;
-		}
-
-		// Default for 7200-RPM disks
-		return 11.0;
-
-	}
-
-	/**
-	 * Estimate SCSI and IDE physical disk power dissipation
-	 *
-	 * @param data the physical disk information
-	 * @return double value
-	 */
-	double estimateScsiAndIde(final String[] data) {
-		// SCSI and IDE
-		// Factor in the rotational speed
-		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
-			// Only SCSI supports 10k
-			return 32.0;
-		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
-			// Only SCSI supports 15k
-			return 35.0;
-		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
-			// Likely to be cheap IDE
-			return 19;
-		}
-
-		// Default for 7200-rpm disks, SCSI or IDE, who knows?
-		// SCSI is 31 watts, IDE is 21...
-		return 30.0;
-	}
-
-	/**
-	 * Estimate SAS physical disk power dissipation
-	 *
-	 * @param data the physical disk information
-	 * @return double value
-	 */
-	double estimateSasPowerConsumption(final String[] data) {
-		// Factor in the rotationnal speed
-		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
-			return 17.0;
-		}
-		// Default for 10k-rpm disks (rarely lower than that anyway)
-		return 12.0;
-	}
-
-	/**
-	 * Estimate SSD physical disk power dissipation
-	 *
-	 * @param data the physical disk information
-	 * @return double value
-	 */
-	double estimateSsdPowerConsumption(final String[] data) {
-		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("pcie"), data)) {
-			return 18.0;
-		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("nvm"), data)) {
-			return  6.0;
-		}
-		return 3.0;
 	}
 
 	/**
@@ -1423,7 +1255,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(), DUPLEX_MODE_PARAMETER);
 
 			if (duplexModeRaw != null) {
-	
+
 				final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") ||
 						duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
 				CollectHelper.updateNumberParameter(
@@ -1434,7 +1266,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 						duplexMode,
 						duplexMode
 				);
-	
+
 				return duplexMode;
 			}
 		}
