@@ -17,35 +17,30 @@ public class PresentParam extends AbstractParam {
 
 	public static final String PRESENT_TYPE = "PresentParam";
 
+	private ParameterState state;
 	private Integer present;
 	private ParameterState previousState;
 
 	@Builder
 	public PresentParam(Long collectTime, ParameterState state) {
 
-		super(PRESENT_PARAMETER, collectTime, state, PRESENT_PARAMETER_UNIT);
+		super(PRESENT_PARAMETER, collectTime, PRESENT_PARAMETER_UNIT);
 
-		if (state == null) {
-			return;
-		}
-
+		this.state = state;
 		this.present = ParameterState.OK.equals(state) ? 1 : 0;
 	}
 
 	@Override
-	public void reset() {
-		// Do nothing
+	public void save() {
+		previousState = state;
 	}
 
 	/**
 	 * Reset present and previous state
 	 */
 	public void discoveryReset() {
-
 		present = null;
-		previousState = getState();
-
-		super.reset();
+		save();
 	}
 
 	/**

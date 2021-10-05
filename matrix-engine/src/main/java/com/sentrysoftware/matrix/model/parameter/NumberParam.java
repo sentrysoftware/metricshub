@@ -20,25 +20,18 @@ public class NumberParam extends AbstractParam {
 	private Long previousCollectTime;
 
 	@Builder
-	public NumberParam(String name, Long collectTime, ParameterState parameterState, Double value, Double rawValue, String unit) {
+	public NumberParam(String name, Long collectTime, Double value, Double rawValue, String unit) {
 
-		super(name, collectTime, parameterState, unit);
+		super(name, collectTime, unit);
 		this.value = value;
 		this.rawValue = rawValue;
 	}
 
 	@Override
-	public void reset() {
+	public void save() {
 
-		if (rawValue != null) {
-			this.previousCollectTime = getCollectTime();
-			this.previousRawValue = rawValue;
-		}
-
-		this.rawValue = null;
-		this.value = null;
-
-		super.reset();
+		this.previousCollectTime = getCollectTime();
+		this.previousRawValue = rawValue;
 	}
 
 	@Override

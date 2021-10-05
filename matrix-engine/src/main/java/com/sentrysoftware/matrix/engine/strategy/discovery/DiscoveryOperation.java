@@ -261,7 +261,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// Loop over each row (List) and create one monitor per row
 			for (final List<String> row : sourceTable.getTable()) {
 
-				final Monitor monitor = Monitor.builder().build();
+				final Monitor monitor = Monitor.builder().discoveryTime(strategyTime).build();
 
 				processSourceTableMetadata(connectorName, parameters, sourceKey, row, monitor, idCount);
 
@@ -284,7 +284,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			}
 
 		} else {
-			final Monitor monitor = Monitor.builder().build();
+			final Monitor monitor = Monitor.builder().discoveryTime(strategyTime).build();
 
 			processTextParameters(parameters, monitor, connectorName);
 

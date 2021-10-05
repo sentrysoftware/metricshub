@@ -341,6 +341,7 @@ class DiscoveryOperationTest {
 						.state(ParameterState.OK)
 						.build())
 						)
+				.discoveryTime(strategyTime)
 				.build();
 
 		final Map<String, String> fanMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -365,6 +366,7 @@ class DiscoveryOperationTest {
 						PRESENT_PARAMETER,
 						PresentParam.builder().state(ParameterState.OK).build()))
 				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
+				.discoveryTime(strategyTime)
 				.build();
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
@@ -464,6 +466,7 @@ class DiscoveryOperationTest {
 						.state(ParameterState.OK)
 						.build())
 						)
+				.discoveryTime(strategyTime)
 				.build();
 
 		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
@@ -523,6 +526,7 @@ class DiscoveryOperationTest {
 						.build())
 						)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.discoveryTime(strategyTime)
 				.build();
 
 		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
@@ -727,6 +731,7 @@ class DiscoveryOperationTest {
 						.state(ParameterState.OK)
 						.build())
 						)
+				.discoveryTime(strategyTime)
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
@@ -799,8 +804,8 @@ class DiscoveryOperationTest {
 						.state(ParameterState.OK)
 						.build())
 						)
-
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.discoveryTime(strategyTime)
 				.build();
 
 		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());

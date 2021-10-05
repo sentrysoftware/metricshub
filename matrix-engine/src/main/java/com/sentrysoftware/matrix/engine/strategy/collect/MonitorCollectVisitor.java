@@ -112,6 +112,7 @@ import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -128,6 +129,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
 	private static final String UNKNOWN_STATUS_CANNOT_BE_NULL = "unknownStatus cannot be null.";
 
+	@Getter
 	private MonitorCollectInfo monitorCollectInfo;
 
 	private static final Map<String, Function<ParameterState, String>> STATUS_INFORMATION_MAP;

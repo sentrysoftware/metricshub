@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.prometheus.deserialization.UnknownStatusDeserializer;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.HttpProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.IpmiOverLanProtocolDTO;
@@ -62,6 +63,7 @@ public class HostConfigurationDTO {
 	@JsonDeserialize(using = UnknownStatusDeserializer.class)
 	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
 
-	private Integer collectPeriod;
+	@JsonDeserialize(using = TimeDeserializer.class)
+	private Long collectPeriod;
 	private Integer discoveryCycle;
 }

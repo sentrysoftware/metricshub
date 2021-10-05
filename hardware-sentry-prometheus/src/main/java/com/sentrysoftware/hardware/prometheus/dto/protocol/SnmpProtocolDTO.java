@@ -3,7 +3,7 @@ package com.sentrysoftware.hardware.prometheus.dto.protocol;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.prometheus.deserialization.SnmpPrivacyDeserializer;
 import com.sentrysoftware.hardware.prometheus.deserialization.SnmpVersionDeserializer;
-import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
@@ -29,7 +29,7 @@ public class SnmpProtocolDTO implements IProtocolConfigDTO {
 	@Default
 	private Integer port = 161;
 	@Default
-	@JsonDeserialize(using = TimeoutDeserializer.class)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 	@JsonDeserialize(using = SnmpPrivacyDeserializer.class)
 	private Privacy privacy;

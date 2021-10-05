@@ -14,6 +14,7 @@ public class StatusParam extends AbstractParam {
 
 	public static final String STATUS_TYPE = "StatusParam";
 
+	private ParameterState state = ParameterState.OK;
 	private Integer status;
 	private String statusInformation;
 	private ParameterState previousState;
@@ -21,22 +22,15 @@ public class StatusParam extends AbstractParam {
 	@Builder
 	public StatusParam(String name, Long collectTime, ParameterState state, String unit, String statusInformation) {
 
-		super(name, collectTime, state, unit);
+		super(name, collectTime, unit);
 		this.status = state != null ? state.ordinal() : null;
 		this.statusInformation = statusInformation;
+		this.state = state != null ? state :  ParameterState.OK;
 	}
 
 	@Override
-	public void reset() {
-
-		if (status != null) {
-			this.previousState = getState();
-		}
-
-		this.status = null;
-		this.statusInformation = null;
-
-		super.reset();
+	public void save() {
+		this.previousState = getState();
 	}
 
 	@Override

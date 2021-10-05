@@ -88,6 +88,7 @@ public class TaskSchedulingService {
 		// Update global settings
 		multiHostsConfigurationDto.setCollectPeriod(newMultiHostsConfigurationDto.getCollectPeriod());
 		multiHostsConfigurationDto.setDiscoveryCycle(newMultiHostsConfigurationDto.getDiscoveryCycle());
+		multiHostsConfigurationDto.setHonorTimestamps(newMultiHostsConfigurationDto.isHonorTimestamps());
 
 		// Do we have new targets?
 		final Set<HostConfigurationDTO> newTargets = newMultiHostsConfigurationDto

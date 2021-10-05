@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 
 import lombok.NonNull;
 
-public class TimeoutDeserializer extends JsonDeserializer<Long> {
+public class TimeDeserializer extends JsonDeserializer<Long> {
 	@Override
 	public Long deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
