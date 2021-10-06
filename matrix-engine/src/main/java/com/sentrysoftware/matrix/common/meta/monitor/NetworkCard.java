@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.state.DuplexMode;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,10 +18,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH;
@@ -76,105 +78,112 @@ public class NetworkCard implements IMetaMonitor {
 			.basicCollect(false)
 			.name(BANDWIDTH_UTILIZATION_PARAMETER)
 			.unit(PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter DUPLEX_MODE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(DUPLEX_MODE_PARAMETER)
 			.unit(DUPLEX_MODE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(DuplexMode::interpret)
+					.build())
 			.build();
 
 	public static final MetaParameter ERROR_PERCENT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_PERCENT_PARAMETER)
 			.unit(PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter LINK_SPEED = MetaParameter.builder()
 			.basicCollect(false)
 			.name(LINK_SPEED_PARAMETER)
 			.unit(SPEED_MBITS_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter LINK_STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(LINK_STATUS_PARAMETER)
 			.unit(LINK_STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(LinkStatus::interpret)
+					.build()
+			)
 			.build();
 
 	public static final MetaParameter RECEIVED_BYTES_RATE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(RECEIVED_BYTES_RATE_PARAMETER)
 			.unit(BYTES_RATE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter RECEIVED_PACKETS_RATE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(RECEIVED_PACKETS_RATE_PARAMETER)
 			.unit(PACKETS_RATE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter TRANSMITTED_BYTES_RATE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(TRANSMITTED_BYTES_RATE_PARAMETER)
 			.unit(BYTES_RATE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter TRANSMITTED_PACKETS_RATE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(TRANSMITTED_PACKETS_RATE_PARAMETER)
 			.unit(PACKETS_RATE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter ZERO_BUFFER_CREDIT_PERCENT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ZERO_BUFFER_CREDIT_PERCENT_PARAMETER)
 			.unit(PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter ZERO_BUFFER_CREDIT_COUNT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(ZERO_BUFFER_CREDIT_COUNT_PARAMETER)
 			.unit(ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter TRANSMITTED_BYTES = MetaParameter.builder()
 			.basicCollect(true)
 			.name(TRANSMITTED_BYTES_PARAMETER)
 			.unit(BYTES_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter RECEIVED_BYTES = MetaParameter.builder()
 			.basicCollect(true)
 			.name(RECEIVED_BYTES_PARAMETER)
 			.unit(BYTES_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter TRANSMITTED_PACKETS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(TRANSMITTED_PACKETS_PARAMETER)
 			.unit(PACKETS_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter RECEIVED_PACKETS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(RECEIVED_PACKETS_PARAMETER)
 			.unit(PACKETS_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BANDWIDTH, PHYSICAL_ADDRESS,
@@ -182,25 +191,25 @@ public class NetworkCard implements IMetaMonitor {
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(NetworkCard::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(NetworkCard::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(NetworkCard::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule LINK_STATUS_ALERT_RULE = new AlertRule(NetworkCard::checkLinkStatusCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule ERROR_PERCENT_WARN_ALART_RULE = new AlertRule(NetworkCard::checkErrorPercentWarnCondition,
 			ERROR_PERCENT_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule ERROR_PERCENT_ALARM_ALERT_RULE = new AlertRule(NetworkCard::checkErrorPercentAlarmCondition,
 			ERROR_PERCENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule BANDWIDTH_UTILIZATION_HIGH_ALERT_RULE = new AlertRule(NetworkCard::checkHighBandwidthUtilizationCondition,
 			BANDWIDTH_UTILIZATION_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -251,7 +260,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -393,11 +402,11 @@ public class NetworkCard implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This network adapter is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This network adapter is degraded." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("The network traffic handled by this adapter may be slowed down and this may affect other systems communicating with this computer.")
 					.recommendedAction("If possible, try to fix the problem through the network driver settings. Otherwise, replace the network adapter.")
 					.build();
@@ -414,11 +423,11 @@ public class NetworkCard implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This network adapter has failed." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This network adapter has failed." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence(CONSEQUENCE_FOR_BAD_NETWORK_CARD)
 					.recommendedAction("Replace this network adapter as soon as possible.")
 					.build();
@@ -435,7 +444,7 @@ public class NetworkCard implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkLinkStatusCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<StatusParam> assertedlinkStatus = monitor.assertStatusParameter(LINK_STATUS_PARAMETER, conditions);
+		AssertedParameter<DiscreteParam> assertedlinkStatus = monitor.assertStatusParameter(LINK_STATUS_PARAMETER, conditions);
 		if (assertedlinkStatus.isAbnormal()) {
 
 			return AlertDetails.builder()

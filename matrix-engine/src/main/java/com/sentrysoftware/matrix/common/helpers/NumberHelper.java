@@ -2,8 +2,12 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NumberHelper {
+
+	public static final Pattern INTEGER_DETECT_PATTERN = Pattern.compile("^(-?\\d+)(\\.0*)$");
 
 	private NumberHelper() {}
 
@@ -54,5 +58,27 @@ public class NumberHelper {
 		 return BigDecimal.valueOf(value)
 				 .setScale(places, roundingMode)
 				 .doubleValue();
+	}
+
+	/**
+	 * Removes the fractional part and the decimal point of the given state if the
+	 * fractional part contains only 0 after the decimal point
+	 * 
+	 * @param state the value we wish to process
+	 * @return String value
+	 */
+	public static String formatIntegerState(final String state) {
+
+		if (state == null) {
+			return null;
+		}
+
+		final Matcher matcher = INTEGER_DETECT_PATTERN.matcher(state);
+
+		if (matcher.find()) {
+			return state.substring(0, state.indexOf(matcher.group(2)));
+		}
+
+		return state;
 	}
 }

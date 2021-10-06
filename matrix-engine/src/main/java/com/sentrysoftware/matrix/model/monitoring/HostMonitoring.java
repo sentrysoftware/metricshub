@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -419,7 +419,7 @@ public class HostMonitoring implements IHostMonitoring {
 					.forEach(
 						mo -> mo.getParameters()
 							.values()
-							.forEach(IParameterValue::save)
+							.forEach(IParameter::save)
 					)
 			);
 	}

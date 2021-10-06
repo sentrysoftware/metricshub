@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,10 +15,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
@@ -44,33 +43,33 @@ public class Battery implements IMetaMonitor {
 		.basicCollect(false)
 		.name(CHARGE_PARAMETER)
 		.unit(PERCENT_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
+		.type(SimpleParamType.NUMBER)
 		.build();
 
 	public static final MetaParameter TIME_LEFT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(TIME_LEFT_PARAMETER)
 			.unit(TIME_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, TYPE, CHEMISTRY, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Battery::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Battery::checkStatusWarnCondition, 
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Battery::checkStatusAlarmConditionChecker,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule CHARGE_WARN_ALERT_RULE = new AlertRule(Battery::checkChargeWarnCondition,
 			CHARGE_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule CHARGE_ALARM_ALERT_RULE = new AlertRule(Battery::checkChargeAlarmCondition, 
 			CHARGE_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -103,7 +102,7 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder().problem("This battery is not detected anymore.")
@@ -123,11 +122,11 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This battery is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This battery is degraded." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("Check that number of allowed recharges has not been exceeded and that the current full charge capacity (FCC)"
 							+ " is close to the full charge capacity of initial battery.")
 					.recommendedAction("The battery needs to be replaced or reconditioned.").build();
@@ -144,11 +143,11 @@ public class Battery implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmConditionChecker(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This battery has failed." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This battery has failed." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This battery is nonoperational and a power outage will certainly lead to data loss and/or corruption.")
 					.recommendedAction("Replace the battery.").build();
 

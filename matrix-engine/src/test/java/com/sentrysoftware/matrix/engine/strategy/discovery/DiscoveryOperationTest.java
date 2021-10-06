@@ -44,6 +44,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -66,8 +67,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
@@ -335,12 +335,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.discoveryTime(strategyTime)
 				.build();
 
@@ -362,9 +357,7 @@ class DiscoveryOperationTest {
 				.metadata(fanMetadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getNameInConnector())
-				.parameters(Map.of(
-						PRESENT_PARAMETER,
-						PresentParam.builder().state(ParameterState.OK).build()))
+				.parameters(Map.of(PRESENT_PARAMETER, DiscreteParam.present()))
 				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
 				.discoveryTime(strategyTime)
 				.build();
@@ -460,12 +453,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.discoveryTime(strategyTime)
 				.build();
 
@@ -519,12 +507,7 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.discoveryTime(strategyTime)
 				.build();
@@ -736,12 +719,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(ENCLOSURE)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.discoveryTime(strategyTime)
 				.build();
 
@@ -809,12 +787,7 @@ class DiscoveryOperationTest {
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
 				.discoveryTime(strategyTime)
 				.build();
@@ -972,11 +945,11 @@ class DiscoveryOperationTest {
 	void testResetPresentParam() {
 		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null));
 
-		final PresentParam presentParam = PresentParam.present();
+		final DiscreteParam presentParam = DiscreteParam.present();
 
 		DiscoveryOperation.resetPresentParam(presentParam);
 
-		assertNull(presentParam.getPresent());
+		assertNull(presentParam.getState());
 	}
 
 	@Test
@@ -1047,15 +1020,15 @@ class DiscoveryOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		discoveryOperation.prepare();
 		strategyConfig
-		.getHostMonitoring()
-		.getMonitors()
-		.values()
-		.stream()
-		.map(Map::values)
-		.flatMap(Collection::stream)
-		.map(monitor -> monitor.getParameter(PRESENT_PARAMETER, PresentParam.class))
+			.getHostMonitoring()
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.map(monitor -> monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class))
 		.filter(Objects::nonNull)
-		.forEach(parameter -> assertNull(parameter.getPresent()));
+		.forEach(parameter -> assertNull(parameter.getState()));
 	}
 
 	private static void assertExpectedMissingMonitors(final IHostMonitoring hostMonitoring) {
@@ -1076,8 +1049,7 @@ class DiscoveryOperationTest {
 				.monitorType(FAN)
 				.build();
 		expectedFan2.setAsMissing();
-		expectedFan2.getParameter(PRESENT_PARAMETER, PresentParam.class)
-		.setPreviousState(ParameterState.OK);
+		expectedFan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class).setPreviousState(Present.PRESENT);
 
 		final Monitor expectedFan3 = Monitor.builder()
 				.id(FAN_ID + 3)
@@ -1130,7 +1102,9 @@ class DiscoveryOperationTest {
 
 		hostMonitoring.getPreviousMonitors().put(MonitorType.FAN, Map.of(FAN_ID + 1, fan1));
 		hostMonitoring.addMonitor(fan2);
-		fan2.getParameter(PRESENT_PARAMETER, PresentParam.class).discoveryReset();
+		DiscreteParam fan2PresentParam = fan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
+		fan2PresentParam.save();
+		fan2PresentParam.setState(null);
 		hostMonitoring.addMonitor(fan3);
 		hostMonitoring.addMonitor(fan4);
 		fan4.setParameters(Collections.emptyMap());

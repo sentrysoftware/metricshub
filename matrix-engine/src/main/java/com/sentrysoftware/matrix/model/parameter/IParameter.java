@@ -5,11 +5,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 
-@JsonSubTypes({ @JsonSubTypes.Type(value = PresentParam.class, name = PresentParam.PRESENT_TYPE),
+@JsonSubTypes({ @JsonSubTypes.Type(value = DiscreteParam.class, name = DiscreteParam.DISCRETE_TYPE),
 	@JsonSubTypes.Type(value = NumberParam.class, name = NumberParam.NUMBER_TYPE),
-	@JsonSubTypes.Type(value = TextParam.class, name = TextParam.TEXT_TYPE),
-	@JsonSubTypes.Type(value = StatusParam.class, name = StatusParam.STATUS_TYPE)})
-public interface IParameterValue {
+	@JsonSubTypes.Type(value = TextParam.class, name = TextParam.TEXT_TYPE)})
+public interface IParameter {
 
 	public String getName();
 

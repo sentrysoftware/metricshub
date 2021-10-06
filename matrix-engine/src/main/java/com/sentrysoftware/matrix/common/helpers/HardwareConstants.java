@@ -265,14 +265,14 @@ public class HardwareConstants {
 	//                 //
 	/////////////////////
 
-	public static final String STATUS_PARAMETER_UNIT = "{0 = OK ; 1 = Degraded ; 2 = Failed}";
-	public static final String LED_INDICATOR_PARAMETER_UNIT = "{0 = Off ; 1 = Blinking ; 2 = On}";
-	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{0 = OK ; 2 = Intrusion Detected}";
+	public static final String STATUS_PARAMETER_UNIT = "{ 0 = OK ; 1 = Degraded ; 2 = Failed }";
+	public static final String LED_INDICATOR_PARAMETER_UNIT = "{ 0 = Off ; 1 = Blinking ; 2 = On }";
+	public static final String INTRUSION_STATUS_PARAMETER_UNIT = "{ 0 = Closed ; 1 = Open }";
 	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
 	public static final String ENERGY_PARAMETER_UNIT = "Joules";
 	public static final String POWER_CONSUMPTION_PARAMETER_UNIT = "Watts";
-	public static final String POWER_STATE_PARAMETER_UNIT = "{0 = Off ; 2 = On}";
-	public static final String LINK_STATUS_PARAMETER_UNIT = "{0 = Plugged ; 1 = Unplugged}";
+	public static final String POWER_STATE_PARAMETER_UNIT = "{ 0 = Off ; 1 = Standby ; 2 = On }";
+	public static final String LINK_STATUS_PARAMETER_UNIT = "{ 0 = Plugged ; 1 = Unplugged }";
 	public static final String SPEED_PARAMETER_UNIT = "RPM";
 	public static final String CURRENT_SPEED_PARAMETER_UNIT = "MHz";
 	public static final String SPEED_PERCENT_PARAMETER_UNIT = "% of maximum speed";
@@ -281,9 +281,9 @@ public class HardwareConstants {
 	public static final String TEMPERATURE_PARAMETER_UNIT = "degrees Celsius";
 	public static final String HEATING_MARGIN_PARAMETER_UNIT = "degrees Celsius";
 	public static final String ERROR_COUNT_PARAMETER_UNIT = "errors";
-	public static final String ERROR_STATUS_PARAMETER_UNIT = "{0 = No Errors ; 1 = Detected Errors ; 2 = Too Many Errors}";
-	public static final String PREDICTED_FAILURE_PARAMETER_UNIT  = "{0 = OK ; 1 = Failure Predicted}";
-	public static final String PRESENT_PARAMETER_UNIT  = "{0 = Missing ; 1 = Present}";
+	public static final String ERROR_STATUS_PARAMETER_UNIT = "{ 0 = No Errors ; 1 = Detected Errors ; 2 = Too Many Errors }";
+	public static final String PREDICTED_FAILURE_PARAMETER_UNIT  = "{ 0 = OK ; 1 = Failure Predicted }";
+	public static final String PRESENT_PARAMETER_UNIT  = "{ 0 = Missing ; 1 = Present }";
 	public static final String SPACE_GB_PARAMETER_UNIT = "GB";
 	public static final String SPEED_MBITS_PARAMETER_UNIT = "Mbits/s";
 	public static final String BYTES_RATE_PARAMETER_UNIT = "MB/s";
@@ -293,13 +293,14 @@ public class HardwareConstants {
 	public static final String MOUNT_COUNT_PARAMETER_UNIT = "mounts";
 	public static final String UNMOUNT_COUNT_PARAMETER_UNIT = "unmounts";
 	public static final String PACKETS_RATE_PARAMETER_UNIT = "packets/s";
-	public static final String DUPLEX_MODE_PARAMETER_UNIT = "{0 =  Half-duplex ; 1 = Full-duplex}";
-	public static final String NEEDS_CLEANING_PARAMETER_UNIT = "{0 =  OK ; 1 = Cleaning Needed ; 2 = Cleaning Needed Immediately}";
+	public static final String DUPLEX_MODE_PARAMETER_UNIT = "{ 0 =  Half-duplex ; 1 = Full-duplex }";
+	public static final String NEEDS_CLEANING_PARAMETER_UNIT = "{ 0 =  OK ; 1 = Cleaning Needed ; 2 = Cleaning Needed Immediately }";
 	public static final String TIME_PARAMETER_UNIT = "seconds";
 	public static final String BYTES_PARAMETER_UNIT = "Bytes";
 	public static final String PACKETS_PARAMETER_UNIT = "Packets";
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
+	public static final String COLOR_PARAMETER_UNIT = "{ 0 = OK ; 1 = Degraded ; 2 = Failed }";
 
 	public static final String DEFAULT = "default";
 

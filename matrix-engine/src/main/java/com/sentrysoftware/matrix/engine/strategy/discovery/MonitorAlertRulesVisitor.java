@@ -19,15 +19,15 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor.METADATA_CANNOT_BE_NULL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -63,6 +62,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -70,8 +70,8 @@ import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
@@ -450,8 +450,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		final var alarmChecker = alarmThreshold > 0 ? lowSpeedChecker : zeroSpeedConditionChecker;
 
 		// Create the alert rule
-		final AlertRule alarmAlertRule = new AlertRule(alarmChecker, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
-		final AlertRule warnAlertRule = new AlertRule(outOfRangeSpeedChecker, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
+		final AlertRule alarmAlertRule = new AlertRule(alarmChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
+		final AlertRule warnAlertRule = new AlertRule(outOfRangeSpeedChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
 		// Add them to the monitor, they will be inserted only if they are updated.
 		monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
@@ -488,8 +488,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 					.build();
 
 			// Create the alert rule
-			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm1Conditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
-			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm2Conditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
+			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm1Conditions, Severity.ALARM, AlertRuleType.INSTANCE);
+			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm2Conditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 		} else if (upperThreshold != null) {
 			// The upper threshold becomes a warning
@@ -515,8 +515,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			}
 
 			// Create the alert rule
-			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
-			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
+			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
+			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 		} else if (lowerThreshold != null) {
 			// The upper threshold becomes a warning
@@ -547,8 +547,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			}
 
 			// Create the alert rule
-			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
-			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
+			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
+			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 		} else {
 			// Means the static rules will take over
@@ -647,7 +647,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 					.gte(availablePathWarning)
 					.build();
 
-			final AlertRule warnAlertRule = new AlertRule(Lun::checkLowerAvailablePathCountCondition, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
+			final AlertRule warnAlertRule = new AlertRule(Lun::checkLowerAvailablePathCountCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
 			monitor.addAlertRules(AVAILABLE_PATH_COUNT_PARAMETER, new ArrayList<>(Collections.singletonList(warnAlertRule)));
 
@@ -757,8 +757,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				.build();
 
 		// Create the alert rule
-		final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
-		final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
+		final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
+		final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
 		// Add them to the monitor, they will be inserted only if they are updated.
 		monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
@@ -813,8 +813,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 					.gte(alarmThreshold)
 					.build();
 	
-			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
-			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
+			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
+			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 			monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
 
@@ -825,7 +825,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
 					.gte(warningThreshold)
 					.build();
-			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, ParameterState.WARN, AlertRuleType.INSTANCE);
+			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(warnAlertRule)));
 
 			return Collections.singleton(parameterName);
@@ -835,7 +835,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 					.gte(alarmThreshold)
 					.build();
-			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, ParameterState.ALARM, AlertRuleType.INSTANCE);
+			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(alarmAlertRule)));
 
 			return Collections.singleton(parameterName);

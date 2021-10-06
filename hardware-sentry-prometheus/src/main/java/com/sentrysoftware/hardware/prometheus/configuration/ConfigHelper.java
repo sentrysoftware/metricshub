@@ -127,7 +127,6 @@ public class ConfigHelper {
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
 			.target(target.toHardwareTarget())
-			.unknownStatus(hostConfigurationDto.getUnknownStatus())
 			.build();
 	}
 

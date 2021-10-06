@@ -6,23 +6,25 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -35,89 +37,43 @@ public class CollectHelper {
 	public static final Pattern VALUE_TABLE_PATTERN = Pattern.compile("^\\s*valuetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
-	private static final String UNKNOWN_STATUS_LOG_MSG = "For host {}, unexpected status value for instance {}. {} = {}";
-
-	private static final Map<String, ParameterState> PREDICTED_FAILURE_MAP;
-	private static final Map<String, ParameterState> POWER_STATE_MAP;
-	private static final Map<String, ParameterState> STATUS_MAP;
 	private static final List<String> MAYBE_NEGATIVE_PARAMETERS;
 
 	static {
-		final Map<String, ParameterState> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		map.put("OK", ParameterState.OK);
-		map.put("WARN", ParameterState.WARN);
-		map.put("ALARM", ParameterState.ALARM);
-		map.put("0", ParameterState.OK);
-		map.put("1", ParameterState.WARN);
-		map.put("2", ParameterState.ALARM);
-
-		STATUS_MAP = Collections.unmodifiableMap(map);
-
-		final Map<String, ParameterState> predictedFailureMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		predictedFailureMap.put("TRUE", ParameterState.WARN);
-		predictedFailureMap.put("FALSE", ParameterState.OK);
-		predictedFailureMap.put("1", ParameterState.WARN);
-		predictedFailureMap.put("0", ParameterState.OK);
-
-		PREDICTED_FAILURE_MAP = Collections.unmodifiableMap(predictedFailureMap);
-
-		final Map<String, ParameterState> powerStateMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		powerStateMap.put("ON", ParameterState.OK);
-		powerStateMap.put("OFF", ParameterState.ALARM);
-
-		POWER_STATE_MAP = Collections.unmodifiableMap(powerStateMap);
 
 		// Update this list when you collect a parameter accepting a negative value
 		MAYBE_NEGATIVE_PARAMETERS = Collections.unmodifiableList(Collections.emptyList());
 	}
 
 	/**
-	 * Translate the status String value to a {@link ParameterState}
+	 * Translate the state String value to a {@link IState} Enum
 	 *
-	 * @param status         Status value in String format (OK, WARN, ALARM, 0, 1, 2)
-	 * @param unknownStatus  Unknown status used when we are not able to translate the collected status
-	 * @param monitorId      Current collected monitor identifier
-	 * @param hostname       Current hostname
-	 * @param parameterName  The name of the {@link StatusParam} e.g. status, intrusionStatus...
+	 * @param stateValue    value in String format to translate
+	 * @param interpreter   interpret function used to translate the state
+	 * @param parameterName The name of the parameter we wish to collect
+	 * @param monitorId     Current collected monitor identifier
+	 * @param hostname      Current hostname
 	 * @return {@link ParameterState} value
 	 */
-	public static ParameterState translateStatus(final String status, @NonNull final Optional<ParameterState> unknownStatus,
-			@NonNull final String monitorId, @NonNull String hostname,
-			@NonNull final String parameterName) {
+	public static IState translateState(final String stateValue, 
+			@NonNull final Function<String, Optional<? extends IState>> interpreter,
+			@NonNull final String parameterName, @NonNull final String monitorId, @NonNull String hostname) {
 
-		if (status == null) {
+		if (stateValue == null) {
 			return null;
 		}
 
-		final ParameterState parameterState;
-		// Get the parameter state from our PREDICTED_FAILURE_MAP
-		if (PREDICTED_FAILURE_PARAMETER.equalsIgnoreCase(parameterName)) {
-			parameterState = PREDICTED_FAILURE_MAP.get(status.trim());
-		} else if (POWER_STATE_PARAMETER.equalsIgnoreCase(parameterName)) {
-			parameterState = POWER_STATE_MAP.get(status.trim());
-		} else {
-			// Get the parameter state from our STATUS_MAP
-			parameterState = STATUS_MAP.get(status.trim());
+		final Optional<? extends IState> state = interpreter.apply(stateValue);
+		if (!state.isPresent()) {
+			log.error("For host {}, unexpected state value for instance {}. {} = null",
+					hostname,
+					monitorId,
+					parameterName
+			);
+			return null;
 		}
 
-		// Means it is an unknown status
-		if (parameterState == null && unknownStatus.isPresent()) {
-
-			switch(unknownStatus.get()) {
-			case OK:
-				log.debug(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.OK);
-				return unknownStatus.get();
-			case WARN:
-				log.warn(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.WARN);
-				return unknownStatus.get();
-			case ALARM:
-			default:
-				log.error(UNKNOWN_STATUS_LOG_MSG, hostname, monitorId, parameterName, ParameterState.ALARM);
-				return unknownStatus.get();
-			}
-		}
-
-		return parameterState;
+		return state.get();
 	}
 
 	/**
@@ -208,9 +164,9 @@ public class CollectHelper {
 	 * @param parameterName The name of the {@link StatusParam} instance
 	 * @return a {@link ParameterState} value (OK, WARN or ALARM)
 	 */
-	public static ParameterState getStatusParamState(final Monitor monitor, final String parameterName) {
+	public static IState getParameterState(final Monitor monitor, final String parameterName) {
 
-		final StatusParam parameter = monitor.getParameter(parameterName, StatusParam.class);
+		final DiscreteParam parameter = monitor.getParameter(parameterName, DiscreteParam.class);
 
 		if (parameter == null) {
 			return null;
@@ -382,52 +338,72 @@ public class CollectHelper {
 		monitor.collectParameter(numberParam);
 	}
 
-
 	/**
-	 * Update the status parameter value identified by <code>parameterName</code> in the given {@link Monitor} instance
+	 * Update the status information parameter value named <code>status</code> in the given {@link Monitor} instance
 	 *
 	 * @param monitor           The monitor we wish to collect the status parameter value
-	 * @param parameterName     The unique name of the parameter
-	 * @param unit              The unit of the parameter
 	 * @param collectTime       The collect time for this parameter
-	 * @param state             The {@link ParameterState} (OK, WARN, ALARM) used to build the {@link StatusParam}
 	 * @param statusInformation The status information
+	 * @param status            The Status to use in case statusInformation is empty or <code>null</code>
 	 */
-	public static void updateStatusParameter(@NonNull final Monitor monitor, @NonNull final String parameterName,
-			@NonNull final String unit, @NonNull final Long collectTime,
-			final ParameterState state, final String statusInformation) {
+	public static void updateStatusInformation(@NonNull final Monitor monitor,
+			@NonNull final Long collectTime, String statusInformation, final Status status) {
 
-		StatusParam statusParam = monitor.getParameter(parameterName, StatusParam.class);
+		// No status information? statusInformation becomes the status display name
+		if ((statusInformation == null || statusInformation.isBlank()) && status != null) {
+			statusInformation = status.getDisplayName();
+		}
 
-		if (statusParam == null) {
-			statusParam = StatusParam
+		// No status information? the parameter cannot be collected
+		if (statusInformation == null) {
+			return;
+		}
+
+		TextParam statusInformationParam = monitor.getParameter(STATUS_INFORMATION_PARAMETER, TextParam.class);
+
+		if (statusInformationParam == null) {
+			statusInformationParam = TextParam
 					.builder()
-					.name(parameterName)
-					.unit(unit)
+					.name(STATUS_INFORMATION_PARAMETER)
 					.build();
 		}
 
-		statusParam.setState(state);
-		statusParam.setStatus(state.ordinal());
-		statusParam.setStatusInformation(buildStatusInformation(
-				parameterName,
-				state.ordinal(),
-				statusInformation));
-		statusParam.setCollectTime(collectTime);
+		statusInformationParam.setValue(statusInformation);
+		statusInformationParam.setCollectTime(collectTime);
 
-		monitor.collectParameter(statusParam);
+		monitor.collectParameter(statusInformationParam);
 	}
 
 	/**
-	 * Build the status information text value
-	 *
-	 * @param parameterName The name of the parameter e.g. intrusionStatus, status
-	 * @param ordinal       The numeric value of the status (0, 1, 2)
-	 * @param value         The text value of the status information
-	 * @return {@link String} value
+	 * Update the status parameter value named <code>status</code> in the given
+	 * {@link Monitor} instance
+	 * 
+	 * @param monitor       The monitor we wish to collect the status parameter
+	 *                      value
+	 * @param parameterName The name of the parameter we wish to collect
+	 * @param collectTime   The collect strategy time
+	 * @param state         The {@link IState} instance. E.g {@link Status},
+	 *                      {@link PredictedFailure} or {@link PowerState}
 	 */
-	public static String buildStatusInformation(final String parameterName, final int ordinal, final String value) {
-		return String.format("%s: %s (%s)", parameterName, ordinal, value);
+	public static void updateDiscreteParameter(final Monitor monitor, final String parameterName,
+			final Long collectTime, final IState state) {
+
+		DiscreteParam discrecteParam = monitor.getParameter(parameterName, DiscreteParam.class);
+
+		if (discrecteParam == null) {
+			discrecteParam = DiscreteParam
+					.builder()
+					.name(parameterName)
+					.state(state)
+					.collectTime(collectTime)
+					.build();
+		} else {
+			discrecteParam.setState(state);
+			discrecteParam.setCollectTime(collectTime);
+		}
+
+
+		monitor.collectParameter(discrecteParam);
 	}
 
 	/**

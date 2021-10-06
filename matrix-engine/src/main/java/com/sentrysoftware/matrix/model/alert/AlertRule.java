@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,14 +20,14 @@ public class AlertRule {
 	private BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker;
 	private long period;
 	private Set<AlertCondition> conditions;
-	private ParameterState severity;
+	private Severity severity;
 	private Long firstTriggerTimestamp;
 	private AlertDetails details;
 	private AlertRuleState active = AlertRuleState.INACTIVE;
 	private AlertRuleType type;
 
 	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
-			long period, @NonNull ParameterState severity, @NonNull AlertRuleType type) {
+			long period, @NonNull Severity severity, @NonNull AlertRuleType type) {
 		this.conditionsChecker = conditionsChecker;
 		this.conditions = conditions;
 		this.period = period;
@@ -37,17 +36,17 @@ public class AlertRule {
 	}
 
 	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
-			@NonNull ParameterState severity, @NonNull AlertRuleType type) {
+			@NonNull Severity severity, @NonNull AlertRuleType type) {
 		this(conditionsChecker, conditions, 0, severity, type);
 	}
 
 	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
-			long period, @NonNull ParameterState severity) {
+			long period, @NonNull Severity severity) {
 		this(conditionsChecker, conditions, period, severity, AlertRuleType.STATIC);
 	}
 
 	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
-			@NonNull ParameterState severity) {
+			@NonNull Severity severity) {
 		this(conditionsChecker, conditions, 0, severity, AlertRuleType.STATIC);
 	}
 

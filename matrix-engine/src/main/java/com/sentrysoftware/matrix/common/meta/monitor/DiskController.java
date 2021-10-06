@@ -1,25 +1,5 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertDetails;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BATTERY_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONTROLLER_STATUS_PARAMETER;
@@ -28,6 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -39,20 +20,47 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESE
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
 public class DiskController implements IMetaMonitor {
 
 	public static final MetaParameter BATTERY_STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(BATTERY_STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(Status::interpret)
+					.build()
+			)
 			.build();
 
 	public static final MetaParameter CONTROLLER_STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(CONTROLLER_STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(Status::interpret)
+					.build()
+			)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION,
@@ -60,19 +68,19 @@ public class DiskController implements IMetaMonitor {
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(DiskController::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule BATTERY_STATUS_WARN_ALERT_RULE = new AlertRule(DiskController:: checkBatteryStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule BATTERY_STATUS_ALARM_ALERT_RULE = new AlertRule(DiskController::checkBatteryStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule CONTROLLER_STATUS_WARN_ALERT_RULE = new AlertRule(DiskController::checkControllerStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule CONTROLLER_STATUS_ALARM_ALERT_RULE = new AlertRule(DiskController::checkControllerStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -108,7 +116,7 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -130,11 +138,11 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkBatteryStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("The battery of this disk controller is degraded." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("The battery of this disk controller is degraded." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("A degraded battery in a disk controller with write cache enabled means that a power outage will certainly lead to data loss and/or corruption.")
 					.recommendedAction("Replace the battery of this disk controller to avoid potential data loss and/or corruption.")
 					.build();
@@ -151,11 +159,11 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkBatteryStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(BATTERY_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("The battery of this disk controller has failed." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("The battery of this disk controller has failed." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("A failed battery in a disk controller with write cache enabled, means that a power outage will certainly lead to data loss and/or corruption.")
 					.recommendedAction("Replace the battery of this disk controller to avoid potential data loss and/or corruption.")
 					.build();
@@ -172,10 +180,10 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkControllerStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "This disk controller is degraded or about to fail." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
+			String problem = "This disk controller is degraded or about to fail." +  IMetaMonitor.getStatusInformationMessage(monitor);
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence("A degraded disk controller could have a serious performance impact on its attached disks. A controller about to fail means that its attached disks will no longer be available to the operating system. This may lead to data loss and/or corruption.")
@@ -194,11 +202,11 @@ public class DiskController implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkControllerStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(CONTROLLER_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This disk controller has failed." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This disk controller has failed." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This disk controller is no longer working. Its attached disks are probably no longer available to the operating system which means data loss or even corruption.")
 					.recommendedAction("Replace this disk controller immediately to have a chance to recover the data on the attached disks.")
 					.build();

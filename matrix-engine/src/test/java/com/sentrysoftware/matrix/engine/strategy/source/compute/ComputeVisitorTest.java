@@ -50,7 +50,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 class ComputeVisitorTest {
 
@@ -1854,12 +1853,12 @@ class ComputeVisitorTest {
 
 	@Test
 	void testGetWorstStatus() {
-		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN"}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "OK", "ALARM"}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN", "ALARM"}));
-		assertEquals(ParameterState.OK.name(), ComputeVisitor.getWorstStatus(new String[] {"ok", "", ""}));
-		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"warn", "", ""}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"alarm", "", ""}));
+		assertEquals("WARN", ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN"}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"OK", "OK", "ALARM"}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN", "ALARM"}));
+		assertEquals("OK", ComputeVisitor.getWorstStatus(new String[] {"ok", "", ""}));
+		assertEquals("WARN", ComputeVisitor.getWorstStatus(new String[] {"warn", "", ""}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"alarm", "", ""}));
 		assertEquals("UNKNOWN", ComputeVisitor.getWorstStatus(new String[] {"STATE", "", ""}));
 	}
 

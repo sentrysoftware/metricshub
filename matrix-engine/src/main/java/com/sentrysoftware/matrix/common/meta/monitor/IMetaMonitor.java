@@ -1,15 +1,5 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import java.util.List;
-import java.util.Map;
-
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
@@ -26,6 +16,22 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
+
+import java.util.List;
+import java.util.Map;
+
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 public interface IMetaMonitor {
 
@@ -33,54 +39,68 @@ public interface IMetaMonitor {
 			.basicCollect(true)
 			.name(STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS).build();
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(Status::interpret)
+					.build()
+			)
+			.build();
 
 	MetaParameter PRESENT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(PRESENT_PARAMETER)
 			.unit(PRESENT_PARAMETER_UNIT)
-			.type(ParameterType.PRESENT).build();
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(Present::interpret)
+					.build()
+			)
+			.build();
 
 	MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
 			.basicCollect(true)
 			.name(PREDICTED_FAILURE_PARAMETER)
 			.unit(PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(PredictedFailure::interpret)
+					.build()
+			)
 			.build();
 
 	MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	MetaParameter ENERGY = MetaParameter.builder()
 		.basicCollect(false)
 		.name(ENERGY_PARAMETER)
 		.unit(ENERGY_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
+		.type(SimpleParamType.NUMBER)
 		.build();
 
 	MetaParameter HEATING_MARGIN = MetaParameter.builder()
 		.basicCollect(false)
 		.name(HEATING_MARGIN_PARAMETER)
 		.unit(HEATING_MARGIN_PARAMETER_UNIT)
-		.type(ParameterType.NUMBER)
+		.type(SimpleParamType.NUMBER)
 		.build();
 
 	MetaParameter ENERGY_USAGE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ENERGY_USAGE_PARAMETER)
 			.unit(ENERGY_USAGE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
 			.basicCollect(false)
 			.name(POWER_CONSUMPTION_PARAMETER)
 			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	void accept(IMonitorVisitor monitorVisitor);
@@ -108,10 +128,11 @@ public interface IMetaMonitor {
 	 * @param status {@link StatusParam} instance we wish to extract its status information
 	 * @return {@link String} value if the status information is available otherwise null
 	 */
-	static String getStatusInformationMessage(StatusParam status) {
-		String statusInformation = status.getStatusInformation();
-		if (statusInformation != null && statusInformation.isBlank()) {
-			return String.format(" Reported status: %s.", statusInformation);
+	static String getStatusInformationMessage(Monitor monitor) {
+		TextParam statusInformation = monitor.getParameter(STATUS_INFORMATION_PARAMETER, TextParam.class);
+
+		if (statusInformation != null && statusInformation.getValue() != null) {
+			return String.format(" Reported status: %s.", statusInformation.getValue());
 		}
 		return "";
 	}

@@ -7,25 +7,56 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "System Board CMOS Battery",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -33,6 +64,7 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
+      "targetFqdn" : "127.0.0.1",
       "type" : "System Board CMOS Battery"
     },
     "alertRules" : {
@@ -102,29 +134,49 @@
     "parentId" : "localhost",
     "targetId" : "localhost",
     "extendedType" : null,
+    "discoveryTime" : null,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "Connector test succeeded",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Connector test succeeded",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "testReport" : {
         "name" : "testReport",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : null,
         "value" : "Received Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1. Successful SNMP GetNext of 1.3.6.1.4.1.674.10892.1.300.10.1 on localhost. Returned Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1.\nConclusion: TEST on localhost SUCCEEDED",
+        "previousValue" : null,
         "type" : "TextParam"
       }
     },
-    "metadata" : { 
-        "displayName": "Dell OpenManage Server Administrator",
-        "compiledFileName": "DellOpenManage",
-        "description": "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
+    "metadata" : {
+      "compiledFileName" : "DellOpenManage",
+      "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",
+      "displayName" : "Dell OpenManage Server Administrator",
+      "targetFqdn" : "127.0.0.1"
     },
     "alertRules" : {
       "status" : [ {
@@ -147,45 +199,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "CPU",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "currentSpeed" : {
         "name" : "currentSpeed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "MHz",
         "value" : 2100.0,
         "rawValue" : 2100.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 17.48,
         "rawValue" : 17.48,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -196,6 +279,7 @@
       "identifyingInformation" : "Location: Slot CPU1",
       "maximumspeed" : "4000",
       "model" : "Xeon CPU E5-2620 v4 @ 2.10GHz",
+      "targetFqdn" : "127.0.0.1",
       "vendor" : "Intel"
     },
     "alertRules" : {
@@ -266,55 +350,93 @@
     "parentId" : "localhost",
     "targetId" : "localhost",
     "extendedType" : "Computer",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "energy" : {
         "name" : "energy",
-        "collectTime" : 1629213262292,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Joules",
         "value" : 1.1490296399999998E10,
         "rawValue" : 3191.749,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "energyUsage" : {
         "name" : "energyUsage",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Joules",
         "value" : null,
         "rawValue" : 3191.749,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "intrusionStatus" : {
         "name" : "intrusionStatus",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 2 = Intrusion Detected}",
-        "status" : 0,
-        "statusInformation" : "intrusionStatus: 0 (No Intrusion Detected)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Closed ; 1 = Open }",
+        "state" : {
+          "displayName" : "Closed",
+          "numericValue" : 0,
+          "name" : "CLOSED",
+          "type" : "IntrusionStatus",
+          "unit" : "{ 0 = Closed ; 1 = Open }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Closed"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -325,6 +447,8 @@
       "idCount" : "0",
       "identifyingInformation" : "Serial Number: FSJR3N2 - Alternative Serial Number: 34377965102",
       "model" : "PowerEdge R630",
+      "parameteractivation.energyusage" : "3191749",
+      "targetFqdn" : "127.0.0.1",
       "type" : "Computer",
       "vendor" : "Dell"
     },
@@ -361,45 +485,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -409,6 +564,8 @@
       "fantype" : "System Board1A",
       "idCount" : "0",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board1A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -504,45 +661,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -552,6 +740,8 @@
       "fantype" : "System Board3B",
       "idCount" : "9",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board3B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -647,45 +837,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -695,6 +916,8 @@
       "fantype" : "System Board4B",
       "idCount" : "10",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board4B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -790,45 +1013,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.32,
         "rawValue" : 4.32,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4320.0,
         "rawValue" : 4320.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -838,6 +1092,8 @@
       "fantype" : "System Board5B",
       "idCount" : "11",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board5B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -933,45 +1189,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -981,6 +1268,8 @@
       "fantype" : "System Board6B",
       "idCount" : "12",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board6B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1076,45 +1365,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1124,6 +1444,8 @@
       "fantype" : "System Board7B",
       "idCount" : "13",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board7B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1219,45 +1541,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1267,6 +1620,8 @@
       "fantype" : "System Board2A",
       "idCount" : "1",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board2A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1362,45 +1717,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.76,
         "rawValue" : 5.76,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5760.0,
         "rawValue" : 5760.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1410,6 +1796,8 @@
       "fantype" : "System Board3A",
       "idCount" : "2",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board3A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1505,45 +1893,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1553,6 +1972,8 @@
       "fantype" : "System Board4A",
       "idCount" : "3",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board4A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1648,45 +2069,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.52,
         "rawValue" : 5.52,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5520.0,
         "rawValue" : 5520.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1696,6 +2148,8 @@
       "fantype" : "System Board5A",
       "idCount" : "4",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board5A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1791,45 +2245,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1839,6 +2324,8 @@
       "fantype" : "System Board6A",
       "idCount" : "5",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board6A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1934,45 +2421,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1982,6 +2500,8 @@
       "fantype" : "System Board7A",
       "idCount" : "6",
       "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board7A",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2077,45 +2597,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2124,6 +2675,9 @@
       "deviceid" : "1.8",
       "fantype" : "System Board1B",
       "idCount" : "7",
+      "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board1B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2219,45 +2773,76 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "speed" : {
         "name" : "speed",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2266,6 +2851,9 @@
       "deviceid" : "1.9",
       "fantype" : "System Board2B",
       "idCount" : "8",
+      "identifyingInformation" : "",
+      "parameteractivation.speed" : "System Board2B",
+      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2361,45 +2949,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2412,6 +3041,7 @@
       "identifyingInformation" : "Location: Slot A1 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D1",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -2506,45 +3136,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2557,6 +3228,7 @@
       "identifyingInformation" : "Location: Slot A10 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B62303E",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -2651,55 +3323,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "startingErrorCount" : {
         "name" : "startingErrorCount",
-        "collectTime" : 1631630238323,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2712,6 +3415,7 @@
       "identifyingInformation" : "Location: Slot A11 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6232CA",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -2806,45 +3510,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -2857,6 +3602,7 @@
       "identifyingInformation" : "Location: Slot A12 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D3",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -2951,45 +3697,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3002,6 +3789,7 @@
       "identifyingInformation" : "Location: Slot A2 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F3",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3096,45 +3884,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3147,6 +3976,7 @@
       "identifyingInformation" : "Location: Slot A3 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D6",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3241,45 +4071,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3292,6 +4163,7 @@
       "identifyingInformation" : "Location: Slot A4 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230CF",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3386,45 +4258,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3437,6 +4350,7 @@
       "identifyingInformation" : "Location: Slot A5 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230EA",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3531,45 +4445,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3582,6 +4537,7 @@
       "identifyingInformation" : "Location: Slot A6 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F4",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3676,45 +4632,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3727,6 +4724,7 @@
       "identifyingInformation" : "Location: Slot A7 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623048",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3821,45 +4819,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3872,6 +4911,7 @@
       "identifyingInformation" : "Location: Slot A8 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623041",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3966,45 +5006,86 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "DDR4",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "errorCount" : {
         "name" : "errorCount",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "startingErrorCount" : {
+        "name" : "startingErrorCount",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "errors",
+        "value" : 0.0,
+        "rawValue" : 0.0,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4017,6 +5098,7 @@
       "identifyingInformation" : "Location: Slot A9 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D7",
       "size" : "16384.0",
+      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4111,25 +5193,56 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4139,7 +5252,8 @@
       "devicetype" : "ESM",
       "displayid" : "1",
       "idCount" : "0",
-      "identifyingInformation" : "EventLog"
+      "identifyingInformation" : "EventLog",
+      "targetFqdn" : "127.0.0.1"
     },
     "alertRules" : {
       "present" : [ {
@@ -4185,25 +5299,56 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4214,7 +5359,8 @@
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
       "idCount" : "1",
-      "identifyingInformation" : "Size : 0 MB"
+      "identifyingInformation" : "Size : 0 MB",
+      "targetFqdn" : "127.0.0.1"
     },
     "alertRules" : {
       "present" : [ {
@@ -4260,25 +5406,56 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (AC Switch On - AC Power On)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "AC Switch On - AC Power On",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4287,7 +5464,8 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "powersupplypower" : "750.0",
-      "powersupplytype" : "AC"
+      "powersupplytype" : "AC",
+      "targetFqdn" : "127.0.0.1"
     },
     "alertRules" : {
       "present" : [ {
@@ -4356,25 +5534,56 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (AC Switch On - AC Power On)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "AC Switch On - AC Power On",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4383,7 +5592,8 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "powersupplypower" : "750.0",
-      "powersupplytype" : "AC"
+      "powersupplytype" : "AC",
+      "targetFqdn" : "127.0.0.1"
     },
     "alertRules" : {
       "present" : [ {
@@ -4452,62 +5662,65 @@
     "parentId" : null,
     "targetId" : "localhost",
     "extendedType" : null,
+    "discoveryTime" : null,
     "parameters" : {
       "ambientTemperature" : {
         "name" : "ambientTemperature",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 23.0,
         "rawValue" : 23.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "cpuTemperature" : {
         "name" : "cpuTemperature",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 37.0,
         "rawValue" : 37.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "cpuThermalDissipationRate" : {
         "name" : "cpuThermalDissipationRate",
-        "collectTime" : 1631022548003,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "",
         "value" : 0.23,
         "rawValue" : 0.23,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "energy" : {
         "name" : "energy",
-        "collectTime" : 1629213262292,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "Joules",
         "value" : 1.1490296399999998E10,
         "rawValue" : 3191.749,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "heatingMargin" : {
         "name" : "heatingMargin",
-        "collectTime" : 1629213262292,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 19.0,
         "rawValue" : 19.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
     "metadata" : {
+      "averageCpuTemperatureWarning" : "85.0",
+      "fqdn" : "127.0.0.1",
       "location" : "localhost",
       "operatingSystemType" : "LINUX",
-      "powerMeter": "collected"
+      "powerMeter" : "collected"
     },
     "alertRules" : { }
   }, {
@@ -4517,25 +5730,42 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "temperature" : {
         "name" : "temperature",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 23.0,
         "rawValue" : 23.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -4545,6 +5775,8 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
+      "parameteractivation.temperature" : "System Board Inlet",
+      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Inlet",
       "warningthreshold" : "42.0"
     },
@@ -4603,25 +5835,42 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "temperature" : {
         "name" : "temperature",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 30.0,
         "rawValue" : 30.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -4631,6 +5880,8 @@
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
+      "parameteractivation.temperature" : "System Board Exhaust",
+      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Exhaust",
       "warningthreshold" : "70.0"
     },
@@ -4689,25 +5940,42 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Temperature",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "temperature" : {
         "name" : "temperature",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "degrees Celsius",
         "value" : 37.0,
         "rawValue" : 37.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -4718,6 +5986,8 @@
       "idCount" : "2",
       "identifyingInformation" : "",
       "isCpuSensor" : "true",
+      "parameteractivation.temperature" : "CPU1",
+      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "CPU1",
       "warningthreshold" : "85.0"
     },
@@ -4776,16 +6046,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4794,6 +6081,8 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 VCORE PG"
     },
@@ -4829,16 +6118,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4847,6 +6153,8 @@
       "idCount" : "9",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board DIMM PG"
     },
@@ -4882,16 +6190,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4900,6 +6225,8 @@
       "idCount" : "10",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board VCCIO PG"
     },
@@ -4935,16 +6262,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4953,6 +6297,8 @@
       "idCount" : "11",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VDDQ PG"
     },
@@ -4988,16 +6334,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5006,6 +6369,8 @@
       "idCount" : "12",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board NDC PG"
     },
@@ -5041,16 +6406,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5059,6 +6441,8 @@
       "idCount" : "13",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VPP PG"
     },
@@ -5094,16 +6478,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5112,6 +6513,8 @@
       "idCount" : "14",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V PG"
     },
@@ -5147,16 +6550,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5165,6 +6585,8 @@
       "idCount" : "15",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V AUX PG"
     },
@@ -5200,16 +6622,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5218,6 +6657,8 @@
       "idCount" : "16",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 FIVR PG"
     },
@@ -5253,16 +6694,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5271,6 +6729,8 @@
       "idCount" : "17",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS2 PG Fail"
     },
@@ -5306,16 +6766,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5324,6 +6801,8 @@
       "idCount" : "18",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS1 PG Fail"
     },
@@ -5359,16 +6838,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5377,6 +6873,8 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 3.3V PG"
     },
@@ -5412,16 +6910,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5430,6 +6945,8 @@
       "idCount" : "19",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP1 5V PG"
     },
@@ -5465,16 +6982,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5483,6 +7017,8 @@
       "idCount" : "20",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP2 5V PG"
     },
@@ -5518,16 +7054,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5536,6 +7089,8 @@
       "idCount" : "21",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VTT PG"
     },
@@ -5571,25 +7126,42 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "voltage" : {
         "name" : "voltage",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "mV",
         "value" : 228000.0,
         "rawValue" : 228000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -5599,6 +7171,8 @@
       "idCount" : "22",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "228000",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "PS1 Voltage 1"
     },
@@ -5634,25 +7208,42 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "voltage" : {
         "name" : "voltage",
-        "collectTime" : 1624024821235,
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
         "unit" : "mV",
         "value" : 224000.0,
         "rawValue" : 224000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -5662,6 +7253,8 @@
       "idCount" : "23",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "224000",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "PS2 Voltage 2"
     },
@@ -5697,16 +7290,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5715,6 +7325,8 @@
       "idCount" : "2",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V AUX PG"
     },
@@ -5750,16 +7362,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5768,6 +7397,8 @@
       "idCount" : "3",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VPP PG"
     },
@@ -5803,16 +7434,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5821,6 +7469,8 @@
       "idCount" : "4",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 2.5V AUX PG"
     },
@@ -5856,16 +7506,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5874,6 +7541,8 @@
       "idCount" : "5",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.05V PG"
     },
@@ -5909,16 +7578,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5927,6 +7613,8 @@
       "idCount" : "6",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VDDQ PG"
     },
@@ -5962,16 +7650,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5980,6 +7685,8 @@
       "idCount" : "7",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VTT PG"
     },
@@ -6015,16 +7722,33 @@
     "parentId" : "DellOpenManage_enclosure_localhost_1",
     "targetId" : "localhost",
     "extendedType" : "Voltage",
+    "discoveryTime" : 1634216906333,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -6033,6 +7757,8 @@
       "idCount" : "8",
       "identifyingInformation" : "",
       "lowerthreshold" : "",
+      "parameteractivation.voltage" : "",
+      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V SWITCH PG"
     },

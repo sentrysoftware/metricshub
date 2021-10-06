@@ -1,31 +1,11 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertDetails;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
@@ -43,6 +23,27 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESE
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+
 public class TapeDrive implements IMetaMonitor {
 
 	static final String TAPE_LIBRARY_CONSEQUENCE = "The tape library may no longer be able to perform backups.";
@@ -51,50 +52,54 @@ public class TapeDrive implements IMetaMonitor {
 			.basicCollect(false)
 			.name(MOUNT_COUNT_PARAMETER)
 			.unit(MOUNT_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter NEEDS_CLEANING = MetaParameter.builder()
 			.basicCollect(true)
 			.name(NEEDS_CLEANING_PARAMETER)
 			.unit(NEEDS_CLEANING_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(DiscreteParamType
+					.builder()
+					.interpreter(NeedsCleaning::interpret)
+					.build()
+			)
 			.build();
 
 	public static final MetaParameter UNMOUNT_COUNT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(UNMOUNT_COUNT_PARAMETER)
 			.unit(UNMOUNT_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 	
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(TapeDrive::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(TapeDrive::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(TapeDrive::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(TapeDrive::checkErrorCountCondition,
 			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule NEEDS_CLEANING_WARN_ALERT_RULE = new AlertRule(TapeDrive::checkNeedsCleaningWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule NEEDS_CLEANING_ALARM_ALERT_RULE = new AlertRule(TapeDrive::checkNeedsCleaningAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -132,7 +137,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -153,11 +158,11 @@ public class TapeDrive implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			String problem = "This tape drive may be running slowly, dirty or has encountered too many errors."
-					+ IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
+					+ IMetaMonitor.getStatusInformationMessage(monitor);
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence(TAPE_LIBRARY_CONSEQUENCE)
@@ -176,10 +181,10 @@ public class TapeDrive implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "This tape drive may be jammed, dirty, mechanically failed or broken." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
+			String problem = "This tape drive may be jammed, dirty, mechanically failed or broken." +  IMetaMonitor.getStatusInformationMessage(monitor);
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence(TAPE_LIBRARY_CONSEQUENCE)
@@ -198,7 +203,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkNeedsCleaningWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(NEEDS_CLEANING_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(NEEDS_CLEANING_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -219,7 +224,7 @@ public class TapeDrive implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkNeedsCleaningAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(NEEDS_CLEANING_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(NEEDS_CLEANING_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 				return AlertDetails.builder()

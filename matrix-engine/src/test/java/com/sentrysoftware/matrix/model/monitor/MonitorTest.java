@@ -1,29 +1,8 @@
 package com.sentrysoftware.matrix.model.monitor;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleState;
-import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_WARN_CONDITION;
@@ -35,6 +14,27 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleState;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
 
 class MonitorTest {
 
@@ -60,13 +60,13 @@ class MonitorTest {
 		final AlertRule sameSpeedAlert = new AlertRule((mo, conditions) -> 
 			Fan.checkZeroSpeedCondition(mo, SPEED_PARAMETER, conditions),
 			SPEED_ALARM_CONDITION, // Same condition
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 		final Set<AlertCondition> warnConditions = AlertConditionsBuilder.newInstance().gt(0D).lte(300D).build();
 		final AlertRule newWarnAlert = new AlertRule((mo, conditions) -> 
 			Fan.checkOutOfRangeSpeedCondition(mo, SPEED_PARAMETER, conditions),
 			warnConditions, // Original is 500.0
-			ParameterState.WARN);
+			Severity.WARN);
 
 		monitor.addAlertRules(SPEED_PARAMETER, Arrays.asList(sameSpeedAlert, newWarnAlert));
 
@@ -88,10 +88,10 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			PresentParam present = PresentParam.present();
+			DiscreteParam present = DiscreteParam.present();
 			monitor.addParameter(present);
 
-			final AssertedParameter<PresentParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
 
 			assertEquals(present, assertedPresentParameter.getParameter());
 			assertFalse(assertedPresentParameter.isAbnormal());
@@ -102,10 +102,10 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			PresentParam present = PresentParam.missing();
+			DiscreteParam present = DiscreteParam.missing();
 			monitor.addParameter(present);
 
-			final AssertedParameter<PresentParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
 
 			assertEquals(present, assertedPresentParameter.getParameter());
 			assertTrue(assertedPresentParameter.isAbnormal());
@@ -117,7 +117,7 @@ class MonitorTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.build();
 
-			final AssertedParameter<PresentParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor.assertPresentParameter(PRESENT_ALARM_CONDITION);
 
 			assertNull(assertedPresentParameter.getParameter());
 			assertFalse(assertedPresentParameter.isAbnormal());
@@ -131,16 +131,15 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			StatusParam status = StatusParam.builder()
+			DiscreteParam status = DiscreteParam.builder()
 					.name(STATUS_PARAMETER)
-					.state(ParameterState.OK)
-					.statusInformation("OK")
-					.unit(STATUS_PARAMETER_UNIT)
+					.state(Status.OK)
 					.collectTime(new Date().getTime())
 					.build();
 			monitor.addParameter(status);
 
-			final AssertedParameter<StatusParam> assertedPresentParameter = monitor.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor
+					.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
 
 			assertEquals(status, assertedPresentParameter.getParameter());
 			assertFalse(assertedPresentParameter.isAbnormal());
@@ -151,16 +150,15 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			StatusParam status = StatusParam.builder()
+			DiscreteParam status = DiscreteParam.builder()
 					.name(STATUS_PARAMETER)
-					.state(ParameterState.ALARM)
-					.statusInformation("ALARM")
-					.unit(STATUS_PARAMETER_UNIT)
+					.state(Status.FAILED)
 					.collectTime(new Date().getTime())
 					.build();
 			monitor.addParameter(status);
 
-			final AssertedParameter<StatusParam> assertedPresentParameter = monitor.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor
+					.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
 
 			assertEquals(status, assertedPresentParameter.getParameter());
 			assertTrue(assertedPresentParameter.isAbnormal());
@@ -171,16 +169,15 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			StatusParam status = StatusParam.builder()
+			DiscreteParam status = DiscreteParam.builder()
 					.name(STATUS_PARAMETER)
-					.state(ParameterState.WARN)
-					.statusInformation("WARN")
-					.unit(STATUS_PARAMETER_UNIT)
+					.state(Status.DEGRADED)
 					.collectTime(new Date().getTime())
 					.build();
 			monitor.addParameter(status);
 
-			final AssertedParameter<StatusParam> assertedPresentParameter = monitor.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor
+					.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
 
 			assertEquals(status, assertedPresentParameter.getParameter());
 			assertFalse(assertedPresentParameter.isAbnormal());
@@ -191,16 +188,15 @@ class MonitorTest {
 					.monitorType(MonitorType.FAN)
 					.build();
 			// Collect
-			StatusParam status = StatusParam.builder()
+			DiscreteParam status = DiscreteParam.builder()
 					.name(STATUS_PARAMETER)
-					.state(ParameterState.WARN)
-					.statusInformation("WARN")
-					.unit(STATUS_PARAMETER_UNIT)
+					.state(Status.DEGRADED)
 					.collectTime(new Date().getTime())
 					.build();
 			monitor.addParameter(status);
 
-			final AssertedParameter<StatusParam> assertedPresentParameter = monitor.assertStatusParameter(STATUS_PARAMETER, STATUS_WARN_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor
+					.assertStatusParameter(STATUS_PARAMETER, STATUS_WARN_CONDITION);
 
 			assertEquals(status, assertedPresentParameter.getParameter());
 			assertTrue(assertedPresentParameter.isAbnormal());
@@ -211,7 +207,8 @@ class MonitorTest {
 					.monitorType(MonitorType.TEMPERATURE)
 					.build();
 
-			final AssertedParameter<StatusParam> assertedPresentParameter = monitor.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
+			final AssertedParameter<DiscreteParam> assertedPresentParameter = monitor
+					.assertStatusParameter(STATUS_PARAMETER, STATUS_ALARM_CONDITION);
 
 			assertNull(assertedPresentParameter.getParameter());
 			assertFalse(assertedPresentParameter.isAbnormal());
@@ -326,11 +323,11 @@ class MonitorTest {
 				.build();
 		monitor.collectParameter(speed);
 
-		final AlertRule warnAlert = alertRulesToAdd.stream().filter(a -> a.getSeverity().equals(ParameterState.WARN)).findFirst().orElse(null);
+		final AlertRule warnAlert = alertRulesToAdd.stream().filter(a -> a.getSeverity().equals(Severity.WARN)).findFirst().orElse(null);
 		assertNotNull(warnAlert);
 		assertTrue(warnAlert.isActive()); // YEAH :)
 
-		final AlertRule alarmAlert = alertRulesToAdd.stream().filter(a -> a.getSeverity().equals(ParameterState.ALARM)).findFirst().orElse(null);
+		final AlertRule alarmAlert = alertRulesToAdd.stream().filter(a -> a.getSeverity().equals(Severity.ALARM)).findFirst().orElse(null);
 		assertNotNull(alarmAlert);
 		assertFalse(alarmAlert.isActive()); // Not yet alarm, alarm is at 0 RPM
 	}
@@ -343,18 +340,18 @@ class MonitorTest {
 
 		assertFalse(fan.isMissing());
 
-		fan.addParameter(PresentParam.present());
+		fan.addParameter(DiscreteParam.present());
 		assertFalse(fan.isMissing());
 
-		fan.addParameter(PresentParam.missing());
+		fan.addParameter(DiscreteParam.missing());
 		assertTrue(fan.isMissing());
 
-		PresentParam present = fan.getParameter(PRESENT_PARAMETER, PresentParam.class);
+		DiscreteParam present = fan.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
 
-		present.setPresent(1);
+		present.setState(Present.PRESENT);
 		assertFalse(fan.isMissing());
 
-		present.setPresent(null);
+		present.setState(null);
 		assertFalse(fan.isMissing());
 
 		// Temperature can never be missing
@@ -364,10 +361,10 @@ class MonitorTest {
 
 		assertFalse(temperature.isMissing());
 
-		temperature.addParameter(PresentParam.present());
+		temperature.addParameter(DiscreteParam.present());
 		assertFalse(temperature.isMissing());
 
-		temperature.addParameter(PresentParam.missing());
+		temperature.addParameter(DiscreteParam.missing());
 		assertFalse(temperature.isMissing());
 
 	}

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,6 @@ import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,9 +70,6 @@ public class EngineConfiguration {
 
 	@Default
 	private Set<String> excludedConnectors = new HashSet<>();
-
-	@Default
-	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
 
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration

@@ -5,6 +5,10 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -19,10 +23,9 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -213,13 +216,16 @@ public class CollectOperation extends AbstractStrategy {
 
 		log.debug("End of Test for Connector {}. Test Status: {}.", connector.getCompiledFilename(), getTestedConnectorStatus(testedConnector));
 
-		final StatusParam status = super.buildStatusParamForConnector(testedConnector);
+		final IParameter[] statusAndStatusInformation = super.buildConnectorStatusAndStatusInformation(testedConnector);
 		final TextParam testReport = super.buildTestReportParameter(hostname, testedConnector);
 
-		connectorMonitor.collectParameter(status);
+		final DiscreteParam status = (DiscreteParam) statusAndStatusInformation[0];
+
+		connectorMonitor.collectParameter(status); // Status
+		connectorMonitor.collectParameter(statusAndStatusInformation[1]); // Status Information
 		connectorMonitor.collectParameter(testReport);
 
-		log.debug("End of the Connector Monitor {} Collect. Status: {}", connectorMonitor.getId(), status.getStatus());
+		log.debug("End of the Connector Monitor {} Collect. Status: {}", connectorMonitor.getId(), status.getState());
 	}
 
 	/**
@@ -365,7 +371,6 @@ public class CollectOperation extends AbstractStrategy {
 					.monitor(monitorOpt.get())
 					.valueTable(valueTable)
 					.collectTime(strategyTime)
-					.unknownStatus(strategyConfig.getEngineConfiguration().getUnknownStatus())
 					.build();
 
 			// Here we go...
@@ -494,10 +499,8 @@ public class CollectOperation extends AbstractStrategy {
 			final IHostMonitoring hostMonitoring, final Map<String, String> parameters,
 			final MonitorType monitorType, final String hostname) {
 
-		PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
-		if (presentParam != null
-				&& presentParam.getPresent() != null
-				&& presentParam.getPresent() == 0) {
+		final DiscreteParam presentParam = monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
+		if (presentParam != null && Present.MISSING.equals(presentParam.getState())) {
 			return;
 		}
 
@@ -531,7 +534,6 @@ public class CollectOperation extends AbstractStrategy {
 				.monitor(monitor)
 				.valueTable(valueTable)
 				.collectTime(strategyTime)
-				.unknownStatus(strategyConfig.getEngineConfiguration().getUnknownStatus())
 				.build();
 
 		// Here we go...
@@ -597,13 +599,13 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Refresh the collect time of the {@link PresentParam} in the given {@link Monitor} instance.
+	 * Refresh the collect time of the {@link Present} parameter in the given {@link Monitor} instance.
 	 *
-	 * @param monitor		The {@link Monitor} whose {@link PresentParam}'s collect time should be refreshed.
+	 * @param monitor		The {@link Monitor} whose {@link Present}'s collect time should be refreshed.
 	 * @param collectTime	The new collect time.
 	 */
 	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
-		final PresentParam presentParam = monitor.getParameter(PRESENT_PARAMETER, PresentParam.class);
+		final DiscreteParam presentParam = monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
 		if (presentParam != null) {
 			presentParam.setCollectTime(collectTime);
 		}
@@ -917,10 +919,10 @@ public class CollectOperation extends AbstractStrategy {
 		for (final Monitor networkCardMonitor : networkCardMonitors.values()) {
 
 			// Get the link status
-			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, LINK_STATUS_PARAMETER);
+			final IState linkStatus = CollectHelper.getParameterState(networkCardMonitor, LINK_STATUS_PARAMETER);
 
 			// If there is connected count it.
-			if (ParameterState.OK.equals(linkStatus)) {
+			if (LinkStatus.PLUGGED.equals(linkStatus)) {
 				connectedPortsCount++;
 			}
 
@@ -1274,7 +1276,7 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	boolean isVmOnline(Monitor vm) {
 
-		return ParameterState.OK.equals(CollectHelper.getStatusParamState(vm, POWER_STATE_PARAMETER));
+		return PowerState.ON.equals(CollectHelper.getParameterState(vm, POWER_STATE_PARAMETER));
 	}
 
 	/**
