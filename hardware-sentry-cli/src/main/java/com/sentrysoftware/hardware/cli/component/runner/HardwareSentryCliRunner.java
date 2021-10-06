@@ -8,6 +8,7 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
+import com.sentrysoftware.hardware.cli.component.cli.printer.PrintExceptionMessageHandler;
 
 import picocli.CommandLine;
 import picocli.CommandLine.IFactory;
@@ -45,6 +46,9 @@ public class HardwareSentryCliRunner implements CommandLineRunner, ExitCodeGener
 		// and not CMD.EXE.
 		// As this is poorly documented, we keep this for future improvement.
 		//cli.setOut(new PrintWriter(AnsiConsole.out(), true, StandardCharsets.UTF_8));
+
+		// Set the exception handler
+		cli.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
 
 		// Execute the command
 		exitCode = cli.execute(filteredArgs);

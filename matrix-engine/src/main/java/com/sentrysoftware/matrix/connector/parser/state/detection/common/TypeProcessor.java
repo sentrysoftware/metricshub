@@ -70,11 +70,11 @@ public class TypeProcessor extends AbstractStateParser {
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 
 			throw new IllegalStateException(
-				"TypeProcessor parse: Could not instantiate "
-					+ type.getSimpleName()
-					+ " Detection "
-					+ ConnectorParserConstants.COLON_SPACE
-					+ e.getMessage());
+					String.format(
+							"TypeProcessor parse: Could not instantiate %s Detection: %s",
+							type.getSimpleName(),
+							e.getMessage())
+					, e);
 		}
 	}
 }

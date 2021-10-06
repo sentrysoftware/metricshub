@@ -28,7 +28,7 @@ class ConnectorParserTest {
     private static final String OID = "1.3.6.1.4.1.674.10892.1.300.10.1";
 
     @Test
-    void testParse() {
+    void testParse() throws Exception {
 
         // Invalid paths
         assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(null));
@@ -36,7 +36,7 @@ class ConnectorParserTest {
         assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(SPACE));
 
         // Valid path, but file does not exist => IllegalStateException thrown
-        assertThrows(IllegalStateException.class, () -> connectorParser.parse(FOO));
+        assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(FOO));
 
         // Valid path, no Exception thrown
         Connector connector = connectorParser.parse(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH);

@@ -1,6 +1,11 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,6 +39,7 @@ import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
@@ -180,8 +186,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private Set<String> excludedConnectors;
 
 	@Option(
-			names = { "-l", "--list" },
+			names = { "-a", "--add" },
 			order = 6,
+			split = ",",
+			paramLabel = "FILE",
+			description = "Parse a connector source file and update the internal connector library"
+	)
+	private Set<File> addedSourceFiles;
+
+	@Option(
+			names = { "-l", "--list" },
+			order = 7,
 			description = "Lists all connectors bundled in the engine, that can be selected or excluded",
 			help = true
 	)
@@ -189,13 +204,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Option(
 			names = "-v",
-			order = 7,
+			order = 8,
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
 
 	@Override
-	public Integer call() {
+	public Integer call() throws IOException {
 
 		// First, process special "help" options
 		if (listConnectors) {
@@ -210,6 +225,11 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// Configure the Matrix engine for the specified host
 		EngineConfiguration engineConf = new EngineConfiguration();
+
+		// Do we need to update the ConnectorStore?
+		if (addedSourceFiles != null && addedSourceFiles.size() > 0) {
+			loadExtraConnectors(addedSourceFiles);
+		}
 
 		// Target
 		engineConf.setTarget(new HardwareTarget(hostname, hostname, deviceType));
@@ -290,7 +310,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			spec.commandLine().getOut().print("\n");
 		}
 		PrettyPrinter.print(spec.commandLine().getOut(), hostMonitoring, true, true);
-//		spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
+		// spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
 
 		return CommandLine.ExitCode.OK;
 	}
@@ -480,5 +500,65 @@ public class HardwareSentryCli implements Callable<Integer> {
 		return CommandLine.ExitCode.OK;
 	}
 
+
+	/**
+	 * Parse and add the specified connector source files to the ConnectorStore
+	 *
+	 * @param connectorFiles Set of connector source files, directories, etc.
+	 *
+	 * @throws IOException when the files cannot be read
+	 */
+	private void loadExtraConnectors(final Set<File> connectorFiles) throws IOException {
+
+		// First, build the list of connectors
+		final Set<String> parsedConnectorPaths = new HashSet<>();
+		for (final File connectorFile : connectorFiles) {
+			if (connectorFile.isFile()) {
+				parsedConnectorPaths.add(connectorFile.getAbsolutePath());
+			} else if (connectorFile.isDirectory()) {
+				Files.list(connectorFile.toPath())
+						.map(path -> path.toAbsolutePath().toString())
+						.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
+						.forEach(pathString -> parsedConnectorPaths.add(pathString));
+			} else {
+				throw new IOException("Could not find connector source file: " + connectorFile.toString());
+			}
+		}
+
+		// Sort
+		List<String> sortedConnectorList = parsedConnectorPaths.stream().sorted().collect(Collectors.toUnmodifiableList());
+
+		// Get the ConnectorStore
+		final ConnectorStore store = ConnectorStore.getInstance();
+
+		// Get the connectorParser
+		final ConnectorParser connectorParser = new ConnectorParser();
+
+		// Go through each files
+		for (String sourceFilePath : sortedConnectorList) {
+
+			if (consoleService.hasConsole()) {
+				spec.commandLine().getOut().print("Adding connector ");
+				spec.commandLine().getOut().print(Ansi.ansi().bold().a(sourceFilePath).boldOff().toString());
+				spec.commandLine().getOut().println("...");
+				spec.commandLine().getOut().flush();
+			}
+
+			Connector connector;
+
+			// Parse the connector
+			connector = connectorParser.parse(sourceFilePath);
+
+			// Add it to the map
+			store.getConnectors().put(connector.getCompiledFilename(), connector);
+
+			// Did we encounter parsing errors?
+			connector.getProblemList().stream().forEach(problem -> {
+				spec.commandLine().getErr().println(spec.commandLine().getColorScheme().errorText(" - " + problem));
+				spec.commandLine().getErr().flush();
+			});
+
+		}
+	}
 
 }
