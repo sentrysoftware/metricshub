@@ -10,27 +10,36 @@ description: How to integrate the hardware metrics collected by **${project.name
 
 Go to the the VictoriaMetrix vmagent [release page](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) and download the `vmutils` package appropriate to your system.
 
-Unpack the archive and create a `hardware-sentry.yml` file in the folder where the `vmagent` was unpacked.
+Unpack the archive. Create a `hardware-sentry.yml` file in the folder where the `vmagent` was unpacked.
 
 The `hardware-sentry.yml` file should have the following content:
 
 ```
 global:
+  scrape_interval: 1m
 
 scrape_configs:
   - job_name: 'hardware-sentry'
     static_configs:
-      - targets: ['<url to the **${project.name}**>']
+      - targets: ['<hostname:port_number>']
 ```
+
+The `hostname` is the name of the server where **${project.name}** is running.
+
+The `port_number` is the port number of **${project.name}**.
+
+The `scrape_interval` is the `vmagent` scrape interval and be customized. Example: 1d, 1h30m, 5m, 10s
 
 Example
 ```
 global:
 
+  scrape_interval: 1m
+
 scrape_configs:
   - job_name: 'hardware-sentry'
     static_configs:
-      - targets: ['http://localhost:8080']
+      - targets: ['localhost:8080']
 ```
 
 ## Getting the BMC Helix APY Key
@@ -51,3 +60,16 @@ vmagent -promscrape.config hardware-sentry.yml -remoteWrite.url https://<BMC Hel
 ```
 
 Replace `<BMC Helix URL>` with your BMC Helix Portal URL, and `<APY Key>` with the APY key copied from the BMC Helix Operations Management Portal.
+
+If the command is successfull, you should see an output similar to this:
+
+```
+info    VictoriaMetrics/app/vmagent/remotewrite/client.go:145   initialized client for -remoteWrite.url="1:secret-url"
+info    VictoriaMetrics/app/vmagent/main.go:113 started vmagent in 0.006 seconds
+info    VictoriaMetrics/lib/promscrape/scraper.go:86    reading Prometheus configs from "hardware-sentry.yml"
+info    VictoriaMetrics/lib/httpserver/httpserver.go:82 starting http server at http://:8429/
+info    VictoriaMetrics/lib/httpserver/httpserver.go:83 pprof handlers are exposed at http://:8429/debug/pprof/
+info    VictoriaMetrics/lib/promscrape/config.go:68     starting service discovery routines...
+info    VictoriaMetrics/lib/promscrape/config.go:74     started service discovery routines in 0.001 seconds
+info    VictoriaMetrics/lib/promscrape/scraper.go:367   static_configs: added targets: 1, removed targets: 0; total targets: 1
+```
