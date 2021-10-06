@@ -16,7 +16,7 @@ The `hardware-sentry.yml` file should have the following content:
 
 ```
 global:
-  scrape_interval: 1m
+  scrape_interval: 2m
 
 scrape_configs:
   - job_name: 'hardware-sentry'
@@ -28,13 +28,13 @@ The `hostname` is the name of the server where **${project.name}** is running.
 
 The `port_number` is the port number of **${project.name}**.
 
-The `scrape_interval` is the `vmagent` scrape interval and be customized. Example: 1d, 1h30m, 5m, 10s
+The `scrape_interval` is the `vmagent` scrape interval and be customized. It should be equal to or higher than the exporter's collect interval. Example: 1d, 1h30m, 5m
 
 Example
 ```
 global:
 
-  scrape_interval: 1m
+  scrape_interval: 2m
 
 scrape_configs:
   - job_name: 'hardware-sentry'
