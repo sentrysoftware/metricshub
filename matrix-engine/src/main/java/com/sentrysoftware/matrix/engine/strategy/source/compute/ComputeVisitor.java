@@ -332,7 +332,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					awk.getSelectColumns());
 			awkResult = awkResultLines.stream()
 					// add the TABLE_SEP at the end of each lines.
-					.map(line -> line + TABLE_SEP)
+					.map(line -> line.endsWith(TABLE_SEP) ? line : line + TABLE_SEP)
 					.collect(Collectors.joining(NEW_LINE));
 
 			sourceTable.setRawData(awkResult);

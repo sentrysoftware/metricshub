@@ -361,13 +361,7 @@ public class SourceVisitor implements ISourceVisitor {
 			SourceTable sourceTable = SourceTable
 				.builder()
 				.rawData(selectedColumnsLines.stream()
-					// add the TABLE_SEP at the end of each lines.
-					.map(line -> line + TABLE_SEP)
 					.collect(Collectors.joining(NEW_LINE)))
-				.table(selectedColumnsLines.stream()
-					// Replace all separators by ";", which is the standard separator used by MS_HW
-					.map(line -> SourceTable.lineToList(line, TABLE_SEP))
-					.collect(Collectors.toList()))
 				.build();
 
 			log.info(LOG_RESULT_TEMPLATE,
