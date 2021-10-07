@@ -17,44 +17,49 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConnectorParserTest {
 
-    private final ConnectorParser connectorParser = new ConnectorParser();
+	private final ConnectorParser connectorParser = new ConnectorParser();
 
-    private static final String MS_HW_DELL_OPEN_MANAGE_HDFS_PATH = "src/test/resources/hdf/MS_HW_DellOpenManage.hdfs";
+	private static final String EMPTY_STRING = "";
+	private static final String SPACE = " ";
+	private static final String FOO = "FOO";
 
-    private static final String EMPTY_STRING = "";
-    private static final String SPACE = " ";
-    private static final String FOO = "FOO";
+	private static final String OID = "1.3.6.1.4.1.674.10892.1.300.10.1";
 
-    private static final String OID = "1.3.6.1.4.1.674.10892.1.300.10.1";
+	@Test
+	void testParse() throws Exception {
 
-    @Test
-    void testParse() throws Exception {
+		// Invalid paths
+		assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(null));
+		assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(EMPTY_STRING));
+		assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(SPACE));
 
-        // Invalid paths
-        assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(null));
-        assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(EMPTY_STRING));
-        assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(SPACE));
+		// Valid path, but file does not exist => IllegalStateException thrown
+		assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(FOO));
 
-        // Valid path, but file does not exist => IllegalStateException thrown
-        assertThrows(IllegalArgumentException.class, () -> connectorParser.parse(FOO));
+		// Valid path, no Exception thrown
+		Connector connector = connectorParser.parse("src/test/resources/hdf/MS_HW_DellOpenManage.hdfs");
+		assertNotNull(connector);
 
-        // Valid path, no Exception thrown
-        Connector connector = connectorParser.parse(MS_HW_DELL_OPEN_MANAGE_HDFS_PATH);
-        assertNotNull(connector);
+		Detection detection = connector.getDetection();
+		assertNotNull(detection);
 
-        Detection detection = connector.getDetection();
-        assertNotNull(detection);
+		List<Criterion> criteria = detection.getCriteria();
+		assertNotNull(criteria);
+		assertEquals(1, criteria.size());
 
-        List<Criterion> criteria = detection.getCriteria();
-        assertNotNull(criteria);
-        assertEquals(1, criteria.size());
+		Criterion criterion = criteria.get(0);
+		assertTrue(criterion instanceof SNMPGetNext);
 
-        Criterion criterion = criteria.get(0);
-        assertTrue(criterion instanceof SNMPGetNext);
+		SNMPGetNext snmpGetNextCriterion = (SNMPGetNext) criterion;
+		assertEquals(OID, snmpGetNextCriterion.getOid());
+		assertNull(snmpGetNextCriterion.getExpectedResult());
+		assertFalse(snmpGetNextCriterion.isForceSerialization());
+	}
 
-        SNMPGetNext snmpGetNextCriterion = (SNMPGetNext) criterion;
-        assertEquals(OID, snmpGetNextCriterion.getOid());
-        assertNull(snmpGetNextCriterion.getExpectedResult());
-        assertFalse(snmpGetNextCriterion.isForceSerialization());
-    }
+	@Test
+	void testInvalidKey() throws Exception {
+		Connector connector = connectorParser.parse("src/test/resources/hdf/Invalid.hdfs");
+		assertEquals(1, connector.getProblemList().size());
+		assertTrue(connector.getProblemList().get(0).toLowerCase().contains("enclosure.discovery.invalidproperty"));
+	}
 }

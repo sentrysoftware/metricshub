@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Data
 public class ConnectorParser {
 
-	private static Set<Pattern> IGNORED_KEY_PATTERNS = Set.of(
+	private static final Set<Pattern> IGNORED_KEY_PATTERNS = Set.of(
 			Pattern.compile("^detection\\.criteria\\([0-9]+\\)\\.type$", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("^[a-z]+\\.discovery\\.instance\\.parameteractivation\\.[a-z]+$", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("^hdf\\.mshwrequiredversion$", Pattern.CASE_INSENSITIVE),
@@ -117,9 +117,6 @@ public class ConnectorParser {
 	 * @return whether the specified key is safe to ignore
 	 */
 	static boolean isKeySafeToIgnore(String key) {
-		return IGNORED_KEY_PATTERNS.stream()
-			.filter(p -> p.matcher(key).find())
-			.findAny()
-			.isPresent();
+		return IGNORED_KEY_PATTERNS.stream().anyMatch(p -> p.matcher(key).find());
 	}
 }

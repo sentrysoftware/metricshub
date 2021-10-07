@@ -98,7 +98,7 @@ public class ConnectorLibrarySerializer {
 			// In case of parsing problems, we will simply report these errors
 			// We do not want to fail the build of Matrix because a connector is messed up in the HC project
 			// (or because a connector source is using directives not known to the Matrix parser yet)
-			connector.getProblemList().stream().forEach(problem -> System.err.println("  " + problem));
+			connector.getProblemList().forEach(problem -> System.err.println("  " + problem));
 			errorCount += connector.getProblemList().size();
 			if (!connector.getProblemList().isEmpty()) {
 				connectorWithErrorCount++;

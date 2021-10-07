@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.cli.component.cli;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -93,9 +94,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Autowired
 	private JobResultFormatterService jobResultFormatterService;
-
-	@Autowired
-	private ConsoleService consoleService;
 
 	@Spec
 	CommandSpec spec;
@@ -217,6 +215,11 @@ public class HardwareSentryCli implements Callable<Integer> {
 			return listConnectors();
 		}
 
+		// Do we need to update the ConnectorStore?
+		if (addedSourceFiles != null && !addedSourceFiles.isEmpty()) {
+			loadExtraConnectors(addedSourceFiles);
+		}
+
 		// Validate inputs
 		validate();
 
@@ -225,11 +228,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// Configure the Matrix engine for the specified host
 		EngineConfiguration engineConf = new EngineConfiguration();
-
-		// Do we need to update the ConnectorStore?
-		if (addedSourceFiles != null && addedSourceFiles.size() > 0) {
-			loadExtraConnectors(addedSourceFiles);
-		}
 
 		// Target
 		engineConf.setTarget(new HardwareTarget(hostname, hostname, deviceType));
@@ -251,7 +249,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
 
 		// Detection
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			String protocolDisplay = protocols.values()
 					.stream()
 					.map(proto -> Ansi.ansi().bold().a(proto.toString()).boldOff().toString())
@@ -265,13 +263,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		EngineResult engineResult = hostMonitoring.run(new DetectionOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Discovery
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			int connectorCount = hostMonitoring.selectFromType(MonitorType.CONNECTOR).size();
 			spec.commandLine().getOut().print("Performing discovery with ");
 			spec.commandLine().getOut().print(Ansi.ansi().bold().a(connectorCount).boldOff().toString());
@@ -280,13 +278,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		engineResult = hostMonitoring.run(new DiscoveryOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Collect
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			long monitorCount = hostMonitoring.getMonitors()
 					.values()
 					.stream()
@@ -300,13 +298,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		engineResult = hostMonitoring.run(new CollectOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// And now the result
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			spec.commandLine().getOut().print("\n");
 		}
 		PrettyPrinter.print(spec.commandLine().getOut(), hostMonitoring, true, true);
@@ -322,7 +320,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private void validate() {
 
 		// Can we ask for passwords interactively?
-		final boolean interactive = System.console() != null;
+		final boolean interactive = ConsoleService.hasConsole();
 
 		// Passwords
 		if (interactive) {
@@ -377,7 +375,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				if (snmpConfigCli.getCommunity() == null || snmpConfigCli.getCommunity().isBlank()) {
 					throw new ParameterException(spec.commandLine(), "Community string is required for SNMP " + version);
 				}
-				if (snmpConfigCli.getUsername() != null) {
+				if (snmpConfigCli.getUsername() != null && username == null) {
 					throw new ParameterException(spec.commandLine(), "Username/password is not supported in SNMP " + version);
 				}
 				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION
@@ -386,14 +384,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 				}
 			} else {
 				if (version == SNMPVersion.V3_MD5 || version == SNMPVersion.V3_SHA) {
-					if (snmpConfigCli.getUsername() == null || snmpConfigCli.getPassword() == null) {
+					if ((snmpConfigCli.getUsername() == null && username == null)
+							|| (snmpConfigCli.getPassword() == null && password == null)) {
 						throw new ParameterException(spec.commandLine(), "Username and password are required for SNMP " + version);
 					}
 				}
-				if (snmpConfigCli.getCommunity() != null) {
-					throw new ParameterException(spec.commandLine(), "Community string is not supported in SNMP " + version);
-				}
-				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION) {
+				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION
+						&& snmpConfigCli.getPrivacyPassword() == null) {
 					throw new ParameterException(spec.commandLine(), "A privacy password is required for SNMP encryption (--snmp-privacy-password)");
 				}
 			}
@@ -421,7 +418,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	void setLogLevel() {
 
 		// Disable ANSI in the logging if we don't have a console
-		ThreadContext.put("disableAnsi", Boolean.toString(!consoleService.hasConsole()));
+		ThreadContext.put("disableAnsi", Boolean.toString(!ConsoleService.hasConsole()));
 
 		if (verbose != null) {
 
@@ -516,10 +513,12 @@ public class HardwareSentryCli implements Callable<Integer> {
 			if (connectorFile.isFile()) {
 				parsedConnectorPaths.add(connectorFile.getAbsolutePath());
 			} else if (connectorFile.isDirectory()) {
-				Files.list(connectorFile.toPath())
-						.map(path -> path.toAbsolutePath().toString())
-						.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
-						.forEach(pathString -> parsedConnectorPaths.add(pathString));
+				try (Stream<Path> pathStream = Files.list(connectorFile.toPath())) {
+					pathStream
+							.map(path -> path.toAbsolutePath().toString())
+							.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
+							.forEach(pathString -> parsedConnectorPaths.add(pathString));
+				}
 			} else {
 				throw new IOException("Could not find connector source file: " + connectorFile.toString());
 			}
@@ -537,7 +536,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 		// Go through each files
 		for (String sourceFilePath : sortedConnectorList) {
 
-			if (consoleService.hasConsole()) {
+			if (ConsoleService.hasConsole()) {
 				spec.commandLine().getOut().print("Adding connector ");
 				spec.commandLine().getOut().print(Ansi.ansi().bold().a(sourceFilePath).boldOff().toString());
 				spec.commandLine().getOut().println("...");
@@ -553,7 +552,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			store.getConnectors().put(connector.getCompiledFilename(), connector);
 
 			// Did we encounter parsing errors?
-			connector.getProblemList().stream().forEach(problem -> {
+			connector.getProblemList().forEach(problem -> {
 				spec.commandLine().getErr().println(spec.commandLine().getColorScheme().errorText(" - " + problem));
 				spec.commandLine().getErr().flush();
 			});
