@@ -310,13 +310,11 @@ targets:
 
 By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
 
-* for all your targets, add the `collectPeriod` parameter in the `targets` section:
+* for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
 ```
-targets:
-
 collectPeriod: 2m 
-
+targets:
 - target:
     hostname: myhost
     type: linux
@@ -355,12 +353,11 @@ and indicate a value in minutes.
 
 **${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
 
-* for all your targets, add the `discoveryCycle` parameter in the `targets` section:
+* for all your targets, add the `discoveryCycle` just before the `targets` section:
 
 ```
-targets:
-
 discoveryCycle: 15
+targets:
 
 - target:
     hostname: ecs1-01
@@ -398,12 +395,11 @@ and indicate the number of collects after which a discovery will be performed.
 
 ### Customizing the Pool Size
 
-By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter in the `targets` section:
+By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
 
 ```
-targets:
-
 jobPoolSize: 20
+targets:
 
 - target:
     hostname: ecs1-01
@@ -416,9 +412,7 @@ jobPoolSize: 20
   excludedConnectors: [ SunF15K, HPiLO ]
   unknownStatus: 1
 ```
-and indicate a number of jobs. 
-
-<div class="alert alert-info"> The <b>jobPoolSize</b> parameter is not supported in the <i>target</i> section.</div>
+and indicate a number of jobs.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
 
