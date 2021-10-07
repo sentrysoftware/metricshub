@@ -300,8 +300,7 @@ class SourceVisitorTest {
 					selectColumns)).thenCallRealMethod();
 
 			final SourceTable expected = SourceTable.builder()
-					.rawData("1;ext_bus;3;4;5;")
-					.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
+					.rawData("1;ext_bus;3;4;5")
 					.build();
 			assertEquals(expected, sourceVisitor.visit(commandSource));
 		}
