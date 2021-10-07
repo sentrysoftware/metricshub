@@ -624,7 +624,7 @@ public class SourceVisitor implements ISourceVisitor {
 				tableJoinSource.getRightKeyColumn(),
 				tableJoinSource.getDefaultRightLine(),
 				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
-				false);
+				true);
 
 		SourceTable sourceTable = new SourceTable();
 		if (executeTableJoin != null) {
