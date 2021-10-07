@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -55,11 +53,6 @@ class OsCommandHelperTest {
 
 	private static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 
-	private static final String LINE1 = "FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1";
-	private static final String LINE2 = "BAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2";
-	private static final String LINE3 = "BAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3";
-	private static final String NOT_A_LINE = "xxxxxxxxxx";
-	private static final List<String> LINE_RAW_DATA = List.of(LINE1, LINE2, LINE3);
 
 	@AfterAll
 	static void cleanTempEmbeddedFiles() {
@@ -308,7 +301,7 @@ class OsCommandHelperTest {
 			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.runRemoteSshCommand(
 					hostname,
 					"user",
-					String.valueOf(PASSWORD),
+					PASSWORD,
 					null,
 					command,
 					timeout,
@@ -1094,119 +1087,5 @@ class OsCommandHelperTest {
 							false,
 							false));
 		}
-	}
-
-	@Test
-	void testFilterLines() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.filterLines(null, 1, 1, "^BAR", "^FOO"));
-
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(LINE_RAW_DATA, null, null, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(LINE_RAW_DATA, 0, null, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3), 1, null, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3), 2, null, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), null, 2, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3, NOT_A_LINE), null, 1, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(LINE1, LINE2, LINE3), null, 0, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), 1, 2, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, null, null));
-		assertEquals(
-				LINE_RAW_DATA,
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE, NOT_A_LINE), 2, 2, null, null));
-
-		assertEquals(
-				List.of(LINE1, LINE3),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", null));
-
-		assertEquals(
-				List.of(LINE1),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, null, "^FOO"));
-
-		assertEquals(
-				List.of(LINE1),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", "^FOO"));
-
-		assertEquals(
-				List.of(),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 1, 1, "^BAR", "^BAR"));
-
-		assertEquals(
-				List.of(LINE3),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, "^BAR", null));
-
-		assertEquals(
-				List.of(),
-				OsCommandHelper.filterLines(List.of(NOT_A_LINE, LINE1, LINE2, LINE3, NOT_A_LINE), 2, 1, null, "^FOO"));
-	}
-
-	@Test
-	void testSelectedColumns() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.selectedColumns(null, TABLE_SEP, List.of("-4")));
-
-		 // no separator
-		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, null, List.of("-3")));
-		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, "", List.of("-3")));
-
-		 // no selected columns
-		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, null)); // no selected columns
-		assertEquals(LINE_RAW_DATA, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, Collections.emptyList())); // no selected columns
-		
-		// out of bounds
-		assertEquals(List.of("", "", ""), OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("50")));
-
-		// other separator
-		final List<String> rawDataLinesOtherSeparator = List.of(
-				"FOO_ID1_NAME1_MANUFACTURER1_NUMBER_OF_DISKS1",
-				"BAR_ID2_NAME2_MANUFACTURER2_NUMBER_OF_DISKS2",
-				"BAZ_ID3_NAME3_MANUFACTURER3_NUMBER_OF_DISKS3");
-
-		final List<String> expected = List.of(
-				"FOO;ID1;NAME1;MANUFACTURER1",
-				"BAR;ID2;NAME2;MANUFACTURER2",
-				"BAZ;ID3;NAME3;MANUFACTURER3");
-		assertEquals(expected, OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("-4"))); // use case trad
-		assertEquals(expected, OsCommandHelper.selectedColumns(rawDataLinesOtherSeparator, "_", List.of("-4"))); // use case trad
-
-		assertEquals(
-				List.of("ID1;NAME1", "ID2;NAME2", "ID3;NAME3"),
-				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("2", "3"))); // use case trad
-		
-		assertEquals(
-				List.of("name1;val1", "name2;val2", "name3;val3"),
-				OsCommandHelper.selectedColumns(List.of("id1   name1  val1", "id2   name2  val2", "id3   name3  val3"), WHITE_SPACE, List.of("2", "3"))); // spaces separator
-
-		assertEquals(
-				List.of("na,me1;val,1", "name2;val2", "name3;val3"),
-				OsCommandHelper.selectedColumns(List.of("id1   na;me1  val;1", "id2   name2  val2", "id3   name3  val3"), WHITE_SPACE, List.of("2", "3"))); // make sure that we replace intial ";" by "," because we use it as separator 
-
-		assertEquals(
-				List.of("MANUFACTURER1;NUMBER_OF_DISKS1", "MANUFACTURER2;NUMBER_OF_DISKS2", "MANUFACTURER3;NUMBER_OF_DISKS3"),
-				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("4-"))); // use case trad
-
-		assertEquals(
-				List.of("FOO;ID1;MANUFACTURER1;NUMBER_OF_DISKS1",
-						"BAR;ID2;MANUFACTURER2;NUMBER_OF_DISKS2", 
-						"BAZ;ID3;MANUFACTURER3;NUMBER_OF_DISKS3"),
-				OsCommandHelper.selectedColumns(LINE_RAW_DATA, TABLE_SEP, List.of("-2", "4-"))); // use case trad
 	}
 }

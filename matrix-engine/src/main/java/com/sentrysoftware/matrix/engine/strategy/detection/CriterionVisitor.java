@@ -12,9 +12,12 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.exception.StepException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -30,7 +33,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.process.Proc
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.telnet.TelnetInteractive;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
@@ -49,6 +52,7 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
+import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.NamespaceResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.PossibleNamespacesResult;
@@ -778,9 +782,40 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final TelnetInteractive telnetInteractive) {
-		// Not implemented yet
-		return CriterionTestResult.empty();
+	public CriterionTestResult visit(final SshInteractive sshInteractive) {
+		try {
+			final List<String> results =
+					SshInteractiveHelper.runSshInteractive(strategyConfig.getEngineConfiguration(), sshInteractive.getSteps());
+
+			final String result = results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE));
+
+			final Matcher matcher = Pattern
+					.compile(PslUtils.psl2JavaRegex(sshInteractive.getExpectedResult()))
+					.matcher(result);
+			return matcher.find() ?
+					CriterionTestResult.success(
+							sshInteractive,
+							results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE))) :
+					CriterionTestResult.failure(sshInteractive, result);
+
+		} catch(final NoCredentialProvidedException e) {
+			return CriterionTestResult.error(sshInteractive, e.getMessage());
+
+		} catch(final StepException e) {
+			if (e.getCause() != null) {
+				return CriterionTestResult.error(
+						sshInteractive,
+						String.format("%s - %s: %s",
+								e.getMessage(),
+								e.getCause().getClass().getSimpleName(),
+								e.getCause().getMessage()));
+			} else {
+				return CriterionTestResult.error(sshInteractive, e.getMessage());
+			}
+
+		} catch (final Exception e) {
+			return CriterionTestResult.error(sshInteractive, e);
+		}
 	}
 
 	@Override

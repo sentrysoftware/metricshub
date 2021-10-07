@@ -47,9 +47,11 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.utils.FilterResultHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
+import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -346,14 +348,14 @@ public class SourceVisitor implements ISourceVisitor {
 					osCommandResult.getResult(),
 					HardwareConstants.NEW_LINE);
 
-			final List<String> filteredLines = OsCommandHelper.filterLines(
+			final List<String> filteredLines = FilterResultHelper.filterLines(
 					resultLines,
 					osCommandSource.getRemoveHeader(),
 					osCommandSource.getRemoveFooter(),
 					osCommandSource.getExcludeRegExp(),
 					osCommandSource.getKeepOnlyRegExp());
 
-			final List<String> selectedColumnsLines = OsCommandHelper.selectedColumns(
+			final List<String> selectedColumnsLines = FilterResultHelper.selectedColumns(
 					filteredLines,
 					osCommandSource.getSeparators(),
 					osCommandSource.getSelectColumns());
@@ -372,7 +374,7 @@ public class SourceVisitor implements ISourceVisitor {
 			return sourceTable;
 
 		} catch(NoCredentialProvidedException e) {
-			log.debug("OSCommandSource " + e.getMessage());
+			log.error("OSCommandSource {}", e.getMessage());
 			return SourceTable.empty();
 		} catch (Exception e) {
 			log.error("OSCommandSource error running command: {}", e.getMessage());
@@ -705,7 +707,48 @@ public class SourceVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
-		return SourceTable.empty();
+
+		try {
+			final List<String> result =
+					SshInteractiveHelper.runSshInteractive(
+							strategyConfig.getEngineConfiguration(),
+							sshInteractiveSource.getSteps());
+
+			final List<String> filteredLines = FilterResultHelper.filterLines(
+					result,
+					sshInteractiveSource.getRemoveHeader(),
+					sshInteractiveSource.getRemoveFooter(),
+					sshInteractiveSource.getExcludeRegExp(),
+					sshInteractiveSource.getKeepOnlyRegExp());
+
+			final List<String> selectedColumnsLines = FilterResultHelper.selectedColumns(
+					filteredLines,
+					sshInteractiveSource.getSeparators(),
+					sshInteractiveSource.getSelectColumns());
+
+			final SourceTable sourceTable = new SourceTable();
+			sourceTable.setRawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)));
+
+			log.info(LOG_RESULT_TEMPLATE,
+					"SshInteractive source",
+					sshInteractiveSource.getKey(),
+					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
+			return sourceTable;
+
+		} catch(final NoCredentialProvidedException e) {
+			log.error("SshInteractiveSource {}", e.getMessage());
+			return SourceTable.empty();
+
+		} catch (final Exception e) {
+			if (e.getCause() != null) {
+				log.error("SshInteractiveSource error running steps: {}", e.getMessage());
+				log.debug("SshInteractiveSource error running steps", e);
+			} else {
+				log.error("SshInteractiveSource error running steps: {}", e.getMessage());
+			}
+			return SourceTable.empty();
+		}
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,9 +39,12 @@ import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitFor;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
@@ -50,7 +54,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.process.Proc
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.telnet.TelnetInteractive;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -65,6 +69,7 @@ import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
@@ -1551,8 +1556,196 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractive() {
-		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(new TelnetInteractive()));
+	void testVisitSshInteractiveNoCredential() throws Exception {
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"Error in SshInteractive test:\n" + sshInteractive.toString() +
+				"\n\n" +
+				"No credentials provided.",
+				criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitSshInteractiveNotFoundStepResult() throws Exception {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String message = "Step(1) WaitFor: hostname: host - Disconnected or timeout while waiting for \"$\" through SSH";
+
+			final StepException stepException = new StepException(message);
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenThrow(stepException);
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"Error in SshInteractive test:\n" + sshInteractive.toString() +
+					"\n\n" +
+					message,
+					criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitSshInteractiveIOException() throws Exception {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String stepName = "Step(1) WaitFor: hostname: host";
+
+			final IOException ioException = new IOException("Error in read");
+			final StepException stepException = new StepException(stepName, ioException);
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenThrow(stepException);
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"Error in SshInteractive test:\n" + sshInteractive.toString() +
+					"\n\n" +
+					stepName + " - IOException: Error in read",
+					criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitSshInteractiveResultFailure() throws Exception {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String result = "Emulator screen";
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test ran but failed:\n" + sshInteractive.toString() +
+					"\n\n" +
+					"Actual result:\n" + result,
+					criterionTestResult.getMessage());
+			assertEquals(result, criterionTestResult.getResult());
+		}
+	}
+
+
+	@Test
+	void testVisitSshInteractiveOK() throws Exception {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
+					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+						"\n\n" +
+						"Result: " + result,
+					criterionTestResult.getMessage());
+			assertEquals(result, criterionTestResult.getResult());
+		}
 	}
 
 	@Test

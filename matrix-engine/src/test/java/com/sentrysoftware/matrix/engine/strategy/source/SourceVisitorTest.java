@@ -35,8 +35,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.SendText;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitFor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -63,6 +67,7 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
+import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
@@ -291,18 +296,6 @@ class SourceVisitorTest {
 					null,
 					false,
 					hostMonitoring.isLocalhost())).thenReturn(commandResult);
-
-			mockedOsCommandHelper.when(() -> OsCommandHelper.filterLines(
-					List.of("xxxxxx", "xxxxxx", "0:1:ext_bus:3:4:5:6:7:8", "xxxxxx", "xxxxxx"),
-					null,
-					null,
-					null,
-					keepOnlyRegExp)).thenCallRealMethod();
-
-			mockedOsCommandHelper.when(() -> OsCommandHelper.selectedColumns(
-					List.of("0:1:ext_bus:3:4:5:6:7:8"),
-					":",
-					selectColumns)).thenCallRealMethod();
 
 			final SourceTable expected = SourceTable.builder()
 					.rawData("1;ext_bus;3;4;5")
@@ -635,7 +628,89 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitSshInteractiveSource() {
-		assertEquals(SourceTable.empty(), sourceVisitor.visit(new SshInteractiveSource()));
+
+		final SendText sendText = new SendText();
+		sendText.setText("show enclosure info\n");
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setText("show enclosure info");
+		waitFor.setCapture(true);
+
+		final List<Step> steps = List.of(sendText, waitFor);
+
+		final SshInteractiveSource sshInteractiveSource = new SshInteractiveSource();
+		sshInteractiveSource.setRemoveHeader(8);
+		sshInteractiveSource.setRemoveFooter(6);
+		sshInteractiveSource .setKeepOnlyRegExp("Serial Number");
+		sshInteractiveSource.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		// check NoCredentialProvidedException
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			.thenThrow(NoCredentialProvidedException.class);
+
+			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
+		}
+
+		// check StepException
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			.thenThrow(StepException.class);
+
+			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
+		}
+
+		// check ok
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final List<String> output = List.of(
+					"Output:\n",
+					"\n",
+					"HP BladeSystem Onboard Administrator\n",
+					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n",
+					"\n",
+					"fermat-oa [SCRIPT MODE]> show enclosure info\n",
+					"\n",
+					"\n",
+					"Enclosure Information:\n",
+					"        Enclosure Name: fermat-oa\n",
+					"        Enclosure Type: BladeSystem c3000 Enclosure\n",
+					"        Part Number: 437502-B21\n",
+					"        Serial Number: CZC8171W57\n",
+					"        UUID: 09CZC8171W57\n",
+					"        Asset Tag:\n",
+					"        Midplane Spare Part Number: 441829-001\n",
+					"        Solutions ID: 0000000000000000\n",
+					"        Power Distribution Unit:\n",
+					"                [No PDU is present on c3000 enclosures]\n",
+					"        Onboard Administrator Tray Information:\n",
+					"                [No Tray Information is present on c3000 enclosures]\n",
+					"\n",
+					"\n",
+					"fermat-oa [SCRIPT MODE]>\n",
+					"\n",
+					"show enclosure info\n",
+					"\n");
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			.thenReturn(output);
+
+			final SourceTable expected = SourceTable.builder()
+					.rawData("        Serial Number: CZC8171W57\n")
+					.build();
+
+			assertEquals(expected, sourceVisitor.visit(sshInteractiveSource));
+		}
 	}
 
 	@Test
