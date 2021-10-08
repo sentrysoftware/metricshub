@@ -51,6 +51,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -785,7 +786,7 @@ class MonitorCollectVisitorTest {
 				.rawValue(3138.358D)
 				.build();
 
-		energyUsage.reset();
+		energyUsage.save();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor
@@ -847,7 +848,7 @@ class MonitorCollectVisitorTest {
 				.rawValue(60.0)
 				.build();
 
-		powerConsumption.reset();
+		powerConsumption.save();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor
@@ -1069,7 +1070,7 @@ class MonitorCollectVisitorTest {
 		assertNull(usedTimePercentParameter.getValue());
 
 		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is null
-		usedTimePercentParameter.reset();
+		usedTimePercentParameter.save();
 		usedTimePercentParameter.setPreviousCollectTime(null);
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
@@ -1078,10 +1079,13 @@ class MonitorCollectVisitorTest {
 				Collections.singletonList("42"))
 		);
 		monitorCollectVisitor.collectCpuCoreUsedTimePercent();
+		long collectTime = monitorCollectVisitor.getMonitorCollectInfo().getCollectTime();
 		usedTimePercentParameter = monitor.getParameter(USED_TIME_PERCENT_PARAMETER, NumberParam.class);
 		assertNotNull(usedTimePercentParameter);
-		assertNull(usedTimePercentParameter.getRawValue());
+		assertNotNull(usedTimePercentParameter.getRawValue());
 		assertNull(usedTimePercentParameter.getValue());
+		// The previous collect time is not changed, means the parameter is not collected
+		assertEquals(collectTime, usedTimePercentParameter.getCollectTime()); 
 
 		// usedTimePercentRaw is not null, usedTimePercentPrevious is not null, collectTimePrevious is not null
 		// timeDeltaInSeconds == 0.0
@@ -2300,38 +2304,43 @@ class MonitorCollectVisitorTest {
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 
 		// Full-duplex mode with null transmittedBytesRate
-		bandwidthUtilizationParameter.reset();
+		bandwidthUtilizationParameter.save();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(1.0, 1000.0, 100.0, null);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(100.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 
 		// Full-duplex mode
-		bandwidthUtilizationParameter.reset();
+		bandwidthUtilizationParameter.save();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(1.0, 1000.0, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 
 		// Full-duplex mode, when the duplex mode is null
-		bandwidthUtilizationParameter.reset();
+		bandwidthUtilizationParameter.save();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(null, 1000.0, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals(200.0 * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 
 		// Half-duplex mode
-		bandwidthUtilizationParameter.reset();
+		bandwidthUtilizationParameter.save();
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(0.0, 1000.0, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
 		assertNotNull(bandwidthUtilizationParameter);
 		assertEquals((100.0 + 200.0) * 8 * 100 / 1000, bandwidthUtilizationParameter.getValue());
 
 		// No link speed
-		bandwidthUtilizationParameter.reset();
+		bandwidthUtilizationParameter.save();
+		final long newCollectTime = new Date().getTime();
+		final long previousCollectTime = monitorCollectVisitor.getMonitorCollectInfo().getCollectTime();
+		monitorCollectVisitor.getMonitorCollectInfo().setCollectTime(newCollectTime); // new collect
 		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(0.0, null, 100.0, 200.0);
 		bandwidthUtilizationParameter = monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class);
-		assertNull(bandwidthUtilizationParameter.getValue());
+		assertNotNull(bandwidthUtilizationParameter.getValue());
+		assertNotEquals(newCollectTime, bandwidthUtilizationParameter.getCollectTime());
+		assertEquals(previousCollectTime, bandwidthUtilizationParameter.getCollectTime());
 	}
 
 	@Test

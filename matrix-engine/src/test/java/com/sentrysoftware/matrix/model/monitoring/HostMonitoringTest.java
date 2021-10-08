@@ -371,7 +371,7 @@ class HostMonitoringTest {
 	}
 
 	@Test
-	void testResetParametersNumber() {
+	void testSaveParametersNumber() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
@@ -384,24 +384,23 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
-		hostMonitoring.resetParameters();
+		hostMonitoring.saveParameters();
 
 		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 
 		assertNotNull(result);
 
-		final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
+		final NumberParam parameterAfterSave = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
 
-		assertNull(parameterAfterReset.getCollectTime());
-		assertEquals(now, parameterAfterReset.getPreviousCollectTime());
-		assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
-		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getValue());
-		assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
+		assertNotNull(parameterAfterSave.getCollectTime());
+		assertEquals(now, parameterAfterSave.getPreviousCollectTime());
+		assertEquals(POWER_CONSUMPTION, parameterAfterSave.getName());
+		assertNotNull(parameterAfterSave.getValue());
+		assertEquals(100.0, parameterAfterSave.getPreviousRawValue());
 	}
 
 	@Test
-	void testResetParametersPresent() {
+	void testSaveParametersPresent() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
@@ -413,7 +412,7 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
-		hostMonitoring.resetParameters();
+		hostMonitoring.saveParameters();
 
 		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 
@@ -426,7 +425,7 @@ class HostMonitoringTest {
 	}
 
 	@Test
-	void testResetParametersText() {
+	void testSaveParametersText() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
@@ -438,63 +437,79 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
-		hostMonitoring.resetParameters();
+		hostMonitoring.saveParameters();
 
 		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 
 		assertNotNull(result);
 
-		final TextParam parameterAfterReset = (TextParam) result.getParameters().get(TEST_REPORT);
+		final TextParam parameterAfterSave = (TextParam) result.getParameters().get(TEST_REPORT);
 
-		assertNull(parameterAfterReset.getCollectTime());
-		assertEquals(TEST_REPORT, parameterAfterReset.getName());
-		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getValue());
+		assertNotNull(parameterAfterSave.getCollectTime());
+		assertEquals(TEST_REPORT, parameterAfterSave.getName());
+		assertNotNull(parameterAfterSave.getValue());
 	}
 
 	@Test
-	void testResetParametersStatus() {
+	void testSaveParametersStatus() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = StatusParam.builder().name(STATUS).collectTime(new Date().getTime())
+		final IParameterValue parameter = StatusParam.builder()
+				.name(STATUS)
+				.collectTime(new Date().getTime())
+				.statusInformation("OK")
 				.state(ParameterState.WARN).build();
 		enclosure.addParameter(parameter);
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
-		hostMonitoring.resetParameters();
+		hostMonitoring.saveParameters();
 
 		final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 
 		assertNotNull(result);
 
-		final StatusParam parameterAfterReset = (StatusParam) result.getParameters().get(STATUS);
+		final StatusParam parameterAfterSave = (StatusParam) result.getParameters().get(STATUS);
 
-		assertNull(parameterAfterReset.getCollectTime());
-		assertEquals(STATUS, parameterAfterReset.getName());
-		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertNull(parameterAfterReset.getStatus());
-		assertNull(parameterAfterReset.getStatusInformation());
-		assertEquals(ParameterState.WARN, parameterAfterReset.getPreviousState());
+		assertNotNull(parameterAfterSave.getCollectTime());
+		assertEquals(STATUS, parameterAfterSave.getName());
+		assertEquals(ParameterState.WARN, parameterAfterSave.getState());
+		assertNotNull(parameterAfterSave.getStatus());
+		assertEquals("OK", parameterAfterSave.getStatusInformation());
+		assertEquals(ParameterState.WARN, parameterAfterSave.getPreviousState());
 	}
 
 	@Test
 	void testToJson() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor enclosure1 = Monitor.builder().id(ENCLOSURE_1).name(ENCLOSURE_1).targetId(TARGET_ID)
-				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+		final Monitor enclosure1 = Monitor
+				.builder()
+				.id(ENCLOSURE_1)
+				.name(ENCLOSURE_1)
+				.targetId(TARGET_ID)
+				.parentId(TARGET_ID)
+				.monitorType(ENCLOSURE)
+				.discoveryTime(1633620837079L)
+				.build();
 
 		hostMonitoring.addMonitor(enclosure1);
 
-		final Monitor enclosure2 = Monitor.builder().id(ENCLOSURE_2).name(ENCLOSURE_2)
-				.targetId(TARGET_ID).parentId(TARGET_ID).monitorType(ENCLOSURE).build();
+		final Monitor enclosure2 = Monitor
+				.builder()
+				.id(ENCLOSURE_2)
+				.name(ENCLOSURE_2)
+				.targetId(TARGET_ID)
+				.parentId(TARGET_ID)
+				.monitorType(ENCLOSURE)
+				.discoveryTime(1633620837079L)
+				.build();
 
 		hostMonitoring.addMonitor(enclosure2);
-		System.out.println();
+
 		assertEquals(ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", HostMonitoringTest.class).replaceAll("\\s", ""),
 				hostMonitoring.toJson().replaceAll("\\s", ""));
 

@@ -264,8 +264,10 @@ public class DiscoveryOperation extends AbstractStrategy {
 			for (final List<String> row : sourceTable.getTable()) {
 
 				final Monitor monitor = Monitor
-					.builder()
-					.build();
+						.builder()
+						.discoveryTime(strategyTime)
+						.build();
+
 
 				processSourceTableMetadata(connectorName, parameters, sourceKey, row, monitor, idCount);
 
@@ -290,8 +292,10 @@ public class DiscoveryOperation extends AbstractStrategy {
 		} else {
 
 			final Monitor monitor = Monitor
-				.builder()
-				.build();
+					.builder()
+					.discoveryTime(strategyTime)
+					.build();
+
 
 			processTextParameters(parameters, monitor, connectorName);
 

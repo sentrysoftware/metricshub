@@ -365,7 +365,6 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.collectTime(strategyTime)
 				.name(TEST_REPORT_PARAMETER)
-				.parameterState(ParameterState.OK)
 				.build();
 
 		final StringBuilder value = new StringBuilder();

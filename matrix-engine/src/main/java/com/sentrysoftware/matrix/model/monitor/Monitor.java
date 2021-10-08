@@ -40,6 +40,7 @@ public class Monitor {
 	private String parentId;
 	private String targetId;
 	private String extendedType;
+	private Long discoveryTime;
 
 	// parameter name to Parameter value
 	@Default
