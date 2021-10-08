@@ -704,7 +704,9 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Double temperatureValue = temperature.getValue();
 
-		return (temperatureValue != null && warningThresholdValue != null) ? warningThresholdValue - temperatureValue : null;
+		return (temperatureValue != null && warningThresholdValue != null)
+			? Math.max(warningThresholdValue - temperatureValue, 0.0)
+			: null;
 	}
 
 	/**
