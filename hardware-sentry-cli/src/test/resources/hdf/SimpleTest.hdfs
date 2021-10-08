@@ -1,0 +1,35 @@
+hdf.DisplayName="Simple Test"
+hdf.TypicalPlatform="Unit Tests"
+hdf.Version="1.0"
+hdf.Comments="This connector is fake."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="true"
+hdf.AppliesToOS="NT,Linux"
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT,Linux"
+
+Fan.Discovery.Source(1)="FanA;CPU;500"
+Fan.Discovery.Source(2)="FanB;Watercooling;0"
+Fan.Discovery.Source(3).Type="TableUnion"
+Fan.Discovery.Source(3).Table1=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(3).Table2=%Fan.Discovery.Source(2)%
+
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(3)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1)="FanA;400;WARN;Slowly Dying"
+Fan.Collect.Source(2)="FanB;1500;OK;"
+Fan.Collect.Source(3).Type="TableUnion"
+Fan.Collect.Source(3).Table1=%Fan.Collect.Source(1)%
+Fan.Collect.Source(3).Table2=%Fan.Collect.Source(2)%
+
+Fan.Collect.ValueTable=%Fan.Collect.Source(3)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)

@@ -2,47 +2,51 @@ package com.sentrysoftware.matrix.connector.parser;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorState;
+
 import lombok.Data;
 import org.springframework.util.Assert;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOVE_MS_HW_PATTERN;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 @Data
 public class ConnectorParser {
+
+	private static final Set<Pattern> IGNORED_KEY_PATTERNS = Set.of(
+			Pattern.compile("^detection\\.criteria\\([0-9]+\\)\\.type$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^[a-z]+\\.discovery\\.instance\\.parameteractivation\\.[a-z]+$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^hdf\\.mshwrequiredversion$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^sudo\\([1-9][0-9]*\\)\\.command$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("\\.(source|criteria)\\([0-9]+\\)\\.step\\([0-9]+\\)\\.", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^detection\\.criteria\\([0-9]+\\)\\.version$", Pattern.CASE_INSENSITIVE)
+	);
 
 	/**
 	 * Process Connector file
 	 *
 	 * @param connectorFilePath	The path of the {@link Connector} file
-	 * @return {@link Optional} of {@link Connector} instance
+	 * @return a {@link Connector} instance or null in case ParserException and lenient mode is enabled
+	 *
+	 * @throws IOException when not able to read the specified file
 	 */
-	public Connector parse(final String connectorFilePath) {
+	public Connector parse(final String connectorFilePath) throws IOException {
 
 		Assert.isTrue(
-				connectorFilePath != null && !connectorFilePath.trim().isEmpty(),
+				connectorFilePath != null && !connectorFilePath.isBlank(),
 				"connectorFilePath cannot be null or empty"
 		);
 
-		try {
+		// Load the connector and convert its content into a map
+		final ConnectorRefined connectorRefined = new ConnectorRefined();
+		connectorRefined.load(connectorFilePath);
 
-			final ConnectorRefined connectorRefined = new ConnectorRefined();
+		// Interpret all key-value pairs in the connector
+		return parseContent(connectorRefined);
 
-			connectorRefined.load(connectorFilePath);
-
-			return parseContent(connectorRefined);
-
-		} catch (Exception e) {
-
-			throw new IllegalStateException(String.format(
-					"Cannot load Connector file %s: %s",
-					connectorFilePath,
-					e.getMessage()
-			));
-		}
 	}
 
 	/**
@@ -58,6 +62,7 @@ public class ConnectorParser {
 		connector.setTranslationTables(connectorRefined.getTranslationTables());
 		connector.setCompiledFilename(connectorRefined.getCompiledFilename());
 
+		// Go through each key-value entry in the connector
 		connectorRefined.getCodeMap().forEach((key, value) -> parseKeyValue(key, value, connector));
 
 		return connector;
@@ -72,14 +77,24 @@ public class ConnectorParser {
 	private static void parseKeyValue(final String key, final String value, final Connector connector) {
 
 		// Get the detected state
-		final Set<ConnectorState> connectorStates = ConnectorState
+		Optional<ConnectorState> optionalState = ConnectorState
 				.getConnectorStates()
 				.stream()
 				.filter(state -> state.detect(key, value, connector))
-				.collect(Collectors.toSet());
+				.findFirst();
 
-		Optional<ConnectorState> firstConnectorState = connectorStates.stream().findFirst();
-		firstConnectorState.ifPresent(connectorState -> connectorState.parse(key, value, connector));
+		// We got the key
+		if (optionalState.isPresent()) {
+			optionalState.get().parse(key, value, connector);
+			return;
+		}
+
+		// The key doesn't match any parser, add it to the problem list, except if it's
+		// safe to ignore
+		if (!isKeySafeToIgnore(key)) {
+			connector.getProblemList().add("Invalid key: " + key);
+		}
+
 	}
 
 	/**
@@ -93,5 +108,15 @@ public class ConnectorParser {
 		String compiledFileName = filename.substring(0, filename.lastIndexOf('.'));
 
 		return REMOVE_MS_HW_PATTERN.matcher(compiledFileName).replaceFirst("$2");
+	}
+
+	/**
+	 * Check whether the specified key is in the "safe ignore" list
+	 * (i.e. there is no parser matching, but it's still a valid key)
+	 * @param key Key to check
+	 * @return whether the specified key is safe to ignore
+	 */
+	static boolean isKeySafeToIgnore(String key) {
+		return IGNORED_KEY_PATTERNS.stream().anyMatch(p -> p.matcher(key).find());
 	}
 }

@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -477,6 +478,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
+
+		// Making sure the parameter is not in the parameterActivation Set
+		if (EMPTY.equals(monitor.getMetadata(String.format("ParameterActivation.%s", parameterName)))) {
+			return null;
+		}
 
 		// Get the number value as string from the current row
 		final String stringValue = CollectHelper.getValueTableColumnValue(valueTable,

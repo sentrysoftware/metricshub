@@ -1,11 +1,9 @@
 package com.sentrysoftware.hardware.cli.service;
 
 import org.fusesource.jansi.Ansi;
-import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.matrix.engine.OperationStatus;
 
-@Service
 public class ConsoleService {
 
 	private static final boolean HAS_CONSOLE = System.console() != null;
@@ -13,11 +11,11 @@ public class ConsoleService {
 	/**
 	 * @return whether we have a Console, and thus we should print messages to the user
 	 */
-	public boolean hasConsole() {
+	public static boolean hasConsole() {
 		return HAS_CONSOLE;
 	}
 
-	public String statusToAnsi(OperationStatus status) {
+	public static String statusToAnsi(OperationStatus status) {
 		if (status == OperationStatus.SUCCESS) {
 			return Ansi.ansi().fgGreen().a(status).reset().toString();
 		}
