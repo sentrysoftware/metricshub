@@ -44,7 +44,7 @@ class EMCDiskArrayIT {
 	private static EngineConfiguration engineConfiguration;
 
 	@BeforeAll
-	static void setUp() {
+	static void setUp() throws Exception {
 
 		// Compile the connector and add it to the store
 		ConnectorParser connectorParser = new ConnectorParser();

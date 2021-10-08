@@ -1,6 +1,12 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,6 +40,7 @@ import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
@@ -87,9 +94,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Autowired
 	private JobResultFormatterService jobResultFormatterService;
-
-	@Autowired
-	private ConsoleService consoleService;
 
 	@Spec
 	CommandSpec spec;
@@ -180,8 +184,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private Set<String> excludedConnectors;
 
 	@Option(
-			names = { "-l", "--list" },
+			names = { "-a", "--add" },
 			order = 6,
+			split = ",",
+			paramLabel = "FILE",
+			description = "Parse a connector source file and update the internal connector library"
+	)
+	private Set<File> addedSourceFiles;
+
+	@Option(
+			names = { "-l", "--list" },
+			order = 7,
 			description = "Lists all connectors bundled in the engine, that can be selected or excluded",
 			help = true
 	)
@@ -189,17 +202,22 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@Option(
 			names = "-v",
-			order = 7,
+			order = 8,
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
 
 	@Override
-	public Integer call() {
+	public Integer call() throws IOException {
 
 		// First, process special "help" options
 		if (listConnectors) {
 			return listConnectors();
+		}
+
+		// Do we need to update the ConnectorStore?
+		if (addedSourceFiles != null && !addedSourceFiles.isEmpty()) {
+			loadExtraConnectors(addedSourceFiles);
 		}
 
 		// Validate inputs
@@ -231,7 +249,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
 
 		// Detection
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			String protocolDisplay = protocols.values()
 					.stream()
 					.map(proto -> Ansi.ansi().bold().a(proto.toString()).boldOff().toString())
@@ -245,13 +263,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		EngineResult engineResult = hostMonitoring.run(new DetectionOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Discovery
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			int connectorCount = hostMonitoring.selectFromType(MonitorType.CONNECTOR).size();
 			spec.commandLine().getOut().print("Performing discovery with ");
 			spec.commandLine().getOut().print(Ansi.ansi().bold().a(connectorCount).boldOff().toString());
@@ -260,13 +278,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		engineResult = hostMonitoring.run(new DiscoveryOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// Collect
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			long monitorCount = hostMonitoring.getMonitors()
 					.values()
 					.stream()
@@ -280,17 +298,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 		}
 		engineResult = hostMonitoring.run(new CollectOperation());
 		if (engineResult.getOperationStatus() != OperationStatus.SUCCESS) {
-			spec.commandLine().getOut().println(consoleService.statusToAnsi(engineResult.getOperationStatus()));
+			spec.commandLine().getOut().println(ConsoleService.statusToAnsi(engineResult.getOperationStatus()));
 			spec.commandLine().getOut().flush();
 			return CommandLine.ExitCode.SOFTWARE;
 		}
 
 		// And now the result
-		if (consoleService.hasConsole()) {
+		if (ConsoleService.hasConsole()) {
 			spec.commandLine().getOut().print("\n");
 		}
 		PrettyPrinter.print(spec.commandLine().getOut(), hostMonitoring, true, true);
-//		spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
+		// spec.commandLine().getOut().print(jobResultFormatterService.format(hostMonitoring));
 
 		return CommandLine.ExitCode.OK;
 	}
@@ -302,7 +320,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private void validate() {
 
 		// Can we ask for passwords interactively?
-		final boolean interactive = System.console() != null;
+		final boolean interactive = ConsoleService.hasConsole();
 
 		// Passwords
 		if (interactive) {
@@ -357,7 +375,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				if (snmpConfigCli.getCommunity() == null || snmpConfigCli.getCommunity().isBlank()) {
 					throw new ParameterException(spec.commandLine(), "Community string is required for SNMP " + version);
 				}
-				if (snmpConfigCli.getUsername() != null) {
+				if (snmpConfigCli.getUsername() != null && username == null) {
 					throw new ParameterException(spec.commandLine(), "Username/password is not supported in SNMP " + version);
 				}
 				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION
@@ -366,14 +384,13 @@ public class HardwareSentryCli implements Callable<Integer> {
 				}
 			} else {
 				if (version == SNMPVersion.V3_MD5 || version == SNMPVersion.V3_SHA) {
-					if (snmpConfigCli.getUsername() == null || snmpConfigCli.getPassword() == null) {
+					if ((snmpConfigCli.getUsername() == null && username == null)
+							|| (snmpConfigCli.getPassword() == null && password == null)) {
 						throw new ParameterException(spec.commandLine(), "Username and password are required for SNMP " + version);
 					}
 				}
-				if (snmpConfigCli.getCommunity() != null) {
-					throw new ParameterException(spec.commandLine(), "Community string is not supported in SNMP " + version);
-				}
-				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION) {
+				if (snmpConfigCli.getPrivacy() != null && snmpConfigCli.getPrivacy() != Privacy.NO_ENCRYPTION
+						&& snmpConfigCli.getPrivacyPassword() == null) {
 					throw new ParameterException(spec.commandLine(), "A privacy password is required for SNMP encryption (--snmp-privacy-password)");
 				}
 			}
@@ -401,7 +418,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	void setLogLevel() {
 
 		// Disable ANSI in the logging if we don't have a console
-		ThreadContext.put("disableAnsi", Boolean.toString(!consoleService.hasConsole()));
+		ThreadContext.put("disableAnsi", Boolean.toString(!ConsoleService.hasConsole()));
 
 		if (verbose != null) {
 
@@ -480,5 +497,67 @@ public class HardwareSentryCli implements Callable<Integer> {
 		return CommandLine.ExitCode.OK;
 	}
 
+
+	/**
+	 * Parse and add the specified connector source files to the ConnectorStore
+	 *
+	 * @param connectorFiles Set of connector source files, directories, etc.
+	 *
+	 * @throws IOException when the files cannot be read
+	 */
+	private void loadExtraConnectors(final Set<File> connectorFiles) throws IOException {
+
+		// First, build the list of connectors
+		final Set<String> parsedConnectorPaths = new HashSet<>();
+		for (final File connectorFile : connectorFiles) {
+			if (connectorFile.isFile()) {
+				parsedConnectorPaths.add(connectorFile.getAbsolutePath());
+			} else if (connectorFile.isDirectory()) {
+				try (Stream<Path> pathStream = Files.list(connectorFile.toPath())) {
+					pathStream
+							.map(path -> path.toAbsolutePath().toString())
+							.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
+							.forEach(pathString -> parsedConnectorPaths.add(pathString));
+				}
+			} else {
+				throw new IOException("Could not find connector source file: " + connectorFile.toString());
+			}
+		}
+
+		// Sort
+		List<String> sortedConnectorList = parsedConnectorPaths.stream().sorted().collect(Collectors.toUnmodifiableList());
+
+		// Get the ConnectorStore
+		final ConnectorStore store = ConnectorStore.getInstance();
+
+		// Get the connectorParser
+		final ConnectorParser connectorParser = new ConnectorParser();
+
+		// Go through each files
+		for (String sourceFilePath : sortedConnectorList) {
+
+			if (ConsoleService.hasConsole()) {
+				spec.commandLine().getOut().print("Adding connector ");
+				spec.commandLine().getOut().print(Ansi.ansi().bold().a(sourceFilePath).boldOff().toString());
+				spec.commandLine().getOut().println("...");
+				spec.commandLine().getOut().flush();
+			}
+
+			Connector connector;
+
+			// Parse the connector
+			connector = connectorParser.parse(sourceFilePath);
+
+			// Add it to the map
+			store.getConnectors().put(connector.getCompiledFilename(), connector);
+
+			// Did we encounter parsing errors?
+			connector.getProblemList().forEach(problem -> {
+				spec.commandLine().getErr().println(spec.commandLine().getColorScheme().errorText(" - " + problem));
+				spec.commandLine().getErr().flush();
+			});
+
+		}
+	}
 
 }

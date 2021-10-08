@@ -24,6 +24,7 @@ public class ConnectorTableJoinProperty {
 				new RightTableProcessor(),
 				new LeftKeyColumnProcessor(),
 				new RightKeyColumnProcessor(),
+				new KeyTypeProcessor(),
 				new DefaultRightLineProcessor())
 			.collect(Collectors.toSet());
 	}

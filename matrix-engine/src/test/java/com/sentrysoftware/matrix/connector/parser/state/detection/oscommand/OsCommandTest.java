@@ -21,7 +21,7 @@ public class OsCommandTest {
 	private final ConnectorParser connectorParser = new ConnectorParser();
 
 	@Test
-	void testDetectionOSCommandTest() {
+	void testDetectionOSCommandTest() throws Exception {
 
 		// Load the test connector
 		Connector connector = connectorParser.parse("src/test/resources/hdf/DetectionOSCommandTest.hdfs");
