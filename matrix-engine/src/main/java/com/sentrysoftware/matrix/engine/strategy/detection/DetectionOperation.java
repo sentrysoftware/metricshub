@@ -133,6 +133,9 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
 
+		// Skip connectors with a "hdf.NoAutoDetection" set to "true"
+		connectorStream = filterNoAutoDetectionConnectors(connectorStream);
+
 		// Filter Connectors by the TargetType (target type: NT, LINUX, ESX, ...etc)
 		connectorStream = filterConnectorsByTargetType(connectorStream, targetType);
 
@@ -183,7 +186,6 @@ public class DetectionOperation extends AbstractStrategy {
 		return connectorStream.filter(connector -> acceptedSources
 				.stream().anyMatch(sourceProtocol -> connector.getSourceTypes().contains(sourceProtocol)));
 	}
-
 
 	/**
 	 * Filter excluded connectors from the given collection of connectors.
@@ -457,6 +459,19 @@ public class DetectionOperation extends AbstractStrategy {
 		return connectorStream.filter(connector -> Objects.nonNull(connector.getAppliesToOS())
 				&& connector.getAppliesToOS().contains(targetType.getOsType()));
 
+	}
+
+	/**
+	 * Filter connectors not having an <i>hdf.NoAutoDetection</i> set to <i>true</i>
+	 * from the given stream of connectors.
+	 *
+	 * @param connectorStream	The connectors to filter.
+	 * @return					{@link Stream} of {@link Connector} instances.
+	 */
+	static Stream<Connector> filterNoAutoDetectionConnectors(final Stream<Connector> connectorStream) {
+
+		return connectorStream
+			.filter(connector -> connector.getNoAutoDetection() == null || !connector.getNoAutoDetection());
 	}
 
 	@Override
