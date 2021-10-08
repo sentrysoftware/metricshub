@@ -467,6 +467,7 @@ public class HostMonitoring implements IHostMonitoring {
 			log.trace("Calling strategy {}", strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
 			log.info("{} status {}", strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
+			log.debug(">>> {} >>>\n{}", strategy.getClass().getSimpleName(), toJson());
 		}
 
 		return lastEngineResult;

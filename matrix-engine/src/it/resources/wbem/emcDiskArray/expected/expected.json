@@ -6329,7 +6329,8 @@
     "metadata" : {
       "fqdn" : "0.0.0.0",
       "location" : "localhost",
-      "operatingSystemType" : "STORAGE"
+      "operatingSystemType" : "STORAGE",
+      "powerMeter": "estimated"
     },
     "alertRules" : { }
   } ]
