@@ -59,4 +59,7 @@ public class Connector implements Serializable {
 
 	@Default
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
+
+	@Default
+	private List<String> problemList = new ArrayList<>();
 }

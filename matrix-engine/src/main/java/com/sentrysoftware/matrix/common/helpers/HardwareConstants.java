@@ -256,7 +256,7 @@ public class HardwareConstants {
 	public static final String POWER_SOURCE_ID = "powerSourceId";
 	public static final String POWER_SHARE = "powerShare";
 	public static final String DOMAIN = "domain";
-	public static final String IP_ADDRESS = "ipAddress";
+	public static final String HOSTNAME = "hostname";
 
 	/////////////////////
 	//                 //

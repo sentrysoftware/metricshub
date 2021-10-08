@@ -24,7 +24,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DOMAIN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IP_ADDRESS;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
@@ -32,7 +32,7 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 
 public class Vm implements IMetaMonitor {
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, POWER_SHARE, DOMAIN, IP_ADDRESS, IDENTIFYING_INFORMATION);
+	private static final List<String> METADATA = List.of(DEVICE_ID, POWER_SHARE, DOMAIN, HOSTNAME, IDENTIFYING_INFORMATION);
 
 	public static final MetaParameter POWER_STATE = MetaParameter.builder()
 			.basicCollect(true)

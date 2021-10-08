@@ -1122,6 +1122,12 @@ public class MonitorNameBuilder {
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
 
+		String displayId = metadata.get(HardwareConstants.DISPLAY_ID);
+		final String hostname = metadata.get(HardwareConstants.HOSTNAME);
+		if ((displayId == null || displayId.isBlank())) {
+			displayId = hostname;
+		}
+
 		// Build the name
 		return buildName(
 
@@ -1129,16 +1135,13 @@ public class MonitorNameBuilder {
 			null,
 
 			// Name
-			metadata.get(HardwareConstants.DISPLAY_ID),
+			displayId,
 			metadata.get(HardwareConstants.DEVICE_ID),
 			metadata.get(HardwareConstants.ID_COUNT),
 			VM_TRIM_PATTERN,
 
 			// Additional label
-			metadata.get(HardwareConstants.POWER_SHARE),
-			metadata.get(HardwareConstants.DOMAIN),
-			metadata.get(HardwareConstants.IP_ADDRESS),
-			metadata.get(HardwareConstants.IDENTIFYING_INFORMATION)
+			hostname
 		);
 	}
 }

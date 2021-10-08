@@ -87,10 +87,10 @@ public class CollectOperation extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		// Reset parameters, push current value to previous value and reset initial value
-		// Why ? By convention before the collect we reset the parameters except the
-		// previous values in order to compute delta and rates
-		strategyConfig.getHostMonitoring().resetParameters();
+		// Save parameters, push current value to previous value
+		// Why ? Before the next collect we save the parameters previous values
+		// in order to compute delta and rates
+		strategyConfig.getHostMonitoring().saveParameters();
 	}
 
 	@Override
@@ -649,7 +649,7 @@ public class CollectOperation extends AbstractStrategy {
 	private void aggregateTargetEnergy() {
 
 		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		state(hostMonitoring != null, "hostMonitoring should not be null.");
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// Getting the target monitor
 		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
@@ -692,6 +692,11 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Adding the parameter to the target monitor
 		targetMonitor.collectParameter(targetEnergy);
+
+		log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
+				hostname, targetEnergy);
+
+		hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
 	}
 
 	/**
@@ -707,7 +712,9 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Double temperatureValue = temperature.getValue();
 
-		return (temperatureValue != null && warningThresholdValue != null) ? warningThresholdValue - temperatureValue : null;
+		return (temperatureValue != null && warningThresholdValue != null)
+			? Math.max(warningThresholdValue - temperatureValue, 0.0)
+			: null;
 	}
 
 	/**
@@ -978,10 +985,12 @@ public class CollectOperation extends AbstractStrategy {
 		// because the computation requires the target Thermal Dissipation Rate which is also collected at the end of the collect.
 		estimateCpusPowerConsumption();
 
-		// Estimate the target Power Consumption
-		// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
-		// account for the power supplies' heat dissipation (90% efficiency assumed).
-		estimateTargetPowerConsumption();
+		if (!PowerMeter.COLLECTED.equals(strategyConfig.getHostMonitoring().getPowerMeter())) {
+			// Estimate the target Power Consumption
+			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
+			// account for the power supplies' heat dissipation (90% efficiency assumed).
+			estimateTargetPowerConsumption();
+		}
 
 		// Estimate the VMs Power Consumption
 		// The VMs power consumption needs to be estimated in the post collect strategy
@@ -997,18 +1006,6 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateTargetPowerConsumption() {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
-		// Getting the target monitor
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-
-		// Get the target energy
-		final Double targetEnergy = CollectHelper.getNumberParamValue(targetMonitor, ENERGY_PARAMETER);
-		if (targetEnergy != null) {
-			log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
-					hostname, targetEnergy);
-			hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
-			return;
-		}
 
 		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		// The connector has collected PowerConsumption on the Enclosure monitors so we don't need to estimate the power on the target
@@ -1028,6 +1025,7 @@ public class CollectOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
+			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We sum the values for the target
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
 			.filter(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null) // skip monitors without power consumption
 			.map(monitor -> new Double[] {
@@ -1042,8 +1040,8 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		// Set power meter to estimated
-		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
+		// Getting the target monitor
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
 		// totalValues[0] can never be null as we have already filtered power consumption null values
 		// Add 10% because of the heat dissipation of the power supplies
@@ -1102,6 +1100,9 @@ public class CollectOperation extends AbstractStrategy {
 			}
 
 		}
+
+		// Set power meter to estimated
+		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
 	}
 
 	/**

@@ -215,7 +215,6 @@
       "testReport" : {
         "name" : "testReport",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : null,
         "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. WBEM test succeeded:\n- WQL Query: SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n\nResult: SYMMETRIX-+-000297800620;3|15|;\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. WBEM test succeeded:\n- WQL Query: SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n\nResult: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
         "type" : "TextParam"
@@ -319,7 +318,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -450,7 +448,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -581,7 +578,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -712,7 +708,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -843,7 +838,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -974,7 +968,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -1105,7 +1098,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -1236,7 +1228,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -1367,7 +1358,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -1498,7 +1488,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
@@ -1629,7 +1618,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
@@ -1650,7 +1638,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
@@ -1786,7 +1773,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
@@ -1807,7 +1793,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
@@ -1943,7 +1928,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -1964,7 +1948,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -2100,7 +2083,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -2121,7 +2103,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -2257,7 +2238,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -2278,7 +2258,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -2414,7 +2393,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -2435,7 +2413,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -2571,7 +2548,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
@@ -2592,7 +2568,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
@@ -2728,7 +2703,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
@@ -2749,7 +2723,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
@@ -2885,7 +2858,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -2906,7 +2878,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -3046,7 +3017,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -3067,7 +3037,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -3203,7 +3172,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -3224,7 +3192,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -3360,7 +3327,6 @@
       "linkSpeed" : {
         "name" : "linkSpeed",
         "collectTime" : 1629129125956,
-        "state" : "OK",
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
@@ -3381,7 +3347,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
@@ -3517,7 +3482,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -3654,7 +3618,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -3791,7 +3754,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -3928,7 +3890,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4065,7 +4026,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4202,7 +4162,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4339,7 +4298,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4476,7 +4434,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4613,7 +4570,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4750,7 +4706,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -4887,7 +4842,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5024,7 +4978,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5161,7 +5114,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5298,7 +5250,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5435,7 +5386,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5572,7 +5522,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5709,7 +5658,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -5846,7 +5794,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
@@ -6371,7 +6318,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022930133,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 465.73,
         "rawValue" : 465.73,

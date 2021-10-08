@@ -23,7 +23,7 @@ class InstanceProcessorTest {
 	private static final String INSTANCE_TABLE_COLUMN_1 = "InstanceTable.Column(1)";
 	private static final String ENCLOSURE_DISCOVERY_INSTANCE_DEVICE_ID2 = "enclosure.discovery.instance.deviceID";
 	private static final String ENCLOSURE_DISCOVERY_INSTANCE_DEVICE_ID1 = "Enclosure.Discovery.Instance.DeviceID";
-	private static InstanceProcessor processor = new InstanceProcessor();
+	private static final InstanceProcessor processor = new InstanceProcessor();
 
 	@Test
 	void testDetect() {
@@ -52,8 +52,8 @@ class InstanceProcessorTest {
 
 	@Test
 	void testGetParameter() {
+
 		assertEquals(DEVICE_ID, processor.getParameter(ENCLOSURE_DISCOVERY_INSTANCE_DEVICE_ID1));
 		assertEquals(VENDOR, processor.getParameter(ENCLOSURE_DISCOVERY_INSTANCE_VENDOR));
 	}
-
 }

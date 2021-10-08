@@ -93,7 +93,7 @@ targets:
 
 - target:
     hostname: myhost-01
-    type: OOB
+    type: oob
   ipmi:
     username: myusername
     password: mypwd
@@ -181,7 +181,7 @@ targets:
 
 - target:
     hostname: myhost-01
-    type: LINUX
+    type: linux
   snmp:
     version: v1
     community: public
@@ -190,7 +190,7 @@ targets:
 
 - target:
     hostname: myhost-01
-    type: LINUX
+    type: linux
   snmp:
     version: v2c
     community: public
@@ -199,13 +199,13 @@ targets:
 
 - target:
     hostname: myhost-01
-    type: LINUX
+    type: linux
   snmp:
     version: v3-md5
     community: public
     port: 161
     timeout: 120s
-    privacy: DES
+    privacy: des
     privacyPassword: myprivacypwd
     username: myusername
     password: mypwd
@@ -231,7 +231,7 @@ targets:
 
   - target:
       hostname: myhost-01
-      type: STORAGE
+      type: storage
     wbem:
       protocol: HTTPS
       port: 5989
@@ -267,6 +267,155 @@ targets:
 
 ## Other Configuration Settings
 
+### Configuring Timeout Durations
+
+**${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:
+
+| Unit | Description                     | Examples         |
+| ---- | ------------------------------- | ---------------- |
+| s    | seconds                         | 120s (default)   |
+| m    | minutes                         | 90m, 30m15s      |
+| h    | hours                           | 1h, 1h30m        |
+| d    | days (based on a 24-hour day)   | 1d, 2d5h45m15s   |
+| w    | weeks (based on a 7-day week)   | 1w, 1w2d3h15m20s |
+| y    | years (based on a 365-day year) | 1y, 1y1w1h30m10s |
+
+### Configuring the Unknown Status
+
+On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` parameter to indicate the value to be exposed in Prometheus:
+
+- **0** to expose the value **0 (OK)**
+- **1** to expose the value **1 (WARN)**
+- **2** to expose the value **2 (ALARM)**
+- **""** (empty) not to expose the metric. 
+
+Default is **1** as shown below:
+
+```
+targets:
+
+  - target:
+      hostname: myhost-01
+      type: STORAGE
+    wbem:
+      protocol: HTTPS
+      port: 5989
+      timeout: 120s
+      username: myusername
+      password: mypwd
+    unknownStatus: 1
+```
+
+### Customizing the Collect Period
+
+By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
+
+* for all your targets, add the `collectPeriod` parameter just before the `targets` section:
+
+```
+collectPeriod: 2m 
+targets:
+- target:
+    hostname: myhost
+    type: linux
+  snmp:
+    version: v1
+    community: public
+    port: 161
+    timeout: 120s
+  excludedConnectors: [ SunF15K, HPiLO ]
+  unknownStatus: 1
+```
+
+* for a specific target, add the `collectPeriod` parameter in the relevant `target` section:
+
+```
+targets:
+
+- target:
+    hostname: myhost
+    type: linux
+  snmp:
+    version: v1
+    community: public
+    port: 161
+    timeout: 120s
+  excludedConnectors: [ SunF15K, HPiLO ]
+  unknownStatus: 1
+  collectPeriod: 2m 
+```
+
+and indicate a value in minutes.
+
+<div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause memory-intensive workloads.</div>
+
+### Customizing the Discovery Cycle
+
+**${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
+
+* for all your targets, add the `discoveryCycle` just before the `targets` section:
+
+```
+discoveryCycle: 15
+targets:
+
+- target:
+    hostname: ecs1-01
+    type: linux
+  snmp:
+    version: v1
+    community: public
+    port: 161
+    timeout: 120s
+  excludedConnectors: [ SunF15K, HPiLO ]
+  unknownStatus: 1
+```
+
+* for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
+
+```
+targets:
+
+- target:
+    hostname: myhost
+    type: linux
+  snmp:
+    version: v1
+    community: public
+    port: 161
+    timeout: 120s
+  excludedConnectors: [ SunF15K, HPiLO ]
+  unknownStatus: 1
+  discoveryCycle: 15 
+```
+
+and indicate the number of collects after which a discovery will be performed.
+
+<div class="alert alert-danger"><i class="icon-hand-up"></i>Running discoveries too frequently can cause memory-intensive workloads.</div>
+
+### Customizing the Pool Size
+
+By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
+
+```
+jobPoolSize: 20
+targets:
+
+- target:
+    hostname: ecs1-01
+    type: linux
+  snmp:
+    version: v1
+    community: public
+    port: 161
+    timeout: 120s
+  excludedConnectors: [ SunF15K, HPiLO ]
+  unknownStatus: 1
+```
+and indicate a number of jobs.
+
+<div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
+
 ### Specifying the connectors to be used
 
 The **${project.name}** comes with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
@@ -295,42 +444,3 @@ targets:
 ```
 
 The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>.
-
-### Configuring the Unknown Status
-
-On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` setting to indicate the value to be exposed in Prometheus:
-
-- **0** to expose the value **0 (OK)**
-- **1** to expose the value **1 (WARN)**
-- **2** to expose the value **2 (ALARM)**
-- **""** (empty) not to expose the metric. 
-
-Default is **1** as shown below:
-
-```
-targets:
-
-  - target:
-      hostname: myhost-01
-      type: STORAGE
-    wbem:
-      protocol: HTTPS
-      port: 5989
-      timeout: 120s
-      username: myusername
-      password: mypwd
-    unknownStatus: 1
-```
-
-### Configuring Timeout Durations
-
-**${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:
-
-| Unit | Description                     | Examples         |
-| ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s (default)   |
-| m    | minutes                         | 90m, 30m15s      |
-| h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d, 2d5h45m15s   |
-| w    | weeks (based on a 7-day week)   | 1w, 1w2d3h15m20s |
-| y    | years (based on a 365-day year) | 1y, 1y1w1h30m10s |

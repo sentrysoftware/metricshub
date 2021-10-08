@@ -70,6 +70,9 @@ public class ConnectorLibrarySerializer {
 		}
 
 		int count = 0;
+		int errorCount = 0;
+		int connectorWithErrorCount = 0;
+
 		for (final String connectorName : connectorNameList) {
 
 			// Full path of the connector
@@ -85,7 +88,21 @@ public class ConnectorLibrarySerializer {
 			System.out.format("Parsing %s%n", connectorName);
 
 			// Parse
-			final Connector connector = connectorParser.parse(connectorPath.toString());
+			Connector connector;
+			try {
+				connector = connectorParser.parse(connectorPath.toString());
+			} catch (IOException e) {
+				throw new ConnectorSerializationException("Failed to parse connector: " + connectorName, e);
+			}
+
+			// In case of parsing problems, we will simply report these errors
+			// We do not want to fail the build of Matrix because a connector is messed up in the HC project
+			// (or because a connector source is using directives not known to the Matrix parser yet)
+			connector.getProblemList().forEach(problem -> System.err.println("  " + problem));
+			errorCount += connector.getProblemList().size();
+			if (!connector.getProblemList().isEmpty()) {
+				connectorWithErrorCount++;
+			}
 
 			// Serialize
 			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath.toFile()))) {
@@ -98,6 +115,9 @@ public class ConnectorLibrarySerializer {
 		}
 
 		System.out.format("Successfully parsed and serialized %d connectors%n", count);
+		if (connectorWithErrorCount > 0) {
+			System.err.format("WARNING: %d errors found in %d connectors%n", errorCount, connectorWithErrorCount);
+		}
 
 	}
 

@@ -7,12 +7,17 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 import picocli.CommandLine.MissingParameterException;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +30,34 @@ class HardwareSentryCliTest {
 	private static final String HTTP_TIMEOUT_OPTION = "--http-timeout";
 	private static final String HTTP_USERNAME_OPTION = "--http-username";
 	private static final String HTTP_PASSWORD_OPTION = "--http-password";
+
+	/**
+	 * Executes the CLI with the specified arguments and return its output.
+	 * <p>
+	 * @param args Arguments as in main(String [])
+	 * @return the output of the command
+	 * @throws IOException when something goes wrong with the gathering of the output
+	 */
+	private static String executeCli(final String[]... args) throws IOException {
+
+		String[] allArgs = Stream.of(args)
+				.flatMap(Stream::of)
+				.toArray(String[]::new);
+
+		// Setup the command line execution to gather its output
+		try(StringWriter resultWriter = new StringWriter();
+				PrintWriter printWriter = new PrintWriter(resultWriter)) {
+
+			// Execute
+			new CommandLine(new HardwareSentryCli())
+					.setOut(printWriter)
+					.setErr(printWriter)
+					.execute(allArgs);
+
+			// Gather the result
+			return resultWriter.toString();
+		}
+	}
 
 	@Test
 	void snmpArgumentsTest() {
@@ -226,4 +259,105 @@ class HardwareSentryCliTest {
 		}
 
 	}
+
+	@Test
+	void helpTest() throws Exception {
+		{
+			String result = executeCli(new String[] { "localhost", "-t", "win", "--wmi", "--help" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(new String[] {});
+			assertTrue(result.contains("Usage"));
+		}
+	}
+
+	@Test
+	void versionTest() throws Exception {
+		String result = executeCli(new String[] { "--version" });
+		assertTrue(result.contains("Copyright"));
+		assertTrue(result.contains("Java version"));
+		assertTrue(result.contains("Hardware Connector Library"));
+	}
+
+	@Test
+	void listTest() throws Exception {
+		String result = executeCli(new String[] { "--list" });
+		assertTrue(result.contains("IBM"));
+		assertTrue(result.split("\n").length > 100);
+	}
+
+	@Test
+	void addSimpleTestConnector() throws Exception {
+		String result = executeCli(new String[] { "localhost", "-t", "lin", "--snmp", "1", "--add", "src/test/resources/hdf/SimpleTest.hdfs", "-f", "SimpleTest" });
+		assertTrue(result.contains("Simple Test"));
+		assertTrue(result.contains("SimpleTest"));
+		assertTrue(result.contains("CPU"));
+		assertTrue(result.contains("Watercooling"));
+		assertTrue(result.contains("500"));
+		assertTrue(result.contains("status"));
+		assertTrue(result.contains("WARN"));
+		assertTrue(result.contains("OK"));
+		assertTrue(result.contains("speed"));
+		assertTrue(result.contains("400"));
+		assertTrue(result.contains("1500"));
+	}
+
+	@Test
+	void addInvalidConnector() throws Exception {
+		String result = executeCli(new String[] { "localhost", "-t", "lin", "--snmp", "1", "--add", "src/test/resources/hdf/Invalid.hdfs", "-f", "Invalid" });
+		assertTrue(result.toLowerCase().contains("enclosure.discovery.invalidproperty"));
+	}
+
+	@Test
+	void invalidSnmp() throws Exception {
+		final String[] commonOptions = { "localhost", "-t", "lin", "--add", "src/test/resources/hdf/SimpleTest.hdfs", "-f", "SimpleTest" };
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "1", "--snmp-username", "test" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "1", "--snmp-community", "" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "1", "--snmp-community", "test" });
+			assertFalse(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "2", "--snmp-username", "test" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "2", "--snmp-community", "" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "2", "--snmp-community", "test" });
+			assertFalse(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "3", "--snmp-community", "public" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "3md5" });
+			assertTrue(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "3sha" });
+			assertTrue(result.contains("Usage"));
+		}
+
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "3sha", "--username", "user", "--password", "pass" });
+			assertFalse(result.contains("Usage"));
+		}
+		{
+			String result = executeCli(commonOptions, new String[] { "--snmp", "3sha", "--username", "user", "--password", "pass", "--snmp-privacy", "aes" });
+			assertTrue(result.contains("Usage"));
+		}
+
+	}
+
 }

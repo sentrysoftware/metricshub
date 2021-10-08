@@ -252,14 +252,13 @@ class CollectOperationTest {
 			final Monitor result = hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID);
 			assertNotNull(result);
 
-			final NumberParam parameterAfterReset = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
+			final NumberParam parameterAfterSave = (NumberParam) result.getParameters().get(POWER_CONSUMPTION);
 
-			assertNull(parameterAfterReset.getCollectTime());
-			assertEquals(strategyTime, parameterAfterReset.getPreviousCollectTime());
-			assertEquals(POWER_CONSUMPTION, parameterAfterReset.getName());
-			assertEquals(ParameterState.OK, parameterAfterReset.getState());
-			assertNull(parameterAfterReset.getValue());
-			assertEquals(100.0, parameterAfterReset.getPreviousRawValue());
+			assertNotNull(parameterAfterSave.getCollectTime());
+			assertEquals(strategyTime, parameterAfterSave.getPreviousCollectTime());
+			assertEquals(POWER_CONSUMPTION, parameterAfterSave.getName());
+			assertNotNull(parameterAfterSave.getValue());
+			assertEquals(100.0, parameterAfterSave.getPreviousRawValue());
 
 		}
 	}
@@ -1511,7 +1510,7 @@ class CollectOperationTest {
 		assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
 
 		// Collect 2
-		cpu.getParameters().values().forEach(param -> param.reset());
+		cpu.getParameters().values().forEach(param -> param.save());
 
 		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 2 * 60 * 1000, ECS1_01);
 
@@ -1520,7 +1519,7 @@ class CollectOperationTest {
 		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_USAGE_PARAMETER));
 
 		// Collect 3
-		cpu.getParameters().values().forEach(param -> param.reset());
+		cpu.getParameters().values().forEach(param -> param.save());
 
 		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 4 * 60 * 1000, ECS1_01);
 

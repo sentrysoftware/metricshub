@@ -1,11 +1,11 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import static com.sentrysoftware.hardware.prometheus.service.HostMonitoringCollectorService.LABELS;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
@@ -17,6 +17,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOC
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -48,8 +49,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter;
 import com.sentrysoftware.hardware.prometheus.dto.PrometheusParameter.PrometheusMetricType;
+import com.sentrysoftware.hardware.prometheus.service.metrics.HardwareCounterMetric;
+import com.sentrysoftware.hardware.prometheus.service.metrics.HardwareGaugeMetric;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
@@ -58,6 +62,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
@@ -67,8 +72,6 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.CounterMetricFamily;
-import io.prometheus.client.GaugeMetricFamily;
 import io.prometheus.client.exporter.common.TextFormat;
 
 @SpringBootTest
@@ -90,6 +93,9 @@ class HostMonitoringCollectorServiceTest {
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;
+
+	@Mock
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
 	@InjectMocks
 	@Autowired
@@ -232,7 +238,7 @@ class HostMonitoringCollectorServiceTest {
 
 		final List<MetricFamilySamples> mfs = new ArrayList<>();
 
-		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, monitors, mfs);
+		hostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, monitors, mfs);
 
 		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
 		final Sample sample1 = new Sample("hw_enclosure_status", LABELS,
@@ -257,7 +263,7 @@ class HostMonitoringCollectorServiceTest {
 				.metadata(cpuMetadata).build();
 		final Map<String, Monitor> monitorCpu = Map.of(monitor3.getId(), monitor3);
 
-		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.CPU, monitorCpu, mfsCpu);
+		hostMonitoringCollectorService.processSameTypeMonitors(MonitorType.CPU, monitorCpu, mfsCpu);
 
 		final Sample sample4 = new Sample("hw_cpu_maximum_speed_hertz", LABELS,
 				Arrays.asList(null, monitor3.getId(), monitor3.getName(), monitor3.getParentId()), 4000 * 1000000.0);
@@ -292,7 +298,7 @@ class HostMonitoringCollectorServiceTest {
 					.monitorType(MonitorType.LOGICAL_DISK).metadata(lgMetadata).build();
 			final Map<String, Monitor> monitorsLg = Map.of(monitor4.getId(), monitor4);
 
-			HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.LOGICAL_DISK, monitorsLg, mfsDisk);
+			hostMonitoringCollectorService.processSameTypeMonitors(MonitorType.LOGICAL_DISK, monitorsLg, mfsDisk);
 
 			final Sample sample5 = new Sample("hw_logicalDisk_raidlevel_counter_total",
 					LABELS,
@@ -307,10 +313,10 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testProcessSameTypeMonitorsNoMonitors() {
 		final List<MetricFamilySamples> mfs = new ArrayList<>();
-		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, Collections.emptyMap(), mfs);
+		hostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, Collections.emptyMap(), mfs);
 		assertTrue(mfs.isEmpty());
 
-		HostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, null, mfs);
+		hostMonitoringCollectorService.processSameTypeMonitors(MonitorType.ENCLOSURE, null, mfs);
 		assertTrue(mfs.isEmpty());
 	}
 
@@ -337,13 +343,13 @@ class HostMonitoringCollectorServiceTest {
 
 		final List<MetricFamilySamples> mfs = new ArrayList<>();
 
-		HostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
+		hostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
 
-		final GaugeMetricFamily expected = new GaugeMetricFamily(
+		final HardwareGaugeMetric expected = new HardwareGaugeMetric(
 				"hw_enclosure_status",
 				"Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
 				LABELS);
-		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 0);
+		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 0, null);
 
 		assertEquals(expected, mfs.get(0));
 	}
@@ -363,11 +369,11 @@ class HostMonitoringCollectorServiceTest {
 
 		List<MetricFamilySamples> mfs = new ArrayList<>();
 
-		HostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
+		hostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
 
-		GaugeMetricFamily expected = new GaugeMetricFamily("hw_cpu_maximum_speed_hertz",
+		HardwareGaugeMetric expected = new HardwareGaugeMetric("hw_cpu_maximum_speed_hertz",
 				"Metric: hw_cpu_maximum_speed_hertz - Unit: hertz", LABELS);
-		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 4000000);
+		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 4000000, null);
 		assertEquals(expected, mfs.get(0));
 
 		// CPU without maxSpeed, check we do not create metric if no value for metadata
@@ -378,7 +384,7 @@ class HostMonitoringCollectorServiceTest {
 		monitors = Map.of(monitor2.getId(), monitor2, monitor3.getId(), monitor3);
 		mfs = new ArrayList<>();
 
-		HostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
+		hostMonitoringCollectorService.processMonitorsMetadataMetrics(MonitorType.CPU, monitors, mfs);
 		assertTrue(mfs.isEmpty());
 
 	}
@@ -402,7 +408,7 @@ class HostMonitoringCollectorServiceTest {
 				monitor2.getId(), monitor2);
 		final List<MetricFamilySamples> mfs = new ArrayList<>();
 
-		HostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
+		hostMonitoringCollectorService.processMonitorsMetric(Enclosure.STATUS, MonitorType.ENCLOSURE, monitors, mfs);
 
 		assertTrue(mfs.isEmpty());
 	}
@@ -505,13 +511,13 @@ class HostMonitoringCollectorServiceTest {
 		}
 
 		{
-			StatusParam statusParamToReset = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
-			statusParamToReset.reset();
+			StatusParam statusParamNotAvailable = StatusParam.builder().name(STATUS_PARAMETER).build();
+
 			final Monitor monitor = Monitor.builder()
 						.id(ID_VALUE)
 						.parentId(PARENT_ID_VALUE)
 						.name(LABEL_VALUE)
-						.parameters(Map.of(STATUS_PARAMETER, statusParamToReset))
+						.parameters(Map.of(STATUS_PARAMETER, statusParamNotAvailable))
 						.build();
 			assertFalse(HostMonitoringCollectorService.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
 
@@ -708,7 +714,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testAddMetricStatus() {
-		final GaugeMetricFamily gauge = new GaugeMetricFamily(MONITOR_STATUS_METRIC, HELP_DEFAULT, LABELS);
+		final HardwareGaugeMetric gauge = new HardwareGaugeMetric(MONITOR_STATUS_METRIC, HELP_DEFAULT, LABELS);
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -719,7 +725,7 @@ class HostMonitoringCollectorServiceTest {
 						.state(ParameterState.OK).build()))
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
-		HostMonitoringCollectorService.addMetric(gauge, monitor, STATUS_PARAMETER, 1.0);
+		hostMonitoringCollectorService.addMetric(gauge, monitor, STATUS_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_STATUS_METRIC, LABELS,
 				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), ParameterState.OK.ordinal());
@@ -729,7 +735,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testAddMetricNumber() {
-		final CounterMetricFamily gauge = new CounterMetricFamily(MONITOR_ENERGY_METRIC, HELP_DEFAULT, LABELS);
+		final HardwareCounterMetric gauge = new HardwareCounterMetric(MONITOR_ENERGY_METRIC, HELP_DEFAULT, LABELS);
 		final Monitor monitor = Monitor.builder()
 				.id(ID_VALUE)
 				.parentId(PARENT_ID_VALUE)
@@ -739,7 +745,7 @@ class HostMonitoringCollectorServiceTest {
 						.value(3000D).build()))
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
-		HostMonitoringCollectorService.addMetric(gauge, monitor, ENERGY_USAGE_PARAMETER, 1.0);
+		hostMonitoringCollectorService.addMetric(gauge, monitor, ENERGY_USAGE_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_ENERGY_METRIC, LABELS,
 				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 3000D);
@@ -749,21 +755,21 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testAddMetadataAsMetric() {
-		final GaugeMetricFamily gauge = new GaugeMetricFamily(MAXIMUM_SPEED, HELP_DEFAULT,
+		final HardwareGaugeMetric gauge = new HardwareGaugeMetric(MAXIMUM_SPEED, HELP_DEFAULT,
 				LABELS);
 		final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		cpuMetadata.put("maximumspeed", "4");
 		final Monitor monitor = Monitor.builder().id(ID_VALUE).parentId(PARENT_ID_VALUE).name(LABEL_VALUE)
 				.metadata(cpuMetadata).monitorType(MonitorType.ENCLOSURE).build();
-		HostMonitoringCollectorService.addMetadataAsMetric(gauge, monitor, MAXIMUM_SPEED, 1.0);
+		hostMonitoringCollectorService.addMetadataAsMetric(gauge, monitor, MAXIMUM_SPEED, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MAXIMUM_SPEED, LABELS,
 				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 4D);
 		assertEquals(expected, actual);
 
-		final CounterMetricFamily counter = new CounterMetricFamily(MAXIMUM_SPEED, HELP_DEFAULT,
+		final HardwareCounterMetric counter = new HardwareCounterMetric(MAXIMUM_SPEED, HELP_DEFAULT,
 				LABELS);
-		HostMonitoringCollectorService.addMetadataAsMetric(counter, monitor, MAXIMUM_SPEED, 1.0);
+		hostMonitoringCollectorService.addMetadataAsMetric(counter, monitor, MAXIMUM_SPEED, 1.0);
 		final Sample actualCounter = counter.samples.get(0);
 		final Sample expectedCounter = new Sample("maximumSpeed_total", LABELS,
 				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), 4D);
@@ -826,16 +832,16 @@ class HostMonitoringCollectorServiceTest {
 					.build();
 		monitor.setAsPresent();
 
-		final GaugeMetricFamily labeledGauge = new GaugeMetricFamily("monitor_present",
+		final HardwareGaugeMetric labeledGauge = new HardwareGaugeMetric("monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}", LABELS);
 
-		HostMonitoringCollectorService.addMetric(labeledGauge, monitor, PRESENT_PARAMETER, 1D);
+		hostMonitoringCollectorService.addMetric(labeledGauge, monitor, PRESENT_PARAMETER, 1D);
 
-		final GaugeMetricFamily expected = new GaugeMetricFamily(
+		final HardwareGaugeMetric expected = new HardwareGaugeMetric(
 				"monitor_present",
 				"Metric: Fan present - Unit: {0 = Missing ; 1 = Present}",
 				LABELS);
-		expected.addMetric(Arrays.asList(null, monitor.getId(), LABEL_VALUE, PARENT_ID_VALUE), 1);
+		expected.addMetric(Arrays.asList(null, monitor.getId(), LABEL_VALUE, PARENT_ID_VALUE), 1, null);
 
 		assertEquals(expected, labeledGauge);
 	}
@@ -870,6 +876,42 @@ class HostMonitoringCollectorServiceTest {
 		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8"));
 		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8 "));
 		assertTrue(HostMonitoringCollectorService.canParseDoubleValue("8.0"));
+	}
 
+	@Test
+	void testGetCollectTime() {
+		{
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
+			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
+		}
+
+		{
+			// Parameter missing
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
+		}
+
+		{
+			// Parameter missing
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			final Map<String, IParameterValue> parameters = Map.of("parameter",
+					NumberParam.builder().collectTime(123456789L).build());
+			assertEquals(123456789L, hostMonitoringCollectorService
+					.getCollectTime(Monitor.builder().parameters(parameters).build(), "parameter"));
+		}
+	}
+
+	@Test
+	void testGetDiscoveryTime() {
+		{
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
+			assertNull(hostMonitoringCollectorService.getDiscoveryTime(Monitor.builder().build()));
+		}
+
+		{
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			assertEquals(123456789L, hostMonitoringCollectorService
+					.getDiscoveryTime(Monitor.builder().discoveryTime(123456789L).build()));
+		}
 	}
 }

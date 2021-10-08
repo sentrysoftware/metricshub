@@ -1,12 +1,16 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.prometheus.client.GaugeMetricFamily;
+import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.prometheus.service.metrics.HardwareGaugeMetric;
+
 import io.prometheus.client.Collector.MetricFamilySamples;
 
 @Service
@@ -32,6 +36,9 @@ public class ExporterInfoService {
 	@Value("${hcVersion}")
 	String hcVersion;
 
+	@Autowired
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+
 	/**
 	 * Build the hw_exporter_info metric to report the exporter information as
 	 * labels: projectName, projectVersion, buildNumber, timestamp, hcVersion
@@ -39,8 +46,11 @@ public class ExporterInfoService {
 	 * @return hw_exporter_info {@link MetricFamilySamples} metric
 	 */
 	public MetricFamilySamples getExporterInfoMetric() {
-		GaugeMetricFamily metric = new GaugeMetricFamily("hw_exporter_info", "Reports exporter information", LABELS);
-		metric.addMetric(Arrays.asList(buildNumber, hcVersion, projectName, projectVersion, timestamp), 1);
+		final HardwareGaugeMetric metric = new HardwareGaugeMetric("hw_exporter_info", "Reports exporter information", LABELS);
+		metric.addMetric(
+				Arrays.asList(buildNumber, hcVersion, projectName, projectVersion, timestamp),
+				1,
+				multiHostsConfigurationDTO.isExportTimestamps() ? new Date().getTime() : null);
 		return metric;
 	}
 

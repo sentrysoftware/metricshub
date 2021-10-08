@@ -759,32 +759,32 @@ class ComputeVisitorTest {
 		DuplicateColumn dupColumn = new DuplicateColumn(1, 0);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		dupColumn = new DuplicateColumn(10, 10);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		// test actual index
 		dupColumn = new DuplicateColumn(1, 1);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		dupColumn = new DuplicateColumn(2, 2);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		dupColumn = new DuplicateColumn(3, 6);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")), sourceTable.getTable());
-		
+
 		// test multiple lines
 		initializeSourceTable();
-		
+
 
 		dupColumn = new DuplicateColumn(13, 3);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -792,16 +792,16 @@ class ComputeVisitorTest {
 		dupColumn = new DuplicateColumn(13, 7);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
-		
+
 
 		dupColumn = new DuplicateColumn(13, null);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -810,7 +810,7 @@ class ComputeVisitorTest {
 		dupColumn = new DuplicateColumn(13, 0);
 		computeVisitor.visit(dupColumn);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -825,7 +825,7 @@ class ComputeVisitorTest {
 
 	@Test
 	void testTranslation() {
-		
+
 		final Map<String, String> translationMap = Map.of(
 				"name1", "NAME1_resolved",
 				"name2", "NAME2_resolved",
@@ -841,7 +841,7 @@ class ComputeVisitorTest {
 		initializeSourceTable();
 		computeVisitor.visit((Translate) null);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -851,7 +851,7 @@ class ComputeVisitorTest {
 		Translate translate = Translate.builder().column(0).index(0).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -860,7 +860,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -870,7 +870,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(0).index(0).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -879,7 +879,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(10).index(10).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -889,7 +889,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(1).index(1).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -899,7 +899,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(2).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2", "NAME2_resolved", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3", "NAME3_resolved", "MANUFACTURER3", "NUMBER_OF_DISKS3")),
 				sourceTable.getTable());
@@ -909,7 +909,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(4).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"), 
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"),
 				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved"),
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved")),
 				sourceTable.getTable());
@@ -920,7 +920,7 @@ class ComputeVisitorTest {
 		translate = Translate.builder().column(1).index(2).translationTable(TranslationTable.builder().name("TR1").translations(translationMap).build()).build();
 		computeVisitor.visit(translate);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"), 
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
 				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
 				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
 				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")),
@@ -947,7 +947,7 @@ class ComputeVisitorTest {
 				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved", "new_column_3")),
 				sourceTable.getTable());
 	}
-	
+
 	@Test
 	void testAdd() {
 
@@ -972,15 +972,15 @@ class ComputeVisitorTest {
 		addition = Add.builder().column(2).build();
 		computeVisitor.visit(addition);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		addition = Add.builder().add("column(3)").build();
 		computeVisitor.visit(addition);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		addition = Add.builder().add("column(13)").build();
 		computeVisitor.visit(addition);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		addition = Add.builder().add("0").build();
 		computeVisitor.visit(addition);
 		assertEquals(table, sourceTable.getTable());
@@ -993,11 +993,11 @@ class ComputeVisitorTest {
 		Add addColumn = Add.builder().column(2).add("column(3)").build();
 		computeVisitor.visit(addColumn);
 		assertEquals(result, sourceTable.getTable());
-		
+
 		addColumn = Add.builder().column(2).add("column(1)").build();
 		computeVisitor.visit(addColumn);
 		assertEquals(result, sourceTable.getTable());
-		
+
 		addColumn = Add.builder().column(2).add("id1").build();
 		computeVisitor.visit(addColumn);
 		assertEquals(result, sourceTable.getTable());
@@ -1086,7 +1086,7 @@ class ComputeVisitorTest {
 			Arrays.asList("ID1", "188.0", "2", "val3")),
 			sourceTable.getTable());
 	}
-	
+
 	@Test
 	void testDivide() {
 
@@ -1111,15 +1111,15 @@ class ComputeVisitorTest {
 		divide = Divide.builder().column(2).build();
 		computeVisitor.visit(divide);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		divide = Divide.builder().divideBy("column(3)").build();
 		computeVisitor.visit(divide);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		divide = Divide.builder().divideBy("column(13)").build();
 		computeVisitor.visit(divide);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		divide = Divide.builder().divideBy("0").build();
 		computeVisitor.visit(divide);
 		assertEquals(table, sourceTable.getTable());
@@ -1132,11 +1132,11 @@ class ComputeVisitorTest {
 		Divide divideByColumn = Divide.builder().column(2).divideBy("column(3)").build();
 		computeVisitor.visit(divideByColumn);
 		assertEquals(result1, sourceTable.getTable());
-		
+
 		divideByColumn = Divide.builder().column(2).divideBy("column(1)").build();
 		computeVisitor.visit(divideByColumn);
 		assertEquals(result1, sourceTable.getTable());
-		
+
 		divideByColumn = Divide.builder().column(2).divideBy("id1").build();
 		computeVisitor.visit(divideByColumn);
 		assertEquals(result1, sourceTable.getTable());
@@ -1154,7 +1154,7 @@ class ComputeVisitorTest {
 		computeVisitor.visit(divideByValue);
 		assertEquals(result2, sourceTable.getTable());
 	}
-	
+
 	@Test
 	void testMultiply() {
 
@@ -1179,15 +1179,15 @@ class ComputeVisitorTest {
 		multiply = Multiply.builder().column(2).build();
 		computeVisitor.visit(multiply);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		multiply = Multiply.builder().multiplyBy("0").build();
 		computeVisitor.visit(multiply);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		multiply = Multiply.builder().multiplyBy("column(3)").build();
 		computeVisitor.visit(multiply);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		multiply = Multiply.builder().multiplyBy("column(13)").build();
 		computeVisitor.visit(multiply);
 		assertEquals(table, sourceTable.getTable());
@@ -1200,11 +1200,11 @@ class ComputeVisitorTest {
 		Multiply multiByColumn = Multiply.builder().column(2).multiplyBy("column(3)").build();
 		computeVisitor.visit(multiByColumn);
 		assertEquals(result, sourceTable.getTable());
-		
+
 		multiByColumn = Multiply.builder().column(2).multiplyBy("column(1)").build();
 		computeVisitor.visit(multiByColumn);
 		assertEquals(result, sourceTable.getTable());
-		
+
 		multiByColumn = Multiply.builder().column(2).multiplyBy("id1").build();
 		computeVisitor.visit(multiByColumn);
 		assertEquals(result, sourceTable.getTable());
@@ -1212,20 +1212,20 @@ class ComputeVisitorTest {
 		Multiply multiplyByValue = Multiply.builder().column(2).multiplyBy("10").build();
 		computeVisitor.visit(multiplyByValue);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "10000.0", "2", "val1"), 
+				Arrays.asList("ID1", "10000.0", "2", "val1"),
 				Arrays.asList("ID2", "75000.0", "5", "val2"),
 				Arrays.asList("ID1", "4000.0", "2", "val3")),
 				sourceTable.getTable());
-		
+
 		multiplyByValue = Multiply.builder().column(2).multiplyBy("0").build();
 		computeVisitor.visit(multiplyByValue);
 		assertEquals(Arrays.asList(
-				Arrays.asList("ID1", "0.0", "2", "val1"), 
+				Arrays.asList("ID1", "0.0", "2", "val1"),
 				Arrays.asList("ID2", "0.0", "5", "val2"),
 				Arrays.asList("ID1", "0.0", "2", "val3")),
 				sourceTable.getTable());
 	}
-	
+
 	@Test
 	void testReplace() {
 		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "val1", "1value1")));
@@ -2069,33 +2069,33 @@ class ComputeVisitorTest {
 		Awk awkNull = null;
 		computeVisitor.visit(awkNull);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		Awk awkNoAttribut = Awk.builder().build();
 		computeVisitor.visit(awkNoAttribut);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		Awk awkNoScript = Awk.builder().awkScript(null).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		computeVisitor.visit(awkNoScript);
 		assertEquals(table, sourceTable.getTable());
-		
+
 		sourceTable.setTable(null);
 		sourceTable.setRawData(null);
 		Awk awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
-		
+
 		doReturn(LINE_RAW_DATA).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
 		String expectedRawData = "FOO;ID1;NAME1;";
 		List<List<String>> expectedTable = Arrays.asList(Arrays.asList("FOO", "ID1", "NAME1"));
 		assertEquals(expectedTable, sourceTable.getTable());
 		assertEquals(expectedRawData, sourceTable.getRawData());
-	
+
 		sourceTable.setTable(new ArrayList<>());
 		sourceTable.setRawData(null);
 		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		doReturn(null).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
 		assertEquals(new ArrayList<>(), sourceTable.getTable());
-		
+
 		sourceTable.setTable(new ArrayList<>());
 		sourceTable.setRawData(null);
 		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
@@ -2132,11 +2132,11 @@ class ComputeVisitorTest {
 
 		computeVisitor.visit(json2CSV);
 
-		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" + 
+		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" +
 							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
-	
+
 	@Test
 	void testVisitXml2Csv() {
 		final String xml = ResourceHelper.getResourceAsString("/data/ucsEquipementFan.xml", this.getClass());
@@ -2266,5 +2266,100 @@ class ComputeVisitorTest {
 		result = Collections.singletonList(Arrays.asList("1.0", FOO, "4.0"));
 		computeVisitor.visit(divide);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testGetPredicate() {
+
+		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		List<String> line3 = Arrays.asList(BAZ, "100", "2", "300");
+		List<String> line4 = Arrays.asList(BAZ+FOO, FOO, "2000", "3000");
+		List<List<String>> table = Arrays.asList(line1, line2, line3, line4);
+
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
+				.builder()
+				.column(1)
+				.regExp("^B")
+				.valueList(null)
+				.build();
+		computeVisitor.visit(keepOnlyMatchingLines);
+		// check regex column 1 starts with B
+		List<List<String>> resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(3, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+		assertEquals(line4, resultTable.get(2));
+
+		keepOnlyMatchingLines.setColumn(2);
+		keepOnlyMatchingLines.setRegExp("[1-9]");
+		computeVisitor.visit(keepOnlyMatchingLines);
+		// check regex column 2 is numeric value
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(2, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+
+		keepOnlyMatchingLines.setColumn(3);
+		keepOnlyMatchingLines.setRegExp("^.$");
+		computeVisitor.visit(keepOnlyMatchingLines);
+		// check regex column 3 contains only one character
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line3, resultTable.get(0));
+
+		keepOnlyMatchingLines.setRegExp("blabla");
+		computeVisitor.visit(keepOnlyMatchingLines);
+		// nothing matches with blabla
+		assertTrue(computeVisitor.getSourceTable().getTable().isEmpty());
+
+
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
+				.builder()
+				.column(1)
+				.regExp("^B")
+				.build();
+		// exclude lines starting with B
+		computeVisitor.visit(excludeMatchingLines);
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		// exclude lines with column 2 is numeric value
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		excludeMatchingLines.setRegExp("[1-9]");
+		excludeMatchingLines.setColumn(2);
+		computeVisitor.visit(excludeMatchingLines);
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertEquals(1, resultTable.size());
+		assertEquals(line4, resultTable.get(0));
+
+		excludeMatchingLines.setRegExp("blabla"); // unchanged result
+		computeVisitor.visit(excludeMatchingLines);
+		resultTable = computeVisitor.getSourceTable().getTable();
+		assertEquals(1, resultTable.size());
+		assertEquals(line4, resultTable.get(0));
 	}
 }

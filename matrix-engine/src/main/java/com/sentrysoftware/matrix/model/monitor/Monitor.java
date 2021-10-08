@@ -1,13 +1,5 @@
 package com.sentrysoftware.matrix.model.monitor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -17,13 +9,20 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -41,6 +40,7 @@ public class Monitor {
 	private String parentId;
 	private String targetId;
 	private String extendedType;
+	private Long discoveryTime;
 
 	// parameter name to Parameter value
 	@Default
@@ -61,8 +61,8 @@ public class Monitor {
 		addParameter(parameter);
 
 		// Evaluate the alert rules
-		this.alertRules.getOrDefault(parameter.getName(), Collections.emptyList())
-			.stream()
+		this.alertRules
+			.getOrDefault(parameter.getName(), Collections.emptyList())
 			.forEach(rule -> rule.evaluate(this));
 	}
 

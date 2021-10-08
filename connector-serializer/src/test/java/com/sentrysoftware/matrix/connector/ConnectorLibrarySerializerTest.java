@@ -60,7 +60,7 @@ class ConnectorLibrarySerializerTest {
 	@Test
 	void testGetConnectorList() throws IOException {
 		List<String> connectorList = getConnectorList(Paths.get("src", "test", "resources", "hdf"));
-		assertEquals(3, connectorList.size());
+		assertEquals(4, connectorList.size());
 	}
 
 	@Test
@@ -101,7 +101,7 @@ class ConnectorLibrarySerializerTest {
 
 			assertTrue(Files.isDirectory(targetDir));
 			List<Path> resultList = Files.list(targetDir).collect(Collectors.toUnmodifiableList());
-			assertEquals(3, resultList.size());
+			assertEquals(4, resultList.size());
 		}
 	}
 

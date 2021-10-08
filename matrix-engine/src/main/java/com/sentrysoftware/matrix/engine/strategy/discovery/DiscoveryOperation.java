@@ -214,21 +214,23 @@ public class DiscoveryOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Create monitors from the same type, most of time this method is called with a {@link SourceInstanceTable},
-	 * In that case we loop over all the rows referenced in the {@link InstanceTable}, for each row we create a new
-	 * {@link Monitor} instance then we set the discovery metadata on each created monitor
+	 * Creates monitors from the same type.
+	 * Most of time, this method is called with a {@link SourceInstanceTable};
+	 * in that case we loop over all the rows referenced in the {@link InstanceTable},
+	 * and for each row we create a new {@link Monitor} instance,
+	 * then we set the discovery metadata on each created monitor.
 	 *
-	 * @param connectorName  The unique name of the {@link Connector}. The compiled file name
-	 * @param hostMonitoring The {@link IHostMonitoring} instance wrapping source tables and monitors
-	 * @param instanceTable  Defines the source key or the hard coded key
-	 * @param parameters     The discovery parameters to process (from the connector)
-	 * @param targetMonitor  The main monitor with {@link MonitorType#TARGET} type
-	 * @param monitorType    The current type of the monitor, {@link MonitorType}
-	 * @param hostname       The user's configured hostname used for debug purpose
+	 * @param connectorName			The unique name of the {@link Connector}. The compiled file name.
+	 * @param hostMonitoring		The {@link IHostMonitoring} instance wrapping source tables and monitors.
+	 * @param instanceTable			Defines the source key or the hard coded key.
+	 * @param parameters			The discovery parameters to process (from the connector).
+	 * @param targetMonitor			The main monitor with {@link MonitorType#TARGET} type.
+	 * @param monitorType			The current type of the monitor, {@link MonitorType}.
+	 * @param hostname				The user's configured hostname used for debug purpose.
 	 */
 	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
-			final InstanceTable instanceTable, final Map<String, String> parameters, final Monitor targetMonitor,
-			final MonitorType monitorType, final String hostname) {
+								final InstanceTable instanceTable, final Map<String, String> parameters,
+								final Monitor targetMonitor, final MonitorType monitorType, final String hostname) {
 
 		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
 
@@ -261,7 +263,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// Loop over each row (List) and create one monitor per row
 			for (final List<String> row : sourceTable.getTable()) {
 
-				final Monitor monitor = Monitor.builder().build();
+				final Monitor monitor = Monitor
+						.builder()
+						.discoveryTime(strategyTime)
+						.build();
+
 
 				processSourceTableMetadata(connectorName, parameters, sourceKey, row, monitor, idCount);
 
@@ -284,7 +290,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 			}
 
 		} else {
-			final Monitor monitor = Monitor.builder().build();
+
+			final Monitor monitor = Monitor
+					.builder()
+					.discoveryTime(strategyTime)
+					.build();
+
 
 			processTextParameters(parameters, monitor, connectorName);
 
@@ -329,6 +340,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connectorName The name of the connector to be set as metadata
 	 */
 	void processTextParameters(final Map<String, String> parameters, final Monitor monitor, final String connectorName) {
+
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 			monitor.addMetadata(parameter.getKey(), parameter.getValue());
 		}
@@ -481,7 +493,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			final String additionalInformation3 = temperatureMonitor.getMetadata(ADDITIONAL_INFORMATION3);
 			final Double warningThreshold = getTemperatureWarningThreshold(temperatureMonitor.getMetadata());
 
-			// Is this a cpu sensor? check all the information name, addtional information and the warning threshold
+			// Is this a cpu sensor? check all the information name, additional information and the warning threshold
 			if (isCpuSensor(warningThreshold, name, additionalInformation1, additionalInformation2, additionalInformation3)) {
 				temperatureMonitor.addMetadata(IS_CPU_SENSOR, Boolean.TRUE.toString());
 				cpuTemperatureSensorCount++;

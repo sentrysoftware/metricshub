@@ -1,13 +1,16 @@
 package com.sentrysoftware.hardware.prometheus.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * DTO to wrap the exporter configuration for all targets.
@@ -19,7 +22,7 @@ import java.util.HashSet;
 public class MultiHostsConfigurationDTO {
 
 	public static final int DEFAULT_JOB_POOL_SIZE = 20;
-	public static final int DEFAULT_COLLECT_PERIOD = 120;
+	public static final long DEFAULT_COLLECT_PERIOD = 120;
 	public static final int DEFAULT_DISCOVERY_CYCLE = 30;
 
 	@Default
@@ -29,10 +32,13 @@ public class MultiHostsConfigurationDTO {
 	private int jobPoolSize = DEFAULT_JOB_POOL_SIZE;
 
 	@Default
-	private int collectPeriod = DEFAULT_COLLECT_PERIOD;
+	@JsonDeserialize(using = TimeDeserializer.class)
+	private long collectPeriod = DEFAULT_COLLECT_PERIOD;
 
 	@Default
 	private int discoveryCycle = DEFAULT_DISCOVERY_CYCLE;
+
+	private boolean exportTimestamps;
 
 	/**
 	 * Build a new empty instance

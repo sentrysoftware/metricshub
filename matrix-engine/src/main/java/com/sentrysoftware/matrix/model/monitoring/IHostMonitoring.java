@@ -42,7 +42,7 @@ public interface IHostMonitoring {
 	void addMonitor(Monitor monitor, String id, String connectorName, MonitorType monitorType,
 			String attachedToDeviceId, String attachedToDeviceType);
 
-	void resetParameters();
+	void saveParameters();
 
 	void addMissingMonitor(Monitor monitor);
 

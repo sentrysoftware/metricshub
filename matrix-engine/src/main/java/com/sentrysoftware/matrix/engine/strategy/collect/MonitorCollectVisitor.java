@@ -32,6 +32,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameterValue;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -54,6 +55,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -127,6 +129,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
 	private static final String UNKNOWN_STATUS_CANNOT_BE_NULL = "unknownStatus cannot be null.";
 
+	@Getter
 	private MonitorCollectInfo monitorCollectInfo;
 
 	private static final Map<String, Function<ParameterState, String>> STATUS_INFORMATION_MAP;
@@ -480,6 +483,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
+
+		// Making sure the parameter is not in the parameterActivation Set
+		if (EMPTY.equals(monitor.getMetadata(String.format("ParameterActivation.%s", parameterName)))) {
+			return null;
+		}
 
 		// Get the number value as string from the current row
 		final String stringValue = CollectHelper.getValueTableColumnValue(valueTable,
