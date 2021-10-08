@@ -38,7 +38,7 @@ public class MultiHostsConfigurationDTO {
 	@Default
 	private int discoveryCycle = DEFAULT_DISCOVERY_CYCLE;
 
-	private boolean honorTimestamps;
+	private boolean exportTimestamps;
 
 	/**
 	 * Build a new empty instance

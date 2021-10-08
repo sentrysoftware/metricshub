@@ -881,19 +881,19 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testGetCollectTime() {
 		{
-			doReturn(false).when(multiHostsConfigurationDTO).isHonorTimestamps();
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
 		}
 
 		{
 			// Parameter missing
-			doReturn(true).when(multiHostsConfigurationDTO).isHonorTimestamps();
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
 		}
 
 		{
 			// Parameter missing
-			doReturn(true).when(multiHostsConfigurationDTO).isHonorTimestamps();
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
 			final Map<String, IParameterValue> parameters = Map.of("parameter",
 					NumberParam.builder().collectTime(123456789L).build());
 			assertEquals(123456789L, hostMonitoringCollectorService
@@ -904,12 +904,12 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testGetDiscoveryTime() {
 		{
-			doReturn(false).when(multiHostsConfigurationDTO).isHonorTimestamps();
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getDiscoveryTime(Monitor.builder().build()));
 		}
 
 		{
-			doReturn(true).when(multiHostsConfigurationDTO).isHonorTimestamps();
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
 			assertEquals(123456789L, hostMonitoringCollectorService
 					.getDiscoveryTime(Monitor.builder().discoveryTime(123456789L).build()));
 		}

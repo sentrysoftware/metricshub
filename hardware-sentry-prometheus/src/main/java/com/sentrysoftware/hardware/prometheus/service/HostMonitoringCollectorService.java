@@ -92,7 +92,7 @@ public class HostMonitoringCollectorService extends Collector {
 				// fqdn, Id, label, parentId (can be null)
 				createLabels(monitor),
 				convertMetadataValue(monitor.getMetadata(matrixMetadataName), factor),
-				// collect time is not provided for metadata
+				// collect time is not provided for metadata, let's use the discovery time
 				getDiscoveryTime(monitor)
 		);
 	}
@@ -547,7 +547,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return Long value
 	 */
 	Long getDiscoveryTime(final Monitor monitor) {
-		return multiHostsConfigurationDTO.isHonorTimestamps() ? monitor.getDiscoveryTime() : null;
+		return multiHostsConfigurationDTO.isExportTimestamps() ? monitor.getDiscoveryTime() : null;
 	}
 
 	/**
@@ -559,7 +559,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return Long value
 	 */
 	Long getCollectTime(final Monitor monitor, final String parameterName) {
-		if (!multiHostsConfigurationDTO.isHonorTimestamps()) {
+		if (!multiHostsConfigurationDTO.isExportTimestamps()) {
 			return null;
 		}
 
