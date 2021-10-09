@@ -71,6 +71,7 @@ class StrategyTaskTest {
 		final HostMonitoring hostMonitoring = spy(HostMonitoring.class);
 
 		doReturn(hostMonitoring).when(strategyTaskInfo).getHostMonitoring();
+		doReturn("OFF").when(strategyTaskInfo).getLoggerLevel();
 		doReturn(engineConfiguration).when(hostMonitoring).getEngineConfiguration();
 		doReturn(EngineResult.builder().build()).when(hostMonitoring).run(any());
 

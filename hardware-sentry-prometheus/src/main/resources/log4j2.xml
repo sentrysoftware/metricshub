@@ -12,7 +12,7 @@
 		</Console>
 		<Routing name="Routing">
 			<Routes pattern="$${ctx:targetId}">
-				<!-- This route is chosen if ThreadContext has debugMode = true. -->
+				<!-- This route is chosen if ThreadContext has loggerLevel = DEBUG/INFO/ERROR/WARN/TRACE. -->
 				<Route>
 					<RollingFile name="Rolling-${ctx:targetId}"
 								 fileName="${ctx:outputDirectory}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
@@ -41,8 +41,7 @@
 		<logger name="com.sentrysoftware" level="trace">
 			<appender-ref ref="Routing">
 				<ThreadContextMapFilter onMatch="DENY" onMismatch="ACCEPT">
-					<KeyValuePair key="debugMode" value="" />
-					<KeyValuePair key="debugMode" value="false" />
+					<KeyValuePair key="loggerLevel" value="OFF" />
 				</ThreadContextMapFilter>
 			</appender-ref>
 		</logger>
