@@ -162,17 +162,11 @@ class CollectHelperTest {
 				ROW,
 				"Valuetable.Column(4)"));
 
-		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
+		assertEquals("Server", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(string)"));
-
-		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				STATUS_PARAMETER,
-				ENCLOSURE,
-				ROW,
-				"Valuetable.Column(-1)"));
+				"Server"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
