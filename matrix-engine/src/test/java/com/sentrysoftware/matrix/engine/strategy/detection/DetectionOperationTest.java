@@ -1,38 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -54,6 +22,37 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
@@ -424,5 +423,18 @@ class DetectionOperationTest {
 
 		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OSCommandSource.class));
 		assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
+	}
+
+	@Test
+	void testFilterNoAutoDetectionConnectors() {
+
+		Connector connector1 = new Connector(); // connector1.getNoAutoDetection() == null
+		Connector connector2 = Connector.builder().noAutoDetection(Boolean.FALSE).build(); // connector2.getNoAutoDetection() == Boolean.FALSE
+		Connector connector3 = Connector.builder().noAutoDetection(Boolean.TRUE).build(); // connector2.getNoAutoDetection() == Boolean.TRUE
+
+		Stream<Connector> connectorsStreamResult = DetectionOperation.filterNoAutoDetectionConnectors(Stream.of(connector1, connector2, connector3));
+		assertNotNull(connectorsStreamResult);
+		Set<Connector> connectorsSetResult = connectorsStreamResult.collect(Collectors.toSet());
+		assertEquals(Set.of(connector1, connector2), connectorsSetResult);
 	}
 }

@@ -25,7 +25,8 @@ public class ConnectorSimpleProperty {
 					new LocalSupportProcessor(),
 					new AppliesToOSProcessor(),
 					new SupersedesProcessor(),
-					new CommentsProcessor())
+					new CommentsProcessor(),
+					new NoAutoDetectionProcessor())
 				.collect(Collectors.toSet());
 	}
 
@@ -174,6 +175,22 @@ public class ConnectorSimpleProperty {
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
 				connector.setComments(value.trim());
+			}
+		}
+	}
+
+	public static class NoAutoDetectionProcessor implements IConnectorStateParser {
+
+		@Override
+		public boolean detect(final String key, final String value, final Connector connector) {
+			return ConnectorSimpleProperty.detect(key, value, "hdf.noautodetection");
+		}
+
+		@Override
+		public void parse(final String key, final String value, final Connector connector) {
+
+			if (connector != null) {
+				connector.setNoAutoDetection(Boolean.valueOf(value));
 			}
 		}
 	}
