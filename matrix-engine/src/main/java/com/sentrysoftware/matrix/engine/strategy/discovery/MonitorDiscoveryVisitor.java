@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
@@ -200,6 +201,14 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final Monitor monitor = createMonitor(MonitorNameBuilder.buildRoboticsName(monitorBuildingInfo), null);
 
 		robotics.accept(new MonitorAlertRulesVisitor(monitor));
+	}
+
+	@Override
+	public void visit(Vm vm) {
+
+		final Monitor monitor = createMonitor(MonitorNameBuilder.buildVmName(monitorBuildingInfo), null);
+
+		vm.accept(new MonitorAlertRulesVisitor(monitor));
 	}
 
 	@Override

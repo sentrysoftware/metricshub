@@ -1,5 +1,51 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
@@ -69,53 +115,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
-
-import java.math.RoundingMode;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
-import org.springframework.util.Assert;
-
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Battery;
-import com.sentrysoftware.matrix.common.meta.monitor.Blade;
-import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
-import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Led;
-import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.Lun;
-import com.sentrysoftware.matrix.common.meta.monitor.Memory;
-import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
-import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
-import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
-import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
-import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
-import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
-import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
@@ -336,6 +335,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(temperature);
 
 		collectTemperature();
+	}
+
+	@Override
+	public void visit(Vm vm) {
+
+		collectBasicParameters(vm);
 	}
 
 	@Override
@@ -973,7 +978,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final double powerConsumption;
 
 		// Virtual or WAN card: 0 (it's not physical)
-		if (lowerCaseName.indexOf("wan") >= 0 || lowerCaseName.indexOf("virt") >= 0) {
+		if (lowerCaseName.contains("wan") || lowerCaseName.contains("virt")) {
 			powerConsumption = 0.0;
 		}
 
@@ -1068,13 +1073,13 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	double estimateTapeDrivePowerConsumption(final boolean active, final String lowerCaseName) {
 
-		if (lowerCaseName.indexOf("lto") >= 0) {
+		if (lowerCaseName.contains("lto")) {
 			return active ? 46 : 30;
-		} else if (lowerCaseName.indexOf("t10000d") >= 0) {
+		} else if (lowerCaseName.contains("t10000d")) {
 			return active ? 127 : 64;
-		} else if (lowerCaseName.indexOf("t10000") >= 0) {
+		} else if (lowerCaseName.contains("t10000")) {
 			return active ? 93 : 61;
-		} else if (lowerCaseName.indexOf("ts") >= 0) {
+		} else if (lowerCaseName.contains("ts")) {
 			return active ? 53 : 35;
 		}
 
@@ -1257,7 +1262,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Not possible to monitor if the cable is not connected
 		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, LINK_STATUS_PARAMETER);
-		if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
+		if (ParameterState.OK.equals(linkStatus)) {
 
 			// Getting the duplex mode
 			final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(), DUPLEX_MODE_PARAMETER);

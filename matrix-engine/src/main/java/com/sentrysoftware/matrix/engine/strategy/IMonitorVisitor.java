@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 public interface IMonitorVisitor {
@@ -66,4 +67,5 @@ public interface IMonitorVisitor {
 
 	void visit(Robotics robotics);
 
+	void visit(Vm vm);
 }

@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -93,6 +94,7 @@ public class MonitorNameBuilder {
 	private static final Pattern TAPE_DRIVE_TRIM_PATTERN = Pattern.compile("tape|drive", Pattern.CASE_INSENSITIVE);
 	private static final Pattern TEMPERATURE_TRIM_PATTERN = Pattern.compile("temp(erature)*|sensor", Pattern.CASE_INSENSITIVE);
 	private static final Pattern VOLTAGE_TRIM_PATTERN = Pattern.compile("voltage", Pattern.CASE_INSENSITIVE);
+	private static final Pattern VM_TRIM_PATTERN = Pattern.compile("vm", Pattern.CASE_INSENSITIVE);
 
 	// Network card vendor/model words to be trimmed
 	private static final Pattern NETWORK_VENDOR_MODEL_TRIM_PATTERN = Pattern.compile("network|ndis|client|server|adapter|ethernet|interface|controller|miniport|scheduler|packet|connection|multifunction|(1([0]+[/]*))*(base[\\-tx]*)*", Pattern.CASE_INSENSITIVE);
@@ -272,7 +274,7 @@ public class MonitorNameBuilder {
 	private static String humanReadableByteCountBin(final String string) {
 
 		if (string == null) {
-			return string;
+			return null;
 		}
 
 		Double bytesD;
@@ -311,10 +313,10 @@ public class MonitorNameBuilder {
 	private static String humanReadableByteCountSI(final String string) {
 
 		if (string == null) {
-			return string;
+			return null;
 		}
 
-		Double bytes;
+		double bytes;
 		try {
 			bytes = Double.parseDouble(string);
 		} catch (NumberFormatException e) {
@@ -1109,4 +1111,39 @@ public class MonitorNameBuilder {
 		);
 	}
 
+	/**
+	 * Builds the VM name based on the current implementation in Hardware Sentry KM
+	 *
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 *
+	 * @return {@link String} name Label of the VM to be displayed
+	 */
+	public static String buildVmName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		String displayId = metadata.get(HardwareConstants.DISPLAY_ID);
+		final String hostname = metadata.get(HardwareConstants.HOSTNAME);
+		if ((displayId == null || displayId.isBlank())) {
+			displayId = hostname;
+		}
+
+		// Build the name
+		return buildName(
+
+			// Type
+			null,
+
+			// Name
+			displayId,
+			metadata.get(HardwareConstants.DEVICE_ID),
+			metadata.get(HardwareConstants.ID_COUNT),
+			VM_TRIM_PATTERN,
+
+			// Additional label
+			hostname
+		);
+	}
 }

@@ -1,5 +1,48 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
+import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
+import com.sentrysoftware.matrix.engine.strategy.discovery.HardwareMonitorComparator;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
+import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
@@ -26,6 +69,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SOURCE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
@@ -33,49 +79,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
 import static org.springframework.util.Assert.state;
-
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
-import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
-import com.sentrysoftware.matrix.engine.strategy.discovery.HardwareMonitorComparator;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -917,7 +920,7 @@ public class CollectOperation extends AbstractStrategy {
 			final ParameterState linkStatus = CollectHelper.getStatusParamState(networkCardMonitor, LINK_STATUS_PARAMETER);
 
 			// If there is connected count it.
-			if (linkStatus != null && ParameterState.OK.equals(linkStatus)) {
+			if (ParameterState.OK.equals(linkStatus)) {
 				connectedPortsCount++;
 			}
 
@@ -993,6 +996,10 @@ public class CollectOperation extends AbstractStrategy {
 			estimateTargetPowerConsumption();
 		}
 
+		// Estimate the VMs Power Consumption
+		// The VMs power consumption needs to be estimated in the post collect strategy
+		// because it requires the power consumption of the device whose power source the VMs are consuming
+		estimateVmsPowerConsumption();
 
 		// Set the power meter metadata
 		final PowerMeter powerMeter = hostMonitoring.getPowerMeter();
@@ -1175,6 +1182,120 @@ public class CollectOperation extends AbstractStrategy {
 		CollectHelper.collectEnergyUsageFromPower(cpu, collectTime, powerConsumption, hostname);
 	}
 
+	/**
+	 * Estimates the power consumption, energy and energy usage values of all online VMs.
+	 */
+	void estimateVmsPowerConsumption() {
+
+		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		// Getting all the VMs
+		Map<String, Monitor> allVMsById = hostMonitoring.selectFromType(MonitorType.VM);
+		if (allVMsById == null || allVMsById.isEmpty()) {
+			return;
+		}
+
+		Collection<Monitor> allVms = allVMsById.values();
+
+		// Getting all the power shares by power source ID (only for online VMs)
+		Map<String, Double> totalPowerSharesByPowerSource = allVms
+			.stream()
+			.filter(this::isVmOnline)
+			.collect(Collectors.toMap(vm -> getVmPowerSourceMonitorId(vm, hostMonitoring),
+				vm -> NumberHelper.parseDouble(vm.getMetadata(POWER_SHARE), 0.0),
+				Double::sum));
+
+		// Setting the power consumption and energyUsage for each online VM
+		allVms
+			.stream()
+			.filter(this::isVmOnline)
+			.forEach(vm -> estimateVmPowerConsumption(vm, totalPowerSharesByPowerSource, hostMonitoring));
+	}
+
+	/**
+	 * Estimates the power consumption, energy and energy usage values of the given VM.
+	 *
+	 * @param vm							The VM whose consumption values should be estimated.
+	 * @param totalPowerSharesByPowerSource	A {@link Map} associating each power source {@link Monitor} ID
+	 *                                      to the sum of all power shares of the VMs consuming power from it.
+	 * @param hostMonitoring				The {@link IHostMonitoring} instance wrapping all {@link Monitor}s.
+	 */
+	void estimateVmPowerConsumption(Monitor vm, Map<String, Double> totalPowerSharesByPowerSource,
+									IHostMonitoring hostMonitoring) {
+
+		// Making sure the VM's power share value is >= 0.0
+		double powerShareAsDouble = NumberHelper.parseDouble(vm.getMetadata(POWER_SHARE), -1.0);
+		if (powerShareAsDouble < 0.0) {
+			return;
+		}
+
+		// Getting the VM's power share ratio
+		String powerSourceId = vm.getMetadata(POWER_SOURCE_ID);
+		Double totalPowerShares = totalPowerSharesByPowerSource.get(powerSourceId);
+		double powerShareRatio = (totalPowerShares != null && totalPowerShares > 0.0)
+			? powerShareAsDouble / totalPowerShares
+			: 0.0;
+
+		// Getting the power source's power consumption value
+		Monitor powerSourceMonitor = hostMonitoring.findById(powerSourceId);
+
+		NumberParam powerSourcePowerConsumptionParameter = powerSourceMonitor
+			.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
+
+		Assert.state(powerSourcePowerConsumptionParameter != null,
+			String.format("%s's power consumption parameter should not be null.", powerSourceId));
+
+		Double powerSourcePowerConsumptionValue = powerSourcePowerConsumptionParameter.getValue();
+
+		Assert.state(powerSourcePowerConsumptionValue != null,
+			String.format("%s's power consumption value should not be null.", powerSourceId));
+
+		// Setting the VM's power consumption, energy and energy usage values
+		if (powerSourcePowerConsumptionValue >= 0.0) {
+
+			double powerConsumption = NumberHelper.round(powerSourcePowerConsumptionValue * powerShareRatio, 2,
+				RoundingMode.HALF_UP);
+
+			// This will set the energy, the delta energy called energyUsage and the powerConsumption on the VM monitor
+			CollectHelper.collectEnergyUsageFromPower(vm,
+				strategyTime,
+				powerConsumption,
+				strategyConfig
+					.getEngineConfiguration()
+					.getTarget()
+					.getHostname());
+		}
+	}
+
+	/**
+	 * @param vm	The VM whose online status should be determined.
+	 *
+	 * @return		Whether or not the given VM is online.
+	 */
+	boolean isVmOnline(Monitor vm) {
+
+		return ParameterState.OK.equals(CollectHelper.getStatusParamState(vm, POWER_STATE_PARAMETER));
+	}
+
+	/**
+	 * @return The ID of the parent {@link Monitor} whose power source is consumed by the given VM.
+	 */
+	String getVmPowerSourceMonitorId(Monitor vm, IHostMonitoring hostMonitoring) {
+
+		// If the parent has a power consumption, then we have the power source
+		Monitor parent = hostMonitoring.findById(vm.getParentId());
+		if (parent != null && parent.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class) != null) {
+
+			vm.addMetadata(POWER_SOURCE_ID, parent.getId());
+			return parent.getId();
+		}
+
+		// If the parent does not have a power consumption, the power source is the target
+		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		vm.addMetadata(POWER_SOURCE_ID, targetMonitor.getId());
+
+		return targetMonitor.getId();
+	}
 
 	/**
 	 * Set the power consumption (15W by default for disk controllers) Source:
@@ -1204,7 +1325,6 @@ public class CollectOperation extends AbstractStrategy {
 			));
 	}
 
-
 	/**
 	 * Estimated power consumption: 4W
 	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
@@ -1232,7 +1352,6 @@ public class CollectOperation extends AbstractStrategy {
 				hostname
 			));
 	}
-
 
 	/**
 	 * Estimates the power dissipation for each physical disk, based on its characteristics:
@@ -1273,7 +1392,7 @@ public class CollectOperation extends AbstractStrategy {
 							monitor.getId(), monitor.getName());
 				}
 	
-				final String[] data = dataList.toArray(new String[dataList.size()]);
+				final String[] data = dataList.toArray(new String[0]);
 	
 				final double powerConsumption;
 	
@@ -1301,7 +1420,6 @@ public class CollectOperation extends AbstractStrategy {
 				CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 
 			});
-
 	}
 
 	/**
@@ -1380,5 +1498,4 @@ public class CollectOperation extends AbstractStrategy {
 		}
 		return 3.0;
 	}
-
 }

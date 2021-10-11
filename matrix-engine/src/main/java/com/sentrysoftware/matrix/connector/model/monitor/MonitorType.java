@@ -1,13 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
-import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
@@ -18,6 +12,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.Lun;
 import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
@@ -26,11 +21,16 @@ import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 @AllArgsConstructor
@@ -56,6 +56,7 @@ public enum MonitorType {
 	ROBOTICS("Robotic", "Robotics", "Robotics", new Robotics(), "robotics"),
 	TAPE_DRIVE("TapeDrive", "Tape Drive", "Tape Drives", new TapeDrive(), "tapedrive"),
 	TEMPERATURE("Temperature", "Temperature", "Temperatures", new Temperature(), "temperature"),
+	VM("VM", "Virtual Machine", "Virtual Machines", new Vm(), "vm"),
 	VOLTAGE("Voltage", "Voltage", "Voltages", new Voltage(), "voltage");
 
 	public static final List<MonitorType> MONITOR_TYPES = Collections.unmodifiableList(Arrays.asList(MonitorType.values()));

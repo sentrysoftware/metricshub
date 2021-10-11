@@ -54,6 +54,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
@@ -111,6 +112,7 @@ public class PrometheusSpecificities {
 		labelsMap.put(MonitorType.TAPE_DRIVE, concatLabelsWithMetadata(MonitorType.TAPE_DRIVE));
 		labelsMap.put(MonitorType.TEMPERATURE, concatLabelsWithMetadata(MonitorType.TEMPERATURE));
 		labelsMap.put(MonitorType.VOLTAGE, concatLabelsWithMetadata(MonitorType.VOLTAGE));
+		labelsMap.put(MonitorType.VM, concatLabelsWithMetadata(MonitorType.VM));
 		labelsMap.put(MonitorType.CONNECTOR, concatLabelsWithMetadata(MonitorType.CONNECTOR));
 
 		metricInfoLabels = Collections.unmodifiableMap(labelsMap);
@@ -137,6 +139,7 @@ public class PrometheusSpecificities {
 		prometheusParametersMap.put(MonitorType.TAPE_DRIVE, buildTapeDrivePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.TEMPERATURE, buildTemperaturePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VOLTAGE, buildVoltagePrometheusParameters());
+		prometheusParametersMap.put(MonitorType.VM, buildVmPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.TARGET, buildTargetPrometheusParameters());
 
 		prometheusParameters = Collections.unmodifiableMap(prometheusParametersMap);
@@ -163,11 +166,10 @@ public class PrometheusSpecificities {
 		infoMetricsMap.put(MonitorType.TAPE_DRIVE, "hw_tape_drive_info");
 		infoMetricsMap.put(MonitorType.TEMPERATURE, "hw_temperature_info");
 		infoMetricsMap.put(MonitorType.VOLTAGE, "hw_voltage_info");
+		infoMetricsMap.put(MonitorType.VM, "hw_vm_info");
 		infoMetricsMap.put(MonitorType.TARGET, "hw_target_info");
 
 		infoMetricNames = Collections.unmodifiableMap(infoMetricsMap);
-
-
 
 		final Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataParametersMap = new EnumMap<>(MonitorType.class);
 
@@ -517,6 +519,7 @@ public class PrometheusSpecificities {
 
 		return map;
 	}
+
 	/**
 	 * Build voltage prometheus parameters map
 	 *
@@ -1143,6 +1146,36 @@ public class PrometheusSpecificities {
 		map.put(Battery.TIME_LEFT.getName(), PrometheusParameter.builder()
 			.name("hw_battery_time_left_seconds")
 			.unit(Battery.TIME_LEFT.getUnit())
+			.build());
+
+		return map;
+	}
+
+	/**
+	 * Build VM prometheus parameters map
+	 *
+	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
+	 */
+	private static Map<String, PrometheusParameter> buildVmPrometheusParameters() {
+
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
+			.name("hw_vm_status")
+			.unit(IMetaMonitor.STATUS.getUnit())
+			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
+			.name("hw_vm_present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.build());
+		map.put(Vm.POWER_STATE.getName(), PrometheusParameter.builder()
+			.name("hw_vm_power_state")
+			.unit(Vm.POWER_STATE.getUnit())
+			.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+			.name("hw_vm_energy_joules")
+			.unit(JOULES)
+			.type(PrometheusMetricType.COUNTER)
 			.build());
 
 		return map;
