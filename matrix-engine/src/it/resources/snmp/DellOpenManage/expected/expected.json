@@ -4506,7 +4506,8 @@
     },
     "metadata" : {
       "location" : "localhost",
-      "operatingSystemType" : "LINUX"
+      "operatingSystemType" : "LINUX",
+      "powerMeter": "collected"
     },
     "alertRules" : { }
   }, {

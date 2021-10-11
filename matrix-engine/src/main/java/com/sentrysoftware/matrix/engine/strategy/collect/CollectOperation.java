@@ -77,6 +77,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_M
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
 import static org.springframework.util.Assert.state;
 
 @Slf4j
@@ -985,7 +986,10 @@ public class CollectOperation extends AbstractStrategy {
 		// because the computation requires the target Thermal Dissipation Rate which is also collected at the end of the collect.
 		estimateCpusPowerConsumption();
 
-		if (!PowerMeter.COLLECTED.equals(strategyConfig.getHostMonitoring().getPowerMeter())) {
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		// Are we collecting the power consumption?
+		if (!PowerMeter.COLLECTED.equals(hostMonitoring.getPowerMeter())) {
 			// Estimate the target Power Consumption
 			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
 			// account for the power supplies' heat dissipation (90% efficiency assumed).
@@ -996,6 +1000,11 @@ public class CollectOperation extends AbstractStrategy {
 		// The VMs power consumption needs to be estimated in the post collect strategy
 		// because it requires the power consumption of the device whose power source the VMs are consuming
 		estimateVmsPowerConsumption();
+
+		// Set the power meter metadata
+		final PowerMeter powerMeter = hostMonitoring.getPowerMeter();
+		getTargetMonitor(hostMonitoring)
+			.addMetadata(POWER_METER, powerMeter != null ? powerMeter.name().toLowerCase() : null);
 	}
 
 	/**
@@ -1383,7 +1392,7 @@ public class CollectOperation extends AbstractStrategy {
 							monitor.getId(), monitor.getName());
 				}
 	
-				final String[] data = dataList.toArray(new String[dataList.size()]);
+				final String[] data = dataList.toArray(new String[0]);
 	
 				final double powerConsumption;
 	

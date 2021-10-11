@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.NoAutoDetectionProcessor;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -37,6 +38,7 @@ class ConnectorSimplePropertyTest {
 	private static final String LOCAL_SUPPORT_KEY = "hdf.LocalSupport";
 	private static final String APPLIES_TO_OS_KEY = "hdf.AppliesToOS";
 	private static final String COMMENTS_KEY = "hdf.comments";
+	private static final String NO_AUTODETECTION_KEY = "hdf.NoAutoDetection";
 
 	private static final String DISPLAY_NAME_VALUE = "Dell OpenManage Server Administrator"; 
 	private static final String SUPERSEDES_VALUE = "MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf";
@@ -50,7 +52,8 @@ class ConnectorSimplePropertyTest {
 	private static final String LOCAL_SUPPORT_VALUE_FALSE = "false";
 	private static final String APPLIES_TO_OS_VALUE = "Linux,NT";
 	private static final String APPLIES_TO_OS_VALUE_SPACED = " Linux , NT ";
-	private static final String  COMMENTS_VALUE = "This the description of the Connector";
+	private static final String COMMENTS_VALUE = "This the description of the Connector";
+	private static final String FOO = "FOO";
 
 	private static final Set<String> SUPERSEDES_VALUE_RESULT = new HashSet<>(
 			Arrays.asList("MS_HW_IpmiTool.hdf","MS_HW_VMwareESX4i.hdf")
@@ -999,9 +1002,9 @@ class ConnectorSimplePropertyTest {
 		assertEquals(
 				Stream.of(DisplayNameProcessor.class, TypicalPlatformProcessor.class, ReliesOnProcessor.class, VersionProcessor.class,
 						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class,
-						CommentsProcessor.class)
+						CommentsProcessor.class, NoAutoDetectionProcessor.class)
 						.collect(Collectors.toSet()),
-				ConnectorSimpleProperty.getConnectorProperties().stream().map(obj -> obj.getClass()).collect(Collectors.toSet()));
+				ConnectorSimpleProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
 	}
 
 	void testCommentsProcessorDetectOK() {
@@ -1038,5 +1041,32 @@ class ConnectorSimplePropertyTest {
 		Connector connector = new Connector();
 		commentsProcessor.parse(COMMENTS_KEY, COMMENTS_VALUE, connector);
 		assertEquals(COMMENTS_VALUE, connector.getComments());
+	}
+
+	@Test
+	void testNoAutoDetectionParse() {
+
+		NoAutoDetectionProcessor noAutoDetectionProcessor = new NoAutoDetectionProcessor();
+
+		// connector is null
+		assertDoesNotThrow(() -> noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, FOO, null));
+
+		// connector is not null, value is null
+		Connector connector = new Connector();
+		assertNull(connector.getNoAutoDetection());
+		noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, null, connector);
+		assertFalse(connector.getNoAutoDetection());
+
+		// connector is not null, value is not null, value is neither true nor false
+		noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, FOO, connector);
+		assertFalse(connector.getNoAutoDetection());
+
+		// connector is not null, value is not null, value is false
+		noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, Boolean.FALSE.toString(), connector);
+		assertFalse(connector.getNoAutoDetection());
+
+		// connector is not null, value is not null, value is true
+		noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, Boolean.TRUE.toString(), connector);
+		assertTrue(connector.getNoAutoDetection());
 	}
 }
