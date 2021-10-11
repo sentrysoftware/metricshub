@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -273,7 +274,7 @@ public class MonitorNameBuilder {
 	private static String humanReadableByteCountBin(final String string) {
 
 		if (string == null) {
-			return string;
+			return null;
 		}
 
 		Double bytesD;
@@ -312,10 +313,10 @@ public class MonitorNameBuilder {
 	private static String humanReadableByteCountSI(final String string) {
 
 		if (string == null) {
-			return string;
+			return null;
 		}
 
-		Double bytes;
+		double bytes;
 		try {
 			bytes = Double.parseDouble(string);
 		} catch (NumberFormatException e) {
