@@ -26,6 +26,7 @@ public class FileWatcherTask extends Thread {
 	private Predicate<WatchEvent<?>> filter;
 	@NonNull
 	private Runnable onChange;
+	private long await;
 
 	@Override
 	public void run() {
@@ -73,8 +74,8 @@ public class FileWatcherTask extends Thread {
 				while ((key = watchService.take()) != null) {
 					key.pollEvents()
 						.stream()
-						.filter(event -> filter.test(event))
-						.forEach(event -> onChange.run());
+						.filter(event ->  filter.test(event))
+						.forEach(event ->  performAction());
 
 					// The key is no more valid and must be reset
 					if (!key.reset()) {
@@ -82,6 +83,26 @@ public class FileWatcherTask extends Thread {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Perform the onChange action and await before running the action if requested
+	 */
+	private void performAction() {
+		try {
+			// Should wait before performing the action? the event could trigger but the
+			// file is in intermediate state, an example of this issue is the Jackson exception:
+			// MismatchedInputException: No content to map due to end-of-input
+			if (await > 0) {
+				sleep(await);
+			}
+			onChange.run();
+		} catch (InterruptedException e) {
+			log.info("FileWatcherTask onChange - Received Interrupted Exception: {}", e.getMessage());
+			interrupt();
+		} catch (Exception e) {
+			log.info("FileWatcherTask onChange - Error detected: {}", e.getMessage());
 		}
 	}
 

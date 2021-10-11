@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.dto;
 
+import static com.sentrysoftware.hardware.prometheus.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -66,4 +68,10 @@ public class HostConfigurationDTO {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long collectPeriod;
 	private Integer discoveryCycle;
+
+	@Default
+	private String loggerLevel = "OFF";
+
+	@Default
+	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
 }

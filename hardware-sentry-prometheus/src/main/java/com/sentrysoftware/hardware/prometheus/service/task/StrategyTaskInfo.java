@@ -19,6 +19,6 @@ public class StrategyTaskInfo {
 
 	private int discoveryCycle;
 	private int serverPort;
-	private boolean debugMode;
+	private String loggerLevel;
 	private String outputDirectory;
 }

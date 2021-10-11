@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.prometheus.configuration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,10 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
+
+	public static final String DEFAULT_OUTPUT_DIRECTORY = Paths
+			.get(System.getProperty("java.io.tmpdir"), "hardware-logs")
+			.toString();
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -196,6 +201,14 @@ public class ConfigHelper {
 				if (configDto.getDiscoveryCycle() == null) {
 					configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
 				}
+
+				// Set the global level in the target log level.
+				// Always the global logger settings wins as the matrix logger
+				// 'com.sentrysoftware', is created only once and handles the Level globally for
+				// all the targets.
+				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
+				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
+
 			});
 
 			return multiHostsConfig;

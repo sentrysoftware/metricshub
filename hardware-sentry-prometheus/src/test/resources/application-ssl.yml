@@ -15,7 +15,6 @@ server:
 trust:
   store:
     password: Sentry
-debugMode: false
 project:
   name: "Hardware Sentry Exporter for Prometheus"
   version: "10"

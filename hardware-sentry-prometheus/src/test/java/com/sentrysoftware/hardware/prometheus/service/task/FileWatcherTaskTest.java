@@ -52,4 +52,39 @@ class FileWatcherTaskTest {
 
 	}
 
+	@Test
+	void testRunAwait() throws IOException, InterruptedException {
+
+		// This test starts the watcher task then create a file in the temporary Junit test directory
+		// then verifies that the watcher task performed the callback correctly on the create event
+
+		final Path testFilePath = tempDir.resolve("testFileAwait.tmp");
+		final File testFile = testFilePath.toFile();
+
+		final StringBuilder stringBuilder = new StringBuilder();
+
+		// Start the file watcher
+		FileWatcherTask.builder()
+			.file(testFile)
+			.filter(event -> {
+				return event.kind() != null && event.context() != null 
+						&& StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())
+						&& testFile.getName().equals(event.context().toString());
+			})
+			.onChange(() -> stringBuilder.append("File updated"))
+			.await(100)
+			.build()
+			.start();
+
+		Awaitility
+			.await()
+			.atMost(Durations.FIVE_HUNDRED_MILLISECONDS)
+			.until(() -> testFile.createNewFile());
+
+		Awaitility
+			.await()
+			.atMost(Durations.FIVE_HUNDRED_MILLISECONDS)
+			.untilAsserted(() -> assertEquals("File updated", stringBuilder.toString()));
+
+	}
 }

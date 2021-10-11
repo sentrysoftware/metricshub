@@ -3,7 +3,6 @@ target:
     file: data/hardware-sentry-config.yml
 server:
   port: 8080
-debugMode: false
 outputDirectory: /tmp/hardware-logs
 project:
   name: "Hardware Sentry Exporter for Prometheus"

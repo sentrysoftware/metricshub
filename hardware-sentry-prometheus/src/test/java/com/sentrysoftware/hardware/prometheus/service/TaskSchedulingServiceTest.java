@@ -1,6 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -13,11 +14,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.Trigger;
@@ -55,6 +58,7 @@ class TaskSchedulingServiceTest {
 	private Map<String, ScheduledFuture<?>> targetSchedules;
 
 	@InjectMocks
+	@Autowired
 	public TaskSchedulingService taskSechedulingService;
 
 	@Test
@@ -165,5 +169,12 @@ class TaskSchedulingServiceTest {
 		taskSechedulingService.updateConfiguration(targetConfigPath);
 
 		verify(targetTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
+	}
+
+	@Test
+	void testGetLoggerLevel() {
+		assertEquals(Level.OFF, taskSechedulingService.getLoggerLevel(null));
+		assertEquals(Level.DEBUG, taskSechedulingService.getLoggerLevel("debug"));
+		assertEquals(Level.OFF, taskSechedulingService.getLoggerLevel("unknown"));
 	}
 }

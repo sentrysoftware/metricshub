@@ -174,7 +174,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			if (e instanceof InterruptedException) {
 				Thread.currentThread().interrupt();
 			}
-			log.error("Waiting for threads termination aborted with an error", e);
+			log.debug("Waiting for threads termination aborted with an error", e);
 		}
 	}
 

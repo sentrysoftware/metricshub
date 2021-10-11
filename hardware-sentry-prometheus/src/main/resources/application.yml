@@ -3,7 +3,6 @@ target:
     file: hardware-sentry-config.yml
 server:
   port: 8080
-debugMode: false
 project:
   name: "@project.name@"
   version: "@project.version@"

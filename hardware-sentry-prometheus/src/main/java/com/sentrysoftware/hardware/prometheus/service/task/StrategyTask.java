@@ -60,7 +60,7 @@ public class StrategyTask implements Runnable {
 	void configureLoggerContext(final String targetId) {
 
 		ThreadContext.put("targetId", targetId);
-		ThreadContext.put("debugMode", String.valueOf(strategyTaskInfo.isDebugMode()));
+		ThreadContext.put("loggerLevel", strategyTaskInfo.getLoggerLevel());
 		ThreadContext.put("port", String.valueOf(strategyTaskInfo.getServerPort()));
 
 		String outputDirectory = strategyTaskInfo.getOutputDirectory();
