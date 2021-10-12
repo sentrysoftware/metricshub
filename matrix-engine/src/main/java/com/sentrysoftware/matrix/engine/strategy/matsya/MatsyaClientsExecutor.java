@@ -1,5 +1,27 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.springframework.stereotype.Component;
+
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
@@ -31,29 +53,9 @@ import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -270,7 +272,7 @@ public class MatsyaClientsExecutor {
 			TextTableHelper.generateTextTable(leftTable), TextTableHelper.generateTextTable(rightTable));
 
 		List<List<String>> result = TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber,
-			defaultRightLine, false, caseInsensitive);
+			defaultRightLine, wbemKeyType, caseInsensitive);
 
 		log.debug(LOG_MATSYA_RESULT_TEMPLATE, "Table Join", TextTableHelper.generateTextTable(result));
 
@@ -496,7 +498,7 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Execute a command on a remote Windows system through Matsya and return an object with
 	 * the output of the command.
-	 * 
+	 *
 	 * @param command The command to execute. (Mandatory)
 	 * @param hostname Host to connect to.  (Mandatory)
 	 * @param username The username name.
@@ -614,10 +616,8 @@ public class MatsyaClientsExecutor {
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
-
-				return "HTTP Error "
-						+ httpResponse.getStatusCode()
-						+ httpResponse;
+				log.warn("Bad response for HTTP request {} {}: {}", method, fullUrl, httpResponse.getStatusCode());
+				return "";
 			}
 
 			// The request has been successful
@@ -696,13 +696,13 @@ public class MatsyaClientsExecutor {
 	 */
 	public static String runRemoteSshCommand(
 			@NonNull
-			final String hostname, 
+			final String hostname,
 			@NonNull
-			final String username, 
-			final String password, 
+			final String username,
+			final String password,
 			final String keyFilePath,
-			final String command, 
-			final int timeout, 
+			final String command,
+			final int timeout,
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
 
@@ -737,9 +737,9 @@ public class MatsyaClientsExecutor {
 				authenticated = sshClient.authenticate(username, keyFilePath, password);
 			}
 			if (!authenticated) {
-				final String message = String.format("authentication failed as %s with %s on %s.", 
-						username, 
-						keyFilePath, 
+				final String message = String.format("authentication failed as %s with %s on %s.",
+						username,
+						keyFilePath,
 						hostname);
 				log.error(message);
 				throw new MatsyaException(message);
@@ -750,7 +750,7 @@ public class MatsyaClientsExecutor {
 				for (final File file : localFiles) {
 					sshClient.scp(
 							file.getAbsolutePath(),
-							file.getName(), 
+							file.getName(),
 							SSH_REMOTE_DIRECTORY,
 							SSH_FILE_MODE);
 				}
@@ -789,7 +789,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Replace in the SSH command all the local files path with their remote path.
-	 * 
+	 *
 	 * @param command The SSH command.
 	 * @param localFiles The local files list.
 	 * @return The updated command.
@@ -797,12 +797,12 @@ public class MatsyaClientsExecutor {
 	static String updateCommandWithLocalList(
 			final String command,
 			final List<File> localFiles) {
-		return  localFiles == null || localFiles.isEmpty() ? 
+		return  localFiles == null || localFiles.isEmpty() ?
 				command :
 					localFiles.stream().reduce(
-							command, 
+							command,
 							(s, file) -> command.replaceAll(
-									OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()), 
+									OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
 									SSH_REMOTE_DIRECTORY + file.getName()),
 							(s1, s2) -> null);
 	}
@@ -846,7 +846,7 @@ public class MatsyaClientsExecutor {
 		String username = ipmiOverLanProtocol.getUsername();
 		char[] password = ipmiOverLanProtocol.getPassword();
 		Long timeout = ipmiOverLanProtocol.getTimeout();
-		
+
 		notNull(username, USERNAME_CANNOT_BE_NULL);
 		notNull(password, PASSWORD_CANNOT_BE_NULL);
 		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);

@@ -149,6 +149,8 @@ public class CollectHelper {
 						monitorType);
 			}
 
+		} else {
+			return valueTableColumn;
 		}
 
 		return null;

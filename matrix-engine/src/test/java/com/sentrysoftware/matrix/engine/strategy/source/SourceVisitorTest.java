@@ -1,7 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
@@ -39,9 +44,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -244,64 +249,63 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(null).when(connector).getEmbeddedFiles();
-		
+
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					commandLine, 
+					commandLine,
 					engineConfiguration,
-					null, 
-					null, 
-					false, 
+					null,
+					null,
+					false,
 					hostMonitoring.isLocalhost())).thenThrow(NoCredentialProvidedException.class);
-			
+
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(commandSource));
 		}
-		
+
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					commandLine, 
-					engineConfiguration, 
-					null, 
-					null, 
-					false, 
+					commandLine,
+					engineConfiguration,
+					null,
+					null,
+					false,
 					hostMonitoring.isLocalhost())).thenThrow(IOException.class);
-			
+
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(commandSource));
 		}
-		
+
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 
-			final String result = 
+			final String result =
 					"xxxxxx\n"
 					+ "xxxxxx\n"
 					+ "0:1:ext_bus:3:4:5:6:7:8\n"
 					+ "xxxxxx\n"
 					+ "xxxxxx\n";
 			final OsCommandResult commandResult = new OsCommandResult(result, commandLine);
-			
+
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					commandLine, 
-					engineConfiguration, 
-					null, 
-					null, 
-					false, 
+					commandLine,
+					engineConfiguration,
+					null,
+					null,
+					false,
 					hostMonitoring.isLocalhost())).thenReturn(commandResult);
-			
+
 			mockedOsCommandHelper.when(() -> OsCommandHelper.filterLines(
 					List.of("xxxxxx", "xxxxxx", "0:1:ext_bus:3:4:5:6:7:8", "xxxxxx", "xxxxxx"),
 					null,
 					null,
 					null,
 					keepOnlyRegExp)).thenCallRealMethod();
-			
+
 			mockedOsCommandHelper.when(() -> OsCommandHelper.selectedColumns(
 					List.of("0:1:ext_bus:3:4:5:6:7:8"),
 					":",
 					selectColumns)).thenCallRealMethod();
 
 			final SourceTable expected = SourceTable.builder()
-					.rawData("1;ext_bus;3;4;5;")
-					.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
+					.rawData("1;ext_bus;3;4;5")
 					.build();
 			assertEquals(expected, sourceVisitor.visit(commandSource));
 		}
@@ -443,21 +447,36 @@ class SourceVisitorTest {
 	@Test
 	void testVisitTableJoinSource() {
 		final Map<String, SourceTable> mapSources = new HashMap<>();
-		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b1", "c1"), Arrays.asList("val1","val2", "val3"))).build();
-		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a1","b2", "c2"), Arrays.asList("v1","v2", "v3"))).build();
+		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(
+						Arrays.asList("a1","b1", "c1"),
+						Arrays.asList("val1","val2", "val3"),
+						Arrays.asList("V1","V2", "V3"),
+						Arrays.asList("x","y", "z"))).build();
+		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(
+						Arrays.asList("a1","b2", "c2"),
+						Arrays.asList("v1","v2", "v3"),
+						Arrays.asList("VaL1","B2", "C2"),
+						Arrays.asList("t","u", "v"))).build();
 		mapSources.put("tab1", tabl1 );
 		mapSources.put("tab2", tabl2 );
 
 		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 
 		// standard
-		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
+		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"),
+														Arrays.asList("val1", "val2", "val3", "VaL1","B2", "C2"),
+														Arrays.asList("V1","V2", "V3", "VaL1","B2", "C2"),
+														Arrays.asList("x","y", "z", "a1","b1", "c1"));
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
 
-		List<List<String>> matsyaReturn = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"), Arrays.asList("val1", "val2", "val3", "a1", "b1", "c1"));
+		List<List<String>> matsyaReturn = Arrays.asList(
+				Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"),
+				Arrays.asList("val1", "val2", "val3", "VaL1", "B2", "C2"),
+				Arrays.asList("V1", "V2", "V3", "VaL1", "B2", "C2"),
+				Arrays.asList("x","y", "z", "a1","b1", "c1"));
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
-		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, false);
+		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, true);
 
 		TableJoinSource tableJoinExample = TableJoinSource.builder()
 																	.keyType("notWbem")
@@ -470,13 +489,14 @@ class SourceVisitorTest {
 		assertTrue(expectedJoin.size() == sourceVisitor.visit(tableJoinExample).getTable().size() && expectedJoin.containsAll(sourceVisitor.visit(tableJoinExample).getTable()) && sourceVisitor.visit(tableJoinExample).getTable().containsAll(expectedJoin));
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getHeaders(), sourceVisitor.visit(tableJoinExample).getHeaders());
+		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
 
 		// no default right line
 		expectedJoin = Arrays.asList(Arrays.asList("a1", "b1", "c1", "a1", "b2", "c2"));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
-		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, false);
+		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
 											.leftTable("tab1")
@@ -487,6 +507,7 @@ class SourceVisitorTest {
 		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
 		assertEquals(new ArrayList<>(), sourceVisitor.visit(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getHeaders(), sourceVisitor.visit(tableJoinExample).getHeaders());
+		assertEquals(expectedResult.getTable(), sourceVisitor.visit(tableJoinExample).getTable());
 
 		// no matches
 		SourceTable tabl3 = SourceTable.builder().table(Arrays.asList(Arrays.asList("a","b", "c"), Arrays.asList("v10","v20", "v30"))).build();
@@ -496,7 +517,7 @@ class SourceVisitorTest {
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
-		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, false);
+		doReturn(expectedJoin).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
 		tableJoinExample = TableJoinSource.builder()
 											.keyType("notWbem")
 											.leftTable("tab1")
@@ -613,8 +634,8 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitTelnetInteractiveSource() {
-		assertEquals(SourceTable.empty(), sourceVisitor.visit(new TelnetInteractiveSource()));
+	void testVisitSshInteractiveSource() {
+		assertEquals(SourceTable.empty(), sourceVisitor.visit(new SshInteractiveSource()));
 	}
 
 	@Test

@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.dto.protocol;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WbemProtocolDTO {
+public class WbemProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	WBEMProtocols protocol = WBEMProtocols.HTTPS;
@@ -27,7 +27,7 @@ public class WbemProtocolDTO {
 	private String namespace;
 
 	@Default
-	@JsonDeserialize(using = TimeoutDeserializer.class)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
 	String username;
@@ -39,6 +39,7 @@ public class WbemProtocolDTO {
 	 *
 	 * @return The {@link WBEMProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return WBEMProtocol
 				.builder()

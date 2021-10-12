@@ -19,8 +19,6 @@ public abstract class Source implements Serializable {
 
 	private static final long serialVersionUID = 4765209445308968001L;
 
-	public static final String PROTOCOL_NONE = "NONE";
-
 	private List<Compute> computes;
 
 	private boolean forceSerialization;
@@ -44,5 +42,4 @@ public abstract class Source implements Serializable {
 
 	public abstract SourceTable accept(final ISourceVisitor sourceVisitor);
 
-	public abstract String getProtocol();
 }

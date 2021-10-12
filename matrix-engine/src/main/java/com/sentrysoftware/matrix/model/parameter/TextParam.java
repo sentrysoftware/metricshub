@@ -15,11 +15,12 @@ public class TextParam extends AbstractParam {
 	public static final String TEXT_TYPE = "TextParam";
 
 	private String value;
+	private String previousValue;
 
 	@Builder
-	public TextParam(String name, Long collectTime, ParameterState parameterState, String unit, String value) {
+	public TextParam(String name, Long collectTime, String unit, String value) {
 
-		super(name, collectTime, parameterState, unit);
+		super(name, collectTime, unit);
 		this.value = value;
 	}
 
@@ -28,10 +29,8 @@ public class TextParam extends AbstractParam {
 	}
 
 	@Override
-	public void reset() {
-		super.reset();
-
-		this.value = null;
+	public void save() {
+		previousValue = value;
 	}
 
 	@Override

@@ -30,9 +30,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -109,7 +109,7 @@ public class SourceVisitor implements ISourceVisitor {
 					.build(),
 					true);
 
-			if (result != null) {
+			if (result != null && !result.isEmpty()) {
 
 				log.info(LOG_RESULT_TEMPLATE, "HTTP source", httpSource.getKey(), result);
 
@@ -361,13 +361,7 @@ public class SourceVisitor implements ISourceVisitor {
 			SourceTable sourceTable = SourceTable
 				.builder()
 				.rawData(selectedColumnsLines.stream()
-					// add the TABLE_SEP at the end of each lines.
-					.map(line -> line + TABLE_SEP)
 					.collect(Collectors.joining(NEW_LINE)))
-				.table(selectedColumnsLines.stream()
-					// Replace all separators by ";", which is the standard separator used by MS_HW
-					.map(line -> SourceTable.lineToList(line, TABLE_SEP))
-					.collect(Collectors.toList()))
 				.build();
 
 			log.info(LOG_RESULT_TEMPLATE,
@@ -630,7 +624,7 @@ public class SourceVisitor implements ISourceVisitor {
 				tableJoinSource.getRightKeyColumn(),
 				tableJoinSource.getDefaultRightLine(),
 				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
-				false);
+				true);
 
 		SourceTable sourceTable = new SourceTable();
 		if (executeTableJoin != null) {
@@ -710,7 +704,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final TelnetInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
 		return SourceTable.empty();
 	}
 

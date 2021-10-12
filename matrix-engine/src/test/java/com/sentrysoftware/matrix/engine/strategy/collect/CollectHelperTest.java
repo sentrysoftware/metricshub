@@ -162,17 +162,11 @@ class CollectHelperTest {
 				ROW,
 				"Valuetable.Column(4)"));
 
-		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
+		assertEquals("Server", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(string)"));
-
-		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
-				STATUS_PARAMETER,
-				ENCLOSURE,
-				ROW,
-				"Valuetable.Column(-1)"));
+				"Server"));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
@@ -206,10 +200,10 @@ class CollectHelperTest {
 		assertNull(CollectHelper.getNumberParamRawValue(monitor, POWER_CONSUMPTION_PARAMETER, true));
 		assertNull(CollectHelper.getNumberParamRawValue(monitor, POWER_CONSUMPTION_PARAMETER, false));
 
-		numberParam.reset();
+		numberParam.save();
 
 		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, false));
+		assertEquals(100.0, CollectHelper.getNumberParamRawValue(monitor, ENERGY_USAGE_PARAMETER, false));
 	}
 
 	@Test
@@ -231,10 +225,10 @@ class CollectHelperTest {
 		assertNull(CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, true));
 		assertNull(CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, false));
 
-		numberParam.reset();
+		numberParam.save();
 
 		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, true));
-		assertNull(CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, false));
+		assertEquals(collectTime, CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, false));
 	}
 
 	@Test
@@ -332,7 +326,7 @@ class CollectHelperTest {
 					.rawValue(1500D)
 					.build();
 
-			previousParameter.reset();
+			previousParameter.save();
 
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
 					Map.of(ENERGY_USAGE_PARAMETER, previousParameter)))
@@ -388,7 +382,7 @@ class CollectHelperTest {
 					.unit(STATUS_PARAMETER_UNIT)
 					.statusInformation("status: 2 (DOWN)").build();
 
-			previousParameter.reset();
+			previousParameter.save();
 
 			final Monitor monitor = Monitor.builder().parameters(new HashMap<>(
 					Map.of(STATUS_PARAMETER, previousParameter)))
@@ -438,7 +432,7 @@ class CollectHelperTest {
 				.value(null)
 				.rawValue(3138.358D) // kWatt-hours
 				.build();
-		energyUsage.reset();
+		energyUsage.save();
 
 		final Monitor monitor = Monitor.builder().monitorType(MonitorType.ENCLOSURE).parameters(new HashMap<>(
 				Map.of(ENERGY_USAGE_PARAMETER, energyUsage)))
@@ -482,7 +476,7 @@ class CollectHelperTest {
 				.rawValue(60.0)
 				.build();
 
-		powerConsumption.reset();
+		powerConsumption.save();
 
 		final NumberParam energyUsage = NumberParam
 			.builder()
@@ -493,7 +487,7 @@ class CollectHelperTest {
 			.rawValue(999.0)
 			.build();
 
-		energyUsage.reset();
+		energyUsage.save();
 
 		final Monitor monitor = Monitor
 			.builder()
@@ -529,7 +523,7 @@ class CollectHelperTest {
 		assertNull(monitor.getParameter(ENERGY_PARAMETER, NumberParam.class)); // Joules
 
 		// Collect 2 (first collect time + 2 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::reset);
+		monitor.getParameters().values().forEach(IParameterValue::save);
 
 		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
 
@@ -538,7 +532,7 @@ class CollectHelperTest {
 		assertEquals(7200.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 
 		// Collect 3  (first collect time + 4 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::reset);
+		monitor.getParameters().values().forEach(IParameterValue::save);
 
 		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
 

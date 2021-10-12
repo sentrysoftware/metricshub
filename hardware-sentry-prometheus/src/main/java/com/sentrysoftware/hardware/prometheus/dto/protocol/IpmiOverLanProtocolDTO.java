@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.dto.protocol;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 
@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class IpmiOverLanProtocolDTO {
+public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
-	@JsonDeserialize(using = TimeoutDeserializer.class)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
 	private String username;
@@ -31,6 +31,7 @@ public class IpmiOverLanProtocolDTO {
 	 *
 	 * @return The {@link IPMIOverLanProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return IPMIOverLanProtocol
 				.builder()

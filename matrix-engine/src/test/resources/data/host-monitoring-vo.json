@@ -8,12 +8,13 @@
 			"parentId": "targetId",
 			"targetId": "targetId",
 			"extendedType": null,
+			"discoveryTime":1633620837079,
 			"parameters": {
 				"present": {
 					"name": "present",
 					"collectTime": null,
-					"state": "OK",
 					"unit": "{0=Missing;1=Present}",
+					"state": "OK",
 					"present": 1,
 					"previousState": null,
 					"type": "PresentParam"
@@ -29,12 +30,13 @@
 			"parentId": "targetId",
 			"targetId": "targetId",
 			"extendedType": null,
+			"discoveryTime":1633620837079,
 			"parameters": {
 				"present": {
 					"name": "present",
 					"collectTime": null,
-					"state": "OK",
 					"unit": "{0=Missing;1=Present}",
+					"state": "OK",
 					"present": 1,
 					"previousState": null,
 					"type": "PresentParam"

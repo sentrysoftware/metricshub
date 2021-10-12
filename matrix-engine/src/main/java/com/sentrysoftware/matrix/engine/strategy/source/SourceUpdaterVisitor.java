@@ -5,6 +5,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -13,9 +14,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.telnet.TelnetInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
@@ -82,7 +83,13 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final String sourceTableKey = copy.getExecuteForEachEntryOf();
 
 		if (sourceTableKey != null && !sourceTableKey.isEmpty()) {
-			return processExecuteForEachEntryOf(copy, sourceTableKey);
+			SourceTable result =  processExecuteForEachEntryOf(copy, sourceTableKey);
+			if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
+					|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod()))
+					&& result != null) {
+				result.setRawData(String.format("[%s]", result.getRawData()));
+			}
+			return result;
 		}
 
 		if (monitor != null) {
@@ -125,12 +132,14 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
 
-			if (httpSource.getEntryConcatMethod() == null) {
-				result.setRawData(
-						result.getRawData()
-						.concat(thisSourceTable.getRawData()));
-			} else {
-				concatHttpResult(httpSource, result, row, thisSourceTable);
+			if (thisSourceTable.getRawData() != null) {
+				if (httpSource.getEntryConcatMethod() == null) {
+					result.setRawData(
+							result.getRawData()
+							.concat(thisSourceTable.getRawData()));
+				} else {
+					concatHttpResult(httpSource, result, row, thisSourceTable);
+				}
 			}
 		}
 
@@ -306,9 +315,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final TelnetInteractiveSource telnetInteractiveSource) {
+	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
 		
-		return telnetInteractiveSource.accept(sourceVisitor);
+		return sshInteractiveSource.accept(sourceVisitor);
 	}
 
 	@Override

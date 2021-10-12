@@ -116,7 +116,6 @@
       "testReport" : {
         "name" : "testReport",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : null,
         "value" : "Received Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1. Successful SNMP GetNext of 1.3.6.1.4.1.674.10892.1.300.10.1 on localhost. Returned Result: 1.3.6.1.4.1.674.10892.1.300.10.1.1.1\tASN_INTEGER\t1.\nConclusion: TEST on localhost SUCCEEDED",
         "type" : "TextParam"
@@ -152,7 +151,6 @@
       "currentSpeed" : {
         "name" : "currentSpeed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "MHz",
         "value" : 2100.0,
         "rawValue" : 2100.0,
@@ -163,7 +161,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 17.48,
         "rawValue" : 17.48,
@@ -273,7 +270,6 @@
       "energy" : {
         "name" : "energy",
         "collectTime" : 1629213262292,
-        "state" : "OK",
         "unit" : "Joules",
         "value" : 1.1490296399999998E10,
         "rawValue" : 3191.749,
@@ -284,7 +280,6 @@
       "energyUsage" : {
         "name" : "energyUsage",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "Joules",
         "value" : null,
         "rawValue" : 3191.749,
@@ -370,7 +365,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
@@ -390,7 +384,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
@@ -515,7 +508,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -535,7 +527,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -660,7 +651,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -680,7 +670,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -805,7 +794,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.32,
         "rawValue" : 4.32,
@@ -825,7 +813,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4320.0,
         "rawValue" : 4320.0,
@@ -950,7 +937,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -970,7 +956,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -1095,7 +1080,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -1115,7 +1099,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -1240,7 +1223,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
@@ -1260,7 +1242,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
@@ -1385,7 +1366,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.76,
         "rawValue" : 5.76,
@@ -1405,7 +1385,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5760.0,
         "rawValue" : 5760.0,
@@ -1530,7 +1509,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
@@ -1550,7 +1528,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
@@ -1675,7 +1652,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.52,
         "rawValue" : 5.52,
@@ -1695,7 +1671,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5520.0,
         "rawValue" : 5520.0,
@@ -1820,7 +1795,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
@@ -1840,7 +1814,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
@@ -1965,7 +1938,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 5.64,
         "rawValue" : 5.64,
@@ -1985,7 +1957,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 5640.0,
         "rawValue" : 5640.0,
@@ -2110,7 +2081,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -2130,7 +2100,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -2254,7 +2223,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.2,
         "rawValue" : 4.2,
@@ -2274,7 +2242,6 @@
       "speed" : {
         "name" : "speed",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "RPM",
         "value" : 4200.0,
         "rawValue" : 4200.0,
@@ -2398,7 +2365,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -2409,7 +2375,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -2545,7 +2510,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -2556,7 +2520,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -2692,7 +2655,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -2703,7 +2665,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -2723,7 +2684,6 @@
       "startingErrorCount" : {
         "name" : "startingErrorCount",
         "collectTime" : 1631630238323,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -2850,7 +2810,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -2861,7 +2820,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -2997,7 +2955,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3008,7 +2965,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3144,7 +3100,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3155,7 +3110,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3291,7 +3245,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3302,7 +3255,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3438,7 +3390,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3449,7 +3400,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3585,7 +3535,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3596,7 +3545,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3732,7 +3680,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3743,7 +3690,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -3879,7 +3825,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -3890,7 +3835,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -4026,7 +3970,6 @@
       "errorCount" : {
         "name" : "errorCount",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "errors",
         "value" : 0.0,
         "rawValue" : 0.0,
@@ -4037,7 +3980,6 @@
       "powerConsumption" : {
         "name" : "powerConsumption",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "Watts",
         "value" : 4.0,
         "rawValue" : 4.0,
@@ -4514,7 +4456,6 @@
       "ambientTemperature" : {
         "name" : "ambientTemperature",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 23.0,
         "rawValue" : 23.0,
@@ -4525,7 +4466,6 @@
       "cpuTemperature" : {
         "name" : "cpuTemperature",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 37.0,
         "rawValue" : 37.0,
@@ -4536,7 +4476,6 @@
       "cpuThermalDissipationRate" : {
         "name" : "cpuThermalDissipationRate",
         "collectTime" : 1631022548003,
-        "state" : "OK",
         "unit" : "",
         "value" : 0.23,
         "rawValue" : 0.23,
@@ -4547,7 +4486,6 @@
       "energy" : {
         "name" : "energy",
         "collectTime" : 1629213262292,
-        "state" : "OK",
         "unit" : "Joules",
         "value" : 1.1490296399999998E10,
         "rawValue" : 3191.749,
@@ -4558,7 +4496,6 @@
       "heatingMargin" : {
         "name" : "heatingMargin",
         "collectTime" : 1629213262292,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 19.0,
         "rawValue" : 19.0,
@@ -4569,7 +4506,8 @@
     },
     "metadata" : {
       "location" : "localhost",
-      "operatingSystemType" : "LINUX"
+      "operatingSystemType" : "LINUX",
+      "powerMeter": "collected"
     },
     "alertRules" : { }
   }, {
@@ -4593,7 +4531,6 @@
       "temperature" : {
         "name" : "temperature",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 23.0,
         "rawValue" : 23.0,
@@ -4680,7 +4617,6 @@
       "temperature" : {
         "name" : "temperature",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 30.0,
         "rawValue" : 30.0,
@@ -4767,7 +4703,6 @@
       "temperature" : {
         "name" : "temperature",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "degrees Celsius",
         "value" : 37.0,
         "rawValue" : 37.0,
@@ -5650,7 +5585,6 @@
       "voltage" : {
         "name" : "voltage",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "mV",
         "value" : 228000.0,
         "rawValue" : 228000.0,
@@ -5714,7 +5648,6 @@
       "voltage" : {
         "name" : "voltage",
         "collectTime" : 1624024821235,
-        "state" : "OK",
         "unit" : "mV",
         "value" : 224000.0,
         "rawValue" : 224000.0,

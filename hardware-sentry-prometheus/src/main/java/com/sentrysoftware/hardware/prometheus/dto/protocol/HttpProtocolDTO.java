@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.prometheus.dto.protocol;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.hardware.prometheus.deserialization.TimeoutDeserializer;
+import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HttpProtocolDTO {
+public class HttpProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
 	private Boolean https = true;
@@ -24,7 +24,7 @@ public class HttpProtocolDTO {
 	private Integer port = 443;
 
 	@Default
-	@JsonDeserialize(using = TimeoutDeserializer.class)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
 	private String username;
@@ -35,6 +35,7 @@ public class HttpProtocolDTO {
 	 *
 	 * @return The {@link HTTPProtocol} instance
 	 */
+	@Override
 	public IProtocolConfiguration toProtocol() {
 		return HTTPProtocol
 				.builder()
@@ -50,7 +51,7 @@ public class HttpProtocolDTO {
 	public String toString() {
 		return String.format(
 				"%s/%d%s",
-				https ? "HTTPS" : "HTTP",
+				Boolean.TRUE.equals(https) ? "HTTPS" : "HTTP",
 				port,
 				username != null ? " as " + username : ""
 		);

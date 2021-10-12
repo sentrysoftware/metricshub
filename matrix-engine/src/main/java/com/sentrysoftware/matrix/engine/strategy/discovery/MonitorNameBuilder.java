@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -742,7 +741,9 @@ public class MonitorNameBuilder {
 			try {
 				int logicalDiskRaidLevelD = Integer.parseInt(logicalDiskRaidLevel);
 				logicalDiskRaidLevel = String.format("RAID %d", logicalDiskRaidLevelD);
-			} catch (NumberFormatException nfe) {}
+			} catch (NumberFormatException nfe) {
+				// Nothing to do
+			}
 		}
 
 		// Build the name

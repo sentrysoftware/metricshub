@@ -1,5 +1,23 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -37,34 +55,23 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.parameter.ParameterState;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
 public class ComputeVisitor implements IComputeVisitor {
+
+	private static final Pattern HEXA_PATTERN = Pattern.compile("^[0-9A-Fa-f]+$");
+
+	private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
+
+	private static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
 
 	private static final Pattern COLUMN_PATTERN =  Pattern.compile(COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
 
@@ -183,7 +190,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		final String defaultTranslation = translations.get(DEFAULT);
-		
+
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 		for (List<String> row : sourceTable.getTable()) {
@@ -307,7 +314,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 
 			final List<String> lines = SourceTable.lineToList(awkResult, HardwareConstants.NEW_LINE);
-			
+
 			final List<String> filterLines = OsCommandHelper.filterLines(
 					lines,
 					null,
@@ -325,7 +332,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					awk.getSelectColumns());
 			awkResult = awkResultLines.stream()
 					// add the TABLE_SEP at the end of each lines.
-					.map(line -> line + TABLE_SEP)
+					.map(line -> line.endsWith(TABLE_SEP) ? line : line + TABLE_SEP)
 					.collect(Collectors.joining(NEW_LINE));
 
 			sourceTable.setRawData(awkResult);
@@ -368,7 +375,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Covert the array located in the cell indexed by columnIndex to a simple status OK, WARN, ALARM or UNKNOWN
-	 * 
+	 *
 	 * @param columnIndex The column number
 	 */
 	void convertArray2SimpleStatus(final Integer columnIndex) {
@@ -386,9 +393,9 @@ public class ComputeVisitor implements IComputeVisitor {
 	/**
 	 * Get the worst status of the given values. Changing this method requires an update on
 	 * {@link CollectHelper#translateStatus(String, Optional, String, String, String)} (String, ParameterState, String, String, String)}
-	 * 
+	 *
 	 * @param values The array of string statuses to check, expected values are 'OK', 'WARN', 'ALARM'
-	 * 
+	 *
 	 * @return String value: OK, WARN, ALARM or UNKNOWN
 	 */
 	static String getWorstStatus(final String[] values) {
@@ -408,7 +415,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Convert the column value at the given columnIndex from hexadecimal to decimal
-	 * 
+	 *
 	 * @param columnIndex The column number
 	 */
 	void convertHex2Dec(final Integer columnIndex) {
@@ -418,7 +425,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					final String value = row.get(columnIndex).replace("0x", "")
 							.replace(":", "")
 							.replaceAll("\\s*", "");
-					if (value.matches("^[0-9A-Fa-f]+$")) {
+					if (HEXA_PATTERN.matcher(value).matches()) {
 						row.set(columnIndex, String.valueOf(Long.parseLong(value, 16)));
 						return;
 					}
@@ -430,7 +437,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Check the given {@link Convert} instance
-	 * 
+	 *
 	 * @param convert The instance we wish to check
 	 * @return <code>true</code> if the {@link Convert} instance is valid
 	 */
@@ -787,8 +794,8 @@ public class ComputeVisitor implements IComputeVisitor {
 		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp));
 
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
-			? value -> pattern.matcher(value).matches()
-			: value -> !pattern.matcher(value).matches();
+			? value -> pattern.matcher(value).find()
+			: value -> !pattern.matcher(value).find();
 	}
 
 	/**
@@ -931,7 +938,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		Integer columnIndex = multiply.getColumn();
 		String operand2 = multiply.getMultiplyBy();
-		
+
 		if (columnIndex == null || operand2 == null ) {
 			log.warn("Arguments in Compute Operation (Multiply) : {} are wrong, the table remains unchanged.", multiply);
 			return;
@@ -1169,7 +1176,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Check the given {@link Substring} instance
-	 * 
+	 *
 	 * @param substring The substring instance we wish to check
 	 * @return true if the substring is valid
 	 */
@@ -1183,7 +1190,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Perform a substring operation on the column identified by the given <code>columnIndex</code>
-	 * 
+	 *
 	 * @param columnIndex      The column number in the current {@link SourceTable}
 	 * @param start            The begin index, inclusive and starts at 1
 	 * @param startColumnIndex The column index, so that we extract the start index. If equals -1 then it is not used
@@ -1209,7 +1216,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 
 				if (checkSubstringArguments(beginIndex, endIndex, columnValue.length())) {
-					// No need to put endIndex -1 as the String substring end index is exclusive 
+					// No need to put endIndex -1 as the String substring end index is exclusive
 					// PSL substr(1,3) is equivalent to Java String substring(0, 3)
 					row.set(columnIndex, columnValue.substring(beginIndex -1, endIndex));
 					return;
@@ -1230,7 +1237,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Check the substring argument to avoid the {@link StringIndexOutOfBoundsException}
-	 * 
+	 *
 	 * @param begin  Starts from 1
 	 * @param end    The end index of the string
 	 * @param length The length of the {@link String}
@@ -1246,12 +1253,12 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Transform the given {@link String} value to an {@link Integer} value
-	 * 
+	 *
 	 * @param value The value we wish to parse
 	 * @return {@link Integer} value
 	 */
 	static Integer transformToIntegerValue(final String value) {
-		if (value != null && value.matches("\\d+(\\.\\d+)?")) {
+		if (value != null && DOUBLE_PATTERN.matcher(value).matches()) {
 			return (int) Double.parseDouble(value);
 		}
 		return null;
@@ -1259,7 +1266,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Return the right {@link Function} based on the <code>foreignColumnIndex</code>
-	 * 
+	 *
 	 * @param foreignColumnIndex The index of the column we wish to check so that we choose the right function to return
 	 * @return {@link Function} used to get the value
 	 */
@@ -1269,18 +1276,18 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Check value and column index consistency. At least we need one data available
-	 * 
+	 *
 	 * @param value              The string value as a number
 	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
 	 * @return <code>true</code> if data is consistent
 	 */
 	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
-		return foreignColumnIndex >= 0 || value.matches("\\d+");
+		return foreignColumnIndex >= 0 || NUMBER_PATTERN.matcher(value).matches();
 	}
 
 	/**
 	 * Get the column index for the given value
-	 * 
+	 *
 	 * @param value The value we wish to parse
 	 * @return {@link Integer} value or -1 if value is not in the column pattern format
 	 */
@@ -1395,7 +1402,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	/**
 	 * Perform a mathematical computation (add, subtract, multiply or divide) on a given column in the sourceTable
-	 * Check if the operand2 is a reference to a column or a raw value 
+	 * Check if the operand2 is a reference to a column or a raw value
 	 * @param computeOperation The compute operation must be one of : Add, Substract, Multiply, Divide.
 	 * @param column column to be changed
 	 * @param operand2 can be a reference to another column or a raw value
@@ -1424,7 +1431,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				return;
 			}
 
-		} else if (!operand2.matches("\\d+(\\.\\d+)?")) {
+		} else if (!DOUBLE_PATTERN.matcher(operand2).matches()) {
 			log.warn("operand2 is not a number: {}, the table remains unchanged.", operand2);
 			return;
 		}

@@ -120,8 +120,6 @@ public class HostMonitoring implements IHostMonitoring {
 		// The monitor is created then it is present
 		monitor.setAsPresent();
 
-		//
-
 		if (monitors.containsKey(monitorType)) {
 
 			Map<String, Monitor> map = monitors.get(monitorType);
@@ -413,11 +411,17 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	@Override
-	public void resetParameters() {
-		monitors.values().forEach(
-				sameTypeMonitors -> sameTypeMonitors.values().forEach(
-						mo -> mo.getParameters().values().forEach(
-								IParameterValue::reset)));
+	public void saveParameters() {
+		monitors.values()
+			.forEach(
+				sameTypeMonitors -> sameTypeMonitors
+					.values()
+					.forEach(
+						mo -> mo.getParameters()
+							.values()
+							.forEach(IParameterValue::save)
+					)
+			);
 	}
 
 	@Override
@@ -463,6 +467,10 @@ public class HostMonitoring implements IHostMonitoring {
 			log.trace("Calling strategy {}", strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
 			log.info("{} status {}", strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
+
+			if (log.isDebugEnabled()) {
+				log.debug(">>> {} >>>\n{}", strategy.getClass().getSimpleName(), toJson());
+			}
 		}
 
 		return lastEngineResult;

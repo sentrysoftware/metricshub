@@ -1,6 +1,41 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
+import static org.springframework.util.Assert.state;
+
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +49,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
@@ -32,43 +69,13 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
+import com.sentrysoftware.matrix.model.parameter.ParameterState;
 import com.sentrysoftware.matrix.model.parameter.PresentParam;
 import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
-
-import static org.springframework.util.Assert.state;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -78,10 +85,10 @@ public class CollectOperation extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		// Reset parameters, push current value to previous value and reset initial value
-		// Why ? By convention before the collect we reset the parameters except the
-		// previous values in order to compute delta and rates
-		strategyConfig.getHostMonitoring().resetParameters();
+		// Save parameters, push current value to previous value
+		// Why ? Before the next collect we save the parameters previous values
+		// in order to compute delta and rates
+		strategyConfig.getHostMonitoring().saveParameters();
 	}
 
 	@Override
@@ -177,6 +184,11 @@ public class CollectOperation extends AbstractStrategy {
 			// Blocks until all tasks have completed execution after a shutdown request
 			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
+
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
+
 			log.error("Waiting for threads termination aborted with an error", e);
 		}
 	}
@@ -635,7 +647,7 @@ public class CollectOperation extends AbstractStrategy {
 	private void aggregateTargetEnergy() {
 
 		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		state(hostMonitoring != null, "hostMonitoring should not be null.");
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// Getting the target monitor
 		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
@@ -678,6 +690,11 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Adding the parameter to the target monitor
 		targetMonitor.collectParameter(targetEnergy);
+
+		log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
+				hostname, targetEnergy);
+
+		hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
 	}
 
 	/**
@@ -693,7 +710,9 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Double temperatureValue = temperature.getValue();
 
-		return (temperatureValue != null && warningThresholdValue != null) ? warningThresholdValue - temperatureValue : null;
+		return (temperatureValue != null && warningThresholdValue != null)
+			? Math.max(warningThresholdValue - temperatureValue, 0.0)
+			: null;
 	}
 
 	/**
@@ -950,15 +969,35 @@ public class CollectOperation extends AbstractStrategy {
 		// Compute temperatures
 		computeTargetTemperatureParameters();
 
+		// Estimate power consumption for DiskControllers, Memories and PhysicalDisks.
+		// This estimation is computed here, as a post collect, because it doesn't rely on the collected parameters
+		// that are currently computed through the MonitorCollectVisitor.
+		// Also, if the connector doesn't define the collect job for the monitorType (e.g. CpqIDEDriveArray.hdf)
+		// we don't want to skip the estimation.
+		estimateDiskControllersPowerConsumption();
+		estimateMemoriesPowerConsumption();
+		estimatePhysicalDisksPowerConsumption();
+
 		// Estimate CPUs Power Consumption
 		// The CPUs power consumption needs to be estimated in the post collect strategy
 		// because the computation requires the target Thermal Dissipation Rate which is also collected at the end of the collect.
 		estimateCpusPowerConsumption();
 
-		// Estimate the target Power Consumption
-		// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
-		// account for the power supplies' heat dissipation (90% efficiency assumed).
-		estimateTargetPowerConsumption();
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		// Are we collecting the power consumption?
+		if (!PowerMeter.COLLECTED.equals(hostMonitoring.getPowerMeter())) {
+			// Estimate the target Power Consumption
+			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
+			// account for the power supplies' heat dissipation (90% efficiency assumed).
+			estimateTargetPowerConsumption();
+		}
+
+
+		// Set the power meter metadata
+		final PowerMeter powerMeter = hostMonitoring.getPowerMeter();
+		getTargetMonitor(hostMonitoring)
+			.addMetadata(POWER_METER, powerMeter != null ? powerMeter.name().toLowerCase() : null);
 	}
 
 	/**
@@ -969,18 +1008,6 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateTargetPowerConsumption() {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
-		// Getting the target monitor
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-
-		// Get the target energy
-		final Double targetEnergy = CollectHelper.getNumberParamValue(targetMonitor, ENERGY_PARAMETER);
-		if (targetEnergy != null) {
-			log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
-					hostname, targetEnergy);
-			hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
-			return;
-		}
 
 		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		// The connector has collected PowerConsumption on the Enclosure monitors so we don't need to estimate the power on the target
@@ -1000,6 +1027,7 @@ public class CollectOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
+			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We sum the values for the target
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
 			.filter(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null) // skip monitors without power consumption
 			.map(monitor -> new Double[] {
@@ -1014,8 +1042,8 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		// Set power meter to estimated
-		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
+		// Getting the target monitor
+		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
 		// totalValues[0] can never be null as we have already filtered power consumption null values
 		// Add 10% because of the heat dissipation of the power supplies
@@ -1074,6 +1102,9 @@ public class CollectOperation extends AbstractStrategy {
 			}
 
 		}
+
+		// Set power meter to estimated
+		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
 	}
 
 	/**
@@ -1142,6 +1173,212 @@ public class CollectOperation extends AbstractStrategy {
 
 		// This will set the energy, the delta energy called energyUsage and the powerConsumption on the cpu monitor
 		CollectHelper.collectEnergyUsageFromPower(cpu, collectTime, powerConsumption, hostname);
+	}
+
+
+	/**
+	 * Set the power consumption (15W by default for disk controllers) Source:
+	 * https://forums.servethehome.com/index.php?threads/raid-controllers-power-consumption.9189/
+	 */
+	void estimateDiskControllersPowerConsumption() {
+		final String hostname = strategyConfig
+				.getEngineConfiguration()
+				.getTarget().getHostname();
+		final Long collectTime = this.strategyTime;
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final Map<String, Monitor> diskControllers = hostMonitoring.selectFromType(MonitorType.DISK_CONTROLLER);
+
+		if (diskControllers == null) {
+			log.debug("No Disk Controllers discovered for system {}. Skip Disk Controllers Power Consumption estimation.", hostname);
+			return;
+		}
+
+		diskControllers.values()
+			.stream()
+			.filter(dc -> !dc.isMissing())
+			.forEach(dc -> CollectHelper.collectEnergyUsageFromPower(
+				dc,
+				collectTime,
+				15.0,
+				hostname
+			));
+	}
+
+
+	/**
+	 * Estimated power consumption: 4W
+	 * Source: https://www.buildcomputers.net/power-consumption-of-pc-components.html
+	 */
+	void estimateMemoriesPowerConsumption() {
+		final String hostname = strategyConfig
+				.getEngineConfiguration()
+				.getTarget().getHostname();
+		final Long collectTime = this.strategyTime;
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final Map<String, Monitor> memories = hostMonitoring.selectFromType(MonitorType.MEMORY);
+
+		if (memories == null) {
+			log.debug("No Memories discovered for system {}. Skip Memories Power Consumption estimation.", hostname);
+			return;
+		}
+
+		memories.values()
+			.stream()
+			.filter(memory -> !memory.isMissing())
+			.forEach(memory -> CollectHelper.collectEnergyUsageFromPower(
+				memory,
+				collectTime,
+				4.0,
+				hostname
+			));
+	}
+
+
+	/**
+	 * Estimates the power dissipation for each physical disk, based on its characteristics:
+	 * vendor, model, location, type, etc. all mixed up
+	 * Inspiration: https://outervision.com/power-supply-calculator
+	 */
+	void estimatePhysicalDisksPowerConsumption() {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final Long collectTime = this.strategyTime;
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final Map<String, Monitor> physicalDisks = hostMonitoring.selectFromType(MonitorType.PHYSICAL_DISK);
+
+		if (physicalDisks == null) {
+			log.debug("No Physical Disks discovered for system {}. Skip Physical Disks Power Consumption estimation.",
+					hostname);
+			return;
+		}
+
+		physicalDisks
+			.values()
+			.stream()
+			.filter(disk -> !disk.isMissing())
+			.forEach(monitor -> {
+
+				// Physical disk characteristics
+				final List<String> dataList = new ArrayList<>();
+				dataList.add(monitor.getName());
+				dataList.add(monitor.getMetadata(MODEL));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
+				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
+	
+				final Monitor parent = hostMonitoring.findById(monitor.getParentId());
+				if (parent != null) {
+					dataList.add(parent.getName());
+				} else {
+					log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
+							monitor.getId(), monitor.getName());
+				}
+	
+				final String[] data = dataList.toArray(new String[dataList.size()]);
+	
+				final double powerConsumption;
+	
+				// SSD
+				if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
+					powerConsumption = estimateSsdPowerConsumption(data);
+				}
+	
+				// HDD (non-SSD), depending on the interface
+				// SAS
+				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
+					powerConsumption = estimateSasPowerConsumption(data);
+				}
+	
+				// SCSI and IDE
+				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
+					powerConsumption = estimateScsiAndIde(data);
+				}
+	
+				// SATA (and unknown, we'll assume it's the most common case)
+				else {
+					powerConsumption = estimateSataOrDefault(data);
+				}
+	
+				CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
+
+			});
+
+	}
+
+	/**
+	 * Estimate SATA physical disk power dissipation. Default is 11W.
+	 *
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSataOrDefault(final String[] data) {
+
+		// Factor in the rotational speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
+			return 27.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			return 32.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
+			return 7.0;
+		}
+
+		// Default for 7200-RPM disks
+		return 11.0;
+
+	}
+
+	/**
+	 * Estimate SCSI and IDE physical disk power dissipation
+	 *
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateScsiAndIde(final String[] data) {
+		// SCSI and IDE
+		// Factor in the rotational speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("10k"), data)) {
+			// Only SCSI supports 10k
+			return 32.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			// Only SCSI supports 15k
+			return 35.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("5400") || str.contains("5.4"), data)) {
+			// Likely to be cheap IDE
+			return 19;
+		}
+
+		// Default for 7200-rpm disks, SCSI or IDE, who knows?
+		// SCSI is 31 watts, IDE is 21...
+		return 30.0;
+	}
+
+	/**
+	 * Estimate SAS physical disk power dissipation
+	 *
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSasPowerConsumption(final String[] data) {
+		// Factor in the rotational speed
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("15k"), data)) {
+			return 17.0;
+		}
+		// Default for 10k-rpm disks (rarely lower than that anyway)
+		return 12.0;
+	}
+
+	/**
+	 * Estimate SSD physical disk power dissipation
+	 *
+	 * @param data the physical disk information
+	 * @return double value
+	 */
+	double estimateSsdPowerConsumption(final String[] data) {
+		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("pcie"), data)) {
+			return 18.0;
+		} else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("nvm"), data)) {
+			return  6.0;
+		}
+		return 3.0;
 	}
 
 }

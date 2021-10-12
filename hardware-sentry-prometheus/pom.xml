@@ -2,20 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>com.sentrysoftware</groupId>
+		<groupId>com.sentrysoftware.hardware.matrix</groupId>
 		<artifactId>matrix</artifactId>
-		<version>0.9.1-SNAPSHOT</version>
+		<version>0.9.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.sentrysoftware.hardware.prometheus</groupId>
 	<artifactId>hardware-sentry-exporter</artifactId>
+
 	<name>Hardware Sentry Exporter for Prometheus</name>
 	<description>Hardware Sentry Exporter for Prometheus</description>
+
 	<properties>
-		<java.version>11</java.version>
 
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
 		<sentrySkinVersion>4.0</sentrySkinVersion>
@@ -44,8 +46,12 @@
 		</dependency>
 		<!-- Matrix -->
 		<dependency>
-			<groupId>com.sentrysoftware</groupId>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-engine</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
+			<artifactId>matrix-connectors</artifactId>
 		</dependency>
 		<!-- Swagger -->
 		<dependency>
@@ -98,6 +104,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -120,8 +131,10 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-	
+
 		<plugins>
+
+			<!-- resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -133,6 +146,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- surefire -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -142,6 +156,8 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+
+			<!-- jacoco -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -185,6 +201,8 @@
 						<exclude>com/sentrysoftware/hardware/prometheus/configuration/**</exclude>
 						<exclude>com/sentrysoftware/hardware/prometheus/dto/**</exclude>
 						<exclude>com/sentrysoftware/hardware/prometheus/exception/**</exclude>
+						<exclude>com/sentrysoftware/hardware/prometheus/service/task/StrategyTaskInfo.*</exclude>
+						<exclude>com/sentrysoftware/hardware/prometheus/service/task/*StrategyTaskInfoBuilder.*</exclude>
 					</excludes>
 					<outputDirectory>${project.build.directory}/coverage-reports/jacoco</outputDirectory>
 				</configuration>
@@ -216,6 +234,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- spring-boot-maven-plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -223,6 +243,14 @@
 				<configuration>
 					<!-- MATSYA is already wrapped in matrix-engine -->
 					<excludeGroupIds>com.sentrysoftware.patrol.matsya</excludeGroupIds>
+					<excludes>
+						<!-- We don't want the sources of the connectors in the JAR -->
+						<exclude>
+							<groupId>com.sentrysoftware.shared</groupId>
+							<artifactId>hardware-connectors</artifactId>
+							<classifier>sources</classifier>
+						</exclude>
+					</excludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -235,6 +263,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- site -->
 			<!-- Configuration of the site plugin, to also generate automatic reports (Reference Guide, etc.)
 				 and leverage the Sentry Maven Skin (which requires the "Velocity Tools", i.e. Java code that
@@ -259,7 +288,7 @@
 				</dependencies>
 				<executions>
 					<!-- package -->
-					<!-- Create the documentation at the same time we package the KM -->
+					<!-- Create the documentation at the same time we package the project -->
 					<execution>
 						<phase>prepare-package</phase>
 						<goals>
@@ -272,6 +301,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- assembly -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -284,7 +315,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/main/assembly/dist.xml</descriptor>
+								<descriptor>src/assembly/dist.xml</descriptor>
 							</descriptors>
 							<finalName>${project.artifactId}-${project.version}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
@@ -314,6 +345,11 @@
 			<plugin>
 				<groupId>com.sentrysoftware.maven</groupId>
 				<artifactId>about-maven-plugin</artifactId>
+				<configuration>
+					<jql><![CDATA[
+					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
+				]]></jql>
+				</configuration>
 			</plugin>
 		</plugins>
 	</reporting>

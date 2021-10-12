@@ -14,9 +14,9 @@ public interface IParameterValue {
 	public String getName();
 
 	/**
-	 * Reset the parameter fields
+	 * Save the parameter value
 	 */
-	public void reset();
+	public void save();
 
 	/**
 	 * Return the number value
@@ -27,7 +27,16 @@ public interface IParameterValue {
 
 	/**
 	 * Return the type used by the deserialization
+	 * 
+	 * @return {@link String} value
 	 */
 	public String getType();
+
+	/**
+	 * Return the parameter collect time in milliseconds
+	 * 
+	 * @return {@link Long} value
+	 */
+	public Long getCollectTime();
 
 }

@@ -365,7 +365,6 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.collectTime(strategyTime)
 				.name(TEST_REPORT_PARAMETER)
-				.parameterState(ParameterState.OK)
 				.build();
 
 		final StringBuilder value = new StringBuilder();
@@ -415,10 +414,10 @@ public abstract class AbstractStrategy implements IStrategy {
 	 */
 	protected Double getTemperatureWarningThreshold(@NonNull final Map<String, String> metadata) {
 		final String warningThresholdMetadata = metadata.get(WARNING_THRESHOLD);
-		final String alamThresholdMetadata = metadata.get(ALARM_THRESHOLD);
+		final String alarmThresholdMetadata = metadata.get(ALARM_THRESHOLD);
 
 		final Double warningThreshold = NumberHelper.parseDouble(warningThresholdMetadata, null);
-		final Double alarmThreshold = NumberHelper.parseDouble(alamThresholdMetadata, null);
+		final Double alarmThreshold = NumberHelper.parseDouble(alarmThresholdMetadata, null);
 
 		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold
 		// If we only have a warning threshold, we are good.
