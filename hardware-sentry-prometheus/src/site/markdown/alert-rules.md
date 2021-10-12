@@ -7,11 +7,11 @@ You must have downloaded **${project.artifactId}-${project.version}.zip** or **$
 
 The package includes the `hardware-sentry-rules.yml` file that contains alert rules for all the monitored hardware component types. Save this file in the folder of your choice, typically where the `hardware-sentry-config.yml` is located.
 
-**${project.name}** rules consists in positioning static or dynamic thresholds that trigger alerts when their conditions are met. Rules are exposed as metrics as shown in the exemples below.
+**${project.name}** rules consists in positioning static or dynamic thresholds that trigger alerts when their conditions are met. Rules are exposed as metrics, as shown in the examples below.
 
 ## Static Thresholds
 
-A static threshold consists in a hard limit a metric should not breach. The limit can be a single value or a range. As static threshold do not change over time, it helps you define critical boundaries of normal operation.
+A static threshold consists in a hard limit a metric should not breach. The limit can be a single value or a range. As static thresholds do not change over time, it helps you define critical boundaries of normal operation.
 
 For example, the possible statuses of a battery charge can typically be:
 
@@ -38,15 +38,15 @@ Example:
 
 ## Dynamic Thresholds
 
-A dynamic threshold consists in a limit based on manufacturer's device settings and incoming data. Alerts are dynamically generated when these thresholds are exceeded.
+A dynamic threshold consists in a limit based on the manufacturer's device settings and incoming data. Alerts are dynamically generated when these thresholds are exceeded.
 
-**${project.name}** collects 3 temperature metrics:
+**${project.name}** collects three temperature metrics:
 
 hw_temperature_celsius - the current temperature of the device/component
-hw_temperature_celsius_warning - the threshold from the manufacturer that triggers a WARN-severity alert when exceed.
-hw_temperature_celsius_alarm - the threshold from the manufacturer that triggers a CRITICAL-severity alert when exceed.
+hw_temperature_celsius_warning - the threshold from the manufacturer that triggers an WARN-severity alert when exceeded.
+hw_temperature_celsius_alarm - the threshold from the manufacturer that triggers a ALARM-severity alert when exceed.
 
-The example below shows the rule that enables  **${project.name}** to trigger an alert by comparing the 3 temperature metrics. 
+The example below shows the rule that enables  **${project.name}** to trigger an alert by comparing the three temperature metrics.
 
 ```
 - name: Temperature-Temperature
