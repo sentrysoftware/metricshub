@@ -736,6 +736,17 @@ public class SourceVisitor implements ISourceVisitor {
 		String namespace = wbemSource.getWbemNamespace() != null ? wbemSource.getWbemNamespace()
 				: protocol.getNamespace();
 
+		// Replace the automatic namespace
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
+			final String cachedNamespace = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWbemNamespace();
+
+			// Update the namespace with the cached namespace
+			namespace = cachedNamespace;
+		}
+
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {

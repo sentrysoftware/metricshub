@@ -1307,6 +1307,24 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
 				Arrays.asList("ID3", "v3", "vafval1", "val23f2")),
 				sourceTable.getTable());
+
+		replace.setReplace("Column(3)");
+		replace.setReplaceBy("v1v2");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "v1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")),
+				sourceTable.getTable());
+
+		replace.setReplace("Column(2)");
+		replace.setReplaceBy("Column(1)");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")),
+				sourceTable.getTable());
 	}
 
 	@Test

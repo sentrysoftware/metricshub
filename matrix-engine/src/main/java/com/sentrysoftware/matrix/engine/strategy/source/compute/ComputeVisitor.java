@@ -1077,20 +1077,43 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
-			int replacementColumnIndex = Integer.parseInt(replacement.substring(
-					replacement.indexOf("(") + 1,
-					replacement.indexOf(")"))) - 1;
+			int replacementColumnIndex = getColumnIndex(replacement);
 
 			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
-				sourceTable.getTable()
-				.forEach(column -> column.set(
-						columnIndex,
-						column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
-						);
+
+				// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+					int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+					if (strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+						sourceTable.getTable()
+						.forEach(column -> column.set(
+								columnIndex,
+								column.get(columnIndex).replace(column.get(strToReplaceColumnIndex), column.get(replacementColumnIndex)))
+								);
+					}
+				} else {
+					sourceTable.getTable()
+					.forEach(column -> column.set(
+							columnIndex,
+							column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
+							);
+				}
 			}
 		} else {
-			sourceTable.getTable()
-			.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+			// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+				int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+				if (!sourceTable.getTable().isEmpty() && strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+					sourceTable.getTable()
+					.forEach(column -> column.set(
+							columnIndex,
+							column.get(columnIndex).replace(column.get(strToReplaceColumnIndex), replacement))
+							);
+				}
+			} else {
+				sourceTable.getTable()
+				.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+			}
 		}
 
 		sourceTable.setTable(SourceTable.csvToTable(
