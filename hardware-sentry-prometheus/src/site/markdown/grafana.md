@@ -18,7 +18,7 @@ Uncompress the *sustainable_IT_by_sentry_software* folder to any directory on th
 
 Uncompress the *provisioning* folder in the **hardware-dashboards-for-grafana.tar.gz** file to the *grafana* folder on the Grafana server (ex: "/etc/grafana").
 
-Uncompress the *sustainable_IT_by_sentry_software* folder to any directory on the Grafana server (ex:  "/var/lib/grafana/dashboards").
+Uncompress the *sustainable_IT_by_sentry_software* folder to any directory on the Grafana server (ex: "/var/lib/grafana/dashboards").
 
 ## Configuring the Dashboard Provider
 
@@ -33,3 +33,5 @@ The dashboards for Grafana query the Prometheus server to display the status of 
 In the "**provisioning/datasource**" directory, open the *hardware-sentry-prometheus.yml*. Enter the required settings to connect to your Prometheus server and save the changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
 
 Restart the Grafana server. The dashboard are now loaded in Grafana.
+
+![**${project.name}** Sustainable IT Dashboard](./images/dashboard_all_zones.png)
