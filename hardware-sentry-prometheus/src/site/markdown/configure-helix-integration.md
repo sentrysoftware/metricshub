@@ -1,14 +1,15 @@
 keywords: configuration, prometheus server, examples, helix, bmc
-
 description: How to integrate the hardware metrics collected by **${project.name}** into BMC Helix Operations Management
 
-# Configure a VictoriaMetrix vmagent
+# Integrating With BMC Helix Operations Management
+
+## Configure a VictoriaMetrix vmagent
 
 **${project.name}** collects metrics from monitored targets and exposes the collected information. The VictoriaMetrix vmagent can be configured to scrape this data and remotely write it to BMC Helix Operations Management.
 
 ## Install and Configure the vmagent
 
-Go to the the VictoriaMetrix vmagent [release page](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) and download the `vmutils` package appropriate to your system.
+Go to the VictoriaMetrix vmagent [release page](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) and download the `vmutils` package appropriate to your system.
 
 Unpack the archive. Create a `hardware-sentry.yml` file in the folder where the `vmagent` was unpacked.
 
@@ -24,11 +25,13 @@ scrape_configs:
       - targets: ['<hostname:port_number>']
 ```
 
-The `hostname` is the name of the server where **${project.name}** is running.
+Where
 
-The `port_number` is the port number of **${project.name}**.
+* `hostname` is the name of the server where **${project.name}** is running.
 
-The `scrape_interval` is the `vmagent` scrape interval and be customized. It should be equal to or higher than the exporter's collect interval. Example: 1d, 1h30m, 5m
+* `port_number` is the port number of **${project.name}**.
+
+The `scrape_interval` is the `vmagent` scrape interval and be customized. It should be equal to or higher than the exporter's collect interval. Example: 1d, 1h30m, 5m.
 
 Example
 ```
@@ -42,16 +45,17 @@ scrape_configs:
       - targets: ['localhost:8080']
 ```
 
-## Getting the BMC Helix APY Key
+### Getting the BMC Helix APY Key
+
 An APY key is required to push the data to BMC Helix Operations Management.
 
-Connect to your BMC Helix Operations Management Portal, go to the repository page and click on the **Copy APY Key** button.
+Connect to your BMC Helix Operations Management Portal, go to the repository page, and click on the **Copy APY Key** button.
 
 ![Copy APY Key](images/copy_apy_key.png)
 
 Save the API key and take note of your BMC Helix Portal URL.
 
-## Running the vmagent
+### Running the vmagent
 
 Execute the following commande-line, using the appropriate executable name for your system:
 
