@@ -1698,6 +1698,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 	}
 
+	/**
+	 * Collect the status information on the current monitor instance. This
+	 * method must be called after collecting the {@link Status}
+	 */
 	void collectStatusInformation() {
 
 		final String valueTable = monitorCollectInfo.getValueTable();

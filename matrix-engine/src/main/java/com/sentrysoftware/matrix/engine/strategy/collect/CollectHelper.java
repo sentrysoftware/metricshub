@@ -53,7 +53,7 @@ public class CollectHelper {
 	 * @param parameterName The name of the parameter we wish to collect
 	 * @param monitorId     Current collected monitor identifier
 	 * @param hostname      Current hostname
-	 * @return {@link ParameterState} value
+	 * @return {@link IState} value
 	 */
 	public static IState translateState(final String stateValue, 
 			@NonNull final Function<String, Optional<? extends IState>> interpreter,
@@ -158,11 +158,11 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Get the {@link StatusParam} state value
+	 * Get the {@link DiscreteParam} state value
 	 *
-	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link StatusParam} state
-	 * @param parameterName The name of the {@link StatusParam} instance
-	 * @return a {@link ParameterState} value (OK, WARN or ALARM)
+	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link DiscreteParam} state
+	 * @param parameterName The name of the {@link DiscreteParam} instance
+	 * @return a {@link IState} value (OK, WARN or ALARM)
 	 */
 	public static IState getParameterState(final Monitor monitor, final String parameterName) {
 
@@ -339,9 +339,9 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Update the status information parameter value named <code>status</code> in the given {@link Monitor} instance
+	 * Update the status information text parameter value in the given {@link Monitor} instance
 	 *
-	 * @param monitor           The monitor we wish to collect the status parameter value
+	 * @param monitor           The monitor we wish to collect the status information parameter value
 	 * @param collectTime       The collect time for this parameter
 	 * @param statusInformation The status information
 	 * @param status            The Status to use in case statusInformation is empty or <code>null</code>
@@ -375,11 +375,9 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Update the status parameter value named <code>status</code> in the given
-	 * {@link Monitor} instance
+	 * Update the discrete parameter {@link IState} value in the given {@link Monitor} instance
 	 * 
-	 * @param monitor       The monitor we wish to collect the status parameter
-	 *                      value
+	 * @param monitor       The monitor we wish to collect the discrete parameter state value
 	 * @param parameterName The name of the parameter we wish to collect
 	 * @param collectTime   The collect strategy time
 	 * @param state         The {@link IState} instance. E.g {@link Status},
