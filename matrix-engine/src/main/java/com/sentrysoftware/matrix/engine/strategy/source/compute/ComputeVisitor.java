@@ -1064,7 +1064,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		String replacement = replace.getReplaceBy();
 
 		if (columnToReplace == null || strToReplace == null || replacement == null) {
-			log.warn("Arguments in Compute Operation (Replace) : {} are wrong, the table remains unchanged.", replace);
+			log.warn("Arguments in Compute Operation (Replace): {} are wrong, the table remains unchanged.", replace);
 			return;
 		}
 
