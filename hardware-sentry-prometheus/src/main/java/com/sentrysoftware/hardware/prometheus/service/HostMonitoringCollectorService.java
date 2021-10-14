@@ -47,7 +47,8 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
+	public static final String ENTITY_ID = "entityId";
+	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT, ENTITY_ID);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired
@@ -126,7 +127,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Convert metadata value according to the given factor
-	 * 
+	 *
 	 * @param metadataValue cannot be null and must be a number
 	 * @return {@link Double} value
 	 */
@@ -231,6 +232,8 @@ public class HostMonitoringCollectorService extends Collector {
 				labelValues.add(monitor.getName());
 			} else if (FQDN.equals(label)) {
 				labelValues.add(monitor.getFqdn());
+			} else if (ENTITY_ID.equals(label)) {
+				labelValues.add(String.format("%s:%s:%s:%s", "HM", monitor.getFqdn(), monitor.getExtendedType(), monitor.getId()));
 			} else {
 				labelValues.add(convertMetadataInfoValue(monitor, label));
 			}
@@ -486,7 +489,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Check if the given value can be parsed as double
-	 * 
+	 *
 	 * @param value The value we wish to check
 	 * @return <code>true</code> if the value is not <code>null</code> and the parse succeeds otherwise <code>false</code>
 	 */
@@ -519,7 +522,8 @@ public class HostMonitoringCollectorService extends Collector {
 					monitor.getFqdn(),
 					monitor.getId(),
 					monitor.getName(),
-					getValueOrElse(monitor.getParentId(), "")
+					getValueOrElse(monitor.getParentId(), ""),
+					String.format("%s:%s:%s:%s", "HM", monitor.getFqdn(), monitor.getExtendedType(), monitor.getId())
 				);
 	}
 
@@ -542,7 +546,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Get the discovery time of the given monitor if we are in the honorTimestamps
 	 * mode otherwise <code>null</code> is returned
-	 * 
+	 *
 	 * @param monitor the monitor we wish to extract its discovery time
 	 * @return Long value
 	 */
@@ -553,7 +557,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Get the parameter collect time if we are in the honorTimestamps
 	 * mode otherwise <code>null</code> is returned
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to extract the parameter collect time
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return Long value

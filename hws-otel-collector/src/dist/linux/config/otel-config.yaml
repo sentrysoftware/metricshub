@@ -1,0 +1,61 @@
+#
+# ╔═╗┌─┐┌─┐┌┐┌╔╦╗┌─┐┬  ┌─┐┌┬┐┌─┐┌┬┐┬─┐┬ ┬
+# ║ ║├─┘├┤ │││ ║ ├┤ │  ├┤ │││├┤  │ ├┬┘└┬┘
+# ╚═╝┴  └─┘┘└┘ ╩ └─┘┴─┘└─┘┴ ┴└─┘ ┴ ┴└─ ┴
+#
+# OpenTelemetry Collector Configuration
+#
+# For more information, see:
+# https://opentelemetry.io/docs/collector/configuration/
+#
+
+receivers:
+
+  # prometheus_exec
+  # Executes Hardware Sentry Exporter for Prometheus and scrape it
+  # For more information about execution options:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusexecreceiver
+  prometheus_exec/hws-exporter:
+    exec: "\"hws-exporter/bin/hws-exporter\" --target.config.file=\"hws-exporter/hws-config.yml\" --server.port={{port}}"
+    port: 24375
+    scrape_interval: 60s
+
+processors:
+  batch:
+    timeout: 10s
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 2000
+    spike_limit_mib: 400
+
+  metricstransform:
+    transforms:
+      include: .*
+      match_type: regexp
+      action: update
+      operations:
+        - action: add_label
+          new_label: zone
+          new_value: Vendome
+
+exporters:
+  datadog/api:
+    api:
+      key: 7e41b354315684f2d364407843411553
+
+  prometheusremotewrite/helix:
+    endpoint: https://helixtrial-emea-5-dev-ir1.onbmc.com/metrics-gateway-service/api/v1.0/prometheus
+    headers:
+      Authorization: Bearer 6ac20a5f-51b3-40c0-81a9-d50a7958f527
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus_exec/hws-exporter]
+      processors: [batch,metricstransform]
+      exporters: [datadog/api]
