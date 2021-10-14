@@ -47,8 +47,7 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String LABEL = "label";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
-	public static final String ENTITY_ID = "entityId";
-	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT, ENTITY_ID);
+	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
 
 	@Autowired
@@ -232,8 +231,6 @@ public class HostMonitoringCollectorService extends Collector {
 				labelValues.add(monitor.getName());
 			} else if (FQDN.equals(label)) {
 				labelValues.add(monitor.getFqdn());
-			} else if (ENTITY_ID.equals(label)) {
-				labelValues.add(String.format("%s:%s:%s:%s", "HM", monitor.getFqdn(), monitor.getExtendedType(), monitor.getId()));
 			} else {
 				labelValues.add(convertMetadataInfoValue(monitor, label));
 			}
@@ -522,8 +519,7 @@ public class HostMonitoringCollectorService extends Collector {
 					monitor.getFqdn(),
 					monitor.getId(),
 					monitor.getName(),
-					getValueOrElse(monitor.getParentId(), ""),
-					String.format("%s:%s:%s:%s", "HM", monitor.getFqdn(), monitor.getExtendedType(), monitor.getId())
+					getValueOrElse(monitor.getParentId(), "")
 				);
 	}
 
