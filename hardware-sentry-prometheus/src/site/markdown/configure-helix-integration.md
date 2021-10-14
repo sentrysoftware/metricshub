@@ -5,7 +5,6 @@ description: How to integrate the hardware metrics collected by **${project.name
 
 **${project.name}** integrates with BMC Helix Operations Management to expose hardware health and performance metrics into Helix dashboards.
 
-![**${project.name}** hierarchy](./images/hardware-sentry-exporter-helix-diagram.png)
 
 
 ## Configure a VictoriaMetrics vmagent
@@ -38,7 +37,8 @@ Where
 
 The `scrape_interval` is the `vmagent` scrape interval and be customized. It should be equal to or higher than the exporter's collect interval. Example: 1d, 1h30m, 5m.
 
-Example
+Example:
+
 ```
 global:
 
@@ -48,6 +48,7 @@ scrape_configs:
   - job_name: 'hardware-sentry'
     static_configs:
       - targets: ['localhost:8080']
+
 ```
 
 ### Getting the BMC Helix API Key
@@ -85,9 +86,40 @@ info    VictoriaMetrics/lib/promscrape/scraper.go:367   static_configs: added ta
 
 ## Import **${project.name}** Dashboards into your Helix Environment
 
+### Load Dashboards in Helix
 
-hardware-dashboards-for-helix-<version>.zip
+* the dashboards (.json files)
+* the provisioning files (.yml files)
 
-## Add Targets 
+#### On Windows
 
-Refer to the [Configuration](./configure.md) section for details.
+Uncompress the *provisioning* folder in the **hardware-dashboards-for-helix.zip** file to the "*grafana\conf*" folder on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\conf").
+
+Uncompress the *sustainable_IT_by_sentry_software* folder to any directory on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
+
+#### On Linux and UNIX
+
+Uncompress the *provisioning* folder in the **hardware-dashboards-for-helix.tar.gz** file to the *grafana* folder on the Grafana server (ex: "/etc/grafana").
+
+Uncompress the *sustainable_IT_by_sentry_software* folder to any directory on the Grafana server (ex: "/var/lib/grafana/dashboards").
+
+### Configure the Dashboard Provider
+
+In the "**provisioning/dashboards**" directory on the Grafana server, open the file called *hardware-sentry.yml*. Find the line containing ```path: ''```, specify the path where your uncompressed the dashboards (ex: path: 'C:/Program Files/GrafanaLabs/grafana/public/dashboards"') and save the changes.
+
+Note: the path should point to the folder directly above the *sustainable_IT_by_sentry_software* folder. This folder should only contain dashboards for Grafana.
+
+### Configure the Data Source
+
+The dashboards for Helix query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
+
+In the "**provisioning/datasource**" directory, open the *hardware-sentry-prometheus.yml*. Enter the required settings to connect to your Prometheus server and save the changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
+
+Restart. The dashboard are now loaded in Helix Operations Management.
+
+![**${project.name}** Sustainable IT Dashboard](./images/dashboard_all_zones.png)
+hardware-dashboards-for-helix.zip
+
+## Add Targets
+
+Refer to the [Configuration](./configure.html) section for details.
