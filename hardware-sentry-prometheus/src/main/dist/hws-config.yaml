@@ -1,4 +1,4 @@
-#targets:
+targets:
 
 #  - target:
 #      hostname: carnap-imm
@@ -24,7 +24,7 @@
 #      timeout: 120s
 #    excludedConnectors: [ SunF15K, HPiLO ]
 #    unknownStatus: WARN
-     
+
 #  - target:
 #      hostname: fermat-oa
 #      type: oob
@@ -44,7 +44,7 @@
 #      timeout: 120s
 #      username: admin
 #      password: password
-#    excludedConnectors: [ SunF15K, HPiLO ] 
+#    excludedConnectors: [ SunF15K, HPiLO ]
 
 #  - target:
 #      hostname: idrac-dell-ceph
@@ -54,7 +54,7 @@
 #      community: public
 #      port: 161
 #      timeout: 120s
-#    excludedConnectors: [ SunF15K, HPiLO ]  
+#    excludedConnectors: [ SunF15K, HPiLO ]
 
 #  - target:
 #      hostname: purem-san

@@ -82,7 +82,7 @@ class TaskSchedulingServiceTest {
 		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(targetConfigPath);
 
-		// Get one from the test resources 
+		// Get one from the test resources
 		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
 			.getTargets()
 			.stream()
@@ -103,7 +103,7 @@ class TaskSchedulingServiceTest {
 		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(targetConfigPath);
 
-		// Get one from the test resources 
+		// Get one from the test resources
 		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
 			.getTargets()
 			.stream()
@@ -124,7 +124,7 @@ class TaskSchedulingServiceTest {
 	@Test
 	void testUpdateConfigurationRemoveObsoleteSchedules() {
 
-		// Current /data/hardware-sentry-config.yml has 3 targets
+		// Current /data/hws-config.yaml has 3 targets
 		// Let's say we have 4 targets from the previous configuration but the current contains only 3 targets
 		// Let's check that 1 target is unscheduled and the exsiting targets are never re-scheduled
 		final MultiHostsConfigurationDTO previous = ConfigHelper.readConfigurationSafe(targetConfigPath);
@@ -154,7 +154,7 @@ class TaskSchedulingServiceTest {
 
 	@Test
 	void testUpdateConfigurationSchedulesNewTargets() {
-		// /data/hardware-sentry-config.yml has 3 targets
+		// /data/hws-config.yaml has 3 targets
 		// let's say, we have nothing in the configuration
 		// then verify that 3 targets are fetched and 3 schedules are launched
 

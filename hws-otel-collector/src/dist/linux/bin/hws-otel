@@ -44,8 +44,15 @@ HWS_HOME=`dirname "$PRG"`/..
 # Make it fully qualified
 HWS_HOME=`cd "$HWS_HOME" && pwd`
 
+# If no arguments specified, use the default config file
+if [ -z "$1" ]; then
+	DEFAULT_ARG1=--config
+	DEFAULT_ARG2=config/otel-config.yaml
+fi
+
 # Execute
-exec "bin/${project.artifactId}" "$@"
+cd "$HWS_HOME"
+exec "bin/${project.artifactId}" $DEFAULT_ARG1 $DEFAULT_ARG2 $@
 
 # Go back to where we were
 cd "$saveddir"

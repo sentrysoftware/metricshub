@@ -11,13 +11,13 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hws-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.name}.
+This information must be provided in a `hws-config.yaml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.name}.
 
 The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
 
 ## Specifying the target to be monitored
 
-Copy the following lines in the `hws-config.yml` file:
+Copy the following lines in the `hws-config.yaml` file:
 
 ```
 targets:

@@ -10,8 +10,8 @@ First, download **${project.artifactId}-${project.version}.zip** or **${project.
 * the user documentation
 * the license agreement
 * the `${project.artifactId}-${project.version}.jar` file
-* the default **${project.name}** configuration file (`hws-config.yml`)
-* the suggested Prometheus AlertManager rules configuration file (`hws-alertmanager-rules.yml`)
+* the default **${project.name}** configuration file (`hws-config.yaml`)
+* the suggested Prometheus AlertManager rules configuration file (`hws-alertmanager-rules.yaml`)
 
 ## On Windows
 
