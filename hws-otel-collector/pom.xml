@@ -197,6 +197,7 @@
 							<environmentVariables>
 								<GOOS>windows</GOOS>
 								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
 							</environmentVariables>
 						</configuration>
 					</execution>
@@ -222,6 +223,7 @@
 							<environmentVariables>
 								<GOOS>linux</GOOS>
 								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
 							</environmentVariables>
 						</configuration>
 					</execution>
