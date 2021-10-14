@@ -3,13 +3,18 @@ description: How to integrate the hardware metrics collected by **${project.name
 
 # Integrating With BMC Helix Operations Management
 
-## Configure a VictoriaMetrix vmagent
+**${project.name}** integrates with BMC Helix Operations Management to expose hardware health and performance metrics into Helix dashboards.
 
-**${project.name}** collects metrics from monitored targets and exposes the collected information. The VictoriaMetrix vmagent can be configured to scrape this data and remotely write it to BMC Helix Operations Management.
+![**${project.name}** hierarchy](./images/hardware-sentry-exporter-helix-diagram.png)
+
+
+## Configure a VictoriaMetrics vmagent
+
+**${project.name}** collects metrics from monitored targets and exposes the collected information. The VictoriaMetrics vmagent can be configured to scrape this data and remotely write it to BMC Helix Operations Management.
 
 ## Install and Configure the vmagent
 
-Go to the VictoriaMetrix vmagent [release page](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) and download the `vmutils` package appropriate to your system.
+Go to the VictoriaMetrics vmagent [release page](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) and download the `vmutils` package appropriate to your system.
 
 Unpack the archive. Create a `hardware-sentry.yml` file in the folder where the `vmagent` was unpacked.
 
@@ -45,13 +50,13 @@ scrape_configs:
       - targets: ['localhost:8080']
 ```
 
-### Getting the BMC Helix APY Key
+### Getting the BMC Helix API Key
 
-An APY key is required to push the data to BMC Helix Operations Management.
+An API key is required to push the data to BMC Helix Operations Management.
 
-Connect to your BMC Helix Operations Management Portal, go to the repository page, and click on the **Copy APY Key** button.
+Connect to your BMC Helix Operations Management Portal, go to the repository page, and click on the **Copy API Key** button.
 
-![Copy APY Key](images/copy_apy_key.png)
+![Copy API Key](images/copy_api_key.png)
 
 Save the API key and take note of your BMC Helix Portal URL.
 
@@ -60,10 +65,10 @@ Save the API key and take note of your BMC Helix Portal URL.
 Execute the following commande-line, using the appropriate executable name for your system:
 
 ```
-vmagent -promscrape.config hardware-sentry.yml -remoteWrite.url https://<BMC Helix URL>/metrics-gateway-service/api/v1.0/prometheus -remoteWrite.bearerToken=<APY Key>
+vmagent -promscrape.config hardware-sentry.yml -remoteWrite.url https://<BMC Helix URL>/metrics-gateway-service/api/v1.0/prometheus -remoteWrite.bearerToken=<API Key>
 ```
 
-Replace `<BMC Helix URL>` with your BMC Helix Portal URL, and `<APY Key>` with the APY key copied from the BMC Helix Operations Management Portal.
+Replace `<BMC Helix URL>` with your BMC Helix Portal URL, and `<API Key>` with the API key copied from the BMC Helix Operations Management Portal.
 
 If the command is successfull, you should see an output similar to this:
 
@@ -77,3 +82,12 @@ info    VictoriaMetrics/lib/promscrape/config.go:68     starting service discove
 info    VictoriaMetrics/lib/promscrape/config.go:74     started service discovery routines in 0.001 seconds
 info    VictoriaMetrics/lib/promscrape/scraper.go:367   static_configs: added targets: 1, removed targets: 0; total targets: 1
 ```
+
+## Import **${project.name}** Dashboards into your Helix Environment
+
+
+hardware-dashboards-for-helix-<version>.zip
+
+## Add Targets 
+
+Refer to the [Configuration](./configure.md) section for details.
