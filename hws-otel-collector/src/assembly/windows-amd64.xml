@@ -16,21 +16,29 @@
 		</dependencySet>
 	</dependencySets>
 
+	<fileSets>
+		<fileSet>
+			<directory>src/dist/windows</directory>
+			<excludes>
+				<exclude>bin/**</exclude>
+			</excludes>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<fileSet>
+			<directory>src/dist/windows</directory>
+			<includes>
+				<include>bin/**</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</fileSet>
+	</fileSets>
+
 	<files>
-		<file>
-			<source>src/dist/windows/config/otel-config.yaml</source>
-			<outputDirectory>config</outputDirectory>
-			<lineEnding>windows</lineEnding>
-			<filtered>true</filtered>
-		</file>
-
-		<file>
-			<source>src/dist/windows/bin/hws-otel.cmd</source>
-			<outputDirectory>bin</outputDirectory>
-			<lineEnding>windows</lineEnding>
-			<filtered>true</filtered>
-		</file>
-
 		<file>
 			<source>${project.build.directory}/windows-amd64/${project.artifactId}.exe</source>
 			<outputDirectory>bin</outputDirectory>

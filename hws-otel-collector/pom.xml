@@ -53,6 +53,7 @@
 				<system.family>windows</system.family>
 				<system.arch>amd64</system.arch>
 				<system.exeExtension>.exe</system.exeExtension>
+				<chmod.skip>true</chmod.skip>
 			</properties>
 		</profile>
 
@@ -68,6 +69,7 @@
 				<system.family>linux</system.family>
 				<system.arch>amd64</system.arch>
 				<system.exeExtension></system.exeExtension>
+				<chmod.skip>false</chmod.skip>
 			</properties>
 		</profile>
 
@@ -116,6 +118,29 @@
 						<configuration>
 							<url>https://github.com/open-telemetry/opentelemetry-collector-builder/releases/download/v${otel.version}/opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}</url>
 							<outputDirectory>${project.build.directory}/builder</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- antrun -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+
+					<!-- chmod 755 of the builder -->
+					<execution>
+						<id>chmod-builder</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<chmod file="${project.build.directory}/builder/opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}" perm="755" />
+							</target>
+							<skip>${chmod.skip}</skip>
 						</configuration>
 					</execution>
 				</executions>
