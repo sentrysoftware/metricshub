@@ -2361,5 +2361,42 @@ class ComputeVisitorTest {
 		resultTable = computeVisitor.getSourceTable().getTable();
 		assertEquals(1, resultTable.size());
 		assertEquals(line4, resultTable.get(0));
+
+		// check regex ignoreCase
+		line1 = Arrays.asList("A", "temperature", "motherboard");
+		line2 = Arrays.asList("A", "Fan", "fan3");
+		line3 = Arrays.asList("B", "temperature", "bp-temp2   ");
+		line4 = Arrays.asList("B", "fan", "fan2");
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines
+				.builder()
+				.column(2)
+				.regExp("fan")
+				.build();
+		computeVisitor.visit(keepOnlyMatchingLines);
+		List<List<String>> expectedTableResult =  Arrays.asList(line2, line4);
+		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
+
+		// check valueList ignoreCase
+		table = Arrays.asList(line1, line2, line3, line4);
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines
+				.builder()
+				.column(2)
+				.valueList(Arrays.asList("Fan"))
+				.build();
+		computeVisitor.visit(keepOnlyMatchingLines);
+		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
+
 	}
 }

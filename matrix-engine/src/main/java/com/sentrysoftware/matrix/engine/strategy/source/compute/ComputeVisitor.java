@@ -791,7 +791,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
 
-		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp));
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp), Pattern.CASE_INSENSITIVE);
 
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
 			? value -> pattern.matcher(value).find()
@@ -812,8 +812,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	private Predicate<String> getPredicate(List<String> valueList, AbstractMatchingLines abstractMatchingLines) {
 
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
-			? valueList::contains
-			: value -> !valueList.contains(value);
+			? value -> valueList.stream().anyMatch(value::equalsIgnoreCase)
+			: value -> valueList.stream().noneMatch(value::equalsIgnoreCase);
 	}
 
 	@Override
