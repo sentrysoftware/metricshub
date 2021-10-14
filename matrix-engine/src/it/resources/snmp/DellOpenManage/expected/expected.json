@@ -64,7 +64,6 @@
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
-      "targetFqdn" : "127.0.0.1",
       "type" : "System Board CMOS Battery"
     },
     "alertRules" : {
@@ -175,8 +174,7 @@
     "metadata" : {
       "compiledFileName" : "DellOpenManage",
       "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",
-      "displayName" : "Dell OpenManage Server Administrator",
-      "targetFqdn" : "127.0.0.1"
+      "displayName" : "Dell OpenManage Server Administrator"
     },
     "alertRules" : {
       "status" : [ {
@@ -279,7 +277,6 @@
       "identifyingInformation" : "Location: Slot CPU1",
       "maximumspeed" : "4000",
       "model" : "Xeon CPU E5-2620 v4 @ 2.10GHz",
-      "targetFqdn" : "127.0.0.1",
       "vendor" : "Intel"
     },
     "alertRules" : {
@@ -448,7 +445,6 @@
       "identifyingInformation" : "Serial Number: FSJR3N2 - Alternative Serial Number: 34377965102",
       "model" : "PowerEdge R630",
       "parameteractivation.energyusage" : "3191749",
-      "targetFqdn" : "127.0.0.1",
       "type" : "Computer",
       "vendor" : "Dell"
     },
@@ -565,7 +561,6 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board1A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -741,7 +736,6 @@
       "idCount" : "9",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board3B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -917,7 +911,6 @@
       "idCount" : "10",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board4B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1093,7 +1086,6 @@
       "idCount" : "11",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board5B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1269,7 +1261,6 @@
       "idCount" : "12",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board6B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1445,7 +1436,6 @@
       "idCount" : "13",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board7B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1621,7 +1611,6 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board2A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1797,7 +1786,6 @@
       "idCount" : "2",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board3A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -1973,7 +1961,6 @@
       "idCount" : "3",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board4A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2149,7 +2136,6 @@
       "idCount" : "4",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board5A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2325,7 +2311,6 @@
       "idCount" : "5",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board6A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2501,7 +2486,6 @@
       "idCount" : "6",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board7A",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2677,7 +2661,6 @@
       "idCount" : "7",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board1B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -2853,7 +2836,6 @@
       "idCount" : "8",
       "identifyingInformation" : "",
       "parameteractivation.speed" : "System Board2B",
-      "targetFqdn" : "127.0.0.1",
       "warningthreshold" : "840"
     },
     "alertRules" : {
@@ -3041,7 +3023,6 @@
       "identifyingInformation" : "Location: Slot A1 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D1",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3228,7 +3209,6 @@
       "identifyingInformation" : "Location: Slot A10 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B62303E",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3415,7 +3395,6 @@
       "identifyingInformation" : "Location: Slot A11 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6232CA",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3602,7 +3581,6 @@
       "identifyingInformation" : "Location: Slot A12 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D3",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3789,7 +3767,6 @@
       "identifyingInformation" : "Location: Slot A2 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F3",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -3976,7 +3953,6 @@
       "identifyingInformation" : "Location: Slot A3 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D6",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4163,7 +4139,6 @@
       "identifyingInformation" : "Location: Slot A4 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230CF",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4350,7 +4325,6 @@
       "identifyingInformation" : "Location: Slot A5 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230EA",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4537,7 +4511,6 @@
       "identifyingInformation" : "Location: Slot A6 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230F4",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4724,7 +4697,6 @@
       "identifyingInformation" : "Location: Slot A7 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623048",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -4911,7 +4883,6 @@
       "identifyingInformation" : "Location: Slot A8 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B623041",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -5098,7 +5069,6 @@
       "identifyingInformation" : "Location: Slot A9 - Part Number: HMA82GR7MFR8N-UH - Alternative Serial Number: 00180130",
       "serialnumber" : "2B6230D7",
       "size" : "16384.0",
-      "targetFqdn" : "127.0.0.1",
       "type" : "DDR4",
       "vendor" : "Hynix Semiconductor (00AD00B300AD)"
     },
@@ -5252,8 +5222,7 @@
       "devicetype" : "ESM",
       "displayid" : "1",
       "idCount" : "0",
-      "identifyingInformation" : "EventLog",
-      "targetFqdn" : "127.0.0.1"
+      "identifyingInformation" : "EventLog"
     },
     "alertRules" : {
       "present" : [ {
@@ -5359,8 +5328,7 @@
       "devicetype" : "vFlash",
       "displayid" : "SDCardDevice-1.1",
       "idCount" : "1",
-      "identifyingInformation" : "Size : 0 MB",
-      "targetFqdn" : "127.0.0.1"
+      "identifyingInformation" : "Size : 0 MB"
     },
     "alertRules" : {
       "present" : [ {
@@ -5464,8 +5432,7 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "powersupplypower" : "750.0",
-      "powersupplytype" : "AC",
-      "targetFqdn" : "127.0.0.1"
+      "powersupplytype" : "AC"
     },
     "alertRules" : {
       "present" : [ {
@@ -5592,8 +5559,7 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "powersupplypower" : "750.0",
-      "powersupplytype" : "AC",
-      "targetFqdn" : "127.0.0.1"
+      "powersupplytype" : "AC"
     },
     "alertRules" : {
       "present" : [ {
@@ -5717,7 +5683,6 @@
     },
     "metadata" : {
       "averageCpuTemperatureWarning" : "85.0",
-      "fqdn" : "127.0.0.1",
       "location" : "localhost",
       "operatingSystemType" : "LINUX",
       "powerMeter" : "collected"
@@ -5776,7 +5741,6 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "parameteractivation.temperature" : "System Board Inlet",
-      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Inlet",
       "warningthreshold" : "42.0"
     },
@@ -5881,7 +5845,6 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "parameteractivation.temperature" : "System Board Exhaust",
-      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "System Board Exhaust",
       "warningthreshold" : "70.0"
     },
@@ -5987,7 +5950,6 @@
       "identifyingInformation" : "",
       "isCpuSensor" : "true",
       "parameteractivation.temperature" : "CPU1",
-      "targetFqdn" : "127.0.0.1",
       "temperaturetype" : "CPU1",
       "warningthreshold" : "85.0"
     },
@@ -6082,7 +6044,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 VCORE PG"
     },
@@ -6154,7 +6115,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board DIMM PG"
     },
@@ -6226,7 +6186,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board VCCIO PG"
     },
@@ -6298,7 +6257,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VDDQ PG"
     },
@@ -6370,7 +6328,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board NDC PG"
     },
@@ -6442,7 +6399,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VPP PG"
     },
@@ -6514,7 +6470,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V PG"
     },
@@ -6586,7 +6541,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.5V AUX PG"
     },
@@ -6658,7 +6612,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 FIVR PG"
     },
@@ -6730,7 +6683,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS2 PG Fail"
     },
@@ -6802,7 +6754,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board PS1 PG Fail"
     },
@@ -6874,7 +6825,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 3.3V PG"
     },
@@ -6946,7 +6896,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP1 5V PG"
     },
@@ -7018,7 +6967,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board BP2 5V PG"
     },
@@ -7090,7 +7038,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M01 VTT PG"
     },
@@ -7172,7 +7119,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "228000",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "PS1 Voltage 1"
     },
@@ -7254,7 +7200,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "224000",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "PS2 Voltage 2"
     },
@@ -7326,7 +7271,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V AUX PG"
     },
@@ -7398,7 +7342,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VPP PG"
     },
@@ -7470,7 +7413,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 2.5V AUX PG"
     },
@@ -7542,7 +7484,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 1.05V PG"
     },
@@ -7614,7 +7555,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VDDQ PG"
     },
@@ -7686,7 +7626,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "CPU1 M23 VTT PG"
     },
@@ -7758,7 +7697,6 @@
       "identifyingInformation" : "",
       "lowerthreshold" : "",
       "parameteractivation.voltage" : "",
-      "targetFqdn" : "127.0.0.1",
       "upperthreshold" : "",
       "voltagetype" : "System Board 5V SWITCH PG"
     },
