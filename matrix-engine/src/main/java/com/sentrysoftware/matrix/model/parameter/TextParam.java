@@ -30,6 +30,7 @@ public class TextParam extends AbstractParam {
 
 	@Override
 	public void save() {
+		super.save();
 		previousValue = value;
 	}
 

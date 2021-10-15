@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -30,21 +30,21 @@ public class Target implements IMetaMonitor {
 			.basicCollect(false)
 			.name(AMBIENT_TEMPERATURE_PARAMETER)
 			.unit(TEMPERATURE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter CPU_TEMPERATURE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(CPU_TEMPERATURE_PARAMETER)
 			.unit(TEMPERATURE_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter CPU_THERMAL_DISSIPATION_RATE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(CPU_THERMAL_DISSIPATION_RATE_PARAMETER)
 			.unit("")
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;

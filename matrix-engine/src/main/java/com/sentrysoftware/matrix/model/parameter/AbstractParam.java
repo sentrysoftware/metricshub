@@ -5,10 +5,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public abstract class AbstractParam implements IParameterValue {
+public abstract class AbstractParam implements IParameter {
 
 	private String name;
 	private Long collectTime;
+	private Long previousCollectTime;
 	private String unit;
 
 	protected AbstractParam(String name, Long collectTime, String unit) {
@@ -17,4 +18,8 @@ public abstract class AbstractParam implements IParameterValue {
 		this.unit = unit;
 	}
 
+	@Override
+	public void save() {
+		previousCollectTime = collectTime;
+	}
 }

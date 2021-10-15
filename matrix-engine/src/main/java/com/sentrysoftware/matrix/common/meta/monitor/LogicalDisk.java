@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,9 +15,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
@@ -39,33 +39,33 @@ public class LogicalDisk implements IMetaMonitor {
 			.basicCollect(false)
 			.name(UNALLOCATED_SPACE_PARAMETER)
 			.unit(SPACE_GB_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 	
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
 			.basicCollect(true)
 			.name(LAST_ERROR_PARAMETER)
-			.type(ParameterType.TEXT)
+			.type(SimpleParamType.TEXT)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, RAID_LEVEL, SIZE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(LogicalDisk::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(LogicalDisk::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(LogicalDisk::checkErrorCountCondition,
 			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -139,11 +139,11 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("Although still working and available, this logical disk is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("Although still working and available, this logical disk is degraded." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("The performance of the system may be affected.")
 					.recommendedAction("If the RAID controller is not already handling this problem, check if you need to replace a physical disk or assign a hot spare to this logical disk.")
 					.build();
@@ -160,10 +160,10 @@ public class LogicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "This logical disk is in critical state." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
+			String problem = "This logical disk is in critical state." +  IMetaMonitor.getStatusInformationMessage(monitor);
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence("This means that one or more filesystems are no longer available (possible data loss).")

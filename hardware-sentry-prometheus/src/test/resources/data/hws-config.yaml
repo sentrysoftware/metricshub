@@ -13,7 +13,6 @@ targets:
     selectedConnectors:
       - DellOpenManage
     excludedConnectors: []
-    unknownStatus: 1
     collectPeriod: 180
     discoveryCycle: 45
 
@@ -28,7 +27,6 @@ targets:
     selectedConnectors:
       - DellOpenManage
     excludedConnectors: []
-    unknownStatus: 1
 
   - target:
       hostname: 3ba095eb-d5e8-4acd-81f4-dc81e29982e7
@@ -41,4 +39,3 @@ targets:
     selectedConnectors:
       - DellOpenManage
     excludedConnectors: []
-    unknownStatus: 1

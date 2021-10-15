@@ -30,7 +30,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 
 import io.prometheus.client.Collector;
 import lombok.NonNull;
@@ -563,7 +563,7 @@ public class HostMonitoringCollectorService extends Collector {
 			return null;
 		}
 
-		final IParameterValue parameter = monitor.getParameters().get(parameterName);
+		final IParameter parameter = monitor.getParameters().get(parameterName);
 		if (parameter != null) {
 			return parameter.getCollectTime();
 		}

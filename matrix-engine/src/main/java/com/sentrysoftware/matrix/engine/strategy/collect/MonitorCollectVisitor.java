@@ -1,51 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Battery;
-import com.sentrysoftware.matrix.common.meta.monitor.Blade;
-import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
-import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Led;
-import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.Lun;
-import com.sentrysoftware.matrix.common.meta.monitor.Memory;
-import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
-import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
-import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
-import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
-import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
-import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
-import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
-import com.sentrysoftware.matrix.common.meta.monitor.Vm;
-import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.TextParam;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-
-import java.math.RoundingMode;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
@@ -54,16 +8,13 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_R
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
@@ -88,7 +39,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LEFT_PARAMETER;
@@ -116,6 +66,56 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.util.Assert;
+
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
+import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
+import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Memory;
+import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
+import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
+import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
+import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.state.DuplexMode;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LedColorStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
+import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
 
@@ -127,19 +127,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String MAPPING_CANNOT_BE_NULL = "mapping cannot be null.";
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
-	private static final String UNKNOWN_STATUS_CANNOT_BE_NULL = "unknownStatus cannot be null.";
 
 	@Getter
 	private MonitorCollectInfo monitorCollectInfo;
-
-	private static final Map<String, Function<ParameterState, String>> STATUS_INFORMATION_MAP;
-
-	static {
-
-		final Map<String, Function<ParameterState, String>> map = new HashMap<>();
-		map.put(INTRUSION_STATUS_PARAMETER, MonitorCollectVisitor::getIntrusionStatusInformation);
-		STATUS_INFORMATION_MAP = Collections.unmodifiableMap(map);
-	}
 
 	public MonitorCollectVisitor(@NonNull MonitorCollectInfo monitorCollectInfo) {
 		checkCollectInfo(monitorCollectInfo);
@@ -156,12 +146,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		Assert.notNull(monitorCollectInfo.getMapping(), MAPPING_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getValueTable(), VALUE_TABLE_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
-		Assert.notNull(monitorCollectInfo.getUnknownStatus(), UNKNOWN_STATUS_CANNOT_BE_NULL);
 	}
 
 	@Override
 	public void visit(MetaConnector metaConnector) {
-		collectBasicParameters(metaConnector);
+		// Not implemented
 	}
 
 	@Override
@@ -175,17 +164,29 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(battery);
 
 		collectBatteryCharge();
+
 		collectBatteryTimeLeft();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Blade blade) {
+
 		collectBasicParameters(blade);
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Cpu cpu) {
+
 		collectBasicParameters(cpu);
+
+		collectStatusInformation();
+
 	}
 
 	@Override
@@ -194,64 +195,94 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(cpuCore);
 
 		collectCpuCoreUsedTimePercent();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(DiskController diskController) {
+
 		collectBasicParameters(diskController);
+
+		collectStatusInformation();
 
 	}
 
 	@Override
 	public void visit(Enclosure enclosure) {
+
 		collectBasicParameters(enclosure);
 
 		collectPowerConsumption();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Fan fan) {
+
 		collectBasicParameters(fan);
 
 		estimateFanPowerConsumption();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Led led) {
 
 		collectBasicParameters(led);
+
 		collectLedColor();
+
 		collectLedStatusAndLedIndicatorStatus();
+
+		collectStatusInformation();
 
 	}
 
 	@Override
 	public void visit(LogicalDisk logicalDisk) {
+
 		collectBasicParameters(logicalDisk);
 
 		collectErrorCount();
+
 		collectLogicalDiskUnallocatedSpace();
+
+		collectStatusInformation();
 
 	}
 
 	@Override
 	public void visit(Lun lun) {
+
 		collectBasicParameters(lun);
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Memory memory) {
+
 		collectBasicParameters(memory);
 
 		collectErrorCount();
+
+		collectStatusInformation();
 
 	}
 
 	@Override
 	public void visit(NetworkCard networkCard) {
+
 		collectBasicParameters(networkCard);
 
-		final Double duplexMode = collectNetworkCardDuplexMode();
+		final DuplexMode duplexMode = collectNetworkCardDuplexMode();
 		final Double linkSpeed = collectNetworkCardLinkSpeed();
 		final Double receivedBytesRate = collectNetworkCardBytesRate(
 			RECEIVED_BYTES_PARAMETER,
@@ -281,33 +312,46 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		estimateNetworkCardPowerConsumption();
 
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(OtherDevice otherDevice) {
+
 		collectBasicParameters(otherDevice);
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(PhysicalDisk physicalDisk) {
+
 		collectBasicParameters(physicalDisk);
 
 		collectPhysicalDiskParameters();
 
 		collectErrorCount();
 
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
+
 		collectBasicParameters(powerSupply);
 
 		collectPowerSupplyUsedCapacity();
+
+		collectStatusInformation();
 
 	}
 
 	@Override
 	public void visit(Robotics robotics) {
+
 		collectBasicParameters(robotics);
 
 		collectIncrementCount(MOVE_COUNT_PARAMETER, MOVE_COUNT_PARAMETER_UNIT);
@@ -315,10 +359,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectErrorCount();
 
 		estimateRoboticsPowerConsumption();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(TapeDrive tapeDrive) {
+
 		collectBasicParameters(tapeDrive);
 
 		collectIncrementCount(MOUNT_COUNT_PARAMETER, MOUNT_COUNT_PARAMETER_UNIT);
@@ -328,37 +376,50 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectErrorCount();
 
 		estimateTapeDrivePowerConsumption();
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Temperature temperature) {
+
 		collectBasicParameters(temperature);
 
 		collectTemperature();
+
+		collectStatusInformation();
 	}
 
 	@Override
 	public void visit(Vm vm) {
 
 		collectBasicParameters(vm);
+
+		collectStatusInformation();
+
 	}
 
 	@Override
 	public void visit(Voltage voltage) {
+
 		collectBasicParameters(voltage);
 
 		collectVoltage();
 
+		collectStatusInformation();
+
 	}
 
 	/**
-	 * Collect the Status of the current {@link Monitor} instance
+	 * Collect a discrete parameter of the current {@link Monitor} instance
 	 *
-	 * @param monitorType   The type of the monitor we currently collect
-	 * @param parameterName The name of the status parameter to collect
-	 * @param unit          The unit to set in the {@link IParameterValue} instance
+	 * @param monitorType       The type of the monitor we currently collect
+	 * @param paramterName      The meta information of the parameter we wish to collect
+	 * @param discreteParamType The {@link DiscreteParamType} defining the interpret function
 	 */
-	void collectStatusParameter(@NonNull final MonitorType monitorType, final String parameterName, final String unit) {
+	void collectDiscreteParameter(@NonNull final MonitorType monitorType, @NonNull String parameterName,
+			@NonNull final DiscreteParamType discreteParamType) {
 
 		checkCollectInfo(monitorCollectInfo);
 
@@ -367,50 +428,35 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
-		final Optional<ParameterState> unknownStatus = monitorCollectInfo.getUnknownStatus();
 		final Long collectTime = monitorCollectInfo.getCollectTime();
 
-		// Get the status raw value
-		final String status = CollectHelper.getValueTableColumnValue(valueTable,
+		// Get the parameter raw value
+		final String stateValue = CollectHelper.getValueTableColumnValue(
+				valueTable,
 				parameterName,
 				monitorType,
 				row,
 				mapping.get(parameterName));
 
-		// Translate the status raw value
-		final ParameterState state = CollectHelper.translateStatus(status,
-				unknownStatus,
+		// Translate the state raw value
+		final IState state = CollectHelper.translateState(
+				stateValue,
+				discreteParamType.getInterpreter(),
+				parameterName,
 				monitor.getId(),
-				hostname,
-				parameterName);
+				hostname);
 
 		if (state == null) {
 			log.warn("Could not collect {} for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
 			return;
 		}
 
-		String statusInformation = null;
-
-		// Get the status information
-		if (STATUS_PARAMETER.equals(parameterName)) {
-			statusInformation = CollectHelper.getValueTableColumnValue(valueTable,
-					STATUS_INFORMATION_PARAMETER,
-					monitorType,
-					row,
-					mapping.get(STATUS_INFORMATION_PARAMETER));
-		}
-
-		// Otherwise simply set the state name OK, WARN or ALARM
-		if (statusInformation == null || statusInformation.trim().isEmpty()) {
-			// Is there any specific implementation for the status information field
-			if (STATUS_INFORMATION_MAP.containsKey(parameterName)) {
-				statusInformation = STATUS_INFORMATION_MAP.get(parameterName).apply(state);
-			} else {
-				statusInformation = state.name();
-			}
-		}
-
-		CollectHelper.updateStatusParameter(monitor, parameterName, unit, collectTime, state, statusInformation);
+		CollectHelper.updateDiscreteParameter(
+				monitor,
+				parameterName,
+				collectTime,
+				state
+		);
 
 	}
 
@@ -419,7 +465,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 *
 	 * @param monitorType   The type of the monitor we currently collect
 	 * @param parameterName The name of the status parameter to collect
-	 * @param unit          The unit to set in the {@link IParameterValue} instance
+	 * @param unit          The unit to set in the {@link IParameter} instance
 	 */
 	void collectNumberParameter(@NonNull final MonitorType monitorType, final String parameterName, final String unit) {
 
@@ -533,51 +579,39 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * @param parameterState {@link ParameterState#OK}, {@link ParameterState#WARN} or {@link ParameterState#ALARM}
-	 * @return a phrase for the intrusion status value
-	 */
-	static String getIntrusionStatusInformation(final ParameterState parameterState) {
-		switch (parameterState) {
-		case OK:
-			return "No Intrusion Detected";
-		case ALARM:
-			return "Intrusion Detected";
-		default:
-			return "Unexpected Intrusion Status";
-		}
-	}
-
-	/**
 	 * Collect the basic parameters as defined by the given {@link IMetaMonitor}
 	 *
 	 * @param metaMonitor Defines all the meta information of the parameters to collect (name, type, unit and basic or not)
 	 */
 	private void collectBasicParameters(final IMetaMonitor metaMonitor) {
 
+		// Collect discrete parameters
 		metaMonitor.getMetaParameters()
 		.values()
 		.stream()
-		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.STATUS.equals(metaParam.getType()))
-		.sorted(new StatusParamFirstComparator())
-		.forEach(metaParam -> collectStatusParameter(
+		.filter(metaParam -> metaParam.isBasicCollect() && metaParam.getType() instanceof DiscreteParamType)
+		.forEach(metaParam -> collectDiscreteParameter(
 			metaMonitor.getMonitorType(),
-			metaParam.getName(), metaParam.getUnit()
-		));
+			metaParam.getName(),
+			(DiscreteParamType) metaParam.getType())
+		);
 
+		// Collect number parameters
 		metaMonitor.getMetaParameters()
 		.values()
 		.stream()
-		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.NUMBER.equals(metaParam.getType()))
+		.filter(metaParam -> metaParam.isBasicCollect() && SimpleParamType.NUMBER.equals(metaParam.getType()))
 		.forEach(metaParam -> collectNumberParameter(
 			metaMonitor.getMonitorType(),
 			metaParam.getName(),
 			metaParam.getUnit()
 		));
 
+		// Collect text parameters
 		metaMonitor.getMetaParameters()
 		.values()
 		.stream()
-		.filter(metaParam -> metaParam.isBasicCollect() && ParameterType.TEXT.equals(metaParam.getType()))
+		.filter(metaParam -> metaParam.isBasicCollect() && SimpleParamType.TEXT.equals(metaParam.getType()))
 		.forEach(metaParam -> collectTextParameter(
 			metaParam.getName(),
 			extractParameterStringValue(metaMonitor.getMonitorType(), metaParam.getName())
@@ -617,19 +651,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 		}
 
-	}
-
-	public static class StatusParamFirstComparator implements Comparator<MetaParameter> {
-
-		@Override
-		public int compare(final MetaParameter metaParam1, final MetaParameter metaParam2) {
-			// Status first
-			if (STATUS_PARAMETER.equalsIgnoreCase(metaParam1.getName())) {
-				return -1;
-			}
-
-			return metaParam1.getName().compareTo(metaParam2.getName());
-		}
 	}
 
 	/**
@@ -967,7 +988,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final String lowerCaseName = monitor.getName().toLowerCase();
 
 		// Link status
-		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, LINK_STATUS_PARAMETER);
+		final IState linkStatus = CollectHelper.getParameterState(monitor, LINK_STATUS_PARAMETER);
 
 		// Link speed
 		final Double linkSpeed = CollectHelper.getNumberParamValue(monitor, LINK_SPEED_PARAMETER);
@@ -983,7 +1004,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		// Unplugged, means not much
-		else if (ParameterState.WARN.equals(linkStatus)) {
+		else if (LinkStatus.UNPLUGGED.equals(linkStatus)) {
 			// 1W for an unplugged card
 			powerConsumption = 1.0;
 		}
@@ -1161,27 +1182,27 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			String warningOnColor = metadata.get(WARNING_ON_COLOR);
 			String alarmOnColor = metadata.get(ALARM_ON_COLOR);
 
-			String colorStatus;
+			String colorStatusValue;
 			if (warningOnColor != null && warningOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
-				colorStatus = "1";
+				colorStatusValue = "1";
 			} else if (alarmOnColor != null && alarmOnColor.toUpperCase().contains(colorRaw.toUpperCase())) {
-				colorStatus = "2";
+				colorStatusValue = "2";
 			} else {
-				colorStatus = "0";
+				colorStatusValue = "0";
 			}
 
 			// Translating the color status
-			ParameterState colorState = CollectHelper.translateStatus(colorStatus,
-				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
-				COLOR_PARAMETER);
+			final Optional<LedColorStatus> colorStatus = LedColorStatus.interpret(colorStatusValue);
 
-			// colorState is never null here
-			CollectHelper.updateStatusParameter(monitor,
-				COLOR_PARAMETER,
-				STATUS_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				colorState,
-				colorState.name());
+			if (colorStatus.isPresent()) {
+				// colorState is never null here
+				CollectHelper.updateDiscreteParameter(
+						monitor,
+						COLOR_PARAMETER,
+						monitorCollectInfo.getCollectTime(),
+						colorStatus.get()
+				);
+			}
 		}
 	}
 
@@ -1191,97 +1212,105 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectLedStatusAndLedIndicatorStatus() {
 
 		// Getting the raw status from the current row
-		final String statusRaw = CollectHelper.getValueTableColumnValue(monitorCollectInfo.getValueTable(),
-			STATUS_PARAMETER,
-			MonitorType.LED,
-			monitorCollectInfo.getRow(),
-			monitorCollectInfo.getMapping().get(STATUS_PARAMETER));
+		final String statusRaw = CollectHelper.getValueTableColumnValue(
+				monitorCollectInfo.getValueTable(),
+				STATUS_PARAMETER,
+				MonitorType.LED,
+				monitorCollectInfo.getRow(),
+				monitorCollectInfo.getMapping().get(STATUS_PARAMETER)
+		);
 
 		if (statusRaw != null) {
 
 			final Monitor monitor = monitorCollectInfo.getMonitor();
 
 			// Translating the LED indicator status
-			ParameterState translatedIndicatorStatus;
-			switch (statusRaw.toUpperCase()) {
-				case "ON":
-					translatedIndicatorStatus = ParameterState.ALARM;
-					break;
-				case "BLINKING":
-					translatedIndicatorStatus = ParameterState.WARN;
-					break;
-				case "OFF":
-				default:
-					translatedIndicatorStatus = ParameterState.OK;
+			Optional<LedIndicator> maybeLedIndicatorStatus = LedIndicator.interpret(statusRaw);
+
+			if (!maybeLedIndicatorStatus.isPresent()) {
+				return;
 			}
 
-			CollectHelper.updateStatusParameter(monitor,
-				LED_INDICATOR_PARAMETER,
-				LED_INDICATOR_PARAMETER_UNIT,
-				monitorCollectInfo.getCollectTime(),
-				translatedIndicatorStatus,
-				translatedIndicatorStatus.name());
+			final LedIndicator ledIndicator = maybeLedIndicatorStatus.get();
+
+			CollectHelper.updateDiscreteParameter(
+					monitor,
+					LED_INDICATOR_PARAMETER,
+					monitorCollectInfo.getCollectTime(),
+					ledIndicator
+			);
 
 			// Translating the status
 			Map<String, String> metadata = monitor.getMetadata();
 
 			String preTranslatedStatus;
-			switch (statusRaw.toUpperCase()) {
-				case "ON":
+			switch (ledIndicator) {
+				case ON:
 					preTranslatedStatus = metadata.get(ON_STATUS);
 					break;
-				case "BLINKING":
+				case BLINKING:
 					preTranslatedStatus = metadata.get(BLINKING_STATUS);
 					break;
-				case "OFF":
+				case OFF:
 				default:
 					preTranslatedStatus = metadata.get(OFF_STATUS);
 			}
 
-			ParameterState translatedStatus = CollectHelper.translateStatus(preTranslatedStatus,
-				monitorCollectInfo.getUnknownStatus(), monitor.getId(), monitorCollectInfo.getHostname(),
-				STATUS_PARAMETER);
-
-			if (translatedStatus != null) {
-
-				CollectHelper.updateStatusParameter(monitor,
+			final IState status = CollectHelper.translateState(
+					preTranslatedStatus,
+					Status::interpret,
 					STATUS_PARAMETER,
-					STATUS_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					translatedStatus,
-					translatedStatus.name());
+					monitor.getId(),
+					monitorCollectInfo.getHostname()
+			);
+
+			if (status != null) {
+
+				CollectHelper.updateDiscreteParameter(
+						monitor,
+						STATUS_PARAMETER,
+						monitorCollectInfo.getCollectTime(),
+						status
+				);
 			}
+
 		}
 	}
 
 	/**
 	 * Collect the {@link NetworkCard} duplex mode parameter.
 	 */
-	Double collectNetworkCardDuplexMode() {
+	DuplexMode collectNetworkCardDuplexMode() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		// Not possible to monitor if the cable is not connected
-		final ParameterState linkStatus = CollectHelper.getStatusParamState(monitor, LINK_STATUS_PARAMETER);
-		if (ParameterState.OK.equals(linkStatus)) {
+		final IState linkStatus = CollectHelper.getParameterState(monitor, LINK_STATUS_PARAMETER);
+		if (LinkStatus.PLUGGED.equals(linkStatus)) {
 
 			// Getting the duplex mode
 			final String duplexModeRaw = extractParameterStringValue(monitor.getMonitorType(), DUPLEX_MODE_PARAMETER);
 
 			if (duplexModeRaw != null) {
 
-				final Double duplexMode = (duplexModeRaw.equalsIgnoreCase("yes") ||
-						duplexModeRaw.equalsIgnoreCase("full") || duplexModeRaw.equalsIgnoreCase("1")) ? 1D : 0D;
-				CollectHelper.updateNumberParameter(
+				final Optional<DuplexMode> maybeDuplexMode = DuplexMode.interpret(duplexModeRaw);
+
+				final DuplexMode duplexMode;
+				if (maybeDuplexMode.isPresent()) {
+					duplexMode = maybeDuplexMode.get();
+				} else {
+					duplexMode = DuplexMode.HALF; 
+				}
+		
+				CollectHelper.updateDiscreteParameter(
 						monitor,
 						DUPLEX_MODE_PARAMETER,
-						DUPLEX_MODE_PARAMETER_UNIT,
 						monitorCollectInfo.getCollectTime(),
-						duplexMode,
 						duplexMode
 				);
 
 				return duplexMode;
 			}
+
 		}
 
 		return null;
@@ -1492,7 +1521,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Collect the {@link NetworkCard} bandwidth utilization.
 	 */
-	void collectNetworkCardBandwidthUtilization(final Double duplexMode, final Double linkSpeed, Double receivedBytesRate, Double transmittedBytesRate) {
+	void collectNetworkCardBandwidthUtilization(final DuplexMode duplexMode, final Double linkSpeed,
+			Double receivedBytesRate, Double transmittedBytesRate) {
 
 		// No rate => no bandwidth
 		if (receivedBytesRate == null && transmittedBytesRate == null) {
@@ -1511,7 +1541,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			}
 
 			double bandwidthUtilization;
-			if (duplexMode == null || duplexMode == 1D)  {
+			if (duplexMode == null || DuplexMode.FULL.equals(duplexMode))  {
 				// Full-duplex mode, or unknown mode, in which case, we assume full-duplex.
 				// In full-duplex mode, consider bandwidth as the maximum usage while receiving or transmitting.
 				bandwidthUtilization = Math.max(transmittedBytesRate, receivedBytesRate) * 8 * 100 / linkSpeed;
@@ -1667,4 +1697,39 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			);
 		}
 	}
+
+	/**
+	 * Collect the status information on the current monitor instance. This
+	 * method must be called after collecting the {@link Status}
+	 */
+	void collectStatusInformation() {
+
+		final String valueTable = monitorCollectInfo.getValueTable();
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final List<String> row = monitorCollectInfo.getRow();
+		final Map<String, String> mapping = monitorCollectInfo.getMapping();
+		final Long collectTime =  monitorCollectInfo.getCollectTime();
+
+		final DiscreteParam statusParam = monitor.getParameter(STATUS_PARAMETER, DiscreteParam.class);
+		Status status = null;
+		if (statusParam != null && statusParam.getState() instanceof Status) {
+			status = (Status) statusParam.getState();
+		}
+
+		final String statusInformation = CollectHelper.getValueTableColumnValue(
+				valueTable,
+				STATUS_INFORMATION_PARAMETER,
+				monitor.getMonitorType(),
+				row,
+				mapping.get(STATUS_INFORMATION_PARAMETER)
+		);
+
+		CollectHelper.updateStatusInformation(
+				monitor,
+				collectTime,
+				statusInformation,
+				status
+		);
+	}
+
 }

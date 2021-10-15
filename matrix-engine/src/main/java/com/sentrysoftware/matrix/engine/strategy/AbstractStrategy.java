@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.engine.strategy;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -42,8 +43,8 @@ import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.NonNull;
@@ -334,22 +335,36 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * Build status parameter for the given {@link TestedConnector}.
+	 * Build status and status information parameters for the given
+	 * {@link TestedConnector}.
 	 *
-	 * @param testedConnector	The {@link TestedConnector} whose status should be created.
+	 * @param testedConnector The {@link TestedConnector} whose status and status
+	 *                        information should be created.
 	 *
-	 * @return					A {@link StatusParam} instance built from the given {@link TestedConnector}.
+	 * @return Array of two elements, the first one is the {@link DiscreteParam}
+	 *         status, and the second one is {@link TextParam} statusInformation
 	 */
-	protected StatusParam buildStatusParamForConnector(final TestedConnector testedConnector) {
+	protected IParameter[] buildConnectorStatusAndStatusInformation(final TestedConnector testedConnector) {
+
+		final IParameter[] statusAndStatusInformation = new IParameter[2];
+
 		boolean success = testedConnector.isSuccess();
-		return StatusParam
+
+		statusAndStatusInformation[0] = DiscreteParam
 				.builder()
 				.collectTime(strategyTime)
 				.name(STATUS_PARAMETER)
-				.state(success ? ParameterState.OK : ParameterState.ALARM)
-				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
-				.unit(STATUS_PARAMETER_UNIT)
+				.state(success ? Status.OK : Status.FAILED)
 				.build();
+
+		statusAndStatusInformation[1] = TextParam
+				.builder()
+				.collectTime(strategyTime)
+				.name(STATUS_INFORMATION_PARAMETER)
+				.value(success ? "Connector test succeeded" : "Connector test failed")
+				.build();
+
+		return statusAndStatusInformation;
 	}
 
 	/**

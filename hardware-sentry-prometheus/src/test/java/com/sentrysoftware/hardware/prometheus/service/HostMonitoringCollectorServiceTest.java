@@ -58,15 +58,14 @@ import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import io.prometheus.client.Collector.MetricFamilySamples;
@@ -104,7 +103,7 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testCollect() throws IOException {
 
-		final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+		final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 		final NumberParam numberParam = NumberParam.builder().name(ENERGY_PARAMETER).value(3000D).build();
 
 		Monitor enclosureMonitor = Monitor.builder()
@@ -173,7 +172,7 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testCollectNoSpecificInfo() {
 
-		final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+		final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 		final NumberParam numberParam = NumberParam.builder().name(ENERGY_USAGE_PARAMETER).value(3000D).build();
 
 		Monitor enclosureMonitor = Monitor.builder()
@@ -217,7 +216,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testProcessSameTypeMonitors() {
-		final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+		final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 		final Monitor monitor1 = Monitor.builder()
 				.id(ID_VALUE + 1)
 				.parentId(PARENT_ID_VALUE)
@@ -242,9 +241,9 @@ class HostMonitoringCollectorServiceTest {
 
 		Set<Sample> actual = new HashSet<>(mfs.get(0).samples);
 		final Sample sample1 = new Sample("hw_enclosure_status", LABELS,
-				Arrays.asList(null, monitor1.getId(), monitor1.getName(), monitor1.getParentId()), ParameterState.OK.ordinal());
+				Arrays.asList(null, monitor1.getId(), monitor1.getName(), monitor1.getParentId()), Status.OK.getNumericValue());
 		final Sample sample2 = new Sample("hw_enclosure_status", LABELS,
-				Arrays.asList(null, monitor2.getId(), monitor2.getName(), monitor2.getParentId()), ParameterState.OK.ordinal());
+				Arrays.asList(null, monitor2.getId(), monitor2.getName(), monitor2.getParentId()), Status.OK.getNumericValue());
 
 		final Set<Sample> expected = Stream.of(sample1, sample2).collect(Collectors.toSet());
 
@@ -322,7 +321,7 @@ class HostMonitoringCollectorServiceTest {
 
 	@Test
 	void testProcessMonitorsMetric() {
-		final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+		final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 		final Monitor monitor1 = Monitor.builder()
 					.id(ID_VALUE + 1)
 					.parentId(PARENT_ID_VALUE)
@@ -347,7 +346,7 @@ class HostMonitoringCollectorServiceTest {
 
 		final HardwareGaugeMetric expected = new HardwareGaugeMetric(
 				"hw_enclosure_status",
-				"Metric: hw_enclosure_status - Unit: {0 = OK ; 1 = Degraded ; 2 = Failed}",
+				"Metric: hw_enclosure_status - Unit: { 0 = OK ; 1 = Degraded ; 2 = Failed }",
 				LABELS);
 		expected.addMetric(Arrays.asList(null, monitor1.getId(), LABEL_VALUE, PARENT_ID_VALUE), 0, null);
 
@@ -426,7 +425,7 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testIsParameterFamilyAvailableOnMonitors() {
 		{
-			final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+			final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 			final Monitor monitor1 = Monitor.builder()
 						.id(ID_VALUE + 1)
 						.parentId(PARENT_ID_VALUE)
@@ -500,7 +499,7 @@ class HostMonitoringCollectorServiceTest {
 	void testIsParameterAvailable() {
 
 		{
-			final StatusParam statusParam = StatusParam.builder().name(STATUS_PARAMETER).state(ParameterState.OK).build();
+			final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 			final Monitor monitor = Monitor.builder()
 						.id(ID_VALUE)
 						.parentId(PARENT_ID_VALUE)
@@ -511,7 +510,14 @@ class HostMonitoringCollectorServiceTest {
 		}
 
 		{
-			StatusParam statusParamNotAvailable = StatusParam.builder().name(STATUS_PARAMETER).build();
+
+			final DiscreteParam statusParamNotAvailable = DiscreteParam
+					.builder()
+					.name(STATUS_PARAMETER)
+					.state(Status.OK)
+					.build();
+
+			statusParamNotAvailable.setState(null);
 
 			final Monitor monitor = Monitor.builder()
 						.id(ID_VALUE)
@@ -544,9 +550,11 @@ class HostMonitoringCollectorServiceTest {
 				.parentId(PARENT_ID_VALUE)
 				.name(LABEL_VALUE)
 				.parameters(Map.of(STATUS_PARAMETER,
-						StatusParam.builder()
+						DiscreteParam
+						.builder()
 						.name(STATUS_PARAMETER)
-						.state(ParameterState.OK).build()))
+						.state(Status.OK)
+						.build()))
 				.build();
 		assertEquals(0, HostMonitoringCollectorService.getParameterValue(monitor, STATUS_PARAMETER));
 	}
@@ -720,15 +728,17 @@ class HostMonitoringCollectorServiceTest {
 				.parentId(PARENT_ID_VALUE)
 				.name(LABEL_VALUE)
 				.parameters(Map.of(STATUS_PARAMETER,
-						StatusParam.builder()
+						DiscreteParam
+						.builder()
 						.name(STATUS_PARAMETER)
-						.state(ParameterState.OK).build()))
+						.state(Status.OK)
+						.build()))
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		hostMonitoringCollectorService.addMetric(gauge, monitor, STATUS_PARAMETER, 1.0);
 		final Sample actual = gauge.samples.get(0);
 		final Sample expected = new Sample(MONITOR_STATUS_METRIC, LABELS,
-				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), ParameterState.OK.ordinal());
+				Arrays.asList(null, ID_VALUE, LABEL_VALUE, PARENT_ID_VALUE), Status.OK.getNumericValue());
 
 		assertEquals(expected, actual);
 	}
@@ -789,7 +799,7 @@ class HostMonitoringCollectorServiceTest {
 	void testIsParameterAvailablePresent() {
 
 		{
-			final PresentParam presentParam = PresentParam.present();
+			final DiscreteParam presentParam = DiscreteParam.present();
 			final Monitor monitor = Monitor.builder()
 						.id(ID_VALUE)
 						.parentId(PARENT_ID_VALUE)
@@ -800,8 +810,11 @@ class HostMonitoringCollectorServiceTest {
 		}
 
 		{
-			final PresentParam presentParam = PresentParam.present();
-			presentParam.discoveryReset();
+			final DiscreteParam presentParam = DiscreteParam.present();
+
+			presentParam.save();
+			presentParam.setState(null);
+
 			final Monitor monitor = Monitor.builder()
 						.id(ID_VALUE)
 						.parentId(PARENT_ID_VALUE)
@@ -894,7 +907,7 @@ class HostMonitoringCollectorServiceTest {
 		{
 			// Parameter missing
 			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
-			final Map<String, IParameterValue> parameters = Map.of("parameter",
+			final Map<String, IParameter> parameters = Map.of("parameter",
 					NumberParam.builder().collectTime(123456789L).build());
 			assertEquals(123456789L, hostMonitoringCollectorService
 					.getCollectTime(Monitor.builder().parameters(parameters).build(), "parameter"));

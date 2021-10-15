@@ -1,30 +1,10 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertDetails;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -41,6 +21,25 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+
 public class Fan implements IMetaMonitor {
 
 	private static final String RECOMMENDED_ACTION_FOR_BAD_FAN = "Check if the fan is no longer cooling the system. If so, replace the fan.";
@@ -49,50 +48,50 @@ public class Fan implements IMetaMonitor {
 			.basicCollect(true)
 			.name(SPEED_PARAMETER)
 			.unit(SPEED_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter SPEED_PERCENT = MetaParameter.builder()
 			.basicCollect(true)
 			.name(SPEED_PERCENT_PARAMETER)
 			.unit(SPEED_PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
 			.basicCollect(false)
 			.name(POWER_CONSUMPTION_PARAMETER)
 			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, FAN_TYPE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Fan::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Fan::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Fan::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule SPEED_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
 			checkZeroSpeedCondition(monitor, SPEED_PARAMETER, conditions),
 			SPEED_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule SPEED_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
 			checkOutOfRangeSpeedCondition(monitor, SPEED_PARAMETER, conditions),
 			SPEED_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule SPEED_PERCENT_ALARM_ALERT_RULE = new AlertRule((monitor, conditions) -> 
 			checkZeroSpeedCondition(monitor, SPEED_PERCENT_PARAMETER, conditions),
 			SPEED_PERCENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule SPEED_PERCENT_WARN_ALERT_RULE = new AlertRule((monitor, conditions) -> 
 			checkOutOfRangeSpeedCondition(monitor, SPEED_PERCENT_PARAMETER, conditions),
 			SPEED_PERCENT_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -129,11 +128,11 @@ public class Fan implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("The fan is degraded or about to fail." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("The fan is degraded or about to fail." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This may lead to a temperature increase of the device cooled by this fan and therefore, to a system crash or damaged hardware.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
 					.build();
@@ -150,11 +149,11 @@ public class Fan implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("The fan has failed and no longer cools down the system." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("The fan has failed and no longer cools down the system." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This may lead to a temperature increase of the device cooled by this fan and therefore, to a system crash or damaged hardware.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
 					.build();
@@ -259,7 +258,7 @@ public class Fan implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()

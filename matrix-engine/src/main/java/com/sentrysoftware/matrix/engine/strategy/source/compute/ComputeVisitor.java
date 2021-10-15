@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -49,12 +49,10 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -391,8 +389,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * Get the worst status of the given values. Changing this method requires an update on
-	 * {@link CollectHelper#translateStatus(String, Optional, String, String, String)} (String, ParameterState, String, String, String)}
+	 * Get the worst status of the given values. Changing this method requires an update on the {@link IState}
+	 * implementations
 	 *
 	 * @param values The array of string statuses to check, expected values are 'OK', 'WARN', 'ALARM'
 	 *
@@ -401,12 +399,12 @@ public class ComputeVisitor implements IComputeVisitor {
 	static String getWorstStatus(final String[] values) {
 		String status = "UNKNOWN";
 		for (final String value : values) {
-			if (ParameterState.ALARM.name().equalsIgnoreCase(value)) {
-				return ParameterState.ALARM.name();
-			} else if (ParameterState.WARN.name().equalsIgnoreCase(value)) {
-				status = ParameterState.WARN.name();
-			} else if (ParameterState.OK.name().equalsIgnoreCase(value) && "UNKNOWN".equals(status)) {
-				status = ParameterState.OK.name();
+			if ("ALARM".equalsIgnoreCase(value)) {
+				return "ALARM";
+			} else if ("WARN".equalsIgnoreCase(value)) {
+				status = "WARN";
+			} else if ("OK".equalsIgnoreCase(value) && "UNKNOWN".equals(status)) {
+				status ="OK";
 			}
 		}
 
@@ -986,7 +984,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				final String columnResult = bitList.stream()
 						.map(bit -> String.format("%d,%d", bit, ((int) Math.pow(2, bit) & valueToBeReplacedLong) != 0 ? 1 : 0))
-						.map(key -> translations.get(key))
+						.map(translations::get)
 						.filter(value -> value != null && !value.isBlank())
 						.collect(Collectors.joining(" - "));
 

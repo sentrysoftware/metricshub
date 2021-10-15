@@ -13,9 +13,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.hardware.prometheus.dto.ErrorCode;
 import com.sentrysoftware.hardware.prometheus.dto.HardwareTargetDTO;
@@ -58,7 +58,8 @@ public class ConfigHelper {
 
 		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
 
 		mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
 
@@ -127,7 +128,6 @@ public class ConfigHelper {
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
 			.target(target.toHardwareTarget())
-			.unknownStatus(hostConfigurationDto.getUnknownStatus())
 			.build();
 	}
 

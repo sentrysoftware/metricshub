@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,8 +29,6 @@ public class MonitorCollectInfo {
 	private String valueTable;
 	@Default
 	private Map<String, String> mapping = new HashMap<>();
-
 	private Long collectTime;
 
-	private Optional<ParameterState> unknownStatus;
 }

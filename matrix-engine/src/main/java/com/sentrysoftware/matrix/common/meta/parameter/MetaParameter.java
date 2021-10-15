@@ -11,6 +11,6 @@ public class MetaParameter {
 
 	private String name;
 	private String unit;
-	private ParameterType type;
+	private IParameterType type;
 	private boolean basicCollect;
 }

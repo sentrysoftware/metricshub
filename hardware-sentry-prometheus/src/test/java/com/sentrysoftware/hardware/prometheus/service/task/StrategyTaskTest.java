@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,6 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 @ExtendWith(MockitoExtension.class)
 class StrategyTaskTest {
@@ -51,7 +49,6 @@ class StrategyTaskTest {
 						.type(TargetType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, SNMPProtocol.builder().build()))
-				.unknownStatus(Optional.of(ParameterState.OK))
 				.build();
 	}
 

@@ -1,5 +1,5 @@
 {
-  "total" : 49,
+  "total" : 57,
   "monitors" : [ {
     "id" : "EMCDiskArray_battery_localhost_SYMMETRIX-+-000297800620SB-1-+-SPS-3A(Aggregate)",
     "name" : "SB-1-+-SPS-3A (Aggregate)",
@@ -7,25 +7,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Battery",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -104,25 +135,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Battery",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -201,29 +263,48 @@
     "parentId" : "localhost",
     "targetId" : "localhost",
     "extendedType" : null,
+    "discoveryTime" : null,
     "parameters" : {
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "Connector test succeeded",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Connector test succeeded",
+        "previousValue" : null,
+        "type" : "TextParam"
       },
       "testReport" : {
         "name" : "testReport",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : null,
         "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. WBEM test succeeded:\n- WQL Query: SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n\nResult: SYMMETRIX-+-000297800620;3|15|;\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. WBEM test succeeded:\n- WQL Query: SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n\nResult: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
+        "previousValue" : null,
         "type" : "TextParam"
       }
     },
     "metadata" : {
+      "compiledFileName" : "EMCDiskArray",
       "description" : "This connector discovers the enclosure and the disks of EMC SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only.",
       "displayName" : "EMC SMI-S Agent (ECOM)",
-      "compiledFileName" : "EMCDiskArray",
       "targetFqdn" : "0.0.0.0"
     },
     "alertRules" : {
@@ -247,25 +328,56 @@
     "parentId" : "localhost",
     "targetId" : "localhost",
     "extendedType" : "Storage",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1624024821235,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -276,6 +388,7 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "model" : "VMAX250F",
+      "parameteractivation.status" : "2|32769|",
       "serialnumber" : "000297800620",
       "targetFqdn" : "0.0.0.0",
       "type" : "Storage",
@@ -314,35 +427,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -444,35 +588,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -574,35 +749,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -704,35 +910,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -834,35 +1071,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -964,35 +1232,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1094,35 +1393,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1224,35 +1554,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1354,35 +1715,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1484,35 +1876,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "Fan",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 5.0,
         "rawValue" : 5.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -1614,55 +2037,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -1769,55 +2240,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -1924,55 +2443,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2079,55 +2646,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2234,55 +2849,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2389,55 +3052,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2544,55 +3255,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2699,55 +3458,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 1000.0,
         "rawValue" : 1000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.25,
         "rawValue" : 11.25,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2854,55 +3661,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "WARN",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 1,
-        "statusInformation" : "status: 1 (Starting)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "Degraded",
+          "numericValue" : 1,
+          "name" : "DEGRADED",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Degraded"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Starting",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -2985,7 +3840,7 @@
           "threshold" : 1.0
         } ],
         "severity" : "WARN",
-        "firstTriggerTimestamp" : 1629129126347,
+        "firstTriggerTimestamp" : 1634216914882,
         "details" : {
           "problem" : "This network adapter is degraded.",
           "consequence" : "The network traffic handled by this adapter may be slowed down and this may affect other systems communicating with this computer.",
@@ -3013,55 +3868,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -3168,55 +4071,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -3323,55 +4274,103 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "NetworkCard",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "linkSpeed" : {
         "name" : "linkSpeed",
-        "collectTime" : 1629129125956,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Mbits/s",
         "value" : 16000.0,
         "rawValue" : 16000.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "linkStatus" : {
         "name" : "linkStatus",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Plugged ; 1 = Unplugged}",
-        "status" : 0,
-        "statusInformation" : "linkStatus: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Plugged ; 1 = Unplugged }",
+        "state" : {
+          "displayName" : "Plugged",
+          "numericValue" : 0,
+          "name" : "PLUGGED",
+          "type" : "LinkStatus",
+          "unit" : "{ 0 = Plugged ; 1 = Unplugged }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "Plugged"
       },
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 15.77,
         "rawValue" : 15.77,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      },
+      "zeroBufferCreditCount" : {
+        "name" : "zeroBufferCreditCount",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "buffer credits",
+        "value" : null,
+        "rawValue" : null,
+        "previousRawValue" : null,
+        "type" : "NumberParam"
       }
     },
     "metadata" : {
@@ -3472,41 +4471,936 @@
       } ]
     }
   }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-DF-1C",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-DF-1C",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 1",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-DF-1C",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-DF-1C",
+      "idCount" : "4",
+      "identifyingInformation" : "Location: Slot - 1",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-DF-2C",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-DF-2C",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 2",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-DF-2C",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-DF-2C",
+      "idCount" : "5",
+      "identifyingInformation" : "Location: Slot - 2",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-ED-1B",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-ED-1B",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 1",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-ED-1B",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-ED-1B",
+      "idCount" : "2",
+      "identifyingInformation" : "Location: Slot - 1",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-ED-2B",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-ED-2B",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 2",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-ED-2B",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-ED-2B",
+      "idCount" : "3",
+      "identifyingInformation" : "Location: Slot - 2",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-FA-1D",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-FA-1D",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 1",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-FA-1D",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-FA-1D",
+      "idCount" : "6",
+      "identifyingInformation" : "Location: Slot - 1",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-FA-2D",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-FA-2D",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 2",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-FA-2D",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-FA-2D",
+      "idCount" : "7",
+      "identifyingInformation" : "Location: Slot - 2",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-IM-1A",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-IM-1A",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 1",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-IM-1A",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-IM-1A",
+      "idCount" : "0",
+      "identifyingInformation" : "Location: Slot - 1",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
+    "id" : "EMCDiskArray_otherdevice_localhost_SYMMETRIX-+-000297800620-+-IM-2A",
+    "name" : "Controller: SYMMETRIX-+-000297800620-+-IM-2A",
+    "monitorType" : "OTHER_DEVICE",
+    "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+    "targetId" : "localhost",
+    "extendedType" : "OtherDevice",
+    "discoveryTime" : 1634216914097,
+    "parameters" : {
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
+      },
+      "status" : {
+        "name" : "status",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
+        "previousState" : null,
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
+      }
+    },
+    "metadata" : {
+      "additionalinformation1" : "Location: Slot - 2",
+      "attachedtodeviceid" : "Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
+      "connector" : "EMCDiskArray",
+      "deviceid" : "SYMMETRIX-+-000297800620-+-IM-2A",
+      "devicetype" : "Controller",
+      "displayid" : "SYMMETRIX-+-000297800620-+-IM-2A",
+      "idCount" : "1",
+      "identifyingInformation" : "Location: Slot - 2",
+      "serialnumber" : "",
+      "targetFqdn" : "0.0.0.0"
+    },
+    "alertRules" : {
+      "present" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 0.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ],
+      "status" : [ {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 1.0
+        } ],
+        "severity" : "WARN",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      }, {
+        "period" : 0,
+        "conditions" : [ {
+          "operator" : "EQ",
+          "threshold" : 2.0
+        } ],
+        "severity" : "ALARM",
+        "firstTriggerTimestamp" : null,
+        "details" : null,
+        "active" : "INACTIVE",
+        "type" : "STATIC"
+      } ]
+    }
+  }, {
     "id" : "EMCDiskArray_physicaldisk_localhost_SYMMETRIX-+-0002978006200",
     "name" : "0 (940.6 GB)",
     "monitorType" : "PHYSICAL_DISK",
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3614,35 +5508,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3750,35 +5675,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -3886,35 +5842,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4022,35 +6009,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4158,35 +6176,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4294,35 +6343,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4430,35 +6510,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4566,35 +6677,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4702,35 +6844,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4838,35 +7011,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -4974,35 +7178,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5110,35 +7345,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5246,35 +7512,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5382,35 +7679,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5518,35 +7846,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5654,35 +8013,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5790,35 +8180,66 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PhysicalDisk",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 11.0,
         "rawValue" : 11.0,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       },
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (OK)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "OK",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -5926,25 +8347,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -6023,25 +8475,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -6120,25 +8603,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -6217,25 +8731,56 @@
     "parentId" : "EMCDiskArray_enclosure_localhost_Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-000297800620\"",
     "targetId" : "localhost",
     "extendedType" : "PowerSupply",
+    "discoveryTime" : 1634216914097,
     "parameters" : {
       "present" : {
         "name" : "present",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = Missing ; 1 = Present}",
-        "present" : 1,
-        "previousState" : null,
-        "type" : "PresentParam"
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       },
       "status" : {
         "name" : "status",
-        "collectTime" : 1629129125956,
-        "state" : "OK",
-        "unit" : "{0 = OK ; 1 = Degraded ; 2 = Failed}",
-        "status" : 0,
-        "statusInformation" : "status: 0 (Online)",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
+      },
+      "statusInformation" : {
+        "name" : "statusInformation",
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
+        "unit" : null,
+        "value" : "Online",
+        "previousValue" : null,
+        "type" : "TextParam"
       }
     },
     "metadata" : {
@@ -6314,15 +8859,16 @@
     "parentId" : null,
     "targetId" : "localhost",
     "extendedType" : null,
+    "discoveryTime" : null,
     "parameters" : {
       "powerConsumption" : {
         "name" : "powerConsumption",
-        "collectTime" : 1631022930133,
+        "collectTime" : 1634216914543,
+        "previousCollectTime" : null,
         "unit" : "Watts",
         "value" : 465.73,
         "rawValue" : 465.73,
         "previousRawValue" : null,
-        "previousCollectTime" : null,
         "type" : "NumberParam"
       }
     },
@@ -6330,7 +8876,7 @@
       "fqdn" : "0.0.0.0",
       "location" : "localhost",
       "operatingSystemType" : "STORAGE",
-      "powerMeter": "estimated"
+      "powerMeter" : "estimated"
     },
     "alertRules" : { }
   } ]

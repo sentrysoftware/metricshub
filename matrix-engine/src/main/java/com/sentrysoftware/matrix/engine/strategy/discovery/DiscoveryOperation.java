@@ -14,7 +14,8 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -63,7 +64,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.forEach(monitor ->
-				resetPresentParam(monitor.getParameter(PRESENT_PARAMETER, PresentParam.class)));
+				resetPresentParam(monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class)));
 	}
 
 	@Override
@@ -567,9 +568,9 @@ public class DiscoveryOperation extends AbstractStrategy {
 		currentMonitors
 			.stream()
 			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
-			.filter(monitor -> monitor.getParameter(PRESENT_PARAMETER, PresentParam.class) != null)
+			.filter(monitor -> monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class) != null)
 			.filter(monitor ->
-				monitor.getParameter(PRESENT_PARAMETER, PresentParam.class).getPresent() == null)
+				monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class).getState() == null)
 			.forEach(Monitor::setAsMissing);
 	}
 
@@ -595,10 +596,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 *
 	 * @param presentParam The parameter we wish to reset
 	 */
-	static void resetPresentParam(final PresentParam presentParam) {
+	static void resetPresentParam(final DiscreteParam presentParam) {
 
 		if (presentParam != null) {
-			presentParam.discoveryReset();
+			presentParam.save();
+			presentParam.setState(null);
 		}
 	}
 

@@ -17,7 +17,6 @@ public class NumberParam extends AbstractParam {
 	private Double value;
 	private Double rawValue;
 	private Double previousRawValue;
-	private Long previousCollectTime;
 
 	@Builder
 	public NumberParam(String name, Long collectTime, Double value, Double rawValue, String unit) {
@@ -29,8 +28,7 @@ public class NumberParam extends AbstractParam {
 
 	@Override
 	public void save() {
-
-		this.previousCollectTime = getCollectTime();
+		super.save();
 		this.previousRawValue = rawValue;
 	}
 

@@ -38,7 +38,7 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.extern.slf4j.Slf4j;
@@ -231,10 +231,11 @@ public class DetectionOperation extends AbstractStrategy {
 				.monitorType(MonitorType.CONNECTOR).build();
 
 		final TextParam testReport = buildTestReportParameter(target.getName(), testedConnector);
-		final StatusParam statusParam = buildStatusParamForConnector(testedConnector);
+		final IParameter[] statusAndStatusInformation = buildConnectorStatusAndStatusInformation(testedConnector);
 
 		monitor.collectParameter(testReport);
-		monitor.collectParameter(statusParam);
+		monitor.collectParameter(statusAndStatusInformation[0]); // Status
+		monitor.collectParameter(statusAndStatusInformation[1]); // Status Information
 
 		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());

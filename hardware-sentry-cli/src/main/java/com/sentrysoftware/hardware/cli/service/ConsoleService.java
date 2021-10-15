@@ -4,6 +4,10 @@ import org.fusesource.jansi.Ansi;
 
 import com.sentrysoftware.matrix.engine.OperationStatus;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class ConsoleService {
 
 	private static final boolean HAS_CONSOLE = System.console() != null;

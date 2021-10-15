@@ -23,10 +23,9 @@ import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import lombok.Data;
@@ -132,8 +131,8 @@ public abstract class AbstractITJob implements ITJob {
 	 * @param actual
 	 */
 	private static void assertParameters(final Monitor expected, final Monitor actual) {
-		for (final Entry<String, IParameterValue> expectedEntry : expected.getParameters().entrySet()) {
-			final IParameterValue expectedParameter = expectedEntry.getValue();
+		for (final Entry<String, IParameter> expectedEntry : expected.getParameters().entrySet()) {
+			final IParameter expectedParameter = expectedEntry.getValue();
 			final MonitorType monitorType = expected.getMonitorType();
 			final String monitorId = expected.getId();
 			switch (expectedParameter.getType()) {
@@ -143,12 +142,8 @@ public abstract class AbstractITJob implements ITJob {
 			case TextParam.TEXT_TYPE:
 				assertTextParam((TextParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), TextParam.class), monitorType, monitorId);
 				break;
-			case StatusParam.STATUS_TYPE:
-				assertStatusParam((StatusParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), StatusParam.class), monitorType, monitorId);
-				break;
-			case PresentParam.PRESENT_TYPE:
-				assertPresentParam((PresentParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), PresentParam.class), monitorType,
-						monitorId);
+			case DiscreteParam.DISCRETE_TYPE:
+				assertDiscreteParam((DiscreteParam) expectedParameter, actual.getParameter(expectedEntry.getKey(), DiscreteParam.class), monitorType, monitorId);
 				break;
 			}
 		}
@@ -191,25 +186,10 @@ public abstract class AbstractITJob implements ITJob {
 	 * @param monitorType
 	 * @param monitorId
 	 */
-	private static void assertStatusParam(final StatusParam expected, final StatusParam actual, final MonitorType monitorType, final String monitorId) {
+	private static void assertDiscreteParam(final DiscreteParam expected, final DiscreteParam actual, final MonitorType monitorType, final String monitorId) {
 		assertNotNull(actual,
-				() -> "StatusParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
-		assertEquals(expected.getStatus(), actual.getStatus(), "StatusParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
-		assertEquals(expected.getStatusInformation(), actual.getStatusInformation(), "StatusParam status information doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
-	}
-
-	/**
-	 * Assert that expected and actual are equal.
-	 *
-	 * @param expected
-	 * @param actual
-	 * @param monitorType
-	 * @param monitorId
-	 */
-	private static void assertPresentParam(final PresentParam expected, final PresentParam actual, final MonitorType monitorType, final String monitorId) {
-		assertNotNull(actual,
-				() -> "PresentParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
-		assertEquals(expected.getPresent(), actual.getPresent(), "PresentParam status doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
+				() -> "DiscreteParam not collected. Parameter name: " + expected.getName() + " MonitorType: " + monitorType + ". ID: " + monitorId);
+		assertEquals(expected.getState(), actual.getState(), "DiscreteParam doesn't match. Parameter name: " + expected.getName() + ". MonitorType: " + monitorType + ". ID: " + monitorId);
 	}
 
 	/**

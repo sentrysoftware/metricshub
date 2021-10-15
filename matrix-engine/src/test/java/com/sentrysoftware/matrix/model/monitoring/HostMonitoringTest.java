@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,18 +28,19 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 class HostMonitoringTest {
@@ -378,7 +381,7 @@ class HostMonitoringTest {
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
 		final long now = new Date().getTime();
-		final IParameterValue parameter = NumberParam.builder().name(POWER_CONSUMPTION)
+		final IParameter parameter = NumberParam.builder().name(POWER_CONSUMPTION)
 				.collectTime(now).value(100.0).rawValue(100.0).build();
 		enclosure.addParameter(parameter);
 
@@ -406,8 +409,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = PresentParam.builder()
-				.state(ParameterState.OK).build();
+		final IParameter parameter = DiscreteParam.present();
 		enclosure.addParameter(parameter);
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
@@ -418,10 +420,10 @@ class HostMonitoringTest {
 
 		assertNotNull(result);
 
-		final PresentParam parameterAfterReset = (PresentParam) result.getParameters().get(PRESENT);
+		final DiscreteParam parameterAfterReset = result.getParameter(PRESENT, DiscreteParam.class);
 
-		assertEquals(ParameterState.OK, parameterAfterReset.getState());
-		assertEquals(1, parameterAfterReset.getPresent());
+		assertEquals(Present.PRESENT, parameterAfterReset.getState());
+		assertEquals(1, parameterAfterReset.numberValue());
 	}
 
 	@Test
@@ -431,7 +433,7 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = TextParam.builder().name(TEST_REPORT).collectTime(new Date().getTime())
+		final IParameter parameter = TextParam.builder().name(TEST_REPORT).collectTime(new Date().getTime())
 				.value("test").build();
 		enclosure.addParameter(parameter);
 
@@ -457,11 +459,10 @@ class HostMonitoringTest {
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
 				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
 
-		final IParameterValue parameter = StatusParam.builder()
+		final IParameter parameter = DiscreteParam.builder()
 				.name(STATUS)
 				.collectTime(new Date().getTime())
-				.statusInformation("OK")
-				.state(ParameterState.WARN).build();
+				.state(Status.DEGRADED).build();
 		enclosure.addParameter(parameter);
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
@@ -472,18 +473,17 @@ class HostMonitoringTest {
 
 		assertNotNull(result);
 
-		final StatusParam parameterAfterSave = (StatusParam) result.getParameters().get(STATUS);
+		final DiscreteParam parameterAfterSave =  result.getParameter(STATUS, DiscreteParam.class);
 
 		assertNotNull(parameterAfterSave.getCollectTime());
 		assertEquals(STATUS, parameterAfterSave.getName());
-		assertEquals(ParameterState.WARN, parameterAfterSave.getState());
-		assertNotNull(parameterAfterSave.getStatus());
-		assertEquals("OK", parameterAfterSave.getStatusInformation());
-		assertEquals(ParameterState.WARN, parameterAfterSave.getPreviousState());
+		assertEquals(Status.DEGRADED, parameterAfterSave.getState());
+		assertNotNull(parameterAfterSave.getState());
+		assertEquals(Status.DEGRADED, parameterAfterSave.getPreviousState());
 	}
 
 	@Test
-	void testToJson() {
+	void testToJson() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure1 = Monitor
@@ -510,18 +510,22 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure2);
 
-		assertEquals(ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", HostMonitoringTest.class).replaceAll("\\s", ""),
-				hostMonitoring.toJson().replaceAll("\\s", ""));
+		final HostMonitoringVO expected = JsonHelper.deserialize(
+				new FileInputStream(new File("src/test/resources/data/host-monitoring-vo.json")),
+				HostMonitoringVO.class);
+
+		final HostMonitoringVO actual = JsonHelper.deserialize(hostMonitoring.toJson(), HostMonitoringVO.class);
+
+		assertEquals(expected, actual);
 
 	}
 
 	@Test
 	void testCopyParameters() {
-		final StatusParam status = StatusParam
+		final DiscreteParam status = DiscreteParam
 				.builder()
-				.state(ParameterState.OK)
+				.state(Status.OK)
 				.name(STATUS_PARAMETER)
-				.statusInformation("OK")
 				.build();
 		final long collectTime = new Date().getTime();
 		final NumberParam energyUsage = NumberParam
@@ -550,7 +554,7 @@ class HostMonitoringTest {
 
 		HostMonitoring.copyParameters(previousMonitor, currentMonitor);
 
-		assertEquals(status, currentMonitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+		assertEquals(status, currentMonitor.getParameter(STATUS_PARAMETER, DiscreteParam.class));
 		assertEquals(energyUsage, currentMonitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 	}
 
@@ -634,7 +638,7 @@ class HostMonitoringTest {
 		}
 
 		{
-			final AlertRule alertRule = new AlertRule((monitor, conditions) -> null, AlertConditionsBuilder.newInstance().gte((double) Integer.MAX_VALUE).build() , ParameterState.ALARM);
+			final AlertRule alertRule = new AlertRule((monitor, conditions) -> null, AlertConditionsBuilder.newInstance().gte((double) Integer.MAX_VALUE).build() , Severity.ALARM);
 			final Monitor currentMonitor = Monitor.builder()
 					.alertRules(new HashMap<>(Map.of(PRESENT_PARAMETER, Collections.singletonList(alertRule))))
 					.id(FAN_ID)

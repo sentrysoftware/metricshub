@@ -296,7 +296,7 @@ class HardwareSentryCliTest {
 		assertTrue(result.contains("Watercooling"));
 		assertTrue(result.contains("500"));
 		assertTrue(result.contains("status"));
-		assertTrue(result.contains("WARN"));
+		assertTrue(result.contains("Degraded"));
 		assertTrue(result.contains("OK"));
 		assertTrue(result.contains("speed"));
 		assertTrue(result.contains("400"));

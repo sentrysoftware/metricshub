@@ -36,8 +36,7 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 
 class MonitorDiscoveryVisitorTest {
 
@@ -281,12 +280,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
-				.parameters(Map.of(
-						"Present", PresentParam
-						.builder()
-						.state(ParameterState.OK)
-						.build())
-						)
+				.parameters(Map.of("Present", DiscreteParam.present()))
 				.build();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);

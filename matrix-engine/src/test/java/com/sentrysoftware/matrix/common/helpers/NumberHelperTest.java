@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.RoundingMode;
 
@@ -30,5 +31,19 @@ class NumberHelperTest {
 		assertEquals(20.1113, NumberHelper.round(20.11125, 4, RoundingMode.HALF_UP));
 		assertEquals(5, NumberHelper.round(4.5, 0, RoundingMode.HALF_UP));
 		assertEquals(4.5, NumberHelper.round(4.5, 1, RoundingMode.HALF_UP));
+	}
+
+	@Test
+	void testCleanUpEnumInput() {
+		assertNull(NumberHelper.cleanUpEnumInput(null));
+		assertEquals("3", NumberHelper.cleanUpEnumInput("3.00000"));
+		assertEquals("-3", NumberHelper.cleanUpEnumInput("-3.0000000"));
+		assertEquals("3.01", NumberHelper.cleanUpEnumInput("3.01"));
+		assertEquals("-3", NumberHelper.cleanUpEnumInput("-3"));
+		assertEquals("0", NumberHelper.cleanUpEnumInput("0"));
+		assertEquals("0", NumberHelper.cleanUpEnumInput("0.0"));
+		assertEquals("1", NumberHelper.cleanUpEnumInput("1.0"));
+		assertEquals("2", NumberHelper.cleanUpEnumInput("2.0"));
+		assertEquals("ok", NumberHelper.cleanUpEnumInput(" OK "));
 	}
 }
