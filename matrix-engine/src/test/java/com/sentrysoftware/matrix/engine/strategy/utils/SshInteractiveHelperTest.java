@@ -78,18 +78,6 @@ class SshInteractiveHelperTest {
 							.build(),
 						List.of()));
 	}
-
-	@Test
-	void testRunSshInteractiveHostnameNull() throws Exception {
-		assertThrows(
-				IllegalStateException.class,
-				() -> SshInteractiveHelper.runSshInteractive(
-						EngineConfiguration.builder()
-							.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().username("user").build()))
-							.target(HardwareTarget.builder().build())
-							.build(),
-						List.of()));
-	}
 	
 	@Test
 	void testRunSshInteractiveOK() throws Exception {
