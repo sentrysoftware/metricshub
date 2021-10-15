@@ -11,7 +11,7 @@ Before you can start configuring and using **${project.name}** dashboards, you m
 
 ## Loading Dashboards in Grafana
 
-First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar** from <a href="https://www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sentry Software’s Web site</a>. The package contains:
+First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from <a href="https://www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sentry Software’s Web site</a>. The package contains:
 
 ![Dashboards Package](./images/hardware-dashboards-for-grafana-folders.png)
 
@@ -20,17 +20,17 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 
 ### On Windows
 
-Uncompress the *provisioning* folder in the **hardware-dashboards-for-grafana.zip** file to the "*grafana\conf*" folder on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\conf").
+1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
+2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\conf").
+3. Copy the `sustainable_IT` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
 
-![Download Dashboards on Windows](./images/import-dashboards-windows.png)
-
-Copy the *sustainable_IT_by_sentry_software* folder on the Grafana server, in the directory of your choice (ex:  "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
+    ![Download Dashboards on Windows](./images/import-dashboards-windows.png)
 
 ### On Linux and UNIX
 
-Uncompress the *provisioning* folder in the **hardware-dashboards-for-grafana.tar.gz** file to the *grafana* folder on the Grafana server (ex: "/etc/grafana").
-
-Copy the *sustainable_IT_by_sentry_software* folder on the Grafana server, in the directory of your choice (ex: "/var/lib/grafana/dashboards").
+1. Uncompress **hardware-dashboards-for-grafana.tar.gz** in a temporary folder.
+2. Copy the `provisioning` folder to the `grafana` folder on the Grafana server (ex: "/etc/grafana").
+3. Copy the `sustainable_IT` folder in the directory of your choice folder on the Grafana server (ex: "/var/lib/grafana/dashboards").
 
 ## Configuring the Dashboard Provider
 
@@ -67,8 +67,7 @@ Example:
 
 The dashboards for Grafana query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
 
-1. Go to `%GRAFANA_HOME%\grafana\conf\provisioning\datasource`.
-2. Open the *hardware-sentry-prometheus.yml* file.
+1. In `\grafana\conf\provisioning\datasource`, open the *hardware-sentry-prometheus.yml* file.
 
     ![Configuring Data Source](./images/import_grafana_dashboards_config.png)
 
