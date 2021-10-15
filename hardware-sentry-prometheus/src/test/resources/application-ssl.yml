@@ -1,6 +1,6 @@
 target:
   config:
-    file: data/hardware-sentry-config.yml
+    file: data/hws-config.yaml
 http:
   port: 8080
 server:

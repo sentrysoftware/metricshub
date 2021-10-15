@@ -1,0 +1,49 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+	<id>windows-amd64</id>
+	<formats>
+		<format>zip</format>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>${project.artifactId}</baseDirectory>
+	<includeSiteDirectory>true</includeSiteDirectory>
+
+	<dependencySets>
+		<dependencySet>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<useProjectArtifact>false</useProjectArtifact>
+			<unpack>true</unpack>
+		</dependencySet>
+	</dependencySets>
+
+	<fileSets>
+		<fileSet>
+			<directory>src/dist/windows</directory>
+			<excludes>
+				<exclude>bin/**</exclude>
+			</excludes>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<fileSet>
+			<directory>src/dist/windows</directory>
+			<includes>
+				<include>bin/**</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</fileSet>
+	</fileSets>
+
+	<files>
+		<file>
+			<source>${project.build.directory}/windows-amd64/${project.artifactId}.exe</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+	</files>
+
+</assembly>

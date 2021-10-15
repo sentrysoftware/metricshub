@@ -1,0 +1,97 @@
+#
+# ╔═╗┌─┐┌─┐┌┐┌╔╦╗┌─┐┬  ┌─┐┌┬┐┌─┐┌┬┐┬─┐┬ ┬
+# ║ ║├─┘├┤ │││ ║ ├┤ │  ├┤ │││├┤  │ ├┬┘└┬┘
+# ╚═╝┴  └─┘┘└┘ ╩ └─┘┴─┘└─┘┴ ┴└─┘ ┴ ┴└─ ┴
+#
+# OpenTelemetry Collector Configuration
+#
+# For more information, see:
+# https://opentelemetry.io/docs/collector/configuration/
+#
+
+# INPUTS
+receivers:
+
+  # prometheus_exec
+  # Executes Hardware Sentry Exporter for Prometheus and scrape it
+  # For more information about execution options:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusexecreceiver
+  #
+  # Hardware Sentry Exporter for Prometheus configuration file is hws-exporter/hws-config.yaml by default.
+  # That's were you configure the systems to be monitored.
+  # Change the below command line if you choose to change the location or name of the configuration file.
+  prometheus_exec/hws-exporter:
+    exec: "\"hws-exporter\\bin\\hws-exporter.cmd\" --target.config.file=\"hws-exporter\\hws-config.yaml\" --server.port={{port}}"
+    port: 24375
+    scrape_interval: 60s
+
+# PROCESSING
+processors:
+
+  # memory_limiter
+  # Limits the memory usage of the collector. See:
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 2000
+    spike_limit_mib: 400
+
+  # batch
+  # Processes and sends data in batch of 10s. See:
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor
+  batch:
+    timeout: 10s
+
+  # metricstransform
+  # Some post-processing of metrics before sending then out
+  # All possible actions are described at:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor
+  metricstransform:
+    transforms:
+      include: .*
+      match_type: regexp
+      action: update
+      operations:
+        - action: add_label
+          new_label: zone
+          new_value: Datacenter 1
+
+# OUTPUT
+exporters:
+
+  # BMC Helix
+  # Using Prometheus Remote Write protocol
+  prometheusremotewrite/helix:
+    # endpoint is the URL pointing to your Helix environment, at onbmc.com
+    # apiToken can be retrieved in BMC Helix Operations Management > Administration > Repository
+    endpoint: https://your-helix-env.onbmc.com/metrics-gateway-service/api/v1.0/prometheus
+    headers:
+      Authorization: Bearer <apiToken>
+
+  # Prometheus Server with Remote Write protocol
+  # All options are described at:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter
+  prometheusremotewrite/your-server:
+    endpoint: http://prom-server:9090/api/v1/push
+
+  # Datadog
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter
+  datadog/api:
+    api:
+      key: <apikey> # Check your Datadog's Organization Settings
+
+# EXTRAS
+extensions:
+
+  # healthcheck
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension
+  health_check:
+
+# ACTUAL COLLECTOR PIPELINE DESCRIPTION
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus_exec/hws-exporter]
+      processors: [memory_limiter,batch,metricstransform]
+      exporters: [prometheusremotewrite/your-server] # List here the platform of your choice

@@ -1,51 +1,36 @@
+# Matrix (Hardware Sentry)
+
 ## Structure
 
 This is a multi-module project:
 
-* `./`: Matrix (root) project, used to build the entire solution.
-* `./connector-compiler-plugin`: Plugin project that you can build and call when building the Hardware Connector Library.
-* `./matrix-engine`: Java project with the business logic code to interpret connectors and perform hardware device detections, discoveries, collects and alerting.
-
-> Note: The `connector-compiler-plugin` is not referenced in `matrix-engine`.
+* **/**: the root (parent of all submodules)
+* **connector-serializer**: a small module used to serialize connectors in the **matrix-connectors** module
+* **hardware-sentry-cli**: the CLI
+* **hardware-sentry-prometheus**: the Prometheus Exporter
+* **hws-otel-collector**: the OpenTelemetry Collector (**requires Go!**)
+* **matrix-connectors**: a pom project only to retrieve the sources of the Hardware Connector Library and serialize them as an artifact for this project
+* **matrix-engine**: the brain, the heart of this project
 
 ## How to build the Project
 
 ### Requirements
 
-- Have [Maven 3.x properly installed and configured](http://alpha.internal.sentrysoftware.net/lecloud/x/TwJn), with access to Sentry's repository.
+* Have [Maven 3.x properly installed and configured](http://alpha.internal.sentrysoftware.net/lecloud/x/TwJn), with access to Sentry's repository.
+* [Go properly installed](https://golang.org/doc/install), with the `go` executable in your `$PATH`
 
-### Package
+### Build
 
 To build the Matrix Engine package, from `./matrix`:
 
 ```sh
 $ mvn clean package
 ```
-This *goals* will produce the requested packages in the `./matrix-engine/target` directory:
 
-* `matrix-engine-${project.version}.jar`
+### Special options
 
-### Simple Compile
-
-If you're just modifying the Java code, you may want to just make sure the code compiles properly. This is easily achieved with the below command, from the **./matrix/** directory or any other sub-directory, e.g. **matrix/matrix-engine/** or **./matrix/connector-compiler-plugin/** :
+If you do not have **Go** installed in your environment and do not wish to build the **OpenTelemetry Collector**, you can use the `-Dnogo` option:
 
 ```sh
-$ mvn compile
+$ mvn package -Dnogo
 ```
-
-### Full Package
-
-To build and install the Matrix Engine artifact in your local repository, you only need to run these commands from the `./matrix` folder:
-
-```sh
-$ mvn clean install
-```
-
-## Deploy
-
-To build and deploy the entire project, all you need is to run from the `./matrix` root project:
-
-```sh
-$ mvn clean deploy
-```
-This will package, install and deploy the *matrix*, *matrix-engine* and *connector-compiler-plugin* artifacts.

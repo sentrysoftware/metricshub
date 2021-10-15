@@ -1,0 +1,44 @@
+---
+targets:
+
+  - target:
+      hostname: 357306c9-07e9-431b-bc71-b7712daabbbf
+      type: LINUX
+      id: 357306c9-07e9-431b-bc71-b7712daabbbf-1
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    unknownStatus: 1
+    collectPeriod: 180
+    discoveryCycle: 45
+
+  - target:
+      hostname: 85f8514e-1b4d-4766-87af-09a84ca2a397
+      type: LINUX
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    unknownStatus: 1
+
+  - target:
+      hostname: 3ba095eb-d5e8-4acd-81f4-dc81e29982e7
+      type: LINUX
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    unknownStatus: 1

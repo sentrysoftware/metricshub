@@ -34,6 +34,7 @@
 		<menu name="Integrating the Exporter">
 			<item name="Prometheus Server" href="configure-prometheus-server.html"/>
 			<item name="Grafana Dashboards" href="grafana.html"/>
+			<item name="BMC Helix" href="configure-helix-integration.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">
