@@ -29,6 +29,7 @@
 			<item name="Configuring" href="configure.html"/>
 			<item name="Operating" href="operate.html"/>
 			<item name="Viewing Metrics" href="metrics.html"/>
+			<item name="Using Alert Rules" href="alert-rules.html"/>
 		</menu>
 
 		<menu name="Integrating the Exporter">
