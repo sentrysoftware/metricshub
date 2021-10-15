@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshint
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sentrysoftware.matrix.connector.model.common.telnet.step.Step;
+import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;

@@ -699,8 +699,8 @@ public class MatsyaClientsExecutor {
 			final String hostname,
 			@NonNull
 			final String username,
-			final String password,
-			final String keyFilePath,
+			final char[] password, 
+			final File keyFilePath,
 			final String command,
 			final int timeout,
 			final List<File> localFiles,
@@ -721,29 +721,14 @@ public class MatsyaClientsExecutor {
 					updateCommandWithLocalList(noPasswordCommand, localFiles);
 
 		// We have a command: execute it
-		final SSHClient sshClient = createSshClientInstance(hostname);
-		try {
+		try (final SSHClient sshClient = createSshClientInstance(hostname)) {
 			sshClient.connect(timeoutInMilliseconds);
 
 			if (password == null) {
 				log.warn("Could not read password. Using an empty password instead.");
 			}
-			final boolean authenticated;
-			if (password == null || password.isEmpty()) {
-				authenticated = sshClient.authenticate(username);
-			} else if (keyFilePath == null) {
-				authenticated = sshClient.authenticate(username, password);
-			} else {
-				authenticated = sshClient.authenticate(username, keyFilePath, password);
-			}
-			if (!authenticated) {
-				final String message = String.format("authentication failed as %s with %s on %s.",
-						username,
-						keyFilePath,
-						hostname);
-				log.error(message);
-				throw new MatsyaException(message);
-			}
+
+			authenticateSsh(sshClient, hostname, username, password, keyFilePath);
 
 			if (localFiles != null && !localFiles.isEmpty()) {
 				// copy all local files using SCP
@@ -782,8 +767,53 @@ public class MatsyaClientsExecutor {
 					hostname);
 			log.error("{}. Exception : {}.", message, e.getMessage());
 			throw new MatsyaException(message, (Exception) e.getCause());
-		} finally {
-			sshClient.disconnect();
+		}
+	}
+
+	/**
+	 * <p>Authenticate SSH with:
+	 * <li>username, privateKey and password first</li>
+	 * <li>username and password</li>
+	 * <li>username only</li>
+	 * </p>
+	 * 
+	 * @param sshClient The Matsya SSH client
+	 * @param hostname The hostname
+	 * @param username The username
+	 * @param password The password
+	 * @param privateKey The private key file
+	 * @throws MatsyaException If a Matsya error occurred.
+	 */
+	static void authenticateSsh(
+			final SSHClient sshClient, 
+			final String hostname, 
+			final String username,
+			final char[] password, 
+			final File privateKey) throws MatsyaException {
+		final boolean authenticated;
+		try {
+			if (privateKey != null) {
+				authenticated = sshClient.authenticate(username, privateKey, password);
+			} else if (password != null && password.length > 0) {
+				authenticated = sshClient.authenticate(username, password);
+			} else {
+				authenticated = sshClient.authenticate(username);
+			}
+		} catch (final Exception e) {
+			final String message = String.format("authentication failed as %s with %s on %s.", 
+					username, 
+					privateKey != null ? privateKey.getAbsolutePath() : null, 
+					hostname);
+			log.error("{}. Exception : {}.", message, e.getMessage());
+			throw new MatsyaException(message, e);
+		}
+		if (!authenticated) {
+			final String message = String.format("authentication failed as %s with %s on %s.", 
+					username, 
+					privateKey != null ? privateKey.getAbsolutePath() : null, 
+					hostname);
+			log.error(message);
+			throw new MatsyaException(message);
 		}
 	}
 
@@ -807,8 +837,55 @@ public class MatsyaClientsExecutor {
 							(s1, s2) -> null);
 	}
 
-	static SSHClient createSshClientInstance(final String hostname) {
+	public static SSHClient createSshClientInstance(final String hostname) {
 		return new SSHClient(hostname, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * <p>Connect to the SSH terminal with Matsya. For that:
+	 * <li>Create a Matsya SSH Client instance.</li>
+	 * <li>Connect to SSH.</li>
+	 * <li>Open a SSH session.</li>
+	 * <li>Open a terminal.</li>
+	 * </p>
+	 * 
+	 * @param hostname The hostname (mandatory)
+	 * @param username The username (mandatory)
+	 * @param password The password
+	 * @param privateKey The private key file
+	 * @param timeout The timeout (>0) in seconds
+	 * @return The Matsya SSH client
+	 * @throws MatsyaException If a Matsya error occurred.
+	 */
+	public static SSHClient connectSshClientTerminal(
+			@NonNull
+			final String hostname,
+			@NonNull
+			final String username,
+			final char[] password,
+			final File privateKey,
+			final int timeout) throws MatsyaException {
+
+		isTrue(timeout > 0, "timeout must be > 0");
+
+		final SSHClient sshClient = createSshClientInstance(hostname);
+
+		try {
+
+			sshClient.connect(timeout * 1000);
+
+			authenticateSsh(sshClient, hostname, username, password, privateKey);
+
+			sshClient.openSession();
+
+			sshClient.openTerminal();
+
+			return sshClient;
+
+		} catch (final IOException e) {
+			sshClient.close();
+			throw new MatsyaException(e);
+		}
 	}
 
 	/**

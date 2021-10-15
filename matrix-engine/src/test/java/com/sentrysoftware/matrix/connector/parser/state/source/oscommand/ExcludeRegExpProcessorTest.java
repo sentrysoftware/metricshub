@@ -17,12 +17,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ExcludeRegExpProcessor;
 
 class ExcludeRegExpProcessorTest {
 
 	private static final String EXCLUDE_REGEXP_DISCOVERY = "DiskController.Discovery.Source(1).excludeRegExp";
 	private static final String EXCLUDE_REGEXP_COLLECT = "PhysicalDisk.Collect.Source(1).excludeRegExp";
-	private static final ExcludeRegExpProcessor EXCLUDE_REGEXP_PROCESSOR = new ExcludeRegExpProcessor();
+	private static final ExcludeRegExpProcessor EXCLUDE_REGEXP_PROCESSOR = new ExcludeRegExpProcessor(OSCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
 	private static final String VALUE = "^MSHW;";
 	private static final Connector CONNECTOR = new Connector();
 

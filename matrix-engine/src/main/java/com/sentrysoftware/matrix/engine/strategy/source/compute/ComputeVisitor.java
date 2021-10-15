@@ -51,7 +51,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.engine.strategy.utils.FilterResultHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 
 import lombok.AllArgsConstructor;
@@ -313,7 +313,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			final List<String> lines = SourceTable.lineToList(awkResult, HardwareConstants.NEW_LINE);
 
-			final List<String> filterLines = OsCommandHelper.filterLines(
+			final List<String> filterLines = FilterResultHelper.filterLines(
 					lines,
 					null,
 					null,
@@ -324,7 +324,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				log.info("No Separators {} indicated in Awk operation, the result remains unchanged.", awk.getSeparators());
 			}
 
-			final List<String> awkResultLines = OsCommandHelper.selectedColumns(
+			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
 					filterLines,
 					awk.getSeparators(),
 					awk.getSelectColumns());

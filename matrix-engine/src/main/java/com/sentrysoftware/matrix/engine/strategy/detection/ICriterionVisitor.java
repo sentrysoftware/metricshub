@@ -9,7 +9,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.process.Proc
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.telnet.TelnetInteractive;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
@@ -34,7 +34,7 @@ public interface ICriterionVisitor {
 
 	public CriterionTestResult visit(final SNMPGetNext snmpGetNext);
 
-	public CriterionTestResult visit(final TelnetInteractive telnetInteractive);
+	public CriterionTestResult visit(final SshInteractive telnetInteractive);
 
 	public CriterionTestResult visit(final UCS ucs);
 
