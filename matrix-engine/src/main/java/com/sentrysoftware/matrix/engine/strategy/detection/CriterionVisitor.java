@@ -787,15 +787,19 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(sshInteractive, "Malformed SshInteractive criterion.");
 		}
 
-		if (sshInteractive.getExpectedResult() == null || sshInteractive.getExpectedResult().isEmpty()) {
-			return CriterionTestResult.success(sshInteractive, "ExpectedResult are empty. Skipping this test.");
-		}
-
 		try {
 			final List<String> results =
 					SshInteractiveHelper.runSshInteractive(strategyConfig.getEngineConfiguration(), sshInteractive.getSteps());
 
 			final String result = results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE));
+
+			if (sshInteractive.getExpectedResult() == null || sshInteractive.getExpectedResult().isEmpty()) {
+				return result.isEmpty() ?
+						CriterionTestResult.failure(sshInteractive, result) :
+							CriterionTestResult.success(
+									sshInteractive,
+									results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE)));
+			}
 
 			final Matcher matcher = Pattern
 					.compile(PslUtils.psl2JavaRegex(sshInteractive.getExpectedResult()))

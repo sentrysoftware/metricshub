@@ -1583,41 +1583,6 @@ class CriterionVisitorTest {
 	}
 
 	@Test
-	void testVisitSshInteractiveExpectedResultNull() {
-
-		final SshInteractive sshInteractive = new SshInteractive();
-
-		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-				"SshInteractive test succeeded:\n" + sshInteractive.toString() +
-					"\n\n" +
-					"Result: ExpectedResult are empty. Skipping this test.",
-				criterionTestResult.getMessage());
-		assertEquals("ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitSshInteractiveExpectedResultEmpty() {
-
-		final SshInteractive sshInteractive = new SshInteractive();
-		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
-
-		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-				"SshInteractive test succeeded:\n" + sshInteractive.toString() +
-					"\n\n" +
-					"Result: ExpectedResult are empty. Skipping this test.",
-				criterionTestResult.getMessage());
-		assertEquals("ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
-	}
-
-	@Test
 	void testVisitSshInteractiveNoCredential() throws Exception {
 
 		final SshInteractive sshInteractive = new SshInteractive();
@@ -1729,6 +1694,81 @@ class CriterionVisitorTest {
 	}
 
 	@Test
+	void testVisitSshInteractiveExpectedResultNullAndResultEmpy() {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of());
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test ran but failed:\n" + sshInteractive.toString() +
+					"\n\n" +
+					"Actual result:\n",
+					criterionTestResult.getMessage());
+			assertEquals(HardwareConstants.EMPTY, criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitSshInteractiveExpectedResultAndResultEmpty() {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of());
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test ran but failed:\n" + sshInteractive.toString() +
+					"\n\n" +
+					"Actual result:\n",
+					criterionTestResult.getMessage());
+			assertEquals(HardwareConstants.EMPTY, criterionTestResult.getResult());
+		}
+	}
+
+	@Test
 	void testVisitSshInteractiveResultFailure() throws Exception {
 
 		final WaitFor waitFor = new WaitFor();
@@ -1768,6 +1808,86 @@ class CriterionVisitorTest {
 		}
 	}
 
+	@Test
+	void testVisitSshInteractiveExpectedResultNullAndResultNotEmpy() {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
+					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+						"\n\n" +
+						"Result: " + result,
+					criterionTestResult.getMessage());
+			assertEquals(result, criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitSshInteractiveExpectedResultAndResultNotEmpty() {
+
+		final WaitFor waitFor = new WaitFor();
+		waitFor.setIndex(1);
+		waitFor.setText("$");
+
+		final List<Step> steps = List.of(waitFor);
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
+		sshInteractive.setSteps(steps);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()))
+				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.build();
+
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
+					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+						"\n\n" +
+						"Result: " + result,
+					criterionTestResult.getMessage());
+			assertEquals(result, criterionTestResult.getResult());
+		}
+	}
 
 	@Test
 	void testVisitSshInteractiveOK() throws Exception {
