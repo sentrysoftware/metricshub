@@ -42,11 +42,7 @@ public class Enclosure implements IMetaMonitor {
 			.basicCollect(true)
 			.name(INTRUSION_STATUS_PARAMETER)
 			.unit(INTRUSION_STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(IntrusionStatus::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(IntrusionStatus::interpret))
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION, TYPE,

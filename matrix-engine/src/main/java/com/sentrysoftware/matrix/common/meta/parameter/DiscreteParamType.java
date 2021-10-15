@@ -6,11 +6,9 @@ import java.util.function.Function;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @AllArgsConstructor
-@Builder
 public class DiscreteParamType implements IParameterType {
 
 	@Getter

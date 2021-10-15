@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -61,27 +60,14 @@ public enum Status implements IState {
 	 * Interpret the specified state value:
 	 *  <ul>
 	 *  	<li>{0, ok, OK} as OK</li>
-	 *  	<li>{1, warn, WARN, warning, WARNING, degraded, DEGRADED} as DEGRADED</li>
+	 *  	<li>{1, warn, WARN, warning, WARNING} as DEGRADED</li>
 	 *  	<li>{2, alarm, ALARM, failed, FAILED} as FAILED</li>
 	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return  {@link Optional} of {@link Status}
 	 */
 	public static Optional<Status> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final Status status = STATUS_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(status);
+		return IState.interpret(state, STATUS_MAP, Status.class);
 	}
 
 	@Override

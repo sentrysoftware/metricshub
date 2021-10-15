@@ -45,22 +45,14 @@ public class DiskController implements IMetaMonitor {
 			.basicCollect(true)
 			.name(BATTERY_STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(Status::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(Status::interpret))
 			.build();
 
 	public static final MetaParameter CONTROLLER_STATUS = MetaParameter.builder()
 			.basicCollect(true)
 			.name(CONTROLLER_STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(Status::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(Status::interpret))
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, BIOS_VERSION,

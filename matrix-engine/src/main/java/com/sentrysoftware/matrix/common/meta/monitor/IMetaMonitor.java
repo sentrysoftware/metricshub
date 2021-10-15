@@ -39,33 +39,21 @@ public interface IMetaMonitor {
 			.basicCollect(true)
 			.name(STATUS_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(Status::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(Status::interpret))
 			.build();
 
 	MetaParameter PRESENT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(PRESENT_PARAMETER)
 			.unit(PRESENT_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(Present::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(Present::interpret))
 			.build();
 
 	MetaParameter PREDICTED_FAILURE = MetaParameter.builder()
 			.basicCollect(true)
 			.name(PREDICTED_FAILURE_PARAMETER)
 			.unit(PREDICTED_FAILURE_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(PredictedFailure::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(PredictedFailure::interpret))
 			.build();
 
 	MetaParameter ERROR_COUNT = MetaParameter.builder()

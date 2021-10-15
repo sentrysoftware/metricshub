@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -37,9 +36,12 @@ public enum DuplexMode implements IState {
 			"0", HALF,
 			"no", HALF,
 			"half", HALF,
+			"warn", HALF,
+			"warning", HALF,
 			"1", FULL,
 			"yes", FULL,
-			"full", FULL);
+			"full", FULL,
+			"ok", FULL);
 
 	/**
 	 * {@link DuplexMode} simple class name as Enum type. This is mandatory for the Serialization so that the 
@@ -58,7 +60,7 @@ public enum DuplexMode implements IState {
 	/**
 	 * Interpret the specified state value:
 	 *  <ul>
-	 *  	<li>{0, no, half, HALF} as HALF</li>
+	 *  	<li>{0, no, half, HALF, warn, WARN, warning, WARNING} as HALF</li>
 	 *  	<li>{1, yes, full, FULL} as FULL</li>
 	 *  </ul>
 	 * @param <T>
@@ -66,20 +68,7 @@ public enum DuplexMode implements IState {
 	 * @return {@link Optional} of {@link DuplexMode}
 	 */
 	public static Optional<DuplexMode> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final DuplexMode duplexMode = DUPLEX_MODE_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(duplexMode);
+		return IState.interpret(state, DUPLEX_MODE_MAP, DuplexMode.class);
 	}
 
 	@Override

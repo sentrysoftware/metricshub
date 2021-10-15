@@ -59,11 +59,7 @@ public class TapeDrive implements IMetaMonitor {
 			.basicCollect(true)
 			.name(NEEDS_CLEANING_PARAMETER)
 			.unit(NEEDS_CLEANING_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(NeedsCleaning::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(NeedsCleaning::interpret))
 			.build();
 
 	public static final MetaParameter UNMOUNT_COUNT = MetaParameter.builder()

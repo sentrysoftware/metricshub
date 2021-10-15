@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -20,8 +19,8 @@ import lombok.Getter;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Present implements IState {
 
-	MISSING("Missing", 0, Severity.INFO),
-	PRESENT("Present", 1, Severity.ALARM);
+	MISSING("Missing", 0, Severity.ALARM),
+	PRESENT("Present", 1, Severity.INFO);
 
 	@Getter
 	private String displayName;
@@ -61,20 +60,7 @@ public enum Present implements IState {
 	 * @return {@link Optional} of {@link Present}
 	 */
 	public static Optional<Present> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final Present present = PRESENT_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(present);
+		return IState.interpret(state, PRESENT_MAP, Present.class);
 	}
 
 

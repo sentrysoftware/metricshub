@@ -85,10 +85,7 @@ public class NetworkCard implements IMetaMonitor {
 			.basicCollect(false)
 			.name(DUPLEX_MODE_PARAMETER)
 			.unit(DUPLEX_MODE_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(DuplexMode::interpret)
-					.build())
+			.type(new DiscreteParamType(DuplexMode::interpret))
 			.build();
 
 	public static final MetaParameter ERROR_PERCENT = MetaParameter.builder()
@@ -109,11 +106,7 @@ public class NetworkCard implements IMetaMonitor {
 			.basicCollect(true)
 			.name(LINK_STATUS_PARAMETER)
 			.unit(LINK_STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(LinkStatus::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(LinkStatus::interpret))
 			.build();
 
 	public static final MetaParameter RECEIVED_BYTES_RATE = MetaParameter.builder()

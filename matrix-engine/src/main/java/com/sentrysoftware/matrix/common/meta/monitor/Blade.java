@@ -38,11 +38,7 @@ public class Blade implements IMetaMonitor {
 			.basicCollect(true)
 			.name(POWER_STATE_PARAMETER)
 			.unit(POWER_STATE_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(PowerState::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(PowerState::interpret))
 			.build();
 
 	private static final List<String> METADATA  = List.of(DEVICE_ID, SERIAL_NUMBER, MODEL, BLADE_NAME, IDENTIFYING_INFORMATION);

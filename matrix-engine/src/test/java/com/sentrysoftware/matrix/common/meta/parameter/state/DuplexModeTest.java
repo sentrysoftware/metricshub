@@ -29,6 +29,16 @@ class DuplexModeTest {
 		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" Half "));
 		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" HALF "));
 		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret("HALF"));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret("warn"));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" warn "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" Warn "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" WARN "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret("WARN"));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret("warning"));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" warning "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" Warning "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret(" WARNING "));
+		assertEquals(Optional.of(DuplexMode.HALF), DuplexMode.interpret("WARNING"));
 	}
 
 	@Test
@@ -45,6 +55,11 @@ class DuplexModeTest {
 		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret(" Full "));
 		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret(" FULL "));
 		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret("FULL"));
+		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret("ok"));
+		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret(" ok "));
+		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret(" Ok "));
+		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret(" OK "));
+		assertEquals(Optional.of(DuplexMode.FULL), DuplexMode.interpret("OK"));
 	}
 
 }

@@ -39,11 +39,7 @@ public class Vm implements IMetaMonitor {
 			.basicCollect(true)
 			.name(HardwareConstants.POWER_STATE_PARAMETER)
 			.unit(HardwareConstants.POWER_STATE_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(PowerState::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(PowerState::interpret))
 			.build();
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Vm::checkStatusWarnCondition,

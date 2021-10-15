@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -67,20 +66,7 @@ public enum LedIndicator implements IState {
 	 * @return {@link Optional} of {@link LedIndicator}
 	 */
 	public static Optional<LedIndicator> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final LedIndicator ledIndicator = LED_INDICATOR_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(ledIndicator);
+		return IState.interpret(state, LED_INDICATOR_MAP, LedIndicator.class);
 	}
 
 	@Override

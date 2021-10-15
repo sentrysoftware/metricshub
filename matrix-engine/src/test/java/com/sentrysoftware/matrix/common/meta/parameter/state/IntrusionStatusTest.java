@@ -27,6 +27,15 @@ class IntrusionStatusTest {
 	}
 
 	@Test
+	void testInterpretClosedFromClosed() {
+		assertEquals(Optional.of(IntrusionStatus.CLOSED), IntrusionStatus.interpret("closed"));
+		assertEquals(Optional.of(IntrusionStatus.CLOSED), IntrusionStatus.interpret(" closed "));
+		assertEquals(Optional.of(IntrusionStatus.CLOSED), IntrusionStatus.interpret(" Closed "));
+		assertEquals(Optional.of(IntrusionStatus.CLOSED), IntrusionStatus.interpret(" CLOSED "));
+		assertEquals(Optional.of(IntrusionStatus.CLOSED), IntrusionStatus.interpret("CLOSED"));
+	}
+
+	@Test
 	void testInterpretOpenFromWarn() {
 		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret("1"));
 		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret("1.0"));
@@ -50,5 +59,14 @@ class IntrusionStatusTest {
 		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret(" Alarm "));
 		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret(" ALARM "));
 		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret("ALARM"));
+	}
+
+	@Test
+	void testInterpretClosedFromOpen() {
+		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret("open"));
+		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret(" open "));
+		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret(" Open "));
+		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret(" OPEN "));
+		assertEquals(Optional.of(IntrusionStatus.OPEN), IntrusionStatus.interpret("OPEN"));
 	}
 }

@@ -52,11 +52,7 @@ public class Memory implements IMetaMonitor {
 			.basicCollect(true)
 			.name(ERROR_STATUS_PARAMETER)
 			.unit(ERROR_STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(ErrorStatus::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(ErrorStatus::interpret))
 			.build();
 	
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()

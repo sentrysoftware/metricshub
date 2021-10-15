@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -68,20 +67,7 @@ public enum ErrorStatus implements IState {
 	 * @return {@link Optional} of {@link ErrorStatus}
 	 */
 	public static Optional<ErrorStatus> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final ErrorStatus errorStatus = ERROR_STATUS_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(errorStatus);
+		return IState.interpret(state, ERROR_STATUS_MAP, ErrorStatus.class);
 	}
 
 	@Override

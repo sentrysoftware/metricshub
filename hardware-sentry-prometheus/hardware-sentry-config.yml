@@ -1,0 +1,22 @@
+---
+loggerLevel: debug
+targets:
+  - target:
+      hostname: 10.0.24.61
+      type: MGMT_CARD_BLADE_ESXI
+    snmp:
+      version: V2c
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors: [LenovoIMM]
+
+  - target:
+      hostname: ecs1-01
+      type: linux
+    snmp:
+      version: v1
+      community: public
+      port: 161
+      timeout: 120s
+    excludedConnectors: [ SunF15K, HPiLO ]

@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.alert.Severity;
 
 import lombok.AllArgsConstructor;
@@ -36,11 +35,13 @@ public enum IntrusionStatus implements IState {
 	private static final Map<String, IntrusionStatus> INTRUSION_STATUS_MAP = Map.of(
 			"0", CLOSED,
 			"ok", CLOSED,
+			"closed", CLOSED,
 			"1", OPEN,
 			"warn", OPEN,
 			"warning", OPEN,
 			"2", OPEN,
-			"alarm", OPEN);
+			"alarm", OPEN,
+			"open", OPEN);
 
 	/**
 	 * {@link IntrusionStatus} simple class name as Enum type. This is mandatory for the Serialization so that the 
@@ -60,26 +61,13 @@ public enum IntrusionStatus implements IState {
 	 * Interpret the specified state value:
 	 *  <ul>
 	 *  	<li>{0, ok, OK, closed, CLOSED} as CLOSED</li>
-	 *  	<li>{1, warn, WARN, warning, WARNING, alarm, ALARM, 2} as OPEN</li>
+	 *  	<li>{1, warn, WARN, warning, WARNING, alarm, ALARM, 2, open, OPEN} as OPEN</li>
 	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return {@link Optional} of {@link IntrusionStatus}
 	 */
 	public static Optional<IntrusionStatus> interpret(final String state) {
-
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
-
-		final IntrusionStatus intrusionStatus = INTRUSION_STATUS_MAP.get(
-				NumberHelper.formatIntegerState(
-						state
-						.trim()
-						.toLowerCase()
-				)
-		);
-
-		return Optional.ofNullable(intrusionStatus);
+		return IState.interpret(state, INTRUSION_STATUS_MAP, IntrusionStatus.class);
 	}
 
 

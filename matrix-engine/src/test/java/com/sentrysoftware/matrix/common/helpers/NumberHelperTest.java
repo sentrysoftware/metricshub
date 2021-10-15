@@ -34,15 +34,16 @@ class NumberHelperTest {
 	}
 
 	@Test
-	void testGetIntegerState() {
-		assertNull(NumberHelper.formatIntegerState(null));
-		assertEquals("3", NumberHelper.formatIntegerState("3.00000"));
-		assertEquals("-3", NumberHelper.formatIntegerState("-3.0000000"));
-		assertEquals("3.01", NumberHelper.formatIntegerState("3.01"));
-		assertEquals("-3", NumberHelper.formatIntegerState("-3"));
-		assertEquals("0", NumberHelper.formatIntegerState("0"));
-		assertEquals("0", NumberHelper.formatIntegerState("0.0"));
-		assertEquals("1", NumberHelper.formatIntegerState("1.0"));
-		assertEquals("2", NumberHelper.formatIntegerState("2.0"));
+	void testCleanUpEnumInput() {
+		assertNull(NumberHelper.cleanUpEnumInput(null));
+		assertEquals("3", NumberHelper.cleanUpEnumInput("3.00000"));
+		assertEquals("-3", NumberHelper.cleanUpEnumInput("-3.0000000"));
+		assertEquals("3.01", NumberHelper.cleanUpEnumInput("3.01"));
+		assertEquals("-3", NumberHelper.cleanUpEnumInput("-3"));
+		assertEquals("0", NumberHelper.cleanUpEnumInput("0"));
+		assertEquals("0", NumberHelper.cleanUpEnumInput("0.0"));
+		assertEquals("1", NumberHelper.cleanUpEnumInput("1.0"));
+		assertEquals("2", NumberHelper.cleanUpEnumInput("2.0"));
+		assertEquals("ok", NumberHelper.cleanUpEnumInput(" OK "));
 	}
 }

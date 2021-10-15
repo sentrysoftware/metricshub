@@ -38,33 +38,21 @@ public class Led implements IMetaMonitor {
 			.basicCollect(false)
 			.name(COLOR_PARAMETER)
 			.unit(STATUS_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(LedColorStatus::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(LedColorStatus::interpret))
 			.build();
 
 	public static final MetaParameter STATUS = MetaParameter.builder()
 		.basicCollect(false)
 		.name(STATUS_PARAMETER)
 		.unit(STATUS_PARAMETER_UNIT)
-		.type(DiscreteParamType
-				.builder()
-				.interpreter(Status::interpret)
-				.build()
-		)
+		.type(new DiscreteParamType(Status::interpret))
 		.build();
 
 	public static final MetaParameter LED_INDICATOR = MetaParameter.builder()
 			.basicCollect(false)
 			.name(LED_INDICATOR_PARAMETER)
 			.unit(LED_INDICATOR_PARAMETER_UNIT)
-			.type(DiscreteParamType
-					.builder()
-					.interpreter(LedIndicator::interpret)
-					.build()
-			)
+			.type(new DiscreteParamType(LedIndicator::interpret))
 			.build();
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(

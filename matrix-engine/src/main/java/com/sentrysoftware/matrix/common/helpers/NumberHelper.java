@@ -62,16 +62,19 @@ public class NumberHelper {
 
 	/**
 	 * Removes the fractional part and the decimal point of the given state if the
-	 * fractional part contains only 0 after the decimal point
+	 * fractional part contains only 0 after the decimal point. The state is trimmed
+	 * and converted to lower case
 	 * 
 	 * @param state the value we wish to process
 	 * @return String value
 	 */
-	public static String formatIntegerState(final String state) {
+	public static String cleanUpEnumInput(String state) {
 
 		if (state == null) {
 			return null;
 		}
+
+		state = state.trim().toLowerCase();
 
 		final Matcher matcher = INTEGER_DETECT_PATTERN.matcher(state);
 
