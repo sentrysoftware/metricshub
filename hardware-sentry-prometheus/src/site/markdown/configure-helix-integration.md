@@ -57,7 +57,7 @@ An API key is required to push the data to BMC Helix Operations Management.
 
 Connect to your BMC Helix Operations Management Portal, go to the repository page, and click on the **Copy API Key** button.
 
-![Copy API Key](images/copy_api_key.png)
+![Copy API Key](./images/copy_api_key.png)
 
 Save the API key and take note of your BMC Helix Portal URL.
 
@@ -116,9 +116,6 @@ The dashboards for Helix query the Prometheus server to display the status of th
 In the "**provisioning/datasource**" directory, open the *hardware-sentry-prometheus.yml*. Enter the required settings to connect to your Prometheus server and save the changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
 
 Restart. The dashboard are now loaded in Helix Operations Management.
-
-![**${project.name}** Sustainable IT Dashboard](./images/dashboard_all_zones.png)
-hardware-dashboards-for-helix.zip
 
 ## Add Targets
 
