@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.sentrysoftware.hardware.matrix</groupId>
+		<artifactId>matrix</artifactId>
+		<version>0.9.2-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>hws-otel-collector</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Hardware Sentry OpenTelemetry Collector</name>
+	<description>A custom OpenTelemetry Collector that runs Hardware Sentry Exporter for Prometheus and exports to various formats and platforms</description>
+
+	<properties>
+
+		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
+		<sentrySkinVersion>4.0</sentrySkinVersion>
+
+		<!-- OpenTelemetry Collector Version -->
+		<otel.version>0.36.0</otel.version>
+
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
+			<artifactId>hardware-sentry-exporter</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+
+		<!-- The build is going to be platform-specific, so we need to set properties -->
+		<!-- based on the platform -->
+
+		<profile>
+			<id>windows-amd64</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<system.family>windows</system.family>
+				<system.arch>amd64</system.arch>
+				<system.exeExtension>.exe</system.exeExtension>
+				<chmod.skip>true</chmod.skip>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>linux-amd64</id>
+			<activation>
+				<os>
+					<name>Linux</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<system.family>linux</system.family>
+				<system.arch>amd64</system.arch>
+				<system.exeExtension></system.exeExtension>
+				<chmod.skip>false</chmod.skip>
+			</properties>
+		</profile>
+
+	</profiles>
+
+	<build>
+
+		<plugins>
+
+			<!-- enforcer -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-os</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireProperty>
+									<property>system.family</property>
+								</requireProperty>
+								<requireProperty>
+									<property>system.arch</property>
+								</requireProperty>
+							</rules>
+							<fail>true</fail>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- download -->
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install-builder</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://github.com/open-telemetry/opentelemetry-collector-builder/releases/download/v${otel.version}/opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}</url>
+							<outputDirectory>${project.build.directory}/builder</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- antrun -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+
+					<!-- chmod 755 of the builder -->
+					<execution>
+						<id>chmod-builder</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<chmod file="${project.build.directory}/builder/opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}" perm="755" />
+							</target>
+							<skip>${chmod.skip}</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/builder</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/builder</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- exec -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+
+					<!-- Build the Windows-AMD64 collector -->
+					<execution>
+						<id>build-otel-collector</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${project.build.directory}${file.separator}builder${file.separator}opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}</executable>
+							<workingDirectory>${project.build.directory}</workingDirectory>
+							<arguments>
+								<argument>--config</argument>
+								<argument>${project.build.directory}${file.separator}builder${file.separator}builder-config.yaml</argument>
+								<argument>--output-path</argument>
+								<argument>${project.build.directory}${file.separator}windows-amd64</argument>
+								<argument>--name</argument>
+								<argument>${project.artifactId}.exe</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>windows</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
+
+					<!-- Build the Linux-AMD64 collector -->
+					<execution>
+						<id>build-otel-collector-2</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${project.build.directory}${file.separator}builder${file.separator}opentelemetry-collector-builder_${otel.version}_${system.family}_${system.arch}${system.exeExtension}</executable>
+							<workingDirectory>${project.build.directory}</workingDirectory>
+							<arguments>
+								<argument>--config</argument>
+								<argument>${project.build.directory}${file.separator}builder/builder-config.yaml</argument>
+								<argument>--output-path</argument>
+								<argument>${project.build.directory}${file.separator}linux-amd64</argument>
+								<argument>--name</argument>
+								<argument>${project.artifactId}</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>linux</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
+			<!-- site -->
+			<!-- Configuration of the site plugin, to also generate automatic reports (Reference Guide, etc.)
+				 and leverage the Sentry Maven Skin (which requires the "Velocity Tools", i.e. Java code that
+				 handles most advanced parsing operations -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<configuration>
+					<generateReports>true</generateReports>
+					<generateProjectInfo>false</generateProjectInfo>
+					<inputEncoding>UTF-8</inputEncoding>
+					<outputEncoding>UTF-8</outputEncoding>
+					<relativizeDecorationLinks>true</relativizeDecorationLinks>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.sentrysoftware.doc</groupId>
+						<artifactId>sentry-skin-velocity-tools</artifactId>
+						<version>${sentrySkinVersion}</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<!-- package -->
+					<!-- Create the documentation at the same time we package the KM -->
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>site</goal>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<attach>true</attach>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- assembly -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+
+					<!-- Windows-AMD64 -->
+					<execution>
+						<id>dist-windows-amd64</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/windows-amd64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+
+					<!-- Linux-AMD64 -->
+					<execution>
+						<id>dist-linux-amd64</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/linux-amd64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+
+			<!-- Disable the project-info-report plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<!-- about -->
+			<!-- (to generate about.html and release-notes.html -->
+			<plugin>
+				<groupId>com.sentrysoftware.maven</groupId>
+				<artifactId>about-maven-plugin</artifactId>
+				<configuration>
+					<jql><![CDATA[
+					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
+				]]></jql>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</reporting>
+
+</project>

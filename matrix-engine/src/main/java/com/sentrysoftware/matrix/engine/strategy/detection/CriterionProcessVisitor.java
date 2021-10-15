@@ -142,11 +142,11 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 		.findFirst()
 		.ifPresentOrElse(
 				line -> success(
-						String.format(
+						String.format( //NOSONAR
 								"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): %s",
 								command)),
 				() -> fail(
-						String.format(
+						String.format( //NOSONAR
 								"No currently running processes matches the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
 								command,
 								result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP))).collect(Collectors.joining(NEW_LINE)))));

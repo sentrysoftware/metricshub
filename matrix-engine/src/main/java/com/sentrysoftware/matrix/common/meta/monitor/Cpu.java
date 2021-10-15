@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,10 +15,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
@@ -46,33 +45,33 @@ public class Cpu implements IMetaMonitor {
 			.basicCollect(true)
 			.name(CORRECTED_ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter CURRENT_SPEED = MetaParameter.builder()
 			.basicCollect(true)
 			.name(CURRENT_SPEED_PARAMETER)
 			.unit(CURRENT_SPEED_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, MAXIMUM_SPEED, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Cpu::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Cpu::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Cpu::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule CORRECTED_ERROR_COUNT_ALERT_RULE = new AlertRule(Cpu::checkCorrectedFiewErrorCountCondition,
 			CORRECTED_ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(Cpu::checkPredictedFailureCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -110,11 +109,11 @@ public class Cpu implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This processor is degraded or is about to fail." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This processor is degraded or is about to fail." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("If degraded, this processor may not be fully operational. This could adversely impact the overall performance of the system. If it is about to fail, this processor is likely to crash very soon.")
 					.recommendedAction("Replace this processor as soon as possible to prevent a system crash.")
 					.build();
@@ -131,11 +130,11 @@ public class Cpu implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This processor has failed." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This processor has failed." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This processor is not operational. This will impact the overall performance of the system. If it is about to fail this processor may crash very soon.")
 					.recommendedAction("Replace this processor as soon as possible to prevent a system overload.")
 					.build();
@@ -153,7 +152,7 @@ public class Cpu implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -176,7 +175,7 @@ public class Cpu implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
+		AssertedParameter<DiscreteParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
 		if (assertedPredictedFailure.isAbnormal()) {
 
 			return AlertDetails.builder()

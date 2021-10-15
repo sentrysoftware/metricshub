@@ -5,9 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -18,23 +16,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 
 class CollectHelperTest {
 
 	private static final List<String> ROW = Arrays.asList("0", "100", "400");
-	private static final ParameterState UNKNOWN_STATUS_WARN = ParameterState.WARN;
-	private static final ParameterState UNKNOWN_STATUS_OK = ParameterState.OK;
-	private static final ParameterState UNKNOWN_STATUS_ALARM = ParameterState.ALARM;
 	private static final String HOST_NAME = "host";
 	private static final String ID = "enclosure_1";
 	private static final String VALUE_TABLE = "Enclosure.Collect.Source(1)";
@@ -42,96 +36,71 @@ class CollectHelperTest {
 	private static Long collectTime = new Date().getTime();
 
 	@Test
-	void testTranslateStatus() {
-		assertNull(CollectHelper.translateStatus(null,
-				Optional.of(UNKNOWN_STATUS_WARN),
+	void testTranslateState() {
+		assertNull(CollectHelper.translateState(
+				null,
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.OK, CollectHelper.translateState(
+				"0",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(ParameterState.OK, CollectHelper.translateStatus("OK",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.OK, CollectHelper.translateState(
+				"OK",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("1",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.DEGRADED, CollectHelper.translateState(
+				"1",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("WARN",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.DEGRADED, CollectHelper.translateState(
+				"WARN",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("2",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.FAILED, CollectHelper.translateState(
+				"2",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(ParameterState.ALARM, CollectHelper.translateStatus("ALARM",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertEquals(Status.FAILED, CollectHelper.translateState(
+				"ALARM",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(UNKNOWN_STATUS_WARN, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				Optional.of(UNKNOWN_STATUS_WARN),
+		assertNull(CollectHelper.translateState(
+				"SOMETHING_UNKNOWN",
+				Status::interpret,
 				ID,
 				HOST_NAME,
-				STATUS_PARAMETER));
+				STATUS_PARAMETER)
+		);
 
-		assertEquals(UNKNOWN_STATUS_OK, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				Optional.of(UNKNOWN_STATUS_OK),
-				ID,
-				HOST_NAME,
-				STATUS_PARAMETER));
-
-		assertEquals(UNKNOWN_STATUS_ALARM, CollectHelper.translateStatus("SOMETHING_UNKNOWN",
-				Optional.of(UNKNOWN_STATUS_ALARM),
-				ID,
-				HOST_NAME,
-				STATUS_PARAMETER));
-
-		assertEquals(ParameterState.OK, CollectHelper.translateStatus("0",
-				Optional.of(UNKNOWN_STATUS_WARN),
-				ID,
-				HOST_NAME,
-				PREDICTED_FAILURE_PARAMETER));
-
-		assertEquals(ParameterState.OK, CollectHelper.translateStatus("FALSE",
-				Optional.of(UNKNOWN_STATUS_WARN),
-				ID,
-				HOST_NAME,
-				PREDICTED_FAILURE_PARAMETER));
-
-		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("1",
-				Optional.of(UNKNOWN_STATUS_WARN),
-				ID,
-				HOST_NAME,
-				PREDICTED_FAILURE_PARAMETER));
-
-		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("TRUE",
-				Optional.of(UNKNOWN_STATUS_WARN),
-				ID,
-				HOST_NAME,
-				PREDICTED_FAILURE_PARAMETER));
-
-		assertEquals(ParameterState.WARN, CollectHelper.translateStatus("blabla",
-				Optional.of(UNKNOWN_STATUS_WARN),
-				ID,
-				HOST_NAME,
-				PREDICTED_FAILURE_PARAMETER));
 	}
 
 
@@ -271,7 +240,7 @@ class CollectHelperTest {
 
 	@Test
 	void testGetNumberParamValue() {
-		Map<String, IParameterValue> parameters = new HashMap<>();
+		Map<String, IParameter> parameters = new HashMap<>();
 		NumberParam numberParam = NumberParam.builder().value(10.0).build();
 		String parameterName = "parameter";
 		parameters.put(parameterName, numberParam);
@@ -281,13 +250,13 @@ class CollectHelperTest {
 	}
 
 	@Test
-	void testGetStatusParamState() {
-		Map<String, IParameterValue> parameters = new HashMap<>();
-		StatusParam statusParam = StatusParam.builder().name("status").state(ParameterState.OK).build();
+	void testGetParamState() {
+		Map<String, IParameter> parameters = new HashMap<>();
+		DiscreteParam statusParam = DiscreteParam.builder().name("status").state(Status.OK).build();
 		parameters.put("status", statusParam);
 		Monitor monitor = Monitor.builder().parameters(parameters).build();
-		assertNull(CollectHelper.getStatusParamState(monitor, "wrongStatus"));
-		assertEquals(ParameterState.OK, CollectHelper.getStatusParamState(monitor, "status"));
+		assertNull(CollectHelper.getParameterState(monitor, "wrongStatus"));
+		assertEquals(Status.OK, CollectHelper.getParameterState(monitor, "status"));
 	}
 
 
@@ -356,31 +325,27 @@ class CollectHelperTest {
 	}
 
 	@Test
-	void testUpdateStatusParameter() {
+	void testUpdateDiscreteParameter() {
 		{
 			final Monitor monitor = Monitor.builder().build();
-			CollectHelper.updateStatusParameter(monitor, STATUS_PARAMETER,
-					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+			CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, collectTime, Status.OK);
 
-			final StatusParam expected = StatusParam
+			final DiscreteParam expected = DiscreteParam
 					.builder()
 					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
-					.state(ParameterState.OK)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 0 (Operable)")
+					.state(Status.OK)
 					.build();
 
-			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, DiscreteParam.class));
 		}
 
 		{
-			final StatusParam previousParameter = StatusParam.builder()
+			final DiscreteParam previousParameter = DiscreteParam.builder()
 					.name(STATUS_PARAMETER)
-					.collectTime(collectTime)
-					.state(ParameterState.ALARM)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 2 (DOWN)").build();
+					.collectTime(collectTime - 120000)
+					.state(Status.FAILED)
+					.build();
 
 			previousParameter.save();
 
@@ -388,21 +353,19 @@ class CollectHelperTest {
 					Map.of(STATUS_PARAMETER, previousParameter)))
 					.build();
 
-			CollectHelper.updateStatusParameter(monitor, STATUS_PARAMETER,
-					STATUS_PARAMETER_UNIT, collectTime, ParameterState.OK, "Operable");
+			CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, collectTime, Status.OK);
 
-			final StatusParam expected = StatusParam
+			final DiscreteParam expected = DiscreteParam
 					.builder()
 					.name(STATUS_PARAMETER)
 					.collectTime(collectTime)
-					.state(ParameterState.OK)
-					.unit(STATUS_PARAMETER_UNIT)
-					.statusInformation("status: 0 (Operable)")
+					.state(Status.OK)
 					.build();
 
-			expected.setPreviousState(ParameterState.ALARM);
+			expected.setPreviousState(Status.FAILED);
+			expected.setPreviousCollectTime(collectTime - 120000);
 
-			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, StatusParam.class));
+			assertEquals(expected, monitor.getParameter(STATUS_PARAMETER, DiscreteParam.class));
 		}
 	}
 
@@ -523,7 +486,7 @@ class CollectHelperTest {
 		assertNull(monitor.getParameter(ENERGY_PARAMETER, NumberParam.class)); // Joules
 
 		// Collect 2 (first collect time + 2 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::save);
+		monitor.getParameters().values().forEach(IParameter::save);
 
 		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (2 * 60 * 1000), 60D, ECS1_01);
 
@@ -532,7 +495,7 @@ class CollectHelperTest {
 		assertEquals(7200.0,monitor.getParameter(ENERGY_PARAMETER, NumberParam.class).getValue()); // Joules
 
 		// Collect 3  (first collect time + 4 minutes)
-		monitor.getParameters().values().forEach(IParameterValue::save);
+		monitor.getParameters().values().forEach(IParameter::save);
 
 		CollectHelper.collectEnergyUsageFromPower(monitor, collectTime + (4 * 60 * 1000), 64D, ECS1_01);
 

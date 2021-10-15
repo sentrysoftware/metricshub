@@ -910,6 +910,11 @@ class SourceVisitorTest {
 	@Test
 	void testGetNamespace() {
 		{
+			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).build();
+			assertEquals("root\\cimv2", sourceVisitor.getNamespace(wmiSource));
+		}
+
+		{
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(ConnectorNamespace
@@ -923,6 +928,7 @@ class SourceVisitorTest {
 			final WMISource wmiSource = WMISource.builder().wbemQuery(WQL).wbemNamespace(ROOT_IBMSD_WMI_NAMESPACE).build();
 			assertEquals(ROOT_IBMSD_WMI_NAMESPACE, sourceVisitor.getNamespace(wmiSource));
 		}
+
 	}
 
 	@Test

@@ -3,12 +3,10 @@ package com.sentrysoftware.hardware.prometheus.dto;
 import static com.sentrysoftware.hardware.prometheus.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.prometheus.deserialization.TimeDeserializer;
-import com.sentrysoftware.hardware.prometheus.deserialization.UnknownStatusDeserializer;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.HttpProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.IpmiOverLanProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.OsCommandConfigDTO;
@@ -17,7 +15,6 @@ import com.sentrysoftware.hardware.prometheus.dto.protocol.SshProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.WbemProtocolDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.WmiProtocolDTO;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,10 +57,6 @@ public class HostConfigurationDTO {
 
 	@Default
 	private Set<String> excludedConnectors = new HashSet<>();
-
-	@Default
-	@JsonDeserialize(using = UnknownStatusDeserializer.class)
-	private Optional<ParameterState> unknownStatus = Optional.of(ParameterState.WARN);
 
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long collectPeriod;

@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -30,10 +30,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 public class PowerSupply implements IMetaMonitor {
 
@@ -41,26 +40,26 @@ public class PowerSupply implements IMetaMonitor {
 			.basicCollect(false)
 			.name(USED_CAPACITY_PARAMETER)
 			.unit(PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, POWER_SUPPLY_TYPE, POWER_SUPPLY_POWER, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(PowerSupply::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(PowerSupply::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(PowerSupply::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule USED_CAPACITY_WARN_ALERT_RULE = new AlertRule(PowerSupply::checkAbnormalHighUsedCapacityWarnCondition,
 			USED_CAPACITY_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule USED_CAPACITY_ALARM_ALERT_RULE = new AlertRule(PowerSupply::checkUsedCapacityCondition,
 			USED_CAPACITY_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -91,7 +90,7 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -112,11 +111,11 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This power supply is in degraded state, or is about to fail." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This power supply is in degraded state, or is about to fail." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("If this is the only power supply in the enclosure and it is about to fail, the server is about to be turned off. A degraded power supply may also lead to an unstable power conversion and thus to severe system crashes or hardware damages.")
 					.recommendedAction("Quickly replace the faulty power supply.")
 					.build();
@@ -133,11 +132,11 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("The power supply is in a critical state." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("The power supply is in a critical state." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("A failing power supply will turn off the server soon.")
 					.recommendedAction("Quickly replace the faulty power supply.")
 					.build();

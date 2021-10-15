@@ -8,16 +8,24 @@
 			"parentId": "targetId",
 			"targetId": "targetId",
 			"extendedType": null,
-			"discoveryTime":1633620837079,
+			"discoveryTime": 1633620837079,
 			"parameters": {
 				"present": {
 					"name": "present",
 					"collectTime": null,
-					"unit": "{0=Missing;1=Present}",
-					"state": "OK",
-					"present": 1,
+					"previousCollectTime": null,
+					"unit": "{ 0 = Missing ; 1 = Present }",
+					"state": {
+						"displayName": "Present",
+						"numericValue": 1,
+						"type": "Present",
+						"unit": "{ 0 = Missing ; 1 = Present }",
+						"name": "PRESENT"
+					},
 					"previousState": null,
-					"type": "PresentParam"
+					"type": "DiscreteParam",
+					"numericValue": 1,
+					"displayName": "Present"
 				}
 			},
 			"metadata": {},
@@ -30,16 +38,24 @@
 			"parentId": "targetId",
 			"targetId": "targetId",
 			"extendedType": null,
-			"discoveryTime":1633620837079,
+			"discoveryTime": 1633620837079,
 			"parameters": {
 				"present": {
 					"name": "present",
 					"collectTime": null,
-					"unit": "{0=Missing;1=Present}",
-					"state": "OK",
-					"present": 1,
+					"previousCollectTime": null,
+					"unit": "{ 0 = Missing ; 1 = Present }",
+					"state": {
+						"displayName": "Present",
+						"numericValue": 1,
+						"type": "Present",
+						"unit": "{ 0 = Missing ; 1 = Present }",
+						"name": "PRESENT"
+					},
 					"previousState": null,
-					"type": "PresentParam"
+					"type": "DiscreteParam",
+					"numericValue": 1,
+					"displayName": "Present"
 				}
 			},
 			"metadata": {},

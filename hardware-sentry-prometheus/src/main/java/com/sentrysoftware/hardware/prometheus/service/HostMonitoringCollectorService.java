@@ -30,7 +30,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 
 import io.prometheus.client.Collector;
 import lombok.NonNull;
@@ -126,7 +126,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Convert metadata value according to the given factor
-	 * 
+	 *
 	 * @param metadataValue cannot be null and must be a number
 	 * @return {@link Double} value
 	 */
@@ -486,7 +486,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 	/**
 	 * Check if the given value can be parsed as double
-	 * 
+	 *
 	 * @param value The value we wish to check
 	 * @return <code>true</code> if the value is not <code>null</code> and the parse succeeds otherwise <code>false</code>
 	 */
@@ -542,7 +542,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Get the discovery time of the given monitor if we are in the honorTimestamps
 	 * mode otherwise <code>null</code> is returned
-	 * 
+	 *
 	 * @param monitor the monitor we wish to extract its discovery time
 	 * @return Long value
 	 */
@@ -553,7 +553,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Get the parameter collect time if we are in the honorTimestamps
 	 * mode otherwise <code>null</code> is returned
-	 * 
+	 *
 	 * @param monitor       The monitor we wish to extract the parameter collect time
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return Long value
@@ -563,7 +563,7 @@ public class HostMonitoringCollectorService extends Collector {
 			return null;
 		}
 
-		final IParameterValue parameter = monitor.getParameters().get(parameterName);
+		final IParameter parameter = monitor.getParameters().get(parameterName);
 		if (parameter != null) {
 			return parameter.getCollectTime();
 		}

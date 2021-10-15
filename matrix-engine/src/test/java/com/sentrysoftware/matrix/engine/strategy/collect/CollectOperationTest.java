@@ -14,7 +14,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
@@ -24,7 +23,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
@@ -71,6 +69,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -93,11 +95,9 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 @ExtendWith(MockitoExtension.class)
@@ -125,7 +125,6 @@ class CollectOperationTest {
 	private static final String TARGET_ID = "targetId";
 	private static final String VALUE_TABLE = "Enclosure.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
-	private static final ParameterState UNKNOWN_STATUS_WARN = ParameterState.WARN;
 	private static final String OID1 = "1.2.3.4.5";
 	private static final String CRITERION_OID = "1.2.3.4.5.6";
 	private static final String FAN_ID_1 = "myConnecctor1.connector_fan_ecs1-01_1.1";
@@ -177,7 +176,6 @@ class CollectOperationTest {
 						.type(TargetType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
-				.unknownStatus(Optional.of(UNKNOWN_STATUS_WARN))
 				.build();
 
 		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();
@@ -236,7 +234,7 @@ class CollectOperationTest {
 
 			final Monitor enclosure = buildEnclosure(metadata);
 
-			final IParameterValue parameter = NumberParam.builder()
+			final IParameter parameter = NumberParam.builder()
 					.name(POWER_CONSUMPTION)
 					.collectTime(strategyTime)
 					.value(100.0)
@@ -318,7 +316,6 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 		hostMonitoring.addMonitor(connectorMonitor);
 
-		//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(Collections.singletonMap(CONNECTOR_NAME, connector)).when(store).getConnectors();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -686,38 +683,31 @@ class CollectOperationTest {
 	private static Monitor buildExpectedEnclosure() {
 		final Monitor expected = buildEnclosure(metadata);
 
-		final String statusInformation = new StringBuilder()
-				.append("status: 0 (Operable)")
-				.toString();
-
-		final IParameterValue statusParam = StatusParam
+		final IParameter statusParam = DiscreteParam
 				.builder()
 				.name(STATUS_PARAMETER)
 				.collectTime(strategyTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation(statusInformation)
+				.state(Status.OK)
 				.build();
 		expected.collectParameter(statusParam);
 
-		final IParameterValue presentParam = PresentParam
+		final IParameter presentParam = DiscreteParam
 				.builder()
-				.state(ParameterState.OK)
+				.name(PRESENT_PARAMETER)
+				.state(Present.PRESENT)
 				.build();
 		expected.collectParameter(presentParam);
 
 
-		final IParameterValue intructionStatusParam = StatusParam
+		final IParameter intructionStatusParam = DiscreteParam
 				.builder()
 				.name(INTRUSION_STATUS_PARAMETER)
 				.collectTime(strategyTime)
-				.state(ParameterState.OK)
-				.unit(INTRUSION_STATUS_PARAMETER_UNIT)
-				.statusInformation("intrusionStatus: 0 (No Intrusion Detected)")
+				.state(IntrusionStatus.CLOSED)
 				.build();
 		expected.collectParameter(intructionStatusParam);
 
-		final IParameterValue powerConsumption = NumberParam
+		final IParameter powerConsumption = NumberParam
 				.builder()
 				.name(POWER_CONSUMPTION_PARAMETER)
 				.collectTime(strategyTime)
@@ -726,6 +716,16 @@ class CollectOperationTest {
 				.rawValue(150D)
 				.build();
 		expected.collectParameter(powerConsumption);
+
+		final IParameter statusInformationParam = TextParam
+				.builder()
+				.name(STATUS_INFORMATION_PARAMETER)
+				.value(OPERABLE)
+				.collectTime(strategyTime)
+				.build();
+
+		expected.collectParameter(statusInformationParam);
+
 		return expected;
 	}
 
@@ -902,13 +902,11 @@ class CollectOperationTest {
 	private static Monitor buildExpectedConnectorMonitor(final boolean success, final String result, final String message) {
 		final Monitor expected = buildConnectorMonitor();
 
-		final StatusParam status = StatusParam
+		final DiscreteParam status = DiscreteParam
 				.builder()
 				.collectTime(strategyTime)
 				.name(STATUS_PARAMETER)
-				.state(success ? ParameterState.OK : ParameterState.ALARM)
-				.statusInformation(success ? "Connector test succeeded" : "Connector test failed")
-				.unit(STATUS_PARAMETER_UNIT)
+				.state(success ? Status.OK : Status.FAILED)
 				.build();
 
 		final TextParam testReport = TextParam
@@ -919,9 +917,20 @@ class CollectOperationTest {
 						+ (success ? "SUCCEEDED" : "FAILED"))
 				.build();
 
-		expected.setParameters(Map.of(
-				TEST_REPORT_PARAMETER, testReport,
-				STATUS_PARAMETER, status));
+		final IParameter statusInformationParam = TextParam
+				.builder()
+				.name(STATUS_INFORMATION_PARAMETER)
+				.value(success ? "Connector test succeeded" : "Connector test failed")
+				.collectTime(strategyTime)
+				.build();
+
+		expected.setParameters(
+				Map.of(
+					TEST_REPORT_PARAMETER, testReport,
+					STATUS_PARAMETER, status,
+					STATUS_INFORMATION_PARAMETER, statusInformationParam
+				)
+		);
 
 		return expected;
 	}
@@ -988,12 +997,12 @@ class CollectOperationTest {
 		final Monitor collectedFan1 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN1");
 
 		assertEquals(strategyTime,
-				collectedFan1.getParameter(PRESENT_PARAMETER, PresentParam.class)
+				collectedFan1.getParameter(PRESENT_PARAMETER, DiscreteParam.class)
 				.getCollectTime());
 
 		final Monitor weirdFan2 = hostMonitoring.selectFromType(MonitorType.FAN).get("FAN2");
 
-		assertNull(weirdFan2.getParameter(PRESENT_PARAMETER, PresentParam.class));
+		assertNull(weirdFan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class));
 	}
 
 	@Test
@@ -1266,7 +1275,7 @@ class CollectOperationTest {
 				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 
 		// Weird case, Present parameter but present value is null
-		fan.getParameter(PRESENT_PARAMETER, PresentParam.class).setPresent(null);
+		fan.getParameter(PRESENT_PARAMETER, DiscreteParam.class).setState(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
 				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
 	}
@@ -1969,13 +1978,11 @@ class CollectOperationTest {
 		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
 		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_ecs1-01_1.1", "network card", null);
-		networkCard.collectParameter(StatusParam
+		networkCard.collectParameter(DiscreteParam
 				.builder()
 				.name(LINK_STATUS_PARAMETER)
 				.collectTime(strategyTime)
-				.state(ParameterState.OK)
-				.unit(STATUS_PARAMETER_UNIT)
-				.statusInformation("status: 0 (Operable)")
+				.state(LinkStatus.PLUGGED)
 				.build());
 		networkCard.collectParameter(NumberParam.builder().name(LINK_SPEED_PARAMETER).value(100.0).rawValue(100.0).build());
 

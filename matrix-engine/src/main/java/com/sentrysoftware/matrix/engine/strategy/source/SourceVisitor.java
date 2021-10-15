@@ -776,8 +776,26 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		// Get the namespace, the default one is : root/cimv2
-		String namespace = wbemSource.getWbemNamespace() != null ? wbemSource.getWbemNamespace()
-				: protocol.getNamespace();
+		String namespace = wbemSource.getWbemNamespace();
+		if (namespace == null) {
+			namespace = "root/cimv2";
+		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
+			namespace = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWbemNamespace();
+		}
+
+		// Replace the automatic namespace
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
+			final String cachedNamespace = strategyConfig
+					.getHostMonitoring()
+					.getConnectorNamespace(connector)
+					.getAutomaticWbemNamespace();
+
+			// Update the namespace with the cached namespace
+			namespace = cachedNamespace;
+		}
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
@@ -885,6 +903,10 @@ public class SourceVisitor implements ISourceVisitor {
 	String getNamespace(final WMISource wmiSource) {
 
 		final String sourceNamespace = wmiSource.getWbemNamespace();
+
+		if (sourceNamespace == null) {
+			return "root\\cimv2";
+		} 
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase

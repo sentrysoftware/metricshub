@@ -11,13 +11,13 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.description}.
+This information must be provided in a `hws-config.yaml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.name}.
 
 The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
 
 ## Specifying the target to be monitored
 
-Copy the following lines in the `hardware-sentry-config.yml` file:
+Copy the following lines in the `hws-config.yaml` file:
 
 ```
 targets:
@@ -280,32 +280,6 @@ targets:
 | w    | weeks (based on a 7-day week)   | 1w, 1w2d3h15m20s |
 | y    | years (based on a 365-day year) | 1y, 1y1w1h30m10s |
 
-### Configuring the Unknown Status
-
-On rare occasions, **${project.name}** may collect an unexpected value from a metric and return an _Unknown Status_. You can configure the `unknownStatus` parameter to indicate the value to be exposed in Prometheus:
-
-- **0** to expose the value **0 (OK)**
-- **1** to expose the value **1 (WARN)**
-- **2** to expose the value **2 (ALARM)**
-- **""** (empty) not to expose the metric. 
-
-Default is **1** as shown below:
-
-```
-targets:
-
-  - target:
-      hostname: myhost-01
-      type: STORAGE
-    wbem:
-      protocol: HTTPS
-      port: 5989
-      timeout: 120s
-      username: myusername
-      password: mypwd
-    unknownStatus: 1
-```
-
 ### Customizing the Collect Period
 
 By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
@@ -313,7 +287,7 @@ By default, **${project.name}** collects metrics from the monitored targets ever
 * for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
 ```
-collectPeriod: 2m 
+collectPeriod: 2m
 targets:
 - target:
     hostname: myhost
@@ -324,7 +298,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```
 
 * for a specific target, add the `collectPeriod` parameter in the relevant `target` section:
@@ -341,7 +314,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
   collectPeriod: 2m 
 ```
 
@@ -368,7 +340,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```
 
 * for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
@@ -385,7 +356,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
   discoveryCycle: 15 
 ```
 
@@ -410,7 +380,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```
 and indicate a number of jobs.
 

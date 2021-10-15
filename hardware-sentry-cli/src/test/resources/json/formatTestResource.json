@@ -12,12 +12,19 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "unit" : null,
-        "state" : "OK",
-        "status" : 0,
-        "statusInformation" : "OK",
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
       }
     },
     "metadata" : { },
@@ -34,12 +41,19 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "unit" : null,
-        "state" : "WARN",
-        "status" : 1,
-        "statusInformation" : "WARNING",
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "Degraded",
+          "numericValue" : 1,
+          "name" : "DEGRADED",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Degraded"
       }
     },
     "metadata" : { },
@@ -56,12 +70,19 @@
       "status" : {
         "name" : "status",
         "collectTime" : 1618319092125,
-        "unit" : null,
-        "state" : "OK",
-        "status" : 0,
-        "statusInformation" : "OK",
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }",
+        "state" : {
+          "displayName" : "OK",
+          "numericValue" : 0,
+          "name" : "OK",
+          "type" : "Status",
+          "unit" : "{ 0 = OK ; 1 = Degraded ; 2 = Failed }"
+        },
         "previousState" : null,
-        "type" : "StatusParam"
+        "type" : "DiscreteParam",
+        "numericValue" : 0,
+        "displayName" : "OK"
       }
     },
     "metadata" : { },

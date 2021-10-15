@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.sentrysoftware.matrix.common.meta.parameter.DiscreteParamType;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.common.meta.parameter.state.ErrorStatus;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,10 +17,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
@@ -51,20 +52,20 @@ public class Memory implements IMetaMonitor {
 			.basicCollect(true)
 			.name(ERROR_STATUS_PARAMETER)
 			.unit(ERROR_STATUS_PARAMETER_UNIT)
-			.type(ParameterType.STATUS)
+			.type(new DiscreteParamType(ErrorStatus::interpret))
 			.build();
 	
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter LAST_ERROR = MetaParameter.builder()
 			.basicCollect(true)
 			.name(LAST_ERROR_PARAMETER)
-			.type(ParameterType.TEXT)
+			.type(SimpleParamType.TEXT)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, TYPE, SIZE,
@@ -72,25 +73,25 @@ public class Memory implements IMetaMonitor {
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Memory::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Memory::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Memory::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule ERROR_STATUS_WARN_ALERT_RULE = new AlertRule(Memory::checkErrorStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule ERROR_STATUS_ALARM_ALERT_RULE = new AlertRule(Memory::checkErrorStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(Memory::checkErrorCountCondition,
 			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(Memory::checkPredictedFailureWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -129,7 +130,7 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -150,11 +151,11 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This memory module is degraded or about to fail." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This memory module is degraded or about to fail." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("If degraded, this memory module may not be fully operational and may impact the overall performance of the system. If about to fail, this may soon lead to a system crash or data corruption.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_MEMORY)
 					.build();
@@ -171,11 +172,11 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This memory module has failed." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This memory module has failed." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This memory module is not operational. This probably impacts the overall performance of the system.")
 					.recommendedAction("Replace this memory module as soon as possible to prevent a system overload.")
 					.build();
@@ -192,11 +193,11 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkErrorStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(ERROR_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(ERROR_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This memory module has encountered one or several errors." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This memory module has encountered one or several errors." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This memory module is getting unstable and may cause a system crash or data corruption.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_MEMORY)
 					.build();
@@ -213,11 +214,11 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkErrorStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(ERROR_STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(ERROR_STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This memory module has encountered too many errors." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This memory module has encountered too many errors." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("This memory module is unstable and will probably cause a system crash or data corruption.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_MEMORY)
 					.build();
@@ -276,7 +277,7 @@ public class Memory implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkPredictedFailureWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
 		if (assertedPredictedFailure.isAbnormal()) {
 
 			return AlertDetails.builder()

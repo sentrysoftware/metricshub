@@ -1,14 +1,14 @@
 package com.sentrysoftware.matrix.model.monitor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.parameter.IParameterValue;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -44,7 +44,7 @@ public class Monitor {
 
 	// parameter name to Parameter value
 	@Default
-	private Map<String, IParameterValue> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private Map<String, IParameter> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Default
 	private Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -57,7 +57,7 @@ public class Monitor {
 	 * 
 	 * @param parameter The parameter we wish to collect
 	 */
-	public void collectParameter(IParameterValue parameter) {
+	public void collectParameter(IParameter parameter) {
 		addParameter(parameter);
 
 		// Evaluate the alert rules
@@ -71,7 +71,7 @@ public class Monitor {
 	 * 
 	 * @param parameter The parameter we wish to add
 	 */
-	public void addParameter(IParameterValue parameter) {
+	public void addParameter(IParameter parameter) {
 		parameters.put(parameter.getName(), parameter);
 	}
 
@@ -149,9 +149,9 @@ public class Monitor {
 	 * 
 	 * @param parameterName The unique name of the parameter
 	 * @param type          The type of the parameter
-	 * @return {@link IParameterValue} instance
+	 * @return {@link IParameter} instance
 	 */
-	public <T extends IParameterValue> T getParameter(final String parameterName, final Class<T> type) {
+	public <T extends IParameter> T getParameter(final String parameterName, final Class<T> type) {
 		return type.cast(parameters.get(parameterName));
 	}
 
@@ -164,14 +164,14 @@ public class Monitor {
 			return;
 		}
 
-		final PresentParam presentParam = getParameter(PRESENT_PARAMETER,
-				PresentParam.class);
+		final DiscreteParam presentParam = getParameter(PRESENT_PARAMETER,
+				DiscreteParam.class);
 
 		if (presentParam != null) {
-			presentParam.setPresent(0);
-			presentParam.setState(ParameterState.ALARM);
+			presentParam.setState(Present.MISSING);
+			collectParameter(presentParam);
 		} else {
-			collectParameter(PresentParam.missing());
+			collectParameter(DiscreteParam.missing());
 		}
 
 	}
@@ -182,7 +182,7 @@ public class Monitor {
 	public void setAsPresent() {
 
 		if (monitorType.getMetaMonitor().hasPresentParameter()) {
-			collectParameter(PresentParam.present());
+			collectParameter(DiscreteParam.present());
 		}
 	}
 
@@ -200,16 +200,17 @@ public class Monitor {
 	 * @param conditions The conditions used to check abnormality
 	 * @return {@link AssertedParameter} instance, never null but internal parameter can be null
 	 */
-	public AssertedParameter<PresentParam> assertPresentParameter(final Set<AlertCondition> conditions) {
+	public AssertedParameter<DiscreteParam> assertPresentParameter(final Set<AlertCondition> conditions) {
 		if (!monitorType.getMetaMonitor().hasPresentParameter()) {
-			return AssertedParameter.<PresentParam>builder().abnormal(false).build();
+			return AssertedParameter.<DiscreteParam>builder().abnormal(false).build();
 		}
 
-		final PresentParam presentParam = getParameter(PRESENT_PARAMETER, PresentParam.class);
-		final Integer present = presentParam != null ? presentParam.getPresent() : null;
-		final Double presentValue = present != null ? presentParam.getPresent().doubleValue() : null;
+		final DiscreteParam presentParam = getParameter(PRESENT_PARAMETER, DiscreteParam.class);
+		final IState present = presentParam != null ? presentParam.getState() : null;
+		final Double presentValue = present != null ? (double) present.getNumericValue() : null;
 
-		return AssertedParameter.<PresentParam>builder()
+		return AssertedParameter
+				.<DiscreteParam>builder()
 				.parameter(presentParam)
 				.abnormal(allConditionsMatched(conditions, presentValue))
 				.build();
@@ -228,10 +229,10 @@ public class Monitor {
 			return false;
 		}
 
-		final PresentParam presentParam = getParameter(PRESENT_PARAMETER, PresentParam.class);
-		final Integer present = presentParam != null ? presentParam.getPresent() : null;
+		final DiscreteParam presentParam = getParameter(PRESENT_PARAMETER, DiscreteParam.class);
+		final IState present = presentParam != null ? presentParam.getState() : null;
 
-		return present != null && present == 0;
+		return Present.MISSING.equals(present);
 	}
 
 	/**
@@ -241,12 +242,13 @@ public class Monitor {
 	 * @param conditions    The conditions used to check abnormality
 	 * @return {@link AssertedParameter} instance, never null but internal parameter can be null
 	 */
-	public AssertedParameter<StatusParam> assertStatusParameter(final String parameterName, final Set<AlertCondition> conditions) {
-		final StatusParam status = getParameter(parameterName, StatusParam.class);
-		final ParameterState state = status != null ? status.getState() : null;
-		final Double statusValue = state != null ? (double) state.ordinal() : null;
+	public AssertedParameter<DiscreteParam> assertStatusParameter(final String parameterName, final Set<AlertCondition> conditions) {
+		final DiscreteParam status = getParameter(parameterName, DiscreteParam.class);
+		final IState state = status != null ? status.getState() : null;
+		final Double statusValue = state != null ? (double) state.getNumericValue() : null;
 
-		return AssertedParameter.<StatusParam>builder()
+		return AssertedParameter
+				.<DiscreteParam>builder()
 				.parameter(status)
 				.abnormal(allConditionsMatched(conditions, statusValue))
 				.build();
@@ -264,7 +266,8 @@ public class Monitor {
 					.allMatch(condition -> condition
 						.getOperator()
 						.getFunction()
-						.apply(value, condition.getThreshold()));
+						.apply(value, condition.getThreshold())
+					);
 	}
 
 	/**
@@ -277,7 +280,8 @@ public class Monitor {
 	public AssertedParameter<NumberParam> assertNumberParameter(final String parameterName, final Set<AlertCondition> conditions) {
 		final NumberParam parameter = getParameter(parameterName, NumberParam.class);
 		final Double value = parameter != null ? parameter.getValue() : null;
-		return AssertedParameter.<NumberParam>builder()
+		return AssertedParameter
+				.<NumberParam>builder()
 				.parameter(parameter)
 				.abnormal(allConditionsMatched(conditions, value))
 				.build();
@@ -285,7 +289,7 @@ public class Monitor {
 
 	@Data
 	@Builder
-	public static class AssertedParameter<T extends IParameterValue> {
+	public static class AssertedParameter<T extends IParameter> {
 		private T parameter;
 		private boolean abnormal;
 	}

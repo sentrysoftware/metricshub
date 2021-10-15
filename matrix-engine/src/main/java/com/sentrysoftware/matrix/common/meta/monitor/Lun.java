@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,9 +15,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ARRAY_NAME;
@@ -44,13 +44,13 @@ public class Lun implements IMetaMonitor {
 			.basicCollect(true)
 			.name(AVAILABLE_PATH_COUNT_PARAMETER)
 			.unit(PATHS_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter AVAILABLE_PATH_INFORMATION = MetaParameter.builder()
 			.basicCollect(true)
 			.name(AVAILABLE_PATH_INFORMATION_PARAMETER)
-			.type(ParameterType.TEXT)
+			.type(SimpleParamType.TEXT)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, LOCAL_DEVICE_NAME, REMOTE_DEVICE_NAME, ARRAY_NAME, WWN,
@@ -58,13 +58,13 @@ public class Lun implements IMetaMonitor {
 
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Lun::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Lun::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule AVAILABLE_PATH_COUNT_ALERT_RULE = new AlertRule(Lun::checkAvailablePathCountCondition, 
 			AVAILABLE_PATH_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -94,11 +94,11 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("Although still working and available, this LUN is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("Although still working and available, this LUN is degraded." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("The performance of the system may be affected and redundancy could be lost.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_LUN)
 					.build();
@@ -115,10 +115,10 @@ public class Lun implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "This LUN is in critical state." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter());
+			String problem = "This LUN is in critical state." +  IMetaMonitor.getStatusInformationMessage(monitor);
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence("One or more filesystems are no longer available (possible data loss).")

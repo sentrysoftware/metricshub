@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -15,10 +15,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
@@ -42,33 +41,33 @@ public class OtherDevice implements IMetaMonitor {
 			.basicCollect(true)
 			.name(USAGE_COUNT_PARAMETER)
 			.unit(USAGE_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter VALUE = MetaParameter.builder()
 			.basicCollect(true)
 			.name(VALUE_PARAMETER)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter POWER_CONSUMPTION = MetaParameter.builder()
 			.basicCollect(true)
 			.name(POWER_CONSUMPTION_PARAMETER)
 			.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, DEVICE_TYPE, IDENTIFYING_INFORMATION);
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(OtherDevice::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(OtherDevice::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(OtherDevice::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -100,7 +99,7 @@ public class OtherDevice implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -121,11 +120,11 @@ public class OtherDevice implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This device is degraded." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This device is degraded." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence(UNKNOWN)
 					.recommendedAction(UNKNOWN)
 					.build();
@@ -226,11 +225,11 @@ public class OtherDevice implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This device has failed." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This device has failed." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence(UNKNOWN)
 					.recommendedAction(UNKNOWN)
 					.build();

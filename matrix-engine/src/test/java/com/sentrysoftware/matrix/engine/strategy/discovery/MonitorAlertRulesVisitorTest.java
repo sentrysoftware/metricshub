@@ -35,8 +35,8 @@ import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 class MonitorAlertRulesVisitorTest {
 
@@ -69,8 +69,8 @@ class MonitorAlertRulesVisitorTest {
 				.lte(0D)
 				.build();
 
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
 	}
 
@@ -90,8 +90,8 @@ class MonitorAlertRulesVisitorTest {
 				.lte(5D)
 				.build();
 
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
 	}
 
@@ -111,8 +111,8 @@ class MonitorAlertRulesVisitorTest {
 				.lte(5D)
 				.build();
 
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
 	}
 
@@ -133,8 +133,8 @@ class MonitorAlertRulesVisitorTest {
 				.build();
 
 
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, SPEED_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
 	}
 
@@ -173,8 +173,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(60D)
 				.build();
 
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -201,8 +201,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(60D)
 				.build();
 
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -226,7 +226,7 @@ class MonitorAlertRulesVisitorTest {
 				.gte(40D)
 				.build();
 
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertEquals(1, alertRulesMap.get(TEMPERATURE_PARAMETER).size());
 	}
 
@@ -251,7 +251,7 @@ class MonitorAlertRulesVisitorTest {
 				.gte(40D)
 				.build();
 
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, ParameterState.ALARM, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
 		assertEquals(1, alertRulesMap.get(TEMPERATURE_PARAMETER).size());
 	}
 
@@ -292,8 +292,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(1000D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -314,8 +314,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(1000D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -336,8 +336,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(1100D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -358,8 +358,8 @@ class MonitorAlertRulesVisitorTest {
 				.lte(-55D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -382,8 +382,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(0D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -406,8 +406,8 @@ class MonitorAlertRulesVisitorTest {
 				.lte(0D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -443,8 +443,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(200D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -467,8 +467,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(200D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -491,8 +491,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(100D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -515,8 +515,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(99D)
 				.build();
 
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(alertRulesMap, VALUE_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -544,7 +544,7 @@ class MonitorAlertRulesVisitorTest {
 	 * @param expectedType
 	 */
 	private void assertAlertRule(final Map<String, List<AlertRule>> actualAlertRules, final String parameterName,
-			final ParameterState expectedSeverity, final Set<AlertCondition> expectedConditions, final AlertRuleType expectedType) {
+			final Severity expectedSeverity, final Set<AlertCondition> expectedConditions, final AlertRuleType expectedType) {
 		final AlertRule alertRule = actualAlertRules.get(parameterName)
 				.stream()
 				.filter(rule -> expectedSeverity.equals(rule.getSeverity())
@@ -583,7 +583,7 @@ class MonitorAlertRulesVisitorTest {
 				.gte(2D)
 				.build();
 
-		assertAlertRule(monitor.getAlertRules(), AVAILABLE_PATH_COUNT_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), AVAILABLE_PATH_COUNT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -649,8 +649,8 @@ class MonitorAlertRulesVisitorTest {
 				.gte(30D)
 				.build();
 
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 
 	@Test
@@ -670,7 +670,7 @@ class MonitorAlertRulesVisitorTest {
 				.gte(90D)
 				.build();
 
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, ParameterState.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, ParameterState.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 	}
 }

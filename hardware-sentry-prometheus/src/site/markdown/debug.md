@@ -3,7 +3,7 @@ description: How to enable the debug mode on Hardware Sentry Exporter for Promet
 
 # Enabling the debug mode
 
-To enable the debug mode, edit the `hardware-sentry-config.yml` file and add the `loggerLevel` parameter just before the `targets` section:
+To enable the debug mode, edit the `hws-config.yaml` file and add the `loggerLevel` parameter just before the `targets` section:
 
 ```
 loggerLevel: debug
@@ -17,7 +17,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
@@ -27,7 +26,7 @@ By default, the debug output file is saved in the `hardware-logs` directory unde
 * `C:\Users\<username>\AppData\Local\Temp\hardware-logs` on Windows
 * `/tmp/hardware-logs` on Linux.
 
-If you want to specify another output directory, edit the `hardware-sentry-config.yml` file and add the `outputDirectory` parameter just before the `targets` section:
+If you want to specify another output directory, edit the `hws-config.yaml` file and add the `outputDirectory` parameter just before the `targets` section:
 
 ```
 loggerLevel: debug
@@ -42,5 +41,4 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```

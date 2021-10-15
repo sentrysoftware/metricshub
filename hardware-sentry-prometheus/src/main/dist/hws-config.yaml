@@ -1,0 +1,89 @@
+targets:
+
+#  - target:
+#      hostname: carnap-imm
+#      type: oob
+#    ipmi:
+#      username: username
+#      password: password
+#      timeout: 120s
+
+#  - target:
+#      hostname: pc21
+#      type: win
+#    wmi:
+#      timeout: 120s
+
+#  - target:
+#      hostname: ecs1-01
+#      type: linux
+#    snmp:
+#      version: v1
+#      community: public
+#      port: 161
+#      timeout: 120s
+#    excludedConnectors: [ SunF15K, HPiLO ]
+
+#  - target:
+#      hostname: fermat-oa
+#      type: oob
+#    snmp:
+#      version: v2c
+#      community: public
+#      port: 161
+#      timeout: 120s
+#    excludedConnectors: [ SunF15K, HPiLO ]
+
+#  - target:
+#      hostname: dev-hv-01
+#      type: storage
+#    wbem:
+#      protocol: https
+#      port: 5989
+#      timeout: 120s
+#      username: admin
+#      password: password
+#    excludedConnectors: [ SunF15K, HPiLO ]
+
+#  - target:
+#      hostname: idrac-dell-ceph
+#      type: oob
+#    snmp:
+#      version: v2c
+#      community: public
+#      port: 161
+#      timeout: 120s
+#    excludedConnectors: [ SunF15K, HPiLO ]
+
+#  - target:
+#      hostname: purem-san
+#      type: STORAGE
+#    http:
+#      https: true
+#      port: 443
+#      username: username
+#      password: password
+#    excludedConnectors: [ SunF15K ]
+#    selectedConnectors:
+#    - PureStorageREST
+
+#  - target:
+#      hostname: centos-host-01
+#      type: linux
+#    ssh:
+#      timeout: 120
+#      useSudo: true
+#      useSudoCommands: [ isi, isi_for_array ]
+#      sudoCommand: sudo
+#      username: myusername
+#      password: mypwd
+#      privateKey: /tmp/ssh-key.txt
+
+#  - target:
+#      hostname: centos-host-02
+#      type: linux
+#    osCommand:
+#      timeout: 120
+#      useSudo: true
+#      useSudoCommands: [ ]
+#      sudoCommand: sudo

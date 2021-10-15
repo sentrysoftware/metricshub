@@ -1,5 +1,12 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -7,37 +14,30 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 
 public class MetaConnector implements IMetaMonitor {
 
 	public static final MetaParameter TEST_REPORT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(TEST_REPORT_PARAMETER)
-			.type(ParameterType.TEXT)
+			.type(SimpleParamType.TEXT)
 			.build();
 
 	private static final List<String> METADATA = List.of(DISPLAY_NAME, COMPILED_FILE_NAME, DESCRIPTION);
 
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(MetaConnector::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -65,11 +65,11 @@ public class MetaConnector implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem("This connector is no longer working." +  IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This connector is no longer working." +  IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("All of the components that were monitored through this connector will no longer be monitored.")
 					.recommendedAction("Check the TestReport parameter of this connector. It will help understand why this connector is no longer working.")
 					.build();

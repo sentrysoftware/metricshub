@@ -4,10 +4,10 @@
 
    ### Requirements
 
-   - Have the **hardware-sentry-config.yml** file
+   - Have the **hws-config.yaml** file
      in the directory from which you run **hardware-sentry-exporter-_\<version\>_.jar** file.<br>
-   
-     ###### Example hardware-sentry-config.yml file content:
+
+     ###### Example hws-config.yaml file content:
      ```yaml
       ---
       jobPoolSize: 30
@@ -36,7 +36,6 @@
             port: 161
             timeout: 120s
           excludedConnectors: [ SunF15K, HPiLO ]
-          unknownStatus: 1
      ```
 
    ### Execution
@@ -48,50 +47,50 @@
 
    ###### Example:
    ![basic_execution](images/basic_execution.png)
-   
+
    ###### Note:
    By default, the application can be accessed at http://localhost:8080/metrics.
 
   ## Using a custom YAML configuration file
-  If you wish to specify another file instead of **hardware-sentry-config.yml**,
+  If you wish to specify another file instead of **hws-config.yaml**,
   you can use the _--target.config.file_ option
   with the relative or absolute path to the custom configuration YAML file:
-  
+
   ```shell script
-  $ java -jar hardware-sentry-exporter-<version>.jar --target.config.file=../custom-config.yml
+  $ java -jar hardware-sentry-exporter-<version>.jar --target.config.file=../custom-config.yaml
   ```
 
   ## Using a different HTTP port
   If you wish to specify another port instead of _8080_,
   you can use the _--server.port_ option with the preferred port:
-  
+
   ```shell script
   $ java -jar hardware-sentry-exporter-<version>.jar --server.port=8081
   ```
 
   ## Enabling HTTPS
   Enabling HTTPS can be done by using the _--server.ssl.enabled_ option:
-  
+
   ```shell script
   $ java -jar hardware-sentry-exporter-<version>.jar --server.ssl.enabled=true
   ```
    ###### Example:
    ![enabling_https](images/enabling_https.png)
-   
+
    ###### Note:
    Now, the application can be accessed at http://localhost:8080/metrics, or https://localhost:8443/metrics.
 
   ## Using a different HTTP port when HTTPS is enabled
   When HTTPS is enabled, if you wish to specify another HTTP port instead of _8080_,
   you can use the _--http.port_ option with the preferred port:
-  
+
   ```shell script
   $ java -jar hardware-sentry-exporter-<version>.jar --server.ssl.enabled=true --http.port=8081
   ```
   ## Using a different HTTPS port when HTTPS is enabled
   When HTTPS is enabled, if you wish to specify another HTTPS port instead of _8443_,
   you can use the _--server.port_ option with the preferred port:
-  
+
   ```shell script
   $ java -jar hardware-sentry-exporter-<version>.jar --server.ssl.enabled=true --server.port=8444
   ```
@@ -100,15 +99,15 @@
 
   ## Redirecting the HTTP port to the HTTPS port
   Redirecting the HTTP port to the HTTPS port can be done by using the _--server.ssl.redirect-http_ option:
-  
+
   ```shell script
   $ java -jar hardware-sentry-exporter-<version>.jar --server.ssl.enabled=true --server.ssl.redirect-http=true
   ```
 
   ## Enabling the debug mode
-  To enable the debug mode, configure the global option `loggerLevel` in the `hardware-sentry-config.yml` file. Since the exporter relies on log4j2,
+  To enable the debug mode, configure the global option `loggerLevel` in the `hws-config.yaml` file. Since the exporter relies on log4j2,
   the accepted levels are: `ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF`
-  
+
  ```yaml
       ---
       loggerLevel: debug
@@ -117,7 +116,7 @@
 
   By default, the debug output file goes to the `hardware-logs` directory under the temporary directory of the local machine. Example:  `C:\Users\<username>\AppData\Local\Temp\hardware-logs` on Windows or `/tmp/hardware-logs` on Linux.
 
-  If you want to specify another output directory, set the global option `outputDirectory` in the `hardware-sentry-config.yml` file
+  If you want to specify another output directory, set the global option `outputDirectory` in the `hws-config.yaml` file
 
  ```yaml
       ---
@@ -125,14 +124,14 @@
       outputDirectory: C:\\Users\\nassim\\AppData\\Local\\Temp\\hardware-logs2
       targets:
   ```
-  
+
   ## Build Docker Image
   ### Prerequisites
   - *Git* to checkout the code.
   - *Java 11* to compile the code.
   - *Maven* to build the project.
   - *Docker Engine* to build and run the container.
-  
+
   Building the exporter as a docker image can be done via the following steps:
 
   - Build the Hardware Sentry Exporter for Prometheus
@@ -147,8 +146,8 @@
     ```
 
   ## Running Hardware Sentry Prometheus with Docker
-  After building the docker image, bind-mount your *hardware-sentry-config.yml* configuration from the host by running:
+  After building the docker image, bind-mount your *hws-config.yaml* configuration from the host by running:
 
   ```shell script
-  $ docker run -d -p 8080:8080 -v /path/to/hardware-sentry-config.yml:/hardware-sentry/hardware-sentry-config.yml hardware-sentry-exporter:latest
+  $ docker run -d -p 8080:8080 -v /path/to/hws-config.yaml:/hardware-sentry/hws-config.yaml hardware-sentry-exporter:latest
   ```

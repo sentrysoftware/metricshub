@@ -1,0 +1,15 @@
+dist:
+  module: github.com/open-telemetry/opentelemetry-collector-builder
+  description: "Hardware Sentry OpenTelemetry Collector distribution"
+  include_core: true
+  otelcol_version: "${otel.version}"
+  version: "${project.version} (Build ${buildNumber} on ${timestamp})"
+receivers:
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusexecreceiver v${otel.version}"
+processors:
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v${otel.version}"
+exporters:
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v${otel.version}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otel.version}"
+extensions:
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v${otel.version}"

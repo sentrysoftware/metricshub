@@ -29,11 +29,13 @@
 			<item name="Configuring" href="configure.html"/>
 			<item name="Operating" href="operate.html"/>
 			<item name="Viewing Metrics" href="metrics.html"/>
+			<item name="Using Alert Rules" href="alert-rules.html"/>
 		</menu>
 
 		<menu name="Integrating the Exporter">
 			<item name="Prometheus Server" href="configure-prometheus-server.html"/>
 			<item name="Grafana Dashboards" href="grafana.html"/>
+			<item name="BMC Helix" href="configure-helix-integration.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">

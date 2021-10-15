@@ -60,6 +60,6 @@ if [ ! -x "$JAVACMD" ] ; then
   exit 1
 fi
 
-HWS_JAR=`echo "${HWS_HOME}"/lib/${project.artifactId}-${project.version}.jar`
+HWS_JAR=`echo "$HWS_HOME"/lib/${project.artifactId}-${project.version}.jar`
 
 exec "$JAVACMD" $HWS_JAVA_OPTS -jar "${HWS_JAR}" "$@"

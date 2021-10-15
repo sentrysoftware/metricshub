@@ -96,10 +96,12 @@ class ConfigHelperTest {
 				target.setId(target.getHostname());
 			}
 
-			EngineConfiguration expected = EngineConfiguration.builder()
+			EngineConfiguration expected = EngineConfiguration
+					.builder()
 					.operationTimeout(hostConfigurationDTO.getOperationTimeout())
 					.protocolConfigurations(protocolConfigurations).selectedConnectors(selectedConnectors)
-					.target(target).unknownStatus(hostConfigurationDTO.getUnknownStatus()).build();
+					.target(target)
+					.build();
 
 			assertEquals(expected, actual);
 		}

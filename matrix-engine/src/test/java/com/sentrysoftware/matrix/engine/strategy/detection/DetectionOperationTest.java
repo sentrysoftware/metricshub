@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.detection;
 
 
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
@@ -20,8 +21,8 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -237,8 +238,7 @@ class DetectionOperationTest {
 		assertEquals(ECS1_01, connector1Mo.getTargetId());
 
 		assertNotNull(connector1Mo.getParameters().get(TEST_REPORT_PARAMETER));
-		assertEquals(ParameterState.OK,
-				((StatusParam) connector1Mo.getParameters().get(STATUS_PARAMETER)).getState());
+		assertEquals(Status.OK, connector1Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
 
 		Monitor connector2Mo = monitors.get(ECS1_01 + "@" + CONNECTOR2_ID);
 		assertEquals(ECS1_01, connector2Mo.getParentId());
@@ -247,8 +247,7 @@ class DetectionOperationTest {
 		assertEquals(ECS1_01, connector2Mo.getTargetId());
 
 		assertNotNull(connector2Mo.getParameters().get(TEST_REPORT_PARAMETER));
-		assertEquals(ParameterState.ALARM,
-				((StatusParam) connector2Mo.getParameters().get(STATUS_PARAMETER)).getState());
+		assertEquals(Status.FAILED, connector2Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
 	}
 
 	@Test

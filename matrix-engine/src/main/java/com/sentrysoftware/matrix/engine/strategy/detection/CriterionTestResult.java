@@ -30,7 +30,7 @@ public class CriterionTestResult {
 	 * @return a new {@link CriterionTestresult} instance
 	 */
 	public static CriterionTestResult failure(Criterion criterion, String result) {
-		final String message = String.format(
+		final String message = String.format( //NOSONAR
 				"%s test ran but failed:\n%s\n\nActual result:\n%s",
 				criterion.getClass().getSimpleName(),
 				criterion.toString(),
@@ -53,7 +53,7 @@ public class CriterionTestResult {
 		if (criterion == null) {
 			message = "Error with a <null> Criterion: " + reason;
 		} else {
-			message = String.format(
+			message = String.format( //NOSONAR
 					"Error in %s test:\n%s\n\n%s",
 					criterion.getClass().getSimpleName(),
 					criterion.toString(),
@@ -108,7 +108,7 @@ public class CriterionTestResult {
 	 * @return a new {@link CriterionTestResult} instance
 	 */
 	public static CriterionTestResult success(Criterion criterion, String result) {
-		final String message = String.format(
+		final String message = String.format( //NOSONAR
 				"%s test succeeded:\n%s\n\nResult: %s",
 				criterion.getClass().getSimpleName(),
 				criterion.toString(),

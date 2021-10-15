@@ -50,7 +50,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Tran
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
 
 class ComputeVisitorTest {
 
@@ -1307,6 +1306,24 @@ class ComputeVisitorTest {
 				Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
 				Arrays.asList("ID3", "v3", "vafval1", "val23f2")),
 				sourceTable.getTable());
+
+		replace.setReplace("Column(3)");
+		replace.setReplaceBy("v1v2");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "v1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")),
+				sourceTable.getTable());
+
+		replace.setReplace("Column(2)");
+		replace.setReplaceBy("Column(1)");
+		computeVisitor.visit(replace);
+		assertEquals(Arrays.asList(
+				Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")),
+				sourceTable.getTable());
 	}
 
 	@Test
@@ -1854,12 +1871,12 @@ class ComputeVisitorTest {
 
 	@Test
 	void testGetWorstStatus() {
-		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN"}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "OK", "ALARM"}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN", "ALARM"}));
-		assertEquals(ParameterState.OK.name(), ComputeVisitor.getWorstStatus(new String[] {"ok", "", ""}));
-		assertEquals(ParameterState.WARN.name(), ComputeVisitor.getWorstStatus(new String[] {"warn", "", ""}));
-		assertEquals(ParameterState.ALARM.name(), ComputeVisitor.getWorstStatus(new String[] {"alarm", "", ""}));
+		assertEquals("WARN", ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN"}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"OK", "OK", "ALARM"}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"OK", "WARN", "ALARM"}));
+		assertEquals("OK", ComputeVisitor.getWorstStatus(new String[] {"ok", "", ""}));
+		assertEquals("WARN", ComputeVisitor.getWorstStatus(new String[] {"warn", "", ""}));
+		assertEquals("ALARM", ComputeVisitor.getWorstStatus(new String[] {"alarm", "", ""}));
 		assertEquals("UNKNOWN", ComputeVisitor.getWorstStatus(new String[] {"STATE", "", ""}));
 	}
 
@@ -2361,5 +2378,42 @@ class ComputeVisitorTest {
 		resultTable = computeVisitor.getSourceTable().getTable();
 		assertEquals(1, resultTable.size());
 		assertEquals(line4, resultTable.get(0));
+
+		// check regex ignoreCase
+		line1 = Arrays.asList("A", "temperature", "motherboard");
+		line2 = Arrays.asList("A", "Fan", "fan3");
+		line3 = Arrays.asList("B", "temperature", "bp-temp2   ");
+		line4 = Arrays.asList("B", "fan", "fan2");
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines
+				.builder()
+				.column(2)
+				.regExp("fan")
+				.build();
+		computeVisitor.visit(keepOnlyMatchingLines);
+		List<List<String>> expectedTableResult =  Arrays.asList(line2, line4);
+		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
+
+		// check valueList ignoreCase
+		table = Arrays.asList(line1, line2, line3, line4);
+		computeVisitor.setSourceTable(
+				SourceTable
+						.builder()
+						.table(table)
+						.build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines
+				.builder()
+				.column(2)
+				.valueList(Arrays.asList("Fan"))
+				.build();
+		computeVisitor.visit(keepOnlyMatchingLines);
+		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
+
 	}
 }

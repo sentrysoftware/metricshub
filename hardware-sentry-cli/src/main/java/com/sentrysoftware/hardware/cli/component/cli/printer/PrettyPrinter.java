@@ -11,12 +11,13 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 public class PrettyPrinter {
@@ -181,7 +182,7 @@ public class PrettyPrinter {
 				.stream()
 				.sorted((e1, e2) -> e1.getKey().compareToIgnoreCase(e2.getKey()))
 				.map(Map.Entry::getValue)
-				.filter(param -> param.getClass() != TextParam.class && param.getClass() != PresentParam.class)
+				.filter(param -> param.getClass() != TextParam.class)
 				.filter(param -> param.numberValue() != null)
 				.forEachOrdered(param -> {
 					margin(indentation);
@@ -198,17 +199,23 @@ public class PrettyPrinter {
 								.reset()
 								.toString()
 						);
-					} else if (param instanceof StatusParam) {
+					} else if (param instanceof DiscreteParam) {
 						out.print(String.format(paramNameFormat, param.getName()));
-						switch (((StatusParam) param).getState()) {
-						case OK:
-							out.println(Ansi.ansi().bold().fgBrightGreen().a(String.format("%10s", "OK")).reset().toString());
+						final IState state = ((DiscreteParam) param).getState();
+						if (state == null) {
+							return;
+						}
+						final Severity severity = state.getSeverity();
+
+						switch (severity) {
+						case INFO:
+							out.println(Ansi.ansi().bold().fgBrightGreen().a(String.format("%10s", state.getDisplayName())).reset().toString());
 							break;
 						case WARN:
-							out.println(Ansi.ansi().bold().fgYellow().a(String.format("%10s", "WARN")).reset().toString());
+							out.println(Ansi.ansi().bold().fgYellow().a(String.format("%10s", state.getDisplayName())).reset().toString());
 							break;
 						case ALARM:
-							out.println(Ansi.ansi().bold().fgRed().a(String.format("%10s", "ALARM")).reset().toString());
+							out.println(Ansi.ansi().bold().fgRed().a(String.format("%10s", state.getDisplayName())).reset().toString());
 							break;
 						default:
 							out.println(Ansi.ansi().a(Attribute.INTENSITY_FAINT).a(String.format("%10s", "Unknown")).reset().toString());

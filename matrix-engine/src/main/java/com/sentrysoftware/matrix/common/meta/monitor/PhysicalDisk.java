@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
-import com.sentrysoftware.matrix.common.meta.parameter.ParameterType;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
@@ -39,10 +39,9 @@ import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import com.sentrysoftware.matrix.model.parameter.ParameterState;
-import com.sentrysoftware.matrix.model.parameter.PresentParam;
-import com.sentrysoftware.matrix.model.parameter.StatusParam;
+import com.sentrysoftware.matrix.model.alert.Severity;
 
 public class PhysicalDisk implements IMetaMonitor {
 
@@ -50,14 +49,14 @@ public class PhysicalDisk implements IMetaMonitor {
 			.basicCollect(false)
 			.name(ENDURANCE_REMAINING_PARAMETER)
 			.unit(PERCENT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	public static final MetaParameter ERROR_COUNT= MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_COUNT_PARAMETER)
 			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(ParameterType.NUMBER)
+			.type(SimpleParamType.NUMBER)
 			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, SERIAL_NUMBER, VENDOR, MODEL, FIRMWARE_VERSION, SIZE,
@@ -65,26 +64,26 @@ public class PhysicalDisk implements IMetaMonitor {
 
 	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(PhysicalDisk::checkMissingCondition,
 			PRESENT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(PhysicalDisk::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(PhysicalDisk::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule((monitor, conditions) ->
 			checkErrorCountCondition(monitor, ERROR_COUNT_PARAMETER, conditions),
 			ERROR_COUNT_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(PhysicalDisk::checkPredictedFailureCondition,
 			STATUS_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule ENDURANCE_REMAINING_WARN_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingWarnCondition,
 			ENDURANCE_REMAINING_WARN_CONDITION,
-			ParameterState.WARN);
+			Severity.WARN);
 	public static final AlertRule ENDURANCE_REMAINING_ALARM_ALERT_RULE = new AlertRule(PhysicalDisk::checkEnduranceRemainingAlarmCondition,
 			ENDURANCE_REMAINING_ALARM_CONDITION,
-			ParameterState.ALARM);
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -123,7 +122,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<PresentParam> assertedPresent = monitor.assertPresentParameter(conditions);
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
 		if (assertedPresent.isAbnormal()) {
 
 			return AlertDetails.builder()
@@ -144,13 +143,13 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			final String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
 					.problem("Although still working and available, this physical disk is degraded or about to fail."
-							+ IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+							+ IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("If degraded, the performance of the system may be affected. If about to fail, the disk may crash soon, possibly causing a loss of data.")
 					.recommendedAction(buildRecommendedActionString("You may need to replace this physical disk.", serialNumber))
 					.build();
@@ -167,12 +166,12 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		final AssertedParameter<StatusParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(STATUS_PARAMETER, conditions);
 		if (assertedStatus.isAbnormal()) {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem("This physical disk is in critical/unrecoverable state." + IMetaMonitor.getStatusInformationMessage(assertedStatus.getParameter()))
+					.problem("This physical disk is in critical/unrecoverable state." + IMetaMonitor.getStatusInformationMessage(monitor))
 					.consequence("If part of a RAID subsystem, a missing disk affects the performance but filesystems should still be up and running. Otherwise, the filesystems of this disk are no longer available (data loss).")
 					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible.", serialNumber))
 					.build();
@@ -235,7 +234,7 @@ public class PhysicalDisk implements IMetaMonitor {
 	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
 	 */
 	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, Set<AlertCondition> conditions) {
-		AssertedParameter<StatusParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
+		AssertedParameter<DiscreteParam> assertedPredictedFailure = monitor.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
 		if (assertedPredictedFailure.isAbnormal()) {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
