@@ -5,8 +5,8 @@ description: How to import and configure Hardware Sentry Exporter for Prometheus
 
 Before you can start configuring and using **${project.name}** dashboards, you must have:
 
-1. configure [Hardware Sentry Exporter for Prometheus](./configure.html).
-2. configure the [Prometheus server](./configure-prometheus-server.html)
+1. configured [Hardware Sentry Exporter for Prometheus](./configure.html).
+2. configured the [Prometheus server](./configure-prometheus-server.html)
 3. run both **Hardware Sentry Exporter for Prometheus** and the **Prometheus server**.
 
 ## Loading Dashboards in Grafana
@@ -61,7 +61,7 @@ Example:
 
     ```
 
-<div class="alert alert-warning"> The path should to the folder containing the <i>sustainable_IT_by_sentry_software</i> folder. This folder should only contain dashboards for Grafana.</div> 
+<div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT_by_sentry_software</i> folder. This folder should only contain dashboards for Grafana.</div> 
 
 ## Configuring the Data Source
 
