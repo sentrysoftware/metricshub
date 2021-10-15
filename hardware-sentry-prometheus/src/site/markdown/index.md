@@ -9,4 +9,4 @@ description: Hardware Sentry Exporter for Prometheus collects health and perform
 
 Once installed and configured, **${project.name}** collects metrics from the monitored servers and storage devices using different protocols (HTTP, SSH, SNMP, OS Commands, WBEM, WMI, etc.) and exposes them in a format Prometheus understands.
 
-Any platform that includes built-in support for Prometheus (Grafana, BMC Helix Operations Management, DataDog, Splunk, etc.) can leverage the information collected by **${project.name}**. As an integration example, Sentry Software provides <a href="https:www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sustainable IT dashboards</a> for Grafana.
+Any platform that includes built-in support for Prometheus (Grafana, BMC Helix Operations Management, DataDog, Splunk, etc.) can leverage the information collected by **${project.name}**. As an integration example, Sentry Software provides <a href="https://www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sustainable IT dashboards</a> for Grafana.
