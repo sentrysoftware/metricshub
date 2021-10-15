@@ -46,7 +46,7 @@ public class TaskSchedulingService {
 	@Autowired
 	private MultiHostsConfigurationDTO multiHostsConfigurationDto;
 
-	@Autowired 
+	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@Autowired
@@ -84,7 +84,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Get the Log4j log level from the configured logLevel string
-	 * 
+	 *
 	 * @param loggerLevel string value from the configuration (e.g. off, debug, info, warn, error, trace, all)
 	 * @return log4j {@link Level} instance
 	 */
@@ -102,8 +102,8 @@ public class TaskSchedulingService {
 	 * <li>Cancel the scheduling of the obsolete targets</li>
 	 * <li>Schedule the new targets</li>
 	 * </ol>
-	 * 
-	 * @param targetConfigFile the target configuration file (YAML file: hardware-sentry-config.yml)
+	 *
+	 * @param targetConfigFile the target configuration file (YAML file: hws-config.yaml)
 	 */
 	void updateConfiguration(final File targetConfigFile) {
 
@@ -158,7 +158,7 @@ public class TaskSchedulingService {
 		// Now reschedule the new targets
 
 		// First create new HostMonitoring instances for the new targets
-		newTargets.forEach(newTarget -> 
+		newTargets.forEach(newTarget ->
 			ConfigHelper.fillHostMonitoringMap(
 					hostMonitoringMap,
 					ConnectorStore.getInstance().getConnectors().keySet(),
@@ -174,7 +174,7 @@ public class TaskSchedulingService {
 		if (newMultiHostsConfigurationDto.getJobPoolSize() != multiHostsConfigurationDto.getJobPoolSize()) {
 			multiHostsConfigurationDto.setJobPoolSize(newMultiHostsConfigurationDto.getJobPoolSize());
 
-			// The scheduler job pool size can be increased or decreased dynamically 
+			// The scheduler job pool size can be increased or decreased dynamically
 			targetTaskScheduler.setPoolSize(multiHostsConfigurationDto.getJobPoolSize());
 		}
 
@@ -184,7 +184,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Schedule a task for the given {@link HostConfigurationDTO}
-	 * 
+	 *
 	 * @param hostConfigDto The user's host configuration
 	 */
 	void scheduleTargetTask(final HostConfigurationDTO hostConfigDto) {
@@ -221,7 +221,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Remove a specific scheduled task
-	 * 
+	 *
 	 * @param targetId unique identifier of the target
 	 */
 	void removeScheduledTask(String targetId) {

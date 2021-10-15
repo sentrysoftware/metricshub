@@ -10,6 +10,25 @@
 	<baseDirectory>hws-exporter</baseDirectory>
 
 	<files>
+		<!-- Our shell script -->
+		<file>
+			<source>src/main/shell/bin/hws-exporter</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>unix</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our Windows script -->
+		<file>
+			<source>src/main/shell/bin/hws-exporter.cmd</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our JAR -->
 		<file>
 			<source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
 			<outputDirectory>lib</outputDirectory>

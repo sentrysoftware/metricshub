@@ -11,13 +11,13 @@ To collect metrics from your targets, you need to provide the following informat
 - its type
 - the protocol to be used.
 
-This information must be provided in a `hardware-sentry-config.yml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.description}.
+This information must be provided in a `hws-config.yaml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.name}.
 
 The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
 
 ## Specifying the target to be monitored
 
-Copy the following lines in the `hardware-sentry-config.yml` file:
+Copy the following lines in the `hws-config.yaml` file:
 
 ```
 targets:
@@ -287,7 +287,7 @@ On rare occasions, **${project.name}** may collect an unexpected value from a me
 - **0** to expose the value **0 (OK)**
 - **1** to expose the value **1 (WARN)**
 - **2** to expose the value **2 (ALARM)**
-- **""** (empty) not to expose the metric. 
+- **""** (empty) not to expose the metric.
 
 Default is **1** as shown below:
 
@@ -313,7 +313,7 @@ By default, **${project.name}** collects metrics from the monitored targets ever
 * for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
 ```
-collectPeriod: 2m 
+collectPeriod: 2m
 targets:
 - target:
     hostname: myhost
@@ -342,7 +342,7 @@ targets:
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
   unknownStatus: 1
-  collectPeriod: 2m 
+  collectPeriod: 2m
 ```
 
 and indicate a value in minutes.
@@ -386,7 +386,7 @@ targets:
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
   unknownStatus: 1
-  discoveryCycle: 15 
+  discoveryCycle: 15
 ```
 
 and indicate the number of collects after which a discovery will be performed.

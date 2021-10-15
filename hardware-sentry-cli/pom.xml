@@ -217,7 +217,7 @@
 	<reporting>
 		<plugins>
 
-			<!-- Disable the projec-info-report plugin -->
+			<!-- Disable the project-info-report plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>

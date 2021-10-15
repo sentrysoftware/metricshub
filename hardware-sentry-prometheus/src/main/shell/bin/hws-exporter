@@ -12,17 +12,17 @@
 # under the License.
 
 # -----------------------------------------------------------------------------
-# Hardware Sentry CLI Startup Script
+# Hardware Sentry Prometheus Exporter Startup Script
 #
 # Environment Variable Prerequisites
 #
 #   JAVA_HOME       Must point at a Java Runtime Environment, version 11 or
 #                   greater.
 #   HWS_JAVA_OPTS   (Optional) Java runtime options used when Hardware Sentry
-#                   CLI is executed.
+#                   Prometheus Exporter is executed.
 # -----------------------------------------------------------------------------
 
-# Resolve links - $0 may be a link to Hardware Sentry CLI's home
+# Resolve links - $0 may be a link to Hardware Sentry Prometheus Exporter's home
 PRG="$0"
 
 # Need this for relative symlinks
