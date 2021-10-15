@@ -17,7 +17,6 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
@@ -42,5 +41,4 @@ targets:
     port: 161
     timeout: 120s
   excludedConnectors: [ SunF15K, HPiLO ]
-  unknownStatus: 1
 ```

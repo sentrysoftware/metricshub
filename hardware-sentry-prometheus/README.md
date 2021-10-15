@@ -36,7 +36,6 @@
             port: 161
             timeout: 120s
           excludedConnectors: [ SunF15K, HPiLO ]
-          unknownStatus: 1
      ```
 
    ### Execution
