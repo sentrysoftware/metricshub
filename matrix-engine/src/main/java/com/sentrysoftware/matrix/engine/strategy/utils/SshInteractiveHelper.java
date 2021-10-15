@@ -51,7 +51,6 @@ public class SshInteractiveHelper {
 		}
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
-		state(hostname != null, "hostname musn't be null.");
 
 		final int timeout = sshProtocol.getTimeout() != null ?
 				sshProtocol.getTimeout().intValue() :
@@ -73,7 +72,7 @@ public class SshInteractiveHelper {
 					continue;
 				}
 
-				final ICriterionSshInteractiveStepVisitor visitor = new CriterionSshInteractiveStepVisitor(
+				final ISshInteractiveStepVisitor visitor = new SshInteractiveStepVisitor(
 						sshClient,
 						hostname,
 						sshProtocol,

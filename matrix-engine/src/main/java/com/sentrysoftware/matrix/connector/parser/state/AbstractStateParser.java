@@ -801,9 +801,7 @@ public abstract class AbstractStateParser implements IConnectorStateParser {
 		final int sourceIndex = getSourceIndex(matcher);
 
 		final Source source = getSource(hardwareMonitor, monitorJobName, sourceIndex, true);
-		state(
-				source != null && source instanceof SshInteractiveSource,
-				"No SshInteractiveSource in the connector.");
+		state(source instanceof SshInteractiveSource, "No SshInteractiveSource in the connector.");
 
 		return (SshInteractiveSource) source;
 	}

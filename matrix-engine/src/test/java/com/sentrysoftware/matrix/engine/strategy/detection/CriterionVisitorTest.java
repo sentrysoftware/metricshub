@@ -40,6 +40,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
@@ -1553,6 +1554,67 @@ class CriterionVisitorTest {
 		doReturn(new EngineConfiguration()).when(strategyConfig).getEngineConfiguration();
 		assertEquals(CriterionTestResult.empty(),
 				criterionVisitor.visit(SNMPGet.builder().oid(OID).build()));
+	}
+
+	@Test
+	void testVisitSshInteractiveNull() {
+
+		final SshInteractive sshInteractive = null;
+
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("malformed"));
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitSshInteractiveStepsNull() {
+
+		final SshInteractive sshInteractive = SshInteractive.builder().build();
+
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("malformed"));
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitSshInteractiveExpectedResultNull() {
+
+		final SshInteractive sshInteractive = new SshInteractive();
+
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+					"\n\n" +
+					"Result: ExpectedResult are empty. Skipping this test.",
+				criterionTestResult.getMessage());
+		assertEquals("ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitSshInteractiveExpectedResultEmpty() {
+
+		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
+
+		final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+					"\n\n" +
+					"Result: ExpectedResult are empty. Skipping this test.",
+				criterionTestResult.getMessage());
+		assertEquals("ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
 	@Test

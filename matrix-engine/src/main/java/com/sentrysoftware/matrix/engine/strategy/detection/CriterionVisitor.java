@@ -783,6 +783,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final SshInteractive sshInteractive) {
+		if (sshInteractive == null || sshInteractive.getSteps() == null) {
+			return CriterionTestResult.error(sshInteractive, "Malformed SshInteractive criterion.");
+		}
+
+		if (sshInteractive.getExpectedResult() == null || sshInteractive.getExpectedResult().isEmpty()) {
+			return CriterionTestResult.success(sshInteractive, "ExpectedResult are empty. Skipping this test.");
+		}
+
 		try {
 			final List<String> results =
 					SshInteractiveHelper.runSshInteractive(strategyConfig.getEngineConfiguration(), sshInteractive.getSteps());

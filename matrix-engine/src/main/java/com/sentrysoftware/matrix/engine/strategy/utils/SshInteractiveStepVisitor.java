@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j
-public class CriterionSshInteractiveStepVisitor implements ICriterionSshInteractiveStepVisitor {
+public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 	private static final int DEFAULT_TIMEOUT = 15;
 
@@ -110,7 +110,7 @@ public class CriterionSshInteractiveStepVisitor implements ICriterionSshInteract
 					inPrompt));
 		} else {
 			// Remove the trailing prompt
-			maybe.map(result -> result.substring(0, result.length() - inPrompt.length()));
+			maybe.map(getUntilResult -> getUntilResult.substring(0, getUntilResult.length() - inPrompt.length()));
 
 			if (step.isCapture()) {
 				result = maybe;

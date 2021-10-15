@@ -6,6 +6,7 @@ import static org.springframework.util.Assert.state;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,8 +62,13 @@ public class TypeProcessor extends AbstractStateParser {
 		isTrue(criterionIndex <= criteria.size(),
 				String.format("Criterion %d not detected yet for the following key: %s.", criterionIndex, key));
 
-		final Criterion criterion = detection.getCriteria().get(criterionIndex -1);
-		state(criterion != null && criterion instanceof SshInteractive, "criterion should be SshInteractive");
+		final Optional<Criterion> maybeCriterion = detection.getCriteria().stream()
+				.filter(crit -> crit.getIndex() != null && crit.getIndex() == criterionIndex)
+				.findFirst();
+		state(maybeCriterion.isPresent(), String.format("criterion(%d) doesn't exist", criterionIndex));
+
+		final Criterion criterion = maybeCriterion.get();
+		state(criterion instanceof SshInteractive, "criterion should be SshInteractive");
 		
 		final SshInteractive sshInteractive = (SshInteractive) criterion;
 

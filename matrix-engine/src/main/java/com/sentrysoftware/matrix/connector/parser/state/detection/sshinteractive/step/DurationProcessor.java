@@ -40,7 +40,7 @@ public class DurationProcessor extends StepProcessor {
 			((Sleep) getDetectionStep(key, connector)).setDuration(Long.valueOf(value));
 
 		} catch (final Exception e) {
-			throw new IllegalStateException(String.format("DurationProcessor parse %s, error: ", value, e.getMessage()), e);
+			throw new IllegalStateException(String.format("DurationProcessor parse %s, error: %s", value, e.getMessage()), e);
 		}
 	}
 

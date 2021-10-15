@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.IStepVisitor;
 
-public interface ICriterionSshInteractiveStepVisitor extends IStepVisitor {
+public interface ISshInteractiveStepVisitor extends IStepVisitor {
 
 	public Optional<String> getResult();
 
