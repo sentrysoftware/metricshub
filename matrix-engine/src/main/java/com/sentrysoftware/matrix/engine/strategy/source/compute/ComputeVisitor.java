@@ -693,10 +693,10 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
+		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
 		for (List<String> row : sourceTable.getTable()) {
 
 			resultRow = new ArrayList<>();
-			columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
 			for (Integer columnIndex : columnNumbers) {
 
 				if (columnIndex < 1 || columnIndex > row.size()) {
