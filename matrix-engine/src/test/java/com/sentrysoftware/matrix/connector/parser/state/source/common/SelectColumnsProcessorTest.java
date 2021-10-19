@@ -18,7 +18,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
-import com.sentrysoftware.matrix.connector.parser.state.source.common.SelectColumnsProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.oscommand.OsCommandProcessor;
 
 class SelectColumnsProcessorTest {
