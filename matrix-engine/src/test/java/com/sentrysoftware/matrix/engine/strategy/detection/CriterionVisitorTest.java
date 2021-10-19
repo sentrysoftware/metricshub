@@ -1618,6 +1618,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
 		sshInteractive.setSteps(steps);
 
@@ -1635,7 +1636,7 @@ class CriterionVisitorTest {
 
 			final StepException stepException = new StepException(message);
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenThrow(stepException);
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenThrow(stepException);
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1660,6 +1661,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
 		sshInteractive.setSteps(steps);
 
@@ -1678,7 +1680,7 @@ class CriterionVisitorTest {
 			final IOException ioException = new IOException("Error in read");
 			final StepException stepException = new StepException(stepName, ioException);
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenThrow(stepException);
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenThrow(stepException);
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1703,6 +1705,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setSteps(steps);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
@@ -1715,7 +1718,7 @@ class CriterionVisitorTest {
 
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of());
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of());
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1740,6 +1743,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
 		sshInteractive.setSteps(steps);
 
@@ -1753,7 +1757,7 @@ class CriterionVisitorTest {
 
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of());
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of());
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1778,6 +1782,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
 		sshInteractive.setSteps(steps);
 
@@ -1793,7 +1798,7 @@ class CriterionVisitorTest {
 
 			final String result = "Emulator screen";
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of(result));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1818,6 +1823,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setSteps(steps);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
@@ -1833,7 +1839,7 @@ class CriterionVisitorTest {
 			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
 					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of(result));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1858,6 +1864,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult(HardwareConstants.EMPTY);
 		sshInteractive.setSteps(steps);
 
@@ -1874,7 +1881,7 @@ class CriterionVisitorTest {
 			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
 					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of(result));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 
@@ -1899,6 +1906,7 @@ class CriterionVisitorTest {
 		final List<Step> steps = List.of(waitFor);
 
 		final SshInteractive sshInteractive = new SshInteractive();
+		sshInteractive.setIndex(1);
 		sshInteractive.setExpectedResult("HP.* BladeSystem Onboard Administrator");
 		sshInteractive.setSteps(steps);
 
@@ -1915,7 +1923,7 @@ class CriterionVisitorTest {
 			final String result = "\n\n\nHP BladeSystem Onboard Administrator\n" + 
 					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps)).thenReturn(List.of(result));
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractive(1)")).thenReturn(List.of(result));
 
 			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
 

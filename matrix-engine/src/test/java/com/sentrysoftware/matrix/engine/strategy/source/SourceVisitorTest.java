@@ -639,6 +639,7 @@ class SourceVisitorTest {
 		final List<Step> steps = List.of(sendText, waitFor);
 
 		final SshInteractiveSource sshInteractiveSource = new SshInteractiveSource();
+		sshInteractiveSource.setIndex(1);
 		sshInteractiveSource.setRemoveHeader(8);
 		sshInteractiveSource.setRemoveFooter(6);
 		sshInteractiveSource .setKeepOnlyRegExp("Serial Number");
@@ -655,7 +656,7 @@ class SourceVisitorTest {
 		// check NoCredentialProvidedException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenThrow(NoCredentialProvidedException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -664,7 +665,7 @@ class SourceVisitorTest {
 		// check StepException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenThrow(StepException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -702,11 +703,12 @@ class SourceVisitorTest {
 					"show enclosure info\n",
 					"\n");
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenReturn(output);
 
 			final SourceTable expected = SourceTable.builder()
 					.rawData("        Serial Number: CZC8171W57\n")
+					.table(List.of(List.of("        Serial Number: CZC8171W57\n")))
 					.build();
 
 			assertEquals(expected, sourceVisitor.visit(sshInteractiveSource));

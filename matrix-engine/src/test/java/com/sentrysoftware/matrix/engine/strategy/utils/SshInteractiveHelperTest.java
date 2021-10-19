@@ -38,21 +38,21 @@ class SshInteractiveHelperTest {
 	void testRunSshInteractiveEngineNull() throws Exception {
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> SshInteractiveHelper.runSshInteractive(null, List.of()));
+				() -> SshInteractiveHelper.runSshInteractive(null, List.of(), "SshInteractive(1)"));
 	}
 
 	@Test
 	void testRunSshInteractiveStepsNull() throws Exception {
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> SshInteractiveHelper.runSshInteractive(EngineConfiguration.builder().build(), null));
+				() -> SshInteractiveHelper.runSshInteractive(EngineConfiguration.builder().build(), null, "SshInteractive(1)"));
 	}
 
 	@Test
 	void testRunSshInteractiveSshProtocolNull() throws Exception {
 		assertThrows(
 				IllegalStateException.class,
-				() -> SshInteractiveHelper.runSshInteractive(EngineConfiguration.builder().build(), List.of()));
+				() -> SshInteractiveHelper.runSshInteractive(EngineConfiguration.builder().build(), List.of(), "SshInteractive(1)"));
 	}
 
 	@Test
@@ -62,7 +62,8 @@ class SshInteractiveHelperTest {
 				() -> SshInteractiveHelper.runSshInteractive(
 						EngineConfiguration.builder().protocolConfigurations(
 								Map.of(SSHProtocol.class, SSHProtocol.builder().build())).build(),
-						List.of()));
+						List.of(),
+						"SshInteractive(1)"));
 	}
 
 	@Test
@@ -76,7 +77,8 @@ class SshInteractiveHelperTest {
 											SSHProtocol.class,
 											SSHProtocol.builder().username(HardwareConstants.EMPTY).build()))
 							.build(),
-						List.of()));
+						List.of(),
+						"SshInteractive(1)"));
 	}
 	
 	@Test
@@ -119,7 +121,9 @@ class SshInteractiveHelperTest {
 				waitForPrompt, getUntilPrompt,
 				waitForLogin, sendUsername, waitForPassword, sendPassword,
 				waitFor, sendText);
-		
+
+		final String currentSourceTag = "SshInteractive(1)";
+
 		final SSHClient sshClient = mock(SSHClient.class);
 
 		try (final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
@@ -135,7 +139,7 @@ class SshInteractiveHelperTest {
 
 			assertEquals(
 					List.of(">"),
-					SshInteractiveHelper.runSshInteractive(engineConfiguration, steps));
+					SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, currentSourceTag));
 		}
 	}
 }
