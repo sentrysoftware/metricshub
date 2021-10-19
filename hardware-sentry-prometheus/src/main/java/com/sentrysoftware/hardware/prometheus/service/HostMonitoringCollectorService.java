@@ -12,7 +12,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,12 @@ public class HostMonitoringCollectorService extends Collector {
 	public static final String ID = "id";
 	protected static final List<String> LABELS = Arrays.asList(FQDN, ID, LABEL, PARENT);
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
+	private static final Map<String, Function<Monitor, String>> LABEL_FUNCTIONS = Map.of(
+			FQDN, Monitor::getFqdn,
+			ID, Monitor::getId,
+			LABEL, Monitor::getName,
+			PARENT, monitor -> getValueOrElse(monitor.getParentId(), "")
+	);
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -58,6 +67,9 @@ public class HostMonitoringCollectorService extends Collector {
 
 	@Autowired
 	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+
+	@Autowired 
+	private ExtraMetricsService extraMetricsService;
 
 	/**
 	 * Add a metric sample in the given Gauge metric
@@ -71,7 +83,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 		labeledMetric.addMetric(
 				// fqdn, Id, label, parentId (can be null)
-				createLabels(monitor),
+				createLabels(monitor, labeledMetric.getLabelNames()),
 				convertParameterValue(monitor, parameterName, factor),
 				getCollectTime(monitor, parameterName)
 		);
@@ -90,7 +102,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 		labeledMetric.addMetric(
 				// fqdn, Id, label, parentId (can be null)
-				createLabels(monitor),
+				createLabels(monitor, labeledMetric.getLabelNames()),
 				convertMetadataValue(monitor.getMetadata(matrixMetadataName), factor),
 				// collect time is not provided for metadata, let's use the discovery time
 				getDiscoveryTime(monitor)
@@ -100,7 +112,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Get the parameter number value from the monitor instance
 	 *
-	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param monitor       The monitor from which we extract the parameter value
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return {@link Number} value
 	 */
@@ -112,7 +124,7 @@ public class HostMonitoringCollectorService extends Collector {
 	/**
 	 * Convert the parameter number value according to the factor indicated for Prometheus
 	 *
-	 * @param monitor       The monitor we wish to extract the parameter value
+	 * @param monitor       The monitor from which we extract the parameter value
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @param factor        The factor used to convert the metric value
 	 * @return {@link Number} value
@@ -141,7 +153,8 @@ public class HostMonitoringCollectorService extends Collector {
 
 		final List<MetricFamilySamples> metricFamilySamplesList = new ArrayList<>();
 
-		metricFamilySamplesList.add(exporterInfoService.getExporterInfoMetric());
+		metricFamilySamplesList.add(exporterInfoService.buildExporterInfoMetric());
+		metricFamilySamplesList.addAll(extraMetricsService.buildExtraMetrics());
 
 		// Loop over all the monitors and create metrics (Prometheus samples)
 		hostMonitoringMap.entrySet()
@@ -160,7 +173,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Process same type monitors metrics
 	 *
 	 * @param monitorType The {@link MonitorType} of the given <code>monitors</code>
-	 * @param monitors    The monitors we wish to extract the collected parameters
+	 * @param monitors    The monitors from which we extract the collected parameters
 	 * @param mfs         {@link List} of {@link MetricFamilySamples} provided by the Prometheus Client library
 	 */
 	void processSameTypeMonitors(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
@@ -170,6 +183,7 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
+		// Process parameters as metrics
 		monitorType.getMetaMonitor()
 		.getMetaParameters()
 		.values()
@@ -177,7 +191,10 @@ public class HostMonitoringCollectorService extends Collector {
 		.sorted(Comparator.comparing(MetaParameter::getName))
 		.forEach(metaParameter -> processMonitorsMetric(metaParameter, monitorType, monitors, mfs));
 
+		// Process metadata as *_info metrics
 		processMonitorMetricInfo(monitorType, monitors, mfs);
+
+		// Process number metadata as metrics
 		processMonitorsMetadataMetrics(monitorType, monitors, mfs);
 	}
 
@@ -186,7 +203,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Process info metrics (*_info) for the given map of monitors
 	 *
 	 * @param monitorType The {@link MonitorType} of the given <code>monitors</code>
-	 * @param monitors    The monitors we wish to extract the discovered metadata
+	 * @param monitors    The monitors from which we extract the discovered metadata
 	 * @param mfs         {@link List} of {@link MetricFamilySamples} provided by the Prometheus Client library
 	 */
 	void processMonitorMetricInfo(final MonitorType monitorType, final Map<String, Monitor> monitors,
@@ -198,8 +215,16 @@ public class HostMonitoringCollectorService extends Collector {
 			return;
 		}
 
-		final List<String> labels = PrometheusSpecificities.getLabels(monitorType);
-		Assert.state(labels != null && !labels.isEmpty(), () -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName());
+		final List<String> staticLabels = PrometheusSpecificities.getLabels(monitorType);
+		Assert.state(staticLabels != null && !staticLabels.isEmpty(),
+				() -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName());
+
+		// Concatenate extra labels. Sonar doesn't know that the previous 
+		// Assert.state throws the IllegalArgumentException if staticLabels is null, so never null here.
+		final List<String> labels = Stream
+				.concat(staticLabels.stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream()) // NOSONAR
+				.sorted()
+				.collect(Collectors.toList());
 
 		final String help = String.format("Metric: %s", metricName);
 
@@ -208,7 +233,7 @@ public class HostMonitoringCollectorService extends Collector {
 		monitors.values()
 			.stream()
 			.filter(Objects::nonNull)
-			.forEach(monitor -> addInfoMetric(labeledGauge, monitor, labels));
+			.forEach(monitor -> addInfoMetric(labeledGauge, monitor));
 
 		mfs.add(labeledGauge);
 	}
@@ -218,35 +243,30 @@ public class HostMonitoringCollectorService extends Collector {
 	 *
 	 * @param gauge   Prometheus {@link HardwareGaugeMetric}
 	 * @param monitor Collected {@link Monitor} instance
-	 * @param labels  List of the specific labels to be
 	 */
-	void addInfoMetric(final HardwareGaugeMetric gauge, final Monitor monitor, final List<String> labels) {
-		final List<String> labelValues = new ArrayList<>();
-		for (String label : labels) {
-			if (ID.equals(label)) {
-				labelValues.add(monitor.getId());
-			} else if (PARENT.equals(label)) {
-				labelValues.add(getValueOrElse(monitor.getParentId(), ""));
-			} else if (LABEL.equals(label)) {
-				labelValues.add(monitor.getName());
-			} else if (FQDN.equals(label)) {
-				labelValues.add(monitor.getFqdn());
-			} else {
-				labelValues.add(convertMetadataInfoValue(monitor, label));
-			}
-		}
+	void addInfoMetric(final HardwareGaugeMetric gauge, final Monitor monitor) {
+
+		final List<String> labelValues = gauge.getLabelNames()
+			.stream()
+			.map(labelKey -> LABEL_FUNCTIONS
+					.getOrDefault(labelKey, mo -> multiHostsConfigurationDTO
+							.getExtraLabels()
+							.getOrDefault(labelKey, convertMetadataInfoValue(mo, labelKey)))
+					.apply(monitor))
+			.collect(Collectors.toList());
 
 		gauge.addMetric(
 				labelValues,
-				1,
+				1D,
 				getDiscoveryTime(monitor)
 		);
 	}
 
 	/**
-	 * Check if the metadata value stored in metric_info needs to be converted
-	 * @param monitor
-	 * @param label
+	 * Convert the metadata value if needed otherwise get the value as it is
+	 * 
+	 * @param monitor The monitor from which we extract the metadata value
+	 * @param label   The metric label
 	 * @return String value
 	 */
 	static String convertMetadataInfoValue(final Monitor monitor, final String label) {
@@ -289,7 +309,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 *
 	 * @param metaParameter The {@link MetaParameter} defined by the matrix engine
 	 * @param monitorType   The {@link MonitorType} of the given <code>monitors</code>
-	 * @param monitors      The monitors we wish to extract the collected parameters
+	 * @param monitors      The monitors from which we extract the collected parameters
 	 * @param mfs           {@link List} of {@link MetricFamilySamples}. The implementation is provided by the Prometheus Client library
 	 */
 	void processMonitorsMetric(final MetaParameter metaParameter, final MonitorType monitorType,
@@ -393,13 +413,18 @@ public class HostMonitoringCollectorService extends Collector {
 	 *         {@link HardwareGaugeMetric} if the type is GAUGE otherwise
 	 *         {@link HardwareCounterMetric}.
 	 */
-	private static AbstractHardwareMetricFamily createMetricFamilySamples(final PrometheusParameter prometheusParameter, final String help) {
+	private AbstractHardwareMetricFamily createMetricFamilySamples(final PrometheusParameter prometheusParameter, final String help) {
+
+		final List<String> labels = Stream
+				.concat(LABELS.stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream())
+				.sorted()
+				.collect(Collectors.toList());
 
 		if (PrometheusMetricType.GAUGE.equals(prometheusParameter.getType())) {
-			return new HardwareGaugeMetric(prometheusParameter.getName(), help, LABELS);
+			return new HardwareGaugeMetric(prometheusParameter.getName(), help, labels);
 		}
 
-		return new HardwareCounterMetric(prometheusParameter.getName(), help, LABELS);
+		return new HardwareCounterMetric(prometheusParameter.getName(), help, labels);
 
 	}
 
@@ -511,16 +536,20 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Labels order: <em>$fqdn</em>, <em>$monitorId</em>, <em>$monitorName</em>, <em>$monitorParentId</em>
 	 *
 	 * @param monitor The monitor we wish to extract its id, parentId and name
+	 * @param labelKeys 
 	 * @return {@link List} of {@link String} values
 	 */
-	static List<String> createLabels(final Monitor monitor) {
+	List<String> createLabels(final Monitor monitor, List<String> labelKeys) {
 
-		return Arrays.asList(
-					monitor.getFqdn(),
-					monitor.getId(),
-					monitor.getName(),
-					getValueOrElse(monitor.getParentId(), "")
-				);
+		return labelKeys
+				.stream()
+				.map(labelKey -> LABEL_FUNCTIONS
+						.getOrDefault(
+								labelKey,
+								mo -> multiHostsConfigurationDTO.getExtraLabels().getOrDefault(labelKey, "")
+						)
+						.apply(monitor))
+				.collect(Collectors.toList());
 	}
 
 
@@ -554,7 +583,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Get the parameter collect time if we are in the honorTimestamps
 	 * mode otherwise <code>null</code> is returned
 	 *
-	 * @param monitor       The monitor we wish to extract the parameter collect time
+	 * @param monitor       The monitor from which we extract the parameter collect time
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return Long value
 	 */

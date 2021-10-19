@@ -1,7 +1,10 @@
 package com.sentrysoftware.hardware.prometheus.dto;
 
 import static com.sentrysoftware.hardware.prometheus.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -46,6 +49,12 @@ public class MultiHostsConfigurationDTO {
 
 	@Default
 	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
+
+	@Default
+	private Map<String, String> extraLabels = new HashMap<>();
+
+	@Default
+	private Map<String, Double> extraMetrics = new HashMap<>();
 
 	/**
 	 * Build a new empty instance
