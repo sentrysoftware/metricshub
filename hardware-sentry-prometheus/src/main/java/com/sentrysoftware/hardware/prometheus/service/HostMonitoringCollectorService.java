@@ -535,8 +535,8 @@ public class HostMonitoringCollectorService extends Collector {
 	 * Create Prometheus labels. The values between { } after the metric name <br>
 	 * Labels order: <em>$fqdn</em>, <em>$monitorId</em>, <em>$monitorName</em>, <em>$monitorParentId</em>
 	 *
-	 * @param monitor The monitor we wish to extract its id, parentId and name
-	 * @param labelKeys 
+	 * @param monitor   The monitor we wish to extract its id, parentId and name
+	 * @param labelKeys The label names as keys
 	 * @return {@link List} of {@link String} values
 	 */
 	List<String> createLabels(final Monitor monitor, List<String> labelKeys) {

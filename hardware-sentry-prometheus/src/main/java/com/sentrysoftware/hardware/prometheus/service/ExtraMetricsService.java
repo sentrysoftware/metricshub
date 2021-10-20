@@ -19,7 +19,6 @@ public class ExtraMetricsService {
 	/**
 	 * Build user configured extra metrics. The generated gauge metrics include the configured extra labels.
 	 * 
-	 * 
 	 * @return List of {@link HardwareGaugeMetric}s
 	 */
 	public List<HardwareGaugeMetric> buildExtraMetrics() {
