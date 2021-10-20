@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,18 @@ class HardwareGaugeMetricTest {
 			List<String> badLabelValues = List.of("id_value");
 			final HardwareGaugeMetric gauge =new HardwareGaugeMetric("metric", "metric help", List.of("id", "name"));
 			assertThrows(IllegalArgumentException.class, () -> gauge.addMetric(badLabelValues, 1.0, null));
+		}
+		{
+			final HardwareGaugeMetric gauge =new HardwareGaugeMetric("metric", "metric help", List.of("id", "name"));
+			gauge.addMetric(List.of("id_value", "name_value"), null, null);
+			assertTrue(gauge.samples.isEmpty());
+		}
+		{
+			final HardwareGaugeMetric gauge =new HardwareGaugeMetric("metric", "metric help", List.of("id", "name"));
+			gauge.addMetric(Arrays.asList(null, "name_value"), 1.0, null);
+			assertEquals(1.0, gauge.samples.get(0).value);
+			assertNull(gauge.samples.get(0).timestampMs);
+			assertEquals(List.of("", "name_value"), gauge.samples.get(0).labelValues);
 		}
 	}
 }

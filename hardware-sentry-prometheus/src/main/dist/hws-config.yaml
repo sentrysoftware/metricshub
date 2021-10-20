@@ -1,3 +1,11 @@
+extraLabels: 
+  site: 'Datacenter 1'
+
+extraMetrics: 
+  hw_carbon_density_grams: 0.066
+  hw_electricity_cost_dollars: 0.02
+  hw_pue_ratio: 1.8
+
 targets:
 
 #  - target:
@@ -22,7 +30,7 @@ targets:
 #      community: public
 #      port: 161
 #      timeout: 120s
-#    excludedConnectors: [ SunF15K, HPiLO ]
+#    excludedConnectors: [ SunF15K ]
 
 #  - target:
 #      hostname: fermat-oa
@@ -32,7 +40,6 @@ targets:
 #      community: public
 #      port: 161
 #      timeout: 120s
-#    excludedConnectors: [ SunF15K, HPiLO ]
 
 #  - target:
 #      hostname: dev-hv-01
@@ -43,7 +50,6 @@ targets:
 #      timeout: 120s
 #      username: admin
 #      password: password
-#    excludedConnectors: [ SunF15K, HPiLO ]
 
 #  - target:
 #      hostname: idrac-dell-ceph
@@ -53,7 +59,6 @@ targets:
 #      community: public
 #      port: 161
 #      timeout: 120s
-#    excludedConnectors: [ SunF15K, HPiLO ]
 
 #  - target:
 #      hostname: purem-san
@@ -63,7 +68,6 @@ targets:
 #      port: 443
 #      username: username
 #      password: password
-#    excludedConnectors: [ SunF15K ]
 #    selectedConnectors:
 #    - PureStorageREST
 
