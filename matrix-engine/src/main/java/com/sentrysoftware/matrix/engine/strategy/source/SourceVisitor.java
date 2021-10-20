@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_BEGIN_OPERATION_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RAW_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
@@ -366,9 +367,10 @@ public class SourceVisitor implements ISourceVisitor {
 					.collect(Collectors.joining(NEW_LINE)))
 				.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 				"OSCommand source",
 				osCommandSource.getKey(),
+				sourceTable.getRawData(),
 				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
@@ -419,9 +421,10 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
+		log.info(LOG_RAW_RESULT_TEMPLATE,
 			"Reference source",
 			referenceSource.getKey(),
+			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		return sourceTable;
@@ -734,9 +737,10 @@ public class SourceVisitor implements ISourceVisitor {
 							.collect(Collectors.toList()))
 					.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 					"SshInteractive source",
 					sshInteractiveSource.getKey(),
+					sourceTable.getRawData(),
 					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
@@ -911,7 +915,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (sourceNamespace == null) {
 			return "root\\cimv2";
-		} 
+		}
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
