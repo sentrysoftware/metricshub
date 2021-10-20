@@ -320,6 +320,7 @@ public class HardwareConstants {
 
 	public static final String LOG_BEGIN_OPERATION_TEMPLATE = "Executing {} [{}]:\n{}\n";
 	public static final String LOG_RESULT_TEMPLATE = "{} [{}] result:\n{}\n";
+	public static final String LOG_RAW_RESULT_TEMPLATE = "{} [{}] raw result:\n{}\ntable result:\n{}\n";
 
 	/**
 	 * Pattern to remove MS_HW_ from the compiled file name
