@@ -367,9 +367,10 @@ public class SourceVisitor implements ISourceVisitor {
 					.collect(Collectors.joining(NEW_LINE)))
 				.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 				"OSCommand source",
 				osCommandSource.getKey(),
+				sourceTable.getRawData(),
 				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
@@ -420,9 +421,10 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
+		log.info(LOG_RAW_RESULT_TEMPLATE,
 			"Reference source",
 			referenceSource.getKey(),
+			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		return sourceTable;
@@ -745,9 +747,10 @@ public class SourceVisitor implements ISourceVisitor {
 							.collect(Collectors.toList()))
 					.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 					"SshInteractive source",
 					sshInteractiveSource.getKey(),
+					sourceTable.getRawData(),
 					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
