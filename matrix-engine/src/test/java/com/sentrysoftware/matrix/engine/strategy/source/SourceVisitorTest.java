@@ -590,11 +590,13 @@ class SourceVisitorTest {
 				.table(Arrays.asList(
 						Arrays.asList("a1", "b1", "c1"),
 						Arrays.asList("val1", "val2", "val3")))
+				.rawData(VALUE_A1)
 				.build();
 		SourceTable tabl2 = SourceTable.builder()
 				.table(Arrays.asList(
 						Arrays.asList("a1", "b2", "c2"),
 						Arrays.asList("v1", "v2", "v3")))
+				.rawData(VALUE_TABLE)
 				.build();
 
 		final Map<String, SourceTable> mapSources = new HashMap<>();
@@ -623,6 +625,7 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
+		assertEquals(VALUE_A1 +"\n"+ VALUE_TABLE, sourceVisitor.visit(tableUnionExample).getRawData());
 
 	}
 

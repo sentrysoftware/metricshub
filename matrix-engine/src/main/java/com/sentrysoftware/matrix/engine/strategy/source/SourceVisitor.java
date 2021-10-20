@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_BEGIN_OPERATION_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RAW_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
@@ -673,9 +674,19 @@ public class SourceVisitor implements ISourceVisitor {
 
 		sourceTable.setTable(executeTableUnion);
 
-		log.info(LOG_RESULT_TEMPLATE,
+		String rawData = sourceTablesToConcat
+				.stream()
+				.map(SourceTable::getRawData)
+				.filter(Objects::nonNull)
+				.collect(Collectors.joining(NEW_LINE))
+				.replace("\n\n", NEW_LINE);
+
+		sourceTable.setRawData(rawData);
+
+		log.info(LOG_RAW_RESULT_TEMPLATE,
 			"TableUnion source",
 			tableUnionSource.getKey(),
+			rawData,
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		return sourceTable;
@@ -911,7 +922,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (sourceNamespace == null) {
 			return "root\\cimv2";
-		} 
+		}
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
