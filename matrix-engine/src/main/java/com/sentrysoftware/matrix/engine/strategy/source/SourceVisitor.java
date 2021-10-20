@@ -712,7 +712,8 @@ public class SourceVisitor implements ISourceVisitor {
 			final List<String> result =
 					SshInteractiveHelper.runSshInteractive(
 							strategyConfig.getEngineConfiguration(),
-							sshInteractiveSource.getSteps());
+							sshInteractiveSource.getSteps(),
+							String.format("SshInteractiveSource(%d)", sshInteractiveSource.getIndex()));
 
 			final List<String> filteredLines = FilterResultHelper.filterLines(
 					result,
@@ -726,8 +727,12 @@ public class SourceVisitor implements ISourceVisitor {
 					sshInteractiveSource.getSeparators(),
 					sshInteractiveSource.getSelectColumns());
 
-			final SourceTable sourceTable = new SourceTable();
-			sourceTable.setRawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)));
+			final SourceTable sourceTable = SourceTable.builder()
+					.rawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)))
+					.table(selectedColumnsLines.stream()
+							.map(line -> Stream.of(line.split(HardwareConstants.TABLE_SEP)).collect(Collectors.toList()))
+							.collect(Collectors.toList()))
+					.build();
 
 			log.info(LOG_RESULT_TEMPLATE,
 					"SshInteractive source",
