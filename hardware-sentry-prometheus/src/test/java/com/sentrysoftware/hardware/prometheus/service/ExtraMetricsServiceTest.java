@@ -43,10 +43,10 @@ class ExtraMetricsServiceTest {
 			assertEquals(2, gauges.size());
 			assertEquals(List.of("IT", "Data Center 1"), gauges.get(0).samples.get(0).labelValues);
 			assertEquals(List.of("IT", "Data Center 1"), gauges.get(1).samples.get(0).labelValues);
-			Sample sample1 = gauges.stream().filter(gauge -> "hw_carbon_density_grams".equals(gauge.name))
+			final Sample sample1 = gauges.stream().filter(gauge -> "hw_carbon_density_grams".equals(gauge.name))
 					.findFirst().orElseThrow().samples.get(0);
 			assertEquals(0.66, sample1.value);
-			Sample sample2 = gauges.stream().filter(gauge -> "hw_electricity_cost_dollars".equals(gauge.name))
+			final Sample sample2 = gauges.stream().filter(gauge -> "hw_electricity_cost_dollars".equals(gauge.name))
 					.findFirst().orElseThrow().samples.get(0);
 			assertEquals(0.02, sample2.value);
 			assertNotNull(sample1.timestampMs);
@@ -62,11 +62,22 @@ class ExtraMetricsServiceTest {
 			doReturn(Map.of("hw_carbon_density_grams", 0.66, "hw_electricity_cost_dollars", 0.02))
 					.when(multiHostsConfigurationDTO).getExtraMetrics();
 
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
+
 			final List<HardwareGaugeMetric> gauges = extraMetricsService.buildExtraMetrics();
 
 			assertEquals(2, gauges.size());
 			assertEquals(List.of("", "Data Center 1"), gauges.get(0).samples.get(0).labelValues);
 			assertEquals(List.of("", "Data Center 1"), gauges.get(1).samples.get(0).labelValues);
+
+			final Sample sample1 = gauges.stream().filter(gauge -> "hw_carbon_density_grams".equals(gauge.name))
+					.findFirst().orElseThrow().samples.get(0);
+			assertEquals(0.66, sample1.value);
+			final Sample sample2 = gauges.stream().filter(gauge -> "hw_electricity_cost_dollars".equals(gauge.name))
+					.findFirst().orElseThrow().samples.get(0);
+			assertEquals(0.02, sample2.value);
+			assertNull(sample1.timestampMs);
+			assertNull(sample2.timestampMs);
 		}
 
 		{
