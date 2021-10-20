@@ -1531,7 +1531,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
-		if (linkSpeed != null && linkSpeed >= 0) {
+		if (linkSpeed != null && linkSpeed > 0) {
 
 			if (receivedBytesRate == null) {
 				receivedBytesRate = 0D;
