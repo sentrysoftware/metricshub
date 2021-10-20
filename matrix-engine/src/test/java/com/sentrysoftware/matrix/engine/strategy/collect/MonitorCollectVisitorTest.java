@@ -2266,6 +2266,18 @@ class MonitorCollectVisitorTest {
 		assertNotNull(bandwidthUtilizationParameter.getValue());
 		assertNotEquals(newCollectTime, bandwidthUtilizationParameter.getCollectTime());
 		assertEquals(previousCollectTime, bandwidthUtilizationParameter.getCollectTime());
+
+	}
+
+	@Test
+	void testCollectNetworkCardBandwidthUtilizationLinkSpeedZero() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.NETWORK_CARD).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.collectNetworkCardBandwidthUtilization(DuplexMode.FULL, 0.0, 100.0, 200.0);
+
+		assertNull(monitor.getParameter(BANDWIDTH_UTILIZATION_PARAMETER, NumberParam.class));
 	}
 
 	@Test
