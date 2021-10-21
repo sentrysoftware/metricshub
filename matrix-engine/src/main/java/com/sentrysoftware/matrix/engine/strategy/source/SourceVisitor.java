@@ -365,6 +365,9 @@ public class SourceVisitor implements ISourceVisitor {
 				.builder()
 				.rawData(selectedColumnsLines.stream()
 					.collect(Collectors.joining(NEW_LINE)))
+				.table(selectedColumnsLines.stream()
+						.map(line -> Stream.of(line.split(HardwareConstants.TABLE_SEP)).collect(Collectors.toList()))
+						.collect(Collectors.toList()))
 				.build();
 
 			log.info(LOG_RAW_RESULT_TEMPLATE,
