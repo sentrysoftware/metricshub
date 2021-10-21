@@ -79,14 +79,14 @@ public class PrometheusSpecificities {
 
 	private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z]+)");
 
-	private static Map<MonitorType, List<String>> metricInfoLabels;
+	private static final Map<MonitorType, List<String>> metricInfoLabels;
 
 	@Getter
-	private static Map<MonitorType, Map<String, PrometheusParameter>> prometheusParameters;
+	private static final Map<MonitorType, Map<String, PrometheusParameter>> prometheusParameters;
 	@Getter
-	private static Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataToParameters;
+	private static final Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataToParameters;
 
-	private static Map<MonitorType, String> infoMetricNames;
+	private static final Map<MonitorType, String> infoMetricNames;
 
 	static {
 
@@ -179,7 +179,6 @@ public class PrometheusSpecificities {
 
 		prometheusMetadataParametersMap.put(MonitorType.CPU, cpuMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.FAN, fanMetadataToPrometheusParameters());
-		prometheusMetadataParametersMap.put(MonitorType.GPU, gpuMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, logicalDiskMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.LUN, lunMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.MEMORY, memoryMetadataToPrometheusParameters());
@@ -521,30 +520,6 @@ public class PrometheusSpecificities {
 				.name("hw_cpu_corrected_errors_alarm")
 				.unit(ERRORS)
 				.build());
-
-		return map;
-	}
-
-	/**
-	 * Convert some GPU Metadata to Prometheus metrics
-	 *
-	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
-	 */
-	private static Map<String, PrometheusParameter> gpuMetadataToPrometheusParameters() {
-
-		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, PrometheusParameter
-			.builder()
-			.name("hw_gpu_corrected_errors_warning")
-			.unit(ERRORS)
-			.build());
-
-		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, PrometheusParameter
-			.builder()
-			.name("hw_gpu_corrected_errors_alarm")
-			.unit(ERRORS)
-			.build());
 
 		return map;
 	}
@@ -1236,27 +1211,15 @@ public class PrometheusSpecificities {
 			.name("hw_gpu_predicted_failure")
 			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 			.build());
-		map.put(Gpu.USED_TIME.getName(), PrometheusParameter.builder()
-			.name("hw_gpu_used_time_seconds")
-			.unit(Gpu.USED_TIME.getUnit())
-			.build());
 		map.put(Gpu.USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
 			.name("hw_gpu_used_time_ratio")
 			.unit(RATIO)
 			.factor(0.01)
 			.build());
-		map.put(Gpu.DECODER_USED_TIME.getName(), PrometheusParameter.builder()
-			.name("hw_gpu_decoder_used_time_seconds")
-			.unit(Gpu.DECODER_USED_TIME.getUnit())
-			.build());
 		map.put(Gpu.DECODER_USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
 			.name("hw_gpu_decoder_used_time_ratio")
 			.unit(RATIO)
 			.factor(0.01)
-			.build());
-		map.put(Gpu.ENCODER_USED_TIME.getName(), PrometheusParameter.builder()
-			.name("hw_gpu_encoder_used_time_seconds")
-			.unit(Gpu.ENCODER_USED_TIME.getUnit())
 			.build());
 		map.put(Gpu.ENCODER_USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
 			.name("hw_gpu_encoder_used_time_ratio")
@@ -1273,18 +1236,10 @@ public class PrometheusSpecificities {
 			.unit(BYTES_PARAMETER_UNIT)
 			.type(PrometheusMetricType.COUNTER)
 			.build());
-		map.put(Gpu.RECEIVED_BYTES_RATE.getName(), PrometheusParameter.builder()
-			.name("hw_gpu_received_bytes_ratio")
-			.unit(RATIO)
-			.build());
 		map.put(Gpu.TRANSMITTED_BYTES.getName(), PrometheusParameter.builder()
 			.name("hw_gpu_transmitted_bytes")
 			.unit(BYTES_PARAMETER_UNIT)
 			.type(PrometheusMetricType.COUNTER)
-			.build());
-		map.put(Gpu.TRANSMITTED_BYTES_RATE.getName(), PrometheusParameter.builder()
-			.name("hw_gpu_transmitted_bytes_ratio")
-			.unit(RATIO)
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
 			.name("hw_gpu_energy_joules")

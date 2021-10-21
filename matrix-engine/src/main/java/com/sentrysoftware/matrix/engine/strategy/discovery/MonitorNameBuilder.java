@@ -1173,10 +1173,10 @@ public class MonitorNameBuilder {
 			metadata.get(DISPLAY_ID),
 			metadata.get(DEVICE_ID),
 			metadata.get(ID_COUNT),
-			CPU_TRIM_PATTERN,
+			GPU_TRIM_PATTERN
 
 			// Additional label
-			new String[]{}
+			// None
 		);
 
 		// Now, adding the vendor and the model,
@@ -1196,11 +1196,11 @@ public class MonitorNameBuilder {
 
 		// Formatting the size
 		Double size = NumberHelper.parseDouble(metadata.get(SIZE), 0.0);
-		String formattedSize = size > 0 ? String.format(" - %.2f GB", size / 1024.0) : EMPTY;
+		String formattedSize = size > 0.0 ? String.format(" - %.2f GB", size / 1024.0) : EMPTY;
 
 		// There is a vendor AND a model => add both with the size,
 		// provided the vendor is not contained in the model already
-		if (vendor != null && !vendor.isBlank() && model != null && !model.isBlank()) {
+		if (vendor != null && model != null) {
 
 			String additionalInformation = model.toLowerCase().contains(vendor.toLowerCase())
 				? String.format(" (%s%s)", model, formattedSize)

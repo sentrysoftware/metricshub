@@ -1,5 +1,26 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
+import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
@@ -17,26 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
-import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
-import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
-import com.sentrysoftware.matrix.model.alert.Severity;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 class MonitorAlertRulesVisitorTest {
 
@@ -672,5 +673,25 @@ class MonitorAlertRulesVisitorTest {
 
 		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+	}
+
+	@Test
+	void testVisitVm() {
+
+		assertDoesNotThrow(() -> new MonitorAlertRulesVisitor(null).visit(new Vm()));
+		assertDoesNotThrow(() -> new MonitorAlertRulesVisitor(new Monitor()).visit(new Vm()));
+	}
+
+	@Test
+	void testVisitGpu() {
+
+		assertDoesNotThrow(() -> new MonitorAlertRulesVisitor(null).visit(new Gpu()));
+		assertDoesNotThrow(() -> new MonitorAlertRulesVisitor(new Monitor()).visit(new Gpu()));
+	}
+
+	@Test
+	void testProcessGpuInstanceAlertRules() {
+
+		assertEquals(Collections.emptySet(), MonitorAlertRulesVisitor.processGpuInstanceAlertRules(new Monitor()));
 	}
 }
