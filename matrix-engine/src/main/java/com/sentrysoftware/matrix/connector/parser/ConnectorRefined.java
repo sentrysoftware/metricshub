@@ -1001,6 +1001,7 @@ public class ConnectorRefined {
 
 		/**
 		 * Extract the index from the key.
+		 * @param pattern The pattern
 		 * @return An Optional with the index. Optional empty if the index has not been found.
 		 */
 		private OptionalInt extractIndex(final Pattern pattern) {
