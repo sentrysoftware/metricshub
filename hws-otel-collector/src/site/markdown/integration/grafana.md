@@ -5,15 +5,15 @@ description: How to import and configure Hardware Sentry Exporter for Prometheus
 
 Before you can start configuring and using **${project.name}** dashboards, you must have:
 
-1. configured [Hardware Sentry Exporter for Prometheus](./configure.html).
-2. configured the [Prometheus server](./configure-prometheus-server.html)
+1. configured [Hardware Sentry Exporter for Prometheus](../configuration/configure-exporter.html).
+2. configured the [Prometheus server](../integration/prometheus.html)
 3. run both **Hardware Sentry Exporter for Prometheus** and the **Prometheus server**.
 
 ## Loading Dashboards in Grafana
 
 First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from <a href="https://www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sentry Software’s Web site</a>. The package contains:
 
-![Dashboards Package](./images/hardware-dashboards-for-grafana-folders.png)
+![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
 
 * the dashboards (.json files)
 * the provisioning files (.yml files)
@@ -24,7 +24,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\conf").
 3. Copy the `sustainable_IT` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
 
-    ![Download Dashboards on Windows](./images/import-dashboards-windows.png)
+    ![Download Dashboards on Windows](../images/import-dashboards-windows.png)
 
 ### On Linux and UNIX
 
@@ -37,7 +37,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 1. Go to `%GRAFANA_HOME%\grafana\conf\provisioning\dashboards`.
 2. Open the `hardware-sentry.yml` file.
 
-    ![Configuring Dashboard Provider](./images/import_grafana_dashboard_provider-config.png)
+    ![Configuring Dashboard Provider](../images/import_grafana_dashboard_provider-config.png)
 
 3. Search for the `path: ''` parameter.
 4. Specify the path to the folder where you uncompressed the *sustainable_IT_by_sentry_software* folder and save your changes.
@@ -61,7 +61,7 @@ Example:
 
     ```
 
-<div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT_by_sentry_software</i> folder. This folder should only contain dashboards for Grafana.</div> 
+<div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT_by_sentry_software</i> folder. This folder should only contain dashboards for Grafana.</div>
 
 ## Configuring the Data Source
 
@@ -69,11 +69,11 @@ The dashboards for Grafana query the Prometheus server to display the status of 
 
 1. In `\grafana\conf\provisioning\datasource`, open the *hardware-sentry-prometheus.yml* file.
 
-    ![Configuring Data Source](./images/import_grafana_dashboards_config.png)
+    ![Configuring Data Source](../images/import_grafana_dashboards_config.png)
 
 3. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
 4. Restart the Grafana service.
 
  The dashboard are now loaded in Grafana.
 
-![**${project.name}** Sustainable IT Dashboard](./images/dashboard_all_zones.png)
+![**${project.name}** Sustainable IT Dashboard](../images/dashboard_all_zones.png)

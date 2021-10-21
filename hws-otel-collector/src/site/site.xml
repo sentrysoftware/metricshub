@@ -10,7 +10,7 @@
 	<custom>
 		<projectVersion>${project.version}</projectVersion>
 		<bodyClass>sentry-hardware</bodyClass>
-		<keywords>hardware,prometheus,exporter,</keywords>
+		<keywords>hardware,prometheus,exporter,opentelemetry,otel</keywords>
 		<publishDate>${timestamp}</publishDate>
 		<noDefaultLinks>true</noDefaultLinks>
 	</custom>
@@ -18,31 +18,31 @@
 	<body>
 
 		<menu name="Getting Started">
-			<!--<item name="Release Notes" href="release-notes.html" / -->
-			<item name="What is ${project.name}?" href="index.html"/>
+			<item name="Overview" href="index.html"/>
 			<item name="Release Notes" href="release-notes.html" />
-			<item name="Prerequisites" href="prerequisites.html"/>
-			<item name="Getting the Installation Package" href="install.html"/>
+			<item name="Installation" href="install.html"/>
 		</menu>
 
-		<menu name="Using the Exporter">
-			<item name="Configuring" href="configure.html"/>
-			<item name="Operating" href="operate.html"/>
-			<item name="Viewing Metrics" href="metrics.html"/>
-			<item name="Using Alert Rules" href="alert-rules.html"/>
+		<menu name="Configuration">
+			<item name="OpenTelemetry Configuration" href="configuration/configure-otel.html" />
+			<item name="Monitoring Configuration" href="configuration/configure-exporter.html" />
+			<item name="Password Encryption" href="configuration/passwords.html" />
 		</menu>
 
-		<menu name="Integrating the Exporter">
-			<item name="Prometheus Server" href="configure-prometheus-server.html"/>
-			<item name="Grafana Dashboards" href="grafana.html"/>
-			<item name="BMC Helix" href="configure-helix-integration.html"/>
+		<menu name="Integrations">
+			<item name="Prometheus Server" href="integration/prometheus.html"/>
+			<item name="Using Alert Rules" href="integration/alertmanager.html"/>
+			<item name="Grafana Dashboards" href="integration/grafana.html"/>
+			<item name="BMC Helix" href="integration/helix.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">
-			<item name="Enabling Debug Mode" href="debug.html"/>
+			<item name="Enabling Debug Mode" href="troubleshooting/debug.html" />
+			<item name="Hardware Sentry CLI (&lt;code&gt;hws&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
 
 		<menu name="Appendix">
+			<item name="Metrics" href="metrics.html"/>
 			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank"/>
 			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/hdf-reference.html"/>
 			<item name="About" href="about.html" />

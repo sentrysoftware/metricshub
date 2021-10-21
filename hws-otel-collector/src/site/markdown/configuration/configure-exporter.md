@@ -19,7 +19,7 @@ The format, indentation and syntax of the configuration file must be strictly re
 
 Copy the following lines in the `hws-config.yaml` file:
 
-```
+```yaml
 targets:
 
 - target:
@@ -63,7 +63,7 @@ Use the parameters below to configure the HTTP protocol:
 
 #### Example
 
-```
+```yaml
 targets:
 
   - target:
@@ -88,7 +88,7 @@ Use the parameters below to configure the IPMI protocol:
 
 #### Example
 
-```
+```yaml
 targets:
 
 - target:
@@ -113,7 +113,7 @@ Use the parameters below to configure OS Commands:
 
 #### Example
 
-```
+```yaml
 targets:
   - target:
       hostname: myhost-01
@@ -142,7 +142,7 @@ Use the parameters below to configure the SSH protocol:
 
 #### Example
 
-```
+```yaml
 targets:
   - target:
       hostname: myhost-01
@@ -176,7 +176,7 @@ Use the parameters below to configure the SNMP protocol:
 
 #### Example
 
-```
+```yaml
 targets:
 
 - target:
@@ -226,7 +226,7 @@ Use the parameters below to configure the WBEM protocol:
 
 #### Example
 
-```
+```yaml
 targets:
 
   - target:
@@ -253,7 +253,7 @@ Use the parameters below to configure the WMI protocol:
 
 #### Example
 
-```
+```yaml
 targets:
 
   - target:
@@ -286,36 +286,34 @@ By default, **${project.name}** collects metrics from the monitored targets ever
 
 * for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
-```
-collectPeriod: 2m
-targets:
-- target:
-    hostname: myhost
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
-```
+    ```yaml
+    collectPeriod: 2m
+    targets:
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+    ```
 
 * for a specific target, add the `collectPeriod` parameter in the relevant `target` section:
 
-```
-targets:
+    ```yaml
+    targets:
 
-- target:
-    hostname: myhost
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
-  collectPeriod: 2m 
-```
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      collectPeriod: 2m
+    ```
 
 and indicate a value in minutes.
 
@@ -327,37 +325,35 @@ and indicate a value in minutes.
 
 * for all your targets, add the `discoveryCycle` just before the `targets` section:
 
-```
-discoveryCycle: 15
-targets:
+    ```yaml
+    discoveryCycle: 15
+    targets:
 
-- target:
-    hostname: ecs1-01
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
-```
+    - target:
+        hostname: ecs1-01
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+    ```
 
 * for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
 
-```
-targets:
+    ```yaml
+    targets:
 
-- target:
-    hostname: myhost
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
-  discoveryCycle: 15 
-```
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      discoveryCycle: 15
+    ```
 
 and indicate the number of collects after which a discovery will be performed.
 
@@ -367,7 +363,7 @@ and indicate the number of collects after which a discovery will be performed.
 
 By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
 
-```
+```yaml
 jobPoolSize: 20
 targets:
 
@@ -379,8 +375,8 @@ targets:
     community: public
     port: 161
     timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
 ```
+
 and indicate a number of jobs.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
@@ -398,7 +394,7 @@ Use the parameters below to select or exclude connectors:
 
 Connector names must be comma-separated, as shown in the example below:
 
-```
+```yaml
 targets:
 
   - target:
