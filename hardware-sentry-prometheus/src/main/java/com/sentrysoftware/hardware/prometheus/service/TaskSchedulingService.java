@@ -116,6 +116,8 @@ public class TaskSchedulingService {
 		multiHostsConfigurationDto.setExportTimestamps(newMultiHostsConfigurationDto.isExportTimestamps());
 		multiHostsConfigurationDto.setOutputDirectory(newMultiHostsConfigurationDto.getOutputDirectory());
 		multiHostsConfigurationDto.setLoggerLevel(newMultiHostsConfigurationDto.getLoggerLevel());
+		multiHostsConfigurationDto.setExtraLabels(newMultiHostsConfigurationDto.getExtraLabels());
+		multiHostsConfigurationDto.setExtraMetrics(newMultiHostsConfigurationDto.getExtraMetrics());
 
 		// Make sure the logger is configured correctly
 		configureLoggerLevel();

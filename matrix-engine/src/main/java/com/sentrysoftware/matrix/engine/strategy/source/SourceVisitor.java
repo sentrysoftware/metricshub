@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_BEGIN_OPERATION_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RAW_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
@@ -364,11 +365,15 @@ public class SourceVisitor implements ISourceVisitor {
 				.builder()
 				.rawData(selectedColumnsLines.stream()
 					.collect(Collectors.joining(NEW_LINE)))
+				.table(selectedColumnsLines.stream()
+						.map(line -> Stream.of(line.split(HardwareConstants.TABLE_SEP)).collect(Collectors.toList()))
+						.collect(Collectors.toList()))
 				.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 				"OSCommand source",
 				osCommandSource.getKey(),
+				sourceTable.getRawData(),
 				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
@@ -419,9 +424,10 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
+		log.info(LOG_RAW_RESULT_TEMPLATE,
 			"Reference source",
 			referenceSource.getKey(),
+			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		return sourceTable;
@@ -673,9 +679,19 @@ public class SourceVisitor implements ISourceVisitor {
 
 		sourceTable.setTable(executeTableUnion);
 
-		log.info(LOG_RESULT_TEMPLATE,
+		String rawData = sourceTablesToConcat
+				.stream()
+				.map(SourceTable::getRawData)
+				.filter(Objects::nonNull)
+				.collect(Collectors.joining(NEW_LINE))
+				.replace("\n\n", NEW_LINE);
+
+		sourceTable.setRawData(rawData);
+
+		log.info(LOG_RAW_RESULT_TEMPLATE,
 			"TableUnion source",
 			tableUnionSource.getKey(),
+			rawData,
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		return sourceTable;
@@ -712,7 +728,8 @@ public class SourceVisitor implements ISourceVisitor {
 			final List<String> result =
 					SshInteractiveHelper.runSshInteractive(
 							strategyConfig.getEngineConfiguration(),
-							sshInteractiveSource.getSteps());
+							sshInteractiveSource.getSteps(),
+							String.format("SshInteractiveSource(%d)", sshInteractiveSource.getIndex()));
 
 			final List<String> filteredLines = FilterResultHelper.filterLines(
 					result,
@@ -726,12 +743,17 @@ public class SourceVisitor implements ISourceVisitor {
 					sshInteractiveSource.getSeparators(),
 					sshInteractiveSource.getSelectColumns());
 
-			final SourceTable sourceTable = new SourceTable();
-			sourceTable.setRawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)));
+			final SourceTable sourceTable = SourceTable.builder()
+					.rawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)))
+					.table(selectedColumnsLines.stream()
+							.map(line -> Stream.of(line.split(HardwareConstants.TABLE_SEP)).collect(Collectors.toList()))
+							.collect(Collectors.toList()))
+					.build();
 
-			log.info(LOG_RESULT_TEMPLATE,
+			log.info(LOG_RAW_RESULT_TEMPLATE,
 					"SshInteractive source",
 					sshInteractiveSource.getKey(),
+					sourceTable.getRawData(),
 					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			return sourceTable;
@@ -906,7 +928,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (sourceNamespace == null) {
 			return "root\\cimv2";
-		} 
+		}
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase

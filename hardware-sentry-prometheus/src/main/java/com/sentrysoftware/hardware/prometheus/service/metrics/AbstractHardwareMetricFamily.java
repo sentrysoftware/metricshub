@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.prometheus.service.metrics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
@@ -47,10 +48,17 @@ public abstract class AbstractHardwareMetricFamily extends Collector.MetricFamil
 	 * @param timestampMs the time stamp of the metric value
 	 * @return this {@link HardwareCounterMetric}
 	 */
-	public AbstractHardwareMetricFamily addMetric(List<String> labelValues, double value, Long timestampMs) {
+	public AbstractHardwareMetricFamily addMetric(List<String> labelValues, Double value, Long timestampMs) {
 		Assert.isTrue(labelValues.size() == labelNames.size(), "Incorrect number of labels.");
 
-		samples.add(new Sample(name + this.nameSuffix, labelNames, labelValues, value, timestampMs));
+		if (value != null) {
+			labelValues = labelValues
+					.stream()
+					.map(labelValue -> labelValue != null ? labelValue : "")
+					.collect(Collectors.toList());
+
+			samples.add(new Sample(name + this.nameSuffix, labelNames, labelValues, value, timestampMs));
+		}
 
 		return this;
 	}

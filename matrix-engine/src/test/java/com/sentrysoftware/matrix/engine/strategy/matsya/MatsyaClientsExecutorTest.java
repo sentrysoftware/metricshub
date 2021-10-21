@@ -297,7 +297,7 @@ class MatsyaClientsExecutorTest {
 		// url is not null
 		try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
 
-			WbemQueryResult wbemQueryResult = new WbemQueryResult(Collections.emptySet(), Collections.emptyList());
+			WbemQueryResult wbemQueryResult = new WbemQueryResult(Collections.emptyList(), Collections.emptyList());
 
 			mockedWbemExecuteQuery.when(() -> WbemExecutor.executeWql(
 				any(URL.class),

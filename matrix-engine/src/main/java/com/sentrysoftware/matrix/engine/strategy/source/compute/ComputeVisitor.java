@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -684,19 +685,21 @@ public class ComputeVisitor implements IComputeVisitor {
 			computeKey,
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
-		if (keepColumns.getColumnNumbers() == null || keepColumns.getColumnNumbers().isEmpty()) {
+		List<Integer> columnNumbers = keepColumns.getColumnNumbers();
+		if (columnNumbers == null || columnNumbers.isEmpty()) {
 			log.warn("The column number list in KeepColumns cannot be null or empty. The table remains unchanged.");
 			return;
 		}
 
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
+		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
 		for (List<String> row : sourceTable.getTable()) {
 
 			resultRow = new ArrayList<>();
-			for (Integer columnIndex : keepColumns.getColumnNumbers()) {
+			for (Integer columnIndex : columnNumbers) {
 
-				if (columnIndex == null || columnIndex < 1 || columnIndex > row.size()) {
+				if (columnIndex < 1 || columnIndex > row.size()) {
 
 					log.warn("Invalid index for a {}-sized row: {}. The table remains unchanged.",
 						row.size(), columnIndex);
