@@ -482,7 +482,7 @@ public class CollectHelper {
 	 * @param energyRawKw       The cumulative energy value in kW. Never null
 	 * @param hostname          The system host name used for debug purpose
 	 */
-	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, final Double energyRawKw, final String hostname) {
+	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, @NonNull final Double energyRawKw, final String hostname) {
 
 		// Update the raw value for energy usage
 		updateNumberParameter(
@@ -574,4 +574,5 @@ public class CollectHelper {
 				&& percent >= 0
 				&& percent <= 100;
 	}
+
 }
