@@ -21,7 +21,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 ### On Windows
 
 1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
-2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\conf").
+2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (default: "C:\Program Files\GrafanaLabs\grafana\conf").
 3. Copy the `sustainable_IT` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
 
     ![Download Dashboards on Windows](./images/import-dashboards-windows.png)
@@ -29,7 +29,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 ### On Linux and UNIX
 
 1. Uncompress **hardware-dashboards-for-grafana.tar.gz** in a temporary folder.
-2. Copy the `provisioning` folder to the `grafana` folder on the Grafana server (ex: "/etc/grafana").
+2. Copy the `provisioning` folder to the `grafana` folder on the Grafana server (default: "/etc/grafana").
 3. Copy the `sustainable_IT` folder in the directory of your choice folder on the Grafana server (ex: "/var/lib/grafana/dashboards").
 
 ## Configuring the Dashboard Provider
@@ -40,11 +40,10 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
     ![Configuring Dashboard Provider](./images/import_grafana_dashboard_provider-config.png)
 
 3. Search for the `path: ''` parameter.
-4. Specify the path to the folder where you uncompressed the *sustainable_IT_by_sentry_software* folder and save your changes.
+4. Specify the path to the folder where you uncompressed the *sustainable_IT* folder and save your changes.
 
 Example:
 
-    ```
     apiVersion: 1
 
     providers:
@@ -59,21 +58,53 @@ Example:
         path: 'C:/Program Files/GrafanaLabs/grafana/public/dashboards'
         foldersFromFilesStructure: true
 
-    ```
-
-<div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT_by_sentry_software</i> folder. This folder should only contain dashboards for Grafana.</div> 
+<div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT</i> folder. This folder should only contain dashboards for Grafana.</div>
 
 ## Configuring the Data Source
 
 The dashboards for Grafana query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
 
 1. In `\grafana\conf\provisioning\datasource`, open the *hardware-sentry-prometheus.yml* file.
-
-    ![Configuring Data Source](./images/import_grafana_dashboards_config.png)
-
-3. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
-4. Restart the Grafana service.
+   ![Configuring Data Source Provider](./images/import_grafana_dashboards_config.png)
+2. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
+3. Restart the Grafana service.
 
  The dashboard are now loaded in Grafana.
+
+ Example:
+
+    # config file version
+    apiVersion: 1
+
+    datasources:
+      # <string, required> name of the datasource. Required
+    - name: hardware_sentry_prometheus
+      # <string, required> datasource type. Required
+      type: prometheus
+      # <string, required> access mode. direct or proxy. Required
+      access: proxy
+      # <int> org id. will default to orgId 1 if not specified
+      orgId: 1
+      # <string> url
+      url: http://myhost-01:9090
+      # <string> database password, if used
+      password:
+      # <string> database user, if used
+      user:
+      # <string> database name, if used
+      database:
+      # <bool> enable/disable basic auth
+      basicAuth: false
+      # <string> basic auth username, if used
+      basicAuthUser:
+      # <string> basic auth password, if used
+      basicAuthPassword:
+      # <bool> enable/disable with credentials headers
+      withCredentials:
+      # <bool> mark as default datasource. Max one per org
+      isDefault: true
+      version: 1
+      # <bool> allow users to edit datasources from the UI.
+      editable: true
 
 ![**${project.name}** Sustainable IT Dashboard](./images/dashboard_all_zones.png)
