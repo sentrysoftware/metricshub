@@ -132,7 +132,7 @@ Use the parameters below to configure the SSH protocol:
 | Parameter       | Description                                                                                                                                           |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ssh             | Protocol used to access the target.                                                                                                                   |
-| timeout         | How long until the SNMP request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout         | How long until the command times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
 | useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                          |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                              |
