@@ -8,10 +8,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Keep
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ValueListProcessorTest {
 
@@ -20,7 +22,7 @@ class ValueListProcessorTest {
 	private final Connector connector = new Connector();
 	private static final String KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY = "enclosure.collect.source(1).compute(1).valuelist";
 
-	private static final String VALUE_LIST = "0,1,2";
+	private static final String VALUE_LIST = "Unavailable,offline,OFF,0";
 
 	@Test
 	void testParse() {
@@ -52,6 +54,14 @@ class ValueListProcessorTest {
 			.add(hardwareMonitor);
 
 		valueListProcessor.parse(KEEP_ONLY_MATCHING_LINES_VALUE_LIST_KEY, VALUE_LIST, connector);
-		assertEquals(Arrays.asList("0", "1", "2"), excludeMatchingLines.getValueList());
+		final Set<String> valueSet = excludeMatchingLines.getValueSet();
+		assertEquals(Set.of("Unavailable", "offline", "OFF", "0"), valueSet);
+		assertFalse(valueSet.contains("1"));
+		assertFalse(valueSet.contains("ON"));
+		assertTrue(valueSet.contains("Unavailable"));
+		assertTrue(valueSet.contains("unavailable"));
+		assertTrue(valueSet.contains("UNAVAILABLE"));
+		assertTrue(valueSet.contains("off"));
+		assertTrue(valueSet.contains("0"));
 	}
 }

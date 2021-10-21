@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -755,13 +756,13 @@ public class ComputeVisitor implements IComputeVisitor {
 			int columnIndex = abstractMatchingLines.getColumn() - 1;
 
 			String pslRegexp = abstractMatchingLines.getRegExp();
-			List<String> valueList = abstractMatchingLines.getValueList();
+			Set<String> valueSet = abstractMatchingLines.getValueSet();
 
 			final Predicate<String> pslPredicate = pslRegexp != null && !pslRegexp.isEmpty() ?
 					getPredicate(pslRegexp, abstractMatchingLines) : null;
 
-			final Predicate<String> valuePredicate = valueList != null && !valueList.isEmpty() ?
-					getPredicate(valueList, abstractMatchingLines) : null;
+			final Predicate<String> valuePredicate = valueSet != null && !valueSet.isEmpty() ?
+					getPredicate(valueSet, abstractMatchingLines) : null;
 
 			// If there are both a regex and a valueList, both are applied, one after the other.
 			final List<List<String>> filteredTable = sourceTable.getTable().stream()
@@ -800,7 +801,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	/**
-	 * @param valueList				The list of values used to filter the lines in the {@link SourceTable}.
+	 * @param valueSet				The set of values used to filter the lines in the {@link SourceTable}.
 	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
 	 *                              describing the rules
 	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
@@ -810,11 +811,11 @@ public class ComputeVisitor implements IComputeVisitor {
 	 * 								and the concrete type of the given {@link AbstractMatchingLines},
 	 * 								that can be used to filter the lines in the {@link SourceTable}.
 	 */
-	private Predicate<String> getPredicate(List<String> valueList, AbstractMatchingLines abstractMatchingLines) {
+	private Predicate<String> getPredicate(Set<String> valueSet, AbstractMatchingLines abstractMatchingLines) {
 
-		return abstractMatchingLines instanceof KeepOnlyMatchingLines
-			? value -> valueList.stream().anyMatch(value::equalsIgnoreCase)
-			: value -> valueList.stream().noneMatch(value::equalsIgnoreCase);
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines ?
+				value -> value != null && valueSet.contains(value) :
+					value -> value != null && !valueSet.contains(value);
 	}
 
 	@Override

@@ -3,9 +3,11 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.excludematching
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 
-import java.util.Arrays;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.COMMA;
 
@@ -25,6 +27,8 @@ public class ValueListProcessor extends ExcludeMatchingLinesProcessor {
 
 		super.parse(key, value, connector);
 
-		((ExcludeMatchingLines) getCompute(key, connector)).setValueList(Arrays.asList(value.split(COMMA)));
+		((ExcludeMatchingLines) getCompute(key, connector)).setValueSet(
+				Stream.of(value.split(COMMA))
+				.collect(Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER))));
 	}
 }

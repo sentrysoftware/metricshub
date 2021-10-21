@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @NoArgsConstructor
@@ -20,14 +20,14 @@ public abstract class AbstractMatchingLines extends Compute {
 
 	private Integer column;
 	private String regExp;
-	private List<String> valueList = new ArrayList<>();
+	private Set<String> valueSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-	protected AbstractMatchingLines(Integer index, Integer column, String regExp, List<String> valueList) {
+	protected AbstractMatchingLines(Integer index, Integer column, String regExp, Set<String> valueSet) {
 
 		super(index);
 
 		this.column = column;
 		this.regExp = regExp;
-		this.valueList = valueList == null ? new ArrayList<>() : valueList;
+		this.valueSet = valueSet == null ? new TreeSet<>(String.CASE_INSENSITIVE_ORDER) : valueSet;
 	}
 }

@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -18,8 +18,8 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 	private static final long serialVersionUID = -3662198961800729320L;
 
 	@Builder
-	public ExcludeMatchingLines(Integer index, Integer column, String regExp, List<String> valueList) {
-		super(index, column, regExp, valueList);
+	public ExcludeMatchingLines(Integer index, Integer column, String regExp, Set<String> valueSet) {
+		super(index, column, regExp, valueSet);
 	}
 
 	@Override

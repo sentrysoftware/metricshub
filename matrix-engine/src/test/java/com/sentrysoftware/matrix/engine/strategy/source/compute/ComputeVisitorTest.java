@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -221,18 +222,18 @@ class ComputeVisitorTest {
 				.builder()
 				.column(1)
 				.regExp(null)
-				.valueList(null)
+				.valueSet(null)
 				.build();
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
-		// regexp is empty, valueList is null
+		// regexp is empty, valueSet is null
 		keepOnlyMatchingLines.setRegExp("");
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
-		// regexp is empty, valueList is empty
-		keepOnlyMatchingLines.setValueList(Collections.emptyList());
+		// regexp is empty, valueSet is empty
+		keepOnlyMatchingLines.setValueSet(Collections.emptySet());
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
@@ -247,10 +248,10 @@ class ComputeVisitorTest {
 		assertEquals(line3, resultTable.get(1));
 
 		// regex is null,
-		// valueList is not null, not empty
+		// valueSet is not null, not empty
 		computeVisitor.getSourceTable().setTable(table);
 		keepOnlyMatchingLines.setRegExp(null);
-		keepOnlyMatchingLines.setValueList(Arrays.asList("3", "300"));
+		keepOnlyMatchingLines.setValueSet(Set.of("3", "300"));
 		keepOnlyMatchingLines.setColumn(4);
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
@@ -261,11 +262,11 @@ class ComputeVisitorTest {
 		assertEquals(line3, resultTable.get(1));
 
 		// regex is not null, not empty
-		// valueList is not null, not empty
+		// valueSet is not null, not empty
 		computeVisitor.getSourceTable().setTable(table);
 		keepOnlyMatchingLines.setColumn(1);
 		keepOnlyMatchingLines.setRegExp("^B.*"); // Applying only the regex would match line2 and line3
-		keepOnlyMatchingLines.setValueList(Arrays.asList("FOO", "BAR", "BAB")); // Applying only the valueList would match line1 and line2
+		keepOnlyMatchingLines.setValueSet(Set.of("FOO", "BAR", "BAB")); // Applying only the valueSet would match line1 and line2
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
 		resultTable = computeVisitor.getSourceTable().getTable();
@@ -350,23 +351,23 @@ class ComputeVisitorTest {
 						.table(table)
 						.build());
 
-		// regexp is null, valueList is null
+		// regexp is null, valueSet is null
 		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
 				.builder()
 				.column(1)
 				.regExp(null)
-				.valueList(null)
+				.valueSet(null)
 				.build();
 		computeVisitor.visit(excludeMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
-		// regexp is empty, valueList is null
+		// regexp is empty, valueSet is null
 		excludeMatchingLines.setRegExp("");
 		computeVisitor.visit(excludeMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
-		// regexp is empty, valueList is empty
-		excludeMatchingLines.setValueList(Collections.emptyList());
+		// regexp is empty, valueSet is empty
+		excludeMatchingLines.setValueSet(Collections.emptySet());
 		computeVisitor.visit(excludeMatchingLines);
 		assertEquals(table, computeVisitor.getSourceTable().getTable());
 
@@ -380,10 +381,10 @@ class ComputeVisitorTest {
 		assertEquals(line1, resultTable.get(0));
 
 		// regex is null,
-		// valueList is not null, not empty
+		// valueSet is not null, not empty
 		computeVisitor.getSourceTable().setTable(table);
 		excludeMatchingLines.setRegExp(null);
-		excludeMatchingLines.setValueList(Arrays.asList("3", "300"));
+		excludeMatchingLines.setValueSet(Set.of("3", "300"));
 		excludeMatchingLines.setColumn(4);
 		computeVisitor.visit(excludeMatchingLines);
 		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
@@ -393,16 +394,16 @@ class ComputeVisitorTest {
 		assertEquals(line2, resultTable.get(0));
 
 		// regex is not null, not empty
-		// valueList is not null, not empty
+		// valueSet is not null, not empty
 		computeVisitor.getSourceTable().setTable(table);
 		excludeMatchingLines.setColumn(1);
 		excludeMatchingLines.setRegExp(".*R.*"); // Applying only the regex would exclude line2
-		excludeMatchingLines.setValueList(Arrays.asList("FOO", "BAR", "BAB")); // Applying only the valueList would exclude line1 and line2
+		excludeMatchingLines.setValueSet(Set.of("FOO", "BAR", "BAB")); // Applying only the valueSet would exclude line1 and line2
 		computeVisitor.visit(excludeMatchingLines);
 		assertNotEquals(table, computeVisitor.getSourceTable().getTable());
 		resultTable = computeVisitor.getSourceTable().getTable();
 		assertNotNull(resultTable);
-		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList leaves only line3
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueSet leaves only line3
 		assertEquals(line3, resultTable.get(0));
 	}
 
@@ -2313,7 +2314,7 @@ class ComputeVisitorTest {
 				.builder()
 				.column(1)
 				.regExp("^B")
-				.valueList(null)
+				.valueSet(null)
 				.build();
 		computeVisitor.visit(keepOnlyMatchingLines);
 		// check regex column 1 starts with B
@@ -2410,7 +2411,7 @@ class ComputeVisitorTest {
 		List<List<String>> expectedTableResult =  Arrays.asList(line2, line4);
 		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
 
-		// check valueList ignoreCase
+		// check valueSet ignoreCase
 		table = Arrays.asList(line1, line2, line3, line4);
 		computeVisitor.setSourceTable(
 				SourceTable
@@ -2420,7 +2421,7 @@ class ComputeVisitorTest {
 		keepOnlyMatchingLines = KeepOnlyMatchingLines
 				.builder()
 				.column(2)
-				.valueList(Arrays.asList("Fan"))
+				.valueSet(Set.of("Fan"))
 				.build();
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
