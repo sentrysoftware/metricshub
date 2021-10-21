@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCLOSURE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
@@ -44,6 +45,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -82,6 +84,7 @@ public class MonitorNameBuilder {
 	private static final Pattern DISK_CONTROLLER_TRIM_PATTERN = null;
 	private static final Pattern ENCLOSURE_TRIM_PATTERN = null;
 	private static final Pattern FAN_TRIM_PATTERN = Pattern.compile("fan", Pattern.CASE_INSENSITIVE);
+	private static final Pattern GPU_TRIM_PATTERN = Pattern.compile("gpu|graphic|card", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LED_TRIM_PATTERN = Pattern.compile("led", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LOGICAL_DISK_TRIM_PATTERN = Pattern.compile("disk|drive|logical", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LUN_TRIM_PATTERN = Pattern.compile("lun", Pattern.CASE_INSENSITIVE);
@@ -1145,5 +1148,78 @@ public class MonitorNameBuilder {
 			// Additional label
 			hostname
 		);
+	}
+
+	/**
+	 * Builds the GPU name based on the current implementation in Hardware Sentry KM
+	 *
+	 * @param monitorBuildingInfo {@link MonitorBuildingInfo} of the monitor instance
+	 *
+	 * @return {@link String} name Label of the GPU to be displayed
+	 */
+	public static String buildGpuName(final MonitorBuildingInfo monitorBuildingInfo) {
+
+		// Check the metadata
+		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
+		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
+
+		// Building the first part of the name
+		String name = buildName(
+
+			// Type
+			null,
+
+			// Name
+			metadata.get(DISPLAY_ID),
+			metadata.get(DEVICE_ID),
+			metadata.get(ID_COUNT),
+			CPU_TRIM_PATTERN,
+
+			// Additional label
+			new String[]{}
+		);
+
+		// Now, adding the vendor and the model,
+		// but only if they are not part of the built name already.
+
+		// Getting the vendor and making sure it is not blank or part of the built name already
+		String vendor = metadata.get(VENDOR);
+		if (vendor != null && (vendor.isBlank() || name.toLowerCase().contains(vendor.toLowerCase()))) {
+			vendor = null;
+		}
+
+		// Getting the model and making sure it is not blank part of the built name already
+		String model = metadata.get(MODEL);
+		if (model != null && (model.isBlank() || name.toLowerCase().contains(model.toLowerCase()))) {
+			model = null;
+		}
+
+		// Formatting the size
+		Double size = NumberHelper.parseDouble(metadata.get(SIZE), 0.0);
+		String formattedSize = size > 0 ? String.format(" - %.2f GB", size / 1024.0) : EMPTY;
+
+		// There is a vendor AND a model => add both with the size,
+		// provided the vendor is not contained in the model already
+		if (vendor != null && !vendor.isBlank() && model != null && !model.isBlank()) {
+
+			String additionalInformation = model.toLowerCase().contains(vendor.toLowerCase())
+				? String.format(" (%s%s)", model, formattedSize)
+				: String.format(" (%s - %s%s)", vendor, model, formattedSize);
+
+			return trimUnwantedCharacters(String.format("%s%s", name, additionalInformation));
+		}
+
+		// No model, but there is a vendor => add the vendor and the formatted size to the name
+		if (vendor != null) {
+			return trimUnwantedCharacters(String.format("%s (%s%s)", name, vendor, formattedSize));
+		}
+
+		// No vendor, but there is a model => add the model and the formatted size to the name
+		if (model != null) {
+			return trimUnwantedCharacters(String.format("%s (%s%s)", name, model, formattedSize));
+		}
+
+		// No vendor and no model => just add the formatted size to the name
+		return trimUnwantedCharacters(String.format("%s%s", name, formattedSize));
 	}
 }

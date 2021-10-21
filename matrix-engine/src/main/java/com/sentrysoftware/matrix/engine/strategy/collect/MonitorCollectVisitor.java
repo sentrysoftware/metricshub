@@ -7,8 +7,12 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -57,6 +61,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_R
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_TRANSMITTED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WATTS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
@@ -71,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -128,8 +134,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
 
+	private static final Map<String, String> GPU_USED_TIME_PARAMETERS = Map.of(
+		DECODER_USED_TIME_PARAMETER, DECODER_USED_TIME_PERCENT_PARAMETER,
+		ENCODER_USED_TIME_PARAMETER, ENCODER_USED_TIME_PERCENT_PARAMETER,
+		USED_TIME_PARAMETER, USED_TIME_PERCENT_PARAMETER);
+
+	private static final Map<String, String> GPU_BYTES_TRANSFER_PARAMETERS = Map.of(
+		TRANSMITTED_BYTES_PARAMETER, TRANSMITTED_BYTES_RATE_PARAMETER,
+		RECEIVED_BYTES_PARAMETER, RECEIVED_BYTES_RATE_PARAMETER);
+
 	@Getter
-	private MonitorCollectInfo monitorCollectInfo;
+	private final MonitorCollectInfo monitorCollectInfo;
 
 	public MonitorCollectVisitor(@NonNull MonitorCollectInfo monitorCollectInfo) {
 		checkCollectInfo(monitorCollectInfo);
@@ -229,6 +244,19 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectStatusInformation();
 
+	}
+
+	@Override
+	public void visit(Gpu gpu) {
+
+		collectBasicParameters(gpu);
+
+		collectGpuUsedTimeParameters();
+		collectGpuBytesTransferParameters();
+
+		collectPowerConsumption();
+
+		collectStatusInformation();
 	}
 
 	@Override
@@ -415,7 +443,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * Collect a discrete parameter of the current {@link Monitor} instance
 	 *
 	 * @param monitorType       The type of the monitor we currently collect
-	 * @param paramterName      The meta information of the parameter we wish to collect
+	 * @param parameterName      The meta information of the parameter we wish to collect
 	 * @param discreteParamType The {@link DiscreteParamType} defining the interpret function
 	 */
 	void collectDiscreteParameter(@NonNull final MonitorType monitorType, @NonNull String parameterName,
@@ -1194,15 +1222,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			// Translating the color status
 			final Optional<LedColorStatus> colorStatus = LedColorStatus.interpret(colorStatusValue);
 
-			if (colorStatus.isPresent()) {
-				// colorState is never null here
-				CollectHelper.updateDiscreteParameter(
-						monitor,
-						COLOR_PARAMETER,
-						monitorCollectInfo.getCollectTime(),
-						colorStatus.get()
-				);
-			}
+			// colorState is never null here
+			colorStatus
+				.ifPresent(ledColorStatus -> CollectHelper.updateDiscreteParameter(
+					monitor,
+					COLOR_PARAMETER,
+					monitorCollectInfo.getCollectTime(),
+					ledColorStatus
+				));
 		}
 	}
 
@@ -1227,7 +1254,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			// Translating the LED indicator status
 			Optional<LedIndicator> maybeLedIndicatorStatus = LedIndicator.interpret(statusRaw);
 
-			if (!maybeLedIndicatorStatus.isPresent()) {
+			if (maybeLedIndicatorStatus.isEmpty()) {
 				return;
 			}
 
@@ -1292,14 +1319,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			if (duplexModeRaw != null) {
 
-				final Optional<DuplexMode> maybeDuplexMode = DuplexMode.interpret(duplexModeRaw);
-
-				final DuplexMode duplexMode;
-				if (maybeDuplexMode.isPresent()) {
-					duplexMode = maybeDuplexMode.get();
-				} else {
-					duplexMode = DuplexMode.HALF; 
-				}
+				final DuplexMode duplexMode = DuplexMode
+					.interpret(duplexModeRaw)
+					.orElse(DuplexMode.HALF);
 		
 				CollectHelper.updateDiscreteParameter(
 						monitor,
@@ -1564,9 +1586,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Collect the {@link NetworkCard} error count/percentage.
 	 */
-	void collectNetworkCardErrorPercent(final Double receivedPackets, final Double tranmittedPackets) {
+	void collectNetworkCardErrorPercent(final Double receivedPackets, final Double transmittedPackets) {
 
-		if (receivedPackets == null || tranmittedPackets == null) {
+		if (receivedPackets == null || transmittedPackets == null) {
 			return;
 		}
 
@@ -1591,7 +1613,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		);
 
 		// Setting the total packets
-		final Double totalPackets = receivedPackets + tranmittedPackets;
+		final Double totalPackets = receivedPackets + transmittedPackets;
 		CollectHelper.updateNumberParameter(
 				monitor,
 				TOTAL_PACKETS_PARAMETER,
@@ -1699,6 +1721,119 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
+	 * Collects the GPU used time parameters (<i>DecoderUsedTime</i>, <i>EncoderUsedTime</i> and <i>UsedTime</i>),
+	 * when possible.<br><br>
+	 *
+	 * If a parameter could not be collected, then tries to collect the matching ratio parameter<br>
+	 * (respectively: <i>DecoderUsedTimePercent</i>, <i>EncoderUsedTimePercent</i> and <i>UsedTimePercent</i>).<br><br>
+	 *
+	 * @see <a href="http://alpha.internal.sentrysoftware.net/lecloud/display/HW/Classes#Classes-GPU(%22GPUs%22)">
+	 *     		The GPU class specification
+	 *      </a>
+	 */
+	void collectGpuUsedTimeParameters() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		for (Map.Entry<String, String> entry : GPU_USED_TIME_PARAMETERS.entrySet()) {
+
+			// Getting the GPU used time value
+			final Double usedTimeValue = extractParameterValue(monitor.getMonitorType(), entry.getKey());
+
+			if (usedTimeValue != null) {
+
+				// Setting the GPU used time
+				CollectHelper.updateNumberParameter(
+					monitor,
+					entry.getKey(),
+					TIME_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					usedTimeValue,
+					usedTimeValue
+				);
+
+			} else {
+
+				// If the GPU used time parameter could not be collected,
+				// let us try the GPU used time percent parameter
+				final Double usedTimePercentValue = extractParameterValue(monitor.getMonitorType(), entry.getValue());
+
+				// Setting the GPU used time percent
+				if (usedTimePercentValue != null && usedTimePercentValue >= 0.0 && usedTimePercentValue <= 100.0) {
+
+					CollectHelper.updateNumberParameter(
+						monitor,
+						entry.getValue(),
+						PERCENT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						usedTimePercentValue,
+						usedTimePercentValue
+					);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Collects the GPU bytes transfer parameters (<i>transmittedBytes</i> and <i>receivedBytes</i>),
+	 * when possible.<br><br>
+	 *
+	 * If a parameter could not be collected, then tries to collect the matching rate parameter<br>
+	 * (respectively: <i>transmittedBytesRate</i> and <i>receivedBytesRate</i>).<br><br>
+	 *
+	 * @see <a href="http://alpha.internal.sentrysoftware.net/lecloud/display/HW/Classes#Classes-GPU(%22GPUs%22)">
+	 *     		The GPU class specification
+	 *      </a>
+	 */
+	void collectGpuBytesTransferParameters() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		for (Map.Entry<String, String> entry : GPU_BYTES_TRANSFER_PARAMETERS.entrySet()) {
+
+			// Getting the GPU bytes transfer value
+			final Double byteTransferValue = extractParameterValue(monitor.getMonitorType(), entry.getKey());
+
+			if (byteTransferValue != null) {
+
+				// Setting the GPU bytes transfer parameter
+				CollectHelper.updateNumberParameter(
+					monitor,
+					entry.getKey(),
+					BYTES_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					byteTransferValue,
+					byteTransferValue
+				);
+
+			} else {
+
+				// If the GPU bytes transfer parameter could not be collected,
+				// let us try the GPU transferred bytes rate parameter
+				final Double transferredBytesRateInBytesPerSecond = extractParameterValue(monitor.getMonitorType(),
+					entry.getValue());
+
+				// Setting the GPU transferred bytes rate
+				if (transferredBytesRateInBytesPerSecond != null) {
+
+					// Converting from B/s to MB/s
+					final double transferredBytesRateInMegaBytesPerSecond =
+						transferredBytesRateInBytesPerSecond / 1048576.0; // 1048576 == 1024 * 1024
+
+					CollectHelper.updateNumberParameter(
+						monitor,
+						entry.getValue(),
+						PERCENT_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						transferredBytesRateInMegaBytesPerSecond,
+						transferredBytesRateInMegaBytesPerSecond
+					);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Collect the status information on the current monitor instance. This
 	 * method must be called after collecting the {@link Status}
 	 */
@@ -1731,5 +1866,4 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				status
 		);
 	}
-
 }

@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy;
 
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
@@ -68,4 +69,6 @@ public interface IMonitorVisitor {
 	void visit(Robotics robotics);
 
 	void visit(Vm vm);
+
+	void visit(Gpu gpu);
 }

@@ -7,6 +7,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.Lun;
@@ -55,7 +56,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	public static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
 
-	private MonitorBuildingInfo monitorBuildingInfo;
+	private final MonitorBuildingInfo monitorBuildingInfo;
 
 	public MonitorDiscoveryVisitor(@NonNull MonitorBuildingInfo monitorBuildingInfo) {
 		checkBuildingInfo(monitorBuildingInfo);
@@ -137,6 +138,13 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final Monitor monitor = createMonitor(MonitorNameBuilder.buildFanName(monitorBuildingInfo), null);
 
 		fan.accept(new MonitorAlertRulesVisitor(monitor));
+	}
+
+	@Override
+	public void visit(Gpu gpu) {
+		final Monitor monitor = createMonitor(MonitorNameBuilder.buildGpuName(monitorBuildingInfo), null);
+
+		gpu.accept(new MonitorAlertRulesVisitor(monitor));
 	}
 
 	@Override

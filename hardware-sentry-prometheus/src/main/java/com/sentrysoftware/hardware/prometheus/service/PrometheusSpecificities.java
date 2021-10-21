@@ -41,6 +41,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -94,11 +95,13 @@ public class PrometheusSpecificities {
 
 		labelsMap.put(MonitorType.BATTERY, concatLabelsWithMetadata(MonitorType.BATTERY));
 		labelsMap.put(MonitorType.BLADE, concatLabelsWithMetadata(MonitorType.BLADE));
+		labelsMap.put(MonitorType.CONNECTOR, concatLabelsWithMetadata(MonitorType.CONNECTOR));
 		labelsMap.put(MonitorType.CPU_CORE, concatLabelsWithMetadata(MonitorType.CPU_CORE));
 		labelsMap.put(MonitorType.CPU, concatLabelsWithMetadata(MonitorType.CPU));
 		labelsMap.put(MonitorType.DISK_CONTROLLER, concatLabelsWithMetadata(MonitorType.DISK_CONTROLLER));
 		labelsMap.put(MonitorType.ENCLOSURE, concatLabelsWithMetadata(MonitorType.ENCLOSURE));
 		labelsMap.put(MonitorType.FAN, concatLabelsWithMetadata(MonitorType.FAN));
+		labelsMap.put(MonitorType.GPU, concatLabelsWithMetadata(MonitorType.GPU));
 		labelsMap.put(MonitorType.LED, concatLabelsWithMetadata(MonitorType.LED));
 		labelsMap.put(MonitorType.LOGICAL_DISK, concatLabelsWithMetadata(MonitorType.LOGICAL_DISK));
 		labelsMap.put(MonitorType.LUN, concatLabelsWithMetadata(MonitorType.LUN));
@@ -113,7 +116,6 @@ public class PrometheusSpecificities {
 		labelsMap.put(MonitorType.TEMPERATURE, concatLabelsWithMetadata(MonitorType.TEMPERATURE));
 		labelsMap.put(MonitorType.VOLTAGE, concatLabelsWithMetadata(MonitorType.VOLTAGE));
 		labelsMap.put(MonitorType.VM, concatLabelsWithMetadata(MonitorType.VM));
-		labelsMap.put(MonitorType.CONNECTOR, concatLabelsWithMetadata(MonitorType.CONNECTOR));
 
 		metricInfoLabels = Collections.unmodifiableMap(labelsMap);
 
@@ -127,6 +129,7 @@ public class PrometheusSpecificities {
 		prometheusParametersMap.put(MonitorType.DISK_CONTROLLER, buildDiskControllerPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.ENCLOSURE, buildEnclosurePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.FAN, buildFanPrometheusParameters());
+		prometheusParametersMap.put(MonitorType.GPU, buildGpuPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.LED, buildLedPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.LOGICAL_DISK, buildLogicalDiskPrometheusParameters());
 		prometheusParametersMap.put(MonitorType.LUN, buildLunPrometheusParameters());
@@ -154,6 +157,7 @@ public class PrometheusSpecificities {
 		infoMetricsMap.put(MonitorType.DISK_CONTROLLER, "hw_disk_controller_info");
 		infoMetricsMap.put(MonitorType.ENCLOSURE, "hw_enclosure_info");
 		infoMetricsMap.put(MonitorType.FAN, "hw_fan_info");
+		infoMetricsMap.put(MonitorType.GPU, "hw_gpu_info");
 		infoMetricsMap.put(MonitorType.LED, "hw_led_info");
 		infoMetricsMap.put(MonitorType.LOGICAL_DISK, "hw_logical_disk_info");
 		infoMetricsMap.put(MonitorType.LUN, "hw_lun_info");
@@ -174,17 +178,18 @@ public class PrometheusSpecificities {
 		final Map<MonitorType, Map<String, PrometheusParameter>> prometheusMetadataParametersMap = new EnumMap<>(MonitorType.class);
 
 		prometheusMetadataParametersMap.put(MonitorType.CPU, cpuMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.FAN, fanMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.GPU, gpuMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, logicalDiskMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.LUN, lunMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.MEMORY, memoryMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.PHYSICAL_DISK, physicalDiskMetadataToPrometheusParameters());
-		prometheusMetadataParametersMap.put(MonitorType.FAN, fanMetadataToPrometheusParameters());
-		prometheusMetadataParametersMap.put(MonitorType.LUN, lunMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.NETWORK_CARD, networkCardMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.OTHER_DEVICE, otherDeviceMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.ROBOTICS, roboticsMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.TAPE_DRIVE, tapeDriveMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.TEMPERATURE, temperatureMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.VOLTAGE, voltageMetadataToPrometheusParameters());
-		prometheusMetadataParametersMap.put(MonitorType.ROBOTICS, roboticsMetadataToPrometheusParameters());
 
 		prometheusMetadataToParameters = Collections.unmodifiableMap(prometheusMetadataParametersMap);
 	}
@@ -516,6 +521,30 @@ public class PrometheusSpecificities {
 				.name("hw_cpu_corrected_errors_alarm")
 				.unit(ERRORS)
 				.build());
+
+		return map;
+	}
+
+	/**
+	 * Convert some GPU Metadata to Prometheus metrics
+	 *
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> gpuMetadataToPrometheusParameters() {
+
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, PrometheusParameter
+			.builder()
+			.name("hw_gpu_corrected_errors_warning")
+			.unit(ERRORS)
+			.build());
+
+		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, PrometheusParameter
+			.builder()
+			.name("hw_gpu_corrected_errors_alarm")
+			.unit(ERRORS)
+			.build());
 
 		return map;
 	}
@@ -1174,6 +1203,91 @@ public class PrometheusSpecificities {
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
 			.name("hw_vm_energy_joules")
+			.unit(JOULES)
+			.type(PrometheusMetricType.COUNTER)
+			.build());
+
+		return map;
+	}
+
+	/**
+	 * Build gpu prometheus parameters map
+	 *
+	 * @return {@link Map} where the prometheus parameters are indexed by the matrix parameter name
+	 */
+	private static Map<String, PrometheusParameter> buildGpuPrometheusParameters() {
+
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(IMetaMonitor.STATUS.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_status")
+			.unit(IMetaMonitor.STATUS.getUnit())
+			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.build());
+		map.put(Gpu.CORRECTED_ERROR_COUNT.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_corrected_errors")
+			.unit(Gpu.CORRECTED_ERROR_COUNT.getUnit())
+			.type(PrometheusMetricType.COUNTER)
+			.build());
+		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_predicted_failure")
+			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
+			.build());
+		map.put(Gpu.USED_TIME.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_used_time_seconds")
+			.unit(Gpu.USED_TIME.getUnit())
+			.build());
+		map.put(Gpu.USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_used_time_ratio")
+			.unit(RATIO)
+			.factor(0.01)
+			.build());
+		map.put(Gpu.DECODER_USED_TIME.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_decoder_used_time_seconds")
+			.unit(Gpu.DECODER_USED_TIME.getUnit())
+			.build());
+		map.put(Gpu.DECODER_USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_decoder_used_time_ratio")
+			.unit(RATIO)
+			.factor(0.01)
+			.build());
+		map.put(Gpu.ENCODER_USED_TIME.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_encoder_used_time_seconds")
+			.unit(Gpu.ENCODER_USED_TIME.getUnit())
+			.build());
+		map.put(Gpu.ENCODER_USED_TIME_PERCENT.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_encoder_used_time_ratio")
+			.unit(RATIO)
+			.factor(0.01)
+			.build());
+		map.put(Gpu.MEMORY_UTILIZATION.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_memory_utilization_ratio")
+			.unit(RATIO)
+			.factor(0.01)
+			.build());
+		map.put(Gpu.RECEIVED_BYTES.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_received_bytes")
+			.unit(BYTES_PARAMETER_UNIT)
+			.type(PrometheusMetricType.COUNTER)
+			.build());
+		map.put(Gpu.RECEIVED_BYTES_RATE.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_received_bytes_ratio")
+			.unit(RATIO)
+			.build());
+		map.put(Gpu.TRANSMITTED_BYTES.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_transmitted_bytes")
+			.unit(BYTES_PARAMETER_UNIT)
+			.type(PrometheusMetricType.COUNTER)
+			.build());
+		map.put(Gpu.TRANSMITTED_BYTES_RATE.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_transmitted_bytes_ratio")
+			.unit(RATIO)
+			.build());
+		map.put(IMetaMonitor.ENERGY.getName(), PrometheusParameter.builder()
+			.name("hw_gpu_energy_joules")
 			.unit(JOULES)
 			.type(PrometheusMetricType.COUNTER)
 			.build());

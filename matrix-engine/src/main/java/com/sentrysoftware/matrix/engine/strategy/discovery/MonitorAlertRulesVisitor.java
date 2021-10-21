@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -348,6 +349,19 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, vm);
+	}
+
+	@Override
+	public void visit(Gpu gpu) {
+		if (monitor == null) {
+			return;
+		}
+
+		// Process the GPU Instance Alert Rules
+		final Set<String> parametersToSkip = processGpuInstanceAlertRules(monitor);
+
+		// Process the static alert rules
+		processStaticAlertRules(monitor, gpu, parametersToSkip);
 	}
 
 	/**
@@ -713,6 +727,27 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				OtherDevice::checkUsageCountAlarmCondition));
 
 		return parametersWithAlertRules;
+	}
+
+	/**
+	 * Process the Gpu instance alert rules set by the connector
+	 *
+	 * @param monitor The GPU monitor from which we extract the warning and alarm threshold
+	 * @return list of parameters with alert rules otherwise empty list
+	 */
+	static Set<String> processGpuInstanceAlertRules(Monitor monitor) {
+
+		final Map<String, String> metadata = monitor.getMetadata();
+
+		final Double correctedErrorWarningThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_WARNING_THRESHOLD), null);
+		final Double correctedErrorAlarmThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_ALARM_THRESHOLD), null);
+
+		return updateWarningToAlarmAlertRules(monitor,
+			CORRECTED_ERROR_COUNT_PARAMETER,
+			correctedErrorWarningThreshold,
+			correctedErrorAlarmThreshold,
+			Gpu::checkCorrectedFewErrorCountCondition,
+			Gpu::checkCorrectedLargeErrorCountCondition);
 	}
 
 	/**
