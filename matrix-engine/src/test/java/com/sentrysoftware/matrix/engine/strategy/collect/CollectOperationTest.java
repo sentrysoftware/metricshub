@@ -11,7 +11,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
@@ -93,7 +92,6 @@ import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
@@ -1024,54 +1022,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testSumArrayValuesViaPost() {
-
-		final Monitor target = Monitor.builder()
-			.id("TARGET")
-			.name("TARGET")
-			.targetId(ECS1_01)
-			.monitorType(TARGET)
-			.build();
-
-		// Null sum
-
-		final Monitor enclosure1 = buildEnclosure(metadata);
-		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
-
-		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
-			ENCLOSURE_NAME, metadata);
-		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(7200000.0).rawValue(2.0).build());
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
-		hostMonitoring.addMonitor(enclosure1);
-		hostMonitoring.addMonitor(enclosure2);
-
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
-
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
-
-		// Non-null sum
-
-		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
-
-		enclosure1.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
-		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(3600000.0).rawValue(1.0).build());
-
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
-
-		collectOperation.post();
-		NumberParam energyParameter = target.getParameter(ENERGY_PARAMETER, NumberParam.class);
-		assertNotNull(energyParameter);
-		assertEquals(10800000.0, energyParameter.getValue());
-		assertEquals(3.0, energyParameter.getRawValue());
-	}
-
-	@Test
-	void testAggregateTargetEnergyViaPost() {
+	void testSumEnclosurePowerConsumption() {
 
 		final Monitor target = Monitor.builder()
 			.id("TARGET")
@@ -1085,22 +1036,22 @@ class CollectOperationTest {
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is null
-
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		assertThrows(IllegalArgumentException.class,
+				() -> collectOperation.sumEnclosurePowerConsumptions(null));
+		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is empty
 
 		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
 		monitors.put(ENCLOSURE, new LinkedHashMap<>());
 
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		collectOperation.sumEnclosurePowerConsumptions(new LinkedHashMap<>());
+		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
-		// totalEnergyValues is null
+		// totalPowerConsumption is null
 
 		final Monitor enclosure1 = buildEnclosure(metadata);
 
@@ -1110,24 +1061,27 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure1);
 		hostMonitoring.addMonitor(enclosure2);
 
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
 
-		// totalEnergyValues[0] is null
+		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
-		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
-		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(null).rawValue(null).build());
+		// PowerConsumption is null
 
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		enclosure1.collectParameter(NumberParam.builder().name(POWER_CONSUMPTION_PARAMETER).value(null).build());
+		enclosure2.collectParameter(NumberParam.builder().name(POWER_CONSUMPTION_PARAMETER).value(null).build());
 
-		// totalEnergyValues[0] is not null && totalEnergyValues[1] is null (should never happen...)
+		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
 
-		enclosure1.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(1.0).rawValue(null).build());
-		enclosure2.collectParameter(NumberParam.builder().name(ENERGY_PARAMETER).value(2.0).rawValue(null).build());
+		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
-		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		// PowerConsumption not null
+		enclosure1.collectParameter(NumberParam.builder().name(POWER_CONSUMPTION_PARAMETER).value(1.0).build());
+		enclosure2.collectParameter(NumberParam.builder().name(POWER_CONSUMPTION_PARAMETER).value(2.0).build());
+
+		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
+
+		assertNotNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+
 	}
 
 	@Test
@@ -1801,12 +1755,24 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateTargetPowerConsumptionTargetFull() {
+		final NumberParam previousPowerConsumptionParam = NumberParam
+				.builder()
+				.name(POWER_CONSUMPTION_PARAMETER)
+				.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
+				.collectTime(strategyTime - 120 * 1000)
+				.value(60.0)
+				.build();
+
 		final Monitor target = Monitor.builder()
 				.id("TARGET")
 				.name("TARGET")
 				.targetId(ECS1_01)
 				.monitorType(TARGET)
 				.build();
+
+		target.collectParameter(previousPowerConsumptionParam);
+
+		previousPowerConsumptionParam.save();
 
 		final Monitor cpu = Monitor.builder()
 				.id("CPU1")
@@ -1823,24 +1789,6 @@ class CollectOperationTest {
 			strategyTime,
 			60.0,
 			60.0
-		);
-
-		CollectHelper.updateNumberParameter(
-			cpu,
-			ENERGY_USAGE_PARAMETER,
-			ENERGY_USAGE_PARAMETER_UNIT,
-			strategyTime,
-			7200.0,
-			7200.0
-		);
-
-		CollectHelper.updateNumberParameter(
-			cpu,
-			ENERGY_PARAMETER,
-			ENERGY_PARAMETER_UNIT,
-			strategyTime,
-			7250.0,
-			7250.0
 		);
 
 		final Monitor memory = Monitor.builder()
@@ -1860,24 +1808,6 @@ class CollectOperationTest {
 			4.0
 		);
 
-		CollectHelper.updateNumberParameter(
-			memory,
-			ENERGY_USAGE_PARAMETER,
-			ENERGY_USAGE_PARAMETER_UNIT,
-			strategyTime,
-			480.0,
-			480.0
-		);
-
-		CollectHelper.updateNumberParameter(
-			memory,
-			ENERGY_PARAMETER,
-			ENERGY_PARAMETER_UNIT,
-			strategyTime,
-			500.0,
-			500.0
-		);
-
 		final Monitor disk = Monitor.builder()
 				.id("disk_nvm_1")
 				.name("nvm 1")
@@ -1893,24 +1823,6 @@ class CollectOperationTest {
 			strategyTime,
 			6.0,
 			6.0
-		);
-
-		CollectHelper.updateNumberParameter(
-			disk,
-			ENERGY_USAGE_PARAMETER,
-			ENERGY_USAGE_PARAMETER_UNIT,
-			strategyTime,
-			720.0,
-			720.0
-		);
-
-		CollectHelper.updateNumberParameter(
-			disk,
-			ENERGY_PARAMETER,
-			ENERGY_PARAMETER_UNIT,
-			strategyTime,
-			750.0,
-			750.0
 		);
 
 		final Monitor missingDisk = Monitor.builder()
@@ -1943,9 +1855,8 @@ class CollectOperationTest {
 		collectOperation.estimateTargetPowerConsumption();
 
 		assertEquals(77.78, CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
-		assertEquals(9333.33, CollectHelper.getNumberParamValue(target, ENERGY_USAGE_PARAMETER));
-		assertEquals(9444.44, CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER));
-		assertEquals(PowerMeter.ESTIMATED, hostMonitoring.getPowerMeter());
+		assertEquals(9333.6, CollectHelper.getNumberParamValue(target, ENERGY_USAGE_PARAMETER));
+		assertEquals(9333.6, CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER)); // First collect energy usage = energy
 	}
 
 	@Test
@@ -2219,5 +2130,49 @@ class CollectOperationTest {
 		}
 	}
 
+	@Test
+	void testIsPowerCollected() {
+		{
+			assertFalse(CollectOperation.isPowerCollected(null));
+			assertFalse(CollectOperation.isPowerCollected(Collections.emptyMap()));
+		}
+		{
+			// No power consumption 
+			final Monitor enclosure1 = buildMonitor(ENCLOSURE, "1", CONNECTOR_NAME, new HashMap<>());
+			final Monitor enclosure2 = buildMonitor(ENCLOSURE, "2", CONNECTOR_NAME, new HashMap<>());
+			assertFalse(CollectOperation.isPowerCollected(Map.of("1", enclosure1, "2", enclosure2)));
+		}
+		{
+			// Power consumption collected on enclosure 1
+			final Monitor enclosure1 = buildMonitor(ENCLOSURE, "1", CONNECTOR_NAME, new HashMap<>());
+			enclosure1.collectParameter(NumberParam
+					.builder()
+					.name(POWER_CONSUMPTION_PARAMETER)
+					.collectTime(strategyTime)
+					.unit(POWER_CONSUMPTION_PARAMETER_UNIT)
+					.value(150D)
+					.rawValue(150D)
+					.build()
+			);
+			final Monitor enclosure2 = buildMonitor(ENCLOSURE, "2", CONNECTOR_NAME, new HashMap<>());
+			assertTrue(CollectOperation.isPowerCollected(Map.of("1", enclosure1, "2", enclosure2)));
+		}
+		{
+			// Energy collected on enclosure 1
+			final Monitor enclosure1 = buildMonitor(ENCLOSURE, "1", CONNECTOR_NAME, new HashMap<>());
+			enclosure1.collectParameter(NumberParam
+					.builder()
+					.name(ENERGY_PARAMETER)
+					.collectTime(strategyTime)
+					.unit(ENERGY_PARAMETER)
+					.value(1500000D)
+					.rawValue(1500000D)
+					.build()
+			);
+
+			final Monitor enclosure2 = buildMonitor(ENCLOSURE, "2", CONNECTOR_NAME, new HashMap<>());
+			assertTrue(CollectOperation.isPowerCollected(Map.of("1", enclosure1, "2", enclosure2)));
+		}
+	}
 
 }

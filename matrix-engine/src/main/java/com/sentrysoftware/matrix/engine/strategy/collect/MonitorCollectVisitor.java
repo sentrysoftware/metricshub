@@ -1120,14 +1120,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double fanSpeed = extractParameterValue(monitor.getMonitorType(),
 			SPEED_PARAMETER);
 
-		if (fanSpeed != null) {
+		if (CollectHelper.isValidPositive(fanSpeed)) {
 			// 1000 RPM = 1 Watt
 			powerConsumption = fanSpeed / 1000.0;
 		} else {
 			final Double fanSpeedPercent = extractParameterValue(monitor.getMonitorType(),
 					SPEED_PERCENT_PARAMETER);
 
-			if (fanSpeedPercent != null) {
+			if (CollectHelper.isValidPercentage(fanSpeedPercent)) {
 				// Approximately 5 Watt for 100%
 				powerConsumption = fanSpeedPercent * 0.05;
 			}
