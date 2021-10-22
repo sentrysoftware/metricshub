@@ -1,11 +1,12 @@
 package com.sentrysoftware.hardware.prometheus.service;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
@@ -16,42 +17,51 @@ import io.prometheus.client.Collector.MetricFamilySamples;
 @Service
 public class ExporterInfoService {
 
-	protected static final List<String> LABELS = Arrays.asList("build_number", "hc_version", "project_name", "project_version", "timestamp");
-
-	// These properties come from src/main/resources/application.yml or application-ssl.yml
-	// which themselves are "filtered" by Maven's resources plugin to expose
-	// pom.xml's values
-	@Value("${project.name}")
-	String projectName;
-
-	@Value("${project.version}")
-	String projectVersion;
-
-	@Value("${buildNumber}")
-	String buildNumber;
-
-	@Value("${timestamp}")
-	String timestamp;
-
-	@Value("${hcVersion}")
-	String hcVersion;
-
 	@Autowired
 	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
+	@Autowired
+	private Map<String, String> exporterInfo;
+
 	/**
 	 * Build the hw_exporter_info metric to report the exporter information as
-	 * labels: projectName, projectVersion, buildNumber, timestamp, hcVersion
+	 * labels: projectName, projectVersion, buildNumber, timestamp, hcVersion and the extraLabels
 	 * 
 	 * @return hw_exporter_info {@link MetricFamilySamples} metric
 	 */
-	public MetricFamilySamples getExporterInfoMetric() {
-		final HardwareGaugeMetric metric = new HardwareGaugeMetric("hw_exporter_info", "Reports exporter information", LABELS);
+	public MetricFamilySamples buildExporterInfoMetric() {
+
+		final List<String> labelKeys = Stream
+				.concat(exporterInfo.keySet().stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream())
+				.sorted()
+				.collect(Collectors.toList());
+
+		final HardwareGaugeMetric metric = new HardwareGaugeMetric(
+				"hw_exporter_info",
+				"Reports exporter information",
+				labelKeys
+		);
+
 		metric.addMetric(
-				Arrays.asList(buildNumber, hcVersion, projectName, projectVersion, timestamp),
-				1,
+				buildLabelValues(labelKeys),
+				1D,
 				multiHostsConfigurationDTO.isExportTimestamps() ? new Date().getTime() : null);
+
 		return metric;
 	}
 
+	/**
+	 * Build the label values for the given label keys. Note that the label keys may
+	 * include extra labels, do this method will include the extra label values in the
+	 * final label values
+	 * 
+	 * @param labelKeys
+	 * @return List of String values
+	 */
+	private List<String> buildLabelValues(final List<String> labelKeys) {
+		return labelKeys.stream()
+				.map(labelKey -> exporterInfo.getOrDefault(labelKey,
+						multiHostsConfigurationDTO.getExtraLabels().getOrDefault(labelKey, "")))
+				.collect(Collectors.toList());
+	}
 }

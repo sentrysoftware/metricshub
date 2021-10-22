@@ -38,6 +38,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	private final String hostname;
 	private final SSHProtocol sshProtocol;
 	private final String inPrompt;
+	private final String currentSourceTag;
 
 
 	@Getter
@@ -108,13 +109,11 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 			throw new StepException(String.format("%s - Disconnected or timeout while waiting for the prompt (\"%s\") in SSH session",
 					stepName,
 					inPrompt));
-		} else {
-			// Remove the trailing prompt
-			maybe.map(getUntilResult -> getUntilResult.substring(0, getUntilResult.length() - inPrompt.length()));
+		}
 
-			if (step.isCapture()) {
-				result = maybe;
-			}
+		if (step.isCapture()) {
+			// Remove the trailing prompt
+			result = maybe.map(getUntilResult -> getUntilResult.substring(0, getUntilResult.length() - inPrompt.length()));
 		}
 	}
 
@@ -315,7 +314,8 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	 * @return The Step name
 	 */
 	String buildStepName(final Step step) {
-		return String.format("Step(%d) %s: hostname: %s",
+		return String.format("%s Step(%d) %s: hostname: %s",
+				currentSourceTag,
 				step.getIndex(),
 				step.getClass().getSimpleName(),
 				hostname);

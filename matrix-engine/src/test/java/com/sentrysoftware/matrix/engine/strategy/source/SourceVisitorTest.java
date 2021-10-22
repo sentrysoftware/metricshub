@@ -299,6 +299,7 @@ class SourceVisitorTest {
 
 			final SourceTable expected = SourceTable.builder()
 					.rawData("1;ext_bus;3;4;5")
+					.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
 					.build();
 			assertEquals(expected, sourceVisitor.visit(commandSource));
 		}
@@ -590,11 +591,13 @@ class SourceVisitorTest {
 				.table(Arrays.asList(
 						Arrays.asList("a1", "b1", "c1"),
 						Arrays.asList("val1", "val2", "val3")))
+				.rawData(VALUE_A1)
 				.build();
 		SourceTable tabl2 = SourceTable.builder()
 				.table(Arrays.asList(
 						Arrays.asList("a1", "b2", "c2"),
 						Arrays.asList("v1", "v2", "v3")))
+				.rawData(VALUE_TABLE)
 				.build();
 
 		final Map<String, SourceTable> mapSources = new HashMap<>();
@@ -623,6 +626,7 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		assertEquals(expectedUnion, sourceVisitor.visit(tableUnionExample).getTable());
+		assertEquals(VALUE_A1 +"\n"+ VALUE_TABLE, sourceVisitor.visit(tableUnionExample).getRawData());
 
 	}
 
@@ -639,6 +643,7 @@ class SourceVisitorTest {
 		final List<Step> steps = List.of(sendText, waitFor);
 
 		final SshInteractiveSource sshInteractiveSource = new SshInteractiveSource();
+		sshInteractiveSource.setIndex(1);
 		sshInteractiveSource.setRemoveHeader(8);
 		sshInteractiveSource.setRemoveFooter(6);
 		sshInteractiveSource .setKeepOnlyRegExp("Serial Number");
@@ -655,7 +660,7 @@ class SourceVisitorTest {
 		// check NoCredentialProvidedException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenThrow(NoCredentialProvidedException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -664,7 +669,7 @@ class SourceVisitorTest {
 		// check StepException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenThrow(StepException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -702,11 +707,12 @@ class SourceVisitorTest {
 					"show enclosure info\n",
 					"\n");
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
 			.thenReturn(output);
 
 			final SourceTable expected = SourceTable.builder()
 					.rawData("        Serial Number: CZC8171W57\n")
+					.table(List.of(List.of("        Serial Number: CZC8171W57\n")))
 					.build();
 
 			assertEquals(expected, sourceVisitor.visit(sshInteractiveSource));

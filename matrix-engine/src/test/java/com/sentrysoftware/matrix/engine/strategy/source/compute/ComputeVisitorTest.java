@@ -1416,12 +1416,6 @@ class ComputeVisitorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
-		// 1 column number is null
-		keepColumns.setColumnNumbers(Arrays.asList(1, null, 3));
-		computeVisitor.visit(keepColumns);
-		assertEquals(table, sourceTable.getTable());
-
-		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
 		// 1 column number is lower than 1
 		keepColumns.setColumnNumbers(Arrays.asList(1, 0, 3));
 		computeVisitor.visit(keepColumns);
@@ -1433,7 +1427,17 @@ class ComputeVisitorTest {
 		computeVisitor.visit(keepColumns);
 		assertEquals(table, sourceTable.getTable());
 
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is null
+		keepColumns.setColumnNumbers(Arrays.asList(1, null, 3));
+		computeVisitor.visit(keepColumns);
+		List<List<String>> expectedTable = Arrays.asList(Arrays.asList(LINE_1.get(0), LINE_1.get(2)),
+				Arrays.asList(LINE_2.get(0), LINE_2.get(2)),
+				Arrays.asList(LINE_3.get(0), LINE_3.get(2)));
+		assertEquals(expectedTable, sourceTable.getTable()); // null index will be skipped
+
 		// test OK
+		sourceTable.setTable(table);
 		List<List<String>> result = Arrays.asList(
 			Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
 			Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
@@ -1441,6 +1445,12 @@ class ComputeVisitorTest {
 		);
 
 		keepColumns.setColumnNumbers(Arrays.asList(1, 2, 4));
+		computeVisitor.visit(keepColumns);
+		assertEquals(result, sourceTable.getTable());
+
+		// test OK but index are not sorted
+		sourceTable.setTable(table);
+		keepColumns.setColumnNumbers(Arrays.asList(1, 4, 2));
 		computeVisitor.visit(keepColumns);
 		assertEquals(result, sourceTable.getTable());
 	}

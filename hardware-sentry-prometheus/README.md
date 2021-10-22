@@ -16,6 +16,13 @@
       loggerLevel: debug
       outputDirectory: C:\\Users\\nassim\\AppData\\Local\\Temp\\hardware-logs2
       exportTimestamps: false
+      extraLabels: 
+        site: 'Datacenter 1'
+      extraMetrics: 
+        hw_carbon_density_grams: 0.066
+        hw_electricity_cost_dollars: 0.02
+        hw_pue_ratio: 1.8
+
       targets:
         - target:
             hostname: 10.0.24.61

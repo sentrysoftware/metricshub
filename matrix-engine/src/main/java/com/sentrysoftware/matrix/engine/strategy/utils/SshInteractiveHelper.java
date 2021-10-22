@@ -4,6 +4,8 @@ import static org.springframework.util.Assert.state;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
@@ -18,7 +20,9 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SshInteractiveHelper {
 
@@ -27,6 +31,7 @@ public class SshInteractiveHelper {
 	 * 
 	 * @param engineConfiguration
 	 * @param steps The Step list to process
+	 * @param currentSourceTag A tag to indicate the source or criterion in debug
 	 * @return
 	 * @throws StepException When an error occurred in the Step processing
 	 * @throws MatsyaException When an error occurred in the SSH
@@ -36,7 +41,8 @@ public class SshInteractiveHelper {
 			@NonNull
 			final EngineConfiguration engineConfiguration,
 			@NonNull
-			final List<Step> steps)
+			final List<Step> steps,
+			final String currentSourceTag)
 					throws StepException,
 					MatsyaException,
 					NoCredentialProvidedException {
@@ -63,7 +69,7 @@ public class SshInteractiveHelper {
 				sshProtocol.getPrivateKey(),
 				timeout)) {
 
-			final List<String> resut = new ArrayList<>();
+			final List<String> results = new ArrayList<>();
 
 			String prompt = HardwareConstants.EMPTY;
 
@@ -76,15 +82,27 @@ public class SshInteractiveHelper {
 						sshClient,
 						hostname,
 						sshProtocol,
-						prompt);
+						prompt,
+						currentSourceTag);
 				step.accept(visitor);
 
-				visitor.getResult().ifPresent(resut::add);
+				visitor.getResult().ifPresent(result -> {
+					final String[] array = result.split("\\R");
+					if (array.length == 1) {
+						results.add(array[0]);
+					} else {
+						results.addAll(Stream.of(array).collect(Collectors.toList()));
+					}
+				});
 
 				prompt = visitor.getPrompt().orElse(prompt);
 			}
 
-			return resut;
+			log.debug("runSshInteractive: Result for {} on {}:\n {}",
+					currentSourceTag,
+					hostname,
+					results.stream().collect(Collectors.joining("\",\n\"", "[\"", "\"]")));
+			return results;
 		}
 	}
 }

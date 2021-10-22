@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor;
 
 public class ConnectorHttpProperty {
@@ -17,6 +18,7 @@ public class ConnectorHttpProperty {
 		return Stream
 				.of(
 						new TypeProcessor(HTTPSource.class, HttpProcessor.HTTP_TYPE_VALUE),
+						new ForceSerializationProcessor(HTTPSource.class, HttpProcessor.HTTP_TYPE_VALUE),
 						new MethodProcessor(),
 						new UrlProcessor(),
 						new HeaderProcessor(),

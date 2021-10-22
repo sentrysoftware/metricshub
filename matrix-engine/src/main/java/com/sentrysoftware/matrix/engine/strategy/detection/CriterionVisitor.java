@@ -789,7 +789,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		try {
 			final List<String> results =
-					SshInteractiveHelper.runSshInteractive(strategyConfig.getEngineConfiguration(), sshInteractive.getSteps());
+					SshInteractiveHelper.runSshInteractive(
+							strategyConfig.getEngineConfiguration(),
+							sshInteractive.getSteps(),
+							String.format("SshInteractive(%d)", sshInteractive.getIndex()));
 
 			final String result = results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE));
 
