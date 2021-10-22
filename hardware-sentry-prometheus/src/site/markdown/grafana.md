@@ -69,7 +69,7 @@ The dashboards for Grafana query the Prometheus server to display the status of 
 2. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
 3. Restart the Grafana service.
 
- The dashboard are now loaded in Grafana.
+ The dashboards are now loaded in Grafana.
 
  Example:
 
