@@ -539,8 +539,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 
 			final Matcher matcher = Pattern
-					.compile(PslUtils.psl2JavaRegex(osCommand.getExpectedResult()))
+					.compile(PslUtils.psl2JavaRegex(osCommand.getExpectedResult()),
+							Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)
 					.matcher(osCommandResult.getResult());
+
 			return matcher.find()?
 					CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult()) :
 						CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
@@ -652,7 +654,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// We're here: no good!
 		return CriterionTestResult.failure(
 				service,
-				String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result)
+				String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
 		);
 	}
 
@@ -1219,4 +1221,5 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 	}
+
 }

@@ -1093,6 +1093,70 @@ class CriterionVisitorTest {
 	}
 
 	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitOsCommandMultiLinesCaseInsensitiveWin() {
+
+		assertOsCommandMultiLinesCaseInsensitive("echo First & echo Second");
+
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testVisitOsCommandMultiLinesCaseInsensitiveLinux() {
+
+		assertOsCommandMultiLinesCaseInsensitive("printf '%s\\n%s' First Second");
+
+	}
+
+	/**
+	 * Assert {@link OSCommand} returning multiple lines with case insensitive
+	 * expected result
+	 * 
+	 * @param cmd the command we wish to run
+	 */
+	private void assertOsCommandMultiLinesCaseInsensitive(final String cmd) {
+
+		final OSCommand osCommand = OSCommand.builder()
+				.commandLine(cmd)
+				.expectedResult("^second")
+				.executeLocally(true)
+				.errorMessage("No display.")
+				.build();
+
+		final OSCommandConfig osCommandConfig = OSCommandConfig.builder().build();
+
+		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.STORAGE);
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(OSCommandConfig.class, osCommandConfig))
+				.target(hardwareTarget)
+				.build();
+
+		final HostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.setLocalhost(true);
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		{
+			// Success
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+		}
+
+		{
+			// Failed
+			osCommand.setExpectedResult("^doesn't match");
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(osCommand);
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+		}
+	}
+
+	@Test
 	void testVisitProcessProcessNull() {
 		final Process process = null;
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(process));
