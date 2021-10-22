@@ -1,20 +1,14 @@
 package com.sentrysoftware.matrix.security;
 
-import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -25,23 +19,21 @@ public class SecurityManager {
 
 	private static final char[] KEY_STORE_PASSWORD = new char[] { 'S', 'e', 'n', 't', 'r', 'y' };
 	private static final String MASTER_KEY_ALIAS = "masterKey";
-	private static final String HWS_KEY_STORE_FILE_NAME = "hwsKeyStore.pkcs12";
+	public static final String HWS_KEY_STORE_FILE_NAME = "hws-keystore.p12";
 
 	/**
 	 * Encrypt the given password
 	 * 
 	 * @param passwd password to encrypt
+	 * @param keyStoreFile the key store holding the secret information
 	 * @return char array
 	 * @throws HardwareSecurityException
 	 */
-	public static char[] encrypt(final char[] passwd) throws HardwareSecurityException {
+	public static char[] encrypt(final char[] passwd, @NonNull final File keyStoreFile) throws HardwareSecurityException {
 
 		if (passwd == null) {
 			return null;
 		}
-
-		// Get the keyStoreFile with mkdir option set to true so that we are sure the security directory is created
-		final File keyStoreFile = getKeyStoreFile(true);
 
 		return CryptoCipher.encrypt(passwd, getSecretKey(keyStoreFile));
 	}
@@ -50,18 +42,17 @@ public class SecurityManager {
 	 * Decrypt the password
 	 * 
 	 * @param crypted the crypted text
+	 * @param keyStoreFile the key store holding the secret information
 	 * @return char array
 	 * @throws HardwareSecurityException
 	 */
-	public static char[] decrypt(final char[] crypted) throws HardwareSecurityException {
+	public static char[] decrypt(final char[] crypted, final File keyStoreFile) throws HardwareSecurityException {
 
 		if (crypted == null) {
 			return null;
 		}
 
-		final File keyStoreFile = getKeyStoreFile(false);
-
-		if (keyStoreFile.exists()) {
+		if (keyStoreFile!= null && keyStoreFile.exists()) {
 
 			return CryptoCipher.decrypt(crypted, getSecretKey(keyStoreFile));
 		}
@@ -162,65 +153,5 @@ public class SecurityManager {
 			throw new HardwareSecurityException("Error detected when generating the master key", e);
 		}
 
-	}
-
-	/**
-	 * Get the KeyStore file
-	 * 
-	 * @param mkdir Whether we should create the <em>libPath\..\security</em> directory
-	 * @return File instance
-	 * @throws HardwareSecurityException
-	 */
-	public static File getKeyStoreFile(boolean mkdir) throws HardwareSecurityException {
-
-		File me;
-		try {
-			me = ResourceHelper.findSource(SecurityManager.class);
-		} catch (Exception e) {
-			throw new HardwareSecurityException("Error detected when getting local source file to create the keyStore.",
-					e);
-		}
-
-		if (me == null) {
-			throw new HardwareSecurityException("Could not get the local source file to create the keyStore.");
-		}
-
-		final Path path = me.getAbsoluteFile().toPath();
-
-		Path parentLibPath = path.getParent();
-
-		// No parent? let's work with the current directory
-		if (parentLibPath == null) {
-			parentLibPath = path;
-		}
-
-		File securityDirectory = Paths.get(parentLibPath.toString(), "..", "security").toFile();
-		if (mkdir && !securityDirectory.exists() && !securityDirectory.mkdir()) {
-			throw new HardwareSecurityException("Could not create security directory " + securityDirectory.getAbsolutePath());
-		}
-
-		// libPath\..\security
-		return Paths.get(securityDirectory.getAbsolutePath(), HWS_KEY_STORE_FILE_NAME).toFile();
-	}
-
-	public static void main(String[] args) throws IOException {
-
-		try {
-			char[] password;
-
-			Console cnsl = System.console();
-
-			if (cnsl == null) {
-				System.out.println("Console not recognized, impossible to use to encrypt passwords safely."); // NOSONAR
-				return;
-			}
-
-			System.out.print("Enter the password to encrypt:"); // NOSONAR
-			password = cnsl.readPassword();
-
-			System.out.print(encrypt(password)); // NOSONAR
-		} catch (HardwareSecurityException e) {
-			System.err.println(String.format("Error while encrypting password: %s", e.getMessage())); // NOSONAR
-		}
 	}
 }

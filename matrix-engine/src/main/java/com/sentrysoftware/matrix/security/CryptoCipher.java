@@ -1,11 +1,8 @@
 package com.sentrysoftware.matrix.security;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -17,8 +14,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

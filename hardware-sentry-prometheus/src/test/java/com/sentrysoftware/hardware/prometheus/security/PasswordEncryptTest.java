@@ -1,8 +1,7 @@
-package com.sentrysoftware.matrix.security;
+package com.sentrysoftware.hardware.prometheus.security;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +15,10 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.security.HardwareSecurityException;
+import com.sentrysoftware.matrix.security.SecurityManager;
 
-class SecurityManagerTest {
-
-	//	@Mock
-	//	private ResourceHelper resourceHelper;
+public class PasswordEncryptTest {
 
 	@TempDir
 	static Path tempDir;
@@ -36,16 +34,16 @@ class SecurityManagerTest {
 	void testEncryptDecrypt() throws HardwareSecurityException, URISyntaxException, IOException {
 
 		// null password
-		assertNull(SecurityManager.encrypt(null));
-		assertNull(SecurityManager.decrypt(null));
+		assertNull(SecurityManager.encrypt(null, PasswordEncrypt.getKeyStoreFile(true)));
+		assertNull(SecurityManager.decrypt(null, PasswordEncrypt.getKeyStoreFile(true)));
 
 		// empty password
 		try (MockedStatic<ResourceHelper> resourceHelper = Mockito.mockStatic(ResourceHelper.class)) {
 			char[] passwd = {};
 
 			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(securityPath);
-			char[] res = SecurityManager.encrypt(passwd);
-			assertArrayEquals(passwd, SecurityManager.decrypt(res));
+			char[] res = SecurityManager.encrypt(passwd, PasswordEncrypt.getKeyStoreFile(true));
+			assertArrayEquals(passwd, SecurityManager.decrypt(res, PasswordEncrypt.getKeyStoreFile(true)));
 		}
 
 		// not empty password
@@ -53,20 +51,8 @@ class SecurityManagerTest {
 			char[] passwd = "password".toCharArray();
 
 			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(securityPath);
-			char[] res = SecurityManager.encrypt(passwd);
-			assertArrayEquals(passwd, SecurityManager.decrypt(res));
+			char[] res = SecurityManager.encrypt(passwd, PasswordEncrypt.getKeyStoreFile(true));
+			assertArrayEquals(passwd, SecurityManager.decrypt(res, PasswordEncrypt.getKeyStoreFile(true)));
 		}
-	}
-	
-	@Test
-	void loadKeyStoreTest() throws HardwareSecurityException {
-		// load null
-		assertThrows(IllegalArgumentException.class, () -> SecurityManager.loadKeyStore(null));
-		
-		// load real key store file
-		SecurityManager.loadKeyStore(new File("src/test/resources/security/hwsKeyStore.pkcs12"));
-		char[] passwd = "lJ0eR5YqwTKYdPD51rL8Fo+8J/YzEQCV".toCharArray();
-		char[] res = SecurityManager.decrypt(passwd);
-		assertArrayEquals("password".toCharArray(), res);
 	}
 }
