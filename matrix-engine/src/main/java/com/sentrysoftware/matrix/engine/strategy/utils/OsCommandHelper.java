@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -192,22 +196,43 @@ public class OsCommandHelper {
 			throw new IllegalStateException("Local command Process is null.");
 		}
 
-		if (!process.waitFor(timeout, TimeUnit.SECONDS)) {
-			process.destroy();
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+		final Future<String> future = executor.submit(() -> {
+
+			try (final InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+					final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+				final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+				String line;
+				while ((line = bufferedReader.readLine()) != null) {
+					stringJoiner.add(line);
+				}
+
+				process.waitFor();
+
+				return stringJoiner.toString();
+			}
+		});
+
+		try {
+			return future.get(timeout, TimeUnit.SECONDS);
+
+		} catch (final TimeoutException e) {
+			future.cancel(true);
+
 			throw new TimeoutException(
 					String.format("Command \"%s\" execution has timed out after %d s",
-							noPasswordCommand != null ? noPasswordCommand : command,
-							timeout));
-		}
+					noPasswordCommand != null ? noPasswordCommand : command,
+					timeout));
 
-		try (final InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
-				final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-			final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				stringJoiner.add(line);
+		} catch (final ExecutionException e) {
+			if (e.getCause() instanceof IOException) {
+				throw (IOException) e.getCause();
 			}
-			return stringJoiner.toString();
+			return null;
+
+		} finally {
+			executor.shutdownNow();
 		}
 	}
 
