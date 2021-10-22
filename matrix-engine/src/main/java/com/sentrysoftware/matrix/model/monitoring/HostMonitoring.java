@@ -9,6 +9,12 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.Context;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -17,12 +23,16 @@ import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
+import com.sentrysoftware.matrix.security.HardwareSecurityException;
+import com.sentrysoftware.matrix.security.SecurityManager;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
@@ -460,6 +470,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		checkEngineConfiguration();
 
+		decrypt();
+
 		EngineResult lastEngineResult = null;
 
 		for (IStrategy strategy : strategies) {
@@ -668,5 +680,48 @@ public class HostMonitoring implements IHostMonitoring {
 
 	public enum PowerMeter {
 		COLLECTED, ESTIMATED;
+	}
+
+	/**
+	 * Decrypt the passwords for every protocol using the SecurityManager.
+	 * @throws HardwareSecurityException
+	 */
+	private void decrypt() {
+
+		try {
+			SNMPProtocol snmpProtocol = (SNMPProtocol) engineConfiguration.getProtocolConfigurations().get(SNMPProtocol.class);
+			if (snmpProtocol != null) {
+				snmpProtocol.setPassword(SecurityManager.decrypt(snmpProtocol.getPassword()));
+				snmpProtocol.setPrivacyPassword(SecurityManager.decrypt(snmpProtocol.getPrivacyPassword()));
+			}
+
+			WMIProtocol wmiProtocol = (WMIProtocol) engineConfiguration.getProtocolConfigurations().get(WMIProtocol.class);
+			if (wmiProtocol != null) {
+				wmiProtocol.setPassword(SecurityManager.decrypt(wmiProtocol.getPassword()));
+			}
+
+			WBEMProtocol wbemProtocol = (WBEMProtocol) engineConfiguration.getProtocolConfigurations().get(WBEMProtocol.class);
+			if (wbemProtocol != null) {
+				wbemProtocol.setPassword(SecurityManager.decrypt(wbemProtocol.getPassword()));
+			}
+
+			SSHProtocol sshProtocol = (SSHProtocol) engineConfiguration.getProtocolConfigurations().get(SSHProtocol.class);
+			if (sshProtocol != null) {
+				sshProtocol.setPassword(SecurityManager.decrypt(sshProtocol.getPassword()));
+			}
+
+			HTTPProtocol httpProtocol = (HTTPProtocol) engineConfiguration.getProtocolConfigurations().get(HTTPProtocol.class);
+			if (httpProtocol != null) {
+				httpProtocol.setPassword(SecurityManager.decrypt(httpProtocol.getPassword()));
+			}
+
+			IPMIOverLanProtocol ipmiOverLanProtocol =
+					(IPMIOverLanProtocol) engineConfiguration.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
+			if (ipmiOverLanProtocol != null) {
+				ipmiOverLanProtocol.setPassword(SecurityManager.decrypt(ipmiOverLanProtocol.getPassword()));
+			}
+		} catch (HardwareSecurityException e) {
+			log.error(String.format("Error while decrypting encrypted passwords: %s", e.getMessage()));
+		}
 	}
 }

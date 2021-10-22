@@ -1,8 +1,10 @@
 package com.sentrysoftware.matrix.security;
 
+import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -34,6 +36,10 @@ public class SecurityManager {
 	 */
 	public static char[] encrypt(final char[] passwd) throws HardwareSecurityException {
 
+		if (passwd == null) {
+			return null;
+		}
+
 		// Get the keyStoreFile with mkdir option set to true so that we are sure the security directory is created
 		final File keyStoreFile = getKeyStoreFile(true);
 
@@ -48,6 +54,10 @@ public class SecurityManager {
 	 * @throws HardwareSecurityException
 	 */
 	public static char[] decrypt(final char[] crypted) throws HardwareSecurityException {
+
+		if (crypted == null) {
+			return null;
+		}
 
 		final File keyStoreFile = getKeyStoreFile(false);
 
@@ -191,5 +201,26 @@ public class SecurityManager {
 
 		// libPath\..\security
 		return Paths.get(securityDirectory.getAbsolutePath(), HWS_KEY_STORE_FILE_NAME).toFile();
+	}
+
+	public static void main(String[] args) throws IOException {
+
+		try {
+			char[] password;
+
+			Console cnsl = System.console();
+
+			if (cnsl == null) {
+				System.out.println("Console not recognized, impossible to use to encrypt passwords safely."); // NOSONAR
+				return;
+			}
+
+			System.out.print("Enter the password to encrypt:"); // NOSONAR
+			password = cnsl.readPassword();
+
+			System.out.print(encrypt(password)); // NOSONAR
+		} catch (HardwareSecurityException e) {
+			System.err.println(String.format("Error while encrypting password: %s", e.getMessage())); // NOSONAR
+		}
 	}
 }
