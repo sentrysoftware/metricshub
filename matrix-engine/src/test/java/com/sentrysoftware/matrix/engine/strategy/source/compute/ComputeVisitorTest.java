@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -2421,7 +2424,8 @@ class ComputeVisitorTest {
 		keepOnlyMatchingLines = KeepOnlyMatchingLines
 				.builder()
 				.column(2)
-				.valueSet(Set.of("Fan"))
+				.valueSet(Stream.of("Fan").collect(
+						Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER))))
 				.build();
 		computeVisitor.visit(keepOnlyMatchingLines);
 		assertEquals(expectedTableResult ,computeVisitor.getSourceTable().getTable());
