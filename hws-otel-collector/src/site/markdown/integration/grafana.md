@@ -65,7 +65,7 @@ Example:
 The dashboards for Grafana query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
 
 1. In `\grafana\conf\provisioning\datasource`, open the *hardware-sentry-prometheus.yml* file.
-   ![Configuring Data Source Provider](./images/import_grafana_dashboards_config.png)
+   ![Configuring Data Source Provider](../images/import_grafana_dashboards_config.png)
 2. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
 3. Restart the Grafana service.
 

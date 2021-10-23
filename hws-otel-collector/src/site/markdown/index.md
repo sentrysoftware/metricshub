@@ -13,7 +13,7 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
 
 **${project.name}** is able to monitor any system using `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI` or just `SSH`. It can monitor computers, switches and storage systems from **Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle** and many others, thanks to its library of 250+ *Hardware Connectors*.
 
-**${project.name}** monitors the healths of the internal electronic components of the system:
+**${project.name}** monitors the health of the internal electronic components of the system:
 
 * CPUs
 * Memory modules
@@ -34,6 +34,13 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
     * Tape drives
 
 ## What's in the box?
+
+**${project.name}** includes:
+
+* a standard *OpenTelemetry Collector*
+* Hardware Sentry Exporter for Prometheus
+* the Hardware Connector Library
+* Hardware Sentry CLI (`hws`)
 
 ### OpenTelemetry Collector
 
@@ -70,6 +77,6 @@ The list of platforms that can be monitored by **${project.name}** entirely depe
 
 ### Hardware Sentry CLI (`hws`)
 
-The [Hardware Sentry CLI](troubleshooting/cli.md) is the same engine and library of *Hardware Connectors* as in the *Prometheus Exporter*, but packaged as a command line interface, that can be invoked in a shell.
+The [Hardware Sentry CLI](troubleshooting/cli.md) contains the same engine and library of *Hardware Connectors* as *Hardware Sentry Exporter for Prometheus*, but packaged as a command line interface, that can be invoked in a shell.
 
 This tool is particularly useful to troubleshoot the monitoring of a system, protocols and credentials.

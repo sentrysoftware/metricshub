@@ -27,7 +27,7 @@ Supported systems include:
 
 The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html).
 
-The quantity and quality of the information that **${project.name}** will be able to gather depends on the instrumentation stack available on the targeted host.
+The quantity and quality of the information that **${project.name}** will gather depends on the instrumentation stack available on the targeted host.
 
 ![Output example for an HP ProLiant system](../images/hws-proliant.png)
 
@@ -163,7 +163,7 @@ The **${project.name}** is bundled with Sentry's **Hardware Connector Library**,
 
 Examples of connectors:
 
-* DELL OpenManage Server Administrator (SNMP)
+* Dell OpenManage Server Administrator (SNMP)
 * Network Cards on Windows (WMI)
 * IBM AIX physical disks, using system commands
 * VMware ESX (WBEM)
@@ -175,7 +175,7 @@ You can however specify manually which connectors must be used to monitor the sp
 
 ### Force Connectors
 
-To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list connectors' internal name (**id**).
+To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list of connector internal names (you need to use their **id**).
 
 Using the `--force` option will shorten the detection phase, as only the specified connectors will be tested.
 

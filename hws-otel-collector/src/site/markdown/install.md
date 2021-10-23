@@ -9,7 +9,7 @@ description: Where to download the installation package of the Hardware Sentry E
 
 **${project.name}** requires Java Runtime Environment (JRE) version 11 or higher.
 
-The *OpenTelemetry Collector* will use the `$PATROL_HOME` environment variable to determine that path to the JRE. If `$PATROL_HOME` is not set, it will use any `java` executable found in the `$PATH`.
+The *OpenTelemetry Collector* will use the `$JAVA_HOME` environment variable to determine that path to the JRE. If `$JAVA_HOME` is not set, it will use any `java` executable found in the `$PATH`.
 
 To verify the version installed on a Linux system, run the following commands:
 
@@ -29,9 +29,9 @@ If needed, you can download the latest versions of the Java Runtime Environment 
 
 ## Windows or Linux?
 
-Windows and Linux are equally supported to run **${project.name}**. However, the WMI protocol is implemented on Windows only. This means that you will need to run **Hardware Sentry** on Windows, in order to monitor another Windows system through WMI. Using WMI may be required, depending on the monitored platform.
+Windows and Linux are equally supported to run **${project.name}**. However, the WMI protocol is implemented on Windows only. This means that you will need to run **Hardware Sentry** on Windows, to monitor another Windows system through WMI.
 
-Please check the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html) documentation for more details on the required protocols, depending on the targeted platform, and whether you will require WMI.
+Please check the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html) documentation for more details on the required protocols, depending on the targeted platform, and whether you need WMI.
 
 > Note: The product does not support 32-bit systems.
 
@@ -52,6 +52,15 @@ Unzip and untar the content of **${project.artifactId}-${project.version}-linux-
 /usr/local:> sudo tar xf /tmp/${project.artifactId}-${project.version}-linux-amd64.tar.gz
 ```
 
+### Configure
+
+There are 2 configuration files:
+
+* [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the *OpenTelemetry Collector* should send the collected data
+* [**./hws-exporter/hws-config.yaml**](configuration/configure-exporter.md): to specify the hosts to monitor and their credentials
+
+Before starting the *OpenTelemetry Collector*, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the *Collector* is required to take into account its changes.
+
 ### Start
 
 You can start the **${project.name}** with the below command:
@@ -60,7 +69,7 @@ You can start the **${project.name}** with the below command:
 /usr/local/hws-otel-collector/bin/hws-otel
 ```
 
-This will start the **${project.name}** with the default *OpenTelemetry Collector* configuration file: **./config/otel-config.yaml**. However, it is recommended to [edit **otel-config.yaml**](configuration/configure-otel.md) first, since a restart of the *Collector* is required to take into changes in the [configuration file](configuration/configure-otel.md).
+This will start the **${project.name}** with the default *OpenTelemetry Collector* configuration file: **./config/otel-config.yaml**.
 
 You can start the **${project.name}** with an alternate configuration file with the below command:
 
@@ -89,6 +98,15 @@ Unzip the content of **${project.artifactId}-${project.version}-windows-amd64.ta
 
 > Note: You will need administrative privileges to unzip into **C:\Program Files**.
 
+### Configure
+
+There are 2 configuration files:
+
+* [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the *OpenTelemetry Collector* should send the collected data
+* [**./hws-exporter/hws-config.yaml**](configuration/configure-exporter.md): to specify the hosts to monitor and their credentials
+
+Before starting the *OpenTelemetry Collector*, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the *Collector* is required to take into account its changes.
+
 ### Start
 
 Start **${project.name}** in **CMD.EXE** or [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/) with elevated privilages (**Run As Administrator**).
@@ -100,7 +118,7 @@ cd hws-otel-collector
 bin\hws-otel
 ```
 
-This will start the **${project.name}** with the default *OpenTelemetry Collector* configuration file: **.\config\otel-config.yaml**. However, it is recommended to [edit **otel-config.yaml**](configuration/configure-otel.md) first, since a restart of the *Collector* is required to take into changes in the [configuration file](configuration/configure-otel.md).
+This will start the **${project.name}** with the default *OpenTelemetry Collector* configuration file: **.\config\otel-config.yaml**.
 
 You can start the **${project.name}** with an alternate configuration file with the below command:
 
@@ -117,8 +135,8 @@ Download and install the [very latest version of NSSM](https://nssm.cc/download)
 Run the below command to create the service:
 
 ```batch
-nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" --config """c:\Program Files\hws-otel-collector\bin\hws-otel\config\my-otel-config.yaml"""
+nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" --config """c:\Program Files\hws-otel-collector\config\otel-config.yaml"""
 nssm set hws-otel AppDirectory "c:\Program Files\hws-otel-collector"
 nssm set hws-otel DisplayName "Hardware Sentry OpenTelemetry Collector"
-nssm set hws-otel Start Automatic
+nssm set hws-otel Start SERVICE_AUTO_START
 ```
