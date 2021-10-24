@@ -2,12 +2,8 @@
 	<id>dist</id>
 	<formats>
 		<format>zip</format>
-		<format>tar.gz</format>
-		<format>dir</format>
 	</formats>
-	<includeBaseDirectory>true</includeBaseDirectory>
-	<baseDirectory>hws</baseDirectory>
-	<includeSiteDirectory>true</includeSiteDirectory>
+	<includeBaseDirectory>false</includeBaseDirectory>
 
 	<files>
 
