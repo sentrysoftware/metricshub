@@ -23,36 +23,38 @@ class PasswordEncryptTest {
 	@TempDir
 	static Path tempDir;
 
-	private static File securityPath;
+	private static File jarPath;
 
 	@BeforeAll
 	static void setUp() throws Exception {
-		securityPath = tempDir.resolve("security").toFile();
+
+		jarPath = tempDir.resolve("lib").toFile();
 	}
 
 	@Test
 	void testEncryptDecrypt() throws HardwareSecurityException, URISyntaxException, IOException {
 
-		// null password
-		assertNull(SecurityManager.encrypt(null, PasswordEncrypt.getKeyStoreFile(true)));
-		assertNull(SecurityManager.decrypt(null, PasswordEncrypt.getKeyStoreFile(true)));
-
-		// empty password
 		try (MockedStatic<ResourceHelper> resourceHelper = Mockito.mockStatic(ResourceHelper.class)) {
+			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(jarPath);
+			final File keyStoreFile = PasswordEncrypt.getKeyStoreFile(true);
+
+			// null password
+			assertNull(SecurityManager.decrypt(null, keyStoreFile));
+			assertNull(SecurityManager.encrypt(null, keyStoreFile));
+
 			char[] passwd = {};
+			char[] res = SecurityManager.encrypt(passwd, keyStoreFile);
+			assertArrayEquals(passwd, SecurityManager.decrypt(res, keyStoreFile));
 
-			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(securityPath);
-			char[] res = SecurityManager.encrypt(passwd, PasswordEncrypt.getKeyStoreFile(true));
-			assertArrayEquals(passwd, SecurityManager.decrypt(res, PasswordEncrypt.getKeyStoreFile(true)));
-		}
+			passwd = "password".toCharArray();
+			res = SecurityManager.encrypt(passwd, keyStoreFile);
+			assertArrayEquals(passwd, SecurityManager.decrypt(res, keyStoreFile));
 
-		// not empty password
-		try (MockedStatic<ResourceHelper> resourceHelper = Mockito.mockStatic(ResourceHelper.class)) {
-			char[] passwd = "password".toCharArray();
+			passwd = "password2".toCharArray();
+			res = SecurityManager.encrypt(passwd, keyStoreFile);
+			assertArrayEquals(passwd, SecurityManager.decrypt(res, keyStoreFile));
 
-			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(securityPath);
-			char[] res = SecurityManager.encrypt(passwd, PasswordEncrypt.getKeyStoreFile(true));
-			assertArrayEquals(passwd, SecurityManager.decrypt(res, PasswordEncrypt.getKeyStoreFile(true)));
 		}
 	}
+
 }

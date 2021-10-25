@@ -8,16 +8,16 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Slf4j
-public class HttpProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class HttpProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	private Boolean https = true;
@@ -43,7 +43,7 @@ public class HttpProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.https(https)
 				.username(username)
-				.password(IProtocolConfigDTO.decrypt(password, log))
+				.password(super.decrypt(password))
 				.port(port)
 				.timeout(timeout)
 				.build();

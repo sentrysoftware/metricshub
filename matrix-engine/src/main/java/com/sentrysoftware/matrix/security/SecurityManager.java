@@ -17,7 +17,10 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SecurityManager {
 
-	private static final char[] KEY_STORE_PASSWORD = new char[] { 'S', 'e', 'n', 't', 'r', 'y' };
+	private static final char[] KEY_STORE_PASSWORD = new char[] { 'M', 'a', 't', 'r', 'i', 'x', ',', ' ', 'C', 'r', 'e', 'd',
+			'i', 't', 's', ':', ' ', 'B', 'e', 'r', 't', 'r', 'a', 'n', 'd', ',', ' ', 'E', 'l', 'v', 'i', 's', ',',
+			' ', 'F', 'a', 'd', 'h', 'e', 'l', 'a', ',', ' ', 'H', 'u', 'a', 'n', ',', ' ', 'N', 'a', 's', 's', 'i',
+			'm', ',', ' ', 'R', 'a', 'm', 'a', 's', 's', 'h', ' ', 'a', 'n', 'd', ' ', 'T', 'h', 'o', 'm', 'a', 's' };
 	private static final String MASTER_KEY_ALIAS = "masterKey";
 	public static final String HWS_KEY_STORE_FILE_NAME = "hws-keystore.p12";
 
@@ -95,15 +98,21 @@ public class SecurityManager {
 
 		try {
 			final KeyStore ks = KeyStore.getInstance("PKCS12");
+
 			if (keyStoreFile.exists()) {
 				// if exists, load
-				ks.load(new FileInputStream(keyStoreFile), KEY_STORE_PASSWORD);
+				try(FileInputStream stream = new FileInputStream(keyStoreFile)) {
+					ks.load(stream, KEY_STORE_PASSWORD);
+				}
+
 			} else {
 				// if not exists, create
 				ks.load(null, null);
 
 				// Store the key store password
-				ks.store(new FileOutputStream(keyStoreFile), KEY_STORE_PASSWORD);
+				try(FileOutputStream stream = new FileOutputStream(keyStoreFile)) {
+					ks.store(stream, KEY_STORE_PASSWORD);
+				}
 
 			}
 
@@ -152,4 +161,5 @@ public class SecurityManager {
 		}
 
 	}
+
 }
