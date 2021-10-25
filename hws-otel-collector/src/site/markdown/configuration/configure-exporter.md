@@ -267,6 +267,30 @@ targets:
 
 ## Other Configuration Settings
 
+### Configuring Site Information
+
+**${project.name}** relies on the electricity rate, the CO₂ emissions, and the P.U.E (Power Usage Effectiveness) specified in the `hws-config.yaml` file to calculate the electricity cost and the carbon footprint of each monitored site (i.e. datacenter or server room).
+
+To specify this information, add the following sections for each monitored site just before the `targets` section :
+
+```yaml
+extraLabels: 
+  site: 'Datacenter 1'
+
+extraMetrics: 
+  hw_carbon_density_grams: 0.066
+  hw_electricity_cost_dollars: 0.02
+  hw_pue_ratio: 1.8
+
+```
+
+where:
+
+* `site` corresponds to the datacenter or server room being monitored
+* `hw_carbon_density_grams` corresponds to the CO₂ emissions in grams
+* `hw_electricity_cost_dollars` corresponds to the price in dollars of the kWh of electricity. Refer to your energy contract to know the tariff by kilowatt/hour charged by your supplier
+* `hw_pue_ratio` corresponds to the energy efficiency of the datacenter itself: cooling, power distribution, etc. A non-optimized datacenter may have a P.U.E. around 2, while a most efficient datacenter achieves a P.U.E. of 1.1.
+
 ### Configuring Timeout Durations
 
 **${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:
