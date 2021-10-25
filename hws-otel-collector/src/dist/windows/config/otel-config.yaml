@@ -17,11 +17,11 @@ receivers:
   # For more information about execution options:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusexecreceiver
   #
-  # Hardware Sentry Exporter for Prometheus configuration file is hws-exporter/hws-config.yaml by default.
+  # Hardware Sentry Exporter for Prometheus configuration file is config/hws-config.yaml by default.
   # That's were you configure the systems to be monitored.
   # Change the below command line if you choose to change the location or name of the configuration file.
   prometheus_exec/hws-exporter:
-    exec: "\"hws-exporter\\bin\\hws-exporter.cmd\" --target.config.file=\"hws-exporter\\hws-config.yaml\" --server.port={{port}}"
+    exec: "\"bin\\hws-exporter.cmd\" --target.config.file=\"config\\hws-config.yaml\" --server.port={{port}}"
     port: 24375
     scrape_interval: 60s
 

@@ -2,12 +2,9 @@
 	<id>dist</id>
 	<formats>
 		<format>zip</format>
-		<format>tar.gz</format>
 	</formats>
 
-	<includeBaseDirectory>true</includeBaseDirectory>
-	<includeSiteDirectory>true</includeSiteDirectory>
-	<baseDirectory>hws-exporter</baseDirectory>
+	<includeBaseDirectory>false</includeBaseDirectory>
 
 	<files>
 		<!-- Our shell script -->
