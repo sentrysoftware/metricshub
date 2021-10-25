@@ -14,11 +14,13 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class SnmpProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
@@ -49,9 +51,9 @@ public class SnmpProtocolDTO implements IProtocolConfigDTO {
 				.version(version)
 				.community(community)
 				.username(username)
-				.password(password)
+				.password(IProtocolConfigDTO.decrypt(password, log))
 				.privacy(privacy)
-				.privacyPassword(privacyPassword)
+				.privacyPassword(IProtocolConfigDTO.decrypt(privacyPassword, log))
 				.port(port)
 				.timeout(timeout)
 				.build();

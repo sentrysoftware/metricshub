@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class SshProtocolDTO implements IProtocolConfigDTO {
 
 	@Default
@@ -46,7 +48,7 @@ public class SshProtocolDTO implements IProtocolConfigDTO {
 		return SSHProtocol
 				.builder()
 				.username(username)
-				.password(password)
+				.password(IProtocolConfigDTO.decrypt(password, log))
 				.privateKey(privateKey)
 				.timeout(timeout)
 				.useSudo(useSudo)

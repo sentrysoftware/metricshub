@@ -10,11 +10,13 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class WmiProtocolDTO implements IProtocolConfigDTO {
 
 	private String username;
@@ -36,7 +38,7 @@ public class WmiProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.namespace(namespace)
 				.username(username)
-				.password(password)
+				.password(IProtocolConfigDTO.decrypt(password, log))
 				.timeout(timeout)
 				.build();
 	}
