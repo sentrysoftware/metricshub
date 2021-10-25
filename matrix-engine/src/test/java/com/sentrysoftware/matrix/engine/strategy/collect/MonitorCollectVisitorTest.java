@@ -2512,7 +2512,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCollectGpuBytesTransferParameters() {
+	void testCollectGpuTransferredBytesParameters() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.GPU).build();
@@ -2520,20 +2520,20 @@ class MonitorCollectVisitorTest {
 		List<String> row = new ArrayList<>();
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor, mapping, row);
 
-		// bytes transfer value is null, transferred bytes rate is null
+		// transferred bytes value is null, transferred bytes rate is null
 		assertNull(monitor.getParameter(TRANSMITTED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(TRANSMITTED_BYTES_RATE_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
 
-		monitorCollectVisitor.collectGpuBytesTransferParameters();
+		monitorCollectVisitor.collectGpuTransferredBytesParameters();
 
 		assertNull(monitor.getParameter(TRANSMITTED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(TRANSMITTED_BYTES_RATE_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
 
-		// bytes transfer value is not null
+		// transferred bytes value is not null
 		mapping.put(TRANSMITTED_BYTES_PARAMETER, VALUETABLE_COLUMN_1);
 		row.add("1073741824");
 
@@ -2542,7 +2542,7 @@ class MonitorCollectVisitorTest {
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
 
-		monitorCollectVisitor.collectGpuBytesTransferParameters();
+		monitorCollectVisitor.collectGpuTransferredBytesParameters();
 
 		assertNotNull(monitor.getParameter(TRANSMITTED_BYTES_PARAMETER, NumberParam.class));
 		assertEquals(1073741824.0, monitor.getParameter(TRANSMITTED_BYTES_PARAMETER, NumberParam.class).getValue());
@@ -2550,7 +2550,7 @@ class MonitorCollectVisitorTest {
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
 
-		// bytes transfer value is null, transferred bytes rate is not null
+		// transferred bytes value is null, transferred bytes rate is not null
 		mapping.clear();
 		mapping.put(TRANSMITTED_BYTES_RATE_PARAMETER, VALUETABLE_COLUMN_1);
 		monitor.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
@@ -2560,72 +2560,12 @@ class MonitorCollectVisitorTest {
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
 
-		monitorCollectVisitor.collectGpuBytesTransferParameters();
+		monitorCollectVisitor.collectGpuTransferredBytesParameters();
 
 		assertNull(monitor.getParameter(TRANSMITTED_BYTES_PARAMETER, NumberParam.class));
 		assertNotNull(monitor.getParameter(TRANSMITTED_BYTES_RATE_PARAMETER, NumberParam.class));
 		assertEquals(1024.0, monitor.getParameter(TRANSMITTED_BYTES_RATE_PARAMETER, NumberParam.class).getValue());
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
-	}
-
-	@Test
-	void testComputeRatioFromUsedTime() {
-
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.GPU).build();
-		Map<String, String> mapping = new HashMap<>();
-		List<String> row = new ArrayList<>();
-		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor, mapping, row);
-
-		// current used time value is null
-		assertNull(monitorCollectVisitor.computeRatioFromUsedTime(USED_TIME_PARAMETER));
-
-		// current used time value is not null, previous used time is null
-		mapping.put(USED_TIME_PARAMETER, VALUETABLE_COLUMN_1);
-		row.add("200");
-		assertNull(monitorCollectVisitor.computeRatioFromUsedTime(USED_TIME_PARAMETER));
-
-		// current used time value is not null, previous used time is not null, previous collect time is null
-		NumberParam usedTimeParameter = NumberParam
-			.builder()
-			.name(USED_TIME_PARAMETER)
-			.unit(TIME_PARAMETER_UNIT)
-			.rawValue(140.0)
-			.value(140.0)
-			.build();
-		usedTimeParameter.save();
-		monitor.addParameter(usedTimeParameter);
-		assertNull(monitorCollectVisitor.computeRatioFromUsedTime(USED_TIME_PARAMETER));
-
-		// current used time value is not null, previous used time is not null, previous collect time is not null,
-		// collect time delta is 0
-		usedTimeParameter = NumberParam
-			.builder()
-			.name(USED_TIME_PARAMETER)
-			.unit(TIME_PARAMETER_UNIT)
-			.rawValue(140.0)
-			.value(140.0)
-			.collectTime(collectTime)
-			.build();
-		usedTimeParameter.save();
-		monitor.addParameter(usedTimeParameter);
-		assertNull(monitorCollectVisitor.computeRatioFromUsedTime(USED_TIME_PARAMETER));
-
-		// current used time value is not null, previous used time is not null, previous collect time is not null,
-		// collect time delta is not 0
-		usedTimeParameter = NumberParam
-			.builder()
-			.name(USED_TIME_PARAMETER)
-			.unit(TIME_PARAMETER_UNIT)
-			.rawValue(140.0)
-			.value(140.0)
-			.collectTime(collectTime - 120000)
-			.build();
-		usedTimeParameter.save();
-		monitor.addParameter(usedTimeParameter);
-		Double ratio = monitorCollectVisitor.computeRatioFromUsedTime(USED_TIME_PARAMETER);
-		assertNotNull(ratio);
-		assertEquals(50.0, ratio);
 	}
 }

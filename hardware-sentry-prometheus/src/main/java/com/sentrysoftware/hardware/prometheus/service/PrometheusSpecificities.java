@@ -179,6 +179,7 @@ public class PrometheusSpecificities {
 
 		prometheusMetadataParametersMap.put(MonitorType.CPU, cpuMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.FAN, fanMetadataToPrometheusParameters());
+		prometheusMetadataParametersMap.put(MonitorType.GPU, gpuMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.LOGICAL_DISK, logicalDiskMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.LUN, lunMetadataToPrometheusParameters());
 		prometheusMetadataParametersMap.put(MonitorType.MEMORY, memoryMetadataToPrometheusParameters());
@@ -520,6 +521,36 @@ public class PrometheusSpecificities {
 				.name("hw_cpu_corrected_errors_alarm")
 				.unit(ERRORS)
 				.build());
+
+		return map;
+	}
+
+	/**
+	 * Convert some GPU Metadata to Prometheus metrics
+	 *
+	 * @return {@link Map} of {@link PrometheusParameter} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, PrometheusParameter> gpuMetadataToPrometheusParameters() {
+		final Map<String, PrometheusParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(SIZE, PrometheusParameter
+			.builder()
+			.name("hw_gpu_size_bytes")
+			.unit(BYTES_PARAMETER_UNIT)
+			.factor(1000000.0) // MB to Bytes
+			.build());
+
+		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, PrometheusParameter
+			.builder()
+			.name("hw_gpu_corrected_errors_warning")
+			.unit(ERRORS)
+			.build());
+
+		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, PrometheusParameter
+			.builder()
+			.name("hw_gpu_corrected_errors_alarm")
+			.unit(ERRORS)
+			.build());
 
 		return map;
 	}

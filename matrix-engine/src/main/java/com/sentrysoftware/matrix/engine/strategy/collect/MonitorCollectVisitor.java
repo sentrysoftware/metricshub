@@ -252,7 +252,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectBasicParameters(gpu);
 
 		collectGpuUsedTimeRatioParameters();
-		collectGpuBytesTransferParameters();
+		collectGpuTransferredBytesParameters();
 
 		collectPowerConsumption();
 
@@ -1733,8 +1733,25 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		for (Map.Entry<String, String> entry : GPU_USED_TIME_PARAMETERS.entrySet()) {
 
-			Double usedTimePercentValue = computeRatioFromUsedTime(entry.getKey());
-			if (usedTimePercentValue == null) {
+			Double usedTimePercentValue = null;
+
+			// Getting the used time current value
+			final Double usedTimeCurrentRawValue = extractParameterValue(monitor.getMonitorType(), entry.getKey());
+			if (usedTimeCurrentRawValue != null) {
+
+				// Computing the used time percent value in the [0;1] range, based on the used time value
+				usedTimePercentValue = CollectHelper.rate(entry.getKey(), usedTimeCurrentRawValue,
+					monitorCollectInfo.getCollectTime(), monitor);
+			}
+
+			if (usedTimePercentValue != null) {
+
+				// Converting from [0;1] range to [0;100] range
+				usedTimePercentValue *= 100.0;
+
+			} else {
+
+				// If the used time percent could not be computed, trying to get its value directly
 				usedTimePercentValue = extractParameterValue(monitor.getMonitorType(), entry.getValue());
 			}
 
@@ -1753,51 +1770,82 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects the GPU bytes transfer parameters (<i>transmittedBytes</i> and <i>receivedBytes</i>),
+	 * Collects the GPU transferred bytes parameters (<i>transmittedBytes</i> and <i>receivedBytes</i>),
 	 * when possible.<br><br>
 	 *
 	 * If a parameter could not be collected, then tries to collect the matching rate parameter<br>
 	 * (respectively: <i>transmittedBytesRate</i> and <i>receivedBytesRate</i>).
 	 */
-	void collectGpuBytesTransferParameters() {
+	void collectGpuTransferredBytesParameters() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
+		Double transferredBytesRawValue;
+
+		Double transferredBytesRateInBytesPerSecond = null;
+		double transferredBytesRateInMegaBytesPerSecond;
+
 		for (Map.Entry<String, String> entry : GPU_BYTES_TRANSFER_PARAMETERS.entrySet()) {
 
-			// Getting the GPU bytes transfer value
-			final Double bytesTransferRawValue = extractParameterValue(monitor.getMonitorType(), entry.getKey());
+			// Getting the GPU transferred bytes value
+			transferredBytesRawValue = extractParameterValue(monitor.getMonitorType(), entry.getKey());
 
-			if (bytesTransferRawValue != null) {
+			if (transferredBytesRawValue != null) {
 
-				// Setting the GPU bytes transfer parameter
+				// Setting the GPU transferred bytes parameter
 				CollectHelper.updateNumberParameter(
 					monitor,
 					entry.getKey(),
 					BYTES_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					bytesTransferRawValue,
-					bytesTransferRawValue
+					transferredBytesRawValue,
+					transferredBytesRawValue
 				);
 
 			} else {
 
 				// If the GPU bytes transfer parameter could not be collected,
 				// let us try the GPU transferred bytes rate parameter
-				final Double transferredBytesRateInBytesPerSecond = extractParameterValue(monitor.getMonitorType(),
+				transferredBytesRateInBytesPerSecond = extractParameterValue(monitor.getMonitorType(),
 					entry.getValue());
 
 				// Setting the GPU transferred bytes rate
 				if (transferredBytesRateInBytesPerSecond != null) {
 
 					// Converting from B/s to MB/s
-					final double transferredBytesRateInMegaBytesPerSecond =
+					transferredBytesRateInMegaBytesPerSecond =
 						transferredBytesRateInBytesPerSecond / 1048576.0; // 1048576 == 1024 * 1024
 
+					// Setting the GPU transferred bytes rate parameter
 					CollectHelper.updateNumberParameter(
 						monitor,
 						entry.getValue(),
-						PERCENT_PARAMETER_UNIT,
+						BYTES_RATE_PARAMETER_UNIT,
+						monitorCollectInfo.getCollectTime(),
+						transferredBytesRateInMegaBytesPerSecond,
+						transferredBytesRateInBytesPerSecond
+					);
+				}
+			}
+
+			// If the transferred bytes rates could not be extracted,
+			// let us try and compute it
+			if (transferredBytesRateInBytesPerSecond == null && transferredBytesRawValue != null) {
+
+				transferredBytesRateInBytesPerSecond = CollectHelper.rate(entry.getKey(), transferredBytesRawValue,
+					monitorCollectInfo.getCollectTime(), monitor);
+
+				if (transferredBytesRateInBytesPerSecond != null) {
+
+					// Converting from B/s to MB/s
+					transferredBytesRateInMegaBytesPerSecond =
+						transferredBytesRateInBytesPerSecond / 1048576.0; // 1048576 == 1024 * 1024
+
+					// Setting the GPU transferred bytes rate parameter
+					CollectHelper.updateNumberParameter(
+						monitor,
+						entry.getValue(),
+						BYTES_RATE_PARAMETER_UNIT,
 						monitorCollectInfo.getCollectTime(),
 						transferredBytesRateInMegaBytesPerSecond,
 						transferredBytesRateInBytesPerSecond
@@ -1805,73 +1853,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Computes a used time ratio, based on the value of the given used time parameter.
-	 *
-	 * @param usedTimeParameterName	The name of the used time parameter.
-	 *
-	 * @return						The value of the used time ratio, based on the given used time parameter.
-	 * 								Null if the computation could not be done.
-	 */
-	Double computeRatioFromUsedTime(String usedTimeParameterName) {
-
-		final Monitor monitor = monitorCollectInfo.getMonitor();
-
-		// Getting the current value
-		final Double usedTimeCurrentRawValue = extractParameterValue(monitor.getMonitorType(), usedTimeParameterName);
-
-		if (usedTimeCurrentRawValue == null) {
-			return null;
-		}
-
-		// Getting the current collect time
-		Long currentCollectTime = monitorCollectInfo.getCollectTime();
-
-		// Getting the previous value
-		Double usedTimePreviousRawValue = CollectHelper.getNumberParamRawValue(monitor, usedTimeParameterName, true);
-
-		if (usedTimePreviousRawValue == null) {
-
-			// Setting the current raw value so that it becomes the previous raw value when the next collect occurs
-			CollectHelper.updateNumberParameter(
-				monitor,
-				usedTimeParameterName,
-				TIME_PARAMETER_UNIT,
-				currentCollectTime,
-				null,
-				usedTimeCurrentRawValue
-			);
-
-			return null;
-		}
-
-		// Getting the previous collect time
-		final Double previousCollectTime = CollectHelper.getNumberParamCollectTime(monitor, usedTimeParameterName, true);
-
-		if (previousCollectTime == null) {
-
-			// This should never happen
-			log.warn(String.format("Found previous %s value, but could not find previous collect time.",
-				usedTimeParameterName));
-
-			return null;
-		}
-
-		// Computing the value delta
-		final Double usedTimeDelta = CollectHelper.subtract(usedTimeParameterName, usedTimeCurrentRawValue,
-			usedTimePreviousRawValue);
-
-		// Computing the time delta
-		final double collectTimeDeltaInSeconds = CollectHelper.subtract(usedTimeParameterName,
-			currentCollectTime.doubleValue(), previousCollectTime) / 1000.0;
-
-		if (collectTimeDeltaInSeconds == 0.0) {
-			return null;
-		}
-
-		return 100.0 * usedTimeDelta / collectTimeDeltaInSeconds;
 	}
 
 	/**
