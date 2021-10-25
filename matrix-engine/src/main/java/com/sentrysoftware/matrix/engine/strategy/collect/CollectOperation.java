@@ -1,5 +1,55 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SOURCE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static org.springframework.util.Assert.state;
+
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -27,61 +77,9 @@ import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTED_PORTS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SOURCE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
-import static org.springframework.util.Assert.state;
 
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
@@ -626,80 +624,57 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * @param array1	The first array. Cannot be null.
-	 * @param array2	The second array. Cannot be null. Must be the same size as <em>array1</em>.
-	 *
-	 * @return			A new array with element at index i being the sum of <em>array1[i]</em> and <em>array2[i]</em>.
-	 * 					<br>If any of <em>array1[i]</em> and <em>array2[i]</em> is null, then the resulting sum is null.
+	 * Setting the target power consumption value as the sum of all the {@link Enclosure}s' power consumption values.
 	 */
-	private Double[] sumArrayValues(Double[] array1, Double[] array2) {
+	void sumEnclosurePowerConsumptions(@NonNull final Map<String, Monitor> enclosureMonitors) {
 
-		Double[] result = new Double[array1.length];
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
-		for (int i = 0; i < array1.length; i++) {
+		// Getting the target monitor
+		final Monitor targetMonitor = getTargetMonitor(strategyConfig.getHostMonitoring());
 
-			result[i] = array1[i] != null && array2[i] != null
-				? array1[i] + array2[i]
-				: null;
+		// Getting the sums of the enclosures' power consumption values
+		Double totalPowerConsumption = enclosureMonitors
+				.values()
+				.stream()
+				.filter(monitor -> !monitor.isMissing())
+				.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))
+				.filter(Objects::nonNull)
+				.reduce(Double::sum)
+				.orElse(null);
+
+		if (totalPowerConsumption == null) {
+			// Let's try next collect
+			log.debug("The power consumption is going to be collected during the next collect for system {}.", hostname);
+			return;
 		}
 
-		return result;
+		// Collect the power consumption and energy
+		CollectHelper.collectEnergyUsageFromPower(
+				targetMonitor,
+				strategyTime,
+				totalPowerConsumption,
+				hostname
+		);
+
+		log.debug("The power consumption has been collected for system: {}. Value: {} Watts.", hostname, totalPowerConsumption);
+
 	}
 
 	/**
-	 * Setting the target energy value as the sum of all the {@link Enclosure}s' energy values.
+	 * Check if at least one monitor in the given map collects the power consumption or the energy
+	 * 
+	 * @param monitors map of monitors
+	 * @return boolean value
 	 */
-	private void aggregateTargetEnergy() {
-
-		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
-		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
-		// Getting the target monitor
-		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-
-		// Getting the enclosure monitors
-		Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
-
-		if (enclosureMonitors == null || enclosureMonitors.isEmpty()) {
-			return;
-		}
-
-		// Getting the sums of the enclosures' energy converted values and raw values
-		// totalEnergyValues[0] is the total converted value
-		// totalEnergyValues[1] is the total raw value
-		Double[] totalEnergyValues = enclosureMonitors
-			.values()
-			.stream()
-			.map(monitor -> monitor.getParameter(ENERGY_PARAMETER, NumberParam.class))
-			.filter(Objects::nonNull)
-			.map(numberParam -> new Double[] {numberParam.getValue(), numberParam.getRawValue()})
-			.reduce(this::sumArrayValues)
-			.orElse(null);
-
-		if (totalEnergyValues == null || totalEnergyValues[0] == null || totalEnergyValues[1] == null) {
-
-			// totalEnergyValues[0] != null and totalEnergyValues[1] == null should never happen...
-
-			return;
-		}
-
-		// Building the parameter
-		NumberParam targetEnergy = NumberParam
-			.builder()
-			.name(ENERGY_PARAMETER)
-			.unit(ENERGY_PARAMETER_UNIT)
-			.collectTime(strategyTime)
-			.value(totalEnergyValues[0])
-			.rawValue(totalEnergyValues[1])
-			.build();
-
-		// Adding the parameter to the target monitor
-		targetMonitor.collectParameter(targetEnergy);
-
-		log.debug("The energy has been collected for system: {}. Value: {} Joules. Power Meter is now collected.",
-				hostname, targetEnergy);
-
-		hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
+	static boolean isPowerCollected(final Map<String, Monitor> monitors) {
+		return Optional
+				.ofNullable(monitors)
+				.stream()
+				.map(Map::values)
+				.flatMap(Collection::stream)
+				.anyMatch(monitor -> CollectHelper.getNumberParamValue(monitor, ENERGY_PARAMETER) != null
+						|| CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null);
 	}
 
 	/**
@@ -965,9 +940,6 @@ public class CollectOperation extends AbstractStrategy {
 		// Refresh present parameters
 		refreshPresentParameters();
 
-		// Setting the target total energy
-		aggregateTargetEnergy();
-
 		// Setting the target heating margin
 		computeTargetHeatingMargin();
 
@@ -990,13 +962,8 @@ public class CollectOperation extends AbstractStrategy {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		// Are we collecting the power consumption?
-		if (!PowerMeter.COLLECTED.equals(hostMonitoring.getPowerMeter())) {
-			// Estimate the target Power Consumption
-			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
-			// account for the power supplies' heat dissipation (90% efficiency assumed).
-			estimateTargetPowerConsumption();
-		}
+		// Compute the power consumption
+		computeTargetPowerConsumption(hostMonitoring);
 
 		// Estimate the VMs Power Consumption
 		// The VMs power consumption needs to be estimated in the post collect strategy
@@ -1010,43 +977,57 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
+	 * Compute the target's power consumption
+	 * 
+	 * @param hostMonitoring
+	 */
+	void computeTargetPowerConsumption(final IHostMonitoring hostMonitoring) {
+
+		// Getting the enclosure monitors
+		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
+
+		if (isPowerCollected(enclosureMonitors)) {
+			// Set power meter to collected
+			hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
+
+			sumEnclosurePowerConsumptions(enclosureMonitors);
+		} else {
+			// Set power meter to estimated
+			hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
+
+			// Estimate the target Power Consumption
+			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
+			// account for the power supplies' heat dissipation (90% efficiency assumed).
+			estimateTargetPowerConsumption();
+		}
+	}
+
+	/**
 	 * Estimate the target power consumption.<br> Perform the the sum of all monitor's power consumption, energy and energy usage, excluding missing
 	 * monitors. The final value is divided by 0.9 to add 10% to the final value so that we account the power supplies' heat dissipation (90%
 	 * efficiency assumed)
 	 */
 	void estimateTargetPowerConsumption() {
+
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
-		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
-		// The connector has collected PowerConsumption on the Enclosure monitors so we don't need to estimate the power on the target
-		// The energy will be collected during the next collect when the calculation is from the power consumption
-		// If the connector has collected Energy using the connector then we will never reach this part of code because the previous targetEnergy
-		// will never be null
-		if (enclosureMonitors != null && enclosureMonitors.values().stream()
-				.anyMatch(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null)) {
-			log.debug("The energy is going to be collected during the next collect for system {}.", hostname);
-			return;
-		}
-
 		// Browse through all the collected objects and perform the sum of parameters using the map-reduce
-		final Double[] totalValues = hostMonitoring.getMonitors()
+		final Double totalPowerConsumption = hostMonitoring.getMonitors()
 			.values()
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
-			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We sum the values for the target
+			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We already sum the values for the target
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
-			.filter(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER) != null) // skip monitors without power consumption
-			.map(monitor -> new Double[] {
-						CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER),
-						CollectHelper.getNumberParamValue(monitor, ENERGY_USAGE_PARAMETER),
-						CollectHelper.getNumberParamValue(monitor, ENERGY_PARAMETER)})
-			.reduce(this::sumArrayValues)
+			.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))
+			.filter(Objects::nonNull) // skip null power consumption values
+			.reduce(Double::sum)
 			.orElse(null);
 
-		if (totalValues == null) {
+		if (totalPowerConsumption == null) {
 			log.debug("No power consumption estimated for the monitored devices on system {}.", hostname);
 			return;
 		}
@@ -1054,66 +1035,20 @@ public class CollectOperation extends AbstractStrategy {
 		// Getting the target monitor
 		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
 
-		// totalValues[0] can never be null as we have already filtered power consumption null values
 		// Add 10% because of the heat dissipation of the power supplies
-		final double powerConsumption = NumberHelper.round(totalValues[0] / 0.9, 2, RoundingMode.HALF_UP);
+		final double powerConsumption = NumberHelper.round(totalPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
 		if (powerConsumption > 0) {
-			CollectHelper.updateNumberParameter(
-				targetMonitor,
-				POWER_CONSUMPTION_PARAMETER,
-				POWER_CONSUMPTION_PARAMETER_UNIT,
-				strategyTime,
-				powerConsumption,
-				powerConsumption
-			);
+			CollectHelper.collectEnergyUsageFromPower(
+					targetMonitor,
+					strategyTime,
+					powerConsumption,
+					hostname);
 			log.debug("Power Consumption: Estimated at {} Watts on system {}.", powerConsumption, hostname);
 
 		} else {
-			log.debug("Power Consumption could not be estimated on system {}.", hostname);
+			log.warn("Power Consumption could not be estimated on system {}. Negative value: {}", hostname, powerConsumption);
 		}
 
-		// Do we have the energy usage value, the first collect will always return null for the energy usage
-		// as we didn't get the delta time to calculate the energy usage delta
-		if (totalValues[1] != null) {
-			final double energyUsage =  NumberHelper.round(totalValues[1] / 0.9, 2, RoundingMode.HALF_UP);
-			if (energyUsage > 0) {
-				CollectHelper.updateNumberParameter(
-					targetMonitor,
-					ENERGY_USAGE_PARAMETER,
-					ENERGY_USAGE_PARAMETER_UNIT,
-					strategyTime,
-					energyUsage,
-					energyUsage
-				);
-				log.debug("Energy Usage: Estimated at {} Joules on system {}.", energyUsage, hostname);
-			} else {
-				log.debug("Energy Usage could not be estimated on system {}.", hostname);
-			}
-
-		}
-
-		// Do we have the energy value, the first collect will always return null for the energy
-		// as we didn't get the delta time to calculate the energy usage delta
-		if (totalValues[2] != null) {
-			final double energy =  NumberHelper.round(totalValues[2] / 0.9, 2, RoundingMode.HALF_UP);
-			if (energy > 0) {
-				CollectHelper.updateNumberParameter(
-					targetMonitor,
-					ENERGY_PARAMETER,
-					ENERGY_PARAMETER_UNIT,
-					strategyTime,
-					energy,
-					energy
-				);
-				log.debug("Energy: Estimated at {} Joules on system {}", energy, hostname);
-			} else {
-				log.debug("Energy could not be estimated on system {}.", hostname);
-			}
-
-		}
-
-		// Set power meter to estimated
-		hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
 	}
 
 	/**
@@ -1156,7 +1091,7 @@ public class CollectOperation extends AbstractStrategy {
 		Double maximumPowerConsumption = NumberHelper.parseDouble(cpu.getMetadata(POWER_CONSUMPTION), null);
 
 		// If we didn't get the actual maximum power consumption, discovered by the DiscoveryOperation strategy, assume it's 19W/GHz
-		if (maximumPowerConsumption == null) {
+		if (maximumPowerConsumption == null || maximumPowerConsumption < 0) {
 
 			// Get the maximum speed, discovered metadata.
 			double maximumSpeed = NumberHelper.parseDouble(cpu.getMetadata(MAXIMUM_SPEED), 0.0);
@@ -1259,13 +1194,15 @@ public class CollectOperation extends AbstractStrategy {
 				RoundingMode.HALF_UP);
 
 			// This will set the energy, the delta energy called energyUsage and the powerConsumption on the VM monitor
-			CollectHelper.collectEnergyUsageFromPower(vm,
+			CollectHelper.collectEnergyUsageFromPower(
+				vm,
 				strategyTime,
 				powerConsumption,
 				strategyConfig
 					.getEngineConfiguration()
 					.getTarget()
-					.getHostname());
+					.getHostname()
+			);
 		}
 	}
 

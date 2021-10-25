@@ -16,7 +16,6 @@ targets:
     community: public
     port: 161
     timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
 ```
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
@@ -40,5 +39,4 @@ targets:
     community: public
     port: 161
     timeout: 120s
-  excludedConnectors: [ SunF15K, HPiLO ]
 ```

@@ -20,7 +20,7 @@
 	<properties>
 
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
-		<sentrySkinVersion>4.0</sentrySkinVersion>
+		<sentrySkinVersion>5.0-SNAPSHOT</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
 		<otel.version>0.36.0</otel.version>
@@ -29,9 +29,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.sentrysoftware.hardware.matrix</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>hardware-sentry-exporter</artifactId>
 			<version>${project.version}</version>
+			<classifier>dist</classifier>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hardware-sentry-cli</artifactId>
+			<version>${project.version}</version>
+			<classifier>dist</classifier>
 			<type>zip</type>
 		</dependency>
 	</dependencies>
@@ -251,6 +259,22 @@
 						<artifactId>sentry-skin-velocity-tools</artifactId>
 						<version>${sentrySkinVersion}</version>
 					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-core</artifactId>
+						<version>1.10</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-xhtml</artifactId>
+						<version>1.10</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.10</version>
+					</dependency>
+
 				</dependencies>
 				<executions>
 					<!-- package -->

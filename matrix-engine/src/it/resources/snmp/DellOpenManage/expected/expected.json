@@ -5660,16 +5660,6 @@
         "previousRawValue" : null,
         "type" : "NumberParam"
       },
-      "energy" : {
-        "name" : "energy",
-        "collectTime" : 1634216906694,
-        "previousCollectTime" : null,
-        "unit" : "Joules",
-        "value" : 1.1490296399999998E10,
-        "rawValue" : 3191.749,
-        "previousRawValue" : null,
-        "type" : "NumberParam"
-      },
       "heatingMargin" : {
         "name" : "heatingMargin",
         "collectTime" : 1634216906694,

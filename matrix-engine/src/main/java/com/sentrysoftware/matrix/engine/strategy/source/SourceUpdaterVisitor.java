@@ -253,6 +253,16 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		if (monitor != null) {
 			copy.setCommandLine(
 					replaceDeviceId(osCommandSource.getCommandLine(), monitor));
+
+			if (osCommandSource.getExcludeRegExp() != null) {
+				copy.setExcludeRegExp(
+						replaceDeviceId(osCommandSource.getExcludeRegExp(), monitor));
+			}
+
+			if (osCommandSource.getKeepOnlyRegExp() != null) {
+				copy.setKeepOnlyRegExp(
+						replaceDeviceId(osCommandSource.getKeepOnlyRegExp(), monitor));
+			}
 		}
 
 		return copy.accept(sourceVisitor);

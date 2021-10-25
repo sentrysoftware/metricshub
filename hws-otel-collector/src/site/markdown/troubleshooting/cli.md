@@ -1,9 +1,52 @@
-keywords: usage,options
-description: hws, the ${project.name} requires a few options to run: hostname, host type, protocols to use and credentials.
+keywords: overview
+description: The hws CLI is the core Hardware Sentry engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+# Hardware Sentry CLI (`hws`)
 
-# Executing the ${project.name} (`hws`)
+## Overview
+
+The `hws` CLI is the core *Hardware Sentry engine* wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
+
+Discovered components include:
+
+* Enclosure (manufacturer, model, serial number)
+* Processors
+* Memory modules
+* GPUs
+* Disks (HDD, SDD, RAID)
+* Network and Fiber Channel Adapters
+* Sensors (temperature, voltage, fans, power, LEDs)
+
+Supported systems include:
+
+* Servers (Linux, AIX, HP-UX, Solaris, Windows, in-band and out-of-band)
+* Blade chassis
+* Network switches
+* SAN switches
+* Storage systems (disk arrays, filers, tape libraries)
+
+The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html).
+
+The quantity and quality of the information that **${project.name}** will gather depends on the instrumentation stack available on the targeted host.
+
+![Output example for an HP ProLiant system](../images/hws-proliant.png)
+
+Only a few options are required to run the `hws` command:
+
+* Hostname or IP address of the device to be monitored
+* Device type
+* Protocols to be used:
+    * HTTP
+    * IPMI-over-LAN
+    * SSH
+    * SNMP
+    * WBEM
+    * WMI (on Windows only)
+* Credentials
+
+![Usage of hws](../images/hws-usage.png)
+
+The `hws` command can be used to troubleshoot the monitoring performed by other *Hardware Sentry* products such as the KM for PATROL, or the Exporter for Prometheus.
 
 ## The Basics
 
@@ -30,7 +73,7 @@ The above command will connect to `server01` (a `Win`dows system), and will dete
 
 Assuming **server01** is an *HP ProLiant* server with the *HP Insight Management Agent*, the `hws` output will look like:
 
-![Monitoring the server01 Windows system with SNMP](./images/hws-proliant.png)
+![Monitoring the server01 Windows system with SNMP](../images/hws-proliant.png)
 
 To learn more about the various options available, simply run the below command:
 
@@ -120,7 +163,7 @@ The **${project.name}** is bundled with Sentry's **Hardware Connector Library**,
 
 Examples of connectors:
 
-* DELL OpenManage Server Administrator (SNMP)
+* Dell OpenManage Server Administrator (SNMP)
 * Network Cards on Windows (WMI)
 * IBM AIX physical disks, using system commands
 * VMware ESX (WBEM)
@@ -132,7 +175,7 @@ You can however specify manually which connectors must be used to monitor the sp
 
 ### Force Connectors
 
-To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list connectors' internal name (**id**).
+To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list of connector internal names (you need to use their **id**).
 
 Using the `--force` option will shorten the detection phase, as only the specified connectors will be tested.
 
@@ -144,7 +187,7 @@ $ hws --list
 
 This will provide a list as below:
 
-![Output of the hws --list command, listing all connectors, their ID, applicable system types and display name](./images/hws-list.png)
+![Output of the hws --list command, listing all connectors, their ID, applicable system types and display name](../images/hws-list.png)
 
 This list displays the internal name (**id**) of each connector, its applicable system types (to use with the `--type` option) and its display name. You need to use the connector's internal name (**id**) in the `--force` option.
 

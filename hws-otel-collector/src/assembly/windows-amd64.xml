@@ -2,7 +2,6 @@
 	<id>windows-amd64</id>
 	<formats>
 		<format>zip</format>
-		<format>dir</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<baseDirectory>${project.artifactId}</baseDirectory>
@@ -13,6 +12,12 @@
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<useProjectArtifact>false</useProjectArtifact>
 			<unpack>true</unpack>
+			<unpackOptions>
+				<excludes>
+					<exclude>/bin/hws</exclude>
+					<exclude>/bin/hws-exporter</exclude>
+				</excludes>
+			</unpackOptions>
 		</dependencySet>
 	</dependencySets>
 

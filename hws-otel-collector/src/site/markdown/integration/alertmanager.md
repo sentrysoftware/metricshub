@@ -3,13 +3,13 @@ description: How to configure and use alert rules and get notified when a proble
 
 # Prerequisites
 
-You must have downloaded **${project.artifactId}-${project.version}.zip** or **${project.artifactId}-${project.version}.tar.gz** from [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html). 
+You must have downloaded **${project.artifactId}-${project.version}.zip** or **${project.artifactId}-${project.version}.tar.gz** from [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html).
 
-The package includes the `hardware-sentry-rules.yml` file that contains alert rules for all the monitored hardware component types. Save this file in your `Prometheus` folder. In the `prometheus.yml` file, add the alerting configuration, as shown below:
+The package includes the `hardware-sentry-rules.yaml` file that contains alert rules for all the monitored hardware component types. Save this file in your `Prometheus` folder. In the `prometheus.yaml` file, add the alerting configuration, as shown below:
 
 ```
 rule_files:
-  - hardware-sentry-rules.yml
+  - hardware-sentry-rules.yaml
 ```
 
 Restart your Prometheus server

@@ -15,8 +15,8 @@
 				<!-- This route is chosen if ThreadContext has loggerLevel = DEBUG/INFO/ERROR/WARN/TRACE. -->
 				<Route>
 					<RollingFile name="Rolling-${ctx:targetId}"
-								 fileName="${ctx:outputDirectory}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
-								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hardware-sentry-prometheus-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+								 fileName="${ctx:outputDirectory}/hws-exporter-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
+								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hws-exporter-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
@@ -24,7 +24,7 @@
 						</Policies>
 						<DefaultRolloverStrategy>
 							<Delete basePath="${ctx:outputDirectory}" maxDepth="3">
-								<IfFileName glob="*/*hardware-sentry-prometheus*.log.gz" />
+								<IfFileName glob="*/*hws-exporter*.log.gz" />
 								<IfLastModified age="2d" />
 							</Delete>
 						</DefaultRolloverStrategy>

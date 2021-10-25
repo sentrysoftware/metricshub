@@ -57,7 +57,7 @@ An API key is required to push the data to BMC Helix Operations Management.
 
 Connect to your BMC Helix Operations Management Portal, go to the repository page, and click on the **Copy API Key** button.
 
-![Copy API Key](./images/copy_api_key.png)
+![Copy API Key](../images/copy_api_key.png)
 
 Save the API key and take note of your BMC Helix Portal URL.
 
@@ -119,4 +119,4 @@ Restart. The dashboard are now loaded in Helix Operations Management.
 
 ## Add Targets
 
-Refer to the [Configuration](./configure.html) section for details.
+Refer to the [Configuration](../configuration/configure-exporter.html) section for details.
