@@ -125,6 +125,7 @@ public class HardwareConstants {
 	public static final String MOUNT_COUNT_PARAMETER = "mountCount";
 	public static final String UNMOUNT_COUNT_PARAMETER = "unmountCount";
 	public static final String NEEDS_CLEANING_PARAMETER = "needsCleaning";
+	public static final String USED_TIME_PARAMETER = "usedTime";
 	public static final String USED_TIME_PERCENT_PARAMETER = "usedTimePercent";
 	public static final String RECEIVED_BYTES_PARAMETER = "receivedBytes";
 	public static final String TRANSMITTED_BYTES_PARAMETER = "transmittedBytes";
@@ -137,6 +138,11 @@ public class HardwareConstants {
 	public static final String USED_WATTS_PARAMETER = "usedWatts";
 	public static final String USED_PERCENT_PARAMETER = "usedPercent";
 	public static final String LAST_ERROR_PARAMETER = "lastError";
+	public static final String MEMORY_UTILIZATION_PARAMETER = "memoryUtilization";
+	public static final String ENCODER_USED_TIME_PARAMETER = "encoderUsedTime";
+	public static final String ENCODER_USED_TIME_PERCENT_PARAMETER = "encoderUsedTimePercent";
+	public static final String DECODER_USED_TIME_PARAMETER = "decoderUsedTime";
+	public static final String DECODER_USED_TIME_PERCENT_PARAMETER = "decoderUsedTimePercent";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //

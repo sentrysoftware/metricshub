@@ -32,6 +32,9 @@ public class AlertConditionsBuilder {
 	public static final Set<AlertCondition> CORRECTED_ERROR_COUNT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(1D).build());
 
+	public static final Set<AlertCondition> CORRECTED_ERROR_COUNT_WARN_CONDITION = Collections
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(1D).build());
+
 	public static final Set<AlertCondition> SPEED_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().eq(0D).build());
 
@@ -67,6 +70,18 @@ public class AlertConditionsBuilder {
 
 	public static final Set<AlertCondition> USED_CAPACITY_WARN_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());
+
+	public static final Set<AlertCondition> USED_TIME_PERCENT_ALARM_CONDITION = Collections
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());
+
+	public static final Set<AlertCondition> USED_TIME_PERCENT_WARN_CONDITION = Collections
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(80D).build());
+
+	public static final Set<AlertCondition> MEMORY_UTILIZATION_ALARM_CONDITION = Collections
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().build());
+
+	public static final Set<AlertCondition> MEMORY_UTILIZATION_WARN_CONDITION = Collections
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());
 
 	private Set<AlertCondition> alertConditions = new HashSet<>();
 

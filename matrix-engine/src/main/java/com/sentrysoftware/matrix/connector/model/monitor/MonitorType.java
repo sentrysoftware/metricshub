@@ -7,6 +7,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -45,6 +46,7 @@ public enum MonitorType {
 	DISK_CONTROLLER("DiskController", "Disk Controller", "Disk Controllers", new DiskController(), "diskcontroller"),
 	ENCLOSURE("Enclosure", "Enclosure", "Enclosures", new Enclosure(), "enclosure"),
 	FAN("Fan", "Fan", "Fans", new Fan(), "fan"),
+	GPU("GPU", "GPU", "GPUs", new Gpu(), "gpu"),
 	LED("LED", "LED", "LEDs", new Led(), "led"),
 	LOGICAL_DISK("LogicalDisk", "Logical Disk", "Logical Disks", new LogicalDisk(), "logicaldisk"),
 	LUN("Lun", "LUN", "LUNs", new Lun(), "lun"),
