@@ -24,15 +24,15 @@ public class SecurityManager {
 	/**
 	 * Encrypt the given password
 	 * 
-	 * @param passwd password to encrypt
-	 * @param keyStoreFile the key store holding the secret information
+	 * @param passwd       Password to encrypt
+	 * @param keyStoreFile The key store holding secret information
 	 * @return char array
 	 * @throws HardwareSecurityException
 	 */
 	public static char[] encrypt(final char[] passwd, @NonNull final File keyStoreFile) throws HardwareSecurityException {
 
 		if (passwd == null) {
-			return null;
+			return passwd;
 		}
 
 		return CryptoCipher.encrypt(passwd, getSecretKey(keyStoreFile));
@@ -41,18 +41,14 @@ public class SecurityManager {
 	/**
 	 * Decrypt the password
 	 * 
-	 * @param crypted the crypted text
-	 * @param keyStoreFile the key store holding the secret information
+	 * @param crypted      The crypted text
+	 * @param keyStoreFile The key store holding the secret information
 	 * @return char array
 	 * @throws HardwareSecurityException
 	 */
 	public static char[] decrypt(final char[] crypted, final File keyStoreFile) throws HardwareSecurityException {
 
-		if (crypted == null) {
-			return null;
-		}
-
-		if (keyStoreFile!= null && keyStoreFile.exists()) {
+		if (crypted != null && keyStoreFile != null && keyStoreFile.exists()) {
 
 			return CryptoCipher.decrypt(crypted, getSecretKey(keyStoreFile));
 		}
@@ -62,6 +58,7 @@ public class SecurityManager {
 
 	/**
 	 * Get the secret key from the KeyStore
+	 * 
 	 * @param keyStoreFile The key store file
 	 * 
 	 * @return {@link SecretKey} instance
@@ -89,8 +86,9 @@ public class SecurityManager {
 	}
 
 	/**
-	 * Load the hwsKeyStore.pkcs12 file, if the keyStore file doesn't exist then it is created
+	 * Load the hws-keystore.p12 file, if the keyStore file doesn't exist then it is created
 	 * 
+	 * @param keyStoreFile The key store file
 	 * @throws HardwareSecurityException
 	 */
 	public static KeyStore loadKeyStore(@NonNull final File keyStoreFile) throws HardwareSecurityException {
@@ -118,9 +116,9 @@ public class SecurityManager {
 	/**
 	 * Generate and save a new master key in the given {@link KeyStore}
 	 * 
-	 * @param ks       The keyStore holding the secret key
-	 * @param password The password used to protect the {@link KeyStore}
-	 * 
+	 * @param ks           The keyStore holding the secret key
+	 * @param password     The password used to protect the {@link KeyStore}
+	 * @param keyStoreFile The key store file (hws-keystore.p12)
 	 * @throws Exception
 	 */
 	public static SecretKey generateMasterKey(@NonNull final KeyStore ks, @NonNull final char[] password,

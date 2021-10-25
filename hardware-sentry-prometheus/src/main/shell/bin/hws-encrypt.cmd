@@ -58,9 +58,9 @@ goto error
 :init
 
 set HWS_JAR=%HWS_HOME%\lib\${project.artifactId}-${project.version}.jar
-set HWS_SECURITY_MANAGER_LOADER="-Dloader.main=com.sentrysoftware.hardware.prometheus.security.PasswordEncrypt org.springframework.boot.loader.PropertiesLauncher"
+set HWS_PASSWORD_ENCRYPT_LOADER="-Dloader.main=com.sentrysoftware.hardware.prometheus.security.PasswordEncrypt org.springframework.boot.loader.PropertiesLauncher"
 
-"%JAVACMD%" %HWS_JAVA_OPTS% -cp "%HWS_JAR%" "%HWS_SECURITY_MANAGER_LOADER%" %*
+"%JAVACMD%" %HWS_JAVA_OPTS% -cp "%HWS_JAR%" "%HWS_PASSWORD_ENCRYPT_LOADER%" %*
 if ERRORLEVEL 1 goto error
 goto end
 

@@ -18,7 +18,7 @@ import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.security.HardwareSecurityException;
 import com.sentrysoftware.matrix.security.SecurityManager;
 
-public class PasswordEncryptTest {
+class PasswordEncryptTest {
 
 	@TempDir
 	static Path tempDir;

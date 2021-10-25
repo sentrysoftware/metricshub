@@ -2,14 +2,16 @@ package com.sentrysoftware.hardware.prometheus.security;
 
 import java.io.Console;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.security.HardwareSecurityException;
 import com.sentrysoftware.matrix.security.SecurityManager;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class PasswordEncrypt {
 
 	/**
@@ -17,20 +19,19 @@ public class PasswordEncrypt {
 	 * 
 	 * @param mkdir Whether we should create the <em>libPath\..\security</em> directory
 	 * @return File instance
-	 * @throws HardwareSecurityException
 	 */
-	public static File getKeyStoreFile(boolean mkdir) throws HardwareSecurityException {
+	public static File getKeyStoreFile(boolean mkdir) {
 
 		File me;
 		try {
 			me = ResourceHelper.findSource(SecurityManager.class);
 		} catch (Exception e) {
-			throw new HardwareSecurityException("Error detected when getting local source file to get the keyStore.",
-					e);
+			throw new IllegalStateException(
+					"Error detected when getting local source file to get the keyStore.", e);
 		}
 
 		if (me == null) {
-			throw new HardwareSecurityException("Could not get the local source file to get the keyStore.");
+			throw new IllegalStateException("Could not get the local source file to get the keyStore.");
 		}
 
 		final Path path = me.getAbsoluteFile().toPath();
@@ -44,14 +45,15 @@ public class PasswordEncrypt {
 
 		File securityDirectory = Paths.get(parentLibPath.toString(), "..", "security").toFile();
 		if (mkdir && !securityDirectory.exists() && !securityDirectory.mkdir()) {
-			throw new HardwareSecurityException("Could not create security directory " + securityDirectory.getAbsolutePath());
+			throw new IllegalStateException(
+					"Could not create security directory " + securityDirectory.getAbsolutePath());
 		}
 
 		// libPath\..\security
 		return Paths.get(securityDirectory.getAbsolutePath(), SecurityManager.HWS_KEY_STORE_FILE_NAME).toFile();
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 
 		try {
 			char[] password;
@@ -67,7 +69,7 @@ public class PasswordEncrypt {
 			password = console.readPassword();
 
 			System.out.print(SecurityManager.encrypt(password, getKeyStoreFile(true))); // NOSONAR
-		} catch (HardwareSecurityException e) {
+		} catch (Exception e) {
 			System.err.println(String.format("Error while encrypting password: %s", e.getMessage())); // NOSONAR
 		}
 	}

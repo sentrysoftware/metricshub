@@ -141,9 +141,8 @@ public class CryptoCipher {
 	 * @param str       The text we wish to decrypt
 	 * @param secretKey The {@link SecretKey} instance used to decrypt the text value
 	 * @return char array of decrypted data
-	 * @throws HardwareSecurityException
 	 */
-	public static char[] decrypt(char[] crypted, SecretKey secretKey) throws HardwareSecurityException {
+	public static char[] decrypt(char[] crypted, SecretKey secretKey) {
 
 		try {
 			final byte[] decodedCrypt = Base64.getDecoder().decode(charsToBytes(crypted));

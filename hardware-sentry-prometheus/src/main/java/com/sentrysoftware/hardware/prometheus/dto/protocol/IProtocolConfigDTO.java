@@ -14,17 +14,20 @@ public interface IProtocolConfigDTO {
 	 * @return {@link IProtocolConfiguration} instance
 	 */
 	IProtocolConfiguration toProtocol();
-	
+
 	/**
 	 * Decrypt the given crypted password.
 	 * @param crypted
+	 * @param logger
 	 * @return char array
 	 */
-	static char[] decrypt(char[] crypted, Logger logger) {
+	static char[] decrypt(final char[] crypted, final Logger logger) {
 		try {
 			return SecurityManager.decrypt(crypted, PasswordEncrypt.getKeyStoreFile(false));
 		} catch(Exception e) {
-			logger.warn("Could not decrypt password: {}", e.getMessage());
+			// This is a real problem, let's log the error
+			logger.error("Could not decrypt password: {}", e.getMessage());
+			logger.debug("Exception", e);
 			return crypted;
 		}
 	}
