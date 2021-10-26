@@ -433,7 +433,7 @@ class CollectOperationTest {
 
 		enclosureHardwareMonitor.getCollect().setType(null);
 
-		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+		assertTrue(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01)); // the collectType will be set to Mono-Instance by default
 	}
 
 	@Test
@@ -2137,7 +2137,7 @@ class CollectOperationTest {
 			assertFalse(CollectOperation.isPowerCollected(Collections.emptyMap()));
 		}
 		{
-			// No power consumption 
+			// No power consumption
 			final Monitor enclosure1 = buildMonitor(ENCLOSURE, "1", CONNECTOR_NAME, new HashMap<>());
 			final Monitor enclosure2 = buildMonitor(ENCLOSURE, "2", CONNECTOR_NAME, new HashMap<>());
 			assertFalse(CollectOperation.isPowerCollected(Map.of("1", enclosure1, "2", enclosure2)));

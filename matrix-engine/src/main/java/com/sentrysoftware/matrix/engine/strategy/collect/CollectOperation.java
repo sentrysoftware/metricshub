@@ -573,9 +573,9 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Check the collectType
 		if (hardwareMonitor.getCollect().getType() == null) {
-			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}",
+			log.warn("Collect - No collect type found with {} during the collect for the connector {} on system {}. The default type (MONO_INSTANCE) will be used.",
 					monitorType.getNameInConnector(), connectorName, hostname);
-			return false;
+			hardwareMonitor.getCollect().setType(CollectType.MONO_INSTANCE);
 		}
 
 		// Check the collect parameters, so later in the code we can create the monitor with the metadata
@@ -663,7 +663,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Check if at least one monitor in the given map collects the power consumption or the energy
-	 * 
+	 *
 	 * @param monitors map of monitors
 	 * @return boolean value
 	 */
@@ -978,7 +978,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Compute the target's power consumption
-	 * 
+	 *
 	 * @param hostMonitoring
 	 */
 	void computeTargetPowerConsumption(final IHostMonitoring hostMonitoring) {
@@ -1322,7 +1322,7 @@ public class CollectOperation extends AbstractStrategy {
 				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION1));
 				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION2));
 				dataList.add(monitor.getMetadata(ADDITIONAL_INFORMATION3));
-	
+
 				final Monitor parent = hostMonitoring.findById(monitor.getParentId());
 				if (parent != null) {
 					dataList.add(parent.getName());
@@ -1330,32 +1330,32 @@ public class CollectOperation extends AbstractStrategy {
 					log.error("No parent found for the physical disk identified by: {}. Physical disk name: {}",
 							monitor.getId(), monitor.getName());
 				}
-	
+
 				final String[] data = dataList.toArray(new String[0]);
-	
+
 				final double powerConsumption;
-	
+
 				// SSD
 				if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), data)) {
 					powerConsumption = estimateSsdPowerConsumption(data);
 				}
-	
+
 				// HDD (non-SSD), depending on the interface
 				// SAS
 				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("sas"), data)) {
 					powerConsumption = estimateSasPowerConsumption(data);
 				}
-	
+
 				// SCSI and IDE
 				else if (ArrayHelper.anyMatchLowerCase(str -> str.contains("scsi") || str.contains("ide"), data)) {
 					powerConsumption = estimateScsiAndIde(data);
 				}
-	
+
 				// SATA (and unknown, we'll assume it's the most common case)
 				else {
 					powerConsumption = estimateSataOrDefault(data);
 				}
-	
+
 				CollectHelper.collectEnergyUsageFromPower(monitor, collectTime, powerConsumption, hostname);
 
 			});
