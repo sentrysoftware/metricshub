@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_S
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -303,13 +304,9 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
 
-			if (awkResult == null) {
-				log.warn(" {} Compute Operation (Awk) result is null, the table remains unchanged.", computeKey);
-				return;
-			}
-
-			if (awkResult.isEmpty()) {
-				log.warn(" {} Compute Operation (Awk) result is empty, the table remains unchanged.", computeKey);
+			if (awkResult == null || awkResult.isEmpty()) {
+				log.warn(" {} Compute Operation (Awk) result is {}, the table will be empty.", computeKey, (awkResult == null ? "null" : "empty"));
+				sourceTable.setTable(Collections.emptyList());
 				return;
 			}
 

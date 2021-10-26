@@ -2120,19 +2120,20 @@ class ComputeVisitorTest {
 		assertEquals(expectedTable, sourceTable.getTable());
 		assertEquals(expectedRawData, sourceTable.getRawData());
 
-		sourceTable.setTable(new ArrayList<>());
+		final List<List<String>> osCommandResultTable = List.of(List.of("OS command result"));
+		sourceTable.setTable(osCommandResultTable);
 		sourceTable.setRawData(null);
 		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		doReturn(null).when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
-		assertEquals(new ArrayList<>(), sourceTable.getTable());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
 
-		sourceTable.setTable(new ArrayList<>());
+		sourceTable.setTable(osCommandResultTable);
 		sourceTable.setRawData(null);
 		awkOK = Awk.builder().awkScript(EmbeddedFile.builder().content(BAZ).build()).keepOnlyRegExp("^"+FOO).excludeRegExp("^"+BAR).separators(TABLE_SEP).selectColumns(List.of("1", "2", "3")).build();
 		doReturn("").when(matsyaClientsExecutor).executeAwkScript(any(), any());
 		computeVisitor.visit(awkOK);
-		assertEquals(new ArrayList<>(), sourceTable.getTable());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
