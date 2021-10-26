@@ -13,13 +13,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SshProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class SshProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -46,7 +48,7 @@ public class SshProtocolDTO implements IProtocolConfigDTO {
 		return SSHProtocol
 				.builder()
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.privateKey(privateKey)
 				.timeout(timeout)
 				.useSudo(useSudo)

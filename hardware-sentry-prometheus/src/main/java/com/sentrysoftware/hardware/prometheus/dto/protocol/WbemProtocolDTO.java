@@ -10,13 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WbemProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class WbemProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	WBEMProtocols protocol = WBEMProtocols.HTTPS;
@@ -45,7 +47,7 @@ public class WbemProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.namespace(namespace)
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.port(port)
 				.protocol(protocol)
 				.timeout(timeout)

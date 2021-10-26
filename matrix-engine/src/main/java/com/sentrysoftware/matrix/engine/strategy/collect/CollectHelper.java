@@ -1,20 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
@@ -25,9 +10,23 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 
 @Slf4j
 public class CollectHelper {
@@ -64,7 +63,7 @@ public class CollectHelper {
 		}
 
 		final Optional<? extends IState> state = interpreter.apply(stateValue);
-		if (!state.isPresent()) {
+		if (state.isEmpty()) {
 			log.error("For host {}, unexpected state value for instance {}. {} = null",
 					hostname,
 					monitorId,
@@ -197,7 +196,7 @@ public class CollectHelper {
 	/**
 	 * Return the {@link Double} value of the given {@link Number} instance
 	 *
-	 * @param number
+	 * @param number	The {@link Number} whose {@link Double} value should be extracted from
 	 * @return {@link Double} instance
 	 */
 	public static Double getDoubleValue(final Number number) {
@@ -302,6 +301,50 @@ public class CollectHelper {
 		return CollectHelper.divide(parameterName,
 				CollectHelper.subtract(parameterName, value, previousValue),
 				CollectHelper.subtract(parameterName, collectTime, previousCollectTime));
+	}
+
+	/**
+	 * Computes rate for the given parameter.
+	 *
+	 * @param parameterName						The name of the parameter.
+	 * @param currentValue						The current value of the parameter
+	 * @param currentCollectTimeInMilliseconds	The time when the current value of the parameter was collected,
+	 *                                          in milliseconds.
+	 * @param monitor							The {@link Monitor} having the parameter.
+	 *
+	 * @return									The value of the parameter's rate.<br>
+	 * 											Null if the computation could not be done.
+	 */
+	public static Double rate(String parameterName, Double currentValue,
+							  Long currentCollectTimeInMilliseconds, Monitor monitor) {
+
+		if (parameterName == null || currentValue == null || currentCollectTimeInMilliseconds == null
+			|| monitor == null) {
+
+			return null;
+		}
+
+		// Getting the previous value
+		Double previousValue = CollectHelper.getNumberParamRawValue(monitor, parameterName, true);
+		if (previousValue == null) {
+			return null;
+		}
+
+		// Getting the previous collect time
+		final Double previousCollectTimeInMilliseconds = CollectHelper.getNumberParamCollectTime(monitor, parameterName,
+			true);
+		if (previousCollectTimeInMilliseconds == null) {
+
+			// This should never happen
+			log.warn(String.format("Found previous %s value, but could not find previous collect time.",
+				parameterName));
+
+			return null;
+		}
+
+		// Converting the collect times from milliseconds to seconds, and computing the rate
+		return rate(parameterName, currentValue, previousValue,
+			currentCollectTimeInMilliseconds.doubleValue() / 1000.0, previousCollectTimeInMilliseconds / 1000.0);
 	}
 
 	/**

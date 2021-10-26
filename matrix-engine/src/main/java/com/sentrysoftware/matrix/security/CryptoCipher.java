@@ -1,10 +1,12 @@
 package com.sentrysoftware.matrix.security;
 
-import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Base64;
+import java.util.Base64;	
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -13,11 +15,11 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CryptoCipher {
-
-	private CryptoCipher() {
-
-	}
 
 	public static final int GCM_IV_LENGTH = 16;
 	public static final int GCM_TAG_LENGTH = 16;
@@ -28,32 +30,16 @@ public class CryptoCipher {
 	private static final byte[] IV = "c2VudHJ5aXY=".getBytes();
 	private static final String CIPHER_ALGO = "AES/GCM/NoPadding";
 
-	public static char[] encrypt(char[] plainText, char[] passPhrase) throws HardwareCipherException {
-
-		final byte[] decodedKey = Base64.getDecoder().decode(new String (passPhrase));
-		final SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-
-		final byte[] cipherText = encrypt(new String(plainText).getBytes(), secretKey, IV);
-		final byte[] clippedCipherText = Arrays.copyOfRange(cipherText, 0, cipherText.length - (128 / Byte.SIZE));
-
-		final byte[] tagVal = Arrays.copyOfRange(cipherText, cipherText.length - (128 / Byte.SIZE), cipherText.length);
-
-		try {
-			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(IV);
-			outputStream.write(tagVal);
-			outputStream.write(clippedCipherText);
-
-			final byte[] addedEncyptedVal = outputStream.toByteArray();
-
-			return Base64.getEncoder().encodeToString(addedEncyptedVal).toCharArray();
-		} catch (Exception e) {
-			throw new HardwareCipherException("IOException detected when building final encrypted text", e);
-		}
-
-	}
-
-	private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) throws HardwareCipherException {
+	/**
+	 * Encrypt the given text value using the initialization vector
+	 * 
+	 * @param plaintext text in byte array
+	 * @param key       the secret key used to encrypt the text
+	 * @param iv        the initialization vector to use
+	 * @return byte array
+	 * @throws HardwareSecurityException
+	 */
+	private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) throws HardwareSecurityException {
 
 		try {
 			final Cipher cipher = Cipher.getInstance(CIPHER_ALGO);
@@ -66,39 +52,20 @@ public class CryptoCipher {
 
 			return cipher.doFinal(plaintext);
 		} catch (Exception e) {
-			throw new HardwareCipherException("Cannot perform encryption", e);
+			throw new HardwareSecurityException("Cannot perform encryption", e);
 		}
 
 	}
 
-	public static char[] decrypt(char[] crypted, char[] passPhrase) throws HardwareCipherException {
-
-		final byte[] decodedCrypt = Base64.getDecoder().decode(new String(crypted));
-		final byte[] clippedTaggedCipherText = Arrays.copyOfRange(decodedCrypt, IV.length, decodedCrypt.length);
-		final byte[] clippedCipherText = Arrays.copyOfRange(clippedTaggedCipherText, (128 / Byte.SIZE),
-				clippedTaggedCipherText.length);
-		final byte[] tagVal = Arrays.copyOfRange(clippedTaggedCipherText, 0, (128 / Byte.SIZE));
-
-		final byte[] cipherText;
-
-		try {
-			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(clippedCipherText);
-			outputStream.write(tagVal);
-
-			cipherText = outputStream.toByteArray();
-
-		} catch (Exception e) {
-			throw new HardwareCipherException("IOException detected when building the cipher text", e);
-		}
-
-		final byte[] decodedKey = Base64.getDecoder().decode(new String(passPhrase));
-		final SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-
-		return decrypt(cipherText, secretKey, IV);
-	}
-
-	private static char[] decrypt(byte[] cipherText, SecretKey key, byte[] iv) throws HardwareCipherException {
+	/**
+	 * Decrypt the given cipher text which has been clipped and mixed
+	 * 
+	 * @param str        The text we wish to decrypt
+	 * @param passPhrase The pass phrase used to decrypt the text
+	 * @return char array of decrypted data
+	 * @throws HardwareSecurityException
+	 */
+	private static char[] decrypt(byte[] cipherText, SecretKey key, byte[] iv) throws HardwareSecurityException {
 
 		try {
 			final Cipher cipher = Cipher.getInstance(CIPHER_ALGO);
@@ -111,14 +78,20 @@ public class CryptoCipher {
 
 			byte[] decryptedText = cipher.doFinal(cipherText);
 
-			return new String(decryptedText).toCharArray();
+			return bytesToChars(decryptedText);
 		} catch (Exception e) {
-			throw new HardwareCipherException("Cannot perform decryption", e);
+			throw new HardwareSecurityException("Cannot perform decryption", e);
 		}
 
 	}
 
-	public static char[] generateRandomKeyFromMaster() throws HardwareCipherException  {
+	/**
+	 * Generate a random master key
+	 * 
+	 * @return char array
+	 * @throws HardwareSecurityException
+	 */
+	public static char[] generateRandomMasterKey() throws HardwareSecurityException  {
 
 		try {
 			final byte[] salt = getSalt();
@@ -126,14 +99,20 @@ public class CryptoCipher {
 			final char[] masterKey = MASTER_KEY.toCharArray();
 			final PBEKeySpec spec = new PBEKeySpec(masterKey, salt, ITERATIONS, KEY_LENGTH * 8);
 			final SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-			return Base64.getEncoder().encodeToString(skf.generateSecret(spec).getEncoded()).toCharArray();
+			return bytesToChars(Base64.getEncoder().encode(skf.generateSecret(spec).getEncoded()));
 		} catch (Exception e) {
-			throw new HardwareCipherException("Error while building the master key", e);
+			throw new HardwareSecurityException("Error while building the master key", e);
 		}
 
 	}
 
-	private static byte[] getSalt() throws NoSuchAlgorithmException {
+	/**
+	 * Get a new random salt data
+	 * 
+	 * @return a random salt used to safeguard the password
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static byte[] getSalt() throws NoSuchAlgorithmException {
 
 		final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 		final byte[] salt = new byte[64];
@@ -141,4 +120,59 @@ public class CryptoCipher {
 		return salt;
 	}
 
+	/**
+	 * Encrypt the given text value
+	 * 
+	 * @param str       The text we wish to encrypt
+	 * @param secretKey The {@link SecretKey} instance used by the encryption
+	 *                  algorithm
+	 * @return char array of encrypted data
+	 * @throws HardwareSecurityException
+	 */
+	public static char[] encrypt(char[] plainText, SecretKey secretKey) throws HardwareSecurityException {
+
+		final byte[] cipherText = encrypt(charsToBytes(plainText), secretKey, IV);
+		return bytesToChars(Base64.getEncoder().encode(cipherText));
+	}
+
+	/**
+	 * Decrypt the given text value using a secreteKey
+	 * 
+	 * @param str       The text we wish to decrypt
+	 * @param secretKey The {@link SecretKey} instance used to decrypt the text value
+	 * @return char array of decrypted data
+	 */
+	public static char[] decrypt(char[] crypted, SecretKey secretKey) {
+
+		try {
+			final byte[] decodedCrypt = Base64.getDecoder().decode(charsToBytes(crypted));
+			return decrypt(decodedCrypt, secretKey, IV);
+		} catch (Exception e) {
+			// Password cannot be decrypted, so it is probably a none encrypted password
+			return crypted;
+		}
+
+	}
+
+	/**
+	 * Converts chars to bytes
+	 * 
+	 * @param chars char array to convert
+	 * @return byte array
+	 */
+	public static byte[] charsToBytes(char[] chars) {
+		final ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
+		return Arrays.copyOf(byteBuffer.array(), byteBuffer.limit());
+	}
+
+	/**
+	 * Converts bytes to chars
+	 * 
+	 * @param bytes byte array
+	 * @return char array
+	 */
+	public static char[] bytesToChars(byte[] bytes) {
+		final CharBuffer charBuffer = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes));
+		return Arrays.copyOf(charBuffer.array(), charBuffer.limit());
+	}
 }

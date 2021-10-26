@@ -6,10 +6,14 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PARAMETER;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -17,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -230,12 +236,63 @@ class CollectHelperTest {
 
 	@Test
 	void testRate() {
-		final Long collectTime = new Date().getTime();
-		final Long previousCollectTime = collectTime - (2 * 60 * 1000);
+		final long collectTime = new Date().getTime();
+		final long previousCollectTime = collectTime - (2 * 60 * 1000);
 
 		assertEquals(1, CollectHelper.rate(ENERGY_USAGE_PARAMETER,
 				240000D, 120000D,
-				collectTime.doubleValue(), previousCollectTime.doubleValue()));
+			(double) collectTime, (double) previousCollectTime));
+	}
+
+	@Test
+	void testRateWithPreviousValuesComputations() {
+
+		// parameterName is null
+		assertNull(CollectHelper.rate(null, null, null, null));
+
+		// parameterName is not null, currentValue is null
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, null, null, null));
+
+		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is null
+		Double currentValue = 200.0;
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, null, null));
+
+		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
+		// monitor is null
+		final Long currentCollectTimeInMilliseconds = new Date().getTime();
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, null));
+
+		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
+		// monitor is not null, previousValue is null
+		final Monitor monitor = Monitor.builder().id("monitorId").monitorType(MonitorType.GPU).build();
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
+
+		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
+		// monitor is not null, previousValue is not null, previousCollectTimeInMilliseconds is null
+		NumberParam usedTimeParameter = NumberParam
+			.builder()
+			.name(USED_TIME_PARAMETER)
+			.unit(TIME_PARAMETER_UNIT)
+			.rawValue(140.0)
+			.value(140.0)
+			.build();
+		usedTimeParameter.save();
+		monitor.addParameter(usedTimeParameter);
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
+
+		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
+		// monitor is not null, previousValue is not null, previousCollectTimeInMilliseconds is not null
+		usedTimeParameter = NumberParam
+			.builder()
+			.name(USED_TIME_PARAMETER)
+			.unit(TIME_PARAMETER_UNIT)
+			.collectTime(currentCollectTimeInMilliseconds - 120000) // 2 minutes ago
+			.rawValue(140.0)
+			.value(140.0)
+			.build();
+		usedTimeParameter.save();
+		monitor.addParameter(usedTimeParameter);
+		assertEquals(0.5, CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
 	}
 
 	@Test

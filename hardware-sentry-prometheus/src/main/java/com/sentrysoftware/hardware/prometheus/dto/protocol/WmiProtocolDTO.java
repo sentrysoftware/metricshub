@@ -9,13 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WmiProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class WmiProtocolDTO extends AbstractProtocolDTO {
 
 	private String username;
 	private char[] password;
@@ -36,7 +38,7 @@ public class WmiProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.namespace(namespace)
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.timeout(timeout)
 				.build();
 	}

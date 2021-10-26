@@ -9,13 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HttpProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class HttpProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	private Boolean https = true;
@@ -41,7 +43,7 @@ public class HttpProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.https(https)
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.port(port)
 				.timeout(timeout)
 				.build();
@@ -56,4 +58,6 @@ public class HttpProtocolDTO implements IProtocolConfigDTO {
 				username != null ? " as " + username : ""
 		);
 	}
+	
+	
 }

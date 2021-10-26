@@ -4,12 +4,15 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
@@ -828,5 +831,19 @@ class MonitorDiscoveryVisitorTest {
 				.hostname(ECS1_01)
 				.build();
 
+	}
+
+	@Test
+	void testVisitVm() {
+
+		assertDoesNotThrow(() ->
+			new MonitorDiscoveryVisitor(createBuildingInfo(new HostMonitoring(), MonitorType.VM)).visit(new Vm()));
+	}
+
+	@Test
+	void testVisitGpu() {
+
+		assertDoesNotThrow(() ->
+			new MonitorDiscoveryVisitor(createBuildingInfo(new HostMonitoring(), MonitorType.GPU)).visit(new Gpu()));
 	}
 }

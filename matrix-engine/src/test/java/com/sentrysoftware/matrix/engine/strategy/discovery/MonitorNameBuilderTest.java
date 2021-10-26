@@ -30,6 +30,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
@@ -1328,4 +1329,112 @@ class MonitorNameBuilderTest {
 		}
 	}
 
+	@Test
+	void testBuildVmName() {
+
+		// metadata is null
+		Monitor monitor = new Monitor();
+		monitor.setMetadata(null);
+		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo.builder().monitor(monitor).build();
+		assertThrows(IllegalArgumentException.class, () -> MonitorNameBuilder.buildVmName(buildingInfo));
+
+		// displayId is null
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		metadata.put(DEVICE_ID, "vm 101");
+		metadata.put(ID_COUNT, "0");
+
+		monitor = Monitor
+			.builder()
+			.metadata(metadata)
+			.build();
+
+		final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
+			.builder()
+			.connectorName("myConnector")
+			.monitorType(MonitorType.VM)
+			.monitor(monitor)
+			.hostMonitoring(new HostMonitoring())
+			.targetType(TargetType.LINUX)
+			.targetMonitor(new Monitor())
+			.hostname("ecs1-01")
+			.build();
+
+		assertEquals("101", MonitorNameBuilder.buildVmName(monitorBuildingInfo));
+
+		// displayId is blank
+		metadata.put(DISPLAY_ID, "         ");
+		assertEquals("101", MonitorNameBuilder.buildVmName(monitorBuildingInfo));
+
+		// displayId is neither null nor blank
+		metadata.put(DISPLAY_ID, "displayId");
+		assertEquals("displayId", MonitorNameBuilder.buildVmName(monitorBuildingInfo));
+	}
+
+	@Test
+	void testBuildGpuName() {
+
+		// metadata is null
+		Monitor monitor = new Monitor();
+		monitor.setMetadata(null);
+		final MonitorBuildingInfo buildingInfo = MonitorBuildingInfo.builder().monitor(monitor).build();
+		assertThrows(IllegalArgumentException.class, () -> MonitorNameBuilder.buildGpuName(buildingInfo));
+
+		// vendor is blank, model is blank
+		final Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		metadata.put(DEVICE_ID, "gpu NVIDIA 1");
+		metadata.put(ID_COUNT, "0");
+		metadata.put(VENDOR, "          ");
+		metadata.put(MODEL, "          ");
+
+		monitor = Monitor
+			.builder()
+			.metadata(metadata)
+			.build();
+
+		final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
+			.builder()
+			.connectorName("myConnector")
+			.monitorType(MonitorType.GPU)
+			.monitor(monitor)
+			.hostMonitoring(new HostMonitoring())
+			.targetType(TargetType.LINUX)
+			.targetMonitor(new Monitor())
+			.hostname("ecs1-01")
+			.build();
+
+		assertEquals("NVIDIA 1", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// vendor or model (or both) are part of the built name
+		metadata.put(VENDOR, "NVIDIA");
+		metadata.put(MODEL, "N");
+		assertEquals("NVIDIA 1", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// vendor is null, model is null, size is 0.0
+		metadata.remove(VENDOR);
+		metadata.remove(MODEL);
+		assertEquals("NVIDIA 1", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// vendor is null, model is null, size > 0.0
+		metadata.put(SIZE, "1024");
+		assertEquals("NVIDIA 1 - 1.00 GB", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// size > 0.0, vendor is not null, model is not null, vendor is part of model
+		metadata.put(VENDOR, "NVIDIA_VENDOR");
+		metadata.put(MODEL, "NVIDIA_VENDOR_MODEL");
+		assertEquals("NVIDIA 1 (NVIDIA_VENDOR_MODEL - 1.00 GB)", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// size > 0.0, vendor is not null, model is not null, vendor is not part of model
+		metadata.put(VENDOR, "VENDOR");
+		metadata.put(MODEL, "MODEL");
+		assertEquals("NVIDIA 1 (VENDOR - MODEL - 1.00 GB)", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// size > 0.0, vendor is not null, model is null
+		metadata.remove(MODEL);
+		assertEquals("NVIDIA 1 (VENDOR - 1.00 GB)", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+
+		// size > 0.0, vendor is null, model is not null
+		metadata.remove(VENDOR);
+		metadata.put(MODEL, "MODEL");
+		assertEquals("NVIDIA 1 (MODEL - 1.00 GB)", MonitorNameBuilder.buildGpuName(monitorBuildingInfo));
+	}
 }

@@ -9,13 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class IpmiOverLanProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -36,7 +38,7 @@ public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
 		return IPMIOverLanProtocol
 				.builder()
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.bmcKey(bmcKey)
 				.skipAuth(skipAuth)
 				.timeout(timeout)

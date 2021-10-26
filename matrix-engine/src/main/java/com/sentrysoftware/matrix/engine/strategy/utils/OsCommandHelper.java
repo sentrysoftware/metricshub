@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,7 @@ public class OsCommandHelper {
 	 * @param embeddedFiles The embedded files of the connector.
 	 * @param osCommandConfig The OS Command Configuration.
 	 * @return a Map with key, the EmbeddedFile tag and value a File for the temporary embedded file created.
-	 * @throws IOException If an error occured in the temp file creation.
+	 * @throws IOException If an error occurred in the temp file creation.
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
 			@NonNull
@@ -103,6 +104,7 @@ public class OsCommandHelper {
 			return Collections.unmodifiableMap(embeddedTempFiles);
 
 		} catch (final Exception e) {
+			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);
 			if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
@@ -406,10 +408,12 @@ public class OsCommandHelper {
 					TimeoutException,
 					NoCredentialProvidedException {
 
-		final IProtocolConfiguration protocolConfiguration = engineConfiguration.getProtocolConfigurations().get(
-				!isLocalhost && engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS ?
-						WMIProtocol.class : 
-							SSHProtocol.class);
+		final IProtocolConfiguration protocolConfiguration = engineConfiguration
+			.getProtocolConfigurations()
+			.get(
+				!isLocalhost && engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS
+					? WMIProtocol.class
+					: SSHProtocol.class);
 
 		final Optional<String> maybeUsername = getUsername(protocolConfiguration);
 
@@ -444,9 +448,9 @@ public class OsCommandHelper {
 		final String updatedEmbeddedFilesCommand = embeddedTempFiles.entrySet().stream()
 				.reduce(
 						updatedSudoCommand,
-						(s, enty) -> s.replaceAll(
-								toCaseInsensitiveRegex(enty.getKey()),
-								Matcher.quoteReplacement(enty.getValue().getAbsolutePath())),
+						(s, entry) -> s.replaceAll(
+								toCaseInsensitiveRegex(entry.getKey()),
+								Matcher.quoteReplacement(entry.getValue().getAbsolutePath())),
 						(s1, s2) -> null);
 
 		final String command = maybePassword
@@ -492,16 +496,17 @@ public class OsCommandHelper {
 			// Case others (Linux) Remote
 			} else {
 				commandResult = runSshCommand(
-						command, 
-						hostname, 
-						(SSHProtocol) protocolConfiguration, 
-						timeout, 
-						embeddedTempFiles.values().stream().collect(Collectors.toList()),
+						command,
+						hostname,
+						(SSHProtocol) protocolConfiguration,
+						timeout,
+						new ArrayList<>(embeddedTempFiles.values()),
 						noPasswordCommand);
 			}
 			
 			return new OsCommandResult(commandResult, noPasswordCommand);
 		} finally {
+			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);
 		}
 	}

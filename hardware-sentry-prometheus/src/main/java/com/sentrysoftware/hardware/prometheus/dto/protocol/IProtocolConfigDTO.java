@@ -10,4 +10,5 @@ public interface IProtocolConfigDTO {
 	 * @return {@link IProtocolConfiguration} instance
 	 */
 	IProtocolConfiguration toProtocol();
+
 }

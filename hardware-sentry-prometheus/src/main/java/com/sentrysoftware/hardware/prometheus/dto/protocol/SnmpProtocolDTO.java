@@ -13,19 +13,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SnmpProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class SnmpProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	private SNMPVersion version = SNMPVersion.V1;
 	@Default
-	private String community = "public";
+	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 	@Default
 	private Integer port = 161;
 	@Default
@@ -47,11 +49,11 @@ public class SnmpProtocolDTO implements IProtocolConfigDTO {
 		return SNMPProtocol
 				.builder()
 				.version(version)
-				.community(community)
+				.community(String.valueOf(decrypt(community)))
 				.username(username)
-				.password(password)
+				.password(super.decrypt(password))
 				.privacy(privacy)
-				.privacyPassword(privacyPassword)
+				.privacyPassword(super.decrypt(privacyPassword))
 				.port(port)
 				.timeout(timeout)
 				.build();
@@ -61,7 +63,7 @@ public class SnmpProtocolDTO implements IProtocolConfigDTO {
 	public String toString() {
 		String desc = version.getDisplayName();
 		if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
-			desc = desc + " (" + community + ")";
+			desc = desc + " (" + String.valueOf(community) + ")";
 		} else {
 			if (username != null) {
 				desc = desc + " as " + username;
@@ -72,6 +74,5 @@ public class SnmpProtocolDTO implements IProtocolConfigDTO {
 		}
 		return desc;
 	}
-
 
 }

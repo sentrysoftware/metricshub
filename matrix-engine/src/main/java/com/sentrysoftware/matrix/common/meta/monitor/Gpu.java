@@ -1,0 +1,518 @@
+package com.sentrysoftware.matrix.common.meta.monitor;
+
+import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
+import com.sentrysoftware.matrix.common.meta.parameter.SimpleParamType;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertDetails;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MEMORY_UTILIZATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_TIME_PERCENT_ALARM_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.USED_TIME_PERCENT_WARN_CONDITION;
+
+public class Gpu implements IMetaMonitor {
+
+	public static final MetaParameter USED_TIME = MetaParameter.builder()
+		.basicCollect(false)
+		.name(USED_TIME_PARAMETER)
+		.unit(TIME_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter USED_TIME_PERCENT = MetaParameter.builder()
+		.basicCollect(false)
+		.name(USED_TIME_PERCENT_PARAMETER)
+		.unit(PERCENT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter MEMORY_UTILIZATION = MetaParameter.builder()
+		.basicCollect(true)
+		.name(MEMORY_UTILIZATION_PARAMETER)
+		.unit(PERCENT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter ENCODER_USED_TIME = MetaParameter.builder()
+		.basicCollect(false)
+		.name(ENCODER_USED_TIME_PARAMETER)
+		.unit(TIME_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter ENCODER_USED_TIME_PERCENT = MetaParameter.builder()
+		.basicCollect(false)
+		.name(ENCODER_USED_TIME_PERCENT_PARAMETER)
+		.unit(PERCENT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter DECODER_USED_TIME = MetaParameter.builder()
+		.basicCollect(false)
+		.name(DECODER_USED_TIME_PARAMETER)
+		.unit(TIME_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter DECODER_USED_TIME_PERCENT = MetaParameter.builder()
+		.basicCollect(false)
+		.name(DECODER_USED_TIME_PERCENT_PARAMETER)
+		.unit(PERCENT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter TRANSMITTED_BYTES = MetaParameter.builder()
+		.basicCollect(false)
+		.name(TRANSMITTED_BYTES_PARAMETER)
+		.unit(BYTES_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter TRANSMITTED_BYTES_RATE = MetaParameter.builder()
+		.basicCollect(false)
+		.name(TRANSMITTED_BYTES_RATE_PARAMETER)
+		.unit(BYTES_RATE_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter RECEIVED_BYTES = MetaParameter.builder()
+		.basicCollect(false)
+		.name(RECEIVED_BYTES_PARAMETER)
+		.unit(BYTES_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter RECEIVED_BYTES_RATE = MetaParameter.builder()
+		.basicCollect(false)
+		.name(RECEIVED_BYTES_RATE_PARAMETER)
+		.unit(BYTES_RATE_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	public static final MetaParameter CORRECTED_ERROR_COUNT = MetaParameter.builder()
+		.basicCollect(true)
+		.name(CORRECTED_ERROR_COUNT_PARAMETER)
+		.unit(ERROR_COUNT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
+
+	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, DRIVER_VERSION, FIRMWARE_VERSION,
+		SERIAL_NUMBER, SIZE, IDENTIFYING_INFORMATION);
+
+	public static final AlertRule PRESENT_ALERT_RULE = new AlertRule(Gpu::checkMissingCondition,
+		PRESENT_ALARM_CONDITION,
+		Severity.ALARM);
+	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Gpu::checkStatusWarnCondition,
+		STATUS_WARN_CONDITION,
+		Severity.WARN);
+	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Gpu::checkStatusAlarmCondition,
+		STATUS_ALARM_CONDITION,
+		Severity.ALARM);
+	public static final AlertRule CORRECTED_ERROR_COUNT_WARN_ALERT_RULE = new AlertRule(
+		Gpu::checkCorrectedFewErrorCountCondition,
+		CORRECTED_ERROR_COUNT_WARN_CONDITION,
+		Severity.ALARM);
+	public static final AlertRule CORRECTED_ERROR_COUNT_ALARM_ALERT_RULE = new AlertRule(
+		Gpu::checkCorrectedFewErrorCountCondition,
+		CORRECTED_ERROR_COUNT_ALARM_CONDITION,
+		Severity.ALARM);
+	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(Gpu::checkPredictedFailureCondition,
+		STATUS_WARN_CONDITION,
+		Severity.WARN);
+	public static final AlertRule USED_TIME_PERCENT_WARN_ALERT_RULE = new AlertRule(
+		Gpu::checkUsedTimePercentWarnCondition,
+		USED_TIME_PERCENT_WARN_CONDITION,
+		Severity.WARN);
+	public static final AlertRule USED_TIME_PERCENT_ALARM_ALERT_RULE = new AlertRule(
+		Gpu::checkUsedTimePercentAlarmCondition,
+		USED_TIME_PERCENT_ALARM_CONDITION,
+		Severity.ALARM);
+	public static final AlertRule MEMORY_UTILIZATION_WARN_ALERT_RULE = new AlertRule(
+		Gpu::checkMemoryUtilizationWarnCondition,
+		MEMORY_UTILIZATION_WARN_CONDITION,
+		Severity.WARN);
+	public static final AlertRule MEMORY_UTILIZATION_ALARM_ALERT_RULE = new AlertRule(
+		Gpu::checkMemoryUtilizationAlarmCondition,
+		MEMORY_UTILIZATION_ALARM_CONDITION,
+		Severity.ALARM);
+
+	private static final Map<String, MetaParameter> META_PARAMETERS;
+	private static final Map<String, List<AlertRule>> ALERT_RULES;
+
+	static {
+		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(USED_TIME_PARAMETER, USED_TIME);
+		map.put(USED_TIME_PERCENT_PARAMETER, USED_TIME_PERCENT);
+		map.put(MEMORY_UTILIZATION_PARAMETER, MEMORY_UTILIZATION);
+		map.put(ENCODER_USED_TIME_PARAMETER, ENCODER_USED_TIME);
+		map.put(ENCODER_USED_TIME_PERCENT_PARAMETER, ENCODER_USED_TIME_PERCENT);
+		map.put(DECODER_USED_TIME_PARAMETER, DECODER_USED_TIME);
+		map.put(DECODER_USED_TIME_PERCENT_PARAMETER, DECODER_USED_TIME_PERCENT);
+		map.put(TRANSMITTED_BYTES_PARAMETER, TRANSMITTED_BYTES);
+		map.put(TRANSMITTED_BYTES_RATE_PARAMETER, TRANSMITTED_BYTES_RATE);
+		map.put(RECEIVED_BYTES_PARAMETER, RECEIVED_BYTES);
+		map.put(RECEIVED_BYTES_RATE_PARAMETER, RECEIVED_BYTES_RATE);
+		map.put(STATUS_PARAMETER, STATUS);
+		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
+		map.put(CORRECTED_ERROR_COUNT_PARAMETER, CORRECTED_ERROR_COUNT);
+		map.put(PREDICTED_FAILURE_PARAMETER, PREDICTED_FAILURE);
+		map.put(ENERGY_PARAMETER, ENERGY);
+		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
+		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+
+		META_PARAMETERS = Collections.unmodifiableMap(map);
+
+		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
+		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
+		alertRulesMap.put(CORRECTED_ERROR_COUNT_PARAMETER,
+			List.of(CORRECTED_ERROR_COUNT_WARN_ALERT_RULE, CORRECTED_ERROR_COUNT_ALARM_ALERT_RULE));
+		alertRulesMap.put(PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
+		alertRulesMap.put(USED_TIME_PERCENT_PARAMETER,
+			List.of(USED_TIME_PERCENT_WARN_ALERT_RULE, USED_TIME_PERCENT_ALARM_ALERT_RULE));
+		alertRulesMap.put(MEMORY_UTILIZATION_PARAMETER,
+			List.of(MEMORY_UTILIZATION_WARN_ALERT_RULE, MEMORY_UTILIZATION_ALARM_ALERT_RULE));
+
+		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
+	}
+
+	/**
+	 * Check condition when the monitor status is in WARN state.
+	 *
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkStatusWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor
+			.assertStatusParameter(STATUS_PARAMETER, conditions);
+
+		if (assertedStatus.isAbnormal()) {
+
+			return AlertDetails
+				.builder()
+				.problem("This GPU is degraded or is about to fail."
+					+ IMetaMonitor.getStatusInformationMessage(monitor))
+				.consequence("If degraded, this GPU may not be fully operational." +
+					" This could adversely impact the overall performance of the system." +
+					" If it is about to fail, this GPU is likely to crash very soon.")
+				.recommendedAction("Replace this GPU as soon as possible to prevent a system crash.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor status is in ALARM state.
+	 *
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor
+			.assertStatusParameter(STATUS_PARAMETER, conditions);
+
+		if (assertedStatus.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem("This GPU has failed." + IMetaMonitor.getStatusInformationMessage(monitor))
+				.consequence("This GPU is not operational. This will impact the overall performance of the system." +
+					" If it is about to fail this GPU may crash very soon.")
+				.recommendedAction("Replace this GPU as soon as possible to prevent a system overload.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check missing GPU condition.
+	 *
+	 * @param monitor    The monitor we wish to check
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkMissingCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<DiscreteParam> assertedPresent = monitor.assertPresentParameter(conditions);
+
+		if (assertedPresent.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem("This GPU is not detected anymore.")
+				.consequence("This could mean that the GPU has been disabled by BIOS," +
+					" or that it has been deallocated for this system" +
+					" (in case of a dynamically reconfigurable machine)." +
+					" The computing capabilities have been reduced" +
+					" and this may impact the overall performance of this computer.")
+				.recommendedAction("Check whether the GPU has been intentionally removed by authorized personnel" +
+					" or whether it has failed. In the latter case, replace the faulty GPU.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU predicted failure is in WARN state.
+	 *
+	 * @param monitor    The GPU we wish to check its predicted failure
+	 * @param conditions The conditions used to determine if the alarm is reached
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkPredictedFailureCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		AssertedParameter<DiscreteParam> assertedPredictedFailure = monitor
+			.assertStatusParameter(PREDICTED_FAILURE_PARAMETER, conditions);
+
+		if (assertedPredictedFailure.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem("An imminent failure is predicted for this GPU.")
+				.consequence("A system crash is very likely to occur soon.")
+				.recommendedAction("Replace this GPU or disable it as soon as possible," +
+					" if disabling it will not affect the performance of the system.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU encountered and fixed a few internal errors.
+	 *
+	 * @param monitor    The GPU we wish to check its correctedErrorCount
+	 * @param conditions The conditions used to determine if the alarm is reached
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkCorrectedFewErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedCorrectedErrorCount = monitor
+			.assertNumberParameter(CORRECTED_ERROR_COUNT_PARAMETER, conditions);
+
+		if (assertedCorrectedErrorCount.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU encountered and fixed a few internal errors (%f).",
+					assertedCorrectedErrorCount.getParameter().getValue()))
+				.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
+				.recommendedAction("Check as soon as possible whether the GPU environment is normal" +
+					" (voltage levels and temperature)." +
+					" If so, the GPU may be defective and needs to be replaced quickly.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU encountered and fixed a large number of internal errors.
+	 *
+	 * @param monitor    The GPU we wish to check its correctedErrorCount
+	 * @param conditions The conditions used to determine if the alarm is reached
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkCorrectedLargeErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedCorrectedErrorCount = monitor
+			.assertNumberParameter(CORRECTED_ERROR_COUNT_PARAMETER, conditions);
+
+		if (assertedCorrectedErrorCount.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU encountered and fixed a high number of internal errors (%f).",
+					assertedCorrectedErrorCount.getParameter().getValue()))
+				.consequence("The stability of the system may be critically affected." +
+					" A system crash is very likely to occur soon.")
+				.recommendedAction("Check as soon as possible if the GPU environment is normal" +
+					" (voltage levels and temperature)." +
+					" If so, the GPU may be defective and needs to be replaced quickly.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU used time percentage is outside of the expected range.
+	 *
+	 * @param monitor    The monitor we wish to check its used time percentage
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkUsedTimePercentWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedUsedTimePercent = monitor
+			.assertNumberParameter(USED_TIME_PERCENT_PARAMETER, conditions);
+
+		if (assertedUsedTimePercent.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU time usage is outside of expected range (%f %s).",
+					assertedUsedTimePercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+				.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
+				.recommendedAction("Check why this GPU is used this way.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU used time percentage is outside of the tolerated range.
+	 *
+	 * @param monitor    The monitor we wish to check its used time percentage
+	 * @param conditions The conditions used to determine the abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkUsedTimePercentAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedUsedTimePercent = monitor
+			.assertNumberParameter(USED_TIME_PERCENT_PARAMETER, conditions);
+
+		if (assertedUsedTimePercent.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU time usage is outside of tolerated range (%f %s).",
+					assertedUsedTimePercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+				.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
+				.recommendedAction("Check why this GPU is used this way.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU memory utilization is outside of the expected range.
+	 *
+	 * @param monitor    The monitor whose memory utilization we wish to check.
+	 * @param conditions The conditions used to determine the abnormality.
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null.
+	 */
+	public static AlertDetails checkMemoryUtilizationWarnCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedMemoryUtilization = monitor
+			.assertNumberParameter(MEMORY_UTILIZATION_PARAMETER, conditions);
+
+		if (assertedMemoryUtilization.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU memory utilization is outside of expected range (%f %s).",
+					assertedMemoryUtilization.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+				.consequence("The memory utilization may not be optimal and therefore lead to lower system performance.")
+				.recommendedAction("Check why this GPU memory is used so much.")
+				.build();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check condition when the GPU memory utilization is outside of the expected range.
+	 *
+	 * @param monitor    The monitor whose memory utilization we wish to check.
+	 * @param conditions The conditions used to determine the abnormality.
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null.
+	 */
+	public static AlertDetails checkMemoryUtilizationAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+
+		final AssertedParameter<NumberParam> assertedMemoryUtilization = monitor
+			.assertNumberParameter(MEMORY_UTILIZATION_PARAMETER, conditions);
+
+		if (assertedMemoryUtilization.isAbnormal()) {
+
+			return AlertDetails.builder()
+				.problem(String.format("The GPU memory utilization is outside of tolerated range (%f %s).",
+					assertedMemoryUtilization.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+				.consequence("The memory utilization may not be optimal and therefore lead to lower system performance.")
+				.recommendedAction("Check why this GPU memory utilization is used so much.")
+				.build();
+		}
+
+		return null;
+	}
+
+	@Override
+	public void accept(IMonitorVisitor monitorVisitor) {
+		monitorVisitor.visit(this);
+	}
+
+	@Override
+	public Map<String, MetaParameter> getMetaParameters() {
+		return META_PARAMETERS;
+	}
+
+	@Override
+	public MonitorType getMonitorType() {
+		return MonitorType.CPU;
+	}
+
+	@Override
+	public List<String> getMetadata() {
+		return METADATA;
+	}
+
+	@Override
+	public Map<String, List<AlertRule>> getStaticAlertRules() {
+		return ALERT_RULES;
+	}
+}
