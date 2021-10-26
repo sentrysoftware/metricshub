@@ -47,9 +47,9 @@ From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), do
 
 Unzip and untar the content of **${project.artifactId}-${project.version}-linux-amd64.tar.gz** into a program directory, like **/usr/local** or **/opt**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
 
-```bash
-/:> cd /usr/local
-/usr/local:> sudo tar xf /tmp/${project.artifactId}-${project.version}-linux-amd64.tar.gz
+```shell-session
+/ $ cd /usr/local
+/usr/local $ sudo tar xf /tmp/${project.artifactId}-${project.version}-linux-amd64.tar.gz
 ```
 
 ### Configure
@@ -79,9 +79,9 @@ You can start the **${project.name}** with an alternate configuration file with 
 
 `hws-otel` is just a shell script that ensures the *OpenTelemetry Collector* is run from its home directory. You can choose to execute the *OpenTelemetry Collector* binary directly with the below commands:
 
-```bash
-cd /usr/local/hws-otel-collector
-bin/hws-otel-collector --config config/my-otel-config.yaml
+```shell-session
+/$ cd /usr/local/hws-otel-collector
+/usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
 ```
 
 ## On Windows
@@ -132,7 +132,7 @@ It is recommended to install and run the **${project.name}** as a *Windows Servi
 
 Download and install the [very latest version of NSSM](https://nssm.cc/download) so that it's available in your `%PATH%` (to make things easier).
 
-Run the below command to create the service:
+Run the below command to create the service (assuming the product has been installed in **c:\Program Files**):
 
 ```batch
 nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" --config """c:\Program Files\hws-otel-collector\config\otel-config.yaml"""
@@ -140,3 +140,21 @@ nssm set hws-otel AppDirectory "c:\Program Files\hws-otel-collector"
 nssm set hws-otel DisplayName "Hardware Sentry OpenTelemetry Collector"
 nssm set hws-otel Start SERVICE_AUTO_START
 ```
+
+The service will appear as below in **services.msc**:
+
+![**${project.name}** running as a service on Windows](images/hws-otel-win-service.png)
+
+## Verify
+
+To verify **${project.name}** is properly running, [read the Health Check section](troubleshooting/status.md).
+
+## Ports and Firewalls
+
+**${project.name}** opens several TCP port for listening. None of these ports need to be open to the outside network, as they are used internally only.
+
+| Component | Port | Required |
+|---|---|---|
+| **Hardware Sentry Exporter** | TCP/24375 | Used internally only |
+| *OpenTelemetry Collector* HealthCheck | TCP/13133 | Optional, if you need to verify the status of the collector |
+| *OpenTelemetry Collector* Exporter | TCP/8888 | Used internally only |

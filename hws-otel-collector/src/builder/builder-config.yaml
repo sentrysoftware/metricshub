@@ -6,6 +6,7 @@ dist:
   version: "${project.version} (Build ${buildNumber} on ${timestamp})"
 receivers:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusexecreceiver v${otel.version}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v${otel.version}"
 processors:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v${otel.version}"
 exporters:

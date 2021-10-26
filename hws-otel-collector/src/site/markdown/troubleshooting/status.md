@@ -1,0 +1,83 @@
+keywords: status, check, health
+description: There are several ways to easily assess the status of ${project.name}
+
+# Health Check
+
+## Processes
+
+When running properly, **${project.name}** has 2 processes running:
+
+* `hws-otel-collector`
+* `java -jar lib/hardware-sentry-exporter-${project.version}.jar`
+
+Make sure both processes are running.
+
+On Windows, if you configured **${project.name}** to run as a service, you will need to verify the status of that service.
+
+## Health Check Endpoint
+
+The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which runs on port 13133 by default.
+
+To check the status of **${project.name}**, you can therefore use your browser to connect to `http://localhost:13133`, which will typically responds with:
+
+```json
+{"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h12m21.5832293s"}
+```
+
+Alternatively, you can use *cURL*:
+
+```shell-session
+$ curl http://localhost:13133
+{"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h13m33.8777673s"}
+```
+
+## Internal Exporter
+
+The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to is operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
+
+These metrics can be scraped with a *Prometheus Server*, or simply visualized in browser by connecting to `http://localhost:8888`.
+
+```text
+# HELP otelcol_exporter_queue_size Current size of the retry queue (in batches)
+# TYPE otelcol_exporter_queue_size gauge
+otelcol_exporter_queue_size{exporter="datadog/api",service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 0
+# HELP otelcol_exporter_send_failed_metric_points Number of metric points in failed attempts to send to destination.
+# TYPE otelcol_exporter_send_failed_metric_points counter
+otelcol_exporter_send_failed_metric_points{exporter="datadog/api",service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 0
+# HELP otelcol_exporter_sent_metric_points Number of metric points successfully sent to destination.
+# TYPE otelcol_exporter_sent_metric_points counter
+otelcol_exporter_sent_metric_points{exporter="datadog/api",service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 2592
+# HELP otelcol_process_cpu_seconds Total CPU user and system time in seconds
+# TYPE otelcol_process_cpu_seconds gauge
+otelcol_process_cpu_seconds{service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 0.640625
+# HELP otelcol_process_memory_rss Total physical memory (resident set size)
+# TYPE otelcol_process_memory_rss gauge
+otelcol_process_memory_rss{service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 4.8041984e+07
+# HELP otelcol_process_runtime_heap_alloc_bytes Bytes of allocated heap objects (see 'go doc runtime.MemStats.HeapAlloc')
+# TYPE otelcol_process_runtime_heap_alloc_bytes gauge
+otelcol_process_runtime_heap_alloc_bytes{service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 1.0002296e+07
+# HELP otelcol_process_runtime_total_alloc_bytes Cumulative bytes allocated for heap objects (see 'go doc runtime.MemStats.TotalAlloc')
+# TYPE otelcol_process_runtime_total_alloc_bytes gauge
+otelcol_process_runtime_total_alloc_bytes{service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 3.694764e+07
+# HELP otelcol_process_runtime_total_sys_memory_bytes Total bytes of memory obtained from the OS (see 'go doc runtime.MemStats.Sys')
+# TYPE otelcol_process_runtime_total_sys_memory_bytes gauge
+otelcol_process_runtime_total_sys_memory_bytes{service_instance_id="xxxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"} 2.703848e+07
+...
+```
+
+The above processor time utilization and memory consumption metrics pertain to the `hws-otel-collector` process only, and do not represent the activity of the internal **Hardware Sentry Exporter for Prometheus** (on port 24375).
+
+You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the config/otel-config.yaml configuration file](../configuration/configure-otel.md) with:
+
+```yaml
+# [...]
+
+# ACTUAL COLLECTOR PIPELINE DESCRIPTION
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus_exec/hws-exporter, prometheus/internal]
+      processors: [memory_limiter,batch]
+      exporters: [...] # List here the platform of your choice
+```

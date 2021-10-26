@@ -1,63 +1,33 @@
-keywords: alerts, rules, thresholds
-description: How to configure and use alert rules and get notified when a problem occurs.
+keywords: alerts, rules, thresholds, prometheus
+description: ${project.name} ships with pre-made alert rules for Prometheus AlertManager, to trigger alerts when a hardware problem is detected.
 
-# Prerequisites
+# Prometheus AlertManager
 
-You must have downloaded **${project.artifactId}-${project.version}.zip** or **${project.artifactId}-${project.version}.tar.gz** from [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html).
+When **${project.name}** is integrated with [Prometheus Server](prometheus.md), it is recommended to configure *Alert Rules* if you use [Prometheus AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
-The package includes the `hardware-sentry-rules.yaml` file that contains alert rules for all the monitored hardware component types. Save this file in your `Prometheus` folder. In the `prometheus.yaml` file, add the alerting configuration, as shown below:
+## Default Rules
 
-```
-rule_files:
-  - hardware-sentry-rules.yaml
-```
+**${project.name}** includes the `config/hardware-sentry-rules.yaml` file that contains alert rules for [Prometheus AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/), for all relevant metrics. These default rules ensure alerts are triggered whenever a problem with the monitored hardware is detected.
 
-Restart your Prometheus server
+## Static vs Dynamic Thresholds
 
-**${project.name}** rules consists in positioning static or dynamic thresholds that trigger alerts when their conditions are met.
+Most of these default alert rules compare the value of a metric to a **static hardcoded value**.
 
-## Static Thresholds
+Example of the `hw_battery_charge_ratio` metric which represents the charge percentage of a battery (between 0 and 1):
 
-A static threshold consists in a hard limit a metric should not breach. The limit can be a single value or a range. As static thresholds do not change over time, it helps you define critical boundaries of normal operation.
+* a `warn` alert is active when the battery charge is **below 0.5** (50%)
+* a `critical` alert is active when the battery charge is **below 0.3** (30%)
 
-For example, the possible statuses of a battery charge can typically be:
+> Note: When the value of `hw_battery_charge_ratio` falls below 0.3, both `warn` and `critical` alerts are active, since the condition matches **both** above alert rules.
 
-    0 (OK) when the battery charge is over 50 % (0.5)
-    1 (WARN) when the battery charge is below 50 % (0.5) and above 30 % (0.3)
-    2 (CRITICAL) when the battery charge is below 30 % (0.3)
+However, some alerts cannot be configured with hardcoded values, like for temperature sensors. For such metrics, 2 additional metrics have been added to represent the *warning* and *alarm* thresholds. The default alert rules compare the **base metric** to the corresponding **threshold metrics**.
 
-Example:
+Example of the `hw_temperature_celsius` metric:
 
-```
-- name: Battery-Charge
-  rules:
-  - alert: Battery-Charge-critical
-    expr: hw_battery_charge_ratio >= 0 AND hw_battery_charge_ratio < 0.3
-    labels:
-      severity: 'critical'
-  - alert: Battery-Charge-warn
-    expr: hw_battery_charge_ratio >= 0 AND hw_battery_charge_ratio <= 0.5
-    labels:
-      severity: 'warn'
-```
+* a `warn` alert is active when the temperature is greater than the value of `hw_temperature_celsius_warning`
+* a `critical` alert is active when the temperature is greater than the value of `hw_temperature_celsius_alarm`
 
-**${project.name}** compares the collected value of the battery charge with the predefined thresholds set for this type of device. If the threshold is violated, an alert of the appropriate severity is triggered in AlertManager.
-
-<div class="alert alert-info"><i class="icon-hand-up"></i><strong>Note: </strong> When an alert of a CRITICAL severity level is triggered, an alert of WARN severity level is also triggered since the condition of the device matches both alert rules.</div>
-
-## Dynamic Thresholds
-
-A dynamic threshold consists in a limit based on the manufacturer's device settings and incoming data. Alerts are dynamically generated when these thresholds are exceeded.
-
-**${project.name}** collects three temperature metrics:
-
-hw_temperature_celsius - the current temperature of the device/component
-hw_temperature_celsius_warning - the threshold from the manufacturer that triggers an WARN-severity alert when exceeded.
-hw_temperature_celsius_alarm - the threshold from the manufacturer that triggers a CRITICAL-severity alert when exceed.
-
-The example below shows the rule that enables  **${project.name}** to trigger an alert by comparing the three temperature metrics.
-
-```
+```yaml
 - name: Temperature-Temperature
   rules:
   - alert: Temperature-Temperature-warn
@@ -69,3 +39,33 @@ The example below shows the rule that enables  **${project.name}** to trigger an
     labels:
       severity: 'critical'
 ```
+
+The table below summarizes the metrics that should be compared to their corresponding **dynamic threshold metrics**:
+
+| Base Metric | Dynamic Threshold Metrics |
+|---|---|
+| `rate(hw_cpu_errors_total[1h])` | `hw_cpu_corrected_errors_warning` <br/> `hw_cpu_corrected_errors_alarm` |
+| `hw_fan_speed_rpm` | `hw_fan_speed_rpm_warning` <br/> `hw_fan_speed_rpm_alarm` |
+| `hw_fan_speed_ratio` | `hw_fan_speed_ratio_warning` <br/> `hw_fan_speed_ratio_alarm` |
+| `rate(hw_logical_disk_errors_total[1h])` | `hw_logical_disk_errors_warning` <br/> `hw_logical_disk_errors_alarm` |
+| `hw_lun_available_paths` | `hw_lun_available_paths_warning` |
+| `rate(hw_memory_errors_total[1h])` | `hw_memory_errors_warning` <br/> `hw_memory_errors_alarm` |
+| `hw_network_card_error_ratio` | `hw_network_card_error_ratio_warning` <br/> `hw_network_card_error_ratio_alarm` |
+| `hw_other_device_usage_times` | `hw_other_device_usage_times_warning` <br/> `hw_other_device_usage_times_alarm` |
+| `hw_other_device_value` | `hw_other_device_value_warning` <br/> `hw_other_device_value_alarm` |
+| `rate(hw_physical_disk_errors_total[1h])` | `hw_physical_disk_errors_warning` <br/> `hw_physical_disk_errors_alarm` |
+| `rate(hw_robotics_errors_total[1h])` | `hw_robotics_errors_warning` <br/> `hw_robotics_errors_alarm` |
+| `rate(hw_tape_drive_errors_total[1h])` | `hw_tape_drive_errors_warning` <br/> `hw_tape_drive_errors_alarm` |
+| `hw_temperature_celsius` | `hw_temperature_celsius_warning` <br/> `hw_temperature_celsius_alarm` |
+| `hw_voltage_volts` | `hw_voltage_volts_lower` <br/> `hw_voltage_volts_lower` |
+
+## Install
+
+Copy this file in your `Prometheus` installation folder. In the `prometheus.yaml` file, add the alerting configuration, as shown below:
+
+```yaml
+rule_files:
+  - hardware-sentry-rules.yaml
+```
+
+Restart your Prometheus server to taken the new rules into account.
