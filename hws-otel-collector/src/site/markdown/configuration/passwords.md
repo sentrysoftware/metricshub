@@ -2,6 +2,9 @@ keywords: password, encrypt, master, key, security
 description: ${project.name} lets you encrypt the passwords stored in its YAML configuration files using a simple CLI.
 
 # Password Encryption
+
+## Encrypting Passwords
+
 To encrypt a password:
 1. Run the encryption script corresponding to your environment, located in `hws-exporter/bin` folder of the installation package.
     * On Windows systems: use the `hws-encrypt.cmd` script
@@ -12,12 +15,13 @@ To encrypt a password:
 
 **If no such file is available, a new one will be created.**
 
-# Using Encrypted Passwords
+## Using Encrypted Passwords
+
 Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password.
 
 **For the password to be decrypted by ${project.name}, the keystore file previously created will be needed. Do not move, rename or remove this file or the** `security` **folder.**
 
-## Example
+### Example
 
 ```yaml
 targets:
