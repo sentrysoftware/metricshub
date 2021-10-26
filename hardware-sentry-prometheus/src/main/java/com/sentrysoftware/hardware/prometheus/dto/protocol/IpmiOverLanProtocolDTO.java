@@ -8,16 +8,16 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Slf4j
-public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class IpmiOverLanProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -38,7 +38,7 @@ public class IpmiOverLanProtocolDTO implements IProtocolConfigDTO {
 		return IPMIOverLanProtocol
 				.builder()
 				.username(username)
-				.password(IProtocolConfigDTO.decrypt(password, log))
+				.password(super.decrypt(password))
 				.bmcKey(bmcKey)
 				.skipAuth(skipAuth)
 				.timeout(timeout)

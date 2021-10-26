@@ -137,7 +137,7 @@ class TaskSchedulingServiceTest {
 						.id("host1")
 						.type(TargetType.LINUX)
 						.build())
-				.snmp(SnmpProtocolDTO.builder().community("public1").build())
+				.snmp(SnmpProtocolDTO.builder().community("public1".toCharArray()).build())
 				.build());
 
 		doReturn(previous.getTargets()).when(multiHostsConfigurationDto).getTargets();

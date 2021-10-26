@@ -9,16 +9,16 @@ import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Slf4j
-public class WbemProtocolDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class WbemProtocolDTO extends AbstractProtocolDTO {
 
 	@Default
 	WBEMProtocols protocol = WBEMProtocols.HTTPS;
@@ -47,7 +47,7 @@ public class WbemProtocolDTO implements IProtocolConfigDTO {
 				.builder()
 				.namespace(namespace)
 				.username(username)
-				.password(IProtocolConfigDTO.decrypt(password, log))
+				.password(super.decrypt(password))
 				.port(port)
 				.protocol(protocol)
 				.timeout(timeout)

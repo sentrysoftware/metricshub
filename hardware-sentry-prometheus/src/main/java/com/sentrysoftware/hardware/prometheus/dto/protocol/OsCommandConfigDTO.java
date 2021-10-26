@@ -10,13 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OsCommandConfigDTO implements IProtocolConfigDTO {
+@EqualsAndHashCode(callSuper = false)
+public class OsCommandConfigDTO extends AbstractProtocolDTO {
 
 	private boolean useSudo;
 	
