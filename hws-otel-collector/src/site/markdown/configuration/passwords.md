@@ -1,18 +1,23 @@
-keywords: password, encrypt, master, key
+keywords: password, encrypt, master, key, security
 description: ${project.name} lets you encrypt the passwords stored in its YAML configuration files using a simple CLI.
 
 # Password Encryption
-To encrypt a password, use the `hws-encrypt` script on Unix systems or the `hws-encrypt.cmd` script on Windows systems.
-You will be asked to type the password to encrypt and the console will then print the encrypted password.
-The encryption script will use a `hws-keystore.p12` file located in a `security` folder to store encrypted passwords. If no such file is available, a new file will be created.
-The keystore file itself is encrypted, don't modify it by yourself or it won't be readable by the exporter anymore.
+To encrypt a password:
+1. Run the encryption script corresponding to your environment, located in `hws-exporter/bin` folder of the installation package.
+    * On Windows systems: use the `hws-encrypt.cmd` script
+    * On Linux systems: use the `hws-encrypt` script
+2. Type the password to encrypt. The console will print the encrypted password.
+
+**The encryption script will use a** `hws-keystore.p12` **file located in a** `security` **folder to store encrypted passwords.**
+
+**If no such file is available, a new one will be created.**
 
 # Using Encrypted Passwords
-Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a real password.
-For the password to be decrypted by the exporter, the keystore file previously created will be needed.
-Do not move, rename or remove this file or the `security` folder.
+Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password.
 
-##Example of use of an encrypted password
+**For the password to be decrypted by ${project.name}, the keystore file previously created will be needed. Do not move, rename or remove this file or the** `security` **folder.**
+
+## Example
 
 ```yaml
 targets:
