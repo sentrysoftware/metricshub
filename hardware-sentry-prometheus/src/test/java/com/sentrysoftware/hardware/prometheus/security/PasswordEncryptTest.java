@@ -6,11 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -20,22 +18,18 @@ import com.sentrysoftware.matrix.security.SecurityManager;
 
 class PasswordEncryptTest {
 
-	@TempDir
-	static Path tempDir;
-
-	private static File jarPath;
+	private static File securityPath;
 
 	@BeforeAll
 	static void setUp() throws Exception {
-
-		jarPath = tempDir.resolve("lib").toFile();
+		securityPath = new File("src/test/resources/security/hws-keystore.p12");
 	}
 
 	@Test
 	void testEncryptDecrypt() throws HardwareSecurityException, URISyntaxException, IOException {
 
 		try (MockedStatic<ResourceHelper> resourceHelper = Mockito.mockStatic(ResourceHelper.class)) {
-			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(jarPath);
+			resourceHelper.when(() -> ResourceHelper.findSource(SecurityManager.class)).thenReturn(securityPath);
 			final File keyStoreFile = PasswordEncrypt.getKeyStoreFile(true);
 
 			// null password
