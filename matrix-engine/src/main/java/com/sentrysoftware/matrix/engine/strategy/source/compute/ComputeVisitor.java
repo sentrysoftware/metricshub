@@ -823,58 +823,59 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	private void processAbstractConcat(AbstractConcat abstractConcat) {
 
-		if (abstractConcat != null
-			&& abstractConcat.getString() != null
-			&& abstractConcat.getColumn() != null
-			&& abstractConcat.getColumn() > 0
-			&& sourceTable != null
-			&& sourceTable.getTable() != null
-			&& !sourceTable.getTable().isEmpty()
-			&& abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
+		boolean firstChecks = abstractConcat != null && abstractConcat.getString() != null
+				&& abstractConcat.getColumn() != null && abstractConcat.getColumn() > 0 && sourceTable != null
+				&& sourceTable.getTable() != null && !sourceTable.getTable().isEmpty();
 
+		if (firstChecks) {
 			String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, abstractConcat.getIndex());
 
-			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-				abstractConcat.toString(),
-				computeKey,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE, abstractConcat.toString(), computeKey,
+					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
-			int columnIndex = abstractConcat.getColumn() - 1;
-			String concatString = abstractConcat.getString();
+			// Case 1 : concatenation with an exiting column
+			if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
 
-			// If abstractConcat.getString() is like "Column(n)",
-			// we concat the column n instead of abstractConcat.getString()
-			Matcher matcher = COLUMN_PATTERN.matcher(concatString);
-			if (matcher.matches()) {
+				int columnIndex = abstractConcat.getColumn() - 1;
+				String concatString = abstractConcat.getString();
 
-				int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
-				if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
+				// If abstractConcat.getString() is like "Column(n)",
+				// we concat the column n instead of abstractConcat.getString()
+				Matcher matcher = COLUMN_PATTERN.matcher(concatString);
+				if (matcher.matches()) {
 
-					sourceTable.getTable()
-						.forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
-				}
+					int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
+					if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
 
-			} else {
+						sourceTable.getTable()
+								.forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
+					}
 
-				sourceTable.getTable()
-					.forEach(line -> concatString(line, columnIndex, abstractConcat));
+				} else {
 
-				// Serialize and deserialize
-				// in case the String to concat contains a ';'
-				// so that a new column is created.
-				if (concatString.contains(TABLE_SEP)) {
+					sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
 
-					sourceTable.setTable(
-						SourceTable.csvToTable(
-							SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
-							TABLE_SEP));
+					// Serialize and deserialize
+					// in case the String to concat contains a ';'
+					// so that a new column is created.
+					if (concatString.contains(TABLE_SEP)) {
+
+						sourceTable.setTable(SourceTable.csvToTable(
+								SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP));
+					}
 				}
 			}
 
-			log.info(LOG_RESULT_TEMPLATE,
-				String.format("%s operation", abstractConcat.getClass().getSimpleName()),
-				computeKey,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+			// Case 2 : concatenation with non existing column
+			else if (abstractConcat.getColumn() == sourceTable.getTable().get(0).size() + 1) {
+				// add at the end of the list (or at the beginning if the list is empty)
+				sourceTable.getTable()
+				.forEach(line -> line.add(abstractConcat.getString()));
+			}
+
+			log.info(LOG_RESULT_TEMPLATE, String.format("%s operation", abstractConcat.getClass().getSimpleName()),
+					computeKey,
+					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 		}
 	}
 

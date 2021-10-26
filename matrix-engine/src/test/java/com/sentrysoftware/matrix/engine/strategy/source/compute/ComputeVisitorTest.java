@@ -452,6 +452,19 @@ class ComputeVisitorTest {
 		assertEquals(LINE_1_RESULT_LEFT, table.get(0));
 		assertEquals(LINE_2_RESULT_LEFT, table.get(1));
 		assertEquals(LINE_3_RESULT_LEFT, table.get(2));
+
+		// empty lines in table => add new column
+		sourceTable.getTable().clear();
+		sourceTable.getTable().add(new ArrayList<>());
+		sourceTable.getTable().add(new ArrayList<>());
+		sourceTable.getTable().add(new ArrayList<>());
+		leftConcat.setColumn(1);
+		leftConcat.setString(FOO);
+		computeVisitor.visit(leftConcat);
+		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(0));
+		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(1));
+		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(2));
+
 	}
 
 	@Test
@@ -589,6 +602,21 @@ class ComputeVisitorTest {
 		assertEquals(LINE_1_RESULT_RIGHT, table.get(0));
 		assertEquals(LINE_2_RESULT_RIGHT, table.get(1));
 		assertEquals(LINE_3_RESULT_RIGHT, table.get(2));
+		// index = size + 1 => add new column
+		rightConcat.setColumn(5);
+		rightConcat.setString(FOO);
+		computeVisitor.visit(rightConcat);
+		List<List<String>> expected = Arrays.asList(LINE_1_RESULT_RIGHT, LINE_2_RESULT_RIGHT, LINE_3_RESULT_RIGHT);
+		expected.get(0).add(FOO);
+		expected.get(1).add(FOO);
+		expected.get(2).add(FOO);
+		assertEquals(expected, table);
+
+		// index > size + 1  => out of bounds nothing changed
+		rightConcat.setColumn(15);
+		rightConcat.setString(FOO);
+		computeVisitor.visit(rightConcat);
+		assertEquals(expected, table);
 	}
 
 	@Test
@@ -735,7 +763,7 @@ class ComputeVisitorTest {
 								)
 						)
 						.build());
-		rightConcat.setColumn(2);
+		rightConcat.setColumn(5);
 		computeVisitor.visit(rightConcat);
 		assertEquals(1, computeVisitor.getSourceTable().getTable().size());
 
