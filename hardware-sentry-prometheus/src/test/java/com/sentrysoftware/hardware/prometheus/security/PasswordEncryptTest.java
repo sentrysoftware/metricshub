@@ -19,7 +19,7 @@ class PasswordEncryptTest {
 
 	@BeforeAll
 	static void setUp() throws Exception {
-		securityPath = new File("src/test/resources/security/hws-keystore.p12");
+		securityPath = new File("src/test/resources/hws-keystore.p12");
 	}
 
 	@Test
