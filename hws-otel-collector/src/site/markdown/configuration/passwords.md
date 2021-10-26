@@ -3,9 +3,9 @@ description: ${project.name} lets you encrypt the passwords stored in its YAML c
 
 # Password Encryption
 To encrypt a password, use the `hws-encrypt` script on Unix systems or the `hws-encrypt.cmd` script on Windows systems.
-You will be asked to type the password to encryt and the console will then print the encrypted password.
-The encryption script will use a `hws-keystore.p12` file situated in a `security` folder to store encrypted passwords. If no such file is available, a new file will be created.
-The keystore file himself is encrypted, don't modify it yourself or it won't be readable anymore.
+You will be asked to type the password to encrypt and the console will then print the encrypted password.
+The encryption script will use a `hws-keystore.p12` file located in a `security` folder to store encrypted passwords. If no such file is available, a new file will be created.
+The keystore file itself is encrypted, don't modify it by yourself or it won't be readable by the exporter anymore.
 
 # Using Encrypted Passwords
 Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a real password.
