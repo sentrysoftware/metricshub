@@ -19,7 +19,7 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html"/>
-			<item name="Release Notes" href="release-notes.html" />
+			<!-- <item name="Release Notes" href="release-notes.html" /> -->
 			<item name="Installation" href="install.html"/>
 		</menu>
 
@@ -31,12 +31,13 @@
 
 		<menu name="Integrations">
 			<item name="Prometheus Server" href="integration/prometheus.html"/>
-			<item name="Using Alert Rules" href="integration/alertmanager.html"/>
+			<item name="Prometheus AlertManager" href="integration/alertmanager.html"/>
 			<item name="Grafana Dashboards" href="integration/grafana.html"/>
 			<item name="BMC Helix" href="integration/helix.html"/>
 		</menu>
 
 		<menu name="Troubleshooting">
+			<item name="Health Check" href="troubleshooting/status.html" />
 			<item name="Enabling Debug Mode" href="troubleshooting/debug.html" />
 			<item name="Hardware Sentry CLI (&lt;code&gt;hws&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>

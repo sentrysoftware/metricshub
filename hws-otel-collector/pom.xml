@@ -20,10 +20,13 @@
 	<properties>
 
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
-		<sentrySkinVersion>5.0-SNAPSHOT</sentrySkinVersion>
+		<sentrySkinVersion>5.0</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
 		<otel.version>0.36.0</otel.version>
+
+		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
+		<commitId>${buildNumber}</commitId>
 
 	</properties>
 
@@ -352,6 +355,13 @@
 			<plugin>
 				<groupId>com.sentrysoftware.maven</groupId>
 				<artifactId>about-maven-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>about</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 				<configuration>
 					<jql><![CDATA[
 					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC

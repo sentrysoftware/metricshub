@@ -1,23 +1,23 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
 description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
-
 # Configuration
+
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
 To collect metrics from your targets, you need to provide the following information to **${project.name}**:
 
-- the hostname of the target to be monitored
-- its type
-- the protocol to be used.
+* the hostname of the target to be monitored
+* its type
+* the protocol to be used.
 
-This information must be provided in a `hws-config.yaml` file, which should be stored in the directory from where you launch the `${project.artifactId}-${project.version}.jar` file, unless you want to [specify a relative path to this file](./operate.html) while running ${project.name}.
+This information must be provided in the **config/hws-config.yaml** file (an alternate path can be specified in [otel-config.yaml](configure-otel.md)).
 
-The format, indentation and syntax of the configuration file must be strictly respected for **${project.name}** to operate correctly.
+The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). As changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
 
-## Specifying the target to be monitored
+## Monitored Targets
 
-Copy the following lines in the `hws-config.yaml` file:
+Systems to monitor are defined under `targets` with the below syntax:
 
 ```yaml
 targets:
@@ -30,25 +30,25 @@ targets:
 
 where:
 
-- `<hostname>` corresponds to the name of the target, or its IP address
-- `<target-type>` corresponds to the operating system or the type of the target to be monitored. Possible values are:
+* `<hostname>` is the name of the target, or its IP address
+* `<target-type>` is the type of the target to be monitored. Possible values are:
 
-    - `win` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    - `linux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    - `network` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device" target="_blank">network devices</a>
-    - `oob` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    - `storage` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    - `tru64` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    - `hpux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    - `aix` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    - `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
-    - `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
+    * `win` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
+    * `linux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux" target="_blank">Linux systems</a>
+    * `network` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device" target="_blank">network devices</a>
+    * `oob` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
+    * `storage` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system" target="_blank">storage systems</a>
+    * `tru64` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
+    * `hpux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
+    * `aix` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
+    * `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
+    * `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
 
-* `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
-## Specifying the protocol to be used
+## Protocols and Credentials
 
 ### HTTP
 
@@ -265,46 +265,43 @@ targets:
       password: mypwd
 ```
 
-## Other Configuration Settings
+## Site and Sustainable IT Settings
 
-### Configuring Site Information
-
-**${project.name}** relies on the electricity rate, the CO₂ emissions, and the P.U.E (Power Usage Effectiveness) specified in the `hws-config.yaml` file to calculate the electricity cost and the carbon footprint of each monitored site (i.e. datacenter or server room).
-
-To specify this information, add the following sections for each monitored site just before the `targets` section :
+You can specify additional labels to be added to each collected metric, with the `extraLabels` property:
 
 ```yaml
-extraLabels: 
-  site: 'Datacenter 1'
-
-extraMetrics: 
-  hw_carbon_density_grams: 0.066
-  hw_electricity_cost_dollars: 0.02
-  hw_pue_ratio: 1.8
-
+extraLabels:
+  site: Datacenter 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
+  label_name: "Label Value"
 ```
 
-where:
+This is an easy way to add a label to all metrics collected by this instance of the **${project.name}**. We recommend that you run at least one separate instance of the *OpenTelemetry Collector* for each site, and specify a different `site` label value for each of them. This will be particularly useful to group monitored systems per their physical location.
 
-* `site` corresponds to the datacenter or server room being monitored
-* `hw_carbon_density_grams` corresponds to the CO₂ emissions in grams
-* `hw_electricity_cost_dollars` corresponds to the price in dollars of the kWh of electricity. Refer to your energy contract to know the tariff by kilowatt/hour charged by your supplier
-* `hw_pue_ratio` corresponds to the energy efficiency of the datacenter itself: cooling, power distribution, etc. A non-optimized datacenter may have a P.U.E. around 2, while a most efficient datacenter achieves a P.U.E. of 1.1.
+Similarly, you can specify additional static metrics to be exposed with the `extraMetrics` property:
 
-### Configuring Timeout Durations
+```yaml
+extraMetrics:
+  hw_carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe
+  hw_electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
+  hw_pue_ratio: 1.8
+```
 
-**${project.name}** supports the Prometheus time duration formats. Timeout durations are specified as a number, immediately followed by one or a combination of the following units:
+The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon densities for each monitored site, for example.
+
+## Other Configuration Settings
+
+### Timeouts
+
+Timeouts, durations and periods are specified with the below format:
 
 | Unit | Description                     | Examples         |
 | ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s (default)   |
-| m    | minutes                         | 90m, 30m15s      |
+| s    | seconds                         | 120s             |
+| m    | minutes                         | 90m, 1m15s       |
 | h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d, 2d5h45m15s   |
-| w    | weeks (based on a 7-day week)   | 1w, 1w2d3h15m20s |
-| y    | years (based on a 365-day year) | 1y, 1y1w1h30m10s |
+| d    | days (based on a 24-hour day)   | 1d               |
 
-### Customizing the Collect Period
+### Collect Period
 
 By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
 
@@ -312,15 +309,8 @@ By default, **${project.name}** collects metrics from the monitored targets ever
 
     ```yaml
     collectPeriod: 2m
-    targets:
-    - target:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
+
+    targets: # ...
     ```
 
 * for a specific target, add the `collectPeriod` parameter in the relevant `target` section:
@@ -336,14 +326,12 @@ By default, **${project.name}** collects metrics from the monitored targets ever
         community: public
         port: 161
         timeout: 120s
-      collectPeriod: 2m
+      collectPeriod: 1m30s # Customized
     ```
 
-and indicate a value in minutes.
+<div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause CPU-intensive workloads.</div>
 
-<div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause memory-intensive workloads.</div>
-
-### Customizing the Discovery Cycle
+### Discovery Cycle
 
 **${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
 
@@ -351,16 +339,8 @@ and indicate a value in minutes.
 
     ```yaml
     discoveryCycle: 15
-    targets:
 
-    - target:
-        hostname: ecs1-01
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
+    targets: # ...
     ```
 
 * for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
@@ -376,45 +356,37 @@ and indicate a value in minutes.
         community: public
         port: 161
         timeout: 120s
-      discoveryCycle: 15
+      discoveryCycle: 5 # Customized
     ```
 
 and indicate the number of collects after which a discovery will be performed.
 
-<div class="alert alert-danger"><i class="icon-hand-up"></i>Running discoveries too frequently can cause memory-intensive workloads.</div>
+<div class="alert alert-danger"><i class="icon-hand-up"></i>Running discoveries too frequently can cause CPU-intensive workloads.</div>
 
-### Customizing the Pool Size
+### Job Pool Size
 
 By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
 
 ```yaml
 jobPoolSize: 20
-targets:
 
-- target:
-    hostname: ecs1-01
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
+targets: # ...
 ```
 
 and indicate a number of jobs.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
 
-### Specifying the connectors to be used
+### Force or Exclude Connectors
 
-The **${project.name}** comes with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
+The **${project.name}** comes with the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/), a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
 
 Use the parameters below to select or exclude connectors:
 
-| Parameter          | Description                                                                            |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| selectedConnectors | Enter the name of the connector(s) you want to use to collect hardware metrics.        |
-| excludedConnectors | Enter the name of the connector(s) you do NOT want to use to collect hardware metrics. |
+| Parameter          | Description                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| selectedConnectors | Connector(s) to use to monitor the target. No automatic detection will be performed. |
+| excludedConnectors | Connector(s) that must be excluded from the automatic detection.                     |
 
 Connector names must be comma-separated, as shown in the example below:
 
@@ -432,4 +404,11 @@ targets:
     excludedConnectors: [ VMwareESXiDisksStorage ]
 ```
 
-The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>.
+The exhaustive list of connectors is available in the [Hardware Connector Library User Documentation<](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html). The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
+
+```shell-session
+$ hws -l
+```
+
+[More information on the `hws` command](../troubleshooting/cli.md)
+

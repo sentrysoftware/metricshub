@@ -25,6 +25,20 @@ receivers:
     port: 24375
     scrape_interval: 60s
 
+  # prometheus
+  # Polls the internal Prometheus Exporter embedded with the OpenTelemetry Collector on port 8888
+  # More information:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver
+  # Simply add "prometheus/internal" to the pipeline in the receivers array, to export these internal
+  # metrics.
+  prometheus/internal:
+    config:
+      scrape_configs:
+        - job_name: otel-collector-internal
+          scrape_interval: 60s
+          static_configs:
+            - targets: ["0.0.0.0:8888"]
+
 # PROCESSING
 processors:
 
@@ -46,15 +60,16 @@ processors:
   # Some post-processing of metrics before sending then out
   # All possible actions are described at:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor
+  # Add "metricstransform" to the pipeline in the processors array to activate it.
   metricstransform:
     transforms:
-      include: .*
+      include: hw_.*
       match_type: regexp
       action: update
       operations:
         - action: add_label
-          new_label: zone
-          new_value: Datacenter 1
+          new_label: prod_level
+          new_value: production
 
 # OUTPUT
 exporters:
@@ -71,8 +86,9 @@ exporters:
   # Prometheus Server with Remote Write protocol
   # All options are described at:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter
+  # Note: The Prometheus server must have been started with the --enable-feature=remote-write-receiver option
   prometheusremotewrite/your-server:
-    endpoint: http://prom-server:9090/api/v1/push
+    endpoint: http://prom-server:9090/api/v1/write
 
   # Datadog
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter
@@ -92,6 +108,6 @@ service:
   extensions: [health_check]
   pipelines:
     metrics:
-      receivers: [prometheus_exec/hws-exporter]
-      processors: [memory_limiter,batch,metricstransform]
+      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
+      processors: [memory_limiter,batch]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
