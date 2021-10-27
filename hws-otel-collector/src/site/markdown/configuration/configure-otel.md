@@ -14,19 +14,21 @@ As a regular [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
 
 ![Internal architecture of the ${project.name}](../images/otel-internal-architecture.png)
 
+This version of **${project.name}** leverages **version ${otelVersion}** of OpenTelemetry.
+
 By default, **${project.name}**'s configuration file is **config/otel-config.yaml**. You can start the *OpenTelemetry Collector* with the path to an alternate file (see [Installation](../install.md)).
 
 ## Receivers
 
 ### Hardware Sentry Exporter for Prometheus
 
-The primary source of the data is [`prometheus_exec`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusexecreceiver), which is configured to execute **Hardware Sentry**'s internal *Exporter for Prometheus*, and scrape the collected *metrics*. By default, it executes the internal *Exporter for Prometheus* on port **TCP/24375** and scrapes the metrics every 60 seconds.
+The primary source of the data is [`prometheus_exec`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusexecreceiver), which is configured to execute **Hardware Sentry**'s internal *Exporter for Prometheus*, and scrape the collected *metrics*. By default, it executes the internal *Exporter for Prometheus* on port **TCP/24375** and scrapes the metrics every 2 minutes.
 
 ```yaml
   prometheus_exec/hws-exporter:
     exec: "\"bin/hws-exporter\" --target.config.file=\"config/hws-config.yaml\" --server.port={{port} }"
     port: 24375
-    scrape_interval: 60s
+    scrape_interval: 2m
 ```
 
 There is no need to edit this section, unless you need to configure the internal **Hardware Sentry Exporter for Prometheus** to use a different configuration file than the default one.
@@ -37,11 +39,11 @@ You declare multiple instances of `prometheus_exec`, which will run separate ins
   prometheus_exec/hws-exporter-1:
     exec: "\"bin/hws-exporter\" --target.config.file=\"config/hws-config-1.yaml\" --server.port={{port} }"
     port: 9011
-    scrape_interval: 60s
+    scrape_interval: 2m
   prometheus_exec/hws-exporter-2:
     exec: "\"bin/hws-exporter\" --target.config.file=\"config/hws-config-2.yaml\" --server.port={{port} }"
     port: 9012
-    scrape_interval: 60s
+    scrape_interval: 2m
 
 # [...]
 

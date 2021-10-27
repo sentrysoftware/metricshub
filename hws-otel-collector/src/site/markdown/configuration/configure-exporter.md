@@ -1,7 +1,7 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
 description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
 
-# Configuration
+# Monitoring Configuration
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
@@ -33,18 +33,18 @@ where:
 * `<hostname>` is the name of the target, or its IP address
 * `<target-type>` is the type of the target to be monitored. Possible values are:
 
-    * `win` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    * `linux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    * `network` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device" target="_blank">network devices</a>
-    * `oob` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    * `storage` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    * `tru64` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    * `hpux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    * `aix` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    * `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
-    * `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
+    * `win` for [Microsoft Windows systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows)
+    * `linux` for [Linux systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux)
+    * `network` for [network devices](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device)
+    * `oob` for [Out-of-band management cards](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band), [VMware ESX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx), and [blade chassis](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis")
+    * `storage` for [storage systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system)
+    * `aix` for [IBM AIX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix)
+    * `hpux` for [HP UX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux)
+    * `solaris` for [Oracle Solaris systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris)
+    * `tru64` for [HP Tru64 systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64)
+    * `vms` for [HP Open VMS systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms)
 
-* `<protocol-configuration>` is the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the targets: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, or `wbem`. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -290,7 +290,7 @@ The above example configures the *OpenTelemetry Collector* to expose the carbon 
 
 ## Other Configuration Settings
 
-### Timeouts
+### Timeout, Duration and Period Format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -303,7 +303,7 @@ Timeouts, durations and periods are specified with the below format:
 
 ### Collect Period
 
-By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
+By default, **${project.name}** collects metrics from the monitored targets every minute. To change the default collect period:
 
 * for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
@@ -328,6 +328,8 @@ By default, **${project.name}** collects metrics from the monitored targets ever
         timeout: 120s
       collectPeriod: 1m30s # Customized
     ```
+
+There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape internal** to avoid gaps or duplicate points, which would affect rate calculations.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause CPU-intensive workloads.</div>
 

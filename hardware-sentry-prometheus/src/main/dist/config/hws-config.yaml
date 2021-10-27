@@ -1,3 +1,6 @@
+# Internal collect interval
+collectPeriod: 1m
+
 extraLabels:
   site: Datacenter 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
 

@@ -25,7 +25,7 @@ On Windows, run the following commands:
 java -version
 ```
 
-If needed, you can download the latest versions of the Java Runtime Environment from <a href="https://adoptium.net/" target="_blank">Adoptium (formerly AdoptOpenJDK)</a>.
+If needed, you can download the latest versions of the Java Runtime Environment from [Adoptium (formerly AdoptOpenJDK)](https://adoptium.net/).
 
 ## Windows or Linux?
 
