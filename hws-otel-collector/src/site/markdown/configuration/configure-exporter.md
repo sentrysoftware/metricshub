@@ -1,7 +1,7 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
 description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
 
-# Configuration
+# Monitoring Configuration
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
@@ -33,18 +33,18 @@ where:
 * `<hostname>` is the name of the target, or its IP address
 * `<target-type>` is the type of the target to be monitored. Possible values are:
 
-    * `win` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows" target="_blank">Microsoft Windows systems</a>
-    * `linux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux" target="_blank">Linux systems</a>
-    * `network` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device" target="_blank">network devices</a>
-    * `oob` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band" target="_blank">Out-of-band</a>, <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis" target="_blank">blade chassis</a>, and <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx" target="_blank">VMware ESX systems</a>
-    * `storage` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system" target="_blank">storage systems</a>
-    * `tru64` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64" target="_blank">HP Tru64 systems</a>
-    * `hpux` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux" target="_blank">HP UX systems</a>
-    * `aix` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix" target="_blank">IBM AIX systems</a>
-    * `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
-    * `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
+    * `win` for [Microsoft Windows systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows)
+    * `linux` for [Linux systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux)
+    * `network` for [network devices](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device)
+    * `oob` for [Out-of-band management cards](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band), [VMware ESX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx), and [blade chassis](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis")
+    * `storage` for [storage systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system)
+    * `aix` for [IBM AIX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix)
+    * `hpux` for [HP UX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux)
+    * `solaris` for [Oracle Solaris systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris)
+    * `tru64` for [HP Tru64 systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64)
+    * `vms` for [HP Open VMS systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms)
 
-* `<protocol-configuration>` is the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the targets: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, or `wbem`. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -132,7 +132,7 @@ Use the parameters below to configure the SSH protocol:
 | Parameter       | Description                                                                                                                                           |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ssh             | Protocol used to access the target.                                                                                                                   |
-| timeout         | How long until the command times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout         | How long until the command times out (default: 120s). |
 | useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                          |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                              |
@@ -168,7 +168,7 @@ Use the parameters below to configure the SNMP protocol:
 | version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).                                                                               |
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                                                                        |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).                                                                                     |
-| timeout          | How long until the SNMP request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout          | How long until the SNMP request times out (default: 120s). |
 | privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).                                                                                    |
 | privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                                                                                         |
 | username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                                                                                           |
@@ -220,7 +220,7 @@ Use the parameters below to configure the WBEM protocol:
 | wbem      | Protocol used to access the target.                                                                                                                   |
 | protocol  | The protocol used to access the target.                                                                                                               |
 | port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).                                                        |
-| timeout   | How long until the WBEM request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout   | How long until the WBEM request times out (default: 120s). |
 | username  | Name used to establish the connection with the target via the WBEM protocol.                                                                          |
 | password  | Password used to establish the connection with the target via the WBEM protocol.                                                                      |
 
@@ -247,7 +247,7 @@ Use the parameters below to configure the WMI protocol:
 | Parameter | Description                                                                                                                                          |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | wmi       | Protocol used to access the target.                                                                                                                  |
-| timeout   | How long until the WMI request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout   | How long until the WMI request times out (default: 120s). |
 | username  | Name used to establish the connection with the target via the WMI protocol.                                                                          |
 | password  | Password used to establish the connection with the target via the WMI protocol.                                                                      |
 
@@ -290,7 +290,7 @@ The above example configures the *OpenTelemetry Collector* to expose the carbon 
 
 ## Other Configuration Settings
 
-### Timeouts
+### Timeout, Duration and Period Format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -303,7 +303,7 @@ Timeouts, durations and periods are specified with the below format:
 
 ### Collect Period
 
-By default, **${project.name}** collects metrics from the monitored targets every 2 minutes. To change the default collect period:
+By default, **${project.name}** collects metrics from the monitored targets every minute. To change the default collect period:
 
 * for all your targets, add the `collectPeriod` parameter just before the `targets` section:
 
@@ -328,6 +328,8 @@ By default, **${project.name}** collects metrics from the monitored targets ever
         timeout: 120s
       collectPeriod: 1m30s # Customized
     ```
+
+There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape interval** to avoid gaps or duplicate points, which would affect rate calculations.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause CPU-intensive workloads.</div>
 

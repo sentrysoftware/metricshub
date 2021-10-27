@@ -5,23 +5,18 @@ description: ${project.name} lets you encrypt the passwords stored in its YAML c
 
 ## Encrypting Passwords
 
-To encrypt a password:
-1. Run the encryption script corresponding to your environment, located in `hws-exporter/bin` folder of the installation package.
-    * On Windows systems: use the `hws-encrypt.cmd` script
-    * On Linux systems: use the `hws-encrypt` script
-2. Type the password to encrypt. The console will print the encrypted password.
+To encrypt a password, use the `hws-encrypt` command:
 
-**The encryption script will use a** `hws-keystore.p12` **file located in a** `security` **folder to store encrypted passwords.**
-
-**If no such file is available, a new one will be created.**
+```shell-session
+/$ cd /usr/local/hws-otel-collector/bin
+/usr/local/hws-otel-collector/bin$ ./hws-encrypt
+Enter the password to encrypt: <type the password>
+GkwzG6bx8cUhoeQW+/1ERI+2LOyB
+```
 
 ## Using Encrypted Passwords
 
-Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password.
-
-**For the password to be decrypted by ${project.name}, the keystore file previously created will be needed. Do not move, rename or remove this file or the** `security` **folder.**
-
-### Example
+Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password:
 
 ```yaml
 targets:
@@ -35,3 +30,11 @@ targets:
       username: myusername
       password: GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 ```
+
+## The *Master Password*
+
+On first use, the `hws-encrypt` command will create the **security/hws-keystore.p12** file to store a unique and random *master password*. This *master password* is used to encrypt passwords with `hws-encrypt`, and decrypt them from **config/hws-config.yaml**.
+
+The **hws-keystore.p12** file must not be modified, as this would prevent decryption from working. Any password encrypted with a given **hws-keystore.p12** *master password* must be decrypted with the exact same **hws-encrypt.p12* file.
+
+The **hws-keystore.p12** file can be shared across several hosts so a password encrypted on one system can be decrypted on another. Simply copy the **hws-keystore.p12** file to the **security** directory. This will make **${project.name}** able to decrypt the passwords.
