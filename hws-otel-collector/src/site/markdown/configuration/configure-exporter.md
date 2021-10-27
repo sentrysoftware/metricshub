@@ -13,7 +13,7 @@ To collect metrics from your targets, you need to provide the following informat
 
 This information must be provided in the **config/hws-config.yaml** file (an alternate path can be specified in [otel-config.yaml](configure-otel.md)).
 
-The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). Changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
+The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). As changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
 
 ## Monitored Targets
 
@@ -44,7 +44,7 @@ where:
     * `solaris` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris" target="_blank">Oracle Solaris systems</a>
     * `vms` for these <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms" target="_blank">HP Open VMS systems</a>
 
-* `<protocol-configuration>` corresponds to the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol **${project.name}** will use to communicate with the targets. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -286,7 +286,7 @@ extraMetrics:
   hw_pue_ratio: 1.8
 ```
 
-The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon density for each monitored site, for example.
+The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon densities for each monitored site, for example.
 
 ## Other Configuration Settings
 
@@ -379,7 +379,7 @@ and indicate a number of jobs.
 
 ### Force or Exclude Connectors
 
-The **${project.name}** comes with the **Hardware Connector Library**, a library which consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
+The **${project.name}** comes with the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/), a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
 
 Use the parameters below to select or exclude connectors:
 
@@ -404,7 +404,7 @@ targets:
     excludedConnectors: [ VMwareESXiDisksStorage ]
 ```
 
-The exhaustive list of connectors is available in the <a href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank">Hardware Connector Library User Documentation</a>. The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
+The exhaustive list of connectors is available in the [Hardware Connector Library User Documentation<](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html). The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
 
 ```shell-session
 $ hws -l

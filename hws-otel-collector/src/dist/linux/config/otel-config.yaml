@@ -106,6 +106,6 @@ service:
   extensions: [health_check]
   pipelines:
     metrics:
-      receivers: [prometheus_exec/hws-exporter]
+      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
       processors: [memory_limiter,batch,metricstransform]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice

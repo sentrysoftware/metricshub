@@ -5,7 +5,7 @@ description: A simple YAML file configures where ${project.name} must send the d
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-As a regular [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), **${project.name}** is [configurable](https://opentelemetry.io/docs/collector/configuration/):
+As a regular [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), several properties of **${project.name}** are [configurable](https://opentelemetry.io/docs/collector/configuration/):
 
 * [the source(s) of the data (`receivers`)](https://opentelemetry.io/docs/collector/configuration/#receivers)
 * [the processing of the collected data (`processors`)](https://opentelemetry.io/docs/collector/configuration/#processors)
@@ -31,7 +31,7 @@ The primary source of the data is [`prometheus_exec`](https://github.com/open-te
 
 There is no need to edit this section, unless you need to configure the internal **Hardware Sentry Exporter for Prometheus** to use a different configuration file than the default one.
 
-You declare multiple instances of `prometheus_exec`, which will run separate instances of **Hardware Sentry Exporter for Prometheus**, each on a different port. You will need to specify alternate configuration files are ports, as in the example below:
+You declare multiple instances of `prometheus_exec`, which will run separate instances of **Hardware Sentry Exporter for Prometheus**, each on a different port. You will need to specify alternate configuration files and ports, as in the example below:
 
 ```yaml
   prometheus_exec/hws-exporter-1:
@@ -54,7 +54,7 @@ service:
 
 ### OpenTelemetry Collector Internal Exporter for Prometheus
 
-An optional source of data *OpenTelemetry Collector*'s own internal *Exporter for Prometheus*, which runs on port 8888 (this is not configurable). This exporter provides internal metrics about the collector activity (see [Health Check](../troubleshooting/status.md)). It's referred to as `prometheus/internal` in the pipeline and leverages the [stndard `prometheus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver).
+*OpenTelemetry Collector*'s own internal *Exporter for Prometheus*, which runs on port **TCP/8888** (this is not configurable), is an optional source of data. This exporter provides internal metrics about the collector activity (see [Health Check](../troubleshooting/status.md)). It's referred to as `prometheus/internal` in the pipeline and leverages the [standard `prometheus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver).
 
 ```yaml
   prometheus/internal:
@@ -70,17 +70,17 @@ An optional source of data *OpenTelemetry Collector*'s own internal *Exporter fo
 
 By default, the collected metrics go through 3 processors:
 
-* [`memory_limiter`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor), to limit the memory consumed by the *OpenTelemetry Collector* process (configurable)
-* [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batch of 10 seconds (configurable)
+* [`memory_limiter`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor) to limit the memory consumed by the *OpenTelemetry Collector* process (configurable)
+* [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batches of 10 seconds (configurable)
 * [`metricstransform`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor) to enrich the collected metrics
 
-This `metricstransform` processor is particularly useful when the receiving platform requires specific labels on the metrics that are not set by default by the **Hardware Sentry Exporter for Prometheus**. The `metricstransform` processor has [many options to add, rename, delete labels and metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor).
+This `metricstransform` processor is particularly useful when the receiving platform requires specific labels on the metrics that are not set by default by **Hardware Sentry Exporter for Prometheus**. The `metricstransform` processor has [many options to add, rename, delete labels and metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor).
 
 Note that **Hardware Sentry Exporter for Prometheus** can also be configured to [add additional labels to the collected metrics](configure-exporter.md).
 
 ## Exporters
 
-This section defines the destination of collected metrics. **${project.name}** version **${project.version}** includes support for the below exporters:
+The `exporters` section defines the destination of collected metrics. **${project.name}** version **${project.version}** includes support for the below exporters:
 
 * [OLTP/HTTP](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlphttpexporter/README.md)
 * [OLTP/gRPC](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlpexporter/README.md)
@@ -89,7 +89,7 @@ This section defines the destination of collected metrics. **${project.name}** v
 
 You can configure several exporters in the same instance of the *OpenTelemetry Collector* so the collected metrics are sent to multiple platforms.
 
-How to configure these exporters is documented at the above links and in the dedicated integration pages:
+Use the above links to learn how to configure these exporters. Specific integration scenarios are also described for:
 
 * [Prometheus Server](../integration/prometheus.md)
 * [BMC Helix](../integration/helix.md)
@@ -107,4 +107,3 @@ service:
       processors: [memory_limiter,batch,metricstransform]
       exporters: [prometheusremotewrite/your-server]
 ```
-

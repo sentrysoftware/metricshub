@@ -33,7 +33,7 @@ $ curl http://localhost:13133
 
 ## Internal Exporter
 
-The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to is operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
+The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to its operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
 
 These metrics can be scraped with a *Prometheus Server*, or simply visualized in browser by connecting to `http://localhost:8888`.
 

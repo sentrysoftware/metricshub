@@ -147,11 +147,11 @@ The service will appear as below in **services.msc**:
 
 ## Verify
 
-To verify **${project.name}** is properly running, [read the Health Check section](troubleshooting/status.md).
+To verify that **${project.name}** is properly running, [read the Health Check section](troubleshooting/status.md).
 
 ## Ports and Firewalls
 
-**${project.name}** opens several TCP port for listening. None of these ports need to be open to the outside network, as they are used internally only.
+**${project.name}** opens several TCP ports for listening. None of these ports need to be open to the outside network, as they are used internally only.
 
 | Component | Port | Required |
 |---|---|---|
