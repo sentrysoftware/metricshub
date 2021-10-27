@@ -132,7 +132,7 @@ Use the parameters below to configure the SSH protocol:
 | Parameter       | Description                                                                                                                                           |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ssh             | Protocol used to access the target.                                                                                                                   |
-| timeout         | How long until the command times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout         | How long until the command times out (default: 120s). |
 | useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                          |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                              |
@@ -168,7 +168,7 @@ Use the parameters below to configure the SNMP protocol:
 | version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).                                                                               |
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                                                                        |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).                                                                                     |
-| timeout          | How long until the SNMP request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout          | How long until the SNMP request times out (default: 120s). |
 | privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).                                                                                    |
 | privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                                                                                         |
 | username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                                                                                           |
@@ -220,7 +220,7 @@ Use the parameters below to configure the WBEM protocol:
 | wbem      | Protocol used to access the target.                                                                                                                   |
 | protocol  | The protocol used to access the target.                                                                                                               |
 | port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).                                                        |
-| timeout   | How long until the WBEM request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout   | How long until the WBEM request times out (default: 120s). |
 | username  | Name used to establish the connection with the target via the WBEM protocol.                                                                          |
 | password  | Password used to establish the connection with the target via the WBEM protocol.                                                                      |
 
@@ -247,7 +247,7 @@ Use the parameters below to configure the WMI protocol:
 | Parameter | Description                                                                                                                                          |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | wmi       | Protocol used to access the target.                                                                                                                  |
-| timeout   | How long until the WMI request times out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout   | How long until the WMI request times out (default: 120s). |
 | username  | Name used to establish the connection with the target via the WMI protocol.                                                                          |
 | password  | Password used to establish the connection with the target via the WMI protocol.                                                                      |
 
@@ -329,7 +329,7 @@ By default, **${project.name}** collects metrics from the monitored targets ever
       collectPeriod: 1m30s # Customized
     ```
 
-There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape internal** to avoid gaps or duplicate points, which would affect rate calculations.
+There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape interval** to avoid gaps or duplicate points, which would affect rate calculations.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause CPU-intensive workloads.</div>
 
