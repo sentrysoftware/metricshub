@@ -23,7 +23,7 @@ receivers:
   prometheus_exec/hws-exporter:
     exec: "\"bin\\hws-exporter.cmd\" --target.config.file=\"config\\hws-config.yaml\" --server.port={{port}}"
     port: 24375
-    scrape_interval: 60s
+    scrape_interval: 2m
 
   # prometheus
   # Polls the internal Prometheus Exporter embedded with the OpenTelemetry Collector on port 8888

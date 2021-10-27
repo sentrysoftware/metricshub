@@ -1,7 +1,15 @@
-keywords: grafana, dashboards, packages, loading, configuration, windows, linux, unix, dashboard provider, data source
-description: How to import and configure Hardware Sentry Exporter for Prometheus built-in Grafana dashboards.
+keywords: grafana, dashboard, sustainable, sustainability, green
+description: How to import and configure Hardware Sentry's Sustainable IT Dashboards for Grafana.
 
 # Grafana Dashboards
+
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
+[Grafana](https://grafana.com/) can easily display the metrics collected by **${project.name}** and stored in a Prometheus Server. Sentry Software provides pre-built **Sustainable IT** dashboards that leverage these metrics to report on the health of the hardware of the monitored systems, and on the carbon emissions of these systems:
+
+![**${project.name}** Sustainable IT Dashboard](../images/grafana-sustainable-it.png)
+
+## Prerequisites
 
 Before you can start configuring and using **${project.name}** dashboards, you must have:
 
@@ -11,7 +19,7 @@ Before you can start configuring and using **${project.name}** dashboards, you m
 
 ## Loading Dashboards in Grafana
 
-First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from <a href="https://www.sentrysoftware.com/downloads/products-for-prometheus.html" target="_blank">Sentry Software’s Web site</a>. The package contains:
+First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html). The package contains:
 
 ![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
 
@@ -44,19 +52,21 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 
 Example:
 
-    apiVersion: 1
+```yaml
+apiVersion: 1
 
-    providers:
-    - name: 'Sentry Software'
-        orgId: 1
-        folder: 'Sustainable IT by Sentry Software'
-        folderUid: ''
-        type: file
-        updateIntervalSeconds: 60
-        allowUiUpdates: true
-        options:
-        path: 'C:/Program Files/GrafanaLabs/grafana/public/dashboards'
-        foldersFromFilesStructure: true
+providers:
+- name: 'Sentry Software'
+    orgId: 1
+    folder: 'Sustainable IT by Sentry Software'
+    folderUid: ''
+    type: file
+    updateIntervalSeconds: 60
+    allowUiUpdates: true
+    options:
+    path: 'C:/Program Files/GrafanaLabs/grafana/public/dashboards'
+    foldersFromFilesStructure: true
+```
 
 <div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT</i> folder. This folder should only contain dashboards for Grafana.</div>
 
@@ -73,38 +83,38 @@ The dashboards for Grafana query the Prometheus server to display the status of 
 
  Example:
 
-    # config file version
-    apiVersion: 1
+```yaml
+# config file version
+apiVersion: 1
 
-    datasources:
-      # <string, required> name of the datasource. Required
-    - name: hardware_sentry_prometheus
-      # <string, required> datasource type. Required
-      type: prometheus
-      # <string, required> access mode. direct or proxy. Required
-      access: proxy
-      # <int> org id. will default to orgId 1 if not specified
-      orgId: 1
-      # <string> url
-      url: http://myhost-01:9090
-      # <string> database password, if used
-      password:
-      # <string> database user, if used
-      user:
-      # <string> database name, if used
-      database:
-      # <bool> enable/disable basic auth
-      basicAuth: false
-      # <string> basic auth username, if used
-      basicAuthUser:
-      # <string> basic auth password, if used
-      basicAuthPassword:
-      # <bool> enable/disable with credentials headers
-      withCredentials:
-      # <bool> mark as default datasource. Max one per org
-      isDefault: true
-      version: 1
-      # <bool> allow users to edit datasources from the UI.
-      editable: true
-
-![**${project.name}** Sustainable IT Dashboard](../images/dashboard_all_zones.png)
+datasources:
+  # <string, required> name of the datasource. Required
+- name: hardware_sentry_prometheus
+  # <string, required> datasource type. Required
+  type: prometheus
+  # <string, required> access mode. direct or proxy. Required
+  access: proxy
+  # <int> org id. will default to orgId 1 if not specified
+  orgId: 1
+  # <string> url
+  url: http://myhost-01:9090
+  # <string> database password, if used
+  password:
+  # <string> database user, if used
+  user:
+  # <string> database name, if used
+  database:
+  # <bool> enable/disable basic auth
+  basicAuth: false
+  # <string> basic auth username, if used
+  basicAuthUser:
+  # <string> basic auth password, if used
+  basicAuthPassword:
+  # <bool> enable/disable with credentials headers
+  withCredentials:
+  # <bool> mark as default datasource. Max one per org
+  isDefault: true
+  version: 1
+  # <bool> allow users to edit datasources from the UI.
+  editable: true
+```
