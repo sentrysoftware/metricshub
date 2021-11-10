@@ -106,7 +106,7 @@ Use the parameters below to configure OS Commands:
 | Parameter       | Description                                                                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | osCommand       | Protocol used to access the target.                                                                                                                       |
-| timeout         | How long until the local OS Commands time out (default: 120s). See [Configuring Timeout Durations](#Configuring_Timeout_Durations) for available options. |
+| timeout         | How long until the local OS Commands time out (default: 120s).|
 | useSudo         | Whether sudo is used or not for the local OS Command (true or false).                                                                                     |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                              |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                                  |

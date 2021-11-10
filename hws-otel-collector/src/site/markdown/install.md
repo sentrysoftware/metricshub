@@ -81,7 +81,7 @@ You can start the **${project.name}** with an alternate configuration file with 
 
 ```shell-session
 /$ cd /usr/local/hws-otel-collector
-/usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
+/usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/otel-config.yaml
 ```
 
 ## On Windows
@@ -123,7 +123,7 @@ This will start the **${project.name}** with the default *OpenTelemetry Collecto
 You can start the **${project.name}** with an alternate configuration file with the below command:
 
 ```batch
-"c:\Program Files\hws-otel-collector\bin\hws-otel" --config "c:\Program Files\hws-otel-collector\bin\hws-otel\config\my-otel-config.yaml"
+"c:\Program Files\hws-otel-collector\bin\hws-otel" --config "c:\Program Files\hws-otel-collector\bin\hws-otel\config\otel-config.yaml"
 ```
 
 ### Start As a Service
@@ -135,7 +135,7 @@ Download and install the [very latest version of NSSM](https://nssm.cc/download)
 Run the below command to create the service (assuming the product has been installed in **c:\Program Files**):
 
 ```batch
-nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" --config """c:\Program Files\hws-otel-collector\config\otel-config.yaml"""
+nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" --config "c:\Program Files\hws-otel-collector\config\otel-config.yaml"
 nssm set hws-otel AppDirectory "c:\Program Files\hws-otel-collector"
 nssm set hws-otel DisplayName "Hardware Sentry OpenTelemetry Collector"
 nssm set hws-otel Start SERVICE_AUTO_START
