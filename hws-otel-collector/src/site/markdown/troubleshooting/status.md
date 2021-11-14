@@ -3,6 +3,8 @@ description: There are several ways to easily assess the status of ${project.nam
 
 # Health Check
 
+General troubleshooting information is [available in the OpenTelemetry Collector's Troubleshooting Guide](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md).
+
 ## Processes
 
 When running properly, **${project.name}** has 2 processes running:
@@ -18,7 +20,7 @@ On Windows, if you configured **${project.name}** to run as a service, you will 
 
 The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which runs on port 13133 by default.
 
-To check the status of **${project.name}**, you can therefore use your browser to connect to `http://localhost:13133`, which will typically responds with:
+To check the status of **${project.name}**, you can therefore use your browser to connect to [`http://localhost:13133`](http://localhost:13133), which will typically responds with:
 
 ```json
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h12m21.5832293s"}
@@ -31,7 +33,16 @@ $ curl http://localhost:13133
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h13m33.8777673s"}
 ```
 
-## Internal Exporter
+## zPages
+
+The **${project.name}** includes the [zPages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension) extension, which runs on port 55679 by default.
+
+To check the status of OpenTelemetry Collector pipelines, you can use your browser to connect to:
+* [`http://localhost:55679/debug/servicez`](http://localhost:55679/debug/servicez) for general information on the Collector
+* [`http://localhost:55679/debug/pipelinez`](http://localhost:55679/debug/pipelinez) for details on the active pipeline
+* [`http://localhost:55679/debug/tracez`](http://localhost:55679/debug/tracez) for activity details of each receiver and exporter in the pipeline
+
+## Internal Otel Exporter
 
 The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to its operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
 
@@ -67,7 +78,7 @@ otelcol_process_runtime_total_sys_memory_bytes{service_instance_id="xxxxxxxxx-xx
 
 The above processor time utilization and memory consumption metrics pertain to the `hws-otel-collector` process only, and do not represent the activity of the internal **Hardware Sentry Exporter for Prometheus** (on port 24375).
 
-You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the config/otel-config.yaml configuration file](../configuration/configure-otel.md) with:
+You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the config/otel-config.yaml configuration file](../configuration/configure-otel.md) to add `prometheus/internal` in the list of receivers:
 
 ```yaml
 # [...]

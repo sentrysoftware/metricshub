@@ -38,7 +38,7 @@
 
 		<menu name="Troubleshooting">
 			<item name="Health Check" href="troubleshooting/status.html" />
-			<item name="Enabling Debug Mode" href="troubleshooting/debug.html" />
+			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="Hardware Sentry CLI (&lt;code&gt;hws&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
 

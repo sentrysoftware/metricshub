@@ -1,42 +1,136 @@
 keywords: debug, prometheus exporter, hardware
-description: How to enable the debug mode on Hardware Sentry Exporter for Prometheus
+description: There are several options to debug ${project.name} and troubleshoot its activity.
 
-# Enabling the debug mode
+# Debugging
 
-To enable the debug mode, edit the `hws-config.yaml` file and add the `loggerLevel` parameter just before the `targets` section:
+As there are 2 separate processes in **${project.name}**, there are 2 separate debugging mechanisms. Depending on the issue you're experiencing, you may need to troubleshoot one or the other of these main components:
 
+1. **OpenTelemetry Collector**, which is in charge of launching the core engine (**Hardware Sentry Exporter for Prometheus**), extracting its data and pushing them to the destination.
+2. **Hardware Sentry Exporter for Prometheus**, a Java process that performs the actual hardware monitoring, connecting to each of the monitored hosts and retrieving information about their hardware components.
+
+If you're not getting any data at all at the destination framework, you are probably facing issues with the *Collector*. If some data is missing (the monitoring coverage is incomplete), it's more likely a problem with the core engine.
+
+## OpenTelemetry Collector
+
+When run through the `bin\hws-otel` shell script or `bin\hws-otel.cmd` batch file, **${project.name}** writes details about its operations (from intialization, to pipeline, to termination) to the **logs/otel.log** file.
+
+This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed-up as **otel~1.log**, **otel~2.log** and **otel~3.log** (**~1** being the most recent and **~3** the oldest).
+
+The level of details in **logs/otel.log** is configured in **config/otel-config.yaml**. Set the log level to `error`, `warn`, `info` (default), or `debug` to get more details as in the below example:
+
+```yaml
+service:
+  telemetry:
+    logs:
+      level: debug
+  extensions: [health_check]
+  pipelines:
+  # [...]
 ```
+
+You need to restart the *Collector* for these new settings to be taken into account.
+
+### What to Look for in otel.log
+
+The first critical task the the *Collector* has to complete is to launch the Java process of the **Hardware Sentry Exporter for Prometheus** through the `prometheusexecreceiver`. Check in **logs/otel.log** that the sub-process is properly started and did not encounter any issue:
+
+```log
+2021-11-14T23:36:12.649+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "? ??????????? ??????????  ???????????????? ?"}
+2021-11-14T23:36:12.651+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "????????? ?????????????   ????? ??? ? ??????"}
+2021-11-14T23:36:12.651+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "? ?? ??????????? ???????  ????????? ? ??? ?"}
+2021-11-14T23:36:12.651+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "Copyright \ufffd Sentry Software"}
+2021-11-14T23:36:12.802+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[36m[2021-11-14T23:36:12,802][INFO ][c.s.h.p.HardwareSentryPrometheusApp] Starting HardwareSentryPrometheusApp using Java 11.0.7 on AGENT007 with PID 25536 (C:\\Program Files\\hws-otel-collector\\lib\\hardware-sentry-exporter-1.0.jar started by jbond in c:\\Program Files\\hws-otel-collector)"}
+2021-11-14T23:36:12.822+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[m\u001b[32m[2021-11-14T23:36:12,822][DEBUG][c.s.h.p.HardwareSentryPrometheusApp] Running with Spring Boot v2.4.5, Spring v1.0"}
+2021-11-14T23:36:12.823+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[m\u001b[36m[2021-11-14T23:36:12,823][INFO ][c.s.h.p.HardwareSentryPrometheusApp] No active profile set, falling back to default profiles: default"}
+2021-11-14T23:36:15.570+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[m\u001b[36m[2021-11-14T23:36:15,570][INFO ][o.s.b.w.e.t.TomcatWebServer] Tomcat initialized with port(s): 24375 (http)"}
+2021-11-14T23:36:15.755+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[m\u001b[32m[2021-11-14T23:36:15,755][DEBUG][c.s.h.p.c.BackendCorsFilter] Filter 'backendCorsFilter' configured for use"}
+2021-11-14T23:36:18.315+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "\u001b[m\u001b[36m[2021-11-14T23:36:18,312][INFO ][o.s.b.w.e.t.TomcatWebServer] Tomcat started on port(s): 24375 (http) with context path ''"}
+```
+
+The standard output of the core engine is displayed in the JSON `output` property, which makes it a little harder to the human eye, unfortunately. But as long as you see the output of the Java process, starting Tomcat on the configured port with no configuration errors, you will not need to examine this output more in details.
+
+The **logs/otel.log** file will also include details about the processing steps and the connection to the output framework (Prometheus, BMC Helix, etc.). Any connection issue of authentication failures with the outside will be displayed in this log file.
+
+### Getting More Details About the Exported Data
+
+By default, details about the collected metrics is not displayed in **logs/otel.log**. To see which metrics, which labels and values are sent by the *Collector*, you need to enable the `logging` exporter in **config/otel-config.yaml**.
+
+Make sure the `logging` exporter is listed under `exporters` with log level set to `debug`:
+
+```yaml
+exporters:
+# [...]
+  logging:
+    loglevel: debug
+```
+
+Then add `logging` to the metrics exporters in the pipeline:
+
+```yaml
+service:
+  pipelines:
+    metrics:
+      receivers: # receivers
+      processors: # processors
+      exporters: [prometheusremotewrite/your-server,logging] # <-- added logging
+```
+
+Restart the *Collector* for the configuration to be taken into account.
+
+The `logging` exporter acts as a regular exporter (like the Prometheus exporter, for example) and outputs all metrics going through the pipeline. Details about the metric name, its labels and value is displayed in **logs/otel.log**. This allows you to verify that the accuracy of the collected metrics before being sent to the receiving framework, and that the configured processors did not alter the data.
+
+Do not leave the `logging` exporter enabled for too long as it's verbose and may affect the overall performance of *Collector* while filling up your file system.
+
+If you are monitoring a large number of systems with one *Collector*, you may get overwhelmed by the quantity of data in the logs. Do not hesitate to configure `filter` processor to keep only certains metrics in the output as in the example below:
+
+```yaml
+processors:
+  filter/keep1HostOnly:
+    metrics:
+      include:
+        match_type: expr
+        expressions:
+        - Label("fqdn") == "my-server.big-corp.com"
+```
+
+Do not forget to declare the `filter/keep1HostOnly` processor in the pipeline and restart the *Collector*:
+
+```yaml
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
+      processors: [memory_limiter,batch,filter/keep1HostOnly] # <-- added filter
+      exporters: # exporters
+```
+
+Also, do not forget to remove the `filter` processor from your pipeline once the troubleshooting is completed.
+
+## Hardware Sentry Exporter for Prometheus
+
+To enable the debug mode of the core engine, edit the **config/hws-config.yaml** file and add the `loggerLevel` property as in the below example:
+
+```yaml
 loggerLevel: debug
 targets:
 - target:
-    hostname: myhost
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
+    # [...]
 ```
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
 
-By default, the debug output file is saved in the `hardware-logs` directory under the temporary directory of the local machine, which is:
+By default, the debug output file is saved in the **hardware-logs** directory under the temporary directory of the local machine, which is:
 
-* `C:\Users\<username>\AppData\Local\Temp\hardware-logs` on Windows
-* `/tmp/hardware-logs` on Linux.
+* **C:\Users\<username>\AppData\Local\Temp\hardware-logs** on Windows
+* **/tmp/hardware-logs** on Linux.
 
-If you want to specify another output directory, edit the `hws-config.yaml` file and add the `outputDirectory` parameter just before the `targets` section:
+If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `targets` section:
 
-```
+```yaml
 loggerLevel: debug
-outputDirectory: C:\\Users\\<username>\\AppData\\Local\\Temp\\hardware-logs2021
+outputDirectory: C:\Users\<username>\AppData\Local\Temp\hardware-logs2021
+
 targets:
 - target:
-    hostname: myhost
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
+    # [...]
 ```
