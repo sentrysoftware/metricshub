@@ -16,7 +16,7 @@ Make sure both processes are running.
 
 On Windows, if you configured **${project.name}** to run as a service, you will need to verify the status of that service.
 
-## Health Check Endpoint
+## Health Check endpoint
 
 The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which runs on port 13133 by default.
 

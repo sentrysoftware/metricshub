@@ -12,7 +12,7 @@ If you're not getting any data at all at the destination framework, you are prob
 
 ## OpenTelemetry Collector
 
-When run through the `bin\hws-otel` shell script or `bin\hws-otel.cmd` batch file, **${project.name}** writes details about its operations (from intialization, to pipeline, to termination) to the **logs/otel.log** file.
+When run through the `bin\hws-otel` shell script or `bin\hws-otel.cmd` batch file, **${project.name}** writes details about its operations (from initialization, to pipeline, to termination) to the **logs/otel.log** file.
 
 This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed-up as **otel~1.log**, **otel~2.log** and **otel~3.log** (**~1** being the most recent and **~3** the oldest).
 
@@ -30,9 +30,9 @@ service:
 
 You need to restart the *Collector* for these new settings to be taken into account.
 
-### What to Look for in otel.log
+### What to look for in otel.log
 
-The first critical task the the *Collector* has to complete is to launch the Java process of the **Hardware Sentry Exporter for Prometheus** through the `prometheusexecreceiver`. Check in **logs/otel.log** that the sub-process is properly started and did not encounter any issue:
+The first critical task the *Collector* has to complete is to launch the Java process of the **Hardware Sentry Exporter for Prometheus** through the `prometheusexecreceiver`. Check in **logs/otel.log** that the sub-process is properly started and did not encounter any issue:
 
 ```log
 2021-11-14T23:36:12.649+0100 info subprocessmanager/manager.go:102 subprocess output line {"kind": "receiver", "name": "prometheus_exec/hws-exporter", "output": "? ??????????? ??????????  ???????????????? ?"}
@@ -51,7 +51,7 @@ The standard output of the core engine is displayed in the JSON `output` propert
 
 The **logs/otel.log** file will also include details about the processing steps and the connection to the output framework (Prometheus, BMC Helix, etc.). Any connection issue of authentication failures with the outside will be displayed in this log file.
 
-### Getting More Details About the Exported Data
+### Getting more details about the exported data
 
 By default, details about the collected metrics is not displayed in **logs/otel.log**. To see which metrics, which labels and values are sent by the *Collector*, you need to enable the `logging` exporter in **config/otel-config.yaml**.
 
@@ -79,9 +79,9 @@ Restart the *Collector* for the configuration to be taken into account.
 
 The `logging` exporter acts as a regular exporter (like the Prometheus exporter, for example) and outputs all metrics going through the pipeline. Details about the metric name, its labels and value is displayed in **logs/otel.log**. This allows you to verify that the accuracy of the collected metrics before being sent to the receiving framework, and that the configured processors did not alter the data.
 
-Do not leave the `logging` exporter enabled for too long as it's verbose and may affect the overall performance of *Collector* while filling up your file system.
+Do not leave the `logging` exporter enabled for too long as its output is verbose and may affect the overall performance of *Collector* while filling up your file system.
 
-If you are monitoring a large number of systems with one *Collector*, you may get overwhelmed by the quantity of data in the logs. Do not hesitate to configure `filter` processor to keep only certains metrics in the output as in the example below:
+If you are monitoring a large number of systems with one *Collector*, you may get overwhelmed by the quantity of data in the logs. Do not hesitate to configure the `filter` processor to keep only certain metrics in the output as in the example below:
 
 ```yaml
 processors:
@@ -93,7 +93,7 @@ processors:
         - Label("fqdn") == "my-server.big-corp.com"
 ```
 
-Do not forget to declare the `filter/keep1HostOnly` processor in the pipeline and restart the *Collector*:
+Declare the `filter/keep1HostOnly` processor in the pipeline and restart the *Collector*:
 
 ```yaml
 service:
@@ -104,7 +104,7 @@ service:
       exporters: # exporters
 ```
 
-Also, do not forget to remove the `filter` processor from your pipeline once the troubleshooting is completed.
+Remove the `filter` processor from your pipeline once the troubleshooting is completed.
 
 ## Hardware Sentry Exporter for Prometheus
 
