@@ -19,7 +19,7 @@ Before you can start configuring and using **${project.name}** dashboards, you m
 
 ## Loading Dashboards in Grafana
 
-First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-prometheus.html). The package contains:
+First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00). The package contains:
 
 ![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
 
