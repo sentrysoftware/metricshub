@@ -35,6 +35,6 @@ targets:
 
 On first use, the `hws-encrypt` command will create the **security/hws-keystore.p12** file to store a unique and random *master password*. This *master password* is used to encrypt passwords with `hws-encrypt`, and decrypt them from **config/hws-config.yaml**.
 
-The **hws-keystore.p12** file must not be modified, as this would prevent decryption from working. Any password encrypted with a given **hws-keystore.p12** *master password* must be decrypted with the exact same *hws-encrypt.p12* file.
+The **hws-keystore.p12** file must not be modified, as this would prevent decryption from working. Any password encrypted with a given **hws-keystore.p12** *master password* must be decrypted with the exact same **hws-encrypt.p12** file.
 
 The **hws-keystore.p12** file can be shared across several hosts so a password encrypted on one system can be decrypted on another. Simply copy the **hws-keystore.p12** file to the **security** directory. This will make **${project.name}** able to decrypt the passwords.

@@ -26,7 +26,7 @@ The primary source of the data is [`prometheus_exec`](https://github.com/open-te
 
 ```yaml
   prometheus_exec/hws-exporter:
-    exec: "\"bin/hws-exporter\" --target.config.file=\"config/hws-config.yaml\" --server.port={{port}}"
+    exec: "\"bin/hws-exporter\" --target.config.file=\"config/hws-config.yaml\" --server.port={{port} }"
     port: 24375
     scrape_interval: 2m
 ```

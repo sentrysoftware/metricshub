@@ -81,7 +81,7 @@ You can start the **${project.name}** with an alternate configuration file with 
 
 ```shell-session
 /$ cd /usr/local/hws-otel-collector
-/usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/otel-config.yaml
+/usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
 ```
 
 ## On Windows
