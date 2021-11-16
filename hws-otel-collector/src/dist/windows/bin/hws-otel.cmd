@@ -45,6 +45,7 @@ set "DEFAULT_ARGS=--config config\otel-config.yaml"
 
 :exec
 @pushd "%HWS_HOME%"
+if not exist logs mkdir logs
 move /Y logs\otel~2.log logs\otel~3.log > nul 2> nul
 move /Y logs\otel~1.log logs\otel~2.log > nul 2> nul
 move /Y logs\otel.log logs\otel~1.log > nul 2> nul
