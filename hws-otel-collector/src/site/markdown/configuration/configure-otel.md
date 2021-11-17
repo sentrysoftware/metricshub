@@ -56,7 +56,7 @@ service:
 
 ### OpenTelemetry Collector Internal Exporter for Prometheus
 
-*OpenTelemetry Collector*'s own internal *Exporter for Prometheus*, which runs on port **TCP/8888** (this is not configurable), is an optional source of data. This exporter provides internal metrics about the collector activity (see [Health Check](../troubleshooting/status.md)). It's referred to as `prometheus/internal` in the pipeline and leverages the [standard `prometheus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver).
+*OpenTelemetry Collector*'s own internal *Exporter for Prometheus*, which runs on port **TCP/8888** (this is configurable with the `--metrics-addr 0.0.0.0:8888` argument), is an optional source of data. This exporter provides internal metrics about the collector activity (see [Health Check](../troubleshooting/status.md)). It's referred to as `prometheus/internal` in the pipeline and leverages the [standard `prometheus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver).
 
 ```yaml
   prometheus/internal:
@@ -73,6 +73,7 @@ service:
 By default, the collected metrics go through 3 processors:
 
 * [`memory_limiter`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor) to limit the memory consumed by the *OpenTelemetry Collector* process (configurable)
+* [`filter`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) to filter the metrics
 * [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batches of 10 seconds (configurable)
 * [`metricstransform`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor) to enrich the collected metrics
 
@@ -88,6 +89,7 @@ The `exporters` section defines the destination of collected metrics. **${projec
 * [OLTP/gRPC](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlpexporter/README.md)
 * [`prometheusremotewrite`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter)
 * [Datadog Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter)
+* [logging](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter)
 
 You can configure several exporters in the same instance of the *OpenTelemetry Collector* so the collected metrics are sent to multiple platforms.
 

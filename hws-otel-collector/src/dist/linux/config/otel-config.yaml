@@ -49,6 +49,18 @@ processors:
     limit_mib: 2000
     spike_limit_mib: 400
 
+  # filter
+  # Filtering of the metrics. You can specify several filter configurations.
+  # Filtering options are described at:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor
+  # Don't forget to add your filter entries (e.g. "filter/1") to the pipeline in the processors array to activate it.
+  filter/keep1HostOnly:
+    metrics:
+      include:
+        match_type: expr
+        expressions:
+        - Label("fqdn") == "my-server.big-corp.com"
+
   # batch
   # Processes and sends data in batch of 10s. See:
   # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor
@@ -94,6 +106,12 @@ exporters:
     api:
       key: <apikey> # Check your Datadog's Organization Settings
 
+  ## Logging
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter
+  logging:
+    loglevel: debug
+
+
 # EXTRAS
 extensions:
 
@@ -101,8 +119,15 @@ extensions:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension
   health_check:
 
+  # zPages
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension
+  zpages:
+
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:
+  telemetry:
+    logs:
+      level: info # Change to debug more more details
   extensions: [health_check]
   pipelines:
     metrics:

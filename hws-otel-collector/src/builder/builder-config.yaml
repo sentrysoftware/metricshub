@@ -9,6 +9,7 @@ receivers:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v${otelVersion}"
 processors:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v${otelVersion}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v${otelVersion}"
 exporters:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion}"

@@ -52,7 +52,11 @@ fi
 
 # Execute
 cd "$HWS_HOME"
-exec "bin/${project.artifactId}" $DEFAULT_ARG1 $DEFAULT_ARG2 $@
+/usr/bin/mkdir -p logs > /dev/null 2>&1
+/usr/bin/mv -f logs/otel~2.log logs/otel~3.log > /dev/null 2>&1
+/usr/bin/mv -f logs/otel~1.log logs/otel~2.log > /dev/null 2>&1
+/usr/bin/mv -f logs/otel.log logs/otel~1.log > /dev/null 2>&1
+exec "bin/${project.artifactId}" $DEFAULT_ARG1 $DEFAULT_ARG2 $@ > logs/otel.log 2>&1
 
 # Go back to where we were
 cd "$saveddir"

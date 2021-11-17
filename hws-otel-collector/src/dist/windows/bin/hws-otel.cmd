@@ -45,7 +45,11 @@ set "DEFAULT_ARGS=--config config\otel-config.yaml"
 
 :exec
 @pushd "%HWS_HOME%"
-bin\${project.artifactId}.exe %DEFAULT_ARGS% %*
+if not exist logs mkdir logs
+move /Y logs\otel~2.log logs\otel~3.log > nul 2> nul
+move /Y logs\otel~1.log logs\otel~2.log > nul 2> nul
+move /Y logs\otel.log logs\otel~1.log > nul 2> nul
+bin\${project.artifactId}.exe %DEFAULT_ARGS% %* > logs\otel.log 2>&1
 if ERRORLEVEL 1 goto error
 goto end
 
