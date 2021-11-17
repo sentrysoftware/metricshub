@@ -18,7 +18,7 @@ On Windows, if you configured **${project.name}** to run as a service, you will 
 
 ## Health Check endpoint
 
-The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which runs on port 13133 by default.
+The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which is activated by default on and runs on port 13133.
 
 To check the status of **${project.name}**, you can therefore use your browser to connect to [`http://localhost:13133`](http://localhost:13133), which will typically responds with:
 
@@ -37,7 +37,16 @@ $ curl http://localhost:13133
 
 The **${project.name}** includes the [zPages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension) extension, which runs on port 55679 by default.
 
-To check the status of OpenTelemetry Collector pipelines, you can use your browser to connect to:
+**zPages** is not activated by default. To activate it, add `zpages` to the list of extensions in the pipeline definition in **config/otel-config.yaml**, and restart the *Collector*:
+
+```yaml
+service:
+  extensions: [health_check,zpages] # <-- Added zpages
+  # [...]
+```
+
+To check the status of OpenTelemetry Collector pipelines, you can use then your browser and connect to:
+
 * [`http://localhost:55679/debug/servicez`](http://localhost:55679/debug/servicez) for general information on the Collector
 * [`http://localhost:55679/debug/pipelinez`](http://localhost:55679/debug/pipelinez) for details on the active pipeline
 * [`http://localhost:55679/debug/tracez`](http://localhost:55679/debug/tracez) for activity details of each receiver and exporter in the pipeline
