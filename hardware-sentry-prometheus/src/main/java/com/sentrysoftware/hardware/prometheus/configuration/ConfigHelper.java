@@ -1,18 +1,5 @@
 package com.sentrysoftware.hardware.prometheus.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,24 +10,37 @@ import com.sentrysoftware.hardware.prometheus.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.prometheus.dto.protocol.IProtocolConfigDTO;
 import com.sentrysoftware.hardware.prometheus.exception.BusinessException;
+import com.sentrysoftware.hardware.prometheus.service.PrometheusService;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
+import com.sentrysoftware.matrix.security.SecurityManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
 
-	public static final String DEFAULT_OUTPUT_DIRECTORY = Paths
-			.get(System.getProperty("java.io.tmpdir"), "hardware-logs")
-			.toString();
+	public static final String DEFAULT_OUTPUT_DIRECTORY = getLogsDirectory();
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -301,4 +301,37 @@ public class ConfigHelper {
 		return file.getAbsoluteFile().toPath().getParent();
 	}
 
+	/**
+	 * @return The absolute path of the logs directory
+	 */
+	public static String getLogsDirectory() {
+
+		File me;
+		try {
+			me = ResourceHelper.findSource(PrometheusService.class);
+		} catch (Exception e) {
+			throw new IllegalStateException(
+				"Error detected when getting local source file to get the logs directory.", e);
+		}
+
+		if (me == null) {
+			throw new IllegalStateException("Could not get the local source file to get the logs directory.");
+		}
+
+		final Path path = me.getAbsoluteFile().toPath();
+
+		Path parentLibPath = path.getParent();
+
+		// No parent? let's work with the current directory
+		if (parentLibPath == null) {
+			parentLibPath = path;
+		}
+
+		Path logsDirectory = parentLibPath.resolve("../logs");
+		try {
+			return Files.createDirectories(logsDirectory).toRealPath().toString();
+		} catch (IOException e) {
+			throw new IllegalStateException("Could not create logs directory " + logsDirectory + ": " + e);
+		}
+	}
 }
