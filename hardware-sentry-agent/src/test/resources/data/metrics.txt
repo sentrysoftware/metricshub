@@ -1,0 +1,21 @@
+# HELP hw_agent_info Reports agent information
+# TYPE hw_agent_info gauge
+hw_agent_info{build_number="f9435eed",hc_version="25",project_name="Hardware Sentry Agent",project_version="10",timestamp="Sep 15, 2021 at 5:27:55 PM Central European Summer Time",} 1.0
+# HELP hw_enclosure_energy_joules_total Metric: hw_enclosure_energy_joules - Unit: joules
+# TYPE hw_enclosure_energy_joules_total counter
+hw_enclosure_energy_joules_total{fqdn="targetFqdn",id="connector1.connector_enclosure_ecs_1.1",label="Enclosure ECS",parent="ecs",} 3000.0
+# HELP hw_enclosure_status Metric: hw_enclosure_status - Unit: { 0 = OK ; 1 = Degraded ; 2 = Failed }
+# TYPE hw_enclosure_status gauge
+hw_enclosure_status{fqdn="targetFqdn",id="connector1.connector_enclosure_ecs_1.1",label="Enclosure ECS",parent="ecs",} 0.0
+# HELP hw_enclosure_info Metric: hw_enclosure_info
+# TYPE hw_enclosure_info gauge
+hw_enclosure_info{bios_version="",device_id="1.1",fqdn="targetFqdn",id="connector1.connector_enclosure_ecs_1.1",identifying_information="Identifying info test",label="Enclosure ECS",model="PowerEdge R630",parent="ecs",serial_number="XXX888",type="Computer",vendor="Dell",} 1.0
+# HELP hw_fan_status Metric: hw_fan_status - Unit: { 0 = OK ; 1 = Degraded ; 2 = Failed }
+# TYPE hw_fan_status gauge
+hw_fan_status{fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.11",label="Fan 1.11",parent="connector1.connector_enclosure_ecs_1.1",} 0.0
+hw_fan_status{fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.12",label="Fan 1.12",parent="connector1.connector_enclosure_ecs_1.1",} 0.0
+# HELP hw_fan_info Metric: hw_fan_info
+# TYPE hw_fan_info gauge
+hw_fan_info{device_id="1.11",fan_type="default cooling",fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.11",identifying_information="",label="Fan 1.11",parent="connector1.connector_enclosure_ecs_1.1",} 1.0
+hw_fan_info{device_id="1.12",fan_type="default cooling",fqdn="targetFqdn",id="connector1.connector_fan_ecs_1.12",identifying_information="",label="Fan 1.12",parent="connector1.connector_enclosure_ecs_1.1",} 1.0
+

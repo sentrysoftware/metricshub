@@ -1,31 +1,9 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.common.helpers.StreamUtils;
-import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.EngineResult;
-import com.sentrysoftware.matrix.engine.OperationStatus;
-import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
-import com.sentrysoftware.matrix.engine.strategy.Context;
-import com.sentrysoftware.matrix.engine.strategy.IStrategy;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
-import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
-import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.IParameter;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.util.Assert;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,10 +23,34 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISK_CONTROLLER_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_SEPARATOR;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.util.Assert;
+
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.common.helpers.StreamUtils;
+import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.EngineResult;
+import com.sentrysoftware.matrix.engine.OperationStatus;
+import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
+import com.sentrysoftware.matrix.engine.strategy.Context;
+import com.sentrysoftware.matrix.engine.strategy.IStrategy;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
@@ -634,6 +636,20 @@ public class HostMonitoring implements IHostMonitoring {
 		}
 
 		return result == null ? null : result.getId();
+	}
+
+	/**
+	 * Extract the target monitor from the given {@link HostMonitoring}
+	 * 
+	 * @return {@link Monitor} instance ready to use
+	 */
+	public Monitor getTargetMonitor() {
+		final Map<String, Monitor> targetMonitors = selectFromType(MonitorType.TARGET);
+		if (targetMonitors == null || targetMonitors.isEmpty()) {
+			return null;
+		}
+
+		return targetMonitors.values().stream().findFirst().orElse(null);
 	}
 
 	/**

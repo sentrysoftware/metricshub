@@ -1,0 +1,26 @@
+target:
+  config:
+    file: data/hws-config.yaml
+http:
+  port: 8080
+server:
+  port: 8443
+  ssl:
+    redirect-http: false
+    enabled: true
+    key-alias: https
+    key-store: classpath:keystore/keystore.p12
+    key-store-password: Sentry
+    key-store-type: PKCS12
+trust:
+  store:
+    password: Sentry
+project:
+  name: "Hardware Sentry Agent"
+  version: "10"
+buildNumber: "f9435eed"
+timestamp: "Sep 15, 2021 at 5:27:55 PM Central European Summer Time"
+hcVersion: "25"
+spring:
+  main:
+    banner-mode: "off"

@@ -1,0 +1,66 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+	<id>dist</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<files>
+		<!-- Our shell script -->
+		<file>
+			<source>src/main/shell/bin/hws-agent</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>unix</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our Windows script -->
+		<file>
+			<source>src/main/shell/bin/hws-agent.cmd</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our shell script to encrypt passwords -->
+		<file>
+			<source>src/main/shell/bin/hws-encrypt</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>unix</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our Windows script to encrypt passwords -->
+		<file>
+			<source>src/main/shell/bin/hws-encrypt.cmd</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>windows</lineEnding>
+			<filtered>true</filtered>
+		</file>
+
+		<!-- Our JAR -->
+		<file>
+			<source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
+			<outputDirectory>lib</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+	</files>
+
+	<!-- Rest of files in /src/main/dist -->
+	<fileSets>
+		<fileSet>
+			<directory>src/main/dist</directory>
+			<outputDirectory>/</outputDirectory>
+			<fileMode>0644</fileMode>
+			<directoryMode>0644</directoryMode>
+			<lineEnding>unix</lineEnding>
+			<filtered>false</filtered>
+		</fileSet>
+	</fileSets>
+
+</assembly>

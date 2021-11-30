@@ -45,6 +45,11 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>1.7.30</slf4j-simple.version>
 		<emulation.version>2</emulation.version>
+		<openTelemetryVersion>1.9.0</openTelemetryVersion>
+		<openTelemetryAlphaVersion>1.9.0-alpha</openTelemetryAlphaVersion>
+		<grpcVersion>1.34.1</grpcVersion>
+		<protobufVersion>3.11.4</protobufVersion>
+		<protocVersion>${protobufVersion}</protocVersion>
 	</properties>
 
 	<modules>
@@ -52,7 +57,7 @@
 		<module>matrix-connectors</module>
 		<module>matrix-engine</module>
 		<module>hardware-sentry-cli</module>
-		<module>hardware-sentry-prometheus</module>
+		<module>hardware-sentry-agent</module>
 	</modules>
 
 	<!-- Activate the hws-otel-collector module... unless the nogo property is set -->
@@ -265,6 +270,46 @@
 				<groupId>org.fusesource.jansi</groupId>
 				<artifactId>jansi</artifactId>
 				<version>2.3.4</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-api</artifactId>
+				<version>${openTelemetryVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-sdk</artifactId>
+				<version>${openTelemetryVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-exporter-otlp</artifactId>
+				<version>${openTelemetryVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+				<version>${openTelemetryAlphaVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-api-metrics</artifactId>
+				<version>${openTelemetryAlphaVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-sdk-metrics</artifactId>
+				<version>${openTelemetryAlphaVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-exporter-otlp-metrics</artifactId>
+				<version>${openTelemetryAlphaVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-netty-shaded</artifactId>
+				<version>${grpcVersion}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -77,4 +77,7 @@ public interface IHostMonitoring {
 	void setPowerMeter(PowerMeter powerMeter);
 
 	Set<Monitor> findChildren(final String parentId);
+
+	Monitor getTargetMonitor();
+
 }

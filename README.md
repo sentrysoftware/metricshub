@@ -7,7 +7,7 @@ This is a multi-module project:
 * **/**: the root (parent of all submodules)
 * **connector-serializer**: a small module used to serialize connectors in the **matrix-connectors** module
 * **hardware-sentry-cli**: the CLI
-* **hardware-sentry-prometheus**: the Prometheus Exporter
+* **hardware-sentry-agent**: the Agent
 * **hws-otel-collector**: the OpenTelemetry Collector (**requires Go!**)
 * **matrix-connectors**: a pom project only to retrieve the sources of the Hardware Connector Library and serialize them as an artifact for this project
 * **matrix-engine**: the brain, the heart of this project

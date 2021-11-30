@@ -15,7 +15,7 @@
 			<unpackOptions>
 				<excludes>
 					<exclude>/bin/hws</exclude>
-					<exclude>/bin/hws-exporter</exclude>
+					<exclude>/bin/hws-agent</exclude>
 					<exclude>/bin/hws-encrypt</exclude>
 				</excludes>
 			</unpackOptions>

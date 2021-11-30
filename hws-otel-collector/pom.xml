@@ -15,7 +15,7 @@
 	<packaging>pom</packaging>
 
 	<name>Hardware Sentry OpenTelemetry Collector</name>
-	<description>A custom OpenTelemetry Collector that runs Hardware Sentry Exporter for Prometheus and exports to various formats and platforms</description>
+	<description>A custom OpenTelemetry Collector that runs Hardware Sentry Agent and exports to various formats and platforms</description>
 
 	<properties>
 
@@ -23,8 +23,7 @@
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
-		<otelBuilderVersion>0.37.0</otelBuilderVersion>
-		<otelVersion>0.38.0</otelVersion>
+		<otelVersion>0.40.0</otelVersion>
 
 		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
 		<commitId>${buildNumber}</commitId>
@@ -34,7 +33,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>hardware-sentry-exporter</artifactId>
+			<artifactId>hardware-sentry-agent</artifactId>
 			<version>${project.version}</version>
 			<classifier>dist</classifier>
 			<type>zip</type>
@@ -128,8 +127,9 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://github.com/open-telemetry/opentelemetry-collector-builder/releases/download/v${otelBuilderVersion}/opentelemetry-collector-builder_${otelBuilderVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
+							<url>https://github.com/open-telemetry/opentelemetry-collector/releases/download/cmd/builder/v${otelVersion}/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
 							<outputDirectory>${project.build.directory}/builder</outputDirectory>
+							<failOnError>false</failOnError>
 						</configuration>
 					</execution>
 				</executions>
@@ -150,7 +150,7 @@
 						</goals>
 						<configuration>
 							<target>
-								<chmod file="${project.build.directory}/builder/opentelemetry-collector-builder_${otelBuilderVersion}_${system.family}_${system.arch}${system.exeExtension}" perm="755" />
+								<chmod file="${project.build.directory}/builder/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}" perm="755" />
 							</target>
 							<skip>${chmod.skip}</skip>
 						</configuration>
@@ -190,13 +190,13 @@
 
 					<!-- Build the Windows-AMD64 collector -->
 					<execution>
-						<id>build-otel-collector</id>
+						<id>build-otel-collector-windows</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${project.build.directory}${file.separator}builder${file.separator}opentelemetry-collector-builder_${otelBuilderVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
+							<executable>${project.build.directory}${file.separator}builder${file.separator}ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
 							<workingDirectory>${project.build.directory}</workingDirectory>
 							<arguments>
 								<argument>--config</argument>
@@ -216,13 +216,13 @@
 
 					<!-- Build the Linux-AMD64 collector -->
 					<execution>
-						<id>build-otel-collector-2</id>
+						<id>build-otel-collector-linux</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${project.build.directory}${file.separator}builder${file.separator}opentelemetry-collector-builder_${otelBuilderVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
+							<executable>${project.build.directory}${file.separator}builder${file.separator}ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
 							<workingDirectory>${project.build.directory}</workingDirectory>
 							<arguments>
 								<argument>--config</argument>
@@ -365,7 +365,7 @@
 				</reportSets>
 				<configuration>
 					<jql><![CDATA[
-					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
+					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core, Agent) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
 				]]></jql>
 				</configuration>
 			</plugin>
