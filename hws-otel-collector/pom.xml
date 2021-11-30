@@ -129,7 +129,6 @@
 						<configuration>
 							<url>https://github.com/open-telemetry/opentelemetry-collector/releases/download/cmd/builder/v${otelVersion}/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
 							<outputDirectory>${project.build.directory}/builder</outputDirectory>
-							<failOnError>false</failOnError>
 						</configuration>
 					</execution>
 				</executions>
