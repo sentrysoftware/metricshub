@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocessextension
+module github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocess
 
 go 1.17
 
