@@ -48,21 +48,22 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 		// the monitor as instrumentation library
 		final Meter meter = getMeter();
 
-		if (type.equals(MetricType.GAUGE)) {
+		if (type.equals(MetricType.COUNTER)) {
+			// Sum (Counter)
+			meter
+				.counterBuilder(metricInfo.getName() + "_total")
+				.setDescription(metricInfo.getDescription())
+				.setUnit(metricInfo.getUnit())
+				.ofDoubles()
+				.buildWithCallback(recorder -> observe(monitor, recorder));
+
+		} else {
 			// Gauge
 			meter
 				.gaugeBuilder(metricInfo.getName())
 				.setDescription(metricInfo.getDescription())
 				.setUnit(metricInfo.getUnit())
 				.ofLongs()
-				.ofDoubles()
-				.buildWithCallback(recorder -> observe(monitor, recorder));
-		} else {
-			// Sum (Counter)
-			meter
-				.counterBuilder(metricInfo.getName() + "_total")
-				.setDescription(metricInfo.getDescription())
-				.setUnit(metricInfo.getUnit())
 				.ofDoubles()
 				.buildWithCallback(recorder -> observe(monitor, recorder));
 		}
