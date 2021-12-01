@@ -13,7 +13,6 @@
 // limitations under the License.
 
 //go:build linux
-// +build linux
 
 package subprocess
 
@@ -21,6 +20,12 @@ import (
 	"os/exec"
 	"syscall"
 )
+
+// Linux version of exec.Command(...)
+// Compiles on Linux only
+func execCommand(commandLine string, args []string) *exec.Cmd {
+	return exec.Command(commandLine, args...)
+}
 
 func applyOSSpecificCmdModifications(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{

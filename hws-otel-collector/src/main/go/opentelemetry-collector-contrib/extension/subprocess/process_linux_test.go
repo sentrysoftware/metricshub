@@ -31,7 +31,7 @@ import (
 
 const mockScript = `#!/bin/sh
 
-echo "Config:" 1>&2
+echo "Test:" 1>&2
 cat -
 
 sleep 100

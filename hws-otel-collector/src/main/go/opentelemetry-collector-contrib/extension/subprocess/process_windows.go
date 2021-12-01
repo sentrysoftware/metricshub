@@ -12,18 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !windows && !linux
+//go:build windows
 
 package subprocess
 
 import (
+	"os"
 	"os/exec"
+	"syscall"
 )
 
-// Other version of exec.Command(...)
-// Compiles for non linux and non windows
+// Windows version of exec.Command(...)
+// Compiles on Windows only
 func execCommand(commandLine string, args []string) *exec.Cmd {
-	return exec.Command(commandLine, args...)
+
+	var comSpec = os.Getenv("COMSPEC")
+	if comSpec == "" {
+		comSpec = os.Getenv("SystemRoot") + "\\System32\\cmd.exe"
+	}
+	cmd := exec.Command(comSpec)                                                    // #nosec
+	cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: "/C \"\"" + commandLine + "\""} // #nosec
+
+	for _, arg := range args {
+		cmd.SysProcAttr.CmdLine = cmd.SysProcAttr.CmdLine + " " + arg
+	}
+
+	cmd.SysProcAttr.CmdLine = cmd.SysProcAttr.CmdLine + "\""
+
+	return cmd
+
 }
 
-func applyOSSpecificCmdModifications(_ *exec.Cmd) {}
+func applyOSSpecificCmdModifications(cmd *exec.Cmd) {}

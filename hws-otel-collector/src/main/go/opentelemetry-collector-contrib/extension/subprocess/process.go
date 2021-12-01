@@ -101,13 +101,14 @@ func run(ctx context.Context, execPath string, args []string, logger *zap.Logger
 
 		switch state {
 		case errored:
-			logger.Error("process died", zap.Error(err))
+			logger.Error("subprocess died", zap.Error(err))
 			state = restarting
 
 		case starting:
-			cmd, stdin, stdout = createCommand(execPath, args)
+			cmd, stdin, stdout = executeCommand(execPath, args)
 
 			logger.Debug("starting subprocess", zap.String("command", cmd.String()))
+
 			err = cmd.Start()
 			if err != nil {
 				state = errored
@@ -159,8 +160,8 @@ func signalWhenProcessDone(cmd *exec.Cmd, procWait chan<- error) {
 	procWait <- err
 }
 
-func createCommand(execPath string, args []string) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
-	cmd := exec.Command(execPath, args...)
+func executeCommand(execPath string, args []string) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
+	cmd := execCommand(execPath, args)
 
 	inReader, inWriter, err := os.Pipe()
 	if err != nil {
@@ -184,6 +185,7 @@ func createCommand(execPath string, args []string) (*exec.Cmd, io.WriteCloser, i
 	return cmd, inWriter, outReader
 }
 
+// Collect the output of the subprocess
 func collectOutput(stdout io.Reader, logger *zap.Logger) {
 	scanner := bufio.NewScanner(stdout)
 
