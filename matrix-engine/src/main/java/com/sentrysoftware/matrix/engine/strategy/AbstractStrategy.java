@@ -411,14 +411,10 @@ public abstract class AbstractStrategy implements IStrategy {
 	 */
 	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
 
-		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
-		state(targetMonitors != null && !targetMonitors.isEmpty(), "targetMonitors should not be null or empty.");
+		Monitor target = hostMonitoring.getTargetMonitor();
+		state(target != null, "target monitor should not be null.");
 
-		return targetMonitors
-			.values()
-			.stream()
-			.findFirst()
-			.orElseThrow();
+		return target;
 	}
 
 	/**

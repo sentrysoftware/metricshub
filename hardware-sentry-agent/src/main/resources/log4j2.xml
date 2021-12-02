@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout disableAnsi="false"
+						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
+			<ThresholdFilter level="error"/>
+		</Console>
+		<Console name="SpringConsole" target="SYSTEM_OUT">
+			<PatternLayout disableAnsi="false"
+						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
+		</Console>
+		<Routing name="Routing">
+			<Routes pattern="$${ctx:targetId}">
+				<!-- This route is chosen if ThreadContext has loggerLevel = DEBUG/INFO/ERROR/WARN/TRACE. -->
+				<Route>
+					<RollingFile name="Rolling-${ctx:targetId}"
+								 fileName="${ctx:outputDirectory}/hws-agent-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
+								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hws-agent-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy />
+							<SizeBasedTriggeringPolicy size="30 MB" />
+						</Policies>
+						<DefaultRolloverStrategy>
+							<Delete basePath="${ctx:outputDirectory}" maxDepth="3">
+								<IfFileName glob="*/*hws-agent*.log.gz" />
+								<IfLastModified age="2d" />
+							</Delete>
+						</DefaultRolloverStrategy>
+					</RollingFile>
+				</Route>
+			</Routes>
+		</Routing>
+	</Appenders>
+	<Loggers>
+		<Root level="error" additivity="false">
+			<appender-ref ref="Console" />
+		</Root>
+		<!--	Requests handling logger	-->
+		<logger name="com.sentrysoftware" level="trace">
+			<appender-ref ref="Routing">
+				<ThreadContextMapFilter onMatch="DENY" onMismatch="ACCEPT">
+					<KeyValuePair key="loggerLevel" value="OFF" />
+				</ThreadContextMapFilter>
+			</appender-ref>
+		</logger>
+		<!--	Agent logger	-->
+		<logger name="com.sentrysoftware.hardware.agent" level="trace">
+			<appender-ref ref="SpringConsole" />
+		</logger>
+		<!--	Tomcat logger	-->
+		<logger name="org.springframework.boot.web.embedded.tomcat.TomcatWebServer" level="trace">
+			<appender-ref ref="SpringConsole" />
+		</logger>
+	</Loggers>
+</Configuration>

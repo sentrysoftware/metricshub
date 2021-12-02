@@ -278,6 +278,7 @@ public class DetectionOperation extends AbstractStrategy {
 			.targetId(target.getId())
 			.name(hostname)
 			.monitorType(MonitorType.TARGET)
+			.discoveryTime(strategyTime)
 			.build();
 
 		// Create the location metadata

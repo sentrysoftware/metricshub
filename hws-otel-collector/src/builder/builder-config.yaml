@@ -10,8 +10,15 @@ receivers:
 processors:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v${otelVersion}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor v${otelVersion}"
 exporters:
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion}"
 extensions:
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v${otelVersion}"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocess v${otelVersion}"
+    import: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocess"
+    name: "subprocess"
+    path: "${project.basedir}/src/main/go/opentelemetry-collector-contrib/extension/subprocess"

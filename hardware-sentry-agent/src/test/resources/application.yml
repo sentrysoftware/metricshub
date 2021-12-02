@@ -1,0 +1,15 @@
+target:
+  config:
+    file: data/hws-config.yaml
+server:
+  port: 8080
+outputDirectory: /tmp/hardware-logs
+project:
+  name: "Hardware Sentry Agent"
+  version: "10"
+buildNumber: "f9435eed"
+timestamp: "Sep 15, 2021 at 5:27:55 PM Central European Summer Time"
+hcVersion: "25"
+spring:
+  main:
+    banner-mode: "off"
