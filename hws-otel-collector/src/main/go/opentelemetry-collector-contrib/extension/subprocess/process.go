@@ -60,10 +60,8 @@ func (pm *processManager) Start(ctx context.Context, _ component.Host) error {
 	childCtx, cancel := context.WithCancel(ctx)
 	pm.cancel = cancel
 
-	args := pm.conf.Args
-
 	go func() {
-		run(childCtx, pm.conf.ExecutablePath, args, pm.logger)
+		run(childCtx, pm.conf.ExecutablePath, pm.conf.Args, pm.conf.WorkingDirectory, pm.logger)
 		close(pm.shutdownSignal)
 	}()
 	return nil
@@ -84,7 +82,7 @@ func (pm *processManager) Shutdown(context.Context) error {
 	return nil
 }
 
-func run(ctx context.Context, execPath string, args []string, logger *zap.Logger) {
+func run(ctx context.Context, execPath string, args []string, workingDirectory string, logger *zap.Logger) {
 	state := starting
 
 	var cmd *exec.Cmd
@@ -101,13 +99,13 @@ func run(ctx context.Context, execPath string, args []string, logger *zap.Logger
 
 		switch state {
 		case errored:
-			logger.Error("subprocess died", zap.Error(err))
+			logger.Error("Subprocess died", zap.Error(err))
 			state = restarting
 
 		case starting:
-			cmd, stdin, stdout = executeCommand(execPath, args)
+			cmd, stdin, stdout = createCommand(execPath, args, workingDirectory, logger)
 
-			logger.Debug("starting subprocess", zap.String("command", cmd.String()))
+			logger.Debug("Starting subprocess", zap.String("command", cmd.String()))
 
 			err = cmd.Start()
 			if err != nil {
@@ -160,8 +158,13 @@ func signalWhenProcessDone(cmd *exec.Cmd, procWait chan<- error) {
 	procWait <- err
 }
 
-func executeCommand(execPath string, args []string) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
+func createCommand(execPath string, args []string, workingDirectory string, logger *zap.Logger) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
 	cmd := execCommand(execPath, args)
+
+	logger.Debug("Subprocess working directory", zap.String("working_directory", string(workingDirectory)))
+
+	// Set the working directory
+	cmd.Dir = workingDirectory
 
 	inReader, inWriter, err := os.Pipe()
 	if err != nil {

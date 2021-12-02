@@ -139,8 +139,10 @@ extensions:
   # Facilitates running a sub process of the collector
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/subprocess
   sub_process:
-    executable_path: 'bin\hws-agent.cmd'
-    args: [ '--target.config.file=config\hws-config.yaml', '--server.port=24376' ]
+    executable_path: bin\hws-agent.cmd
+    args: 
+      - --target.config.file=config\hws-config.yaml
+      - --server.port=24376
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:

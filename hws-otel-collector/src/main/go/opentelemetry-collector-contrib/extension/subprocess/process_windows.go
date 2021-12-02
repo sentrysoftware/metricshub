@@ -19,28 +19,39 @@ package subprocess
 import (
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 )
 
 // Windows version of exec.Command(...)
 // Compiles on Windows only
-func execCommand(commandLine string, args []string) *exec.Cmd {
+func execCommand(execPath string, args []string) *exec.Cmd {
 
 	var comSpec = os.Getenv("COMSPEC")
 	if comSpec == "" {
 		comSpec = os.Getenv("SystemRoot") + "\\System32\\cmd.exe"
 	}
-	cmd := exec.Command(comSpec)                                                    // #nosec
-	cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: "/C \"\"" + commandLine + "\""} // #nosec
+	cmd := exec.Command(comSpec)                                                                  // #nosec
+	cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: "/C \"" + surroundWithDoubleQuotes(execPath)} // #nosec
 
 	for _, arg := range args {
-		cmd.SysProcAttr.CmdLine = cmd.SysProcAttr.CmdLine + " " + arg
+		cmd.SysProcAttr.CmdLine = cmd.SysProcAttr.CmdLine + " " + surroundWithDoubleQuotes(arg)
 	}
 
 	cmd.SysProcAttr.CmdLine = cmd.SysProcAttr.CmdLine + "\""
 
 	return cmd
-
 }
 
 func applyOSSpecificCmdModifications(cmd *exec.Cmd) {}
+
+// If the string value contains whitespaces then surround it with double quotes
+func surroundWithDoubleQuotes(value string) string {
+
+	if strings.Contains(value, " ") {
+		return "\"" + value + "\""
+	}
+
+	return value
+
+}

@@ -23,8 +23,8 @@ import (
 
 // Linux version of exec.Command(...)
 // Compiles on Linux only
-func execCommand(commandLine string, args []string) *exec.Cmd {
-	return exec.Command(commandLine, args...)
+func execCommand(execPath string, args []string) *exec.Cmd {
+	return exec.Command(execPath, args...)
 }
 
 func applyOSSpecificCmdModifications(cmd *exec.Cmd) {

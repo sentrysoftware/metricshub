@@ -27,4 +27,7 @@ type Config struct {
 
 	// Command line arguments
 	Args []string `mapstructure:"args"`
+
+	// Working directory
+	WorkingDirectory string `mapstructure:"working_directory"`
 }
