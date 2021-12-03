@@ -119,16 +119,16 @@ targets:
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
 
-By default, the debug output file is saved in the **hardware-logs** directory under the temporary directory of the local machine, which is:
+By default, the debug output file is saved in the **logs** directory under the temporary directory of the local machine, which is:
 
-* **C:\Users\<username>\AppData\Local\Temp\hardware-logs** on Windows
-* **/tmp/hardware-logs** on Linux.
+* **C:\Users\<username>\AppData\Local\Temp\logs** on Windows
+* **/tmp/logs** on Linux.
 
 If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `targets` section:
 
 ```yaml
 loggerLevel: debug
-outputDirectory: C:\Users\<username>\AppData\Local\Temp\hardware-logs2021
+outputDirectory: C:\Users\<username>\AppData\Local\Temp\logs2021
 
 targets:
 - target:
