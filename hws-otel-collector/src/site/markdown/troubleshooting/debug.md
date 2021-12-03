@@ -119,7 +119,7 @@ targets:
 
 Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
 
-By default, the debug output file is saved in the **logs** directory under the temporary directory of the local machine, which is:
+By default, the debug output file is saved in the **logs** directory under the **Hardware Sentry OpenTelemetry Collector** home directory, examples:
 
 * **C:\Program Files\hws-otel-collector\logs** on Windows
 * **/usr/local/hws-otel-collector/logs** on Linux
