@@ -121,8 +121,8 @@ Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, 
 
 By default, the debug output file is saved in the **logs** directory under the temporary directory of the local machine, which is:
 
-* **C:\Users\<username>\AppData\Local\Temp\logs** on Windows
-* **/tmp/logs** on Linux.
+* **C:\Program Files\hws-otel-collector\logs** on Windows
+* **/usr/local/hws-otel-collector/logs** on Linux
 
 If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `targets` section:
 
