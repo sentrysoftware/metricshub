@@ -44,9 +44,6 @@ func newProcessManager(conf *Config, logger *zap.Logger) *processManager {
 
 type procState string
 
-// A global var that is available only for testing
-var restartDelay = 10 * time.Second
-
 const (
 	starting     procState = "Starting"
 	running      procState = "Running"
@@ -61,7 +58,22 @@ func (pm *processManager) Start(ctx context.Context, _ component.Host) error {
 	pm.cancel = cancel
 
 	go func() {
-		run(childCtx, pm.conf.ExecutablePath, pm.conf.Args, pm.conf.WorkingDirectory, pm.logger)
+
+		var restartDelay time.Duration
+		if pm.conf.RestartDelay == nil {
+			restartDelay = DefaultRestartDelay
+		} else {
+			restartDelay = *pm.conf.RestartDelay
+		}
+
+		var retries int
+		if pm.conf.Retries == nil {
+			retries = DefaultRetries
+		} else {
+			retries = *pm.conf.Retries
+		}
+
+		run(childCtx, pm.conf.ExecutablePath, pm.conf.Args, pm.conf.WorkingDirectory, restartDelay, retries, pm.logger)
 		close(pm.shutdownSignal)
 	}()
 	return nil
@@ -82,7 +94,11 @@ func (pm *processManager) Shutdown(context.Context) error {
 	return nil
 }
 
-func run(ctx context.Context, execPath string, args []string, workingDirectory string, logger *zap.Logger) {
+func run(ctx context.Context,
+	execPath string, args []string,
+	workingDirectory string, restartDelay time.Duration,
+	retries int, logger *zap.Logger) {
+
 	state := starting
 
 	var cmd *exec.Cmd
@@ -100,6 +116,13 @@ func run(ctx context.Context, execPath string, args []string, workingDirectory s
 		switch state {
 		case errored:
 			logger.Error("Subprocess died", zap.Error(err))
+			// Should we retry?
+			if retries == 0 {
+				state = stopped
+				continue
+			}
+
+			retries--
 			state = restarting
 
 		case starting:
@@ -143,7 +166,7 @@ func run(ctx context.Context, execPath string, args []string, workingDirectory s
 			_ = stdout.Close()
 			_ = stdin.Close()
 
-			// Sleep for a bit so we don't have a hot loop on repeated failures.
+			// Sleep for the configured RestartDelay so we don't have a hot loop on repeated failures.
 			time.Sleep(restartDelay)
 			state = starting
 

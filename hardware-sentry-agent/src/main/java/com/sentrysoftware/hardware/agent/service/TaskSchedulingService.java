@@ -42,8 +42,8 @@ public class TaskSchedulingService {
 	@Value("${server.port:8080}")
 	private int serverPort;
 
-	@Value("${target.config.file}")
-	private File targetConfigFile;
+	@Autowired
+	private File configFile;
 
 	@Autowired
 	private ThreadPoolTaskScheduler taskScheduler;
@@ -77,10 +77,10 @@ public class TaskSchedulingService {
 			.forEach(this::scheduleTargetTask);
 
 		FileWatcherTask.builder()
-			.file(targetConfigFile)
-			.filter(event -> event.context() != null && targetConfigFile.getName().equals(event.context().toString()))
+			.file(configFile)
+			.filter(event -> event.context() != null && configFile.getName().equals(event.context().toString()))
 			.await(500)
-			.onChange(() -> updateConfiguration(targetConfigFile))
+			.onChange(() -> updateConfiguration(configFile))
 			.build()
 			.start();
 	}
@@ -142,12 +142,12 @@ public class TaskSchedulingService {
 	 * <li>Schedule the new targets</li>
 	 * </ol>
 	 *
-	 * @param targetConfigFile the target configuration file (YAML file: hws-config.yaml)
+	 * @param configFile the target configuration file (YAML file: hws-config.yaml)
 	 */
-	void updateConfiguration(final File targetConfigFile) {
+	void updateConfiguration(final File configFile) {
 
 		final MultiHostsConfigurationDTO newMultiHostsConfigurationDto = ConfigHelper
-				.readConfigurationSafe(targetConfigFile);
+				.readConfigurationSafe(configFile);
 
 		// Update global settings
 		multiHostsConfigurationDto.setCollectPeriod(newMultiHostsConfigurationDto.getCollectPeriod());

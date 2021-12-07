@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
@@ -33,8 +33,8 @@ class ConfigHelperTest {
 	private static final String DELL_OPEN_MANAGE_CONNECTOR = "DellOpenManage";
 	private static final String SUN_F15K = "SunF15K";
 
-	@Value("${target.config.file}")
-	private File targetConfigPath;
+	@Autowired
+	private File configFile;
 
 	@Test
 	void testValidateAndGetConnectors() throws BusinessException {
@@ -77,7 +77,7 @@ class ConfigHelperTest {
 	void testBuildEngineConfiguration() throws BusinessException {
 
 		final MultiHostsConfigurationDTO hostsConfigurations = ConfigHelper
-				.readConfigurationSafe(targetConfigPath);
+				.readConfigurationSafe(configFile);
 
 		final Set<String> selectedConnectors = Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR);
 
@@ -116,7 +116,7 @@ class ConfigHelperTest {
 	@Test
 	void testBuildHostMonitoringMap() {
 		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper.buildHostMonitoringMap(
-				targetConfigPath, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
+				configFile, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
 
 		assertFalse(hostMonitoringMap.isEmpty());
 	}
@@ -124,7 +124,7 @@ class ConfigHelperTest {
 	@Test
 	void testBuildHostMonitoringMapBadConfig() {
 		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper.buildHostMonitoringMap(
-				targetConfigPath, Collections.singleton("StoreAcceptsOnlyThisConnector"));
+				configFile, Collections.singleton("StoreAcceptsOnlyThisConnector"));
 
 		assertTrue(hostMonitoringMap.isEmpty());
 	}
@@ -132,7 +132,7 @@ class ConfigHelperTest {
 	@Test
 	void testDeserializeYamlFile() throws IOException {
 		assertNotNull(
-				ConfigHelper.deserializeYamlFile(targetConfigPath, MultiHostsConfigurationDTO.class));
+				ConfigHelper.deserializeYamlFile(configFile, MultiHostsConfigurationDTO.class));
 	}
 
 	@Test

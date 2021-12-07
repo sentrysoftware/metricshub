@@ -1,6 +1,4 @@
-target:
-  config:
-    file: hws-config.yaml
+config: ''
 server:
   port: 8080
 project:

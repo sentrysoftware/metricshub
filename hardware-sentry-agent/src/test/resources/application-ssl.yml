@@ -1,6 +1,4 @@
-target:
-  config:
-    file: data/hws-config.yaml
+config: src/test/resources/data/hws-config.yaml
 http:
   port: 8080
 server:

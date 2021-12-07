@@ -3,7 +3,6 @@ module github.com/open-telemetry/opentelemetry-collector-contrib/extension/subpr
 go 1.17
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/shirou/gopsutil/v3 v3.21.10
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.40.0
@@ -12,6 +11,7 @@ require (
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/benbjohnson/clock v1.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect

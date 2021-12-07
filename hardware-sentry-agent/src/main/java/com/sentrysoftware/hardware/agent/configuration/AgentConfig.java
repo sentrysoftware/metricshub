@@ -17,9 +17,6 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 @Configuration
 public class AgentConfig {
 
-	@Value("${target.config.file}")
-	private File targetConfigFile;
-
 	// These properties come from src/main/resources/application.yml or application-ssl.yml
 	// which themselves are "filtered" by Maven's resources Plugin to expose
 	// pom.xml's values
@@ -39,14 +36,14 @@ public class AgentConfig {
 	private String hcVersion;
 
 	@Bean
-	public MultiHostsConfigurationDTO multiHostsConfigurationDto() {
-		return readConfigurationSafe(targetConfigFile);
+	public MultiHostsConfigurationDTO multiHostsConfigurationDto(final File configFile) {
+		return readConfigurationSafe(configFile);
 	}
 
 	@Bean
-	public Map<String, IHostMonitoring> hostMonitoringMap() {
+	public Map<String, IHostMonitoring> hostMonitoringMap(final File configFile) {
 		// The host monitoring is instantiated only once (singleton)
-		return buildHostMonitoringMap(targetConfigFile, ConnectorStore.getInstance().getConnectors().keySet());
+		return buildHostMonitoringMap(configFile, ConnectorStore.getInstance().getConnectors().keySet());
 	}
 
 	@Bean
