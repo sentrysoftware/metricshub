@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -182,6 +183,12 @@ public class ConfigHelper {
 	public static MultiHostsConfigurationDTO readConfigurationSafe(final File configFile) {
 		try {
 			final MultiHostsConfigurationDTO multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDTO.class);
+
+			// We can encounter the null here which leads to the NPE if the YAML only defines `targets:`
+			if (multiHostsConfig.getTargets() == null) {
+				multiHostsConfig.setTargets(new HashSet<>());
+				return multiHostsConfig;
+			}
 
 			multiHostsConfig.getTargets().forEach(configDto -> {
 				HardwareTargetDTO target = configDto.getTarget();

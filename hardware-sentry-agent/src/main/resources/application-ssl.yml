@@ -1,4 +1,4 @@
-config: ''
+config:
 http:
   port: 8080
 server:
