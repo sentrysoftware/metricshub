@@ -20,10 +20,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestExecCommandLinux(t *testing.T) {
+func TestExecCommandWindows(t *testing.T) {
 
-	cmd := execCommand("bin/cmd", []string{"arg1", "arg2"})
-	require.Equal(t, "bin/cmd", cmd.Path)
-	require.Equal(t, []string{"bin/cmd", "arg1", "arg2"}, cmd.Args)
+	cmd := execCommand("script.cmd", []string{"arg1", `arg2=C:\Program Files\otel-collector`})
 
+	require.Equal(t, `/C "script.cmd arg1 "arg2=C:\Program Files\otel-collector""`, cmd.SysProcAttr.CmdLine)
 }

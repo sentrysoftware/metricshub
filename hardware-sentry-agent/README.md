@@ -57,11 +57,11 @@
 
   ## Using a custom YAML configuration file
   If you wish to specify another file instead of **hws-config.yaml**,
-  you can use the _--target.config.file_ option
+  you can use the _--config_ option
   with the relative or absolute path to the custom configuration YAML file:
 
   ```shell script
-  $ java -jar hardware-sentry-agent-<version>.jar --target.config.file=../custom-config.yaml
+  $ java -jar hardware-sentry-agent-<version>.jar --config=../custom-config.yaml
   ```
 
   ## Using a different HTTP port

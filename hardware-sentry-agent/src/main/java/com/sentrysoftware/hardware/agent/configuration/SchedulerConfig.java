@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -17,13 +16,10 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 @Configuration
 public class SchedulerConfig {
 
-	@Value("${target.config.file}")
-	private File targetConfigFile;
-
 	@Bean
-	public ThreadPoolTaskScheduler taskScheduler() {
+	public ThreadPoolTaskScheduler taskScheduler(final File configFile) {
 		// Read the configuration
-		final MultiHostsConfigurationDTO multiHostsConfigurationDto = readConfigurationSafe(targetConfigFile);
+		final MultiHostsConfigurationDTO multiHostsConfigurationDto = readConfigurationSafe(configFile);
 
 		return createScheduler(multiHostsConfigurationDto.getJobPoolSize(), "hws-agent-task-");
 	}

@@ -141,7 +141,6 @@ extensions:
   sub_process:
     executable_path: bin/hws-agent.cmd
     args: 
-      - --target.config.file=config/hws-config.yaml
       - --server.port=24376
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION

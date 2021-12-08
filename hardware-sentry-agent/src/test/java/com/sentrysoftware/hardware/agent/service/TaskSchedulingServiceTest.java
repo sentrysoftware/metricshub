@@ -21,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -42,8 +41,8 @@ class TaskSchedulingServiceTest {
 
 	private static final String TARGET_ID = "357306c9-07e9-431b-bc71-b7712daabbbf-1";
 
-	@Value("${target.config.file}")
-	private File targetConfigPath;
+	@Autowired
+	private File configFile;
 
 	@Mock
 	private ThreadPoolTaskScheduler targetTaskScheduler;
@@ -80,7 +79,7 @@ class TaskSchedulingServiceTest {
 	@Test
 	void testScheduleTargetTaskNoHostMonitoring() {
 		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
-				.readConfigurationSafe(targetConfigPath);
+				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
 		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
@@ -101,7 +100,7 @@ class TaskSchedulingServiceTest {
 	@Test
 	void testScheduleTargetTask() {
 		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
-				.readConfigurationSafe(targetConfigPath);
+				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
 		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
@@ -127,7 +126,7 @@ class TaskSchedulingServiceTest {
 		// Current /data/hws-config.yaml has 3 targets
 		// Let's say we have 4 targets from the previous configuration but the current contains only 3 targets
 		// Let's check that 1 target is unscheduled and the exsiting targets are never re-scheduled
-		final MultiHostsConfigurationDTO previous = ConfigHelper.readConfigurationSafe(targetConfigPath);
+		final MultiHostsConfigurationDTO previous = ConfigHelper.readConfigurationSafe(configFile);
 		previous.getTargets().add(HostConfigurationDTO.builder()
 				.collectPeriod(MultiHostsConfigurationDTO.DEFAULT_COLLECT_PERIOD)
 				.discoveryCycle(MultiHostsConfigurationDTO.DEFAULT_DISCOVERY_CYCLE)
@@ -145,7 +144,7 @@ class TaskSchedulingServiceTest {
 		doReturn(mock).when(targetSchedules).get(any());
 		doReturn(true).when(mock).cancel(true);
 
-		taskSechedulingService.updateConfiguration(targetConfigPath);
+		taskSechedulingService.updateConfiguration(configFile);
 
 		verify(mock, times(1)).cancel(true);
 		verify(targetTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
@@ -166,7 +165,7 @@ class TaskSchedulingServiceTest {
 		doReturn(mock).when(targetTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
 		doReturn(new HostMonitoring()).when(hostMonitoringMap).get(any());
 
-		taskSechedulingService.updateConfiguration(targetConfigPath);
+		taskSechedulingService.updateConfiguration(configFile);
 
 		verify(targetTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
 	}

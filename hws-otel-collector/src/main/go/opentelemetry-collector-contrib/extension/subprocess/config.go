@@ -15,7 +15,14 @@
 package subprocess
 
 import (
+	"time"
+
 	"go.opentelemetry.io/collector/config"
+)
+
+const (
+	DefaultRestartDelay = 10 * time.Second
+	DefaultRetries      = -1
 )
 
 // Config has the configuration for the extension.
@@ -25,9 +32,15 @@ type Config struct {
 	// The path to the executable.
 	ExecutablePath string `mapstructure:"executable_path"`
 
-	// Command line arguments
+	// Command line arguments.
 	Args []string `mapstructure:"args"`
 
-	// Working directory
+	// Working directory.
 	WorkingDirectory string `mapstructure:"working_directory"`
+
+	// Time to wait before restarting the sub process after a failure.
+	RestartDelay *time.Duration `mapstructure:"restart_delay"`
+
+	// Number of restarts after failures.
+	Retries *int `mapstructure:"retries"`
 }

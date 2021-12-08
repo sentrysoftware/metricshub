@@ -1,6 +1,4 @@
-target:
-  config:
-    file: data/hws-config.yaml
+config: src/test/resources/data/hws-config.yaml
 server:
   port: 8080
 outputDirectory: /tmp/hardware-logs

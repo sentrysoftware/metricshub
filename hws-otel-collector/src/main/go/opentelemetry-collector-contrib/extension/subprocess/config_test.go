@@ -43,7 +43,9 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t,
 		&Config{
 			ExtensionSettings: config.NewExtensionSettings(config.NewComponentIDWithName(typeStr, "1")),
-			ExecutablePath:    "/usr/local/bin/cmd",
+			ExecutablePath:    "bin/cmd",
+			Args:              []string{"arg1", "arg2"},
+			WorkingDirectory:  "/usr/local",
 		},
 		ext1)
 

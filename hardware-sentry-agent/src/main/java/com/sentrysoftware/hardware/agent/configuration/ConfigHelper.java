@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class ConfigHelper {
 
-	public static final String DEFAULT_OUTPUT_DIRECTORY = getLogsDirectory();
+	public static final String DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs");
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -183,6 +184,12 @@ public class ConfigHelper {
 		try {
 			final MultiHostsConfigurationDTO multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDTO.class);
 
+			// We can encounter the null here which leads to the NPE if the YAML only defines `targets:`
+			if (multiHostsConfig.getTargets() == null) {
+				multiHostsConfig.setTargets(new HashSet<>());
+				return multiHostsConfig;
+			}
+
 			multiHostsConfig.getTargets().forEach(configDto -> {
 				HardwareTargetDTO target = configDto.getTarget();
 				// Make sure the target id is always set
@@ -300,20 +307,35 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * @return The absolute path of the logs directory
+	 * @return The absolute path of the sub directory
 	 */
-	public static String getLogsDirectory() {
+	public static String getSubDirectory(@NonNull final String dir) {
 
+		Path logsDirectory = getSubPath(dir);
+		try {
+			return Files.createDirectories(logsDirectory).toRealPath().toString();
+		} catch (IOException e) {
+			throw new IllegalStateException("Could not create " + dir + " directory " + logsDirectory, e);
+		}
+	}
+
+	/**
+	 * Get the sub path under the home directory. E.g. <em>/usr/local/bin/hws-otel-collector/lib/../config</em>
+	 * 
+	 * @param subPath sub path to the directory or the file
+	 * @return {@link Path} instance
+	 */
+	public static Path getSubPath(@NonNull final String subPath) {
 		File me;
 		try {
 			me = ResourceHelper.findSource(ConfigHelper.class);
 		} catch (Exception e) {
 			throw new IllegalStateException(
-				"Error detected when getting local source file to get the logs directory.", e);
+				"Error detected when getting local source file to get '" + subPath + "'.", e);
 		}
 
 		if (me == null) {
-			throw new IllegalStateException("Could not get the local source file to get the logs directory.");
+			throw new IllegalStateException("Could not get the local source file to get the '"+ subPath +"'.");
 		}
 
 		final Path path = me.getAbsoluteFile().toPath();
@@ -325,11 +347,7 @@ public class ConfigHelper {
 			parentLibPath = path;
 		}
 
-		Path logsDirectory = parentLibPath.resolve("../logs");
-		try {
-			return Files.createDirectories(logsDirectory).toRealPath().toString();
-		} catch (IOException e) {
-			throw new IllegalStateException("Could not create logs directory " + logsDirectory + ": " + e);
-		}
+		return parentLibPath.resolve("../" + subPath);
 	}
+
 }

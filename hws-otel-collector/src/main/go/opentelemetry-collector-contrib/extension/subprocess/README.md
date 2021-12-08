@@ -16,6 +16,8 @@ The following settings can be optionally configured:
 
 - `args`: The command line arguments to use.
 - `working_directory`: Defines the working directory of the command. If it is not configured, the `subprocess` extension runs the command in the calling process's current directory.
+- `restart_delay`: Time to wait before restarting the sub process after a failure.
+- `retries`: Number of restarts due to failures.
 
 ## Example Config
 
