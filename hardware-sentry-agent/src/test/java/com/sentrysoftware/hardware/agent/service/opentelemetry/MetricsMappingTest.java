@@ -16,10 +16,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 class MetricsMappingTest {
 
-	@Test
-	void testGetMetricInfoForMonitorType() {
-		MonitorType.MONITOR_TYPES.forEach(monitorType -> assertNotNull(MetricsMapping.getMetricInfoForMonitorType(monitorType)));
-	}
 
 	@Test
 	void testGetAttributes() {

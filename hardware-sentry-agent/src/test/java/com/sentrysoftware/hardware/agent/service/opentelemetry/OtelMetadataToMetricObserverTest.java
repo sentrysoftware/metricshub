@@ -17,6 +17,7 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.DoublePointData;
@@ -80,17 +81,21 @@ class OtelMetadataToMetricObserverTest {
 		assertNotNull(metricData.getDescription());
 
 		final DoublePointData dataPoint = metricData.getDoubleGaugeData().getPoints().stream().findFirst().orElse(null);
-		assertEquals(5000000000D, dataPoint.getValue());
+		assertEquals(5e09, dataPoint.getValue());
 
-		final Attributes expected = Attributes.builder()
-				.put("id", "id_cpu")
-				.put("label", "cpu 1")
-				.put("fqdn", "host.my.domain.net")
-				.put("parent", "host")
-				.put("site", "Datacenter 1")
-				.build();
+		final Attributes actual = dataPoint.getAttributes();
+		assertEquals("id_cpu", actual.get(AttributeKey.stringKey("id")));
+		assertEquals("cpu 1", actual.get(AttributeKey.stringKey("label")));
+		assertEquals("host.my.domain.net", actual.get(AttributeKey.stringKey("fqdn")));
+		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
+		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
+		assertTrue(actual.get(AttributeKey.stringKey("device_id")).isEmpty());
+		assertTrue(actual.get(AttributeKey.stringKey("identifying_information")).isEmpty());
+		assertTrue(actual.get(AttributeKey.stringKey("vendor")).isEmpty());
+		assertTrue(actual.get(AttributeKey.stringKey("model")).isEmpty());
+		assertEquals(5e09, Double.parseDouble(actual.get(AttributeKey.stringKey("maximum_speed"))));
 
-		assertEquals(expected, dataPoint.getAttributes());
+
 	}
 
 	@Test

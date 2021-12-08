@@ -2,12 +2,16 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.util.Assert;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.service.ServiceHelper;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import io.opentelemetry.api.common.Attributes;
@@ -79,28 +83,90 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	abstract void observe(Monitor monitor, ObservableDoubleMeasurement recorder);
 
 	/**
-	 * Create OpenTelemetry {@link Attributes}. Attributes: <em>$fqdn</em>,
-	 * <em>$monitorId</em>, <em>$monitorName</em>, <em>$monitorParentId</em> then
-	 * the extra labels
-	 *
-	 * @param monitor           The monitor we wish to extract its id, parentId and
-	 *                          name
-	 * @param attributeKeys     The stream of attribute names
-	 * @return {@link List} of {@link String} values
+	 * Create OpenTelemetry {@link Attributes} using known attributes which could be overriden by the user
+	 * 
+	 * @param monitor           The monitor from which we want to extract the
+	 *                          metadata
+
+	 * @return OpenTelemetry {@link Attributes} instance
 	 */
-	protected Attributes createAttributes(final Monitor monitor, final Stream<String> attributeKeys) {
+	Attributes createAttributes(final Monitor monitor) {
+
+		// This is defined by the internal metrics mapping
+		final Set<String> initialAttributeKeys = MetricsMapping.getAttributes(monitor.getMonitorType());
+
+		checkAttributes(monitor.getMonitorType(), initialAttributeKeys);
 
 		final AttributesBuilder attributesBuilder = Attributes.builder();
 
-		attributeKeys.forEach(attributeKey -> {
-			String value = ATTRIBUTE_FUNCTIONS
-					.getOrDefault(attributeKey, mo -> multiHostsConfigurationDTO
-							.getExtraLabels()
-							.getOrDefault(attributeKey, EMPTY))
-					.apply(monitor);
-			attributesBuilder.put(attributeKey, value);
-		});
-	
+		//  > Attribute value from the predefined function 
+		//    > or from overridden extra labels
+		//      > or from metadata value
+		//        > or empty
+		getAttributeKeys(initialAttributeKeys)
+				.forEach(attributeKey ->  {
+					final String attributeValue = ATTRIBUTE_FUNCTIONS
+							.getOrDefault(
+									attributeKey, 
+									mo -> multiHostsConfigurationDTO.getExtraLabels()
+									.getOrDefault(attributeKey, convertMetadataInfoValue(mo, attributeKey))
+							)
+							.apply(monitor);
+					attributesBuilder.put(attributeKey, attributeValue);
+				});
+
 		return attributesBuilder.build();
+
+	}
+
+	/**
+	 * Convert the metadata value if needed otherwise get the value as it is
+	 * 
+	 * @param monitor      The monitor from which we extract the metadata value
+	 * @param attributeKey The metricInfo attribute identifier
+	 * @return String value
+	 */
+	String convertMetadataInfoValue(final Monitor monitor, final String attributeKey) {
+		if (attributeKey == null || attributeKey.isEmpty() || monitor == null || monitor.getMetadata() == null) {
+			return EMPTY;
+		}
+
+		// Get the metadata name
+		final String matrixMetadataName = ServiceHelper.snakeCaseToCamelCase(attributeKey);
+
+		// Check if its value needs to be converted
+		String metricValue = getValueOrElse(monitor.getMetadata(matrixMetadataName), EMPTY);
+
+		// Check if there is a metadata MetricInfo in order to get the factor
+		final Optional<MetricInfo> maybeMetric = MetricsMapping
+				.getMetadataAsMetricInfo(monitor.getMonitorType(), matrixMetadataName);
+
+		if (!maybeMetric.isPresent()) {
+			return metricValue;
+		}
+
+		// Check the metadata is a number value
+		if (canParseDoubleValue(metricValue)) {
+			// Ok, now we can get the metricInfo related to the given metadata
+			final MetricInfo metric = maybeMetric.get();
+
+			return convertValue(metricValue, metric.getFactor()).toString();
+		}
+
+		// This is an unexpected metadata value (expected as number value)
+		// Let's use empty instead of a bad non-number value in number attribute.
+		return EMPTY;
+
+	}
+
+	/**
+	 * Check the attribute keys
+	 * 
+	 * @param monitorType   The monitor type for which we want to check the static attributes
+	 * @param attributeKeys Set of attribute keys
+	 */
+	static void checkAttributes(final MonitorType monitorType, final Set<String> attributeKeys) {
+		Assert.state(attributeKeys != null && !attributeKeys.isEmpty(),
+				() -> "The attribute keys are not defined for the monitor type: " + monitorType.getDisplayName());
 	}
 }

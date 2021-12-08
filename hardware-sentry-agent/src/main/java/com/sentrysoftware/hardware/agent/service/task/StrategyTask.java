@@ -7,11 +7,9 @@ import java.util.Set;
 
 import org.apache.logging.log4j.ThreadContext;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
@@ -114,7 +112,6 @@ public class StrategyTask implements Runnable {
 			.filter(monitor -> !otelInitializedMonitors.contains(monitor.getId())) // Skip initialized monitors
 			.forEach(monitor -> {
 				initParameterObersvers(monitor);
-				initMetadataObserver(monitor);
 				initMetadataToMetricObservers(monitor);
 				otelInitializedMonitors.add(monitor.getId());
 			});
@@ -148,29 +145,6 @@ public class StrategyTask implements Runnable {
 							.init()
 					)
 			);
-
-	}
-
-	/**
-	 * Initialize the metadata observer for the given monitor
-	 * 
-	 * @param monitor the monitor we wish to observe its metadata through
-	 *                OpenTelemetry
-	 */
-	void initMetadataObserver(final Monitor monitor) {
-
-		final MetricInfo metricInfo = MetricsMapping.getMetricInfoForMonitorType(monitor.getMonitorType());
-
-		if (metricInfo != null)  {
-			OtelMetadataObserver
-				.builder()
-				.monitor(monitor)
-				.sdkMeterProvider(sdkMeterProvider)
-				.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
-				.metricInfo(metricInfo)
-				.build()
-				.init();
-		}
 
 	}
 
