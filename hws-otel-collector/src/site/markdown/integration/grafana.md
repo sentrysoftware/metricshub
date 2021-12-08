@@ -13,9 +13,9 @@ description: How to import and configure Hardware Sentry's Sustainable IT Dashbo
 
 Before you can start configuring and using **${project.name}** dashboards, you must have:
 
-1. configured [Hardware Sentry Exporter for Prometheus](../configuration/configure-exporter.html).
+1. configured [Hardware Sentry Agent](../configuration/configure-agent.html).
 2. configured the [Prometheus server](../integration/prometheus.html)
-3. run both **Hardware Sentry Exporter for Prometheus** and the **Prometheus server**.
+3. run both **${project.name}** and the **Prometheus server**.
 
 ## Loading Dashboards in Grafana
 

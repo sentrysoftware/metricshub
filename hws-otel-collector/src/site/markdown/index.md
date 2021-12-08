@@ -38,7 +38,7 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
 **${project.name}** includes:
 
 * a standard *OpenTelemetry Collector*
-* Hardware Sentry Exporter for Prometheus
+* Hardware Sentry Agent
 * the Hardware Connector Library
 * Hardware Sentry CLI (`hws`)
 
@@ -48,35 +48,35 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
 
 * The *OpenTelemetry Collector* executable
   * The *OpenTelemetry* [configuration file](configuration/configure-otel.md)
-  * The **Hardware Sentry Exporter for Prometheus**
-    * Its [configuration file](configuration/configure-exporter.md) (hosts to monitor, credentials, etc.)
+  * The **Hardware Sentry Agent**
+    * Its [configuration file](configuration/configure-agent.md) (hosts to monitor, credentials, etc.)
     * The monitoring engine, with the **Hardware Connector Library**
 
 ![Internal architecture of the ${project.name}](images/otel-internal-architecture.png)
 
 The *OpenTelemetry Collector* is in charge of:
 
-1. Spawning the internal **Hardware Sentry Exporter for Prometheus**
+1. Spawning the internal **Hardware Sentry Agent**
 2. Pulling its metrics periodically (internally)
 3. Pushing these metrics to the specified platform
 
-### Hardware Sentry Exporter for Prometheus
+### Hardware Sentry Agent
 
-The internal **Hardware Sentry Exporter for Prometheus** is the engine that performs the actual monitoring of the systems, based on its [configuration file](configuration/configure-exporter.md), which specifies:
+The internal **Hardware Sentry Agent** is the engine that performs the actual monitoring of the systems, based on its [configuration file](configuration/configure-agent.md), which specifies:
 
 * its internal polling cycle
 * the hostnames and credentials of the systems to monitor
 
-It is actually a regular [Prometheus Exporter](https://prometheus.io/docs/instrumenting/exporters/), exposing metrics through an HTTP `GET /metrics` request. While possible, we do not recommend collecting from the internal **Hardware Sentry Exporter for Prometheus** directly. The preferred method remains to configure the *OpenTelemetry Collector* to expose the collected metrics.
+The **Hardware Sentry Agent** is the internal component which is responsible of scraping targets, collecting metrics and pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
 
 ### Hardware Connector Library
 
-The library of **250+** *Hardware Connectors* is included in the **Hardware Sentry Exporter for Prometheus**. It is the same library that powers [Hardware Sentry KM for PATROL](https://www.sentrysoftware.com/products/km-hardware-sentry.html), the original and battle-seasoned module for PATROL, created in 2004 by Sentry Software, used on hundreds of thousands of systems around the world.
+The library of **250+** *Hardware Connectors* is included in the **Hardware Sentry Agent**. It is the same library that powers [Hardware Sentry KM for PATROL](https://www.sentrysoftware.com/products/km-hardware-sentry.html), the original and battle-seasoned module for PATROL, created in 2004 by Sentry Software, used on hundreds of thousands of systems around the world.
 
 The list of platforms that can be monitored by **${project.name}** entirely depends on this library. More details about the *Hardware Connector Library* are available as a [separate documentation](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html).
 
 ### Hardware Sentry CLI (`hws`)
 
-The [Hardware Sentry CLI](troubleshooting/cli.md) contains the same engine and library of *Hardware Connectors* as *Hardware Sentry Exporter for Prometheus*, but packaged as a command line interface, that can be invoked in a shell.
+The [Hardware Sentry CLI](troubleshooting/cli.md) contains the same engine and library of *Hardware Connectors* as *Hardware Sentry Agent*, but packaged as a command line interface, that can be invoked in a shell.
 
 This tool is particularly useful to troubleshoot the monitoring of a system, protocols and credentials.

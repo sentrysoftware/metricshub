@@ -1,5 +1,5 @@
 keywords: installation package
-description: Where to download the installation package of the Hardware Sentry Exporter for Prometheus.
+description: Where to download the installation package of the Hardware Sentry OpenTelemetry Collector.
 
 # Installation
 
@@ -57,7 +57,7 @@ Unzip and untar the content of **${project.artifactId}-${project.version}-linux-
 There are 2 configuration files:
 
 * [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the *OpenTelemetry Collector* should send the collected data
-* [**./config/hws-config.yaml**](configuration/configure-exporter.md): to specify the hosts to monitor and their credentials
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
 Before starting the *OpenTelemetry Collector*, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the *Collector* is required to take into account its changes.
 
@@ -103,7 +103,12 @@ Unzip the content of **${project.artifactId}-${project.version}-windows-amd64.ta
 There are 2 configuration files:
 
 * [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the *OpenTelemetry Collector* should send the collected data
-* [**./config/hws-config.yaml**](configuration/configure-exporter.md): to specify the hosts to monitor and their credentials
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+and two configuration examples:
+
+* **./config/otel-config-example.yaml** to know how to configure the *OpenTelemetry Collector*
+* **./config/hws-config-example.yaml** to know how to configure the *Hardware Sentry Agent*.
 
 Before starting the *OpenTelemetry Collector*, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the *Collector* is required to take into account its changes.
 

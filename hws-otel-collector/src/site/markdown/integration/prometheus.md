@@ -47,11 +47,9 @@ service:
 
 In this setup, each instance of **${project.name}** exposes the collected metrics via HTTP, and the Prometheus Server connects to each instance to scrape the `/metrics` endpoint. You need to ensure the Prometheus Server has network access to each collector.
 
-By default, the internal **Hardware Sentry Exporter for Prometheus** is started on port **TCP/24375**. The port can be [modified in the `receivers` section of **config/otel-config.yaml**](../configuration/configure-otel.md).
+**${project.name}** can be configured to expose metrics using the [OpenTelemetry Prometheus exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter) on the TCP port configured in the [`exporters` section of **config/otel-config.yaml**](../configuration/configure-otel.md). The Prometheus Server will communicate directly with the OpenTelemetry Prometheus exporter.
 
-As the Prometheus Server will communicate directly with the internal **Hardware Sentry Exporter for Prometheus**, the *OpenTelemetry Collector* pipeline is completely skipped (receivers, processors and exporters). In fact, in this scenario, you can even decide to run the **Hardware Sentry Exporter for Prometheus** process standalone, without the *OpenTelemetry Collector*.
-
-Once **Hardware Sentry Exporter for Prometheus** is running, you can configure a job in the [`scrape_configs` section of your Prometheus Server configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config):
+Once **${project.name}** is running, you can configure a job in the [`scrape_configs` section of your Prometheus Server configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config):
 
 ```yaml
   - job_name: hardware_sentry
@@ -62,9 +60,7 @@ Once **Hardware Sentry Exporter for Prometheus** is running, you can configure a
     - targets: ['<hostname:port_number>' ]
 ```
 
-`<duration>` is a duration that **must be greater than the `collectPeriod`** defined in [config/hws-config.yaml](../configuration/configure-exporter.md) to avoid gaps and duplicate points in the metrics, which will affect the calculation of rates.
-
-`scheme` is a string that can take the values `http` or `https`. If you need HTTPS to encrypt communications between your Prometheus Server and the **Hardware Sentry Exporter for Prometheus**, you need to start the exporter with the `--server.ssl.enabled=true` option. This can be done in the [`receivers` section of **config/otel-config.yaml**](../configuration/configure-otel.md).
+`<duration>` is a duration that **must be greater than the `collectPeriod`** defined in [config/hws-config.yaml](../configuration/configure-agent.md) to avoid gaps and duplicate points in the metrics, which will affect the calculation of rates.
 
 Example:
 
@@ -73,5 +69,5 @@ Example:
     scrape_interval: 2m
     scrape_timeout: 30s
     static_configs:
-    - targets: ['hws-exporter-siteA:8080']
+    - targets: ['hws-otel-exporter-siteA:8080']
 ```
