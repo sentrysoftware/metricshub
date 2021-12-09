@@ -18,8 +18,8 @@ class MetricsMappingTest {
 
 
 	@Test
-	void testGetAttributes() {
-		MonitorType.MONITOR_TYPES.forEach(monitorType -> assertNotNull(MetricsMapping.getAttributes(monitorType)));
+	void testGetAttributesMap() {
+		MonitorType.MONITOR_TYPES.forEach(monitorType -> assertNotNull(MetricsMapping.getAttributesMap(monitorType)));
 	}
 
 	@Test

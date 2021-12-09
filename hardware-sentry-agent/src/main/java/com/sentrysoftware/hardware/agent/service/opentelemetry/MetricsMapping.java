@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +85,7 @@ public class MetricsMapping {
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(FQDN, ID, LABEL, PARENT);
 
-	private static final Map<MonitorType, Set<String>> metricInfoAttributes;
+	private static final Map<MonitorType, Map<String, String>> monitorTypeToAttributeMap;
 
 	@Getter
 	private static final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetricMap;
@@ -101,7 +102,7 @@ public class MetricsMapping {
 	static {
 
 
-		final Map<MonitorType, Set<String>> attributesMap = new EnumMap<>(MonitorType.class);
+		final Map<MonitorType, Map<String, String>> attributesMap = new EnumMap<>(MonitorType.class);
 
 		attributesMap.put(MonitorType.BATTERY, concatDefaultAttributesWithMetadata(MonitorType.BATTERY));
 		attributesMap.put(MonitorType.BLADE, concatDefaultAttributesWithMetadata(MonitorType.BLADE));
@@ -127,7 +128,7 @@ public class MetricsMapping {
 		attributesMap.put(MonitorType.VOLTAGE, concatDefaultAttributesWithMetadata(MonitorType.VOLTAGE));
 		attributesMap.put(MonitorType.VM, concatDefaultAttributesWithMetadata(MonitorType.VM));
 
-		metricInfoAttributes = Collections.unmodifiableMap(attributesMap);
+		monitorTypeToAttributeMap = Collections.unmodifiableMap(attributesMap);
 
 		final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetric = new EnumMap<>(MonitorType.class);
 
@@ -1502,25 +1503,30 @@ public class MetricsMapping {
 	 * Get the predefined attributes for the given monitor type
 	 *
 	 * @param monitorType The type of monitor
-	 * @return Set of string values
+	 * @return Map of attribute key to matrix metadata name
 	 */
-	public static Set<String> getAttributes(final MonitorType monitorType) {
-		return metricInfoAttributes.get(monitorType);
+	public static Map<String, String> getAttributesMap(final MonitorType monitorType) {
+		return monitorTypeToAttributeMap.get(monitorType);
 	}
 
 	/**
 	 * Concatenate the predefined labels with the specific monitor metadata
 	 *
 	 * @param monitorType The monitor type we want to get its metadata
-	 * @return Set of String values
+	 * 
+	 * @return Map of attribute key to matrix metadata name
 	 */
-	private static Set<String> concatDefaultAttributesWithMetadata(final MonitorType monitorType) {
+	private static Map<String, String> concatDefaultAttributesWithMetadata(final MonitorType monitorType) {
 
 		return Stream
 			.concat(DEFAULT_ATTRIBUTE_NAMES.stream(), monitorType.getMetaMonitor().getMetadata().stream())
-			.map(ServiceHelper::camelCaseToSnakeCase)
 			.sorted()
-			.collect(Collectors.toSet());
+			.collect(Collectors.toMap(
+						ServiceHelper::camelCaseToSnakeCase,
+						Function.identity(),
+						(k1, k2) -> k2
+					)
+			);
 	}
 
 	/**

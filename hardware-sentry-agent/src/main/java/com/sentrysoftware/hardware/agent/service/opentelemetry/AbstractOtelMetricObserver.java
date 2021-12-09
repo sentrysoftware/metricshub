@@ -2,15 +2,14 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
-import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -93,9 +92,9 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	Attributes createAttributes(final Monitor monitor) {
 
 		// This is defined by the internal metrics mapping
-		final Set<String> initialAttributeKeys = MetricsMapping.getAttributes(monitor.getMonitorType());
+		final Map<String, String> initialAttributesMap = MetricsMapping.getAttributesMap(monitor.getMonitorType());
 
-		checkAttributes(monitor.getMonitorType(), initialAttributeKeys);
+		checkAttributesMap(monitor.getMonitorType(), initialAttributesMap);
 
 		final AttributesBuilder attributesBuilder = Attributes.builder();
 
@@ -103,13 +102,16 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 		//    > or from overridden extra labels
 		//      > or from metadata value
 		//        > or empty
-		getAttributeKeys(initialAttributeKeys)
+		getAttributeKeys(initialAttributesMap.keySet())
 				.forEach(attributeKey ->  {
 					final String attributeValue = ATTRIBUTE_FUNCTIONS
 							.getOrDefault(
 									attributeKey, 
 									mo -> multiHostsConfigurationDTO.getExtraLabels()
-									.getOrDefault(attributeKey, convertMetadataInfoValue(mo, attributeKey))
+									.getOrDefault(
+											attributeKey,
+											convertMetadataInfoValue(mo, initialAttributesMap.get(attributeKey))
+									)
 							)
 							.apply(monitor);
 					attributesBuilder.put(attributeKey, attributeValue);
@@ -122,17 +124,14 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	/**
 	 * Convert the metadata value if needed otherwise get the value as it is
 	 * 
-	 * @param monitor      The monitor from which we extract the metadata value
-	 * @param attributeKey The metricInfo attribute identifier
+	 * @param monitor             The monitor from which we extract the metadata value
+	 * @param matrixMetadataName  The metadata identifier
 	 * @return String value
 	 */
-	String convertMetadataInfoValue(final Monitor monitor, final String attributeKey) {
-		if (attributeKey == null || attributeKey.isEmpty() || monitor == null || monitor.getMetadata() == null) {
+	String convertMetadataInfoValue(final Monitor monitor, final String matrixMetadataName) {
+		if (matrixMetadataName == null || matrixMetadataName.isBlank() || monitor == null || monitor.getMetadata() == null) {
 			return EMPTY;
 		}
-
-		// Get the metadata name
-		final String matrixMetadataName = ServiceHelper.snakeCaseToCamelCase(attributeKey);
 
 		// Check if its value needs to be converted
 		String metricValue = getValueOrElse(monitor.getMetadata(matrixMetadataName), EMPTY);
@@ -160,13 +159,13 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	}
 
 	/**
-	 * Check the attribute keys
+	 * Check the attributes map
 	 * 
-	 * @param monitorType   The monitor type for which we want to check the static attributes
-	 * @param attributeKeys Set of attribute keys
+	 * @param monitorType    The monitor type for which we want to check the attributes map
+	 * @param attributesMap  Map of attribute key to matrix metadata name
 	 */
-	static void checkAttributes(final MonitorType monitorType, final Set<String> attributeKeys) {
-		Assert.state(attributeKeys != null && !attributeKeys.isEmpty(),
-				() -> "The attribute keys are not defined for the monitor type: " + monitorType.getDisplayName());
+	static void checkAttributesMap(final MonitorType monitorType, final Map<String, String> attributesMap) {
+		Assert.state(attributesMap != null && !attributesMap.isEmpty(),
+				() -> "The attributes map is not defined for the monitor type: " + monitorType.getDisplayName());
 	}
 }

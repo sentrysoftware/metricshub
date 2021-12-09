@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
@@ -367,14 +366,14 @@ class OtelParameterToMetricObserverTest {
 	}
 
 	@Test
-	void testCheckAttributes() {
-		final Set<String> emptySet = Collections.emptySet();
+	void testCheckAttributesMap() {
+		final Map<String, String> emptyMap = Collections.emptyMap();
 
 		assertThrows(IllegalStateException.class,
-				() -> OtelParameterToMetricObserver.checkAttributes(MonitorType.ENCLOSURE, emptySet));
+				() -> OtelParameterToMetricObserver.checkAttributesMap(MonitorType.ENCLOSURE, emptyMap));
 
 		assertThrows(IllegalStateException.class,
-				() -> OtelParameterToMetricObserver.checkAttributes(MonitorType.ENCLOSURE, null));
+				() -> OtelParameterToMetricObserver.checkAttributesMap(MonitorType.ENCLOSURE, null));
 
 	}
 
