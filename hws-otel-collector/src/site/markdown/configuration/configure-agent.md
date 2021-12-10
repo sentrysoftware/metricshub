@@ -414,3 +414,39 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
+
+### Hostname resolution
+
+You can disable the hostname resolution by setting the `resolveHostnameToFqdn` property to `false`:
+
+```yaml
+resolveHostnameToFqdn: false
+
+targets:
+
+- target:
+    hostname: host01
+    type: Linux
+```
+This will skip resolving the hostname to a Fully Qualified Domain Name (FQDN), then the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) `host.name` attribute is set to the configured `hostname` value. By default, `resolveHostnameToFqdn` is enabled, this means that the *Hardware Sentry Agent* resolves the `hostname` value to a Fully Qualified Domain Name value which goes then in the Host Resource attribute `host.name`.
+
+### Target Extra labels
+
+You can specify additional labels to be reported on each metric collected from a specific target, using the `extraLabels` property:
+
+```yaml
+targets:
+
+- target:
+    hostname: host01
+    type: Linux
+  snmp:
+    version: v1
+    port: 161
+    timeout: 120
+  extraLabels:
+    host.name: host01.internal.domain.net
+    app: Jenkins
+```
+
+The example above will add `host.name=host01.internal.domain.net` and `app=Jenkins` as attributes to the OpenTelemetry [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) which represents the target `host01`, and then these two new attributes `host.name` and `app` are inherited on the target's collected metrics. It is an easy way to get the entities linked correctly in the monitoring tool consuming the OpenTelemetry data and uses the Host Resource's attribute `host.name` to perform the Hosts consolidation.
