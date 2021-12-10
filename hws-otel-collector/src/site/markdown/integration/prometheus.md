@@ -49,6 +49,17 @@ In this setup, each instance of **${project.name}** exposes the collected metric
 
 **${project.name}** can be configured to expose metrics using the [OpenTelemetry Prometheus exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter) on the TCP port configured in the [`exporters` section of **config/otel-config.yaml**](../configuration/configure-otel.md). The Prometheus Server will communicate directly with the OpenTelemetry Prometheus exporter.
 
+```yaml
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8080
+    send_timestamps: true
+    metric_expiration: 15m
+    resource_to_telemetry_conversion:
+      enabled: true
+```
+The `metric_expiration` value must be significantly greater than the internal polling interval of the **Hardware Sentry Agent**. If the metric expiration time is too small, it will result in collection gaps in Prometheus Server.
+
 Once **${project.name}** is running, you can configure a job in the [`scrape_configs` section of your Prometheus Server configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config):
 
 ```yaml
