@@ -1,5 +1,5 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
-description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
+description: How to configure Hardware Sentry Agent to scrape targets with various protocols.
 
 # Monitoring Configuration
 
