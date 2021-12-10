@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,8 @@ class OtelMetadataToMetricObserverTest {
 
 		final Monitor target = Monitor.builder().id(ID).name("host").build();
 		target.addMetadata(FQDN, "host.my.domain.net");
-		final Resource resource = OtelHelper.createHostResource(target, "host");
+		final Resource resource = OtelHelper.createHostResource(target.getId(),
+				"host", "Linux", "host.my.domain.net", false, Collections.emptyMap());
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelSelfObserver;
 import com.sentrysoftware.hardware.agent.service.task.FileWatcherTask;
@@ -248,7 +249,7 @@ public class TaskSchedulingService {
 					.outputDirectory(hostConfigDto.getOutputDirectory())
 					.serverPort(serverPort)
 					.build(),
-				multiHostsConfigurationDto,
+				new UserConfiguration(multiHostsConfigurationDto, hostConfigDto),
 				periodicReaderFactory
 		);
 

@@ -88,7 +88,8 @@ class OtelParameterToMetricObserverTest {
 
 		final Monitor target = Monitor.builder().id(ID).name("host").build();
 		target.addMetadata(FQDN, "host.my.domain.net");
-		final Resource resource = OtelHelper.createHostResource(target, "host");
+		final Resource resource = OtelHelper.createHostResource(target.getId(),
+				"host", "Linux", "host.my.domain.net", false, Collections.emptyMap());
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()

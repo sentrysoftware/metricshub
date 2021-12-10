@@ -65,6 +65,9 @@ public class MultiHostsConfigurationDTO {
 	@Default
 	private String otlpGrpcEndpoint = "http://localhost:4317";
 
+	@Default
+	private boolean resolveHostnameToFqdn = true;
+
 	/**
 	 * Build a new empty instance
 	 * 
