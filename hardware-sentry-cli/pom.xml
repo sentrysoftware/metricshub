@@ -17,7 +17,7 @@
 	<description>Hardware Sentry CLI (hws)</description>
 
 	<properties>
-
+		<log4j2.version>2.15.0</log4j2.version>
 	</properties>
 
 	<dependencies>
@@ -88,6 +88,13 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j2.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
