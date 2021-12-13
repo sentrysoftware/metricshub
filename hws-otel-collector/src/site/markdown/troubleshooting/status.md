@@ -10,7 +10,7 @@ General troubleshooting information is [available in the OpenTelemetry Collector
 When running properly, **${project.name}** has 2 processes running:
 
 * `hws-otel-collector`
-* `java -jar lib/hardware-sentry-exporter-${project.version}.jar`
+* `java -jar lib/hardware-sentry-agent-${project.version}.jar`
 
 Make sure both processes are running.
 
@@ -85,7 +85,7 @@ otelcol_process_runtime_total_sys_memory_bytes{service_instance_id="xxxxxxxxx-xx
 ...
 ```
 
-The above processor time utilization and memory consumption metrics pertain to the `hws-otel-collector` process only, and do not represent the activity of the internal **Hardware Sentry Exporter for Prometheus** (on port 24375).
+The above processor time utilization and memory consumption metrics pertain to the `hws-otel-collector` process only, and do not represent the activity of the internal **Hardware Sentry Agent**.
 
 You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the config/otel-config.yaml configuration file](../configuration/configure-otel.md) to add `prometheus/internal` in the list of receivers:
 
@@ -94,10 +94,13 @@ You can choose to integrate these internal metrics in the pipeline of the *OpenT
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:
-  extensions: [health_check]
+  telemetry:
+    logs:
+      level: info # Change to debug more more details
+  extensions: [health_check, sub_process]
   pipelines:
     metrics:
-      receivers: [prometheus_exec/hws-exporter, prometheus/internal]
-      processors: [memory_limiter,batch]
+      receivers: [otlp, prometheus/internal]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [...] # List here the platform of your choice
 ```
