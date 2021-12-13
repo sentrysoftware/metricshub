@@ -415,8 +415,9 @@ $ hws -l
 [More information on the `hws` command](../troubleshooting/cli.md)
 
 
-### Hostname resolution
+### Hostname Resolution
 
+By default, the *Hardware Sentry Agent* resolves the `hostname` value to a Fully Qualified Domain Name (FQDN) value which goes then in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`.
 You can disable the hostname resolution by setting the `resolveHostnameToFqdn` property to `false`:
 
 ```yaml
@@ -428,7 +429,7 @@ targets:
     hostname: host01
     type: Linux
 ```
-This will skip resolving the hostname to a Fully Qualified Domain Name (FQDN), then the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) `host.name` attribute is set to the configured `hostname` value. By default, `resolveHostnameToFqdn` is enabled, this means that the *Hardware Sentry Agent* resolves the `hostname` value to a Fully Qualified Domain Name value which goes then in the Host Resource attribute `host.name`.
+This will skip resolving the hostname to a Fully Qualified Domain Name, then the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) `host.name` attribute is set to the configured `hostname` value.
 
 ### Target Extra labels
 
