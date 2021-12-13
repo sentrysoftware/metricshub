@@ -13,7 +13,7 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 @Configuration
 public class OtelConfig {
 
-	@Value("${grpc:http://localhost:4317}")
+	@Value("#{ '${grpc}'.trim() <= '' ? 'http://localhost:4317' : '${grpc}' }")
 	private String grpcEndpoint;
 
 	@Bean
