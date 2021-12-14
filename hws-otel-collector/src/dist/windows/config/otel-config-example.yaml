@@ -141,7 +141,7 @@ extensions:
   sub_process:
     executable_path: bin\hws-agent.cmd
     args: 
-      - --server.port=24376
+      - --grpc=http://localhost:4317
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:

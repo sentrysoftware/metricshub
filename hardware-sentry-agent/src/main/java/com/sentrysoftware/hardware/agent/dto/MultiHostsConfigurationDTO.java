@@ -62,9 +62,6 @@ public class MultiHostsConfigurationDTO {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, Double> extraMetrics = new HashMap<>();
 
-	@Default
-	private String otlpGrpcEndpoint = "http://localhost:4317";
-
 	/**
 	 * Build a new empty instance
 	 * 

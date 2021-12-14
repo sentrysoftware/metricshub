@@ -22,3 +22,5 @@ hcVersion: "@hardware-connectors.version@"
 spring:
   main:
     banner-mode: "off"
+    web-application-type: none
+grpc: http://localhost:4317
