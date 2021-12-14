@@ -46,7 +46,8 @@ public class OtelHelper {
 	 * @return Resource capturing identifying information about the target for which
 	 *         signals are reported.
 	 */
-	public static Resource createHostResource(@NonNull final String id,
+	public static Resource createHostResource(
+			@NonNull final String id,
 			@NonNull String hostname,
 			@NonNull final String hostType,
 			@NonNull final String fqdn,
@@ -54,7 +55,7 @@ public class OtelHelper {
 			@NonNull final Map<String, String> extraLabels) {
 
 		// Which hostname?
-		hostname = getHostname(
+		hostname = getResourceHostname(
 				hostname,
 				fqdn,
 				resolveHostnameToFqdn,
@@ -97,7 +98,7 @@ public class OtelHelper {
 	 * @param extraLabels           Configured extra labels
 	 * @return String value
 	 */
-	private static String getHostname(final String hostname, final String collectedFqdn,
+	private static String getResourceHostname(final String hostname, final String collectedFqdn,
 			final boolean resolveHostnameToFqdn, final Map<String, String> extraLabels) {
 
 		// Extra Fqdn, WTF? who knows! ok let's be consistent
