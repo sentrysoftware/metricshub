@@ -1,12 +1,9 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.DEFAULT_ATTRIBUTE_NAMES;
-
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
-import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.ObservableDoubleMeasurement;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import lombok.Builder;
@@ -29,12 +26,10 @@ public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 		// We are observing! is the metadata available?
 		if (checkMetadata(monitor, matrixDataKey)) {
 
-			final Attributes attributes = createAttributes(monitor, getAttributeKeys(DEFAULT_ATTRIBUTE_NAMES));
-
 			// Record the value
 			recorder.observe(
 					convertValue(monitor.getMetadata(matrixDataKey), metricInfo.getFactor()),
-					attributes
+					createAttributes(monitor)
 			);
 		}
 

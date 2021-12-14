@@ -1,11 +1,19 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,8 +49,9 @@ import io.opentelemetry.sdk.resources.Resource;
 class OtelParameterToMetricObserverTest {
 
 	private static final String LABEL_VALUE = "monitor";
-	private static final String PARENT_ID_VALUE = "parent_id";
-	private static final String ID_VALUE = ID;
+	private static final String PARENT_ID = "parent_id";
+	private static final String MAXIMUM_SPEED = "maximumSpeed";
+
 
 	@Test
 	void testInit() {
@@ -99,6 +109,13 @@ class OtelParameterToMetricObserverTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.build();
 		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata(DEVICE_ID, "1");
+		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
+		enclosure.addMetadata(VENDOR, "Dell");
+		enclosure.addMetadata(MODEL, "PowerEdge T30");
+		enclosure.addMetadata(BIOS_VERSION, "v1.1");
+		enclosure.addMetadata(TYPE, "Server");
+		enclosure.addMetadata(IDENTIFYING_INFORMATION, "Server 1 - Dell");
 
 		OtelParameterToMetricObserver
 			.builder()
@@ -146,6 +163,13 @@ class OtelParameterToMetricObserverTest {
 				.put("fqdn", "host.my.domain.net")
 				.put("parent", "host")
 				.put("site", "Datacenter 1")
+				.put("device_id", "1")
+				.put("serial_number", "SN 1")
+				.put("vendor", "Dell")
+				.put("model", "PowerEdge T30")
+				.put("bios_version", "v1.1")
+				.put("type", "Server")
+				.put("identifying_information", "Server 1 - Dell")
 				.build();
 
 		assertEquals(expected, dataPoint.getAttributes());
@@ -157,8 +181,8 @@ class OtelParameterToMetricObserverTest {
 		{
 			final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
 			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
+						.id(ID)
+						.parentId(PARENT_ID)
 						.name(LABEL_VALUE)
 						.parameters(Map.of(STATUS_PARAMETER, statusParam))
 						.build();
@@ -176,8 +200,8 @@ class OtelParameterToMetricObserverTest {
 			statusParamNotAvailable.setState(null);
 
 			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
+						.id(ID)
+						.parentId(PARENT_ID)
 						.name(LABEL_VALUE)
 						.parameters(Map.of(STATUS_PARAMETER, statusParamNotAvailable))
 						.build();
@@ -188,8 +212,8 @@ class OtelParameterToMetricObserverTest {
 		{
 			final TextParam textParam = TextParam.builder().name(TEST_REPORT_PARAMETER).value("text").build();
 			final Monitor monitor = Monitor.builder()
-						.id(ID_VALUE)
-						.parentId(PARENT_ID_VALUE)
+						.id(ID)
+						.parentId(PARENT_ID)
 						.name(LABEL_VALUE)
 						.parameters(Map.of(TEST_REPORT_PARAMETER, textParam))
 						.build();
@@ -203,8 +227,8 @@ class OtelParameterToMetricObserverTest {
 	void testCheckParameter() {
 		{
 			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
+					.id(ID)
+					.parentId(PARENT_ID)
 					.name(LABEL_VALUE)
 					.parameters(Map.of(ENERGY_USAGE_PARAMETER,
 							NumberParam.builder().name(ENERGY_USAGE_PARAMETER)
@@ -215,8 +239,8 @@ class OtelParameterToMetricObserverTest {
 
 		{
 			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
+					.id(ID)
+					.parentId(PARENT_ID)
 					.name(LABEL_VALUE)
 					.parameters(Collections.emptyMap())
 					.build();
@@ -225,8 +249,8 @@ class OtelParameterToMetricObserverTest {
 
 		{
 			final Monitor monitor = Monitor.builder()
-					.id(ID_VALUE)
-					.parentId(PARENT_ID_VALUE)
+					.id(ID)
+					.parentId(PARENT_ID)
 					.name(LABEL_VALUE)
 					.parameters(null)
 					.build();
@@ -242,5 +266,126 @@ class OtelParameterToMetricObserverTest {
 	void testConvertValue() {
 		assertEquals(18, OtelParameterToMetricObserver.convertValue("1.8", 10));
 		assertThrows(IllegalArgumentException.class, () -> OtelParameterToMetricObserver.convertValue(null, 10));
+	}
+
+	@Test
+	void testCreateAttributes() {
+
+		final OtelParameterToMetricObserver parameterToMetricObserver = OtelParameterToMetricObserver
+			.builder()
+			.multiHostsConfigurationDTO(MultiHostsConfigurationDTO
+					.builder()
+					.extraLabels(Map.of("site", "Datacenter 1"))
+					.build())
+			.build();
+
+		final Monitor enclosure = Monitor
+					.builder()
+					.id("id_enclosure")
+					.name("enclosure 1")
+					.monitorType(MonitorType.ENCLOSURE)
+					.parentId("host")
+					.build();
+		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata("serialNumber", "Serial1234");
+
+		final Attributes actual = parameterToMetricObserver.createAttributes(enclosure);
+
+		final Attributes expected = Attributes.builder()
+				.put("id", "id_enclosure")
+				.put("label", "enclosure 1")
+				.put("fqdn", "host.my.domain.net")
+				.put("parent", "host")
+				.put("site", "Datacenter 1")
+				.put("device_id", "")
+				.put("serial_number", "Serial1234")
+				.put("vendor", "")
+				.put("model", "")
+				.put("bios_version", "")
+				.put("type", "")
+				.put("identifying_information", "")
+				.build();
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testConvertMetadataInfoValue() {
+		final OtelParameterToMetricObserver parameterToMetricObserver = OtelParameterToMetricObserver.builder().build();
+		{
+
+			final Map<String, String> cpuMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadata.put(MAXIMUM_SPEED, "4");
+			final Monitor monitor = Monitor
+					.builder()
+					.id(ID)
+					.parentId(PARENT_ID)
+					.name(LABEL_VALUE)
+					.metadata(cpuMetadata)
+					.monitorType(MonitorType.CPU)
+					.build();
+
+			assertEquals(Double.toString(4*1000000.0), parameterToMetricObserver.convertMetadataInfoValue(monitor, MAXIMUM_SPEED));
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(monitor, EMPTY).isEmpty());
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(monitor, null).isEmpty());
+
+			final Map<String, String> cpuMetadataEmpty = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			cpuMetadataEmpty.put(MAXIMUM_SPEED, EMPTY);
+			final Monitor monitorCpu = Monitor
+					.builder()
+					.id(ID)
+					.parentId(PARENT_ID)
+					.name(LABEL_VALUE)
+					.metadata(cpuMetadataEmpty)
+					.monitorType(MonitorType.CPU)
+					.build();
+
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(monitorCpu, MAXIMUM_SPEED).isEmpty());
+
+		}
+
+		{
+			final Monitor monitor = Monitor.builder()
+					.id(ID)
+					.parentId(PARENT_ID)
+					.name(LABEL_VALUE)
+					.metadata(Collections.emptyMap())
+					.build();
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(monitor, MAXIMUM_SPEED).isEmpty());
+		}
+
+		{
+			final Monitor monitor = Monitor.builder().id(ID).parentId(PARENT_ID).name(LABEL_VALUE)
+					.metadata(null).build();
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(monitor, MAXIMUM_SPEED).isEmpty());
+		}
+
+		{
+			assertTrue(parameterToMetricObserver.convertMetadataInfoValue(null, MAXIMUM_SPEED).isEmpty());
+		}
+	}
+
+	@Test
+	void testCheckAttributesMap() {
+		final Map<String, String> emptyMap = Collections.emptyMap();
+
+		assertThrows(IllegalStateException.class,
+				() -> OtelParameterToMetricObserver.checkAttributesMap(MonitorType.ENCLOSURE, emptyMap));
+
+		assertThrows(IllegalStateException.class,
+				() -> OtelParameterToMetricObserver.checkAttributesMap(MonitorType.ENCLOSURE, null));
+
+	}
+
+	@Test
+	void testCanParseDoubleValue() {
+
+		assertFalse(OtelParameterToMetricObserver.canParseDoubleValue(null));
+		assertFalse(OtelParameterToMetricObserver.canParseDoubleValue(""));
+		assertFalse(OtelParameterToMetricObserver.canParseDoubleValue(" "));
+		assertFalse(OtelParameterToMetricObserver.canParseDoubleValue("a"));
+		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8"));
+		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8 "));
+		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8.0"));
 	}
 }
