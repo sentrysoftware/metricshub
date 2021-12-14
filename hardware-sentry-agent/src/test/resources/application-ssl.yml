@@ -22,3 +22,4 @@ hcVersion: "25"
 spring:
   main:
     banner-mode: "off"
+grpc: http://localhost:4317

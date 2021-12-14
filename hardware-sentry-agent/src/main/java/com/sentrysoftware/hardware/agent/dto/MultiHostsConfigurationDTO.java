@@ -63,9 +63,6 @@ public class MultiHostsConfigurationDTO {
 	private Map<String, Double> extraMetrics = new HashMap<>();
 
 	@Default
-	private String otlpGrpcEndpoint = "http://localhost:4317";
-
-	@Default
 	private boolean resolveHostnameToFqdn = true;
 
 	/**

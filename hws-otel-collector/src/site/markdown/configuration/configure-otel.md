@@ -29,11 +29,14 @@ The **Hardware Sentry Agent** is the internal component which scrapes targets, c
   sub_process:
     executable_path: bin\hws-agent.cmd
     args:
-      - --server.port=24376
+      - --grpc=http://localhost:4317
 
 ```
 
 The `sub_process` extension checks that **Hardware Sentry Agent** is up and running and restarts its process if needed.
+
+The example above shows how to configure **Hardware Sentry Agent** to push metrics to the local _OTLP receiver_ using [gRPC](https://grpc.io/) on port **TCP/4317**.
+If your OTLP receiver runs on another host or uses a different protocol or port, you will need to update the `--grpc` argument. Format: `--grpc=<http|https>://<host>:<port>`.
 
 By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-config.yaml**. You can provide an alternate configuration file using the `--config` argument.
 
@@ -41,7 +44,7 @@ By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-c
   sub_process:
     executable_path: bin\hws-agent.cmd
     args:
-      - --server.port=24376
+      - --grpc=http://localhost:4317
       - --config=config\hws-config-2.yaml
 ```
 
@@ -70,7 +73,7 @@ The primary data source is [`OTLP Receiver`](https://github.com/open-telemetry/o
         grpc:
 ```
 
-Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration file.
+Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration. See [Hardware Sentry Agent](#Hardware_Sentry_Agent)
 
 ### OpenTelemetry Collector Internal Exporter for Prometheus
 
