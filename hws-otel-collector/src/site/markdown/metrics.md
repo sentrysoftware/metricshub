@@ -3,7 +3,7 @@ description: How ${project.name} exposes hardware metrics.
 
 ## Metrics
 
-**${project.name}** collects the health metrics of all the hardware components that compose your servers, network switches, or storage systems and exposes them as _Monitors_ in your monitoring platform(s). Information specific to each _Monitor_ is provided as _Attributes_ to help you distinguish _Monitor instances_. _device_id_, _fqdn_, _vendor_, _serial_number_, _model_ are for example some of the _Attributes_ available for physical disks.
+**${project.name}** collects the health metrics of all the hardware components that compose your servers, network switches, or storage systems and exposes them as *Monitors* in your monitoring platform(s). Information specific to each *Monitor* is provided as *Attributes* to help you distinguish *Monitor instances*. *device_id*, *fqdn*, *vendor*, *serial_number*, *model* are for example some of the *Attributes* available for physical disks.
 
 The table below provides detailed information about the metrics scrapped by **${project.name}** for each Monitor and metric type.
 
