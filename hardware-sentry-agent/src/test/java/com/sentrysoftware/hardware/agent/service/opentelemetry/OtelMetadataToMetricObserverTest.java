@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
@@ -95,7 +96,7 @@ class OtelMetadataToMetricObserverTest {
 		assertTrue(actual.get(AttributeKey.stringKey("identifying_information")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("vendor")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("model")).isEmpty());
-		assertEquals(5e09, Double.parseDouble(actual.get(AttributeKey.stringKey("maximum_speed"))));
+		assertNull(actual.get(AttributeKey.stringKey("maximum_speed"))); // Already mapped as metric
 
 
 	}
