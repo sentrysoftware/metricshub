@@ -62,6 +62,9 @@ public class MultiHostsConfigurationDTO {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, Double> extraMetrics = new HashMap<>();
 
+	@Default
+	private boolean resolveHostnameToFqdn = true;
+
 	/**
 	 * Build a new empty instance
 	 * 

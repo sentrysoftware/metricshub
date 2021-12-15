@@ -1,11 +1,13 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Test;
+import java.util.Collections;
+import java.util.Map;
 
-import com.sentrysoftware.matrix.model.monitor.Monitor;
+import org.junit.jupiter.api.Test;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.testing.InMemoryMetricReader;
@@ -25,11 +27,77 @@ class OtelHelperTest {
 	@Test
 	void testCreateHostResource() {
 
-		final Monitor target = Monitor.builder().id("id").name("host").build();
-		target.addMetadata("fqdn", "host.my.domain.net");
-		assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(null, "host"));
-		assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(target, null));
-		assertNotNull(OtelHelper.createHostResource(target, "host"));
+		Map<String, String> emptyMap = Collections.emptyMap();
+
+		{
+			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(null,
+					"host", "Linux", "host.my.domain.net", false, emptyMap));
+			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
+					null, "Linux", "host.my.domain.net", false, emptyMap));
+			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
+					"host", null, "host.my.domain.net", false, emptyMap));
+			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
+					"host", "Linux", null, false, emptyMap));
+			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
+					"host", "Linux", "host.my.domain.net", false, null));
+			assertNotNull(OtelHelper.createHostResource("id", "host", "Linux", "host.my.domain.net", false, emptyMap));
+		}
+
+
+		{
+			final Resource actual = OtelHelper.createHostResource("id", "host", "Linux", "host.my.domain.net", false,
+					emptyMap);
+			final Resource expected = Resource.create(Attributes.builder()
+					.put("host.id", "id")
+					.put("host.name", "host")
+					.put("host.type", "Linux")
+					.put("fqdn", "host.my.domain.net")
+					.build());
+
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Resource actual = OtelHelper.createHostResource("id", "host", "Linux", "host.my.domain.net", true,
+					emptyMap);
+			final Resource expected = Resource.create(Attributes.builder()
+					.put("host.id", "id")
+					.put("host.name", "host.my.domain.net")
+					.put("host.type", "Linux")
+					.put("fqdn", "host.my.domain.net")
+					.build());
+
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Resource actual = OtelHelper.createHostResource("id", "host", "Linux", "host.my.domain.net", true,
+					Map.of("host.name", "host.my.domain"));
+			final Resource expected = Resource.create(Attributes.builder()
+					.put("host.id", "id")
+					.put("host.name", "host.my.domain")
+					.put("host.type", "Linux")
+					.put("fqdn", "host.my.domain.net")
+					.build());
+
+			assertEquals(expected, actual);
+		}
+
+		{
+			final Resource actual = OtelHelper.createHostResource("id", "host", "Linux", "host.my.domain.net", true,
+					Map.of(
+							"host.name", "host.my.domain",
+							"fqdn", "host-01.my.domain.com"
+					));
+			final Resource expected = Resource.create(Attributes.builder()
+					.put("host.id", "id")
+					.put("host.name", "host-01.my.domain.com")
+					.put("host.type", "Linux")
+					.put("fqdn", "host-01.my.domain.com")
+					.build());
+
+			assertEquals(expected, actual);
+		}
 	}
 
 	@Test

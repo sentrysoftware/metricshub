@@ -4,6 +4,8 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -71,4 +73,8 @@ public class HostConfigurationDTO {
 
 	@Default
 	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Map<String, String> extraLabels = new HashMap<>();
 }
