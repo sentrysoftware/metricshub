@@ -2,6 +2,7 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,6 +29,7 @@ class MetricsMappingTest {
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.PHYSICAL_DISK).get(SIZE));
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.GPU).get(SIZE));
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.CPU).get(MAXIMUM_SPEED));
+		assertNull(MetricsMapping.getAttributesMap(MonitorType.POWER_SUPPLY).get(POWER_SUPPLY_POWER));
 	}
 
 	@Test

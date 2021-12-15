@@ -20,6 +20,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -144,6 +145,7 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, tapeDriveMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TEMPERATURE, temperatureMetadataToMetrics());
 		metadataToMetric.put(MonitorType.VOLTAGE, voltageMetadataToMetrics());
+		metadataToMetric.put(MonitorType.POWER_SUPPLY, powerSupplyMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 
@@ -587,6 +589,24 @@ public class MetricsMapping {
 			.name("hw.gpu.corrected_errors_alarm")
 			.description("Alarm threshold of detected and corrected errors")
 			.build());
+
+		return map;
+	}
+
+	/**
+	 * Build Power Supply Metadata to metrics
+	 *
+	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
+	 */
+	private static Map<String, MetricInfo> powerSupplyMetadataToMetrics() {
+		final Map<String, MetricInfo> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		map.put(POWER_SUPPLY_POWER, MetricInfo
+				.builder()
+				.name("hw.power_supply.power_watts")
+				.unit(WATTS)
+				.description("Maximum power output")
+				.build());
 
 		return map;
 	}
