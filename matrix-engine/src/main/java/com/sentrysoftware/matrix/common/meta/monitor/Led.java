@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
@@ -84,6 +85,7 @@ public class Led implements IMetaMonitor {
 		map.put(STATUS_PARAMETER, STATUS);
 		map.put(COLOR_PARAMETER, COLOR);
 		map.put(LED_INDICATOR_PARAMETER, LED_INDICATOR);
+		map.put(PRESENT_PARAMETER, PRESENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

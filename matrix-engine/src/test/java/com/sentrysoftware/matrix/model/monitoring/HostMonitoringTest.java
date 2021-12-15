@@ -604,16 +604,15 @@ class HostMonitoringTest {
 		assertEquals(expectedFanBis, hostMonitoring.selectFromType(FAN).get(fanBisId));
 		assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
 
-		Monitor voltageMonitor = Monitor.builder()
-				.id("volatageID1")
+		Monitor connectorMonitor = Monitor.builder()
+				.id(TARGET_ID)
 				.targetId(TARGET_ID)
-				.parentId(ENCLOSURE_ID)
-				.name("volatageName1")
-				.monitorType(MonitorType.VOLTAGE)
+				.name("target")
+				.monitorType(MonitorType.TARGET)
 				.build();
 
-		hostMonitoring.addMissingMonitor(voltageMonitor);
-		assertNull(hostMonitoring.selectFromType(MonitorType.VOLTAGE)); // Voltage cannot be missing, we have already deleted it
+		hostMonitoring.addMissingMonitor(connectorMonitor);
+		assertNull(hostMonitoring.selectFromType(MonitorType.TARGET)); // Target is never missing
 
 	}
 

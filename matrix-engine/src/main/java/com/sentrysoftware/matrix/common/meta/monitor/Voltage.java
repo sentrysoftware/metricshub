@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
@@ -58,6 +59,7 @@ public class Voltage implements IMetaMonitor {
 
 		map.put(STATUS_PARAMETER, STATUS);
 		map.put(VOLTAGE_PARAMETER, _VOLTAGE);
+		map.put(PRESENT_PARAMETER, PRESENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

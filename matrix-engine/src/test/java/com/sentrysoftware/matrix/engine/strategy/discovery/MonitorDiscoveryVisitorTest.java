@@ -345,6 +345,7 @@ class MonitorDiscoveryVisitorTest {
 				.extendedType(MonitorType.LED.getNameInConnector())
 				.alertRules(MonitorType.LED.getMetaMonitor().getStaticAlertRules())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LED);
 
@@ -375,6 +376,7 @@ class MonitorDiscoveryVisitorTest {
 				.extendedType(MonitorType.LOGICAL_DISK.getNameInConnector())
 				.alertRules(MonitorType.LOGICAL_DISK.getMetaMonitor().getStaticAlertRules())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LOGICAL_DISK);
 
@@ -405,6 +407,7 @@ class MonitorDiscoveryVisitorTest {
 				.extendedType(MonitorType.LUN.getNameInConnector())
 				.alertRules(MonitorType.LUN.getMetaMonitor().getStaticAlertRules())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.LUN);
 
@@ -621,6 +624,7 @@ class MonitorDiscoveryVisitorTest {
 				.extendedType(MonitorType.TEMPERATURE.getNameInConnector())
 				.alertRules(MonitorType.TEMPERATURE.getMetaMonitor().getStaticAlertRules())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
 
@@ -651,6 +655,7 @@ class MonitorDiscoveryVisitorTest {
 				.extendedType(MonitorType.VOLTAGE.getNameInConnector())
 				.alertRules(MonitorType.VOLTAGE.getMetaMonitor().getStaticAlertRules())
 				.build();
+		expectedMonitor.setAsPresent();
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.VOLTAGE);
 

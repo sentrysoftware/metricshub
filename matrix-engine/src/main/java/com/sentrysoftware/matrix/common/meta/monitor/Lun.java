@@ -27,6 +27,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PATHS_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WWN;
@@ -75,6 +76,7 @@ public class Lun implements IMetaMonitor {
 		map.put(STATUS_PARAMETER, STATUS);
 		map.put(AVAILABLE_PATH_COUNT_PARAMETER, AVAILABLE_PATH_COUNT);
 		map.put(AVAILABLE_PATH_INFORMATION_PARAMETER, AVAILABLE_PATH_INFORMATION);
+		map.put(PRESENT_PARAMETER, PRESENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

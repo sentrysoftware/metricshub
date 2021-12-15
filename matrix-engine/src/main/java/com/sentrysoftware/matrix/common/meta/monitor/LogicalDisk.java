@@ -24,6 +24,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RAID_LEVEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
@@ -77,6 +78,7 @@ public class LogicalDisk implements IMetaMonitor {
 		map.put(ERROR_COUNT_PARAMETER, ERROR_COUNT);
 		map.put(UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
 		map.put(LAST_ERROR_PARAMETER, LAST_ERROR);
+		map.put(PRESENT_PARAMETER, PRESENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
