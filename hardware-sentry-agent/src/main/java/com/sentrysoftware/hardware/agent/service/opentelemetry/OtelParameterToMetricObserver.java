@@ -1,13 +1,10 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.DEFAULT_ATTRIBUTE_NAMES;
-
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
-import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.ObservableDoubleMeasurement;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import lombok.Builder;
@@ -37,16 +34,17 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 	@Override
 	void observe(final Monitor monitor, final ObservableDoubleMeasurement recorder) {
 
-		// Create the metric attributes
-		final Attributes attributes = createAttributes(monitor, getAttributeKeys(DEFAULT_ATTRIBUTE_NAMES));
-
 		// The parameter is not available, we can just stop our callback
 		if (!isParameterAvailable(monitor, matrixDataKey)) {
 			return;
 		}
 
 		// Record the value
-		recorder.observe(getParameterValue(monitor, matrixDataKey).doubleValue(), attributes);
+		recorder.observe(
+				getParameterValue(monitor, matrixDataKey).doubleValue(),
+				// Create the metric attributes
+				createAttributes(monitor)
+		);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
-description: How to configure Hardware Sentry Prometheus Exporter to scrape targets with various protocols.
+description: How to configure Hardware Sentry Agent to scrape targets with various protocols.
 
 # Monitoring Configuration
 
@@ -414,3 +414,41 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
+
+### Hostname Resolution
+
+By default, the *Hardware Sentry Agent* resolves the `hostname` value to a Fully Qualified Domain Name (FQDN) value which goes then in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`.
+You can disable the hostname resolution by setting the `resolveHostnameToFqdn` property to `false`:
+
+```yaml
+resolveHostnameToFqdn: false
+
+targets:
+
+- target:
+    hostname: host01
+    type: Linux
+```
+This will skip resolving the hostname to a Fully Qualified Domain Name, then the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) `host.name` attribute is set to the configured `hostname` value.
+
+### Target Extra labels
+
+You can specify additional labels to be reported on each metric collected from a specific target, using the `extraLabels` property:
+
+```yaml
+targets:
+
+- target:
+    hostname: host01
+    type: Linux
+  snmp:
+    version: v1
+    port: 161
+    timeout: 120
+  extraLabels:
+    host.name: host01.internal.domain.net
+    app: Jenkins
+```
+
+The example above configures the *Hardware Sentry Agent* to set the `host.name` attribute as `host01.internal.domain.net` for the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) related to the configured target `host01`.
+Let's say, we have a monitoring solution consuming OpenTelemetry data and already groups a set of metrics collected on the host `host01.internal.domain.net`, knowing that, this host is identified based on the attribute value `host.name`. To get the *Hardware Sentry Agent* metrics grouped under the same host (`host01.internal.domain.net`), the *Hardware Sentry Agent* can be configured to identify the target as `host01.internal.domain.net` using the same `host.name` attribute value through `extraLabels`.

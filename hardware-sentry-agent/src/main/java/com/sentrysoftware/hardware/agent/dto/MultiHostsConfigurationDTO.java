@@ -1,14 +1,17 @@
 package com.sentrysoftware.hardware.agent.dto;
 
 import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +33,7 @@ public class MultiHostsConfigurationDTO {
 	public static final int DEFAULT_DISCOVERY_CYCLE = 30;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<HostConfigurationDTO> targets = new HashSet<>();
 
 	@Default
@@ -51,13 +55,15 @@ public class MultiHostsConfigurationDTO {
 	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Map<String, String> extraLabels = new HashMap<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Map<String, Double> extraMetrics = new HashMap<>();
 
 	@Default
-	private String otlpGrpcEndpoint = "http://localhost:4317";
+	private boolean resolveHostnameToFqdn = true;
 
 	/**
 	 * Build a new empty instance

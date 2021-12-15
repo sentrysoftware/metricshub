@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.agent.service.task;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
@@ -20,7 +21,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
@@ -45,7 +49,7 @@ class StrategyTaskTest {
 	private StrategyTaskInfo strategyTaskInfo;
 
 	@Mock
-	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+	private UserConfiguration userConfiguration;
 
 	@Mock
 	private MetricReaderFactory periodicReaderFactory;
@@ -96,11 +100,23 @@ class StrategyTaskTest {
 		doReturn("OFF").when(strategyTaskInfo).getLoggerLevel();
 		doReturn(engineConfiguration).when(hostMonitoring).getEngineConfiguration();
 		doReturn(EngineResult.builder().build()).when(hostMonitoring).run(any());
+		doReturn(MultiHostsConfigurationDTO.builder().build()).when(userConfiguration).getMultiHostsConfigurationDTO();
+		doReturn(HostConfigurationDTO
+				.builder()
+				.target(HardwareTargetDTO
+						.builder()
+						.hostname("target")
+						.id("id")
+						.type(TargetType.LINUX)
+						.build())
+				.build())
+				.when(userConfiguration).getHostConfigurationDTO();
 
 		doReturn(4).when(strategyTaskInfo).getDiscoveryCycle();
 
 		try(MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)){
-			otelHelper.when(() -> OtelHelper.createHostResource(any(Monitor.class), anyString()))
+			otelHelper.when(() -> OtelHelper.createHostResource(
+					anyString(), anyString(), anyString(), anyString(), anyBoolean(), any()))
 				.thenCallRealMethod();
 
 			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to

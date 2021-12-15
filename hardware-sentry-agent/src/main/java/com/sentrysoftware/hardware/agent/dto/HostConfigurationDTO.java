@@ -1,10 +1,14 @@
 package com.sentrysoftware.hardware.agent.dto;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.protocol.HttpProtocolDTO;
@@ -53,9 +57,11 @@ public class HostConfigurationDTO {
 	private OsCommandConfigDTO osCommand;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<String> selectedConnectors = new HashSet<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<String> excludedConnectors = new HashSet<>();
 
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -67,4 +73,8 @@ public class HostConfigurationDTO {
 
 	@Default
 	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Map<String, String> extraLabels = new HashMap<>();
 }

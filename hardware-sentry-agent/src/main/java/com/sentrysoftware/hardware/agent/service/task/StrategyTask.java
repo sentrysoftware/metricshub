@@ -7,11 +7,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.ThreadContext;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
@@ -34,7 +33,7 @@ public class StrategyTask implements Runnable {
 	@NonNull
 	private StrategyTaskInfo strategyTaskInfo;
 	@NonNull
-	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+	private UserConfiguration userConfiguration;
 	@NonNull
 	private MetricReaderFactory periodicReaderFactory;
 
@@ -95,12 +94,18 @@ public class StrategyTask implements Runnable {
 		// Create a resource if it hasn't been created by the previous cycle
 		if (sdkMeterProvider == null) {
 
-			// Get the target type as it is going to be set on the resource attribute (host.type)
-			String targetType = hostMonitoring.getEngineConfiguration().getTarget().getType().getDisplayName();
-
 			// Create the resource
-			final Resource resource = OtelHelper.createHostResource(hostMonitoring.getTargetMonitor(),
-					targetType);
+			final Monitor targetMonitor = hostMonitoring.getTargetMonitor();
+			final HostConfigurationDTO hostConfigurationDTO = userConfiguration.getHostConfigurationDTO();
+
+			final Resource resource = OtelHelper.createHostResource(
+					targetMonitor.getId(),
+					hostConfigurationDTO.getTarget().getHostname(),
+					hostConfigurationDTO.getTarget().getType().getDisplayName(),
+					targetMonitor.getFqdn(),
+					userConfiguration.getMultiHostsConfigurationDTO().isResolveHostnameToFqdn(),
+					hostConfigurationDTO.getExtraLabels()
+			);
 
 			sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, periodicReaderFactory);
 		}
@@ -114,7 +119,6 @@ public class StrategyTask implements Runnable {
 			.filter(monitor -> !otelInitializedMonitors.contains(monitor.getId())) // Skip initialized monitors
 			.forEach(monitor -> {
 				initParameterObersvers(monitor);
-				initMetadataObserver(monitor);
 				initMetadataToMetricObservers(monitor);
 				otelInitializedMonitors.add(monitor.getId());
 			});
@@ -143,34 +147,11 @@ public class StrategyTask implements Runnable {
 							.matrixMetadata(metricEntry.getKey())
 							.metricInfo(metricEntry.getValue())
 							.sdkMeterProvider(sdkMeterProvider)
-							.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
+							.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
 							.build()
 							.init()
 					)
 			);
-
-	}
-
-	/**
-	 * Initialize the metadata observer for the given monitor
-	 * 
-	 * @param monitor the monitor we wish to observe its metadata through
-	 *                OpenTelemetry
-	 */
-	void initMetadataObserver(final Monitor monitor) {
-
-		final MetricInfo metricInfo = MetricsMapping.getMetricInfoForMonitorType(monitor.getMonitorType());
-
-		if (metricInfo != null)  {
-			OtelMetadataObserver
-				.builder()
-				.monitor(monitor)
-				.sdkMeterProvider(sdkMeterProvider)
-				.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
-				.metricInfo(metricInfo)
-				.build()
-				.init();
-		}
 
 	}
 
@@ -191,7 +172,7 @@ public class StrategyTask implements Runnable {
 					.monitor(monitor)
 					.metricInfo(metricInfo)
 					.matrixParameterName(parameterName)
-					.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
+					.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
 					.sdkMeterProvider(sdkMeterProvider)
 					.build()
 					.init() // Initialize using the current monitor/parameter context

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,14 +85,12 @@ public class MetricsMapping {
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(FQDN, ID, LABEL, PARENT);
 
-	private static final Map<MonitorType, Set<String>> metricInfoAttributes;
+	private static final Map<MonitorType, Map<String, String>> monitorTypeToAttributeMap;
 
 	@Getter
 	private static final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetricMap;
 	@Getter
 	private static final Map<MonitorType, Map<String, MetricInfo>> matrixMetadataToMetricMap;
-
-	private static final Map<MonitorType, MetricInfo> monitorTypeMetricInfo;
 
 	public static final MetricInfo AGENT_METRIC_INFO = MetricInfo
 			.builder()
@@ -103,7 +102,7 @@ public class MetricsMapping {
 	static {
 
 
-		final Map<MonitorType, Set<String>> attributesMap = new EnumMap<>(MonitorType.class);
+		final Map<MonitorType, Map<String, String>> attributesMap = new EnumMap<>(MonitorType.class);
 
 		attributesMap.put(MonitorType.BATTERY, concatDefaultAttributesWithMetadata(MonitorType.BATTERY));
 		attributesMap.put(MonitorType.BLADE, concatDefaultAttributesWithMetadata(MonitorType.BLADE));
@@ -129,7 +128,7 @@ public class MetricsMapping {
 		attributesMap.put(MonitorType.VOLTAGE, concatDefaultAttributesWithMetadata(MonitorType.VOLTAGE));
 		attributesMap.put(MonitorType.VM, concatDefaultAttributesWithMetadata(MonitorType.VM));
 
-		metricInfoAttributes = Collections.unmodifiableMap(attributesMap);
+		monitorTypeToAttributeMap = Collections.unmodifiableMap(attributesMap);
 
 		final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetric = new EnumMap<>(MonitorType.class);
 
@@ -158,126 +157,6 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TARGET, buildTargetMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
-
-		final Map<MonitorType, MetricInfo> infoMetricsMap = new EnumMap<>(MonitorType.class);
-
-		infoMetricsMap.put(MonitorType.BATTERY, MetricInfo
-			.builder()
-			.name("hw.battery.info")
-			.description("Battery information")
-			.build());
-		infoMetricsMap.put(MonitorType.BLADE, MetricInfo
-			.builder()
-			.name("hw.blade.info")
-			.description("Blade information")
-			.build());
-		infoMetricsMap.put(MonitorType.CONNECTOR, MetricInfo
-			.builder()
-			.name("hw.connector.info")
-			.description("Connector information")
-			.build());
-		infoMetricsMap.put(MonitorType.CPU, MetricInfo
-			.builder()
-			.name("hw.cpu.info")
-			.description("CPU information")
-			.build());
-		infoMetricsMap.put(MonitorType.CPU_CORE, MetricInfo
-			.builder()
-			.name("hw.cpu_core.info")
-			.description("CPU core information")
-			.build());
-		infoMetricsMap.put(MonitorType.DISK_CONTROLLER, MetricInfo
-			.builder()
-			.name("hw.disk_controller.info")
-			.description("Disk controller information")
-			.build());
-		infoMetricsMap.put(MonitorType.ENCLOSURE, MetricInfo
-			.builder()
-			.name("hw.enclosure.info")
-			.description("Enclosure information")
-			.build());
-		infoMetricsMap.put(MonitorType.FAN, MetricInfo
-			.builder()
-			.name("hw.fan.info")
-			.description("Fan information")
-			.build());
-		infoMetricsMap.put(MonitorType.GPU, MetricInfo
-			.builder()
-			.name("hw.gpu.info")
-			.description("GPU information")
-			.build());
-		infoMetricsMap.put(MonitorType.LED, MetricInfo
-			.builder()
-			.name("hw.led.info")
-			.description("LED information")
-			.build());
-		infoMetricsMap.put(MonitorType.LOGICAL_DISK, MetricInfo
-			.builder()
-			.name("hw.logical_disk.info")
-			.description("Logical disk information")
-			.build());
-		infoMetricsMap.put(MonitorType.LUN, MetricInfo
-			.builder()
-			.name("hw.lun.info")
-			.description("LUN information")
-			.build());
-		infoMetricsMap.put(MonitorType.MEMORY, MetricInfo
-			.builder()
-			.name("hw.memory.info")
-			.description("Memory module information")
-			.build());
-		infoMetricsMap.put(MonitorType.NETWORK_CARD, MetricInfo
-			.builder()
-			.name("hw.network_card.info")
-			.description("Network card information")
-			.build());
-		infoMetricsMap.put(MonitorType.OTHER_DEVICE, MetricInfo
-			.builder()
-			.name("hw.other_device.info")
-			.description("Other device information")
-			.build());
-		infoMetricsMap.put(MonitorType.PHYSICAL_DISK, MetricInfo
-			.builder()
-			.name("hw.physical_disk.info")
-			.description("Physical disk information")
-			.build());
-		infoMetricsMap.put(MonitorType.POWER_SUPPLY, MetricInfo
-			.builder()
-			.name("hw.power_supply.info")
-			.description("Power supply information")
-			.build());
-		infoMetricsMap.put(MonitorType.ROBOTICS, MetricInfo
-			.builder()
-			.name("hw.robotics.info")
-			.description("Robotics information")
-			.build());
-		infoMetricsMap.put(MonitorType.TAPE_DRIVE, MetricInfo
-			.builder()
-			.name("hw.tape_drive.info")
-			.description("Tape drive information")
-			.build());
-		infoMetricsMap.put(MonitorType.TEMPERATURE, MetricInfo
-			.builder()
-			.name("hw.temperature.info")
-			.description("Temperature information")
-			.build());
-		infoMetricsMap.put(MonitorType.VOLTAGE, MetricInfo
-			.builder()
-			.name("hw.voltage.info")
-			.description("Voltage information")
-			.build());
-		infoMetricsMap.put(MonitorType.VM, MetricInfo
-			.builder()
-			.name("hw.vm.info")
-			.description("Virtual machine information")
-			.build());
-		infoMetricsMap.put(MonitorType.TARGET, MetricInfo
-			.builder()
-			.name("hw.target.info")
-			.description("Target information")
-			.build());
-
-		monitorTypeMetricInfo = Collections.unmodifiableMap(infoMetricsMap);
 
 		final Map<MonitorType, Map<String, MetricInfo>> metadataToMetric = new EnumMap<>(MonitorType.class);
 
@@ -1624,35 +1503,30 @@ public class MetricsMapping {
 	 * Get the predefined attributes for the given monitor type
 	 *
 	 * @param monitorType The type of monitor
-	 * @return Set of string values
+	 * @return Map of attribute key to matrix metadata name
 	 */
-	public static Set<String> getAttributes(final MonitorType monitorType) {
-		return metricInfoAttributes.get(monitorType);
-	}
-
-	/**
-	 * Get the predefined {@link MetricInfo} for the given monitor type
-	 *
-	 * @param monitorType The type of monitor
-	 * @return {@link MetricInfo} instance
-	 */
-	public static MetricInfo getMetricInfoForMonitorType(final MonitorType monitorType) {
-		return monitorTypeMetricInfo.get(monitorType);
+	public static Map<String, String> getAttributesMap(final MonitorType monitorType) {
+		return monitorTypeToAttributeMap.get(monitorType);
 	}
 
 	/**
 	 * Concatenate the predefined labels with the specific monitor metadata
 	 *
 	 * @param monitorType The monitor type we want to get its metadata
-	 * @return Set of String values
+	 * 
+	 * @return Map of attribute key to matrix metadata name
 	 */
-	private static Set<String> concatDefaultAttributesWithMetadata(final MonitorType monitorType) {
+	private static Map<String, String> concatDefaultAttributesWithMetadata(final MonitorType monitorType) {
 
 		return Stream
 			.concat(DEFAULT_ATTRIBUTE_NAMES.stream(), monitorType.getMetaMonitor().getMetadata().stream())
-			.map(ServiceHelper::camelCaseToSnakeCase)
 			.sorted()
-			.collect(Collectors.toSet());
+			.collect(Collectors.toMap(
+						ServiceHelper::camelCaseToSnakeCase,
+						Function.identity(),
+						(k1, k2) -> k2
+					)
+			);
 	}
 
 	/**
