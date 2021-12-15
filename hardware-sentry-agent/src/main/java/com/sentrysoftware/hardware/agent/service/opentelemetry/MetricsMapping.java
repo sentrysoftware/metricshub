@@ -101,35 +101,6 @@ public class MetricsMapping {
 
 	static {
 
-
-		final Map<MonitorType, Map<String, String>> attributesMap = new EnumMap<>(MonitorType.class);
-
-		attributesMap.put(MonitorType.BATTERY, concatDefaultAttributesWithMetadata(MonitorType.BATTERY));
-		attributesMap.put(MonitorType.BLADE, concatDefaultAttributesWithMetadata(MonitorType.BLADE));
-		attributesMap.put(MonitorType.CONNECTOR, concatDefaultAttributesWithMetadata(MonitorType.CONNECTOR));
-		attributesMap.put(MonitorType.CPU_CORE, concatDefaultAttributesWithMetadata(MonitorType.CPU_CORE));
-		attributesMap.put(MonitorType.CPU, concatDefaultAttributesWithMetadata(MonitorType.CPU));
-		attributesMap.put(MonitorType.DISK_CONTROLLER, concatDefaultAttributesWithMetadata(MonitorType.DISK_CONTROLLER));
-		attributesMap.put(MonitorType.ENCLOSURE, concatDefaultAttributesWithMetadata(MonitorType.ENCLOSURE));
-		attributesMap.put(MonitorType.FAN, concatDefaultAttributesWithMetadata(MonitorType.FAN));
-		attributesMap.put(MonitorType.GPU, concatDefaultAttributesWithMetadata(MonitorType.GPU));
-		attributesMap.put(MonitorType.LED, concatDefaultAttributesWithMetadata(MonitorType.LED));
-		attributesMap.put(MonitorType.LOGICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.LOGICAL_DISK));
-		attributesMap.put(MonitorType.LUN, concatDefaultAttributesWithMetadata(MonitorType.LUN));
-		attributesMap.put(MonitorType.TARGET, concatDefaultAttributesWithMetadata(MonitorType.TARGET));
-		attributesMap.put(MonitorType.MEMORY, concatDefaultAttributesWithMetadata(MonitorType.MEMORY));
-		attributesMap.put(MonitorType.NETWORK_CARD, concatDefaultAttributesWithMetadata(MonitorType.NETWORK_CARD));
-		attributesMap.put(MonitorType.OTHER_DEVICE, concatDefaultAttributesWithMetadata(MonitorType.OTHER_DEVICE));
-		attributesMap.put(MonitorType.PHYSICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.PHYSICAL_DISK));
-		attributesMap.put(MonitorType.POWER_SUPPLY, concatDefaultAttributesWithMetadata(MonitorType.POWER_SUPPLY));
-		attributesMap.put(MonitorType.ROBOTICS, concatDefaultAttributesWithMetadata(MonitorType.ROBOTICS));
-		attributesMap.put(MonitorType.TAPE_DRIVE, concatDefaultAttributesWithMetadata(MonitorType.TAPE_DRIVE));
-		attributesMap.put(MonitorType.TEMPERATURE, concatDefaultAttributesWithMetadata(MonitorType.TEMPERATURE));
-		attributesMap.put(MonitorType.VOLTAGE, concatDefaultAttributesWithMetadata(MonitorType.VOLTAGE));
-		attributesMap.put(MonitorType.VM, concatDefaultAttributesWithMetadata(MonitorType.VM));
-
-		monitorTypeToAttributeMap = Collections.unmodifiableMap(attributesMap);
-
 		final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetric = new EnumMap<>(MonitorType.class);
 
 		matrixParamToMetric.put(MonitorType.BATTERY, buildBatteryMetricsMapping());
@@ -175,6 +146,34 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.VOLTAGE, voltageMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
+
+		final Map<MonitorType, Map<String, String>> attributesMap = new EnumMap<>(MonitorType.class);
+
+		attributesMap.put(MonitorType.BATTERY, concatDefaultAttributesWithMetadata(MonitorType.BATTERY));
+		attributesMap.put(MonitorType.BLADE, concatDefaultAttributesWithMetadata(MonitorType.BLADE));
+		attributesMap.put(MonitorType.CONNECTOR, concatDefaultAttributesWithMetadata(MonitorType.CONNECTOR));
+		attributesMap.put(MonitorType.CPU_CORE, concatDefaultAttributesWithMetadata(MonitorType.CPU_CORE));
+		attributesMap.put(MonitorType.CPU, concatDefaultAttributesWithMetadata(MonitorType.CPU));
+		attributesMap.put(MonitorType.DISK_CONTROLLER, concatDefaultAttributesWithMetadata(MonitorType.DISK_CONTROLLER));
+		attributesMap.put(MonitorType.ENCLOSURE, concatDefaultAttributesWithMetadata(MonitorType.ENCLOSURE));
+		attributesMap.put(MonitorType.FAN, concatDefaultAttributesWithMetadata(MonitorType.FAN));
+		attributesMap.put(MonitorType.GPU, concatDefaultAttributesWithMetadata(MonitorType.GPU));
+		attributesMap.put(MonitorType.LED, concatDefaultAttributesWithMetadata(MonitorType.LED));
+		attributesMap.put(MonitorType.LOGICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.LOGICAL_DISK));
+		attributesMap.put(MonitorType.LUN, concatDefaultAttributesWithMetadata(MonitorType.LUN));
+		attributesMap.put(MonitorType.TARGET, concatDefaultAttributesWithMetadata(MonitorType.TARGET));
+		attributesMap.put(MonitorType.MEMORY, concatDefaultAttributesWithMetadata(MonitorType.MEMORY));
+		attributesMap.put(MonitorType.NETWORK_CARD, concatDefaultAttributesWithMetadata(MonitorType.NETWORK_CARD));
+		attributesMap.put(MonitorType.OTHER_DEVICE, concatDefaultAttributesWithMetadata(MonitorType.OTHER_DEVICE));
+		attributesMap.put(MonitorType.PHYSICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.PHYSICAL_DISK));
+		attributesMap.put(MonitorType.POWER_SUPPLY, concatDefaultAttributesWithMetadata(MonitorType.POWER_SUPPLY));
+		attributesMap.put(MonitorType.ROBOTICS, concatDefaultAttributesWithMetadata(MonitorType.ROBOTICS));
+		attributesMap.put(MonitorType.TAPE_DRIVE, concatDefaultAttributesWithMetadata(MonitorType.TAPE_DRIVE));
+		attributesMap.put(MonitorType.TEMPERATURE, concatDefaultAttributesWithMetadata(MonitorType.TEMPERATURE));
+		attributesMap.put(MonitorType.VOLTAGE, concatDefaultAttributesWithMetadata(MonitorType.VOLTAGE));
+		attributesMap.put(MonitorType.VM, concatDefaultAttributesWithMetadata(MonitorType.VM));
+
+		monitorTypeToAttributeMap = Collections.unmodifiableMap(attributesMap);
 	}
 
 	/**
@@ -1520,6 +1519,7 @@ public class MetricsMapping {
 
 		return Stream
 			.concat(DEFAULT_ATTRIBUTE_NAMES.stream(), monitorType.getMetaMonitor().getMetadata().stream())
+			.filter(matrixMetadata -> !isMetadataMappedAsMetric(monitorType, matrixMetadata))
 			.sorted()
 			.collect(Collectors.toMap(
 						ServiceHelper::camelCaseToSnakeCase,
@@ -1527,6 +1527,19 @@ public class MetricsMapping {
 						(k1, k2) -> k2
 					)
 			);
+	}
+
+	/**
+	 * Checks if the given matrix metadata is mapped as metric
+	 * 
+	 * @param monitorType        The type of the monitor defined by matrix engine
+	 * @param matrixMetadataName The name of the metadata (key)
+	 * @return <code>true</code> if the metadata is mapped as metric otherwise <code>false</code>
+	 */
+	private static boolean isMetadataMappedAsMetric(final MonitorType monitorType, final String matrixMetadataName) {
+		final Map<String, MetricInfo> metadataToMetricMap = matrixMetadataToMetricMap.get(monitorType);
+
+		return metadataToMetricMap != null && metadataToMetricMap.containsKey(matrixMetadataName);
 	}
 
 	/**
