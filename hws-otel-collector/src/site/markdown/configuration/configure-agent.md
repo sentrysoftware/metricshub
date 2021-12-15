@@ -379,7 +379,7 @@ and indicate a number of jobs.
 
 <div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
 
-### Force or Exclude Connectors
+### Connectors
 
 The **${project.name}** comes with the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/), a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
 
@@ -414,11 +414,9 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
-
 ### Hostname Resolution
 
-By default, the *Hardware Sentry Agent* resolves the `hostname` value to a Fully Qualified Domain Name (FQDN) value which goes then in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`.
-You can disable the hostname resolution by setting the `resolveHostnameToFqdn` property to `false`:
+By default, **${project.name}** resolves the `hostname` of the target to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
@@ -429,11 +427,10 @@ targets:
     hostname: host01
     type: Linux
 ```
-This will skip resolving the hostname to a Fully Qualified Domain Name, then the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) `host.name` attribute is set to the configured `hostname` value.
 
-### Target Extra labels
+### extraLabels
 
-You can specify additional labels to be reported on each metric collected from a specific target, using the `extraLabels` property:
+If your monitoring solution is already consuming OpenTelemetry data, you need to set `extraLabels` to ensure the metrics collected by the *Hardware Sentry Agent* are grouped under the appropriate host. The `host.name` attribute is used as the key to connect the *Hardware Sentry Agent* and any other OpenTelemetry data as shown in the example below:
 
 ```yaml
 targets:
@@ -449,6 +446,3 @@ targets:
     host.name: host01.internal.domain.net
     app: Jenkins
 ```
-
-The example above configures the *Hardware Sentry Agent* to set the `host.name` attribute as `host01.internal.domain.net` for the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) related to the configured target `host01`.
-Let's say, we have a monitoring solution consuming OpenTelemetry data and already groups a set of metrics collected on the host `host01.internal.domain.net`, knowing that, this host is identified based on the attribute value `host.name`. To get the *Hardware Sentry Agent* metrics grouped under the same host (`host01.internal.domain.net`), the *Hardware Sentry Agent* can be configured to identify the target as `host01.internal.domain.net` using the same `host.name` attribute value through `extraLabels`.
