@@ -303,7 +303,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		log.debug("Created Target: {} ID: {} ", target.getHostname(), target.getId());
 
-		return targetMonitor;
+		return hostMonitoring.getTargetMonitor();
 	}
 
 	/**

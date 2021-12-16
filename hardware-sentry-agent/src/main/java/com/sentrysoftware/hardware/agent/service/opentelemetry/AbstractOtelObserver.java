@@ -25,7 +25,7 @@ import lombok.NonNull;
 @AllArgsConstructor
 public abstract class AbstractOtelObserver {
 
-	protected final ObservableInfo observableInfo;
+	protected final Monitor monitor;
 	protected final SdkMeterProvider sdkMeterProvider;
 	protected final MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
@@ -84,7 +84,7 @@ public abstract class AbstractOtelObserver {
 	 * @return {@link Meter} instance defined by the metrics API
 	 */
 	protected Meter getMeter() {
-		return sdkMeterProvider.get(observableInfo.getMonitorId());
+		return sdkMeterProvider.get(monitor.getId());
 	}
 
 	/**

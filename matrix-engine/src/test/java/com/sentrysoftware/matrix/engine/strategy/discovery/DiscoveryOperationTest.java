@@ -15,9 +15,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,13 +26,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -44,7 +42,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -942,65 +939,9 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testResetPresentParam() {
-		assertDoesNotThrow(() -> DiscoveryOperation.resetPresentParam(null));
-
-		final DiscreteParam presentParam = DiscreteParam.present();
-
-		DiscoveryOperation.resetPresentParam(presentParam);
-
-		assertNull(presentParam.getState());
-	}
-
-	@Test
-	void testProcessMissing() {
-		{
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-
-			final Monitor fan = Monitor.builder()
-					.id(FAN_ID)
-					.name(FAN_NAME)
-					.targetId(ECS1_01)
-					.parentId(ENCLOSURE_ID)
-					.monitorType(FAN)
-					.build();
-
-			DiscoveryOperation.processMissing(fan, Collections.singleton(ENCLOSURE_ID), hostMonitoring);
-
-			final Monitor expectedFan = Monitor.builder()
-					.id(FAN_ID)
-					.name(FAN_NAME)
-					.targetId(ECS1_01)
-					.parentId(ENCLOSURE_ID)
-					.monitorType(FAN)
-					.build();
-			expectedFan.setAsMissing();
-
-			assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
-		}
-
-		{
-			final IHostMonitoring hostMonitoring = new HostMonitoring();
-
-			final Monitor fan = Monitor.builder()
-					.id(FAN_ID)
-					.name(FAN_NAME)
-					.targetId(ECS1_01)
-					.parentId(ENCLOSURE_ID)
-					.monitorType(FAN)
-					.build();
-
-			hostMonitoring.addMonitor(fan);
-			DiscoveryOperation.processMissing(fan, Collections.singleton(FAN_ID), hostMonitoring);
-
-			assertEquals(fan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
-		}
-	}
-
-	@Test
 	void testHandleMissingMonitorDetection() {
 		final IHostMonitoring hostMonitoring = buildHostMonitoringScenarioForMissingMonitors();
-		new DiscoveryOperation().handleMissingMonitorDetection(hostMonitoring);
+		discoveryOperation.handleMissingMonitorDetection(hostMonitoring);
 		assertExpectedMissingMonitors(hostMonitoring);
 	}
 
@@ -1014,23 +955,6 @@ class DiscoveryOperationTest {
 		assertExpectedMissingMonitors(hostMonitoring);
 	}
 
-	@Test
-	void testPrepare() {
-		final IHostMonitoring hostMonitoring = buildHostMonitoringScenarioForMissingMonitors();
-		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		discoveryOperation.prepare();
-		strategyConfig
-			.getHostMonitoring()
-			.getMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.map(monitor -> monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class))
-		.filter(Objects::nonNull)
-		.forEach(parameter -> assertNull(parameter.getState()));
-	}
-
 	private static void assertExpectedMissingMonitors(final IHostMonitoring hostMonitoring) {
 		final Monitor expectedFan1 = Monitor.builder()
 				.id(FAN_ID + 1)
@@ -1038,8 +962,9 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
-		expectedFan1.setAsMissing();
+		expectedFan1.setAsPresent();
 
 		final Monitor expectedFan2 = Monitor.builder()
 				.id(FAN_ID + 2)
@@ -1047,9 +972,9 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
-		expectedFan2.setAsMissing();
-		expectedFan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class).setPreviousState(Present.PRESENT);
+		expectedFan2.setAsPresent();
 
 		final Monitor expectedFan3 = Monitor.builder()
 				.id(FAN_ID + 3)
@@ -1057,12 +982,38 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
 		expectedFan3.setAsPresent();
 
-		assertEquals(expectedFan1, hostMonitoring.selectFromType(FAN).get(FAN_ID + 1)); // Missing
-		assertEquals(expectedFan2, hostMonitoring.selectFromType(FAN).get(FAN_ID + 2)); // Missing
+		final Monitor expectedFan4 = Monitor.builder()
+				.id(FAN_ID + 4)
+				.name(FAN_NAME + 4)
+				.targetId(ECS1_01)
+				.parentId(ENCLOSURE_ID)
+				.monitorType(FAN)
+				.discoveryTime(strategyTime - 3600)
+				.build();
+
+		for (Monitor expected : List.of(expectedFan1, expectedFan2, expectedFan3, expectedFan4)) {
+			expected.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expected));
+		}
+
+		expectedFan4.setAsMissing();
+
+		assertEquals(expectedFan1, hostMonitoring.selectFromType(FAN).get(FAN_ID + 1)); // Present
+		assertEquals(expectedFan2, hostMonitoring.selectFromType(FAN).get(FAN_ID + 2)); // Present
 		assertEquals(expectedFan3, hostMonitoring.selectFromType(FAN).get(FAN_ID + 3)); // Present
+		Monitor actualFan4 = hostMonitoring.selectFromType(FAN).get(FAN_ID + 4);
+		// First trigger timestamp is hard to determine
+		expectedFan4.getAlertRules().values().stream().findFirst().orElseThrow()
+				.forEach(ar -> ar.setFirstTriggerTimestamp(null));
+		actualFan4.getAlertRules().values().stream().findFirst().orElseThrow()
+				.forEach(ar -> {
+					assertNotNull(ar.getFirstTriggerTimestamp());
+					ar.setFirstTriggerTimestamp(null);
+				});
+		assertEquals(expectedFan4, actualFan4); // Missing
 	}
 
 	private static IHostMonitoring buildHostMonitoringScenarioForMissingMonitors() {
@@ -1074,6 +1025,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
 
 		final Monitor fan2 = Monitor.builder()
@@ -1082,6 +1034,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
 
 		final Monitor fan3 = Monitor.builder()
@@ -1090,6 +1043,7 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime)
 				.build();
 
 		final Monitor fan4 = Monitor.builder()
@@ -1098,16 +1052,15 @@ class DiscoveryOperationTest {
 				.targetId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
+				.discoveryTime(strategyTime - 3600)
 				.build();
 
-		hostMonitoring.getPreviousMonitors().put(MonitorType.FAN, Map.of(FAN_ID + 1, fan1));
-		hostMonitoring.addMonitor(fan2);
-		DiscreteParam fan2PresentParam = fan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
-		fan2PresentParam.save();
-		fan2PresentParam.setState(null);
-		hostMonitoring.addMonitor(fan3);
+
 		hostMonitoring.addMonitor(fan4);
-		fan4.setParameters(Collections.emptyMap());
+		hostMonitoring.addMonitor(fan3);
+		hostMonitoring.addMonitor(fan2);
+		hostMonitoring.addMonitor(fan1);
+
 		return hostMonitoring;
 	}
 

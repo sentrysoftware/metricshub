@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -39,9 +38,7 @@ import com.sentrysoftware.matrix.engine.configuration.ApplicationBeans;
 import com.sentrysoftware.matrix.engine.strategy.Context;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
-import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
-import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorAlertRulesVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 
@@ -72,7 +69,6 @@ public class HostMonitoring implements IHostMonitoring {
 	public static final HostMonitoring HOST_MONITORING = new HostMonitoring();
 
 	private Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();
-	private Map<MonitorType, Map<String, Monitor>> previousMonitors = new LinkedHashMap<>();
 
 	private boolean isLocalhost;
 
@@ -92,22 +88,12 @@ public class HostMonitoring implements IHostMonitoring {
 	private PowerMeter powerMeter;
 
 	@Override
-	public void clearCurrent() {
+	public void clear() {
 		monitors.clear();
 	}
 
 	@Override
-	public void clearPrevious() {
-		previousMonitors.clear();
-	}
-
-	@Override
-	public void backup() {
-		previousMonitors.putAll(monitors);
-	}
-
-	@Override
-	public void addMonitor(@NonNull Monitor monitor) {
+	public Monitor addMonitor(@NonNull Monitor monitor) {
 		final String id = monitor.getId();
 		Assert.notNull(id, MONITOR_ID_CANNOT_BE_NULL);
 
@@ -119,8 +105,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
 
-		// The monitor is created then it is present
-		monitor.setAsPresent();
+		Monitor created = monitor;
 
 		if (monitors.containsKey(monitorType)) {
 
@@ -128,66 +113,49 @@ public class HostMonitoring implements IHostMonitoring {
 
 			final Monitor previousMonitor = map.get(id);
 
-			// Copy the parameters from the monitor instance previously collected
-			copyParameters(previousMonitor, monitor);
-
-			// Copy the alert rules from the monitor instance previously collected
-			copyAlertRules(previousMonitor, monitor);
-
-			map.put(id, monitor);
+			if (previousMonitor != null) {
+				// Next discovery
+				created = copyInformationFromCurrent(previousMonitor, monitor);
+			} else {
+				// first discovery
+				map.put(id, monitor);
+			}
 
 		} else {
+			// Very first monitor with this type
 			monitors.put(monitorType, createLinkedHashMap(id, monitor));
 		}
+
+		// The monitor is created then it is present
+		created.setAsPresent();
+
+		// Generate alert rules
+		created.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(created));
+
+		return created;
 	}
 
 	/**
-	 * Copy parameters from previous to current monitor. <br>
-	 * If the parameter is already collected the parameter's copy is skipped. E.g a present parameter set in the discovery
-	 *
-	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
-	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
+	 * Copy the current monitor's information in the monitor previously discovered
+	 * 
+	 * @param previous Previously discovered Monitor instance
+	 * @param current  Monitor from the current discovery
+	 * @return merged monitor instance
 	 */
-	static void copyParameters(final Monitor previous, final Monitor current) {
-		// This means that we are in the first discovery or a new monitor has been discovered
-		// Nothing to copy, just return
-		if (previous == null) {
-			return;
-		}
+	private Monitor copyInformationFromCurrent(@NonNull final Monitor previous, @NonNull final Monitor current) {
 
-		// Copy the parameters from previous, skip parameters already collected
-		previous.getParameters()
-			.entrySet()
-			.stream()
-			.filter(entry -> !current.getParameters().containsKey(entry.getKey()))
-			.map(Entry::getValue)
-			.forEach(current::addParameter);
+		previous.setName(current.getName());
+		previous.setParentId(current.getParentId());
+		previous.setTargetId(current.getTargetId());
+		previous.setExtendedType(current.getExtendedType());
+		previous.setDiscoveryTime(current.getDiscoveryTime());
+		previous.setMetadata(current.getMetadata());
 
-	}
-
-	/**
-	 * Copy alert rules from previous to current monitor.
-	 *
-	 * @param previous The monitor previously collected by the {@link CollectOperation} strategy
-	 * @param current  The monitor to created passed by the {@link DiscoveryOperation} or {@link DetectionOperation} strategy
-	 */
-	static void copyAlertRules(Monitor previous, Monitor current) {
-		// This means that we are in the first discovery or a new monitor has been discovered
-		// Nothing to copy, just return
-		if (previous == null) {
-			return;
-		}
-
-		// Copy the alert rules from previous, skip alert rules already created
-		previous.getAlertRules()
-			.entrySet()
-			.stream()
-			.filter(entry -> !current.getAlertRules().containsKey(entry.getKey()))
-			.forEach(entry -> current.addAlertRules(entry.getKey(), entry.getValue()));
+		return previous;
 	}
 
 	@Override
-	public void addMonitor(@NonNull final Monitor monitor, final String id,
+	public Monitor addMonitor(@NonNull final Monitor monitor, final String id,
 			@NonNull final String connectorName, @NonNull final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 
@@ -219,7 +187,7 @@ public class HostMonitoring implements IHostMonitoring {
 			}
 		}
 
-		addMonitor(monitor);
+		return addMonitor(monitor);
 	}
 
 	/**
@@ -684,13 +652,5 @@ public class HostMonitoring implements IHostMonitoring {
 
 	public enum PowerMeter {
 		COLLECTED, ESTIMATED;
-	}
-
-	@Override
-	public Monitor getMonitorByTypeAndId(@NonNull final MonitorType monitorType, @NonNull final String id) {
-
-		final Map<String, Monitor> sameTypeMonitors = selectFromType(monitorType);
-
-		return sameTypeMonitors != null ? sameTypeMonitors.get(id) : null;
 	}
 }

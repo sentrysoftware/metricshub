@@ -1,5 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
@@ -33,8 +34,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
@@ -52,7 +51,7 @@ class OtelParameterToMetricObserverTest {
 	private static final String LABEL_VALUE = "monitor";
 	private static final String PARENT_ID = "parent_id";
 	private static final String MAXIMUM_SPEED = "maximumSpeed";
-	private static final String ID = "id";
+
 
 	@Test
 	void testInit() {
@@ -87,19 +86,8 @@ class OtelParameterToMetricObserverTest {
 	 */
 	private static void testObservability(final IParameter parameter, String expectedMetricName, boolean gauge) {
 
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-
-		final Monitor target = Monitor
-				.builder()
-				.id(ID)
-				.name("host")
-				.monitorType(MonitorType.TARGET)
-				.targetId(ID)
-				.build();
+		final Monitor target = Monitor.builder().id(ID).name("host").build();
 		target.addMetadata(FQDN, "host.my.domain.net");
-
-		hostMonitoring.addMonitor(target);
-
 		final Resource resource = OtelHelper.createHostResource(target.getId(),
 				"host", "Linux", "host.my.domain.net", false, Collections.emptyMap());
 
@@ -120,7 +108,6 @@ class OtelParameterToMetricObserverTest {
 				.name("enclosure 1")
 				.parentId("host")
 				.monitorType(MonitorType.ENCLOSURE)
-				.targetId(ID)
 				.build();
 		enclosure.addMetadata(FQDN, "host.my.domain.net");
 		enclosure.addMetadata(DEVICE_ID, "1");
@@ -131,11 +118,9 @@ class OtelParameterToMetricObserverTest {
 		enclosure.addMetadata(TYPE, "Server");
 		enclosure.addMetadata(IDENTIFYING_INFORMATION, "Server 1 - Dell");
 
-		hostMonitoring.addMonitor(enclosure);
-
 		OtelParameterToMetricObserver
 			.builder()
-			.observableInfo(new ObservableInfo(enclosure.getId(), enclosure.getMonitorType(), hostMonitoring))
+			.monitor(enclosure)
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
 			.metricInfo(MetricsMapping.getMetricInfo(MonitorType.ENCLOSURE, parameter.getName()).get())

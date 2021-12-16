@@ -71,7 +71,6 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		// Add the monitor
 		monitorBuildingInfo.getHostMonitoring().addMonitor(monitor);
 
-		metaConnector.accept(new MonitorAlertRulesVisitor(monitor));
 	}
 
 	@Override
@@ -82,42 +81,36 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		// Add the monitor
 		monitorBuildingInfo.getHostMonitoring().addMonitor(monitor);
 
-		target.accept(new MonitorAlertRulesVisitor(monitor));
 	}
 
 	@Override
 	public void visit(Battery battery) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildBatteryName(monitorBuildingInfo), null);
 
-		battery.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildBatteryName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Blade blade) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildBladeName(monitorBuildingInfo), null);
 
-		blade.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildBladeName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Cpu cpu) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildCpuName(monitorBuildingInfo), null);
 
-		cpu.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildCpuName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(CpuCore cpuCore) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildCpuCoreName(monitorBuildingInfo), null);
 
-		cpuCore.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildCpuCoreName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(DiskController diskController) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildDiskControllerName(monitorBuildingInfo), null);
 
-		diskController.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildDiskControllerName(monitorBuildingInfo), null);
 	}
 
 	@Override
@@ -128,116 +121,97 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = targetMonitor.getId();
 		Assert.notNull(id, TARGET_ID_CANNOT_BE_NULL);
 
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
-
-		enclosure.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Fan fan) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildFanName(monitorBuildingInfo), null);
 
-		fan.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildFanName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Gpu gpu) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildGpuName(monitorBuildingInfo), null);
 
-		gpu.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildGpuName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Led led) {
 
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildLedName(monitorBuildingInfo), null);
-
-		led.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildLedName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(LogicalDisk logicalDisk) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildLogicalDiskName(monitorBuildingInfo), null);
 
-		logicalDisk.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildLogicalDiskName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Lun lun) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
 
-		lun.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Memory memory) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildMemoryName(monitorBuildingInfo), null);
 
-		memory.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildMemoryName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(NetworkCard networkCard) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
 
-		networkCard.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(OtherDevice otherDevice) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildOtherDeviceName(monitorBuildingInfo), null);
 
-		otherDevice.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildOtherDeviceName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(PhysicalDisk physicalDisk) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildPhysicalDiskName(monitorBuildingInfo), null);
 
-		physicalDisk.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildPhysicalDiskName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildPowerSupplyName(monitorBuildingInfo), null);
 
-		powerSupply.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildPowerSupplyName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Robotics robotics) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildRoboticsName(monitorBuildingInfo), null);
 
-		robotics.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildRoboticsName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Vm vm) {
 
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildVmName(monitorBuildingInfo), null);
-
-		vm.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildVmName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(TapeDrive tapeDrive) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildTapeDriveName(monitorBuildingInfo), null);
 
-		tapeDrive.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildTapeDriveName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Temperature temperature) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildTemperatureName(monitorBuildingInfo), null);
 
-		temperature.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildTemperatureName(monitorBuildingInfo), null);
 	}
 
 	@Override
 	public void visit(Voltage voltage) {
-		final Monitor monitor = createMonitor(MonitorNameBuilder.buildVoltageName(monitorBuildingInfo), null);
 
-		voltage.accept(new MonitorAlertRulesVisitor(monitor));
+		createMonitor(MonitorNameBuilder.buildVoltageName(monitorBuildingInfo), null);
 	}
 
 	/**
@@ -293,14 +267,15 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		monitor.addMetadata(TARGET_FQDN, targetMonitor.getFqdn());
 
 		// Finally we can add the monitor
-		hostMonitoring.addMonitor(monitor,
-			id,
-			connectorName,
-			monitorType,
-			attachedToDeviceId,
-			attachedToDeviceType);
+		return hostMonitoring.addMonitor(
+					monitor,
+					id,
+					connectorName,
+					monitorType,
+					attachedToDeviceId,
+					attachedToDeviceType
+				);
 
-		return monitor;
 	}
 
 	private static String getTextDataValueOrElse(final String data, final String other) {

@@ -15,19 +15,14 @@ public interface IHostMonitoring {
 
 	Map<MonitorType, Map<String, Monitor>> getMonitors();
 
-	Map<MonitorType, Map<String, Monitor>> getPreviousMonitors();
-
 	void setMonitors(Map<MonitorType, Map<String, Monitor>> monitors);
 
-	void setPreviousMonitors(Map<MonitorType, Map<String, Monitor>> previousMonitors);
+	void clear();
 
-	void clearCurrent();
+	Monitor addMonitor(Monitor monitor);
 
-	void clearPrevious();
-
-	void backup();
-
-	void addMonitor(Monitor monitor);
+	Monitor addMonitor(Monitor monitor, String id, String connectorName, MonitorType monitorType,
+			String attachedToDeviceId, String attachedToDeviceType);
 
 	void removeMonitor(Monitor monitor);
 
@@ -38,9 +33,6 @@ public interface IHostMonitoring {
 	Monitor findById(String monitorIdentifier);
 
 	String toJson();
-
-	void addMonitor(Monitor monitor, String id, String connectorName, MonitorType monitorType,
-			String attachedToDeviceId, String attachedToDeviceType);
 
 	void saveParameters();
 
@@ -80,5 +72,4 @@ public interface IHostMonitoring {
 
 	Monitor getTargetMonitor();
 
-	Monitor getMonitorByTypeAndId(MonitorType monitorType, String id);
 }

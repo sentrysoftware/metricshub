@@ -797,6 +797,8 @@ class MonitorDiscoveryVisitorTest {
 				.build();
 		expectedFan.setAsPresent();
 
+		expectedFan.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expectedFan));
+
 		final Map<String, Monitor> fans = hostMonitoring.selectFromType(MonitorType.FAN);
 
 		assertEquals(expectedFan, fans.values().stream().findFirst().get());
