@@ -612,6 +612,11 @@ public class MetricsMapping {
 			.factor(0.001)
 			.description("Voltage output")
 			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
+				.name("hw.voltage.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the voltage is present or not")
+				.build());
 
 		return map;
 	}
@@ -636,6 +641,11 @@ public class MetricsMapping {
 			.unit(CELSIUS)
 			.description("Current temperature reading in Celsius degrees")
 			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
+				.name("hw.temperature.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the temperature is present or not")
+				.build());
 
 		return map;
 	}
@@ -1036,6 +1046,11 @@ public class MetricsMapping {
 			.name("hw.lun.available_paths")
 			.description("Number of distinct paths available to the remote volume")
 			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
+				.name("hw.lun.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the LUN is present or not")
+				.build());
 
 		return map;
 	}
@@ -1064,6 +1079,11 @@ public class MetricsMapping {
 			.factor(1073741824.0)
 			.description("Amount of unused disk space in the logical disk")
 			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
+				.name("hw.logical_disk.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the logical disk is present or not")
+				.build());
 
 		return map;
 	}
@@ -1091,7 +1111,11 @@ public class MetricsMapping {
 			.unit(Led.LED_INDICATOR.getUnit())
 			.description("LED indicator status")
 			.build());
-
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
+				.name("hw.led.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the LED is present or not")
+				.build());
 		return map;
 	}
 

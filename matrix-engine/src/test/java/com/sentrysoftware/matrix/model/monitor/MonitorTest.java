@@ -354,18 +354,18 @@ class MonitorTest {
 		present.setState(null);
 		assertFalse(fan.isMissing());
 
-		// Temperature can never be missing
-		final Monitor temperature = Monitor.builder()
-				.monitorType(MonitorType.TEMPERATURE)
+		// Target cannot be missing
+		final Monitor target = Monitor.builder()
+				.monitorType(MonitorType.TARGET)
 				.build();
 
-		assertFalse(temperature.isMissing());
+		assertFalse(target.isMissing());
 
-		temperature.addParameter(DiscreteParam.present());
-		assertFalse(temperature.isMissing());
+		target.addParameter(DiscreteParam.present());
+		assertFalse(target.isMissing());
 
-		temperature.addParameter(DiscreteParam.missing());
-		assertFalse(temperature.isMissing());
+		target.addParameter(DiscreteParam.missing());
+		assertFalse(target.isMissing());
 
 	}
 }
