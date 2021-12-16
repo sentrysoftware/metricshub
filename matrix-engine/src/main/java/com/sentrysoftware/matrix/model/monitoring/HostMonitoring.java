@@ -313,7 +313,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	@Override
 	public void removeMonitor(Monitor monitor) {
-		if (null == monitor) {
+		if (monitor == null) {
 			return;
 		}
 
@@ -684,5 +684,13 @@ public class HostMonitoring implements IHostMonitoring {
 
 	public enum PowerMeter {
 		COLLECTED, ESTIMATED;
+	}
+
+	@Override
+	public Monitor getMonitorByTypeAndId(@NonNull final MonitorType monitorType, @NonNull final String id) {
+
+		final Map<String, Monitor> sameTypeMonitors = selectFromType(monitorType);
+
+		return sameTypeMonitors != null ? sameTypeMonitors.get(id) : null;
 	}
 }

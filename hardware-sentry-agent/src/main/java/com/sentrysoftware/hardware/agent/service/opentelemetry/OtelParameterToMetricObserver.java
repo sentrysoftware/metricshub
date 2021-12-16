@@ -18,10 +18,10 @@ import lombok.ToString;
 public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 
 	@Builder
-	public OtelParameterToMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
+	public OtelParameterToMetricObserver(ObservableInfo observableInfo, SdkMeterProvider sdkMeterProvider,
 			MultiHostsConfigurationDTO multiHostsConfigurationDTO, MetricInfo metricInfo, String matrixParameterName) {
 
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO, metricInfo, matrixParameterName);
+		super(observableInfo, sdkMeterProvider, multiHostsConfigurationDTO, metricInfo, matrixParameterName);
 
 	}
 
@@ -32,7 +32,9 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 	 * @param recorder An instance observing measurements with double values
 	 */
 	@Override
-	void observe(final Monitor monitor, final ObservableDoubleMeasurement recorder) {
+	void observe(final ObservableInfo observableInfo, final ObservableDoubleMeasurement recorder) {
+
+		final Monitor monitor = observableInfo.getMonitor();
 
 		// The parameter is not available, we can just stop our callback
 		if (!isParameterAvailable(monitor, matrixDataKey)) {

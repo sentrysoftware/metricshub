@@ -15,13 +15,15 @@ import lombok.ToString;
 public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 
 	@Builder
-	public OtelMetadataToMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
+	public OtelMetadataToMetricObserver(ObservableInfo observableInfo, SdkMeterProvider sdkMeterProvider,
 			MultiHostsConfigurationDTO multiHostsConfigurationDTO, MetricInfo metricInfo, String matrixMetadata) {
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO, metricInfo, matrixMetadata);
+		super(observableInfo, sdkMeterProvider, multiHostsConfigurationDTO, metricInfo, matrixMetadata);
 	}
 
 	@Override
-	void observe(final Monitor monitor, final ObservableDoubleMeasurement recorder) {
+	void observe(ObservableInfo observableInfo, final ObservableDoubleMeasurement recorder) {
+
+		final Monitor monitor = observableInfo.getMonitor();
 
 		// We are observing! is the metadata available?
 		if (checkMetadata(monitor, matrixDataKey)) {

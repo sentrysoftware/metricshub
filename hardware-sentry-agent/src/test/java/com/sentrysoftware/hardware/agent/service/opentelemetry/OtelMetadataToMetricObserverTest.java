@@ -1,6 +1,5 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -29,11 +30,24 @@ import io.opentelemetry.sdk.resources.Resource;
 
 class OtelMetadataToMetricObserverTest {
 
+	private final static String TARGET_ID = "targetId";
+
 	@Test
 	void testInit() {
 
-		final Monitor target = Monitor.builder().id(ID).name("host").build();
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor target = Monitor
+				.builder()
+				.id(TARGET_ID)
+				.name("host")
+				.monitorType(MonitorType.TARGET)
+				.targetId(TARGET_ID)
+				.build();
 		target.addMetadata(FQDN, "host.my.domain.net");
+
+		hostMonitoring.addMonitor(target);
+
 		final Resource resource = OtelHelper.createHostResource(target.getId(),
 				"host", "Linux", "host.my.domain.net", false, Collections.emptyMap());
 
@@ -52,14 +66,17 @@ class OtelMetadataToMetricObserverTest {
 				.builder()
 				.id("id_cpu")
 				.name("cpu 1")
-				.parentId("host")
+				.parentId(TARGET_ID)
 				.monitorType(MonitorType.CPU)
+				.targetId(TARGET_ID)
 				.build();
 		cpu.addMetadata(FQDN, "host.my.domain.net");
 
+		hostMonitoring.addMonitor(cpu);
+
 		OtelMetadataToMetricObserver
 			.builder()
-			.monitor(cpu)
+			.observableInfo(new ObservableInfo(cpu.getId(), cpu.getMonitorType(), hostMonitoring))
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
 			.metricInfo(MetricsMapping.getMetadataAsMetricInfo(MonitorType.CPU, MAXIMUM_SPEED).get())
@@ -90,7 +107,7 @@ class OtelMetadataToMetricObserverTest {
 		assertEquals("id_cpu", actual.get(AttributeKey.stringKey("id")));
 		assertEquals("cpu 1", actual.get(AttributeKey.stringKey("label")));
 		assertEquals("host.my.domain.net", actual.get(AttributeKey.stringKey("fqdn")));
-		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
+		assertEquals(TARGET_ID, actual.get(AttributeKey.stringKey("parent")));
 		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
 		assertTrue(actual.get(AttributeKey.stringKey("device_id")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("identifying_information")).isEmpty());

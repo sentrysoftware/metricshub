@@ -80,4 +80,5 @@ public interface IHostMonitoring {
 
 	Monitor getTargetMonitor();
 
+	Monitor getMonitorByTypeAndId(MonitorType monitorType, String id);
 }

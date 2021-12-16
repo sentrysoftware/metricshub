@@ -12,6 +12,7 @@ import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
@@ -30,9 +31,9 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	protected final MetricInfo metricInfo;
 	protected final String matrixDataKey;
 
-	protected AbstractOtelMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
+	protected AbstractOtelMetricObserver(ObservableInfo observableInfo, SdkMeterProvider sdkMeterProvider,
 			MultiHostsConfigurationDTO multiHostsConfigurationDTO, MetricInfo metricInfo, String matrixDataKey) {
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO);
+		super(observableInfo, sdkMeterProvider, multiHostsConfigurationDTO);
 		this.metricInfo = metricInfo;
 		this.matrixDataKey = matrixDataKey;
 	}
@@ -58,7 +59,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 				.setDescription(metricInfo.getDescription())
 				.setUnit(metricInfo.getUnit())
 				.ofDoubles()
-				.buildWithCallback(recorder -> observe(monitor, recorder));
+				.buildWithCallback(recorder -> observe(observableInfo, recorder));
 
 		} else {
 			// Gauge
@@ -68,18 +69,19 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 				.setUnit(metricInfo.getUnit())
 				.ofLongs()
 				.ofDoubles()
-				.buildWithCallback(recorder -> observe(monitor, recorder));
+				.buildWithCallback(recorder -> observe(observableInfo, recorder));
 		}
 
 	}
 
 	/**
-	 * Observe the metricInfo value
+	 * Observes the metricInfo value
 	 * 
-	 * @param monitor    The monitor we wish to observe its parameter or metadata
-	 * @param observable An instance observing measurements with double values
+	 * @param ObservableInfo Observable information. I.e. id and type of
+	 *                       monitor plus the {@link IHostMonitoring} instance
+	 * @param recorder       An instance observing measurements with double values
 	 */
-	abstract void observe(Monitor monitor, ObservableDoubleMeasurement recorder);
+	abstract void observe(ObservableInfo observableInfo, ObservableDoubleMeasurement recorder);
 
 	/**
 	 * Create OpenTelemetry {@link Attributes} using known attributes which could be overriden by the user
