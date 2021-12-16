@@ -66,8 +66,6 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 				.gaugeBuilder(metricInfo.getName())
 				.setDescription(metricInfo.getDescription())
 				.setUnit(metricInfo.getUnit())
-				.ofLongs()
-				.ofDoubles()
 				.buildWithCallback(recorder -> observe(monitor, recorder));
 		}
 
@@ -82,7 +80,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	abstract void observe(Monitor monitor, ObservableDoubleMeasurement recorder);
 
 	/**
-	 * Create OpenTelemetry {@link Attributes} using known attributes which could be overriden by the user
+	 * Create OpenTelemetry {@link Attributes} using known attributes which could be overridden by the user
 	 * 
 	 * @param monitor           The monitor from which we want to extract the
 	 *                          metadata

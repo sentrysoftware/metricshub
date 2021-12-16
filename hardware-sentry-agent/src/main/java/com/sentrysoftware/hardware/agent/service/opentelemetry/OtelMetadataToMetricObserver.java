@@ -27,7 +27,7 @@ public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 		if (checkMetadata(monitor, matrixDataKey)) {
 
 			// Record the value
-			recorder.observe(
+			recorder.record(
 					convertValue(monitor.getMetadata(matrixDataKey), metricInfo.getFactor()),
 					createAttributes(monitor)
 			);

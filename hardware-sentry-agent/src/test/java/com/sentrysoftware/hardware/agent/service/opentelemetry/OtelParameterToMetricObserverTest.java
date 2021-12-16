@@ -95,7 +95,7 @@ class OtelParameterToMetricObserverTest {
 		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()
 				.setResource(resource)
 				.registerMetricReader(inMemoryReader)
-				.buildAndRegisterGlobal();
+				.build();
 
 		final MultiHostsConfigurationDTO multiHostsConfigurationDTO= MultiHostsConfigurationDTO
 				.builder()
