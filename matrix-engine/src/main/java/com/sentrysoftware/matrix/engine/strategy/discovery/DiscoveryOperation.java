@@ -1,22 +1,14 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceTable;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
-import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
-
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,16 +23,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION1;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION2;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ADDITIONAL_INFORMATION3;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVERAGE_CPU_TEMPERATURE_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
@@ -48,24 +46,6 @@ public class DiscoveryOperation extends AbstractStrategy {
 	private static final String NO_HW_MONITORS_FOUND_MSG = "Could not discover system {}. No hardware monitors found in the connector {}";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
-
-	@Override
-	public void prepare() {
-
-		strategyConfig
-			.getHostMonitoring()
-			.backup();
-
-		strategyConfig
-			.getHostMonitoring()
-			.getMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.forEach(monitor ->
-				resetPresentParam(monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class)));
-	}
 
 	@Override
 	public Boolean call() throws Exception {
@@ -272,6 +252,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 				processSourceTableMetadata(connectorName, parameters, sourceKey, row, monitor, idCount);
 
+				setIdentifyingInformation(monitor);
+
 				final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 						.builder()
 						.monitor(monitor)
@@ -284,8 +266,6 @@ public class DiscoveryOperation extends AbstractStrategy {
 						.build();
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
-
-				setIdentifyingInformation(monitor);
 
 				idCount++;
 			}
@@ -542,67 +522,18 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 */
 	void handleMissingMonitorDetection(final IHostMonitoring hostMonitoring) {
 
-		final Set<Monitor> previousMonitors = hostMonitoring
-			.getPreviousMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.collect(Collectors.toSet());
-
-		final Set<Monitor> currentMonitors = hostMonitoring
+		hostMonitoring
 			.getMonitors()
 			.values()
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.collect(Collectors.toSet());
-
-		final Set<String> currentMonitorIds = currentMonitors
-			.stream()
-			.map(Monitor::getId)
-			.collect(Collectors.toSet());
-
-		previousMonitors.forEach(monitor -> processMissing(monitor, currentMonitorIds, hostMonitoring));
-
-		currentMonitors
-			.stream()
 			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
-			.filter(monitor -> monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class) != null)
-			.filter(monitor ->
-				monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class).getState() == null)
+			.filter(monitor -> !strategyTime.equals(monitor.getDiscoveryTime()))
 			.forEach(Monitor::setAsMissing);
+
 	}
 
-	/**
-	 * Process missing monitor
-	 *
-	 * @param previousMonitor   The previous monitor instance we wish to check
-	 * @param currentMonitorIds The current identifiers of the discovered monitor instances
-	 * @param hostMonitoring    The monitors wrapper
-	 */
-	static void processMissing(final Monitor previousMonitor, final Set<String> currentMonitorIds,
-			final IHostMonitoring hostMonitoring) {
-
-		if (currentMonitorIds.contains(previousMonitor.getId())) {
-			return;
-		}
-
-		hostMonitoring.addMissingMonitor(previousMonitor);
-	}
-
-	/**
-	 * Reset the present parameter
-	 *
-	 * @param presentParam The parameter we wish to reset
-	 */
-	static void resetPresentParam(final DiscreteParam presentParam) {
-
-		if (presentParam != null) {
-			presentParam.save();
-			presentParam.setState(null);
-		}
-	}
 
 	@Override
 	public void release() {

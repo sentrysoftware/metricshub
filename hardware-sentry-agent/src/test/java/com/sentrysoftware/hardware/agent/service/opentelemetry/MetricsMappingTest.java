@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 class MetricsMappingTest {
@@ -28,8 +30,12 @@ class MetricsMappingTest {
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.MEMORY).get(SIZE));
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.PHYSICAL_DISK).get(SIZE));
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.GPU).get(SIZE));
-		assertNull(MetricsMapping.getAttributesMap(MonitorType.CPU).get(MAXIMUM_SPEED));
-		assertNull(MetricsMapping.getAttributesMap(MonitorType.POWER_SUPPLY).get(POWER_SUPPLY_POWER));
+		assertNull(MetricsMapping.getAttributesMap(MonitorType.CPU)
+				.get(ServiceHelper.camelCaseToSnakeCase(MAXIMUM_SPEED)));
+		assertNull(MetricsMapping.getAttributesMap(MonitorType.POWER_SUPPLY)
+				.get(ServiceHelper.camelCaseToSnakeCase(POWER_SUPPLY_POWER)));
+		assertNull(MetricsMapping.getAttributesMap(MonitorType.LUN)
+				.get(ServiceHelper.camelCaseToSnakeCase(EXPECTED_PATH_COUNT)));
 	}
 
 	@Test

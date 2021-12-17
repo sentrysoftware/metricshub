@@ -13,6 +13,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_T
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
@@ -20,7 +21,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -398,6 +399,12 @@ public class MetricsMapping {
 			.description("Warning threshold of the available paths")
 			.build());
 
+		map.put(EXPECTED_PATH_COUNT, MetricInfo
+			.builder()
+			.name("hw.lun.expected_paths")
+			.description("Number of paths that are expected to be available to the remote volume")
+			.build());
+
 		return map;
 	}
 
@@ -632,11 +639,12 @@ public class MetricsMapping {
 			.factor(0.001)
 			.description("Voltage output")
 			.build());
-		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
-				.name("hw.voltage.present")
-				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the voltage is present or not")
-				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+			.builder()
+			.name("hw.voltage.present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.description("Whether the voltage is present or not")
+			.build());
 
 		return map;
 	}
@@ -661,11 +669,12 @@ public class MetricsMapping {
 			.unit(CELSIUS)
 			.description("Current temperature reading in Celsius degrees")
 			.build());
-		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
-				.name("hw.temperature.present")
-				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the temperature is present or not")
-				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+			.builder()
+			.name("hw.temperature.present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.description("Whether the temperature is present or not")
+			.build());
 
 		return map;
 	}
@@ -860,12 +869,12 @@ public class MetricsMapping {
 			.description("Physical disk total dissipated energy")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
-				.builder()
-				.name("hw.physical_disk.power_watts")
-				.unit(WATTS)
-				.type(MetricType.GAUGE)
-				.description("Physical disk power consumption")
-				.build());
+			.builder()
+			.name("hw.physical_disk.power_watts")
+			.unit(WATTS)
+			.type(MetricType.GAUGE)
+			.description("Physical disk power consumption")
+			.build());
 
 		return map;
 	}
@@ -1066,11 +1075,12 @@ public class MetricsMapping {
 			.name("hw.lun.available_paths")
 			.description("Number of distinct paths available to the remote volume")
 			.build());
-		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
-				.name("hw.lun.present")
-				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the LUN is present or not")
-				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+			.builder()
+			.name("hw.lun.present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.description("Whether the LUN is present or not")
+			.build());
 
 		return map;
 	}
@@ -1099,11 +1109,12 @@ public class MetricsMapping {
 			.factor(1073741824.0)
 			.description("Amount of unused disk space in the logical disk")
 			.build());
-		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
-				.name("hw.logical_disk.present")
-				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the logical disk is present or not")
-				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+			.builder()
+			.name("hw.logical_disk.present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.description("Whether the logical disk is present or not")
+			.build());
 
 		return map;
 	}
@@ -1131,11 +1142,12 @@ public class MetricsMapping {
 			.unit(Led.LED_INDICATOR.getUnit())
 			.description("LED indicator status")
 			.build());
-		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
-				.name("hw.led.present")
-				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the LED is present or not")
-				.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+			.builder()
+			.name("hw.led.present")
+			.unit(IMetaMonitor.PRESENT.getUnit())
+			.description("Whether the LED is present or not")
+			.build());
 		return map;
 	}
 

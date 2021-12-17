@@ -1,16 +1,12 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,21 +18,16 @@ import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
@@ -329,7 +320,7 @@ class HostMonitoringTest {
 	}
 
 	@Test
-	void testClearCurrent() {
+	void testClear() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
@@ -337,41 +328,11 @@ class HostMonitoringTest {
 
 		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
 
-		hostMonitoring.clearCurrent();
+		hostMonitoring.clear();
 
 		assertTrue(hostMonitoring.getMonitors().isEmpty());
 	}
 
-	@Test
-	void testBackup() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-
-		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
-				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
-
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
-
-		hostMonitoring.backup();
-
-		assertFalse(hostMonitoring.getPreviousMonitors().isEmpty());
-		assertEquals(enclosure, hostMonitoring.getPreviousMonitors().get(ENCLOSURE).get(ENCLOSURE_ID));
-	}
-
-	@Test
-	void testClearPrevious() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-
-		final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).targetId(TARGET_ID)
-				.parentId(TARGET_ID).monitorType(ENCLOSURE).build();
-
-		hostMonitoring.addMonitor(enclosure, ENCLOSURE_ID, CONNECTOR_NAME, ENCLOSURE, TARGET_ID, TARGET.getNameInConnector());
-
-		hostMonitoring.backup();
-
-		hostMonitoring.clearPrevious();
-
-		assertTrue(hostMonitoring.getPreviousMonitors().isEmpty());
-	}
 
 	@Test
 	void testSaveParametersNumber() {
@@ -495,8 +456,8 @@ class HostMonitoringTest {
 				.monitorType(ENCLOSURE)
 				.discoveryTime(1633620837079L)
 				.build();
-
-		hostMonitoring.addMonitor(enclosure1);
+		enclosure1.setAsPresent();
+		hostMonitoring.getMonitors().put(ENCLOSURE, new HashMap<>(Map.of(ENCLOSURE_1, enclosure1)));
 
 		final Monitor enclosure2 = Monitor
 				.builder()
@@ -507,8 +468,8 @@ class HostMonitoringTest {
 				.monitorType(ENCLOSURE)
 				.discoveryTime(1633620837079L)
 				.build();
-
-		hostMonitoring.addMonitor(enclosure2);
+		enclosure2.setAsPresent();
+		hostMonitoring.getMonitors().get(ENCLOSURE).put(ENCLOSURE_2, enclosure2);
 
 		final HostMonitoringVO expected = JsonHelper.deserialize(
 				new FileInputStream(new File("src/test/resources/data/host-monitoring-vo.json")),
@@ -518,44 +479,6 @@ class HostMonitoringTest {
 
 		assertEquals(expected, actual);
 
-	}
-
-	@Test
-	void testCopyParameters() {
-		final DiscreteParam status = DiscreteParam
-				.builder()
-				.state(Status.OK)
-				.name(STATUS_PARAMETER)
-				.build();
-		final long collectTime = new Date().getTime();
-		final NumberParam energyUsage = NumberParam
-				.builder()
-				.value(100.0)
-				.rawValue(1500.0)
-				.collectTime(collectTime)
-				.name(ENERGY_USAGE_PARAMETER)
-				.build();
-
-		final long previousCollectTime = collectTime - (2 * 60 * 1000);
-
-		energyUsage.setPreviousRawValue(1400.00);
-		energyUsage.setPreviousCollectTime(previousCollectTime);
-
-		final Monitor currentMonitor = Monitor.builder()
-				.id(ENCLOSURE_1)
-				.parameters(new HashMap<>(Map.of(STATUS_PARAMETER, status)))
-				.build();
-
-		final Monitor previousMonitor = Monitor.builder()
-				.id(ENCLOSURE_1)
-				.parameters(new HashMap<>(Map.of(STATUS_PARAMETER, status,
-						ENERGY_USAGE_PARAMETER, energyUsage)))
-				.build();
-
-		HostMonitoring.copyParameters(previousMonitor, currentMonitor);
-
-		assertEquals(status, currentMonitor.getParameter(STATUS_PARAMETER, DiscreteParam.class));
-		assertEquals(energyUsage, currentMonitor.getParameter(ENERGY_USAGE_PARAMETER, NumberParam.class));
 	}
 
 	@Test
@@ -614,47 +537,6 @@ class HostMonitoringTest {
 		hostMonitoring.addMissingMonitor(connectorMonitor);
 		assertNull(hostMonitoring.selectFromType(MonitorType.TARGET)); // Target is never missing
 
-	}
-
-	@Test
-	void testCopyAlertRules() {
-
-		{
-			final Monitor currentMonitor = Monitor.builder()
-					.id(FAN_ID)
-					.build();
-
-			final Map<String, List<AlertRule>> staticAlertRules = new Fan().getStaticAlertRules();
-
-			final Monitor previousMonitor = Monitor.builder()
-					.id(FAN_ID)
-					.alertRules(staticAlertRules)
-					.build();
-
-			HostMonitoring.copyAlertRules(previousMonitor, currentMonitor);
-
-			assertEquals(staticAlertRules, currentMonitor.getAlertRules());
-		}
-
-		{
-			final AlertRule alertRule = new AlertRule((monitor, conditions) -> null, AlertConditionsBuilder.newInstance().gte((double) Integer.MAX_VALUE).build() , Severity.ALARM);
-			final Monitor currentMonitor = Monitor.builder()
-					.alertRules(new HashMap<>(Map.of(PRESENT_PARAMETER, Collections.singletonList(alertRule))))
-					.id(FAN_ID)
-					.build();
-
-			final Map<String, List<AlertRule>> staticAlertRules = new Fan().getStaticAlertRules();
-
-			final Monitor previousMonitor = Monitor.builder()
-					.id(FAN_ID)
-					.alertRules(staticAlertRules)
-					.build();
-
-			HostMonitoring.copyAlertRules(previousMonitor, currentMonitor);
-
-			assertNotEquals(currentMonitor.getAlertRules().get(PRESENT_PARAMETER),
-					staticAlertRules.get(PRESENT_PARAMETER));
-		}
 	}
 
 	@Test

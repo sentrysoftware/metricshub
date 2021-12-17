@@ -86,6 +86,7 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorAlertRulesVisitor;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -222,7 +223,6 @@ class CollectOperationTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.prepare();
 			assertEquals(enclosure, hostMonitoring.getMonitors().get(ENCLOSURE).get(ENCLOSURE_ID));
-			assertTrue(hostMonitoring.getPreviousMonitors().isEmpty());
 			assertTrue(hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).getSourceTables().isEmpty());
 		}
 
@@ -328,12 +328,15 @@ class CollectOperationTest {
 		collectOperation.call();
 
 		final Monitor expected = buildExpectedEnclosure();
+
 		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expected, actual);
 
 		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, snmpResult,
 				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
+		expectedConnector.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expectedConnector));
+
 		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
 
 		assertEquals(expectedConnector, actualConnector);
@@ -387,7 +390,10 @@ class CollectOperationTest {
 
 		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, snmpResult,
 				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
+		expectedConnector.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expectedConnector));
+
 		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
+
 
 		assertEquals(expectedConnector, actualConnector);
 
@@ -482,6 +488,7 @@ class CollectOperationTest {
 		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
 
 		final Monitor expected = buildExpectedEnclosure();
+
 		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
 		assertEquals(expected, actual);
@@ -619,9 +626,9 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
-		enclosure.setMetadata(null);
 
 		hostMonitoring.addMonitor(enclosure);
+		enclosure.setMetadata(null);
 
 		final Optional<Monitor> result = collectOperation.getMonitor(VALUE_TABLE,
 				ENCLOSURE,
@@ -724,6 +731,8 @@ class CollectOperationTest {
 
 		expected.collectParameter(statusInformationParam);
 
+		expected.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expected));
+
 		return expected;
 	}
 
@@ -817,7 +826,6 @@ class CollectOperationTest {
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
 				.build();
-		fan1.setMetadata(null);
 
 		final Monitor fan2 = Monitor
 				.builder()
@@ -841,6 +849,8 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(fan1);
 		hostMonitoring.addMonitor(fan2);
 		hostMonitoring.addMonitor(fan3);
+
+		fan1.setMetadata(null);
 
 		final List<Monitor> monitors = collectOperation.getSameTypeSameConnectorMonitors(MonitorType.FAN, MY_OTHER_CONNECTOR_NAME, hostMonitoring);
 		assertEquals(Collections.singletonList(fan2), monitors);
@@ -1117,7 +1127,7 @@ class CollectOperationTest {
 
 		// OK
 
-		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.2",
 			"temperature2", localMetadata);
 
 		hostMonitoring.addMonitor(temperature2);
@@ -1888,7 +1898,7 @@ class CollectOperationTest {
 		assertNull(target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
 		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
-		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_ecs1-01_1.1", "network card", null);
+		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_ecs1-01_1.1", "network card", Collections.emptyMap());
 		networkCard.collectParameter(DiscreteParam
 				.builder()
 				.name(LINK_STATUS_PARAMETER)
