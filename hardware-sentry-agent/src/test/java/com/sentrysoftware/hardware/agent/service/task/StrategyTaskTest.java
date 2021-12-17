@@ -125,7 +125,7 @@ class StrategyTaskTest {
 				.thenAnswer(answer -> SdkMeterProvider.builder()
 						.setResource(answer.getArgument(0))
 						.registerMetricReader(InMemoryMetricReader.create())
-						.buildAndRegisterGlobal());
+						.build());
 
 			strategyTask.run(); // Discover + Collect
 			strategyTask.run(); // Collect

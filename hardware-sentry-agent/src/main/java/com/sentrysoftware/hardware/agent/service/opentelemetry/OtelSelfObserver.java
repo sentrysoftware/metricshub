@@ -64,8 +64,6 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 				meter
 					.gaugeBuilder(entry.getKey())
 					.setDescription(String.format("Reports metric %s", entry.getKey()))
-					.ofLongs()
-					.ofDoubles()
 					.buildWithCallback(recorder -> observeExtraMetric(recorder, entry.getValue()))
 			);
 	}
@@ -80,7 +78,7 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 		final Attributes attributes = createAttributes(agentInfo.keySet());
 
 		// Record default value
-		recorder.observe(1, attributes);
+		recorder.record(1, attributes);
 	}
 
 	/**
@@ -94,7 +92,7 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 		final Attributes attributes = createAttributes(Collections.emptySet());
 
 		// Record the user value
-		recorder.observe(value, attributes);
+		recorder.record(value, attributes);
 	}
 
 	/**

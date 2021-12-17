@@ -28,10 +28,9 @@ public class OtelHelper {
 			@NonNull final MetricReaderFactory periodicReaderFactory) {
 
 		return SdkMeterProvider.builder()
-				.setResource(resource)
-				.registerMetricReader(periodicReaderFactory)
-				.buildAndRegisterGlobal();
-
+					.setResource(resource)
+					.registerMetricReader(periodicReaderFactory)
+					.build();
 	}
 
 	/**

@@ -40,7 +40,7 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 		}
 
 		// Record the value
-		recorder.observe(
+		recorder.record(
 				getParameterValue(monitor, matrixDataKey).doubleValue(),
 				// Create the metric attributes
 				createAttributes(monitor)
