@@ -56,8 +56,7 @@
 		<module>connector-serializer</module>
 		<module>matrix-connectors</module>
 		<module>matrix-engine</module>
-		<module>hardware-sentry-cli</module>
-		<module>hardware-sentry-agent</module>
+		<module>hws-agent</module>
 	</modules>
 
 	<!-- Activate the hws-otel-collector module... unless the nogo property is set -->

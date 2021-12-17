@@ -10,7 +10,7 @@ General troubleshooting information is [available in the OpenTelemetry Collector
 When running properly, **${project.name}** has 2 processes running:
 
 * `hws-otel-collector`
-* `java -jar lib/hardware-sentry-agent-${project.version}.jar`
+* `java -jar lib/hws-agent-${project.version}.jar`
 
 Make sure both processes are running.
 
