@@ -1,35 +1,29 @@
 package com.sentrysoftware.hardware.cli.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import java.util.Properties;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 
 import picocli.CommandLine.IVersionProvider;
 
-@Service
 public class VersionService implements IVersionProvider {
-
-	// These properties come from src/main/resources/application.yml
-	// which itself is "filtered" by Maven's resources plugin to expose
-	// pom.xml's values
-	@Value("${project.name}")
-	String projectName;
-
-	@Value("${project.version}")
-	String projectVersion;
-
-	@Value("${buildNumber}")
-	String buildNumber;
-
-	@Value("${timestamp}")
-	String timestamp;
-
-	@Value("${hcVersion}")
-	String hcVersion;
 
 	@Override
 	public String[] getVersion() throws Exception {
+
+		final Resource resource = new ClassPathResource("application-cli.properties");
+		final Properties props = PropertiesLoaderUtils.loadProperties(resource);
+
+		final String projectName = props.get("project.name").toString();
+		final String projectVersion = props.get("project.version").toString();
+		final String buildNumber = props.get("buildNumber").toString();
+		final String timestamp = props.get("timestamp").toString();
+		final String hcVersion = props.get("hcVersion").toString();
+
 		return new String[] {
 				"           __   __             __   ___     @|bold,green __|@   ___      ___  __      ",
 				"@|bold,green |__||@  /\\  |__) |  \\ @|bold,green |  ||@  /\\  |__) |__     @|bold,green /__`|@ |__  |\\ |  |  |__) \\ / ",

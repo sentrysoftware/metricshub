@@ -23,8 +23,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.hardware.cli.component.cli.converters.TargetTypeConverter;
 import com.sentrysoftware.hardware.cli.component.cli.printer.PrettyPrinter;
@@ -35,7 +33,6 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
-import com.sentrysoftware.hardware.cli.service.JobResultFormatterService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -59,13 +56,12 @@ import lombok.Data;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.ParameterException;
 
-@Component
 @Command(
 		name = "hws",
 		sortOptions = false,
@@ -91,9 +87,6 @@ import picocli.CommandLine.ParameterException;
 )
 @Data
 public class HardwareSentryCli implements Callable<Integer> {
-
-	@Autowired
-	private JobResultFormatterService jobResultFormatterService;
 
 	@Spec
 	CommandSpec spec;

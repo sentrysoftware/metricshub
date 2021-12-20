@@ -18,7 +18,7 @@
 	<description>Hardware Sentry Agent</description>
 
 	<properties>
-		<log4j2.version>2.16.0</log4j2.version>
+		<log4j2.version>2.17.0</log4j2.version>
 	</properties>
 
 	<dependencies>
@@ -145,11 +145,6 @@
 		<dependency>
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
-		</dependency>
-		<!-- picocli -->
-		<dependency>
-			<groupId>info.picocli</groupId>
-			<artifactId>picocli-spring-boot-starter</artifactId>
 		</dependency>
 	</dependencies>
 
