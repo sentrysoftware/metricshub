@@ -108,64 +108,22 @@
 				</executions>
 			</plugin>
 
-			<!-- download -->
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>install-builder</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>https://github.com/open-telemetry/opentelemetry-collector/releases/download/v${otelVersion}/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
-							<outputDirectory>${project.build.directory}/builder</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- antrun -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-
-					<!-- chmod 755 of the builder -->
-					<execution>
-						<id>chmod-builder</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<chmod file="${project.build.directory}/builder/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}" perm="755" />
-							</target>
-							<skip>${chmod.skip}</skip>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>copy-resources</id>
+						<id>copy-go-resources</id>
 						<phase>process-resources</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/builder</outputDirectory>
+							<outputDirectory>${project.build.directory}/hws-otel-collector</outputDirectory>
 							<resources>
 								<resource>
-									<directory>src/builder</directory>
+									<directory>src/main/go</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>
@@ -182,21 +140,62 @@
 
 					<!-- Build the Windows-AMD64 collector -->
 					<execution>
-						<id>build-otel-collector-windows</id>
+						<id>get-go-modules-win</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${project.build.directory}${file.separator}builder${file.separator}ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
-							<workingDirectory>${project.build.directory}</workingDirectory>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
 							<arguments>
-								<argument>--config</argument>
-								<argument>${project.build.directory}${file.separator}builder${file.separator}builder-config.yaml</argument>
-								<argument>--output-path</argument>
-								<argument>${project.build.directory}${file.separator}windows-amd64</argument>
-								<argument>--name</argument>
-								<argument>${project.artifactId}.exe</argument>
+								<argument>mod</argument>
+								<argument>tidy</argument>
+								<argument>-compat=1.17</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>windows</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
+					<execution>
+						<id>download-all-go-modules-win</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
+							<arguments>
+								<argument>mod</argument>
+								<argument>download</argument>
+								<argument>all</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>windows</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
+					<execution>
+						<id>build-collector-win</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
+							<arguments>
+								<argument>build</argument>
+								<argument>-ldflags=-s -w</argument>
+								<argument>-trimpath</argument>
+								<argument>-o</argument>
+								<argument>${project.build.directory}${file.separator}windows-amd64${file.separator}${project.artifactId}.exe</argument>
 							</arguments>
 							<environmentVariables>
 								<GOOS>windows</GOOS>
@@ -208,21 +207,18 @@
 
 					<!-- Build the Linux-AMD64 collector -->
 					<execution>
-						<id>build-otel-collector-linux</id>
+						<id>get-go-modules-linux</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${project.build.directory}${file.separator}builder${file.separator}ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</executable>
-							<workingDirectory>${project.build.directory}</workingDirectory>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
 							<arguments>
-								<argument>--config</argument>
-								<argument>${project.build.directory}${file.separator}builder/builder-config.yaml</argument>
-								<argument>--output-path</argument>
-								<argument>${project.build.directory}${file.separator}linux-amd64</argument>
-								<argument>--name</argument>
-								<argument>${project.artifactId}</argument>
+								<argument>mod</argument>
+								<argument>tidy</argument>
+								<argument>-compat=1.17</argument>
 							</arguments>
 							<environmentVariables>
 								<GOOS>linux</GOOS>
@@ -231,7 +227,50 @@
 							</environmentVariables>
 						</configuration>
 					</execution>
-
+					<execution>
+						<id>download-all-go-modules-linux</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
+							<arguments>
+								<argument>mod</argument>
+								<argument>download</argument>
+								<argument>all</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>linux</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
+					<execution>
+						<id>build-collector-linux</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>go</executable>
+							<workingDirectory>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</workingDirectory>
+							<arguments>
+								<argument>build</argument>
+								<argument>-ldflags=-s -w</argument>
+								<argument>-trimpath</argument>
+								<argument>-o</argument>
+								<argument>${project.build.directory}${file.separator}linux-amd64${file.separator}${project.artifactId}</argument>
+							</arguments>
+							<environmentVariables>
+								<GOOS>linux</GOOS>
+								<GOARCH>amd64</GOARCH>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</environmentVariables>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 
