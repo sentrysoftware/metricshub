@@ -135,22 +135,19 @@ extensions:
   # https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension
   zpages:
 
-  # subprocess
-  # Facilitates running a sub process of the collector
-  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/subprocess
-  sub_process:
-    executable_path: bin/hws-agent.cmd
-    args: 
-      - --grpc=http://localhost:4317
+  # hwsagent
+  # Starts the Hardware Sentry Agent as a child process of the OpenTelemetry Collector
+  # https://github.com/sentrysoftware/opentelemetry-collector-contrib/tree/main/extension/hwsagentextension
+  hws_agent:
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:
   telemetry:
     logs:
       level: info # Change to debug more more details
-  extensions: [health_check, sub_process]
+  extensions: [health_check, hws_agent]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
-      processors: [memory_limiter,batch,resourcedetection,metricstransform]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-server, prometheus] # List here the platform of your choice

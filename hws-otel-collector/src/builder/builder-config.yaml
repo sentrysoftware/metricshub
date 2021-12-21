@@ -1,24 +1,34 @@
 dist:
   module: github.com/open-telemetry/opentelemetry-collector-builder
   description: "Hardware Sentry OpenTelemetry Collector distribution"
-  include_core: true
   otelcol_version: "${otelVersion}"
+  include_core: false
   version: "${project.version} (Build ${buildNumber} on ${timestamp})"
 receivers:
+  - import: "go.opentelemetry.io/collector/receiver/otlpreceiver"
+    gomod: "go.opentelemetry.io/collector v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusexecreceiver v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v${otelVersion}"
 processors:
+  - import: "go.opentelemetry.io/collector/processor/memorylimiterprocessor"
+    gomod: "go.opentelemetry.io/collector v${otelVersion}"
+  - import: "go.opentelemetry.io/collector/processor/batchprocessor"
+    gomod: "go.opentelemetry.io/collector v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor v${otelVersion}"
 exporters:
+  - import: "go.opentelemetry.io/collector/exporter/loggingexporter"
+    gomod: "go.opentelemetry.io/collector v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion}"
 extensions:
+  - import: "go.opentelemetry.io/collector/extension/zpagesextension"
+    gomod: "go.opentelemetry.io/collector v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v${otelVersion}"
   - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v${otelVersion}"
-  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocess v${otelVersion}"
-    import: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/subprocess"
-    name: "subprocess"
-    path: "${project.basedir}/src/main/go/opentelemetry-collector-contrib/extension/subprocess"
+  - gomod: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion}"
+    import: "github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension"
+    name: "hwsagentextension"
+    path: "${project.basedir}/src/main/go/opentelemetry-collector-contrib/extension/hwsagentextension"

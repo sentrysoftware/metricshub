@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+package hwsagentextension
 
 import (
 	"context"
@@ -24,10 +24,10 @@ import (
 
 const (
 	// The value of extension "type" in configuration.
-	typeStr = "sub_process"
+	typeStr = "hws_agent"
 )
 
-// NewFactory creates a factory for SubProcess extension.
+// NewFactory creates a factory for hwsagent extension.
 func NewFactory() component.ExtensionFactory {
 	return extensionhelper.NewFactory(
 		typeStr,

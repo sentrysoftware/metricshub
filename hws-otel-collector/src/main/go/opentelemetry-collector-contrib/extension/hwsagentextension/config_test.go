@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+package hwsagentextension
 
 import (
 	"path"
@@ -26,8 +26,9 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
+	t.Parallel()
 	factories, err := componenttest.NopFactories()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	factory := NewFactory()
 	factories.Extensions[typeStr] = factory
@@ -35,6 +36,7 @@ func TestLoadConfig(t *testing.T) {
 
 	require.Nil(t, err)
 	require.NotNil(t, cfg)
+	require.Equal(t, 2, len(cfg.Extensions))
 
 	ext0 := cfg.Extensions[config.NewComponentID(typeStr)]
 	assert.Equal(t, factory.CreateDefaultConfig(), ext0)
@@ -43,9 +45,7 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t,
 		&Config{
 			ExtensionSettings: config.NewExtensionSettings(config.NewComponentIDWithName(typeStr, "1")),
-			ExecutablePath:    "bin/cmd",
-			Args:              []string{"arg1", "arg2"},
-			WorkingDirectory:  "/usr/local",
+			ExtraArgs:         []string{"arg1", "arg2"},
 		},
 		ext1)
 

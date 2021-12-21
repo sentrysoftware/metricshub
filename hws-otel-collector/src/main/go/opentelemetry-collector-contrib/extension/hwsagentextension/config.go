@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+package hwsagentextension
 
 import (
 	"time"
@@ -29,16 +29,13 @@ const (
 type Config struct {
 	config.ExtensionSettings `mapstructure:",squash"`
 
-	// The path to the executable.
-	ExecutablePath string `mapstructure:"executable_path"`
+	// OTLP gRPC endpoint used by the Hardware Sentry Agent to push metrics.
+	Grpc *string `mapstructure:"grpc"`
 
-	// Command line arguments.
-	Args []string `mapstructure:"args"`
+	// Extra arguments to be passed to the Hardware Sentry Agent.
+	ExtraArgs []string `mapstructure:"extra_args"`
 
-	// Working directory.
-	WorkingDirectory string `mapstructure:"working_directory"`
-
-	// Time to wait before restarting the sub process after a failure.
+	// Time to wait before restarting the Hardware Sentry Agent after a failure.
 	RestartDelay *time.Duration `mapstructure:"restart_delay"`
 
 	// Number of restarts after failures.

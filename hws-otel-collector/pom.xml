@@ -23,7 +23,7 @@
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
-		<otelVersion>0.40.0</otelVersion>
+		<otelVersion>0.41.0</otelVersion>
 
 		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
 		<commitId>${buildNumber}</commitId>
@@ -120,7 +120,7 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://github.com/open-telemetry/opentelemetry-collector/releases/download/cmd/builder/v${otelVersion}/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
+							<url>https://github.com/open-telemetry/opentelemetry-collector/releases/download/v${otelVersion}/ocb_${otelVersion}_${system.family}_${system.arch}${system.exeExtension}</url>
 							<outputDirectory>${project.build.directory}/builder</outputDirectory>
 						</configuration>
 					</execution>

@@ -12,25 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build linux
-
-package subprocess
+package hwsagentextension
 
 import (
-	"os/exec"
-	"syscall"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-// Linux version of exec.Command(...)
-// Compiles on Linux only
-func execCommand(execPath string, args []string) *exec.Cmd {
-	return exec.Command(execPath, args...)
-}
+func TestExecCommandLinux(t *testing.T) {
 
-func applyOSSpecificCmdModifications(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		// This is Linux-specific and will cause the sub process to be killed by the OS if
-		// the collector dies
-		Pdeathsig: syscall.SIGTERM,
-	}
+	cmd := execCommand("bin/cmd", []string{"arg1", "arg2"})
+	require.Equal(t, "bin/cmd", cmd.Path)
+	require.Equal(t, []string{"bin/cmd", "arg1", "arg2"}, cmd.Args)
+
 }
