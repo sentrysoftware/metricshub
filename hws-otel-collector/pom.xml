@@ -33,14 +33,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>hardware-sentry-agent</artifactId>
-			<version>${project.version}</version>
-			<classifier>dist</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>hardware-sentry-cli</artifactId>
+			<artifactId>hws-agent</artifactId>
 			<version>${project.version}</version>
 			<classifier>dist</classifier>
 			<type>zip</type>
