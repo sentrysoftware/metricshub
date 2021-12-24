@@ -16,6 +16,8 @@ Edit the `exporters` section of the [config/otel-config.yaml](../configuration/c
     endpoint: https://<your-helix-env>.onbmc.com/metrics-gateway-service/api/v1.0/prometheus
     headers:
       Authorization: Bearer <apiToken>
+    resource_to_telemetry_conversion:
+      enabled: true
 ```
 
 where:

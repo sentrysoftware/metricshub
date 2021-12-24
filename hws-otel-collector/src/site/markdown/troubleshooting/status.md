@@ -97,7 +97,7 @@ service:
   telemetry:
     logs:
       level: info # Change to debug more more details
-  extensions: [health_check, sub_process]
+  extensions: [health_check, hws_agent]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]

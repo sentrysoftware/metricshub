@@ -22,20 +22,20 @@ Example of the `hw_battery_charge_ratio` metric which represents the charge perc
 
 However, some alerts cannot be configured with hardcoded values, like for temperature sensors. For such metrics, 2 additional metrics have been added to represent the *warning* and *alarm* thresholds. The default alert rules compare the **base metric** to the corresponding **threshold metrics**.
 
-Example of the `hw_temperature_celsius` metric:
+Example of the `hw_temperature_temperature_celsius` metric:
 
-* a `warn` alert is active when the temperature is greater than the value of `hw_temperature_celsius_warning`
-* a `critical` alert is active when the temperature is greater than the value of `hw_temperature_celsius_alarm`
+* a `warn` alert is active when the temperature is greater than the value of `hw_temperature_temperature_celsius_warning`
+* a `critical` alert is active when the temperature is greater than the value of `hw_temperature_temperature_celsius_alarm`
 
 ```yaml
 - name: Temperature-Temperature
   rules:
   - alert: Temperature-Temperature-warn
-    expr:  hw_temperature_celsius >= hw_temperature_celsius_warning
+    expr:  hw_temperature_temperature_celsius >= hw_temperature_temperature_celsius_warning
     labels:
       severity: 'warn'
   - alert: Temperature-Temperature-critical
-    expr:  hw_temperature_celsius >= hw_temperature_celsius_alarm
+    expr:  hw_temperature_temperature_celsius >= hw_temperature_temperature_celsius_alarm
     labels:
       severity: 'critical'
 ```
@@ -56,8 +56,8 @@ The table below summarizes the metrics that should be compared to their correspo
 | `rate(hw_physical_disk_errors_total[1h])` | `hw_physical_disk_errors_warning` <br/> `hw_physical_disk_errors_alarm` |
 | `rate(hw_robotics_errors_total[1h])` | `hw_robotics_errors_warning` <br/> `hw_robotics_errors_alarm` |
 | `rate(hw_tape_drive_errors_total[1h])` | `hw_tape_drive_errors_warning` <br/> `hw_tape_drive_errors_alarm` |
-| `hw_temperature_celsius` | `hw_temperature_celsius_warning` <br/> `hw_temperature_celsius_alarm` |
-| `hw_voltage_volts` | `hw_voltage_volts_lower` <br/> `hw_voltage_volts_lower` |
+| `hw_temperature_temperature_celsius` | `hw_temperature_temperature_celsius_warning` <br/> `hw_temperature_temperature_celsius_alarm` |
+| `hw_voltage_voltage_volts` | `hw_voltage_voltage_volts_lower` <br/> `hw_voltage_voltage_volts_upper` |
 
 ## Install
 

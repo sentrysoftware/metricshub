@@ -23,43 +23,42 @@ By default, **${project.name}**'s configuration file is **config/otel-config.yam
 
 ### Hardware Sentry Agent
 
-The **Hardware Sentry Agent** is the internal component which scrapes targets, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `sub_process` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*.
+The **Hardware Sentry Agent** is the internal component which scrapes targets, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*.
 
 ```yaml
-  sub_process:
-    executable_path: bin\hws-agent.cmd
-    args:
-      - --grpc=http://localhost:4317
-
+  hws_agent:
+    grpc: http://localhost:4317
 ```
 
-The `sub_process` extension checks that **Hardware Sentry Agent** is up and running and restarts its process if needed.
+The `hws_agent` extension checks that **Hardware Sentry Agent** is up and running and restarts its process if needed.
 
 The example above shows how to configure **Hardware Sentry Agent** to push metrics to the local _OTLP receiver_ using [gRPC](https://grpc.io/) on port **TCP/4317**.
-If your OTLP receiver runs on another host or uses a different protocol or port, you will need to update the `--grpc` argument. Format: `--grpc=<http|https>://<host>:<port>`.
+If your OTLP receiver runs on another host or uses a different protocol or port, you will need to update the `grpc` option. Format: `<http|https>://<host>:<port>`.
 
-By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-config.yaml**. You can provide an alternate configuration file using the `--config` argument.
+By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-config.yaml**. You can provide an alternate configuration file using the `--config` argument in the `extra_args` section.
 
 ```yaml
-  sub_process:
-    executable_path: bin\hws-agent.cmd
-    args:
-      - --grpc=http://localhost:4317
+  hws_agent:
+    grpc: http://localhost:4317
+    extra_args:
       - --config=config\hws-config-2.yaml
 ```
 
 To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configuration](configure-agent.md)
 
-#### Subprocess Configuration
+#### Configuration
 
-*(Required)* Set the `executable_path` parameter to indicate the path to the command to run. You can indicate a path relative to the working directory.
+The `hws_agent` can be configured as the following: 
+```yaml
+  hws_agent:
+```
 
 Eventually configure these settings:
 
-* `args`: to specify the command line arguments to use.
-* `working_directory`: to define the working directory of the command. If not set, the `subprocess` extension runs the command in the current directory of the called process.
-* `restart_delay`: to indicate the period of time after which the subprocess is restarted when a problem has been detected. If  not set, the subprocess will be restarted after 10 sec.
-* `retries`: Number of restarts to be triggered until the subprocess is up and running again. If not set, the extension will try restarting the subprocess until it is up and running.
+* `grpc`: the endpoint to which the **Hardware Sentry Agent** is going to push OpenTelemetry data. Default: `http://localhost:4317`.
+* `extra_args`: the additional arguments for the **Hardware Sentry Agent**, such as `--config=config\hws-config-2.yaml`.
+* `restart_delay`: to indicate the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If  not set, the **Hardware Sentry Agent** will be restarted after 10 sec.
+* `retries`: Number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
 
 ## Receivers
 
@@ -132,7 +131,7 @@ service:
   telemetry:
     logs:
       level: info # Change to debug more more details
-  extensions: [health_check, sub_process]
+  extensions: [health_check, hws_agent]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
