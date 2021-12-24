@@ -23,42 +23,23 @@ By default, **${project.name}**'s configuration file is **config/otel-config.yam
 
 ### Hardware Sentry Agent
 
-The **Hardware Sentry Agent** is the internal component which scrapes targets, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*.
+The **Hardware Sentry Agent** is the internal component which scrapes targets, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*, checks that this child process is up and running and restarts it if needed.
 
+Configure the `hws_agent` extension as follows:
 ```yaml
   hws_agent:
-    grpc: http://localhost:4317
+    grpc: <http|https>://<host>:<port>   # Default: http://localhost:4317
+    extra_args: [ <string> ... ]         # Example: [ --config=config\alternate-configuration-file.yaml ]
+    restart_delay: <duration>            # Default: 10s
+    retries: <int>                       # Default: -1 (Means no limit)
 ```
-
-The `hws_agent` extension checks that **Hardware Sentry Agent** is up and running and restarts its process if needed.
-
-The example above shows how to configure **Hardware Sentry Agent** to push metrics to the local _OTLP receiver_ using [gRPC](https://grpc.io/) on port **TCP/4317**.
-If your OTLP receiver runs on another host or uses a different protocol or port, you will need to update the `grpc` option. Format: `<http|https>://<host>:<port>`.
-
-By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-config.yaml**. You can provide an alternate configuration file using the `--config` argument in the `extra_args` section.
-
-```yaml
-  hws_agent:
-    grpc: http://localhost:4317
-    extra_args:
-      - --config=config\hws-config-2.yaml
-```
+where:
+- `grpc` is the endpoint to which the **Hardware Sentry Agent** will push OpenTelemetry data. By default, the **Hardware Sentry Agent** pushes metrics to the local *OTLP receiver* using [gRPC](https://grpc.io/) on port **TCP/4317** (By default: `http://localhost:4317`).
+- `extra_args` specifies a list of additional arguments to be used by the **Hardware Sentry Agent**. By default, the **Hardware Sentry Agent**'s configuration file is **config/hws-config.yaml**, you can provide an alternate configuration file by adding a new extra argument. Example: `--config=config\hws-config-2.yaml`.
+- `restart_delay` specifies the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If not set, the **Hardware Sentry Agent** will be restarted after 10 seconds.
+- `retries` specifies the number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
 
 To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configuration](configure-agent.md)
-
-#### Configuration
-
-The `hws_agent` can be configured as the following: 
-```yaml
-  hws_agent:
-```
-
-Eventually configure these settings:
-
-* `grpc`: the endpoint to which the **Hardware Sentry Agent** is going to push OpenTelemetry data. Default: `http://localhost:4317`.
-* `extra_args`: the additional arguments for the **Hardware Sentry Agent**, such as `--config=config\hws-config-2.yaml`.
-* `restart_delay`: to indicate the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If  not set, the **Hardware Sentry Agent** will be restarted after 10 sec.
-* `retries`: Number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
 
 ## Receivers
 
