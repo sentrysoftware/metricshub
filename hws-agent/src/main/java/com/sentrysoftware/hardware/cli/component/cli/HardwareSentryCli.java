@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
@@ -282,8 +283,8 @@ public class HardwareSentryCli implements Callable<Integer> {
 					.values()
 					.stream()
 					.map(Map::values)
-					.flatMap(Collection::stream)
-					.count();
+					.mapToLong(Collection::size)
+					.sum();
 			spec.commandLine().getOut().print("Performing collect on ");
 			spec.commandLine().getOut().print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
 			spec.commandLine().getOut().println(monitorCount > 1 ? " monitors..." : " monitor...");
@@ -398,7 +399,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 		String invalidConnectors = connectorsToCheck
 				.filter(connectorName -> !allConnectors.containsKey(connectorName))
 				.collect(Collectors.joining(", "));
-		if (invalidConnectors != null && !invalidConnectors.isBlank()) {
+		if (!invalidConnectors.isBlank()) {
 			throw new ParameterException(spec.commandLine(), "Unknown connector: " + invalidConnectors);
 		}
 
@@ -437,8 +438,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 	}
 
 	/**
-	 * @param hardwareSentryCli	The {@link HardwareSentryCli} instance calling this service.
-	 *
 	 * @return A {@link Map} associating the input protocol type to its input credentials.
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
@@ -447,7 +446,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(
-						proto -> proto.getClass(),
+						IProtocolConfiguration::getClass,
 						Function.identity())
 		);
 
@@ -469,7 +468,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 			String connectorName = connectorEntry.getKey();
 			Connector connector = connectorEntry.getValue();
-			String osList = connector.getAppliesToOS().stream().map(os -> os.getDisplayName()).collect(Collectors.joining(", "));
+			String osList = connector.getAppliesToOS().stream().map(OSType::getDisplayName).collect(Collectors.joining(", "));
 
 			spec.commandLine().getOut().println(
 					Ansi.ansi()
@@ -510,7 +509,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 					pathStream
 							.map(path -> path.toAbsolutePath().toString())
 							.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
-							.forEach(pathString -> parsedConnectorPaths.add(pathString));
+							.forEach(parsedConnectorPaths::add);
 				}
 			} else {
 				throw new IOException("Could not find connector source file: " + connectorFile.toString());

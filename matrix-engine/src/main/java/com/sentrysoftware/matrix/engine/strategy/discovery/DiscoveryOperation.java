@@ -213,10 +213,25 @@ public class DiscoveryOperation extends AbstractStrategy {
 								final InstanceTable instanceTable, final Map<String, String> parameters,
 								final Monitor targetMonitor, final MonitorType monitorType, final String hostname) {
 
+		// Check the instanceTable, so that, we can create the monitor later
+		if (instanceTable == null) {
+			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
+					monitorType.getNameInConnector(), connectorName, hostname);
+			return;
+		}
+
+		// Check discovery parameters, so we can create the monitor with the metadata
+		if (parameters == null || parameters.isEmpty()) {
+			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
+					monitorType.getNameInConnector(), connectorName, hostname);
+			return;
+		}
+
 		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
 
 		// Process the instance table
 		if (instanceTable instanceof SourceInstanceTable) {
+
 			final SourceInstanceTable sourceInstanceTable = (SourceInstanceTable) instanceTable;
 			final String sourceKey = sourceInstanceTable.getSourceKey();
 
@@ -412,21 +427,6 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		if (hardwareMonitor.getDiscovery() == null) {
 			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getNameInConnector(), connectorName, hostname);
-			return false;
-		}
-
-		// Check the instanceTable, so that, we can create the monitor later
-		if (hardwareMonitor.getDiscovery().getInstanceTable() == null) {
-			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getNameInConnector(), connectorName, hostname);
-			return false;
-		}
-
-		// Get the discovery parameters, so we can create the monitor with the metadata
-		final Map<String, String> parameters = hardwareMonitor.getDiscovery().getParameters();
-		if (parameters == null || parameters.isEmpty()) {
-			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
 					monitorType.getNameInConnector(), connectorName, hostname);
 			return false;
 		}
