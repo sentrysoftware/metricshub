@@ -38,7 +38,7 @@
 		<picocli-spring-boot.version>4.6.1</picocli-spring-boot.version>
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<prometheus-client.version>0.10.0</prometheus-client.version>
-		<jackson.version>2.12.3</jackson.version>
+		<jackson.version>2.13.1</jackson.version>
 		<jaxb.version>2.4.0-b180830.0359</jaxb.version>
 		<snmp4j.version>3.5.1</snmp4j.version>
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
