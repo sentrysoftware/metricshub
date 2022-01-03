@@ -39,7 +39,7 @@ import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
-import io.opentelemetry.sdk.metrics.testing.InMemoryMetricReader;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
 
 @ExtendWith(MockitoExtension.class)

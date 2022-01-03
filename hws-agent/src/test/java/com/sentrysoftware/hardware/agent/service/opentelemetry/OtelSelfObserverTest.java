@@ -16,8 +16,8 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.metrics.testing.InMemoryMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
 @SpringBootTest
 class OtelSelfObserverTest {

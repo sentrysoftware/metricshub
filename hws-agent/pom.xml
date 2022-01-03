@@ -100,10 +100,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-api-metrics</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-sdk-metrics</artifactId>
 		</dependency>
 		<dependency>
@@ -116,6 +112,11 @@
 			<artifactId>grpc-netty-shaded</artifactId>
 		</dependency>
 		<!-- Test -->
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-sdk-metrics-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
