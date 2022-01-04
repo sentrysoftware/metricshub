@@ -24,6 +24,7 @@ where:
 
 * `<your-helix-env>` is the host name of your BMC Helix environment, at **onbmc.com**
 * `<apiToken>` is the API Key of your BMC Helix environment
+* `resource_to_telemetry_conversion` converts all the resource attributes to metric labels when enabled
 
 To get your API Key, connect to **BMC Helix Operations Management**, go to the **Administration** &gt; **Repository** page, and click on the **Copy API Key** button.
 

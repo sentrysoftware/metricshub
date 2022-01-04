@@ -33,6 +33,8 @@ exporters:
 
 You can customize the [`prometheusremotewrite` exporter configuration](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter) to match your Prometheus Server's configuration, notably the `endpoint` URL.
 
+It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
+
 Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
 
 ```yaml
@@ -61,6 +63,8 @@ exporters:
       enabled: true
 ```
 The `metric_expiration` value must be significantly greater than the internal polling interval of the **Hardware Sentry Agent**. If the metric expiration time is too small, it will result in collection gaps in Prometheus Server.
+
+It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
 
 Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
 
