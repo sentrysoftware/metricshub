@@ -153,7 +153,7 @@
 							<goal>mod</goal>
 						</goals>
 						<configuration>
-							<sources>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</sources>
+							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
 							<command>tidy</command>
 							<arguments>
 								<argument>-compat=1.17</argument>
@@ -173,7 +173,7 @@
 							<goal>mod</goal>
 						</goals>
 						<configuration>
-							<sources>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</sources>
+							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
 							<command>download</command>
 							<arguments>
 								<argument>all</argument>
@@ -193,8 +193,8 @@
 							<goal>build</goal>
 						</goals>
 						<configuration>
-							<sources>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</sources>
-							<resultFolder>${project.build.directory}${file.separator}windows-amd64</resultFolder>
+							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
+							<resultFolder>${project.build.directory}/windows-amd64</resultFolder>
 							<resultName>${project.artifactId}.exe</resultName>
 							<ldFlags>
 								<ldFlag>-s</ldFlag>
@@ -220,8 +220,8 @@
 							<goal>build</goal>
 						</goals>
 						<configuration>
-							<sources>${project.build.directory}${file.separator}hws-otel-collector${file.separator}collector</sources>
-							<resultFolder>${project.build.directory}${file.separator}linux-amd64</resultFolder>
+							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
+							<resultFolder>${project.build.directory}/linux-amd64</resultFolder>
 							<resultName>${project.artifactId}</resultName>
 							<ldFlags>
 								<ldFlag>-s</ldFlag>

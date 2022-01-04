@@ -66,8 +66,6 @@ The first critical task the *Collector* has to complete is to launch the Java pr
 2021-12-22T11:26:18.377+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,377][INFO ][c.s.h.a.HardwareSentryAgentApp] Started HardwareSentryAgentApp in 2.485 seconds (JVM running for 3.634)	{"kind": "extension", "name": "hws_agent"}
 ```
 
-The standard output of the core engine is displayed in the JSON `output` property, which makes it a little harder to the human eye, unfortunately. But as long as you see the output of the Java process, starting Tomcat on the configured port with no configuration errors, you will not need to examine this output more in details.
-
 The **logs/otel.log** file will also include details about the processing steps and the connection to the output framework (Prometheus, BMC Helix, etc.). Any connection issue of authentication failures with the outside will be displayed in this log file.
 
 ### Getting more details about the exported data

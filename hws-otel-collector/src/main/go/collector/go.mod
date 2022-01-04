@@ -190,4 +190,4 @@ require (
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion} => ../opentelemetry-collector-contrib/extension/hwsagentextension
+replace github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion} => ../hwsagentextension

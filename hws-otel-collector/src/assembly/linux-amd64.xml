@@ -22,9 +22,10 @@
 
 	<fileSets>
 		<fileSet>
-			<directory>src/dist/linux</directory>
+			<directory>src/dist</directory>
 			<excludes>
-				<exclude>bin/**</exclude>
+				<exclude>linux/**</exclude>
+				<exclude>windows/**</exclude>
 			</excludes>
 			<outputDirectory>/</outputDirectory>
 			<lineEnding>unix</lineEnding>
