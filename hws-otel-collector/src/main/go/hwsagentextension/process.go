@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+package hwsagentextension
 
 import (
 	"bufio"
@@ -32,6 +32,15 @@ type processManager struct {
 	conf           *Config
 	logger         *zap.Logger
 	shutdownSignal chan struct{}
+	delegate       pmDelegate
+}
+
+type pmDelegate interface {
+	delegatedExecPath() string
+}
+
+func (pm *processManager) delegatedExecPath() string {
+	return getExecutablePath()
 }
 
 func newProcessManager(conf *Config, logger *zap.Logger) *processManager {
@@ -39,6 +48,7 @@ func newProcessManager(conf *Config, logger *zap.Logger) *processManager {
 		conf:           conf,
 		logger:         logger,
 		shutdownSignal: make(chan struct{}),
+		delegate:       &processManager{},
 	}
 }
 
@@ -73,7 +83,12 @@ func (pm *processManager) Start(ctx context.Context, _ component.Host) error {
 			retries = *pm.conf.Retries
 		}
 
-		run(childCtx, pm.conf.ExecutablePath, pm.conf.Args, pm.conf.WorkingDirectory, restartDelay, retries, pm.logger)
+		var args []string = pm.conf.ExtraArgs
+		if pm.conf.Grpc != nil {
+			args = append(args, "--grpc="+*pm.conf.Grpc)
+		}
+
+		run(childCtx, pm.delegate.delegatedExecPath(), args, restartDelay, retries, pm.logger)
 		close(pm.shutdownSignal)
 	}()
 	return nil
@@ -96,7 +111,7 @@ func (pm *processManager) Shutdown(context.Context) error {
 
 func run(ctx context.Context,
 	execPath string, args []string,
-	workingDirectory string, restartDelay time.Duration,
+	restartDelay time.Duration,
 	retries int, logger *zap.Logger) {
 
 	state := starting
@@ -109,13 +124,13 @@ func run(ctx context.Context,
 	procWait := make(chan error)
 
 	// A state machine makes the management easier to understand and account
-	// for all of the edge cases when managing a subprocess.
+	// for all of the edge cases when managing the hardware sentry agent
 	for {
-		logger.Debug("sub_process extension changed state", zap.String("state", string(state)))
+		logger.Debug("hws_agent changed state", zap.String("state", string(state)))
 
 		switch state {
 		case errored:
-			logger.Error("Subprocess died", zap.Error(err))
+			logger.Error("hws_agent died", zap.Error(err))
 			// Should we retry?
 			if retries == 0 {
 				state = stopped
@@ -126,9 +141,9 @@ func run(ctx context.Context,
 			state = restarting
 
 		case starting:
-			cmd, stdin, stdout = createCommand(execPath, args, workingDirectory, logger)
+			cmd, stdin, stdout = createCommand(execPath, args, logger)
 
-			logger.Debug("Starting subprocess", zap.String("command", cmd.String()))
+			logger.Debug("Starting hws_agent", zap.String("command", cmd.String()))
 
 			err = cmd.Start()
 			if err != nil {
@@ -181,17 +196,12 @@ func signalWhenProcessDone(cmd *exec.Cmd, procWait chan<- error) {
 	procWait <- err
 }
 
-func createCommand(execPath string, args []string, workingDirectory string, logger *zap.Logger) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
+func createCommand(execPath string, args []string, logger *zap.Logger) (*exec.Cmd, io.WriteCloser, io.ReadCloser) {
 	cmd := execCommand(execPath, args)
-
-	logger.Debug("Subprocess working directory", zap.String("working_directory", string(workingDirectory)))
-
-	// Set the working directory
-	cmd.Dir = workingDirectory
 
 	inReader, inWriter, err := os.Pipe()
 	if err != nil {
-		panic("Input pipe could not be created for subprocess")
+		panic("Input pipe could not be created for hws_agent")
 	}
 
 	cmd.Stdin = inReader
@@ -199,7 +209,7 @@ func createCommand(execPath string, args []string, workingDirectory string, logg
 	outReader, outWriter, err := os.Pipe()
 	// If this errors things are really wrong with the system
 	if err != nil {
-		panic("Output pipe could not be created for subprocess")
+		panic("Output pipe could not be created for hws_agent")
 	}
 	cmd.Stdout = outWriter
 	cmd.Stderr = outWriter
@@ -211,7 +221,7 @@ func createCommand(execPath string, args []string, workingDirectory string, logg
 	return cmd, inWriter, outReader
 }
 
-// Collect the output of the subprocess
+// Collect the output of the hardware sentry agent
 func collectOutput(stdout io.Reader, logger *zap.Logger) {
 	scanner := bufio.NewScanner(stdout)
 

@@ -35,39 +35,36 @@ You need to restart the *Collector* for these new settings to be taken into acco
 The first critical task the *Collector* has to complete is to launch the Java process of the **Hardware Sentry Agent** through the `prometheusexecreceiver`. Check in **logs/otel.log** that the sub-process is properly started and did not encounter any issue:
 
 ```log
-2021-12-08T14:30:50.773+0100	debug	subprocess@v0.40.0/process.go:131	Starting subprocess	{"kind": "extension", "name": "sub_process", "command": "C:\\Windows\\system32\\cmd.exe"}
-2021-12-08T14:30:50.773+0100	info	builder/pipelines_builder.go:54	Pipeline is starting...	{"name": "pipeline", "name": "metrics"}
-2021-12-08T14:30:50.773+0100	info	internal/resourcedetection.go:126	began detecting resource information	{"kind": "processor", "name": "resourcedetection"}
-2021-12-08T14:30:51.494+0100	debug	subprocess@v0.40.0/process.go:114	sub_process extension changed state	{"kind": "extension", "name": "sub_process", "state": "Running"}
-2021-12-08T14:30:52.670+0100	info	internal/resourcedetection.go:139	detected resource information	{"kind": "processor", "name": "resourcedetection", "resource": {"host.name":"pc-nassim.internal.sentrysoftware.net","os.type":"WINDOWS"}}
-2021-12-08T14:30:52.670+0100	info	builder/pipelines_builder.go:65	Pipeline is started.	{"name": "pipeline", "name": "metrics"}
-2021-12-08T14:30:52.670+0100	info	service/service.go:101	Starting receivers...
-2021-12-08T14:30:52.670+0100	info	builder/receivers_builder.go:68	Receiver is starting...	{"kind": "receiver", "name": "otlp"}
-2021-12-08T14:30:52.670+0100	info	otlpreceiver/otlp.go:68	Starting GRPC server on endpoint 0.0.0.0:4317	{"kind": "receiver", "name": "otlp"}
-2021-12-08T14:30:52.670+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "otlp"}
-2021-12-08T14:30:52.670+0100	info	builder/receivers_builder.go:68	Receiver is starting...	{"kind": "receiver", "name": "prometheus/internal"}
-2021-12-08T14:30:52.670+0100	debug	discovery/manager.go:195	Starting provider	{"kind": "receiver", "name": "prometheus/internal", "provider": "static/0", "subs": "[otel-collector-internal]"}
-2021-12-08T14:30:52.670+0100	debug	discovery/manager.go:213	Discoverer channel closed	{"kind": "receiver", "name": "prometheus/internal", "provider": "static/0"}
-2021-12-08T14:30:52.972+0100	debug	subprocess@v0.40.0/process.go:219	[36m[2021-12-08T14:30:52,968][INFO ][c.s.h.a.HardwareSentryAgentApp] Starting HardwareSentryAgentApp using Java 11.0.6 on pc-nassim with PID 19360 (C:\Program Files\hws-otel-collector\lib\hws-agent-1.1-SNAPSHOT.jar started by nassim in C:\Program Files\hws-otel-collector)	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:52.976+0100	debug	subprocess@v0.40.0/process.go:219	[m[32m[2021-12-08T14:30:52,976][DEBUG][c.s.h.a.HardwareSentryAgentApp] Running with Spring Boot v2.4.5, Spring v1.1-SNAPSHOT	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:52.976+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:52,976][INFO ][c.s.h.a.HardwareSentryAgentApp] No active profile set, falling back to default profiles: default	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:53.508+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "prometheus/internal"}
-2021-12-08T14:30:53.508+0100	info	healthcheck/handler.go:129	Health Check state change	{"kind": "extension", "name": "health_check", "status": "ready"}
-2021-12-08T14:30:53.508+0100	info	service/telemetry.go:92	Setting up own telemetry...
-2021-12-08T14:30:53.508+0100	info	service/telemetry.go:116	Serving Prometheus metrics	{"address": ":8888", "level": "basic", "service.instance.id": "2ccae4ef-e8f7-431d-aa2f-b15a4649bc49", "service.version": "latest"}
-2021-12-08T14:30:53.508+0100	info	service/collector.go:239	Starting hws-otel-collector.exe...	{"Version": "1.1-SNAPSHOT (Build 12823f41 on Dec 7, 2021 at 5:13:29 PM)", "NumCPU": 12}
-2021-12-08T14:30:53.508+0100	info	service/collector.go:135	Everything is ready. Begin running and processing data.
-2021-12-08T14:30:54.371+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:54,371][INFO ][o.s.b.w.e.t.TomcatWebServer] Tomcat initialized with port(s): 24376 (http)	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:54.479+0100	debug	subprocess@v0.40.0/process.go:219	[m[32m[2021-12-08T14:30:54,479][DEBUG][c.s.h.a.c.BackendCorsFilter] Filter 'backendCorsFilter' configured for use	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:55.474+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:55,473][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ecs1-01	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:55.474+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:55,473][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ecs1-01.	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:55.474+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:55,474][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ankara	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:55.474+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:55,474][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ankara.	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:56.294+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:56,294][INFO ][o.s.b.w.e.t.TomcatWebServer] Tomcat started on port(s): 24376 (http) with context path ''	{"kind": "extension", "name": "sub_process"}
-2021-12-08T14:30:56.440+0100	debug	subprocess@v0.40.0/process.go:219	[m[36m[2021-12-08T14:30:56,440][INFO ][c.s.h.a.HardwareSentryAgentApp] Started HardwareSentryAgentApp in 3.856 seconds (JVM running for 4.929)	{"kind": "extension", "name": "sub_process"}
+2021-12-22T11:26:13.870+0100	debug	hwsagentextension@v0.41.0/process.go:146	Starting hws_agent	{"kind": "extension", "name": "hws_agent", "command": "C:\\Windows\\system32\\cmd.exe"}
+2021-12-22T11:26:13.870+0100	info	builder/exporters_builder.go:48	Exporter started.	{"kind": "exporter", "name": "prometheus"}
+2021-12-22T11:26:13.870+0100	info	service/service.go:96	Starting processors...
+2021-12-22T11:26:13.870+0100	info	builder/pipelines_builder.go:54	Pipeline is starting...	{"name": "pipeline", "name": "metrics"}
+2021-12-22T11:26:13.870+0100	info	internal/resourcedetection.go:126	began detecting resource information	{"kind": "processor", "name": "resourcedetection"}
+2021-12-22T11:26:14.722+0100	debug	hwsagentextension@v0.41.0/process.go:129	hws_agent changed state	{"kind": "extension", "name": "hws_agent", "state": "Running"}
+2021-12-22T11:26:15.755+0100	info	internal/resourcedetection.go:139	detected resource information	{"kind": "processor", "name": "resourcedetection", "resource": {"host.name":"pc-nassim.internal.sentrysoftware.net","os.type":"WINDOWS"}}
+2021-12-22T11:26:15.755+0100	info	builder/pipelines_builder.go:65	Pipeline is started.	{"name": "pipeline", "name": "metrics"}
+2021-12-22T11:26:15.755+0100	info	service/service.go:101	Starting receivers...
+2021-12-22T11:26:15.755+0100	info	builder/receivers_builder.go:68	Receiver is starting...	{"kind": "receiver", "name": "prometheus/internal"}
+2021-12-22T11:26:15.755+0100	debug	discovery/manager.go:195	Starting provider	{"kind": "receiver", "name": "prometheus/internal", "provider": "static/0", "subs": "[otel-collector-internal]"}
+2021-12-22T11:26:15.755+0100	debug	discovery/manager.go:213	Discoverer channel closed	{"kind": "receiver", "name": "prometheus/internal", "provider": "static/0"}
+2021-12-22T11:26:16.284+0100	debug	hwsagentextension@v0.41.0/process.go:229	[36m[2021-12-22T11:26:16,281][INFO ][c.s.h.a.HardwareSentryAgentApp] Starting HardwareSentryAgentApp using Java 11.0.6 on pc-nassim with PID 236 (C:\Program Files\hws-otel-collector\lib\hws-agent-1.1-SNAPSHOT.jar started by nassim in c:\Program Files\hws-otel-collector)	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:16.287+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[32m[2021-12-22T11:26:16,287][DEBUG][c.s.h.a.HardwareSentryAgentApp] Running with Spring Boot v2.4.5, Spring v1.1-SNAPSHOT	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:16.288+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:16,288][INFO ][c.s.h.a.HardwareSentryAgentApp] No active profile set, falling back to default profiles: default	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "prometheus/internal"}
+2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:68	Receiver is starting...	{"kind": "receiver", "name": "otlp"}
+2021-12-22T11:26:16.608+0100	info	otlpreceiver/otlp.go:69	Starting GRPC server on endpoint 0.0.0.0:4317	{"kind": "receiver", "name": "otlp"}
+2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "otlp"}
+2021-12-22T11:26:16.608+0100	info	healthcheck/handler.go:129	Health Check state change	{"kind": "extension", "name": "health_check", "status": "ready"}
+2021-12-22T11:26:16.608+0100	info	service/telemetry.go:92	Setting up own telemetry...
+2021-12-22T11:26:16.609+0100	info	service/telemetry.go:116	Serving Prometheus metrics	{"address": ":8888", "level": "basic", "service.instance.id": "05d27cc8-30f6-47cc-8c2f-0c6c1181fa96", "service.version": "latest"}
+2021-12-22T11:26:16.609+0100	info	service/collector.go:239	Starting hws-otel-collector.exe...	{"Version": "1.1-SNAPSHOT (Build 6b2c8efc on Dec 22, 2021 at 10:30:28 AM)", "NumCPU": 12}
+2021-12-22T11:26:16.609+0100	info	service/collector.go:135	Everything is ready. Begin running and processing data.
+2021-12-22T11:26:18.060+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ecs1-01	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ecs1-01.	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ankara	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ankara.	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.377+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,377][INFO ][c.s.h.a.HardwareSentryAgentApp] Started HardwareSentryAgentApp in 2.485 seconds (JVM running for 3.634)	{"kind": "extension", "name": "hws_agent"}
 ```
-
-The standard output of the core engine is displayed in the JSON `output` property, which makes it a little harder to the human eye, unfortunately. But as long as you see the output of the Java process, starting Tomcat on the configured port with no configuration errors, you will not need to examine this output more in details.
 
 The **logs/otel.log** file will also include details about the processing steps and the connection to the output framework (Prometheus, BMC Helix, etc.). Any connection issue of authentication failures with the outside will be displayed in this log file.
 

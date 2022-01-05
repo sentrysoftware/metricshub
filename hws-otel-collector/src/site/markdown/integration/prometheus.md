@@ -27,19 +27,23 @@ Once *Remote Write* is enabled and configured on your Prometheus Server, edit th
 exporters:
   prometheusremotewrite/your-prom-server:
     endpoint: http://your-prom-server:9090/api/v1/write
+    resource_to_telemetry_conversion:
+      enabled: true
 ```
 
 You can customize the [`prometheusremotewrite` exporter configuration](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter) to match your Prometheus Server's configuration, notably the `endpoint` URL.
+
+It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
 
 Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
 
 ```yaml
 service:
-  extensions: [health_check]
+  extensions: [health_check, hws_agent]
   pipelines:
     metrics:
-      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
-      processors: [memory_limiter,batch,metricstransform]
+      receivers: [otlp, prometheus/internal]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-prom-server] # Your prometheusremotewrite exporter must be listed here
 ```
 
@@ -52,13 +56,27 @@ In this setup, each instance of **${project.name}** exposes the collected metric
 ```yaml
 exporters:
   prometheus:
-    endpoint: 0.0.0.0:8080
+    endpoint: "0.0.0.0:24375"
     send_timestamps: true
     metric_expiration: 15m
     resource_to_telemetry_conversion:
       enabled: true
 ```
 The `metric_expiration` value must be significantly greater than the internal polling interval of the **Hardware Sentry Agent**. If the metric expiration time is too small, it will result in collection gaps in Prometheus Server.
+
+It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
+
+Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
+
+```yaml
+service:
+  extensions: [health_check, hws_agent]
+  pipelines:
+    metrics:
+      receivers: [otlp, prometheus/internal]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
+      exporters: [prometheus] # Your prometheus exporter must be listed here
+```
 
 Once **${project.name}** is running, you can configure a job in the [`scrape_configs` section of your Prometheus Server configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config):
 
@@ -80,5 +98,5 @@ Example:
     scrape_interval: 2m
     scrape_timeout: 30s
     static_configs:
-    - targets: ['hws-otel-exporter-siteA:8080']
+    - targets: ['hws-otel-exporter-siteA:24375']
 ```

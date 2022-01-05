@@ -95,6 +95,8 @@ exporters:
     endpoint: https://your-helix-env.onbmc.com/metrics-gateway-service/api/v1.0/prometheus
     headers:
       Authorization: Bearer <apiToken>
+    resource_to_telemetry_conversion:
+      enabled: true
 
   # Prometheus Server with Remote Write protocol
   # All options are described at:
@@ -102,19 +104,24 @@ exporters:
   # Note: The Prometheus server must have been started with the --enable-feature=remote-write-receiver option
   prometheusremotewrite/your-server:
     endpoint: http://prom-server:9090/api/v1/write
+    resource_to_telemetry_conversion:
+      enabled: true
 
   # Datadog
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter
   datadog/api:
     api:
       key: <apikey> # Check your Datadog's Organization Settings
+    metrics:
+      resource_attributes_as_tags: true
 
   # Prometheus exporter
   # Exports data to a Prometheus back-end
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter
   prometheus:
     endpoint: "0.0.0.0:24375"
-    metric_expiration: 10m
+    send_timestamps: true
+    metric_expiration: 15m
     resource_to_telemetry_conversion:
       enabled: true
 
@@ -135,22 +142,19 @@ extensions:
   # https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension
   zpages:
 
-  # subprocess
-  # Facilitates running a sub process of the collector
-  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/subprocess
-  sub_process:
-    executable_path: bin/hws-agent.cmd
-    args: 
-      - --grpc=http://localhost:4317
+  # hwsagent
+  # Starts the Hardware Sentry Agent as a child process of the OpenTelemetry Collector
+  # https://github.com/sentrysoftware/opentelemetry-collector-contrib/tree/main/extension/hwsagentextension
+  hws_agent:
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION
 service:
   telemetry:
     logs:
       level: info # Change to debug more more details
-  extensions: [health_check, sub_process]
+  extensions: [health_check, hws_agent]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
-      processors: [memory_limiter,batch,resourcedetection,metricstransform]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-server, prometheus] # List here the platform of your choice

@@ -12,18 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !windows && !linux
+//go:build linux
 
-package subprocess
+package hwsagentextension
 
 import (
 	"os/exec"
+	"syscall"
 )
 
-// Other version of exec.Command(...)
-// Compiles for non linux and non windows
+// Linux version of exec.Command(...)
+// Compiles on Linux only
 func execCommand(execPath string, args []string) *exec.Cmd {
 	return exec.Command(execPath, args...)
 }
 
-func applyOSSpecificCmdModifications(_ *exec.Cmd) {}
+func applyOSSpecificCmdModifications(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		// This is Linux-specific and will cause the sub process to be killed by the OS if
+		// the collector dies
+		Pdeathsig: syscall.SIGTERM,
+	}
+}
+
+func getExecutablePath() string {
+	return "bin/hws-agent"
+}

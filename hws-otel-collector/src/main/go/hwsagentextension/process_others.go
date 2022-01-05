@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+//go:build !windows && !linux
+
+package hwsagentextension
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
+	"os/exec"
 )
 
-func TestExecCommandWindows(t *testing.T) {
+// Other version of exec.Command(...)
+// Compiles for non linux and non windows
+func execCommand(execPath string, args []string) *exec.Cmd {
+	return exec.Command(execPath, args...)
+}
 
-	cmd := execCommand("script.cmd", []string{"arg1", `arg2=C:\Program Files\otel-collector`})
+func applyOSSpecificCmdModifications(_ *exec.Cmd) {}
 
-	require.Equal(t, `/C "script.cmd arg1 "arg2=C:\Program Files\otel-collector""`, cmd.SysProcAttr.CmdLine)
+func getExecutablePath() string {
+	return "bin/hws-agent"
 }

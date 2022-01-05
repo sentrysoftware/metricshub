@@ -24,9 +24,10 @@
 
 	<fileSets>
 		<fileSet>
-			<directory>src/dist/windows</directory>
+			<directory>src/dist</directory>
 			<excludes>
-				<exclude>bin/**</exclude>
+				<exclude>windows/**</exclude>
+				<exclude>linux/**</exclude>
 			</excludes>
 			<outputDirectory>/</outputDirectory>
 			<lineEnding>windows</lineEnding>

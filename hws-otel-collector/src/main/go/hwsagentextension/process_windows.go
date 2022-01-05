@@ -14,7 +14,7 @@
 
 //go:build windows
 
-package subprocess
+package hwsagentextension
 
 import (
 	"os"
@@ -54,4 +54,8 @@ func surroundWithDoubleQuotes(value string) string {
 
 	return value
 
+}
+
+func getExecutablePath() string {
+	return "bin\\hws-agent.cmd"
 }

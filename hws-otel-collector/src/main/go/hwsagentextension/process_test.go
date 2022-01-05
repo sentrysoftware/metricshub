@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package subprocess
+package hwsagentextension
 
 import (
 	"context"
@@ -26,6 +26,12 @@ import (
 	"go.uber.org/zap/zaptest/observer"
 )
 
+type testPmDelegate struct{}
+
+func (tpmd *testPmDelegate) delegatedExecPath() string {
+	return "go"
+}
+
 func setup(t *testing.T, conf *Config, args []string,
 	workingDirectory string, restartDelay *time.Duration,
 	retries *int) (*processManager, **process.Process, func() bool, *observer.ObservedLogs) {
@@ -33,12 +39,12 @@ func setup(t *testing.T, conf *Config, args []string,
 	logCore, logObserver := observer.New(zap.DebugLevel)
 	logger := zap.New(logCore)
 
-	conf.ExecutablePath = "go"
-	conf.Args = args
-	conf.WorkingDirectory = workingDirectory
+	conf.ExtraArgs = args
 	conf.RestartDelay = restartDelay
 	conf.Retries = retries
 	pm := newProcessManager(conf, logger)
+
+	pm.delegate = &testPmDelegate{}
 
 	var mockProc *process.Process
 	findSubproc := func() bool {
@@ -102,7 +108,7 @@ func TestProcessManagerProcessErrored(t *testing.T) {
 	defer pm.Shutdown(ctx)
 
 	time.Sleep(2 * time.Second)
-	require.Len(t, logObserver.FilterMessage("Subprocess died").All(), 1)
+	require.Len(t, logObserver.FilterMessage("hws_agent died").All(), 1)
 }
 
 func TestProcessManagerNoRetries(t *testing.T) {
