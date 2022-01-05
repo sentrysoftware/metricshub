@@ -527,16 +527,6 @@ class HostMonitoringTest {
 		assertEquals(expectedFanBis, hostMonitoring.selectFromType(FAN).get(fanBisId));
 		assertEquals(expectedFan, hostMonitoring.selectFromType(FAN).get(FAN_ID));
 
-		Monitor connectorMonitor = Monitor.builder()
-				.id(TARGET_ID)
-				.targetId(TARGET_ID)
-				.name("target")
-				.monitorType(MonitorType.TARGET)
-				.build();
-
-		hostMonitoring.addMissingMonitor(connectorMonitor);
-		assertNull(hostMonitoring.selectFromType(MonitorType.TARGET)); // Target is never missing
-
 	}
 
 	@Test

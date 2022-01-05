@@ -5669,6 +5669,29 @@
         "rawValue" : 19.0,
         "previousRawValue" : null,
         "type" : "NumberParam"
+      },
+      "present" : {
+        "name" : "present",
+        "collectTime" : 1634216906694,
+        "previousCollectTime" : null,
+        "unit" : "{ 0 = Missing ; 1 = Present }",
+        "state" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "previousState" : {
+          "displayName" : "Present",
+          "numericValue" : 1,
+          "name" : "PRESENT",
+          "type" : "Present",
+          "unit" : "{ 0 = Missing ; 1 = Present }"
+        },
+        "type" : "DiscreteParam",
+        "numericValue" : 1,
+        "displayName" : "Present"
       }
     },
     "metadata" : {

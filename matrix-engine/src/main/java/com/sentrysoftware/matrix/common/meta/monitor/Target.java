@@ -20,6 +20,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 
 public class Target implements IMetaMonitor {
@@ -60,6 +61,7 @@ public class Target implements IMetaMonitor {
 		map.put(ENERGY_PARAMETER, ENERGY);
 		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
 		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(PRESENT_PARAMETER, PRESENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 	}

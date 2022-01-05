@@ -71,6 +71,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return false;
 		}
 
+		// Set the discovery time for the target. 
+		// The missing monitor detection will set the target as present since its
+		// discovery time is the same as the current strategy time
+		targetMonitor.setDiscoveryTime(strategyTime);
+
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
