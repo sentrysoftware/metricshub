@@ -88,6 +88,9 @@ func (pm *processManager) Start(ctx context.Context, _ component.Host) error {
 			args = append(args, "--grpc="+*pm.conf.Grpc)
 		}
 
+		// Enable the self closing guard on stdin
+		args = append(args, "--enable-self-closing-guard")
+
 		run(childCtx, pm.delegate.delegatedExecPath(), args, restartDelay, retries, pm.logger)
 		close(pm.shutdownSignal)
 	}()
