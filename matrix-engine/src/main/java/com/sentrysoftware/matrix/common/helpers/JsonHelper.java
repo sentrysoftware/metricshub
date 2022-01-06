@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class JsonHelper {
 
@@ -61,11 +62,14 @@ public class JsonHelper {
 	 * @return new {@link ObjectMapper} instance
 	 */
 	public static ObjectMapper buildObjectMapper() {
-		return new ObjectMapper()
-				.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
-				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-				.enable(SerializationFeature.INDENT_OUTPUT);
+
+		// Since 2.13 use JsonMapper.builder().enable(...)
+		return JsonMapper.builder()
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(SerializationFeature.INDENT_OUTPUT)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
 	}
 }

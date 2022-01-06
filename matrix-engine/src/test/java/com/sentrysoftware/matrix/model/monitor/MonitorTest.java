@@ -364,8 +364,5 @@ class MonitorTest {
 		target.addParameter(DiscreteParam.present());
 		assertFalse(target.isMissing());
 
-		target.addParameter(DiscreteParam.missing());
-		assertFalse(target.isMissing());
-
 	}
 }

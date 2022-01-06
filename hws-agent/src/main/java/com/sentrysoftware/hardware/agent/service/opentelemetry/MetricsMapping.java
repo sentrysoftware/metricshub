@@ -189,7 +189,7 @@ public class MetricsMapping {
 
 		map.put(IMetaMonitor.STATUS.getName(), MetricInfo
 			.builder()
-			.name("hw.target.target_status")
+			.name("hw.target.status")
 			.unit(IMetaMonitor.STATUS.getUnit())
 			.description("Target status")
 			.build());
@@ -225,6 +225,12 @@ public class MetricsMapping {
 			.unit(CELSIUS)
 			.description("Target CPU temperature")
 			.build());
+		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
+				.builder()
+				.name("hw.target.present")
+				.unit(IMetaMonitor.PRESENT.getUnit())
+				.description("Whether the target is present or not")
+				.build());
 
 		return map;
 	}

@@ -1,8 +1,21 @@
 package com.sentrysoftware.hardware.agent.configuration;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.hardware.agent.dto.ErrorCode;
 import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
@@ -16,23 +29,11 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 @Slf4j
@@ -54,14 +55,14 @@ public class ConfigHelper {
 	 */
 	static <T> T deserializeYamlFile(final File file, final Class<T> type) throws IOException {
 
-		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
-
-		mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-
-		return mapper.readValue(file, type);
+		// Since 2.13 use JsonMapper.builder().enable(...)
+		return JsonMapper
+				.builder(new YAMLFactory())
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+				.build()
+				.readValue(file, type);
 
 	}
 
