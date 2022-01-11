@@ -1,7 +1,5 @@
 package com.sentrysoftware.hardware.agent.service;
 
-import java.io.InputStream;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
@@ -26,13 +24,13 @@ public class SelfClosingGuardService {
 	 */
 	void exitApplicationOnClosedStdin() {
 
-		try (final InputStream in = System.in) {
+		try {
 			// in.read() returns -1 if the end of the stream is reached
-			while (in.read() != -1) {
+			while (System.in.read() != -1) {
 				// Gobble every byte that's sent to us through stdin
 			}
 		} catch (Exception e) {
-			 /* Do nothing */ 
+			/* Do nothing */
 		}
 
 		log.info("Parent process terminated. Exiting now.");
