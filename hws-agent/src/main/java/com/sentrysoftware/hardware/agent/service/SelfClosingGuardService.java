@@ -1,30 +1,23 @@
 package com.sentrysoftware.hardware.agent.service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Service;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
-public class SelfClosingGuardService implements ApplicationRunner {
+@Service
+public class SelfClosingGuardService {
 
-	@Override
-	public void run(@NonNull final ApplicationArguments args) {
-
-		// SelfClosingGuard can be disabled, for tests or for any other reason
-		if (!args.containsOption("enable-self-closing-guard")) {
-			return;
-		}
-
-		// Multiple ApplicationRunner instances could be defined in the application and
-		// then the SpringApplication runs them in serial mode that's why our
-		// SelfClosingGuardService runner shouldn't block another ApplicationRunner instance
+	/**
+	 * Start the reader
+	 */
+	@PostConstruct
+	public void start() {
+		// Never block the start method
 		new Thread(this::exitApplicationOnClosedStdin).start();
 	}
 
@@ -32,14 +25,19 @@ public class SelfClosingGuardService implements ApplicationRunner {
 	 * Read the stdin and exit the application if the caller closes the channel
 	 */
 	void exitApplicationOnClosedStdin() {
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
-			// in.readLine() is blocker
-			log.info("Caller has closed stdin. Message: {}", in.readLine());
+
+		try (final InputStream in = System.in) {
+			// in.read() returns -1 if the end of the stream is reached
+			while (in.read() != -1) {
+				// Gobble every byte that's sent to us through stdin
+			}
 		} catch (Exception e) {
-			log.error("An error has occurred reading stdin", e);
+			 /* Do nothing */ 
 		}
 
-		// Stops gracefully even if the caller received the SIGKILL
+		log.info("Parent process terminated. Exiting now.");
+
+		// Exit the application
 		exit();
 	}
 
