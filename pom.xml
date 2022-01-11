@@ -45,8 +45,8 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>1.7.30</slf4j-simple.version>
 		<emulation.version>2</emulation.version>
-		<openTelemetryVersion>1.10.0-rc.2</openTelemetryVersion>
-		<openTelemetryAlphaVersion>1.10.0-alpha-rc.2</openTelemetryAlphaVersion>
+		<openTelemetryVersion>1.10.0</openTelemetryVersion>
+		<openTelemetryAlphaVersion>1.10.0-alpha</openTelemetryAlphaVersion>
 		<grpcVersion>1.34.1</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>

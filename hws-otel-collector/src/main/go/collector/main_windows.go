@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"go.opentelemetry.io/collector/service"
 	"golang.org/x/sys/windows/svc"
+
+	"go.opentelemetry.io/collector/service"
 )
 
 func run(params service.CollectorSettings) error {
@@ -30,11 +31,11 @@ func checkUseInteractiveMode() (bool, error) {
 		return true, nil
 	}
 
-	if isInteractiveSession, err := svc.IsAnInteractiveSession(); err != nil {
-		return false, fmt.Errorf("failed to determine if we are running in an interactive session %w", err)
-	} else {
-		return isInteractiveSession, nil
+	isInteractiveSession, err := svc.IsAnInteractiveSession()
+	if err != nil {
+		return false, fmt.Errorf("failed to determine if we are running in an interactive session: %w", err)
 	}
+	return isInteractiveSession, nil
 }
 
 func runService(params service.CollectorSettings) error {
