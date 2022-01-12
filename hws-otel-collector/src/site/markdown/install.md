@@ -133,18 +133,12 @@ You can start the **${project.name}** with an alternate configuration file with 
 
 ### Start As a Service
 
-It is recommended to install and run the **${project.name}** as a _Windows Service_ with NSSM.
+It is recommended to install and run the **${project.name}** as a _Windows Service_.
 
-Download and install the [very latest version of NSSM](https://nssm.cc/download) so that it's available in your `%PATH%` (to make things easier).
-
-Run the below command to create the service (assuming the product has been installed in **c:\Program Files**):
+Run the below [sc](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/sc-create) command to create the service (assuming the product has been installed in **c:\Program Files**):
 
 ```batch
-nssm install hws-otel "c:\Program Files\hws-otel-collector\bin\hws-otel.cmd"
-nssm set hws-otel AppDirectory "c:\Program Files\hws-otel-collector"
-nssm set hws-otel DisplayName "Hardware Sentry OpenTelemetry Collector"
-nssm set hws-otel AppEnvironmentExtra NO_WINDOWS_SERVICE=1
-nssm set hws-otel Start SERVICE_AUTO_START
+sc create hws-otel binPath="c:\Program Files\hws-otel-collector\bin\hws-otel.cmd" start=auto DisplayName="Hardware Sentry OpenTelemetry Collector"
 ```
 
 The service will appear as below in **services.msc**:
@@ -159,8 +153,8 @@ To verify that **${project.name}** is properly running, [read the Health Check s
 
 **${project.name}** opens several TCP ports for listening. None of these ports need to be open to the outside network, as they are used internally only.
 
-| Component                             | Port      | Required                                                    |
-| ------------------------------------- | --------- | ----------------------------------------------------------- |
-| **Hardware Sentry Agent**             | TCP/24375 | Used internally only                                        |
-| _OpenTelemetry Collector_ HealthCheck | TCP/13133 | Optional, if you need to verify the status of the collector |
-| _OpenTelemetry Collector_ Exporter    | TCP/8888  | Used internally only                                        |
+| Component                                    | Port      | Required                                                    |
+| -------------------------------------------- | --------- | ----------------------------------------------------------- |
+| _OpenTelemetry Collector_ OTLP gRPC Receiver | TCP/4317  | Used internally only                                        |
+| _OpenTelemetry Collector_ HealthCheck        | TCP/13133 | Optional, if you need to verify the status of the collector |
+| _OpenTelemetry Collector_ Exporter           | TCP/8888  | Used internally only                                        |
