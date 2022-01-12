@@ -430,7 +430,9 @@ targets:
 
 ### extraLabels
 
-If your monitoring solution is already consuming OpenTelemetry data, you need to set `extraLabels` to ensure the metrics collected by the *Hardware Sentry Agent* are grouped under the appropriate host. The `host.name` attribute is used as the key to connect the *Hardware Sentry Agent* and any other OpenTelemetry data as shown in the example below:
+All labels specified under `extraLabels` for a specific host will be added as additional attributes to the corresponding [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). The attributes of a *Resource* typically end up added to each metric attached to that *Resource* when exported to time series platforms like Prometheus.
+
+A particular example is the use `extraLabels` to override the `host.name` attribute that is set by default by **${project.name}**. By default, the `host.name` attribute is set with the resolved FQDN to the monitored system, but you can override this value using `extraLabels` as in the example below:
 
 ```yaml
 targets:
