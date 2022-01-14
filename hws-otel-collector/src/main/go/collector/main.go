@@ -154,7 +154,7 @@ func exists(path string) (bool, error) {
 	return false, err
 }
 
-// Check if arguments have help flag
+// Check if arguments have help or version flags
 func checkVersionOrHelp(args []string) bool {
 	for _, str := range args {
 		if str == "--help" || str == "--version" {
