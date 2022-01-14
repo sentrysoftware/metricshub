@@ -101,10 +101,11 @@ public class StrategyTask implements Runnable {
 			final Resource resource = OtelHelper.createHostResource(
 					targetMonitor.getId(),
 					hostConfigurationDTO.getTarget().getHostname(),
-					hostConfigurationDTO.getTarget().getType().getDisplayName(),
+					hostConfigurationDTO.getTarget().getType(),
 					targetMonitor.getFqdn(),
 					userConfiguration.getMultiHostsConfigurationDTO().isResolveHostnameToFqdn(),
-					hostConfigurationDTO.getExtraLabels()
+					hostConfigurationDTO.getExtraLabels(),
+					userConfiguration.getMultiHostsConfigurationDTO().getExtraLabels()
 			);
 
 			sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, periodicReaderFactory);

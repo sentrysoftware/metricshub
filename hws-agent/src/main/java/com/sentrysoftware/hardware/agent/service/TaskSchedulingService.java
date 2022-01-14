@@ -92,7 +92,7 @@ public class TaskSchedulingService {
 	 */
 	void scheduleAgentSelfObserver() {
 
-		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"));
+		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), multiHostsConfigurationDto.getExtraLabels());
 		final SdkMeterProvider sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, periodicReaderFactory);
 
 		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period

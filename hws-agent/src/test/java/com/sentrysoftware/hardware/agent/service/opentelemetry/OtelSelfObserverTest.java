@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ class OtelSelfObserverTest {
 
 	@Test
 	void testInit() {
-		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"));
+		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), Collections.emptyMap());
 		InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, inMemoryReader);
 	
