@@ -15,12 +15,14 @@ import (
 
 func main() {
 
-	log.Println("starting Hardware Sentry OpenTelemetry Collector")
-	log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
+	if !checkVersionOrHelp(os.Args) {
+		log.Println("starting Hardware Sentry OpenTelemetry Collector")
+		log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
 
-	err := rollAndRouteLogs()
-	if err != nil {
-		log.Println("failed to roll and route logs: %v", err)
+		err := rollAndRouteLogs()
+		if err != nil {
+			log.Println("failed to roll and route logs: %v", err)
+		}
 	}
 
 	factories, err := components()
@@ -75,20 +77,12 @@ func rollAndRouteLogs() error {
 		}
 	}
 
-	// The current log file
-	logFile := logsDir + "/otel.log"
-
 	maxLogFiles := 3
 
 	// Loop over each file index and remove or rename the file
 	for i := maxLogFiles; i >= 0; i-- {
 
-		var oldLogFile string
-		if i == 0 {
-			oldLogFile = logFile
-		} else {
-			oldLogFile = logsDir + "/otel~" + strconv.Itoa(i) + ".log"
-		}
+		oldLogFile := buildLogPath(logsDir, i)
 
 		// Old log file doesn't exist? go to the next iteration
 		exist, err = exists(oldLogFile)
@@ -106,7 +100,7 @@ func rollAndRouteLogs() error {
 		}
 
 		// Build the new log file name
-		newLogFile := logsDir + "/otel~" + strconv.Itoa(i+1) + ".log"
+		newLogFile := buildLogPath(logsDir, i+1)
 
 		// Rename old file name
 		err = os.Rename(oldLogFile, newLogFile)
@@ -116,11 +110,22 @@ func rollAndRouteLogs() error {
 
 	}
 
+	logFile := buildLogPath(logsDir, 0)
 	redirectLogs(logFile)
 
 	log.Println("redirected output to: " + formatPath(logFile))
 
 	return nil
+
+}
+
+// Build log path assuming that the first log file name is 'otel.log' then otel~number.log
+func buildLogPath(dir string, number int) string {
+	if number == 0 {
+		return dir + "/otel.log"
+	}
+
+	return dir + "/otel~" + strconv.Itoa(number) + ".log"
 
 }
 
@@ -147,4 +152,14 @@ func exists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// Check if arguments have help flag
+func checkVersionOrHelp(args []string) bool {
+	for _, str := range args {
+		if str == "--help" || str == "--version" {
+			return true
+		}
+	}
+	return false
 }
