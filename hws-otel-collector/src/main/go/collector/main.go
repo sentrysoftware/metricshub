@@ -6,7 +6,6 @@ package main
 import (
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"go.opentelemetry.io/collector/component"
@@ -42,7 +41,11 @@ func main() {
 }
 
 func runInteractive(params service.CollectorSettings) error {
-	cmd := service.NewCommand(params)
+	cmd, err := NewCommand(params)
+	if err != nil {
+		log.Fatalf("cannot build the collector server command: %v", err)
+	}
+
 	if err := cmd.Execute(); err != nil {
 		log.Fatalf("collector server run finished with error: %v", err)
 	}
@@ -53,16 +56,10 @@ func runInteractive(params service.CollectorSettings) error {
 // Roll the log files and redirect the stdout and stderr to the /logs/otel.log file
 func rollAndRouteLogs() error {
 
-	ex, err := os.Executable()
+	logsDir, err := getLogsDir()
 	if err != nil {
 		return err
 	}
-
-	// Get the directory of currently running process
-	exPath := filepath.Dir(ex)
-
-	// logs directory
-	logsDir := exPath + "/../logs"
 
 	exist, err := exists(logsDir)
 	if err != nil {

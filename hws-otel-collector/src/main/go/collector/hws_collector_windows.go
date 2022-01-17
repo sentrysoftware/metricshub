@@ -5,10 +5,8 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -16,9 +14,7 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 
-	"go.opentelemetry.io/collector/config/configtelemetry"
 	"go.opentelemetry.io/collector/service"
-	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 type WindowsService struct {
@@ -75,11 +71,18 @@ func (s *WindowsService) Execute(args []string, requests <-chan svc.ChangeReques
 }
 
 func (s *WindowsService) start(colErrorChannel chan error) error {
-	// Parse all the flags manually.
-	if err := flags().Parse(os.Args[1:]); err != nil {
+
+	// Call flags which prepares a new flagSet including the default configuration
+	flagSet, err := flags()
+	if err != nil {
 		return err
 	}
-	var err error
+
+	// Parse all the flags manually.
+	if err := flagSet.Parse(os.Args[1:]); err != nil {
+		return err
+	}
+
 	s.col, err = newColWithLogCore(s.settings)
 	if err != nil {
 		return err
@@ -148,48 +151,4 @@ func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
 		pe.EncodeTime = zapcore.ISO8601TimeEncoder
 		return zapcore.NewCore(zapcore.NewConsoleEncoder(pe), zapcore.AddSync(os.Stdout), logLevel)
 	}
-}
-
-var (
-	defaultConfig = ""
-
-	// Command-line flag that control the configuration file.
-	configFlag = &defaultConfig
-	setFlag    = new(valueCollection)
-)
-
-type valueCollection struct {
-	values []string
-}
-
-func (v *valueCollection) Set(val string) error {
-	v.values = append(v.values, val)
-	return nil
-}
-
-func (v *valueCollection) String() string {
-	return "[" + strings.Join(v.values, ",") + "]"
-}
-
-func flags() *flag.FlagSet {
-	flagSet := new(flag.FlagSet)
-	configtelemetry.Flags(flagSet)
-	featuregate.Flags(flagSet)
-
-	configFlag = flagSet.String("config", defaultConfig, "Path to the config file")
-
-	flagSet.Var(setFlag, "set",
-		"Set arbitrary component config property. The component has to be defined in the config file and the flag"+
-			" has a higher precedence. Array config properties are overridden and maps are joined, note that only a single"+
-			" (first) array property can be set e.g. -set=processors.attributes.actions.key=some_key. Example --set=processors.batch.timeout=2s")
-
-	return flagSet
-}
-
-func getConfigFlag() string {
-	return *configFlag
-}
-
-func getSetFlag() []string {
-	return setFlag.values
 }

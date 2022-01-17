@@ -66,7 +66,7 @@ Before starting the _OpenTelemetry Collector_, make sure to configure [**./confi
 You can start the **${project.name}** with the below command:
 
 ```bash
-/usr/local/hws-otel-collector/bin/hws-otel
+/usr/local/hws-otel-collector/bin/hws-otel-collector
 ```
 
 This will start the **${project.name}** with the default _OpenTelemetry Collector_ configuration file: **./config/otel-config.yaml**.
@@ -74,10 +74,10 @@ This will start the **${project.name}** with the default _OpenTelemetry Collecto
 You can start the **${project.name}** with an alternate configuration file with the below command:
 
 ```bash
-/usr/local/hws-otel-collector/bin/hws-otel --config <PATH>
+/usr/local/hws-otel-collector/bin/hws-otel-collector --config <PATH>
 ```
 
-`hws-otel` is just a shell script that ensures the _OpenTelemetry Collector_ is run from its home directory. You can choose to execute the _OpenTelemetry Collector_ binary directly with the below commands:
+Example:
 
 ```shell-session
 /$ cd /usr/local/hws-otel-collector
@@ -120,7 +120,7 @@ Start **${project.name}** in **CMD.EXE** or [Windows Terminal](https://www.micro
 c:
 cd "Program Files"
 cd hws-otel-collector
-bin\hws-otel
+bin\hws-otel-collector
 ```
 
 This will start the **${project.name}** with the default _OpenTelemetry Collector_ configuration file: **.\config\otel-config.yaml**.
@@ -128,7 +128,7 @@ This will start the **${project.name}** with the default _OpenTelemetry Collecto
 You can start the **${project.name}** with an alternate configuration file with the below command:
 
 ```batch
-"c:\Program Files\hws-otel-collector\bin\hws-otel" --config "c:\Program Files\hws-otel-collector\bin\hws-otel\config\otel-config.yaml"
+"c:\Program Files\hws-otel-collector\bin\hws-otel-collector" --config "c:\Program Files\hws-otel-collector\config\my-otel-config.yaml"
 ```
 
 ### Start As a Service
@@ -138,7 +138,7 @@ It is recommended to install and run the **${project.name}** as a _Windows Servi
 Run the below [sc](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/sc-create) command to create the service (assuming the product has been installed in **c:\Program Files**):
 
 ```batch
-sc create hws-otel binPath="c:\Program Files\hws-otel-collector\bin\hws-otel.cmd" start=auto DisplayName="Hardware Sentry OpenTelemetry Collector"
+sc create hws-otel binPath="c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" start=auto DisplayName="Hardware Sentry OpenTelemetry Collector"
 ```
 
 The service will appear as below in **services.msc**:

@@ -18,6 +18,7 @@ require (
 	go.opentelemetry.io/collector v${otelVersion}
 	golang.org/x/sys v0.0.0-20211210111614-af8b64212486
 	go.uber.org/zap v1.20.0
+	github.com/spf13/cobra v1.3.0
 )
 
 require (
