@@ -569,11 +569,11 @@ class DiscoveryOperationTest {
 
 		discovery.setParameters(null);
 
-		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
+		assertTrue(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 
 		discovery.setParameters(Collections.emptyMap());
 
-		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
+		assertTrue(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
@@ -584,7 +584,7 @@ class DiscoveryOperationTest {
 				.type(MonitorType.ENCLOSURE)
 				.discovery(Discovery.builder().instanceTable(null).build()).build();
 
-		assertFalse(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
+		assertTrue(discoveryOperation.validateHardwareMonitorFields(hardwareMonitor, MY_CONNECTOR_1_NAME, ECS1_01));
 	}
 
 	@Test
