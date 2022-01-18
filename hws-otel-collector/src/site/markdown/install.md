@@ -141,7 +141,7 @@ Run the below [sc](https://docs.microsoft.com/en-us/windows-server/administratio
 sc create hws-otel binPath="c:\Program Files\hws-otel-collector\bin\hws-otel-collector.exe" start=auto DisplayName="Hardware Sentry OpenTelemetry Collector"
 ```
 
-The service will appear as below in **services.msc**:
+The service appears in **services.msc**:
 
 ![**${project.name}** running as a service on Windows](images/hws-otel-win-service.png)
 
