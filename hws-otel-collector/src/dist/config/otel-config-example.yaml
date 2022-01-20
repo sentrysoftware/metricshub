@@ -130,6 +130,17 @@ exporters:
   logging:
     loglevel: debug
 
+  # Splunk SignalFx
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter
+  signalfx:
+    # Access token to send data to SignalFx.
+    access_token: <access_token>
+    # SignalFx realm where the data will be received.
+    realm: eu0
+    # Timeout for the send operations.
+    timeout: 10s
+    # Defines if the exporter should scrape host metadata.
+    sync_host_metadata: true
 
 # EXTRAS
 extensions:
@@ -144,7 +155,6 @@ extensions:
 
   # hwsagent
   # Starts the Hardware Sentry Agent as a child process of the OpenTelemetry Collector
-  # https://github.com/sentrysoftware/opentelemetry-collector-contrib/tree/main/extension/hwsagentextension
   hws_agent:
 
 # ACTUAL COLLECTOR PIPELINE DESCRIPTION

@@ -6,6 +6,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion}
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v${otelVersion}
@@ -14,11 +15,10 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusexecreceiver v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v${otelVersion}
-	github.com/stretchr/testify v1.7.0
-	go.opentelemetry.io/collector v${otelVersion}
-	golang.org/x/sys v0.0.0-20211210111614-af8b64212486
-	go.uber.org/zap v1.20.0
 	github.com/spf13/cobra v1.3.0
+	go.opentelemetry.io/collector v${otelVersion}
+	go.uber.org/zap v1.20.0
+	golang.org/x/sys v0.0.0-20211210111614-af8b64212486
 )
 
 require (
@@ -57,7 +57,7 @@ require (
 	github.com/digitalocean/godo v1.62.0 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v20.10.12+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-connections v0.4.1-0.20210727194412-58542c764a11 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
@@ -69,7 +69,9 @@ require (
 	github.com/go-logr/stdr v1.2.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-resty/resty/v2 v2.1.1-0.20191201195748-d7b97669fe48 // indirect
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-zookeeper/zk v1.0.2 // indirect
+	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -96,6 +98,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jaegertracing/jaeger v1.29.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
@@ -104,6 +107,7 @@ require (
 	github.com/linode/linodego v0.28.5 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
@@ -117,11 +121,16 @@ require (
 	github.com/mostynb/go-grpc-compression v1.1.15 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/ecsutil v${otelVersion} // indirect
+	github.com/open-telemetry/opentelemetry-collector-contrib/internal/common v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v${otelVersion} // indirect
+	github.com/open-telemetry/opentelemetry-collector-contrib/internal/splunk v${otelVersion} // indirect
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/batchperresourceattr v${otelVersion} // indirect
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/experimentalmetricmetadata v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/opencensus v${otelVersion} // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -137,11 +146,16 @@ require (
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.7.0.20210223165440-c65ae3540d44 // indirect
 	github.com/shirou/gopsutil v3.21.9+incompatible // indirect
 	github.com/shirou/gopsutil/v3 v3.21.12 // indirect
+	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2 // indirect
+	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
+	github.com/signalfx/golib/v3 v3.3.13 // indirect
+	github.com/signalfx/sapm-proto v0.4.0 // indirect
+	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-20201202163743-65b4fa925fc8 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
-	github.com/spf13/cobra v1.3.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tidwall/gjson v1.10.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
@@ -150,6 +164,8 @@ require (
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
+	github.com/uber/jaeger-client-go v2.29.1+incompatible // indirect
+	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.opentelemetry.io/collector/model v${otelVersion} // indirect

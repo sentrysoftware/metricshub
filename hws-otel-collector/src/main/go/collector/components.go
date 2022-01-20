@@ -1,23 +1,26 @@
 package main
 
 import (
-	"go.opentelemetry.io/collector/component"
-	loggingexporter "go.opentelemetry.io/collector/exporter/loggingexporter"
 	datadogexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter"
-	prometheusremotewriteexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter"
 	prometheusexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter"
-	zpagesextension "go.opentelemetry.io/collector/extension/zpagesextension"
-	pprofextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension"
+	prometheusremotewriteexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter"
+	signalfxexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter"
 	healthcheckextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension"
 	hwsagentextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension"
-	memorylimiterprocessor "go.opentelemetry.io/collector/processor/memorylimiterprocessor"
-	batchprocessor "go.opentelemetry.io/collector/processor/batchprocessor"
-	metricstransformprocessor "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor"
+	pprofextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension"
 	filterprocessor "github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor"
+	metricstransformprocessor "github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor"
 	resourcedetectionprocessor "github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor"
-	otlpreceiver "go.opentelemetry.io/collector/receiver/otlpreceiver"
 	prometheusexecreceiver "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusexecreceiver"
 	prometheusreceiver "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver"
+	"go.opentelemetry.io/collector/component"
+	loggingexporter "go.opentelemetry.io/collector/exporter/loggingexporter"
+	otlpexporter "go.opentelemetry.io/collector/exporter/otlpexporter"
+	otlphttpexporter "go.opentelemetry.io/collector/exporter/otlphttpexporter"
+	zpagesextension "go.opentelemetry.io/collector/extension/zpagesextension"
+	batchprocessor "go.opentelemetry.io/collector/processor/batchprocessor"
+	memorylimiterprocessor "go.opentelemetry.io/collector/processor/memorylimiterprocessor"
+	otlpreceiver "go.opentelemetry.io/collector/receiver/otlpreceiver"
 )
 
 func components() (component.Factories, error) {
@@ -44,10 +47,13 @@ func components() (component.Factories, error) {
 	}
 
 	factories.Exporters, err = component.MakeExporterFactoryMap(
+		otlpexporter.NewFactory(),
+		otlphttpexporter.NewFactory(),
 		loggingexporter.NewFactory(),
 		datadogexporter.NewFactory(),
 		prometheusremotewriteexporter.NewFactory(),
 		prometheusexporter.NewFactory(),
+		signalfxexporter.NewFactory(),
 	)
 	if err != nil {
 		return component.Factories{}, err
