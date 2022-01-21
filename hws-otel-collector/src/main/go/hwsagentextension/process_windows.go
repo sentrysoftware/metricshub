@@ -56,6 +56,7 @@ func surroundWithDoubleQuotes(value string) string {
 
 }
 
-func getExecutablePath() string {
-	return "bin\\hws-agent.cmd"
+func getExecutablePath(execPath string) string {
+	// hws-agent.cmd
+	return execPath + "/../bin/hws-agent.cmd"
 }

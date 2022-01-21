@@ -28,6 +28,7 @@ func execCommand(execPath string, args []string) *exec.Cmd {
 
 func applyOSSpecificCmdModifications(_ *exec.Cmd) {}
 
-func getExecutablePath() string {
-	return "bin/hws-agent"
+func getExecutablePath(execPath string) string {
+	// hws-agent
+	return execPath + "/../bin/hws-agent"
 }

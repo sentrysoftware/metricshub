@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -39,8 +40,25 @@ type pmDelegate interface {
 	delegatedExecPath() string
 }
 
+// Get the path of the current executable
+func executablePath() (string, error) {
+	ex, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	// Get the directory of currently running process
+	return filepath.Dir(ex), nil
+}
+
 func (pm *processManager) delegatedExecPath() string {
-	return getExecutablePath()
+	execPath, err := executablePath()
+
+	if err != nil {
+		panic(err)
+	}
+
+	return getExecutablePath(execPath)
 }
 
 func newProcessManager(conf *Config, logger *zap.Logger) *processManager {

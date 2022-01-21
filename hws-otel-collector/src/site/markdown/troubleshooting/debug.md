@@ -12,7 +12,7 @@ If you're not getting any data at all at the destination framework, you are prob
 
 ## OpenTelemetry Collector
 
-When run through the `bin\hws-otel` shell script or `bin\hws-otel.cmd` batch file, **${project.name}** writes details about its operations (from initialization, to pipeline, to termination) to the **logs/otel.log** file.
+The **${project.name}** writes details about its operations (from initialization, to pipeline, to termination) to the **logs/otel.log** file.
 
 This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed-up as **otel~1.log**, **otel~2.log** and **otel~3.log** (**~1** being the most recent and **~3** the oldest).
 
@@ -57,7 +57,7 @@ The first critical task the *Collector* has to complete is to launch the Java pr
 2021-12-22T11:26:16.608+0100	info	healthcheck/handler.go:129	Health Check state change	{"kind": "extension", "name": "health_check", "status": "ready"}
 2021-12-22T11:26:16.608+0100	info	service/telemetry.go:92	Setting up own telemetry...
 2021-12-22T11:26:16.609+0100	info	service/telemetry.go:116	Serving Prometheus metrics	{"address": ":8888", "level": "basic", "service.instance.id": "05d27cc8-30f6-47cc-8c2f-0c6c1181fa96", "service.version": "latest"}
-2021-12-22T11:26:16.609+0100	info	service/collector.go:239	Starting hws-otel-collector.exe...	{"Version": "1.1-SNAPSHOT (Build 6b2c8efc on Dec 22, 2021 at 10:30:28 AM)", "NumCPU": 12}
+2021-12-22T11:26:16.609+0100	info	service/collector.go:239	Starting hws-otel-collector...	{"Version": "1.1-SNAPSHOT (Build 6b2c8efc on Dec 22, 2021 at 10:30:28 AM)", "NumCPU": 12}
 2021-12-22T11:26:16.609+0100	info	service/collector.go:135	Everything is ready. Begin running and processing data.
 2021-12-22T11:26:18.060+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ecs1-01	{"kind": "extension", "name": "hws_agent"}
 2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ecs1-01.	{"kind": "extension", "name": "hws_agent"}
