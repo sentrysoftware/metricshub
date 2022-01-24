@@ -116,7 +116,7 @@ class StrategyTaskTest {
 
 		try(MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)){
 			otelHelper.when(() -> OtelHelper.createHostResource(
-					anyString(), anyString(), anyString(), anyString(), anyBoolean(), any()))
+					anyString(), anyString(), any(TargetType.class), anyString(), anyBoolean(), any(), any()))
 				.thenCallRealMethod();
 
 			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to

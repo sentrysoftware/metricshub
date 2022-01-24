@@ -60,7 +60,7 @@ public class FilterResultHelper {
 		// Remove lines containing a given regular expression excludeRegExp
 		// Keep only the lines containing a given regular expression
 		return IntStream.range(begin, end)
-				.mapToObj(i -> lines.get(i))
+				.mapToObj(lines::get)
 				.filter(line -> (excludePattern == null || !excludePattern.matcher(line).find()) &&
 									(keepOnlyPattern == null || keepOnlyPattern.matcher(line).find()))
 				.collect(Collectors.toList());
