@@ -17,18 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOSVisitor;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -38,29 +27,76 @@ import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class OtelHelper {
 
-	private static final String RESOURCE_HOST_NAME_PROP = "host.name";
+	// OS Types
+	static final String OS_TYPE_STORAGE = "storage";
+	static final String OS_TYPE_NETWORK = "network";
+	static final String OS_TYPE_SOLARIS = "solaris";
+	static final String OS_TYPE_WINDOWS = "windows";
+	static final String OS_TYPE_MANAGEMENT = "management";
+	static final String OS_TYPE_LINUX = "linux";
+	static final String OS_TYPE_AIX = "aix";
+	static final String OS_TYPE_HP_UX = "hpux";
+	static final String OS_TYPE_TRUE64 = "true64";
+	static final String OS_TYPE_OPEN_VMS = "openvms";
+	static final String OS_TYPE_MAC_OS_X = "macosx";
+	static final String OS_TYPE_OPEN_BSD = "openbsd";
+	static final String OS_TYPE_NET_BSD = "netbsd";
+	static final String OS_TYPE_FREE_BSD = "freebsd";
+	static final String OS_TYPE_SUN = "sun";
+
+	// Host Types
+	static final String HOST_TYPE_STORAGE = "storage";
+	static final String HOST_TYPE_NETWORK = "network";
+	static final String HOST_TYPE_COMPUTE = "compute";
+
+	static final String UNKNOWN = "unknown";
+
+	static final String RESOURCE_HOST_NAME_PROP = "host.name";
 
 	static final String AGENT_HOSTNAME = StringHelper
-			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), "unknown");
+			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
 
-	private static final Map<TargetType, String> TARGET_TYPE_TO_OTEL_OS_TYPE = Map.of(
-			HP_OPEN_VMS, "openvms",
-			HP_TRU64_UNIX, "true64",
-			HP_UX, "hpux",
-			IBM_AIX, "aix",
-			LINUX, "linux",
-			MGMT_CARD_BLADE_ESXI, "management",
-			MS_WINDOWS, "windows",
-			NETWORK_SWITCH, "network",
-			STORAGE, "storage",
-			SUN_SOLARIS, "solaris");
+	static final Map<TargetType, String> TARGET_TYPE_TO_OTEL_OS_TYPE = Map.of(
+			HP_OPEN_VMS, OS_TYPE_OPEN_VMS,
+			HP_TRU64_UNIX, OS_TYPE_TRUE64,
+			HP_UX, OS_TYPE_HP_UX,
+			IBM_AIX, OS_TYPE_AIX,
+			LINUX, OS_TYPE_LINUX,
+			MGMT_CARD_BLADE_ESXI, OS_TYPE_MANAGEMENT,
+			MS_WINDOWS, OS_TYPE_WINDOWS,
+			NETWORK_SWITCH, OS_TYPE_NETWORK,
+			STORAGE, OS_TYPE_STORAGE,
+			SUN_SOLARIS, OS_TYPE_SOLARIS);
+
+	static final Map<TargetType, String> TARGET_TYPE_TO_OTEL_HOST_TYPE = Map.of(
+			HP_OPEN_VMS, HOST_TYPE_COMPUTE,
+			HP_TRU64_UNIX, HOST_TYPE_COMPUTE,
+			HP_UX, HOST_TYPE_COMPUTE,
+			IBM_AIX, HOST_TYPE_COMPUTE,
+			LINUX, HOST_TYPE_COMPUTE,
+			MGMT_CARD_BLADE_ESXI, HOST_TYPE_COMPUTE,
+			MS_WINDOWS, HOST_TYPE_COMPUTE,
+			NETWORK_SWITCH, HOST_TYPE_NETWORK,
+			STORAGE, HOST_TYPE_STORAGE,
+			SUN_SOLARIS, HOST_TYPE_COMPUTE);
+
+	static final Map<ILocalOS, String> LOCAL_OS_TO_OTEL_OS_TYPE = Map.of(
+			LocalOSHandler.WINDOWS, OS_TYPE_WINDOWS,
+			LocalOSHandler.LINUX, OS_TYPE_LINUX,
+			LocalOSHandler.SUN, OS_TYPE_SUN,
+			LocalOSHandler.HP, OS_TYPE_HP_UX,
+			LocalOSHandler.SOLARIS, OS_TYPE_SOLARIS,
+			LocalOSHandler.FREE_BSD, OS_TYPE_FREE_BSD,
+			LocalOSHandler.NET_BSD, OS_TYPE_NET_BSD,
+			LocalOSHandler.OPEN_BSD, OS_TYPE_OPEN_BSD,
+			LocalOSHandler.MAC_OS_X, OS_TYPE_MAC_OS_X,
+			LocalOSHandler.AIX, OS_TYPE_AIX);
 
 	/**
 	 * Initializes a Metrics SDK with a Resource and an instance of IntervalMetricReader.
@@ -108,8 +144,12 @@ public class OtelHelper {
 				extraLabels
 		);
 
-		// The host resource type used for both host.type and os.type attributes
-		final String hostType = TARGET_TYPE_TO_OTEL_OS_TYPE.getOrDefault(targetType,
+		// The host resource os.type
+		final String osType = TARGET_TYPE_TO_OTEL_OS_TYPE.getOrDefault(targetType,
+				targetType.getDisplayName().toLowerCase());
+
+		// The host resource host.type
+		final String hostType = TARGET_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(targetType,
 				targetType.getDisplayName().toLowerCase());
 
 		// Build attributes
@@ -117,7 +157,7 @@ public class OtelHelper {
 				.put("host.id", id)
 				.put(RESOURCE_HOST_NAME_PROP, hostname)
 				.put("host.type", hostType)
-				.put("os.type", hostType)
+				.put("os.type", osType)
 				.put("agent.host.name", AGENT_HOSTNAME)
 				.put("fqdn", fqdn);
 
@@ -199,7 +239,7 @@ public class OtelHelper {
 				.put("host.id", AGENT_HOSTNAME)
 				.put(RESOURCE_HOST_NAME_PROP, AGENT_HOSTNAME)
 				.put("agent.host.name", AGENT_HOSTNAME)
-				.put("host.type", osType)
+				.put("host.type", HOST_TYPE_COMPUTE)
 				.put("os.type", osType);
 
 		// Extra attributes? put them all!
@@ -221,71 +261,9 @@ public class OtelHelper {
 	static String getAgentOsType() {
 		final Optional<ILocalOS> localOs = LocalOSHandler.getOS();
 		if (localOs.isPresent()) {
-			final OpenTelemetryAgentOsTypeVisitor visitor = new OpenTelemetryAgentOsTypeVisitor();
-			localOs.get().accept(visitor);
-			final String osType = visitor.getOsType();
-			if (osType != null) {
-				return osType;
-			}
+			return LOCAL_OS_TO_OTEL_OS_TYPE.getOrDefault(localOs.get(), UNKNOWN);
 		}
-		return "unknown";
+		return UNKNOWN;
 	}
 
-	@NoArgsConstructor
-	static class OpenTelemetryAgentOsTypeVisitor implements ILocalOSVisitor {
-
-		@Getter
-		private String osType;
-
-		@Override
-		public void visit(Windows os) {
-			osType = "windows";
-		}
-
-		@Override
-		public void visit(Linux os) {
-			osType = "linux";
-		}
-
-		@Override
-		public void visit(Sun os) {
-			osType = "sun";
-		}
-
-		@Override
-		public void visit(Hp os) {
-			osType = "hpux";
-		}
-
-		@Override
-		public void visit(Solaris os) {
-			osType = "solaris";
-		}
-
-		@Override
-		public void visit(Aix os) {
-			osType = "aix";
-		}
-
-		@Override
-		public void visit(FreeBSD os) {
-			osType = "freebsd";
-		}
-
-		@Override
-		public void visit(OpenBSD os) {
-			osType = "openbsd";
-		}
-
-		@Override
-		public void visit(NetBSD os) {
-			osType = "netbsd";
-		}
-
-		@Override
-		public void visit(MacOSX os) {
-			osType = "macosx";
-		}
-
-	}
 }
