@@ -28,14 +28,14 @@ class PowerStateTest {
 	}
 
 	@Test
-	void testInterpretStandby() {
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret("1"));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret("1.0"));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret("standby"));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret(" standby "));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret(" Standby "));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret(" STANDBY "));
-		assertEquals(Optional.of(PowerState.STANDBY), PowerState.interpret("STANDBY"));
+	void testInterpretSuspended() {
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret("1"));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret("1.0"));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret("suspended"));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret(" suspended "));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret(" Suspended "));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret(" SUSPENDED "));
+		assertEquals(Optional.of(PowerState.SUSPENDED), PowerState.interpret("SUSPENDED"));
 	}
 
 	@Test
