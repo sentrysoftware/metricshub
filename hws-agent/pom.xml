@@ -147,6 +147,11 @@
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
 		</dependency>
+		<!-- Picocli -->
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
