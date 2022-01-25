@@ -35,7 +35,7 @@
 		<spring.version>5.3.5</spring.version>
 		<matsya.version>3.15.00-SNAPSHOT</matsya.version>
 		<io.springfox.version>2.9.2</io.springfox.version>
-		<picocli-spring-boot.version>4.6.1</picocli-spring-boot.version>
+		<picocli.version>4.6.2</picocli.version>
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<prometheus-client.version>0.10.0</prometheus-client.version>
 		<jackson.version>2.13.1</jackson.version>
@@ -217,8 +217,8 @@
 			</dependency>
 			<dependency>
 				<groupId>info.picocli</groupId>
-				<artifactId>picocli-spring-boot-starter</artifactId>
-				<version>${picocli-spring-boot.version}</version>
+				<artifactId>picocli</artifactId>
+				<version>${picocli.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.prometheus</groupId>
