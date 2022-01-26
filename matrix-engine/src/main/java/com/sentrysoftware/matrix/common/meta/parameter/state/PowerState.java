@@ -20,7 +20,7 @@ import lombok.Getter;
 public enum PowerState implements IState {
 
 	OFF("Off", 0, Severity.INFO),
-	STANDBY("Standby", 1, Severity.INFO),
+	SUSPENDED("Suspended", 1, Severity.INFO),
 	ON("On", 2, Severity.INFO);
 
 	@Getter
@@ -37,8 +37,8 @@ public enum PowerState implements IState {
 	private static final Map<String, PowerState> POWER_STATE_MAP = Map.of(
 			"off", OFF,
 			"0", OFF,
-			"standby", STANDBY,
-			"1", STANDBY,
+			"suspended", SUSPENDED,
+			"1", SUSPENDED,
 			"on", ON,
 			"2", ON);
 
@@ -59,7 +59,7 @@ public enum PowerState implements IState {
 	 * Interpret the specified state value:
 	 *  <ul>
 	 *  	<li>{0, off, OFF} as OFF</li>
-	 *  	<li>{1, standby, STANDBY} as STANDBY</li>
+	 *  	<li>{1, suspended, SUSPENDED} as SUSPENDED</li>
 	 *  	<li>{2, on, ON} as ON</li>
 	 *  </ul>
 	 * @param state String to be interpreted

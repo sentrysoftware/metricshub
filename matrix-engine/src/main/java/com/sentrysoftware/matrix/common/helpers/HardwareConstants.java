@@ -277,7 +277,7 @@ public class HardwareConstants {
 	public static final String ENERGY_USAGE_PARAMETER_UNIT = "Joules";
 	public static final String ENERGY_PARAMETER_UNIT = "Joules";
 	public static final String POWER_CONSUMPTION_PARAMETER_UNIT = "Watts";
-	public static final String POWER_STATE_PARAMETER_UNIT = "{ 0 = Off ; 1 = Standby ; 2 = On }";
+	public static final String POWER_STATE_PARAMETER_UNIT = "{ 0 = Off ; 1 = Suspended ; 2 = On }";
 	public static final String LINK_STATUS_PARAMETER_UNIT = "{ 0 = Plugged ; 1 = Unplugged }";
 	public static final String SPEED_PARAMETER_UNIT = "RPM";
 	public static final String CURRENT_SPEED_PARAMETER_UNIT = "MHz";
