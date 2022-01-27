@@ -143,6 +143,7 @@ public class HardwareConstants {
 	public static final String ENCODER_USED_TIME_PERCENT_PARAMETER = "encoderUsedTimePercent";
 	public static final String DECODER_USED_TIME_PARAMETER = "decoderUsedTime";
 	public static final String DECODER_USED_TIME_PERCENT_PARAMETER = "decoderUsedTimePercent";
+	public static final String POWER_SHARE_PARAMETER = "powerShare";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //
@@ -260,7 +261,6 @@ public class HardwareConstants {
 	public static final String POWER_CONSUMPTION = "powerConsumption";
 	public static final String IDENTIFYING_INFORMATION = "identifyingInformation";
 	public static final String POWER_SOURCE_ID = "powerSourceId";
-	public static final String POWER_SHARE = "powerShare";
 	public static final String DOMAIN = "domain";
 	public static final String HOSTNAME = "hostname";
 	public static final String POWER_METER = "powerMeter";
@@ -307,7 +307,7 @@ public class HardwareConstants {
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
 	public static final String COLOR_PARAMETER_UNIT = "{ 0 = OK ; 1 = Degraded ; 2 = Failed }";
-
+	public static final String POWER_SHARE_PARAMETER_UNIT = "resources";
 	public static final String DEFAULT = "default";
 
 	public static final String USERNAME_MACRO = "%{USERNAME}";
