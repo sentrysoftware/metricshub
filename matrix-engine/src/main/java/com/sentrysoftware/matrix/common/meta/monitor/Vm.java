@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAM
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -51,7 +51,7 @@ public class Vm implements IMetaMonitor {
 	public static final MetaParameter POWER_SHARE = MetaParameter.builder()
 			.basicCollect(true)
 			.name(POWER_SHARE_PARAMETER)
-			.unit(POWER_SHARE_PARAMETER_UNIT)
+			.unit(EMPTY)
 			.type(SimpleParamType.NUMBER)
 			.build();
 

@@ -1155,7 +1155,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param vm VM {@link Monitor} instance
 	 * @return Double value. Returns 0.0 if the power share is null or less than 0.0 or the VM is not online
 	 */
-	Double getVmPowerShare(Monitor vm) {
+	double getVmPowerShare(Monitor vm) {
 
 		if (!isVmOnline(vm)) {
 			return 0.0;
