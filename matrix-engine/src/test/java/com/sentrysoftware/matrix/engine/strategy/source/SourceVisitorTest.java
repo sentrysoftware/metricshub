@@ -644,6 +644,7 @@ class SourceVisitorTest {
 
 		final SshInteractiveSource sshInteractiveSource = new SshInteractiveSource();
 		sshInteractiveSource.setIndex(1);
+		sshInteractiveSource.setKey("enclosure.discovery.source(1)");
 		sshInteractiveSource.setRemoveHeader(8);
 		sshInteractiveSource.setRemoveFooter(6);
 		sshInteractiveSource .setKeepOnlyRegExp("Serial Number");
@@ -660,7 +661,7 @@ class SourceVisitorTest {
 		// check NoCredentialProvidedException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "sshInteractive " + sshInteractiveSource.getKey()))
 			.thenThrow(NoCredentialProvidedException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -669,7 +670,7 @@ class SourceVisitorTest {
 		// check StepException
 		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "sshInteractive " + sshInteractiveSource.getKey()))
 			.thenThrow(StepException.class);
 
 			assertEquals(SourceTable.empty(), sourceVisitor.visit(sshInteractiveSource));
@@ -707,7 +708,7 @@ class SourceVisitorTest {
 					"show enclosure info\n",
 					"\n");
 
-			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "SshInteractiveSource(1)"))
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "sshInteractive " + sshInteractiveSource.getKey()))
 			.thenReturn(output);
 
 			final SourceTable expected = SourceTable.builder()

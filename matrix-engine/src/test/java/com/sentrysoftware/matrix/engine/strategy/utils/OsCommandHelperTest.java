@@ -101,8 +101,8 @@ class OsCommandHelperTest {
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 
 			final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
-			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
-			embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
+			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
+			embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null, 2));
 
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createEmbeddedFile(any(EmbeddedFile.class), isNull())).thenThrow(IOException.class);
 			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, embeddedFiles, null)).thenCallRealMethod();
@@ -138,8 +138,8 @@ class OsCommandHelperTest {
 					"                done";
 
 			final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
-			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
-			embeddedFiles.put(2, new EmbeddedFile(embeddedContent, null));
+			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
+			embeddedFiles.put(2, new EmbeddedFile(embeddedContent, null, 2));
 
 			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 					commandLine,
@@ -436,8 +436,8 @@ class OsCommandHelperTest {
 				+ " & del /F /Q %EmbeddedFile(2)%.bat";
 
 		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
-		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
-		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
+		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
+		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null, 2));
 
 		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
@@ -640,8 +640,8 @@ class OsCommandHelperTest {
 		final String result = "Windows_NT\nHello World";
 
 		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
-		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat"));
-		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null));
+		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
+		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null, 2));
 		
 		final File file1 = mock(File.class);
 		final File file2 = mock(File.class);
@@ -1014,7 +1014,7 @@ class OsCommandHelperTest {
 				"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" + 
 				"                done";
 
-		final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, new EmbeddedFile(embeddedContent, null));
+		final Map<Integer, EmbeddedFile> embeddedFiles = Collections.singletonMap(1, new EmbeddedFile(embeddedContent, null, 1));
 		
 		final File localFile = mock(File.class);
 		final Map<String, File> embeddedTempFiles = new HashMap<>();

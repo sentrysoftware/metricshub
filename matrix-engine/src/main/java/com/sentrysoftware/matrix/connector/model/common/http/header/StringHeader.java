@@ -51,4 +51,9 @@ public class StringHeader implements Header {
 	public Header copy() {
 		return StringHeader.builder().header(header).build();
 	}
+
+	@Override
+	public String description() {
+		return header;
+	}
 }

@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -40,6 +39,9 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	private final String inPrompt;
 	private final String currentSourceTag;
 
+	private static final String LOG_BEGIN_OPERATION_TEMPLATE = "Executing Step [{}]:\n{}\n";
+	private static final String LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT = "Executing Step [{} with timeout={}]:\n{}\n";
+	private static final String LOG_RESULT_TEMPLATE = "{}: Got:\n{}\nhostname: {}";
 
 	@Getter
 	private Optional<String> result = Optional.empty();
@@ -47,28 +49,17 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	@Getter
 	private Optional<String> prompt = Optional.empty();
 
-
 	@Override
-	public void visit(
-			@NonNull
-			final GetAvailable step) throws StepException {
-
-		log.debug("Step({}) {}: Getting available text. hostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				hostname);
+	public void visit(@NonNull	final GetAvailable step) throws StepException {
 
 		final String stepName = buildStepName(step);
-
 		final int timeout = getTimeout(null);
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = readAll(stepName, timeout);
 
-		log.debug("Step({}) {}: Got:\n{}\nhostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				maybe,
-				hostname);
+		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
 
 		if (step.isCapture()) {
 			result = maybe;
@@ -76,34 +67,22 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final GetUntilPrompt step) throws StepException {
-
-		if (inPrompt == null || inPrompt.isEmpty()) {
-			log.warn("Step({}) {}: Cannot wait for prompt. Haven't got one yet. hostname: {}",
-					step.getIndex(),
-					step.getClass().getSimpleName(),
-					hostname);
-			return;
-		}
-
-		log.debug("Step({}) {}: Getting until: {}  - Timeout: {} secs. hostname: {}", 
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				inPrompt,
-				step.getTimeout(),
-				hostname);
+	public void visit(@NonNull	final GetUntilPrompt step) throws StepException {
 
 		final String stepName = buildStepName(step);
 
-		final Optional<String> maybe = getUntil(stepName, inPrompt, step.getTimeout());
+		if (inPrompt == null || inPrompt.isEmpty()) {
+			log.warn("{}: Cannot wait for prompt. Haven't got one yet. hostname: {}", stepName, hostname);
+			return;
+		}
 
-		log.debug("Step({}) {}: Got:\n{}\nhostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				maybe,
-				hostname);
+		final int timeout = getTimeout(step.getTimeout());
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+
+		final Optional<String> maybe = getUntil(stepName, inPrompt, timeout);
+
+		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
 
 		if (maybe.isEmpty()) {
 			throw new StepException(String.format("%s - Disconnected or timeout while waiting for the prompt (\"%s\") in SSH session",
@@ -118,16 +97,11 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final SendPassword step) throws StepException {
-
-		log.debug("Step({}) {}: Sending password: **********. hostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				hostname);
+	public void visit(@NonNull	final SendPassword step) throws StepException {
 
 		final String stepName = buildStepName(step);
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
 
 		final String message = String.format("%s - Couldn't send the password (********) through SSH", stepName);
 
@@ -139,27 +113,18 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final SendText step) throws StepException {
-		
-		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("Step({}) {}: No text to send in step. hostname: {}",
-					step.getIndex(),
-					step.getClass().getSimpleName(),
-					hostname);
-			return;
-		}
-
-		log.debug("Step({}) {}: Sending text:\n{}\nhostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				step.getText(),
-				hostname);
+	public void visit(@NonNull	final SendText step) throws StepException {
 
 		final String stepName = buildStepName(step);
 
-		final String message = String.format("%s - Couldn't send the following text through SSH:\n%s",
+		if (step.getText() == null || step.getText().isEmpty()) {
+			log.warn("{}: No text to send in step. hostname: {}", stepName, hostname);
+			return;
+		}
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
+
+		final String message = String.format("%s - Couldn't send the following text through SSH:\n%s", // NOSONAR
 				stepName,
 				step.getText());
 
@@ -167,17 +132,11 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final SendUsername step) throws StepException {
-
-		log.debug("Step({}) {}: Sending username: {}. hostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				sshProtocol.getUsername(),
-				hostname);
+	public void visit(@NonNull final SendUsername step) throws StepException {
 
 		final String stepName = buildStepName(step);
+
+		log.info("Executing Step [{} with username={}]:\n{}\n", stepName, sshProtocol.getUsername(), step.toString());
 
 		final String message = String.format("%s - Couldn't send the username (%s) through SSH",
 				stepName,
@@ -187,85 +146,67 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final Sleep step) throws StepException {
+	public void visit(@NonNull final Sleep step) throws StepException {
 
 		if (step.getDuration() == null || step.getDuration() <= 0) {
 			return;
 		}
 
-		log.debug("Step({}) {}: Sleeping : {} secs. hostname: {}",
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				step.getDuration(),
-				hostname);
-
 		final String stepName = buildStepName(step);
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
 
 		sleep(stepName, step.getDuration());
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final WaitFor step) throws StepException {
-
-		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("Step({}) {}: No specified text to wait for in step. hostname: {}",
-					step.getIndex(),
-					step.getClass().getSimpleName(),
-					hostname);
-			return;
-		}
-
-		log.debug("Step({}) {}: Waiting for: {}  - Timeout: {} secs. hostname: {}", 
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				step.getText(),
-				step.getTimeout(),
-				hostname);
+	public void visit(@NonNull final WaitFor step) throws StepException {
 
 		final String stepName = buildStepName(step);
 
-		final Optional<String> maybe = getUntil(stepName, step.getText(), step.getTimeout());
+		if (step.getText() == null || step.getText().isEmpty()) {
+			log.warn("{}: No specified text to wait for in step. hostname: {}", stepName, hostname);
+			return;
+		}
+
+		final int timeout = getTimeout(step.getTimeout());
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+
+		final Optional<String> maybe = getUntil(stepName, step.getText(), timeout);
 		if (maybe.isEmpty()) {
 			throw new StepException(String.format("%s - Disconnected or timeout while waiting for \"%s\" through SSH",
 					stepName,
 					step.getText().replaceAll("\\R", HardwareConstants.EMPTY)));
 		}
+
+		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
+
 		if (step.isCapture()) {
 			result = maybe;
 		}
 	}
 
 	@Override
-	public void visit(
-			@NonNull
-			final WaitForPrompt step) throws StepException {
-
-		log.debug("Step({}) {}: Waiting prompt  - Timeout: {} secs. hostname: {}", 
-				step.getIndex(),
-				step.getClass().getSimpleName(),
-				step.getTimeout(),
-				hostname);
-
-		final int timeout = getTimeout(step.getTimeout());
+	public void visit(@NonNull	final WaitForPrompt step) throws StepException {
 
 		final String stepName = buildStepName(step);
-		
+		final int timeout = getTimeout(step.getTimeout());
+
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+
 		final String message = String.format("%s - Disconnected or timeout while waiting for the prompt in SSH session.", stepName);
 
 		final Optional<String> maybePrompt = executeTask(
 				stepName,
 				timeout,
 				() -> {
-					String prompt = HardwareConstants.EMPTY;
+					String promptResult = HardwareConstants.EMPTY;
 					String tentativePrompt = HardwareConstants.EMPTY;
 					
-					while (!prompt.equals(tentativePrompt) || prompt.equals(HardwareConstants.EMPTY)) {
+					while (!promptResult.equals(tentativePrompt) || promptResult.equals(HardwareConstants.EMPTY)) {
 
-						prompt = tentativePrompt;
+						promptResult = tentativePrompt;
 
 						write(message, HardwareConstants.NEW_LINE);
 
@@ -275,17 +216,21 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 						final Optional<String> maybe = readAll(stepName, timeout);
 						
 						tentativePrompt = maybe
-								.map(result -> result.split("\\R"))
+								.map(data -> data.split("\\R"))
 								.map(lines -> lines[lines.length -1])
-								.map(line -> line.trim())
+								.map(String::trim)
 								.orElse(HardwareConstants.EMPTY);
 					}
-					
-					return Optional.of(prompt);
+
+					return Optional.of(promptResult);
 				});
+
 		if (maybePrompt.isEmpty()) {
 			throw new StepException(message);
 		} else {
+
+			log.info(LOG_RESULT_TEMPLATE, stepName, maybePrompt, hostname);
+
 			prompt = maybePrompt;
 		}
 	}
@@ -314,11 +259,10 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	 * @return The Step name
 	 */
 	String buildStepName(final Step step) {
-		return String.format("%s Step(%d) %s: hostname: %s",
+		return String.format("%s.step(%d) %s",
 				currentSourceTag,
 				step.getIndex(),
-				step.getClass().getSimpleName(),
-				hostname);
+				step.getClass().getSimpleName());
 	}
 
 	/**
@@ -385,17 +329,16 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	}
 
 	/**
-	 * Read all the data from the SSH stdout and stderr until the text is found or timeout occurred.
+	 * Read all the data from the SSH stdout and stderr until the text is found or
+	 * timeout occurred.
 	 * 
 	 * @param stepName The Step name
-	 * @param text The text to be found.
-	 * @param stepTimeout The timeout defined in the Step
+	 * @param text     The text to be found.
+	 * @param timeout  The timeout to use when executing the read task
 	 * @return the read data containing the text
 	 * @throws StepException When an error occurred in the Step processing
 	 */
-	Optional<String> getUntil(final String stepName, final String text, final Long stepTimeout) throws StepException {
-
-		final int timeout = getTimeout(stepTimeout);
+	Optional<String> getUntil(final String stepName, final String text, final int timeout) throws StepException {
 
 		return executeTask(
 				stepName,
@@ -443,7 +386,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 			future.cancel(true);
 			return Optional.empty();
 
-		} catch (final InterruptedException | ExecutionException e) {
+		} catch (final Exception e) {
 			throw new StepException(stepName, e);
 
 		} finally {

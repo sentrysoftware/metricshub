@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLUMN_REGEXP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEFAULT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOG_RESULT_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
@@ -21,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
@@ -75,8 +74,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	private static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
 
 	private static final Pattern COLUMN_PATTERN =  Pattern.compile(COLUMN_REGEXP, Pattern.CASE_INSENSITIVE);
-
-	private static final String LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE = "Executing {} [{}] operation on table:\n{}\n";
 
 	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s.compute(%d)";
 
@@ -171,13 +168,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, arrayTranslate.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			arrayTranslate.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		int columnIndex = column - 1;
 
 		String arraySeparator = arrayTranslate.getArraySeparator();
@@ -225,10 +215,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		sourceTable.setTable(resultTable);
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"ArrayTranslate operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), resultTable));
 	}
 
 	@Override
@@ -253,13 +239,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, and.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			and.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		int colOperand2 = getColumnIndex(operand2);
 
 		for (List<String> line : sourceTable.getTable()) {
@@ -274,10 +253,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"And operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -300,12 +275,14 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, awk.getIndex());
 
+		log.debug("Compute Operation [{}]. AWK Script:\n{}\n", computeKey, awkScript.getContent());
+
 		try {
 
 			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
 
 			if (awkResult == null || awkResult.isEmpty()) {
-				log.warn(" {} Compute Operation (Awk) result is {}, the table will be empty.", computeKey, (awkResult == null ? "null" : "empty"));
+				log.warn("{} Compute Operation (Awk) result is {}, the table will be empty.", computeKey, (awkResult == null ? "null" : "empty"));
 				sourceTable.setTable(Collections.emptyList());
 				return;
 			}
@@ -336,19 +313,12 @@ public class ComputeVisitor implements IComputeVisitor {
 			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
 
 		} catch (Exception e) {
-			log.warn("Compute Operation (Awk) has failed. ", e);
+			logComputeError(connector.getCompiledFilename(), computeKey, "AWK: " + awkScript.description(), e);
 		}
 	}
 
 	@Override
 	public void visit(final Convert convert) {
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, convert.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			convert.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		if (!checkConvert(convert)) {
 			log.warn("The convert {} is not valid, the table remains unchanged.", convert);
@@ -364,10 +334,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			convertArray2SimpleStatus(columnIndex);
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Convert operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -477,13 +443,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, duplicateColumn.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			duplicateColumn.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
 			log.warn("The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.");
 			return;
@@ -498,10 +457,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"DuplicateColumn",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -517,13 +472,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Extract object is null, the table remains unchanged.");
 			return;
 		}
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, extract.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			extract.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		Integer column = extract.getColumn();
 		if (column == null || column < 1) {
@@ -571,10 +519,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		sourceTable.setTable(resultTable);
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Extract operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -584,14 +528,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.");
 			return;
 		}
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, extractPropertyFromWbemPath.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			extractPropertyFromWbemPath.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 
 		Integer columnIndex = extractPropertyFromWbemPath.getColumn();
 		String propertyName = extractPropertyFromWbemPath.getPropertyName();
@@ -629,10 +565,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"ExtractPropertyFromWbemPath operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -643,13 +575,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, json2csv.getIndex());
-
-		log.info("Executing {} [{}] operation on raw data:\n{}\n",
-				json2csv.toString(),
-				computeKey,
-				sourceTable.getRawData());
-
 		try {
 			String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
 					sourceTable.getRawData(), json2csv.getEntryKey(), json2csv.getProperties(), json2csv.getSeparator());
@@ -659,13 +584,13 @@ public class ComputeVisitor implements IComputeVisitor {
 				sourceTable.setTable(SourceTable.csvToTable(json2csvResult, json2csv.getSeparator()));
 			}
 		} catch (Exception e) {
-			log.warn("Compute Operation (Json2CSV) has failed. ", e);
+			logComputeError(connector.getCompiledFilename(),
+					String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, json2csv.getIndex()),
+					"Json2CSV",
+					e
+			);
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Json2CSV conversion",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -675,13 +600,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("KeepColumns object is null, the table remains unchanged.");
 			return;
 		}
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, keepColumns.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			keepColumns.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		List<Integer> columnNumbers = keepColumns.getColumnNumbers();
 		if (columnNumbers == null || columnNumbers.isEmpty()) {
@@ -713,10 +631,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		sourceTable.setTable(resultTable);
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"KeepColumns operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -743,13 +657,6 @@ public class ComputeVisitor implements IComputeVisitor {
 				&& sourceTable.getTable() != null
 				&& !sourceTable.getTable().isEmpty()) {
 
-			String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, abstractMatchingLines.getIndex());
-
-			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-				abstractMatchingLines.toString(),
-				computeKey,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 			int columnIndex = abstractMatchingLines.getColumn() - 1;
 
 			String pslRegexp = abstractMatchingLines.getRegExp();
@@ -770,10 +677,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			sourceTable.setTable(filteredTable);
 
-			log.info(LOG_RESULT_TEMPLATE,
-				String.format("%s operation", abstractMatchingLines.getClass().getSimpleName()),
-				computeKey,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 		}
 	}
 
@@ -828,10 +731,6 @@ public class ComputeVisitor implements IComputeVisitor {
 				&& sourceTable.getTable() != null && !sourceTable.getTable().isEmpty();
 
 		if (firstChecks) {
-			String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, abstractConcat.getIndex());
-
-			log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE, abstractConcat.toString(), computeKey,
-					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 			// Case 1 : concatenation with an exiting column
 			if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
@@ -873,9 +772,6 @@ public class ComputeVisitor implements IComputeVisitor {
 				.forEach(line -> line.add(abstractConcat.getString()));
 			}
 
-			log.info(LOG_RESULT_TEMPLATE, String.format("%s operation", abstractConcat.getClass().getSimpleName()),
-					computeKey,
-					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 		}
 	}
 
@@ -959,13 +855,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, perBitTranslation.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			perBitTranslation.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		Map<String, String> translations = perBitTranslation.getBitTranslationTable().getTranslations();
 		int columnIndex = perBitTranslation.getColumn() - 1;
 		List<Integer> bitList = perBitTranslation.getBitList();
@@ -994,10 +883,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"PerBitTranslation operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 
@@ -1051,13 +936,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Compute Operation (Replace) is null, the table remains unchanged.");
 			return;
 		}
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, replace.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			replace.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		Integer columnToReplace = replace.getColumn();
 		String strToReplace = replace.getReplace();
@@ -1120,10 +998,6 @@ public class ComputeVisitor implements IComputeVisitor {
 				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
 				TABLE_SEP));
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"replace operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -1167,13 +1041,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, substring.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			substring.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		final String start = substring.getStart();
 		final String length = substring.getLength();
 
@@ -1191,10 +1058,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		performSubstring(substring.getColumn() - 1, start, startColumnIndex, length, lengthColumnIndex);
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Substring operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -1327,13 +1190,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, translate.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			translate.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		TranslationTable translationTable = translate.getTranslationTable();
 		if (translationTable == null) {
 			log.warn("TranslationTable is null, the translate computation cannot be performed.");
@@ -1381,10 +1237,6 @@ public class ComputeVisitor implements IComputeVisitor {
 							TABLE_SEP));
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Translate operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	@Override
@@ -1394,13 +1246,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			log.warn("Compute Operation (Xml2Csv) is null, the table remains unchanged.");
 			return;
 		}
-
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, xml2csv.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			xml2csv.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 
 		try {
 			final List<List<String>> xmlResult = matsyaClientsExecutor.executeXmlParsing(
@@ -1413,13 +1258,13 @@ public class ComputeVisitor implements IComputeVisitor {
 				sourceTable.setRawData(null);
 			}
 		} catch (Exception e) {
-			log.warn("Compute Operation (Xml2Csv) has failed. ", e);
+			logComputeError(connector.getCompiledFilename(),
+					String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, xml2csv.getIndex()),
+					"Xml2Csv",
+					e
+			);
 		}
 
-		log.info(LOG_RESULT_TEMPLATE,
-			"Xml2Csv operation",
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 
@@ -1449,8 +1294,8 @@ public class ComputeVisitor implements IComputeVisitor {
 					return;
 				}
 			} catch (NumberFormatException e) {
-				log.warn("NumberFormatException : {} is not a correct operand2 for {}, the table remains unchanged.", operand2, computeOperation);
-				log.warn("Exception : ", e);
+				log.warn("NumberFormatException: {} is not a correct operand2 for {}, the table remains unchanged.", operand2, computeOperation);
+				log.debug("Stack trace:", e);
 				return;
 			}
 
@@ -1472,22 +1317,10 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathComputeOnTable(final Compute computeOperation, Integer columnIndex, String op2, int op2Index) {
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, computeOperation.getIndex());
-
-		log.info(LOG_BEGIN_OPERATION_ON_TABLE_TEMPLATE,
-			computeOperation.toString(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
-
 		for (List<String> line : sourceTable.getTable()) {
 
 			performMathComputeOnLine(computeOperation, columnIndex, op2, op2Index, line);
 		}
-
-		log.info(LOG_RESULT_TEMPLATE,
-			computeOperation.getClass().getSimpleName(),
-			computeKey,
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 
 	/**
@@ -1544,8 +1377,31 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			}
 		} catch (NumberFormatException e) {
-			log.warn("There is a NumberFormatException on operand 1 : {} or the operand 2 {}", op1, op2);
-			log.warn("Exception : ", e);
+			log.warn("There is a NumberFormatException on operand 1: {} or the operand 2 {}", op1, op2);
+			log.debug("Stack trace:", e);
+		}
+	}
+
+	/**
+	 * Log the given throwable
+	 * 
+	 * @param connectorName The name of the connector defining the compute
+	 * @param computeKey    The key of the compute
+	 * @param context       Additional information about the operation
+	 * @param throwable     The catched throwable to log
+	 */
+	private static void logComputeError(final String connectorName, final String computeKey,
+			final String context, final Throwable throwable) {
+		if (log.isErrorEnabled()) {
+			log.error("Compute Operation [{}] has failed. Context [{}]. Connector [{}]. Errors:\n{}\n",
+					computeKey, context, connectorName, StringHelper.getStackMessages(throwable));
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(
+					String.format("Compute Operation [%s] has failed. Context [%s]. Connector [%s]. Stack trace:",
+							computeKey, context, connectorName),
+					throwable);
 		}
 	}
 

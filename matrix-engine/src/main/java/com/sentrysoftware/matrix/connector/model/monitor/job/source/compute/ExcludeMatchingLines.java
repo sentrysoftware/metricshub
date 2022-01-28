@@ -1,18 +1,17 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import java.util.Set;
+
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class ExcludeMatchingLines extends AbstractMatchingLines {
 
 	private static final long serialVersionUID = -3662198961800729320L;
@@ -26,4 +25,10 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 	public void accept(final IComputeVisitor computeVisitor) {
 		computeVisitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 }

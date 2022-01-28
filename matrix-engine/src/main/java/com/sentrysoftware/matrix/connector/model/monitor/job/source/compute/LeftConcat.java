@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class LeftConcat extends AbstractConcat {
 
 	private static final long serialVersionUID = -7237305051553135699L;
@@ -25,4 +23,10 @@ public class LeftConcat extends AbstractConcat {
 	public void accept(final IComputeVisitor computeVisitor) {
 		computeVisitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 }

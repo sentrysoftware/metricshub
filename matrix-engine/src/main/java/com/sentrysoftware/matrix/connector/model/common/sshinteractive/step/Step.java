@@ -25,4 +25,13 @@ public abstract class Step implements Serializable {
 	protected boolean ignored;
 
 	public abstract void accept(final IStepVisitor visitor) throws StepException;
+
+	@Override
+	public String toString() {
+		return new StringBuilder("- type=").append(this.getClass().getSimpleName())
+				.append("\n- index=").append(index)
+				.append("\n- capture=").append(capture)
+				.append("\n- ignored=").append(ignored)
+				.toString();
+	}
 }

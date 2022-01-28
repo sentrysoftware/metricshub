@@ -7,4 +7,6 @@ public interface Body extends Serializable {
 	String getContent(String username, char[] password, String authenticationToken);
 
 	public Body copy();
+
+	String description();
 }

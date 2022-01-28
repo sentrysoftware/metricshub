@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.engine.strategy.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -37,7 +36,7 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 
 class SshInteractiveStepVisitorTest {
 
-	private static final String CURRENT_SOURCE_TAG = "SshInteractive(1)";
+	private static final String CURRENT_SOURCE_TAG = "sshInteractive enclosure.discovery.source(1)";
 
 	@Test
 	void testVisitGetAvailable() throws Exception {
@@ -70,9 +69,8 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitGetUntilPrompt() throws Exception {
 
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG)).visit((GetUntilPrompt) null));
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+		assertThrows(IllegalArgumentException.class, () -> spy.visit((GetUntilPrompt) null));
 
 		// check with inPrompt null
 		{
@@ -83,7 +81,7 @@ class SshInteractiveStepVisitorTest {
 					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
 
 			visitor.visit(step);
-			verify(visitor, never()).getUntil(anyString(), anyString(), anyLong());
+			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
 			assertEquals(Optional.empty(), visitor.getResult());
 		}
 
@@ -96,7 +94,7 @@ class SshInteractiveStepVisitorTest {
 					spy(new SshInteractiveStepVisitor(null, null, null, "", CURRENT_SOURCE_TAG));
 			
 			visitor.visit(step);
-			verify(visitor, never()).getUntil(anyString(), anyString(), anyLong());
+			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
 			assertEquals(Optional.empty(), visitor.getResult());
 		}
 
@@ -273,9 +271,10 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitWaitFor() throws Exception {
 
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG)).visit((WaitFor) null));
+				() -> spy.visit((WaitFor) null));
 
 		// check with text null
 		{
@@ -286,7 +285,7 @@ class SshInteractiveStepVisitorTest {
 					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
 
 			visitor.visit(step);
-			verify(visitor, never()).getUntil(anyString(), anyString(), anyLong());
+			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
 			assertEquals(Optional.empty(), visitor.getResult());
 		}
 
@@ -300,7 +299,7 @@ class SshInteractiveStepVisitorTest {
 					spy(new SshInteractiveStepVisitor(null, null,null, null, CURRENT_SOURCE_TAG));
 			
 			visitor.visit(step);
-			verify(visitor, never()).getUntil(anyString(), anyString(), anyLong());
+			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
 			assertEquals(Optional.empty(), visitor.getResult());
 		}
 
@@ -372,9 +371,10 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitWaitForPrompt() throws Exception {
 
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG)).visit((WaitForPrompt) null));
+				() -> spy.visit((WaitForPrompt) null));
 
 		try (final MockedStatic<SshInteractiveStepVisitor> mockedVisitor = mockStatic(SshInteractiveStepVisitor.class)) {
 
@@ -398,7 +398,7 @@ class SshInteractiveStepVisitorTest {
 		step.setIndex(1);
 
 		assertEquals(
-				"SshInteractive(1) Step(1) GetAvailable: hostname: host", 
+				CURRENT_SOURCE_TAG + ".step(1) GetAvailable", 
 				spy(new SshInteractiveStepVisitor(null, "host", null, null, CURRENT_SOURCE_TAG)).buildStepName(step));
 	}
 

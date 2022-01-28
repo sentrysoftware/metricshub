@@ -17,6 +17,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LIN
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
+
 import static org.springframework.util.Assert.isTrue;
 
 @Data
@@ -65,4 +66,10 @@ public class EmbeddedFileHeader implements Header {
 	public Header copy() {
 		return EmbeddedFileHeader.builder().header(header.copy()).build();
 	}
+
+	@Override
+	public String description() {
+		return header != null ? header.description() : null;
+	}
+
 }

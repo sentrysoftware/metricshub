@@ -231,8 +231,15 @@ public class ConnectorRefined {
 		while (embeddedFileMatcher.find()) {
 			String embeddedFileContent = embeddedFileMatcher.group(2);
 			Integer embeddedFileIndex = Integer.valueOf(embeddedFileMatcher.group(1).trim());
+
 			// EmbeddedFiles index is the key
-			embeddedFiles.put(embeddedFileIndex , EmbeddedFile.builder().content(embeddedFileContent).build());
+			embeddedFiles.put(embeddedFileIndex , EmbeddedFile
+					.builder()
+					.index(embeddedFileIndex)
+					.content(embeddedFileContent)
+					.build()
+			);
+
 			embeddedFileMatcher.appendReplacement(tempRawCode, "");
 		}
 		embeddedFileMatcher.appendTail(tempRawCode);

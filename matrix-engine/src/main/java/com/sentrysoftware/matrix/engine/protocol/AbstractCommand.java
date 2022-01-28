@@ -19,7 +19,7 @@ public abstract class AbstractCommand implements IProtocolConfiguration {
 	 * @param sudoCommand
 	 * @param timeout
 	 */
-	public AbstractCommand(boolean useSudo, Set<String> useSudoCommands, String sudoCommand, Long timeout) {
+	protected AbstractCommand(boolean useSudo, Set<String> useSudoCommands, String sudoCommand, Long timeout) {
 		this.useSudo = useSudo;
 		this.useSudoCommands = useSudoCommands == null ? new HashSet<>() : useSudoCommands;
 		this.sudoCommand = sudoCommand == null ? SUDO : sudoCommand;

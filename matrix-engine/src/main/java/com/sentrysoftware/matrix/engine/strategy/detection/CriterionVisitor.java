@@ -794,7 +794,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					SshInteractiveHelper.runSshInteractive(
 							strategyConfig.getEngineConfiguration(),
 							sshInteractive.getSteps(),
-							String.format("SshInteractive(%d)", sshInteractive.getIndex()));
+							String.format("sshInteractive detection.criteria(%d)", sshInteractive.getIndex()));
 
 			final String result = results.stream().collect(Collectors.joining(HardwareConstants.NEW_LINE));
 

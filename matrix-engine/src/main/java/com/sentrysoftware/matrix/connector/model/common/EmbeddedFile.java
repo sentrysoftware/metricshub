@@ -17,8 +17,19 @@ public class EmbeddedFile implements Serializable {
 
 	private String content;
 	private String type;
+	private Integer index;
 
 	public EmbeddedFile copy() {
-		return EmbeddedFile.builder().content(content).type(type).build();
+		return EmbeddedFile
+				.builder()
+				.content(content)
+				.type(type)
+				.index(index)
+				.build();
 	}
+
+	public String description() {
+		return String.format("EmbeddedFile(%d)", index);
+	}
+
 }

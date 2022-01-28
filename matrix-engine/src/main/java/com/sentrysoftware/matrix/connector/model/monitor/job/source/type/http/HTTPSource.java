@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
@@ -11,15 +14,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class HTTPSource extends Source {
 
 	private static final long serialVersionUID = -6658120832080657988L;
@@ -76,6 +78,27 @@ public class HTTPSource extends Source {
 				.entryConcatStart(entryConcatStart)
 				.entryConcatEnd(entryConcatEnd)
 				.build();
+	}
+
+	@Override
+	public String toString() {
+
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- method=", method);
+		addNonNull(stringJoiner, "- url=", url);
+		addNonNull(stringJoiner, "- header=", header != null ? header.description() : null);
+		addNonNull(stringJoiner, "- body=", body != null ? body.description() : null);
+		addNonNull(stringJoiner, "- authenticationToken=", authenticationToken);
+		addNonNull(stringJoiner, "- executeForEachEntryOf=", executeForEachEntryOf);
+		addNonNull(stringJoiner, "- resultContent=", resultContent != null ? resultContent.getName() : null);
+		addNonNull(stringJoiner, "- entryConcatMethod=", entryConcatMethod != null ? entryConcatMethod.getName() : null);
+		addNonNull(stringJoiner, "- entryConcatStart=", entryConcatStart);
+		addNonNull(stringJoiner, "- entryConcatEnd=", entryConcatEnd);
+
+		return stringJoiner.toString();
 	}
 
 }

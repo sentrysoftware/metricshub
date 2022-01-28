@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
@@ -13,12 +17,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class SshInteractiveSource extends Source {
 
 	private static final long serialVersionUID = 7662516386312299806L;
@@ -51,6 +53,24 @@ public class SshInteractiveSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- port=", port);
+		addNonNull(stringJoiner, "- excludeRegExp=", excludeRegExp);
+		addNonNull(stringJoiner, "- keepOnlyRegExp=", keepOnlyRegExp);
+		addNonNull(stringJoiner, "- removeHeader=", removeHeader);
+		addNonNull(stringJoiner, "- removeFooter=", removeFooter);
+		addNonNull(stringJoiner, "- separators=", separators);
+		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
+
+		return stringJoiner.toString();
+
 	}
 
 }

@@ -21,11 +21,11 @@ public abstract class Source implements Serializable {
 
 	private List<Compute> computes;
 
-	private boolean forceSerialization;
+	protected boolean forceSerialization;
 
-	private Integer index;
+	protected Integer index;
 
-	private String key;
+	protected String key;
 
 	protected Source(List<Compute> computes, boolean forceSerialization, Integer index, String key) {
 		this.computes = computes == null ? new ArrayList<>() : computes;
@@ -41,5 +41,15 @@ public abstract class Source implements Serializable {
 	}
 
 	public abstract SourceTable accept(final ISourceVisitor sourceVisitor);
+
+	@Override
+	public String toString() {
+
+		return new StringBuilder("- ").append(key).append(".type=").append(this.getClass().getSimpleName())
+				.append("\n- index=").append(index)
+				.append("\n- forceSerialization=").append(forceSerialization)
+				.toString();
+
+	}
 
 }

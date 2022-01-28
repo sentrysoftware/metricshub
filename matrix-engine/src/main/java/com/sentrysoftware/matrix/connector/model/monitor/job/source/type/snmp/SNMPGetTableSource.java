@@ -1,9 +1,13 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -12,12 +16,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class SNMPGetTableSource extends SNMPSource {
 
 	private static final long serialVersionUID = -8516718446207060520L;
@@ -56,6 +58,17 @@ public class SNMPGetTableSource extends SNMPSource {
 						getComputes() != null ? getComputes().stream()
 								.collect(Collectors.toList()) : null)
 				.build();
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- snmpTableSelectColumns=", snmpTableSelectColumns);
+
+		return stringJoiner.toString();
 	}
 
 }

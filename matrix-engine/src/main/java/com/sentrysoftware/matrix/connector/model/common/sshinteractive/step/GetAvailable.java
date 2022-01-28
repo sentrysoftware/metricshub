@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class GetAvailable extends Step {
 
 	private static final long serialVersionUID = 5233581194028858077L;
@@ -26,4 +24,10 @@ public class GetAvailable extends Step {
 	public void accept(final IStepVisitor visitor) throws StepException {
 		visitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 }

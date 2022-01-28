@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
@@ -10,12 +14,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class PerBitTranslation extends Compute {
 
 	private static final long serialVersionUID = -7456243256660647476L;
@@ -38,4 +40,18 @@ public class PerBitTranslation extends Compute {
 		computeVisitor.visit(this);
 	}
 
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- column=", column);
+		addNonNull(stringJoiner, "- bitList=", bitList);
+		addNonNull(stringJoiner, "- bitTranslationTable=",
+				bitTranslationTable != null ? bitTranslationTable.getName() : null);
+
+		return stringJoiner.toString();
+
+	}
 }
