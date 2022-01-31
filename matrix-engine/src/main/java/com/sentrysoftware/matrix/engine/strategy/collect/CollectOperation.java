@@ -23,7 +23,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SOURCE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -47,8 +47,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -1022,6 +1020,7 @@ public class CollectOperation extends AbstractStrategy {
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
 			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We already sum the values for the target
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
+			.filter(monitor -> !MonitorType.VM.equals(monitor.getMonitorType())) // Skip VM monitors as their power is already computed based on the target's power
 			.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))
 			.filter(Objects::nonNull) // skip null power consumption values
 			.reduce(Double::sum)
@@ -1136,17 +1135,38 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Getting all the power shares by power source ID (only for online VMs)
 		Map<String, Double> totalPowerSharesByPowerSource = allVms
-			.stream()
-			.filter(this::isVmOnline)
-			.collect(Collectors.toMap(vm -> getVmPowerSourceMonitorId(vm, hostMonitoring),
-				vm -> NumberHelper.parseDouble(vm.getMetadata(POWER_SHARE), 0.0),
-				Double::sum));
+				.stream()
+				.collect(Collectors.toMap(vm -> 
+							getVmPowerSourceMonitorId(vm, hostMonitoring),
+							this::getVmPowerShare,
+							Double::sum
+						)
+				);
 
 		// Setting the power consumption and energyUsage for each online VM
 		allVms
 			.stream()
-			.filter(this::isVmOnline)
 			.forEach(vm -> estimateVmPowerConsumption(vm, totalPowerSharesByPowerSource, hostMonitoring));
+	}
+
+	/**
+	 * Get the VM's power share which is assumed not null and >= 0.0
+	 * 
+	 * @param vm VM {@link Monitor} instance
+	 * @return Double value. Returns 0.0 if the power share is null or less than 0.0 or the VM is not online
+	 */
+	double getVmPowerShare(Monitor vm) {
+
+		if (!isVmOnline(vm)) {
+			return 0.0;
+		}
+
+		final Double powerShare = CollectHelper.getNumberParamValue(vm, POWER_SHARE_PARAMETER);
+		if (powerShare != null && powerShare >= 0.0) {
+			return powerShare;
+		}
+
+		return 0.0;
 	}
 
 	/**
@@ -1160,37 +1180,26 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateVmPowerConsumption(Monitor vm, Map<String, Double> totalPowerSharesByPowerSource,
 									IHostMonitoring hostMonitoring) {
 
-		// Making sure the VM's power share value is >= 0.0
-		double powerShareAsDouble = NumberHelper.parseDouble(vm.getMetadata(POWER_SHARE), -1.0);
-		if (powerShareAsDouble < 0.0) {
-			return;
-		}
+		// Get the vm power share, always >= 0.0 here
+		final double vmPowerShare = getVmPowerShare(vm);
 
 		// Getting the VM's power share ratio
 		String powerSourceId = vm.getMetadata(POWER_SOURCE_ID);
 		Double totalPowerShares = totalPowerSharesByPowerSource.get(powerSourceId);
-		double powerShareRatio = (totalPowerShares != null && totalPowerShares > 0.0)
-			? powerShareAsDouble / totalPowerShares
-			: 0.0;
+
+		// totalPowerShares is never null here because the VM always comes with a powerShare value
+		double powerShareRatio = totalPowerShares != 0.0 ? vmPowerShare / totalPowerShares : 0.0;
 
 		// Getting the power source's power consumption value
 		Monitor powerSourceMonitor = hostMonitoring.findById(powerSourceId);
 
-		NumberParam powerSourcePowerConsumptionParameter = powerSourceMonitor
-			.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class);
-
-		Assert.state(powerSourcePowerConsumptionParameter != null,
-			String.format("%s's power consumption parameter should not be null.", powerSourceId));
-
-		Double powerSourcePowerConsumptionValue = powerSourcePowerConsumptionParameter.getValue();
-
-		Assert.state(powerSourcePowerConsumptionValue != null,
-			String.format("%s's power consumption value should not be null.", powerSourceId));
+		Double powerSourcePowerConsumption = CollectHelper.getNumberParamValue(powerSourceMonitor,
+				POWER_CONSUMPTION_PARAMETER);
 
 		// Setting the VM's power consumption, energy and energy usage values
-		if (powerSourcePowerConsumptionValue >= 0.0) {
+		if (powerSourcePowerConsumption != null && powerSourcePowerConsumption >= 0.0) {
 
-			double powerConsumption = NumberHelper.round(powerSourcePowerConsumptionValue * powerShareRatio, 2,
+			double powerConsumption = NumberHelper.round(powerSourcePowerConsumption * powerShareRatio, 2,
 				RoundingMode.HALF_UP);
 
 			// This will set the energy, the delta energy called energyUsage and the powerConsumption on the VM monitor

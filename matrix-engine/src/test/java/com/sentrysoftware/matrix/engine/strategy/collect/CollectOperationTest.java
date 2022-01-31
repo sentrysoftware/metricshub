@@ -27,12 +27,15 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_RE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.NETWORK_CARD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TEMPERATURE;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.VM;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,6 +73,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -103,8 +107,8 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 class CollectOperationTest {
 
 	private static final String PARENT_ID1 = "parent1";
-	private static final String SNMP_TEST_FAILED = "SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 on ecs1-01 was unsuccessful due to an empty result.";
-	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Successful SNMP GetNext of 1.2.3.4.5.6 on ecs1-01. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
+	private static final String SNMP_TEST_FAILED = "SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 on test-host-01 was unsuccessful due to an empty result.";
+	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Successful SNMP GetNext of 1.2.3.4.5.6 on test-host-01. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
 	private static final String POWER_CONSUMPTION_WATTS = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
@@ -116,21 +120,21 @@ class CollectOperationTest {
 	private static final String VALUETABLE_COLUMN_5 = "Valuetable.Column(5)";
 	private static final String ENCLOSURE_DEVICE_ID = "1.1";
 	private static final String COMMUNITY = "public";
-	private static final String ECS1_01 = "ecs1-01";
+	private static final String TEST_HOST_01 = "test-host-01";
 	private static final String POWER_CONSUMPTION = "powerConsumption";
 	private static final String CONNECTOR_NAME = "myConnector";
 	private static final String ENCLOSURE_NAME = "enclosure";
-	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.1";
+	private static final String ENCLOSURE_ID = "myConnecctor1.connector_enclosure_test-host-01_1.1";
 	private static final String TARGET_ID = "targetId";
 	private static final String VALUE_TABLE = "Enclosure.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
 	private static final String OID1 = "1.2.3.4.5";
 	private static final String CRITERION_OID = "1.2.3.4.5.6";
-	private static final String FAN_ID_1 = "myConnecctor1.connector_fan_ecs1-01_1.1";
-	private static final String FAN_ID_2 = "myOtherConnecctor.connector_fan_ecs1-01_1.2";
-	private static final String ENCLOSURE_BIS_ID = "myConnecctor1.connector_enclosure_ecs1-01_1.2";
+	private static final String FAN_ID_1 = "myConnecctor1.connector_fan_test-host-01_1.1";
+	private static final String FAN_ID_2 = "myOtherConnecctor.connector_fan_test-host-01_1.2";
+	private static final String ENCLOSURE_BIS_ID = "myConnecctor1.connector_enclosure_test-host-01_1.2";
 	private static final String MY_OTHER_CONNECTOR_NAME = "myOtherConnecctor";
-	private static final String FAN_ID_3 = "myConnecctor1.connector_fan_ecs1-01_1.3";
+	private static final String FAN_ID_3 = "myConnecctor1.connector_fan_test-host-01_1.3";
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
 	private static final String VERSION = "4.2.3";
 	private static final String MONITOR_ID = "monitorId";
@@ -170,8 +174,8 @@ class CollectOperationTest {
 				.builder()
 				.target(HardwareTarget
 						.builder()
-						.hostname(ECS1_01)
-						.id(ECS1_01)
+						.hostname(TEST_HOST_01)
+						.id(TEST_HOST_01)
 						.type(TargetType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
@@ -346,16 +350,16 @@ class CollectOperationTest {
 	@Test
 	void testValidateHardwareMonitors() {
 		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().hardwareMonitors(null).build(),
-				ECS1_01,
+				TEST_HOST_01,
 				CollectOperation.NO_HW_MONITORS_FOUND_MSG));
 		assertFalse(collectOperation.validateHardwareMonitors(Connector.builder().build(),
-				ECS1_01,
+				TEST_HOST_01,
 				CollectOperation.NO_HW_MONITORS_FOUND_MSG));
 		assertTrue(collectOperation.validateHardwareMonitors(Connector
 				.builder()
 				.hardwareMonitors(Collections.singletonList(HardwareMonitor.builder().type(ENCLOSURE).build()))
 				.build(),
-				ECS1_01,
+				TEST_HOST_01,
 				CollectOperation.NO_HW_MONITORS_FOUND_MSG));
 
 	}
@@ -381,7 +385,7 @@ class CollectOperationTest {
 		doReturn(table).when(matsyaClientsExecutor)
 			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
 
-		collectOperation.collect(connector, connectorMonitor, hostMonitoring, ECS1_01);
+		collectOperation.collect(connector, connectorMonitor, hostMonitoring, TEST_HOST_01);
 
 		final Monitor expectedEnclosure = buildExpectedEnclosure();
 		final Monitor actualEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -404,8 +408,8 @@ class CollectOperationTest {
 				.builder()
 				.monitorType(MonitorType.CONNECTOR)
 				.name(CONNECTOR_NAME)
-				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.parentId(TEST_HOST_01)
+				.targetId(TEST_HOST_01)
 				.id(CONNECTOR_NAME)
 				.build();
 		monitor.addMetadata(COMPILED_FILE_NAME, CONNECTOR_NAME);
@@ -420,7 +424,7 @@ class CollectOperationTest {
 
 			enclosureHardwareMonitor.getCollect().setParameters(null);
 
-			assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+			assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01));
 		}
 
 		{
@@ -428,7 +432,7 @@ class CollectOperationTest {
 
 			enclosureHardwareMonitor.getCollect().setParameters(Collections.emptyMap());
 
-			assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+			assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01));
 		}
 	}
 
@@ -439,7 +443,7 @@ class CollectOperationTest {
 
 		enclosureHardwareMonitor.getCollect().setType(null);
 
-		assertTrue(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01)); // the collectType will be set to Mono-Instance by default
+		assertTrue(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01)); // the collectType will be set to Mono-Instance by default
 	}
 
 	@Test
@@ -449,7 +453,7 @@ class CollectOperationTest {
 
 		enclosureHardwareMonitor.getCollect().setValueTable(null);
 
-		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01));
 	}
 
 	@Test
@@ -459,7 +463,7 @@ class CollectOperationTest {
 
 		enclosureHardwareMonitor.setCollect(null);
 
-		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01));
 	}
 
 	@Test
@@ -469,7 +473,7 @@ class CollectOperationTest {
 
 		enclosureHardwareMonitor.setType(null);
 
-		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, ECS1_01));
+		assertFalse(collectOperation.validateHardwareMonitorFields(enclosureHardwareMonitor, CONNECTOR_NAME, TEST_HOST_01));
 	}
 
 	@Test
@@ -485,7 +489,7 @@ class CollectOperationTest {
 		doReturn(table).when(matsyaClientsExecutor)
 			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
 
-		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
+		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, TEST_HOST_01);
 
 		final Monitor expected = buildExpectedEnclosure();
 
@@ -503,7 +507,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 
 		final HardwareMonitor enclosureHardwareMonitor = buildHardwareEnclosureMonitor(CollectType.MULTI_INSTANCE, OID1);
-		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
+		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, TEST_HOST_01);
 
 		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -516,7 +520,7 @@ class CollectOperationTest {
 
 		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, TEST_HOST_01);
 
 		assertTrue(hostMonitoring.getMonitors().isEmpty());
 	}
@@ -527,7 +531,7 @@ class CollectOperationTest {
 		final Monitor expectedEnclosure = buildEnclosure(metadata);
 		hostMonitoring.addMonitor(expectedEnclosure);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, TEST_HOST_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -543,7 +547,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
-		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+		collectOperation.processMultiInstanceValueTable(VALUE_TABLE, CONNECTOR_NAME, hostMonitoring, parameters, ENCLOSURE, TEST_HOST_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -740,8 +744,8 @@ class CollectOperationTest {
 		return Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
-				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.parentId(TEST_HOST_01)
+				.targetId(TEST_HOST_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -754,8 +758,8 @@ class CollectOperationTest {
 		return Monitor.builder()
 			.id(id)
 			.name(name)
-			.parentId(ECS1_01)
-			.targetId(ECS1_01)
+			.parentId(TEST_HOST_01)
+			.targetId(TEST_HOST_01)
 			.metadata(metadata)
 			.monitorType(monitorType)
 			.extendedType(COMPUTER)
@@ -771,7 +775,7 @@ class CollectOperationTest {
 			hostMonitoring.addMonitor(expectedEnclosure);
 
 			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME,
-					hostMonitoring, parameters, ENCLOSURE, ECS1_01);
+					hostMonitoring, parameters, ENCLOSURE, TEST_HOST_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -788,7 +792,7 @@ class CollectOperationTest {
 			hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, SourceTable.empty());
 
 			collectOperation.processMonoInstanceValueTable(expectedEnclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
-					parameters, ENCLOSURE, ECS1_01);
+					parameters, ENCLOSURE, TEST_HOST_01);
 
 			final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -807,7 +811,7 @@ class CollectOperationTest {
 		hostMonitoring.getConnectorNamespace(CONNECTOR_NAME).addSourceTable(VALUE_TABLE, sourceTable);
 
 		collectOperation.processMonoInstanceValueTable(enclosure, VALUE_TABLE, CONNECTOR_NAME, hostMonitoring,
-				parameters, ENCLOSURE, ECS1_01);
+				parameters, ENCLOSURE, TEST_HOST_01);
 
 		final Monitor collectedEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
 
@@ -822,7 +826,7 @@ class CollectOperationTest {
 		final Monitor fan1 = Monitor
 				.builder()
 				.id(FAN_ID_1)
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
 				.build();
@@ -830,7 +834,7 @@ class CollectOperationTest {
 		final Monitor fan2 = Monitor
 				.builder()
 				.id(FAN_ID_2)
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
 				.metadata(Map.of(CONNECTOR, MY_OTHER_CONNECTOR_NAME))
@@ -839,7 +843,7 @@ class CollectOperationTest {
 		final Monitor fan3 = Monitor
 				.builder()
 				.id(FAN_ID_3)
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
 				.metadata(metadata)
@@ -869,7 +873,7 @@ class CollectOperationTest {
 		doReturn(table).when(matsyaClientsExecutor)
 			.executeSNMPTable(eq(OID1 + ".1.1"), any(), any(), any(), anyBoolean());
 
-		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, ECS1_01);
+		collectOperation.collectSameTypeMonitors(enclosureHardwareMonitor, connector, hostMonitoring, TEST_HOST_01);
 
 		final Monitor expected = buildExpectedEnclosure();
 		final Monitor actual = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
@@ -885,7 +889,7 @@ class CollectOperationTest {
 
 		doReturn(snmpResult).when(matsyaClientsExecutor).executeSNMPGetNext(
 				any(), any(), any(), anyBoolean());
-		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
+		collectOperation.collectConnectorMonitor(connector, actual, TEST_HOST_01);
 
 		final Monitor expected = buildExpectedConnectorMonitor(true, snmpResult,
 				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
@@ -900,7 +904,7 @@ class CollectOperationTest {
 		doReturn("").when(matsyaClientsExecutor).executeSNMPGetNext(
 				any(), any(), any(), anyBoolean());
 
-		collectOperation.collectConnectorMonitor(connector, actual, ECS1_01);
+		collectOperation.collectConnectorMonitor(connector, actual, TEST_HOST_01);
 
 		final Monitor expected = buildExpectedConnectorMonitor(false, "", SNMP_TEST_FAILED);
 
@@ -921,7 +925,7 @@ class CollectOperationTest {
 				.builder()
 				.collectTime(strategyTime)
 				.name(TEST_REPORT_PARAMETER)
-				.value("Received Result: " + result + ". " + message + "\nConclusion: TEST on ecs1-01 "
+				.value("Received Result: " + result + ". " + message + "\nConclusion: TEST on test-host-01 "
 						+ (success ? "SUCCEEDED" : "FAILED"))
 				.build();
 
@@ -948,17 +952,12 @@ class CollectOperationTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor target = Monitor.builder()
-			.id("TARGET")
-			.name("TARGET")
-			.targetId(ECS1_01)
-			.monitorType(TARGET)
-			.build();
+		final Monitor target = buildTargetMonitor();
 
 		final Monitor fan1 = Monitor.builder()
 			.id("FAN1")
 			.name("FAN1")
-			.targetId(ECS1_01)
+			.targetId(TEST_HOST_01)
 			.parentId(ENCLOSURE_ID)
 			.monitorType(FAN)
 			.build();
@@ -966,7 +965,7 @@ class CollectOperationTest {
 		final Monitor fan2 = Monitor.builder()
 			.id("FAN2")
 			.name("FAN2")
-			.targetId(ECS1_01)
+			.targetId(TEST_HOST_01)
 			.parentId(ENCLOSURE_ID)
 			.monitorType(FAN)
 			.build();
@@ -974,7 +973,7 @@ class CollectOperationTest {
 		final Monitor temperature = Monitor.builder()
 			.id("TEMPERATURE")
 			.name("TEMPERATURE")
-			.targetId(ECS1_01)
+			.targetId(TEST_HOST_01)
 			.parentId(ENCLOSURE_ID)
 			.monitorType(TEMPERATURE)
 			.build();
@@ -982,7 +981,7 @@ class CollectOperationTest {
 		final Monitor networkCard = Monitor.builder()
 				.id("NETWORK_CARD")
 				.name("NETWORK_CARD")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(NETWORK_CARD)
 				.build();
@@ -1013,6 +1012,21 @@ class CollectOperationTest {
 		assertNull(weirdFan2.getParameter(PRESENT_PARAMETER, DiscreteParam.class));
 	}
 
+	/**
+	 * Build a new target monitor
+	 * 
+	 * @return {@link Monitor} instance
+	 */
+	private static Monitor buildTargetMonitor() {
+		return Monitor
+				.builder()
+				.id("TARGET")
+				.name("TARGET")
+				.targetId(TEST_HOST_01)
+				.monitorType(TARGET)
+				.build();
+	}
+
 	@Test
 	void testGetTargetMonitorViaPost() {
 
@@ -1034,12 +1048,7 @@ class CollectOperationTest {
 	@Test
 	void testSumEnclosurePowerConsumption() {
 
-		final Monitor target = Monitor.builder()
-			.id("TARGET")
-			.name("TARGET")
-			.targetId(ECS1_01)
-			.monitorType(TARGET)
-			.build();
+		final Monitor target = buildTargetMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1065,7 +1074,7 @@ class CollectOperationTest {
 
 		final Monitor enclosure1 = buildEnclosure(metadata);
 
-		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_ecs1-01_1.2",
+		final Monitor enclosure2 = buildMonitor(ENCLOSURE, "myConnector1.connector_enclosure_test-host-01_1.2",
 			ENCLOSURE_NAME, metadata);
 
 		hostMonitoring.addMonitor(enclosure1);
@@ -1097,12 +1106,7 @@ class CollectOperationTest {
 	@Test
 	void testComputeTargetHeatingMarginViaPost() {
 
-		final Monitor target = Monitor.builder()
-			.id("TARGET")
-			.name("TARGET")
-			.targetId(ECS1_01)
-			.monitorType(TARGET)
-			.build();
+		final Monitor target = buildTargetMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1115,7 +1119,7 @@ class CollectOperationTest {
 		localMetadata.clear();
 		localMetadata.put(WARNING_THRESHOLD, "10.0");
 
-		Monitor temperature1 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		Monitor temperature1 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.1",
 			"temperature1", localMetadata);
 
 		hostMonitoring.addMonitor(temperature1);
@@ -1127,7 +1131,7 @@ class CollectOperationTest {
 
 		// OK
 
-		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.2",
+		Monitor temperature2 = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.2",
 			"temperature2", localMetadata);
 
 		hostMonitoring.addMonitor(temperature2);
@@ -1147,12 +1151,7 @@ class CollectOperationTest {
 	@Test
 	void testComputeTemperatureHeatingMarginViaPost() {
 
-		final Monitor target = Monitor.builder()
-			.id("TARGET")
-			.name("TARGET")
-			.targetId(ECS1_01)
-			.monitorType(TARGET)
-			.build();
+		final Monitor target = buildTargetMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1177,7 +1176,7 @@ class CollectOperationTest {
 		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		localMetadata.put(WARNING_THRESHOLD, WHITE_SPACE);
 
-		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.1",
 			"temperature", localMetadata);
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
 
@@ -1195,7 +1194,7 @@ class CollectOperationTest {
 		localMetadata.clear();
 		localMetadata.put(WARNING_THRESHOLD, "10.0");
 
-		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.1",
 			"temperature1", localMetadata);
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(null).build());
 
@@ -1213,12 +1212,12 @@ class CollectOperationTest {
 	void testProcessMonoInstanceValueTableParameterNotPresent() {
 		// Enclosure doesn't define present
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(buildEnclosure(metadata),
-				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, TEST_HOST_01));
 
 		final Monitor fan = Monitor.builder()
 				.id("FAN")
 				.name("FAN")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.build();
@@ -1226,32 +1225,27 @@ class CollectOperationTest {
 
 		// Missing is skipped, Present parameter equals 0
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, TEST_HOST_01));
 
 		// Weird case no parameters, no present
 		fan.setParameters(new HashMap<>());
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, TEST_HOST_01));
 
 		// Present parameter equals 1
 		fan.setAsPresent();
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, TEST_HOST_01));
 
 		// Weird case, Present parameter but present value is null
 		fan.getParameter(PRESENT_PARAMETER, DiscreteParam.class).setState(null);
 		assertDoesNotThrow(() -> collectOperation.processMonoInstanceValueTable(fan,
-				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, ECS1_01));
+				VALUE_TABLE, CONNECTOR_NAME, new HostMonitoring(), parameters, ENCLOSURE, TEST_HOST_01));
 	}
 
 	@Test
 	void testComputeTemperatureParameters() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1277,7 +1271,7 @@ class CollectOperationTest {
 		Map<String, String> localMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		localMetadata.put(IS_CPU_SENSOR, "false");
 
-		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		Monitor temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.1",
 				"temperature", localMetadata);
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
 
@@ -1299,7 +1293,7 @@ class CollectOperationTest {
 		localMetadata.clear();
 		localMetadata.put(IS_CPU_SENSOR, "true");
 
-		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_ecs1-01_1.1",
+		temperature = buildMonitor(TEMPERATURE, "myConnector1.connector_temperature_test-host-01_1.1",
 				"temperature1", localMetadata);
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
 
@@ -1320,12 +1314,7 @@ class CollectOperationTest {
 	void testEstimateCpuPowerConsumption() {
 		{
 			// Max Power Consumption already discovered on the CPU - thermal dissipation rate is set on the target
-			final Monitor target = Monitor.builder()
-					.id("TARGET")
-					.name("TARGET")
-					.targetId(ECS1_01)
-					.monitorType(TARGET)
-					.build();
+			final Monitor target = buildTargetMonitor();
 
 			CollectHelper.updateNumberParameter(
 				target,
@@ -1339,14 +1328,14 @@ class CollectOperationTest {
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
 					.name("CPU")
-					.targetId(ECS1_01)
+					.targetId(TEST_HOST_01)
 					.parentId(ENCLOSURE_ID)
 					.monitorType(CPU)
 					.build();
 
 			cpu.addMetadata(POWER_CONSUMPTION, "120");
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
 
 			assertEquals(36.0, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1355,12 +1344,7 @@ class CollectOperationTest {
 
 		{
 			// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
-			final Monitor target = Monitor.builder()
-					.id("TARGET")
-					.name("TARGET")
-					.targetId(ECS1_01)
-					.monitorType(TARGET)
-					.build();
+			final Monitor target = buildTargetMonitor();
 
 			CollectHelper.updateNumberParameter(
 				target,
@@ -1374,14 +1358,14 @@ class CollectOperationTest {
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
 					.name("CPU")
-					.targetId(ECS1_01)
+					.targetId(TEST_HOST_01)
 					.parentId(ENCLOSURE_ID)
 					.monitorType(CPU)
 					.build();
 
 			cpu.addMetadata(MAXIMUM_SPEED, "2200");
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
 
 			assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1390,12 +1374,7 @@ class CollectOperationTest {
 
 		{
 			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is set on the target
-			final Monitor target = Monitor.builder()
-					.id("TARGET")
-					.name("TARGET")
-					.targetId(ECS1_01)
-					.monitorType(TARGET)
-					.build();
+			final Monitor target = buildTargetMonitor();
 
 			CollectHelper.updateNumberParameter(
 				target,
@@ -1409,12 +1388,12 @@ class CollectOperationTest {
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
 					.name("CPU")
-					.targetId(ECS1_01)
+					.targetId(TEST_HOST_01)
 					.parentId(ENCLOSURE_ID)
 					.monitorType(CPU)
 					.build();
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
 
 			assertEquals(14.25, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1423,22 +1402,17 @@ class CollectOperationTest {
 
 		{
 			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is not set
-			final Monitor target = Monitor.builder()
-					.id("TARGET")
-					.name("TARGET")
-					.targetId(ECS1_01)
-					.monitorType(TARGET)
-					.build();
+			final Monitor target = buildTargetMonitor();
 
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
 					.name("CPU")
-					.targetId(ECS1_01)
+					.targetId(TEST_HOST_01)
 					.parentId(ENCLOSURE_ID)
 					.monitorType(CPU)
 					.build();
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
 
 			assertEquals(11.88, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1449,12 +1423,7 @@ class CollectOperationTest {
 	@Test
 	void testEstimateCpuPowerConsumptionManyCollects() {
 		// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		CollectHelper.updateNumberParameter(
 			target,
@@ -1468,7 +1437,7 @@ class CollectOperationTest {
 		final Monitor cpu = Monitor.builder()
 				.id("CPU")
 				.name("CPU")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1476,7 +1445,7 @@ class CollectOperationTest {
 		cpu.addMetadata(MAXIMUM_SPEED, "2200");
 
 		// Collect 1
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, ECS1_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1485,7 +1454,7 @@ class CollectOperationTest {
 		// Collect 2
 		cpu.getParameters().values().forEach(param -> param.save());
 
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 2 * 60 * 1000, ECS1_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 2 * 60 * 1000, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1494,7 +1463,7 @@ class CollectOperationTest {
 		// Collect 3
 		cpu.getParameters().values().forEach(param -> param.save());
 
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 4 * 60 * 1000, ECS1_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 4 * 60 * 1000, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertEquals(3009.6, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER)); // The energy is increased correctly
@@ -1503,12 +1472,7 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateCpusPowerConsumption() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		CollectHelper.updateNumberParameter(
 			target,
@@ -1522,7 +1486,7 @@ class CollectOperationTest {
 		final Monitor cpu1 = Monitor.builder()
 				.id("CPU1")
 				.name("CPU 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1532,7 +1496,7 @@ class CollectOperationTest {
 		final Monitor cpu2 = Monitor.builder()
 				.id("CPU 2")
 				.name("CPU 2")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1542,7 +1506,7 @@ class CollectOperationTest {
 		final Monitor cpu3 = Monitor.builder()
 				.id("CPU 3")
 				.name("CPU 3")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1574,12 +1538,7 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateCpusPowerConsumptionNoCpus() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1592,12 +1551,7 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateTargetPowerConsumptionNoData() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1611,12 +1565,7 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateTargetPowerConsumptionEnclosureHasPower() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1642,12 +1591,7 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateTargetPowerConsumptionTargetHasEnergy() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1672,18 +1616,13 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionTargetOnlyPower() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+	void testEstimateTargetPowerConsumptionFirstCollect() {
+		final Monitor target = buildTargetMonitor();
 
 		final Monitor cpu = Monitor.builder()
 				.id("CPU1")
 				.name("CPU 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1700,7 +1639,7 @@ class CollectOperationTest {
 		final Monitor memory = Monitor.builder()
 				.id("memory1")
 				.name("memory 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.MEMORY)
 				.build();
@@ -1717,7 +1656,7 @@ class CollectOperationTest {
 		final Monitor disk = Monitor.builder()
 				.id("disk_nvm_1")
 				.name("nvm 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
@@ -1734,7 +1673,7 @@ class CollectOperationTest {
 		final Monitor missingDisk = Monitor.builder()
 				.id("disk_nvm_2")
 				.name("nvm 2")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
@@ -1742,10 +1681,13 @@ class CollectOperationTest {
 		final Monitor diskNoPower = Monitor.builder()
 				.id("disk_noPower")
 				.name("disk 3")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
+
+		final Monitor vm = buildMonitor(VM, "vm-1", "vm-1", new HashMap<>());
+		CollectHelper.collectEnergyUsageFromPower(vm, strategyTime, 10D, TEST_HOST_01);
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1755,7 +1697,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(memory);
 		hostMonitoring.addMonitor(diskNoPower);
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
-
+		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the target
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		collectOperation.estimateTargetPowerConsumption();
@@ -1764,7 +1706,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionTargetFull() {
+	void testEstimateTargetPowerConsumptionSecondCollect() {
 		final NumberParam previousPowerConsumptionParam = NumberParam
 				.builder()
 				.name(POWER_CONSUMPTION_PARAMETER)
@@ -1773,12 +1715,7 @@ class CollectOperationTest {
 				.value(60.0)
 				.build();
 
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		target.collectParameter(previousPowerConsumptionParam);
 
@@ -1787,7 +1724,7 @@ class CollectOperationTest {
 		final Monitor cpu = Monitor.builder()
 				.id("CPU1")
 				.name("CPU 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(CPU)
 				.build();
@@ -1804,7 +1741,7 @@ class CollectOperationTest {
 		final Monitor memory = Monitor.builder()
 				.id("memory1")
 				.name("memory 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.MEMORY)
 				.build();
@@ -1821,7 +1758,7 @@ class CollectOperationTest {
 		final Monitor disk = Monitor.builder()
 				.id("disk_nvm_1")
 				.name("nvm 1")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
@@ -1838,7 +1775,7 @@ class CollectOperationTest {
 		final Monitor missingDisk = Monitor.builder()
 				.id("disk_nvm_2")
 				.name("nvm 2")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
@@ -1846,10 +1783,13 @@ class CollectOperationTest {
 		final Monitor diskNoPower = Monitor.builder()
 				.id("disk_noPower")
 				.name("disk 3")
-				.targetId(ECS1_01)
+				.targetId(TEST_HOST_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
+
+		final Monitor vm = buildMonitor(VM, "vm-1", "vm-1", new HashMap<>());
+		CollectHelper.collectEnergyUsageFromPower(vm, strategyTime, 10D, TEST_HOST_01);
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1859,6 +1799,7 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(memory);
 		hostMonitoring.addMonitor(diskNoPower);
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
+		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the target
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -1871,12 +1812,7 @@ class CollectOperationTest {
 
 	@Test
 	void testComputeNetworkCardParameters() {
-		final Monitor target = Monitor.builder()
-				.id("TARGET")
-				.name("TARGET")
-				.targetId(ECS1_01)
-				.monitorType(TARGET)
-				.build();
+		final Monitor target = buildTargetMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.addMonitor(target);
@@ -1898,7 +1834,7 @@ class CollectOperationTest {
 		assertNull(target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
 		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
-		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_ecs1-01_1.1", "network card", Collections.emptyMap());
+		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_test-host-01_1.1", "network card", Collections.emptyMap());
 		networkCard.collectParameter(DiscreteParam
 				.builder()
 				.name(LINK_STATUS_PARAMETER)
@@ -1947,9 +1883,9 @@ class CollectOperationTest {
 		{
 			// SSD & PCIE -> 18W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "pcie 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -1959,9 +1895,9 @@ class CollectOperationTest {
 		{
 			// SSD & NVM -> 6W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SSD 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "nvm 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -1972,9 +1908,9 @@ class CollectOperationTest {
 		{
 			// SOLID -> 3W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("Solid 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("Solid 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.estimatePhysicalDisksPowerConsumption();
@@ -1987,9 +1923,9 @@ class CollectOperationTest {
 		{
 			// SAS & 15k -> 17W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2000,9 +1936,9 @@ class CollectOperationTest {
 		{
 			// SOLID -> 3W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("Sas 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.estimatePhysicalDisksPowerConsumption();
@@ -2015,9 +1951,9 @@ class CollectOperationTest {
 		{
 			// SCSI & 10k -> 32W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2027,9 +1963,9 @@ class CollectOperationTest {
 		{
 			// SCSI & 15k -> 35W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2040,9 +1976,9 @@ class CollectOperationTest {
 		{
 			// SCSI & 5400 -> 19W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2052,9 +1988,9 @@ class CollectOperationTest {
 		{
 			// IDE & 5.4 -> 19W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("IDE 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("IDE 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2065,9 +2001,9 @@ class CollectOperationTest {
 		{
 			// SCSI -> 30W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SCSI 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.estimatePhysicalDisksPowerConsumption();
@@ -2080,9 +2016,9 @@ class CollectOperationTest {
 		{
 			// SATA & 10k -> 27W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "10k drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2092,9 +2028,9 @@ class CollectOperationTest {
 		{
 			// SATA & 15k -> 32W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "15k drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2105,9 +2041,9 @@ class CollectOperationTest {
 		{
 			// SATA & 5400 -> 7W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "5400 drive 1");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2117,9 +2053,9 @@ class CollectOperationTest {
 		{
 			// SATA & 5.4 -> 7W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			monitor.addMetadata(ADDITIONAL_INFORMATION1, "drive 1 (5.4)");
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -2130,9 +2066,9 @@ class CollectOperationTest {
 		{
 			// Default -> 11W
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
-			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(ECS1_01).targetId(ECS1_01).monitorType(MonitorType.DISK_CONTROLLER).build();
+			final Monitor diskController =  Monitor.builder().id(PARENT_ID1).name("DC 1").parentId(TEST_HOST_01).targetId(TEST_HOST_01).monitorType(MonitorType.DISK_CONTROLLER).build();
 			hostMonitoring.addMonitor(diskController);
-			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(ECS1_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
+			final Monitor monitor = Monitor.builder().id(MONITOR_ID).parentId(PARENT_ID1).targetId(TEST_HOST_01).name("SATA 1").monitorType(MonitorType.PHYSICAL_DISK).build();
 			hostMonitoring.addMonitor(monitor);
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			collectOperation.estimatePhysicalDisksPowerConsumption();
@@ -2185,4 +2121,107 @@ class CollectOperationTest {
 		}
 	}
 
+	@Test
+	void testEstimateVmsPowerConsumption() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		final Monitor vmOnline1 = buildMonitor(VM, "vm1Oneline", "vm-1", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOnline1, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+		CollectHelper.updateNumberParameter(vmOnline1, POWER_SHARE_PARAMETER, "", strategyTime, 5.0, 5.0);
+
+		final Monitor vmOffline2 = buildMonitor(VM, "vmOffline2", "vm-2", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOffline2, POWER_STATE_PARAMETER, strategyTime, PowerState.OFF);
+		CollectHelper.updateNumberParameter(vmOffline2, POWER_SHARE_PARAMETER, "", strategyTime, 10.0, 10.0);
+
+		final Monitor vmOnline3 = buildMonitor(VM, "vmOnline3", "vm-3", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOnline3, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+		CollectHelper.updateNumberParameter(vmOnline3, POWER_SHARE_PARAMETER, "", strategyTime, 5.0, 5.0);
+
+		final Monitor vmOnlineNoPowerShare4 = buildMonitor(VM, "vmOnlineNoPowerShare4", "vm-4", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOnlineNoPowerShare4, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+
+		final Monitor vmOnlineBadPowerShare5 = buildMonitor(VM, "vmOnlineBadPowerShare5", "vm-5", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOnlineBadPowerShare5, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+		CollectHelper.updateNumberParameter(vmOnlineBadPowerShare5, POWER_SHARE_PARAMETER, "", strategyTime, -15.0, -15.0);
+
+		final Monitor target = buildTargetMonitor();
+
+		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(vmOnline1);
+		hostMonitoring.addMonitor(vmOffline2);
+		hostMonitoring.addMonitor(vmOnline3);
+		hostMonitoring.addMonitor(vmOnlineNoPowerShare4);
+		hostMonitoring.addMonitor(vmOnlineBadPowerShare5);
+
+		collectOperation.estimateVmsPowerConsumption();
+
+		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline1, POWER_CONSUMPTION_PARAMETER)); // 50% of the target Power
+		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOffline2, POWER_CONSUMPTION_PARAMETER)); // Offline
+		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline3, POWER_CONSUMPTION_PARAMETER)); // 50% of the target Power
+		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOnlineNoPowerShare4, POWER_CONSUMPTION_PARAMETER)); // powerShare collected not collected
+		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOnlineBadPowerShare5, POWER_CONSUMPTION_PARAMETER)); // Wrong power share
+	}
+
+	@Test
+	void testEstimateVmsPowerConsumptionNoVms() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		final Monitor target = buildTargetMonitor();
+
+		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+
+		hostMonitoring.addMonitor(target);
+
+		assertDoesNotThrow(() -> collectOperation.estimateVmsPowerConsumption());
+
+	}
+
+	@Test
+	void testEstimateVmsPowerConsumptionTotalPowerShareZero() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		final Monitor vmOnlineZeroPowerShare1 = buildMonitor(VM, "vmOnlineZeroPowerShare1", "vm-1", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vmOnlineZeroPowerShare1, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+		CollectHelper.updateNumberParameter(vmOnlineZeroPowerShare1, POWER_SHARE_PARAMETER, "", strategyTime, 0.0, 0.0);
+
+		final Monitor target = buildTargetMonitor();
+
+		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(vmOnlineZeroPowerShare1);
+
+		collectOperation.estimateVmsPowerConsumption();
+
+		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOnlineZeroPowerShare1, POWER_CONSUMPTION_PARAMETER));
+
+	}
+
+	@Test
+	void testEstimateVmsPowerConsumptionTargetPowerConsumptionMissing() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		final Monitor vm1Oneline = buildMonitor(VM, "vm1Oneline", "vm-1", new HashMap<>());
+		CollectHelper.updateDiscreteParameter(vm1Oneline, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
+		CollectHelper.updateNumberParameter(vm1Oneline, POWER_SHARE_PARAMETER, "", strategyTime, 10.0, 10.0);
+
+		final Monitor target = buildTargetMonitor();
+
+		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(vm1Oneline);
+
+		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+
+		collectOperation.estimateVmsPowerConsumption();
+
+		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(vm1Oneline, POWER_CONSUMPTION_PARAMETER));
+
+	}
 }
