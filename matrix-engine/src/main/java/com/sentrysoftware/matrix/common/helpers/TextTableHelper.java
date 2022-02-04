@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
@@ -44,7 +43,7 @@ public class TextTableHelper {
 	public static String generateTextTable(List<List<String>> rows) {
 
 		if (rows == null || rows.isEmpty()) {
-			return EMPTY;
+			return "<empty>";
 		}
 
 		List<String> longestRow = null;
@@ -56,7 +55,7 @@ public class TextTableHelper {
 		}
 
 		if (longestRow == null || longestRow.isEmpty()) {
-			return EMPTY;
+			return "<empty>";
 		}
 
 		List<TableHeader> headers = IntStream

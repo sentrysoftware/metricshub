@@ -1,11 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE_TAB;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -15,12 +18,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class OSCommandSource extends Source {
 
 	private static final long serialVersionUID = -5755243135604830670L;
@@ -79,6 +80,27 @@ public class OSCommandSource extends Source {
 				.separators(separators)
 				.timeout(timeout)
 				.build();
+	}
+
+	@Override
+	public String toString() {
+
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- commandLine=", commandLine);
+		addNonNull(stringJoiner, "- timeout=", timeout);
+		addNonNull(stringJoiner, "- executeLocally=", executeLocally);
+		addNonNull(stringJoiner, "- excludeRegExp=", excludeRegExp);
+		addNonNull(stringJoiner, "- keepOnlyRegExp=", keepOnlyRegExp);
+		addNonNull(stringJoiner, "- removeHeader=", removeHeader);
+		addNonNull(stringJoiner, "- removeFooter=", removeFooter);
+		addNonNull(stringJoiner, "- separators=", separators);
+		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
+
+		return stringJoiner.toString();
+
 	}
 
 }

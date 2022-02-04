@@ -44,4 +44,9 @@ public class StringBody implements Body {
 	public Body copy() {
 		return StringBody.builder().body(body).build();
 	}
+
+	@Override
+	public String description() {
+		return body;
+	}
 }

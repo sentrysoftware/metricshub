@@ -163,7 +163,7 @@ class MatsyaClientsExecutorTest {
 		try (MockedStatic<HttpClient> mockedHttpClient = mockStatic(HttpClient.class)) {
 
 			// protocol.getHttps() is null, logMode is true
-			String fullHttpUrl = "HTTP" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/"
+			String fullHttpUrl = "http" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/"
 				+ FOO;
 			mockedHttpClient.when(() -> HttpClient.sendRequest(
 				anyString(), // URL
@@ -194,7 +194,7 @@ class MatsyaClientsExecutorTest {
 				anyInt(), isNull()));
 
 			// protocol.getHttps() is true
-			String fullHttpsUrl = "HTTPS" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/" + FOO;
+			String fullHttpsUrl = "https" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/" + FOO;
 			httpProtocol.setHttps(true);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
 			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpsUrl), isNull(), isNull(),

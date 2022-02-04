@@ -2,8 +2,8 @@ package com.sentrysoftware.matrix.engine.strategy;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -73,6 +74,9 @@ public abstract class AbstractStrategy implements IStrategy {
 	protected static final int MAX_THREADS_COUNT = 50;
 	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 	public static final int DEFAULT_LOCK_TIMEOUT = 2 * 60; // 2 minutes
+	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s.compute(%d)";
+	private static final String COMPUTE = "compute";
+	private static final String SOURCE = "source";
 
 	@Override
 	public void prepare() {
@@ -120,6 +124,10 @@ public abstract class AbstractStrategy implements IStrategy {
 		// visit and process the source
 		for (final Source source : sources) {
 
+			final String sourceKey = source.getKey();
+
+			logBeginOperation(SOURCE, source, sourceKey, connector.getCompiledFilename());
+
 			final ISourceVisitor sourceVisitor = new SourceVisitor(strategyConfig, matsyaClientsExecutor, connector);
 			final SourceTable sourceTable;
 
@@ -127,42 +135,131 @@ public abstract class AbstractStrategy implements IStrategy {
 				source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
 
 			if (source.isForceSerialization()) {
-				sourceTable = forceSerialization(executable, connector, source, "source", SourceTable.empty());
+				sourceTable = forceSerialization(executable, connector, source, SOURCE, SourceTable.empty());
 			} else {
 				sourceTable = executable.get();
 			}
 
 			if (sourceTable == null) {
 				log.warn("Received null source table for source key {}. Connector {}. Monitor {}. System {}",
-						source.getKey(),
+						sourceKey,
 						connector.getCompiledFilename(),
 						monitorType,
 						hostname);
 				continue;
 			}
 
+			// log the source table
+			logSourceTable(SOURCE, source.getClass().getSimpleName(),
+					sourceKey, connector.getCompiledFilename(), sourceTable);
+
 			final List<Compute> computes = source.getComputes();
 
 			if (computes != null) {
 
-				final ComputeVisitor computeVisitor = new ComputeVisitor(source.getKey(), sourceTable, connector,
+				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
 					matsyaClientsExecutor);
 
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
 				for (final Compute compute : computes) {
+
+					// Example: enclosure.discovery.source(1).compute(1)
+					final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey,
+							compute.getIndex());
+
+					logBeginOperation(COMPUTE, compute, computeKey, connector.getCompiledFilename());
+
 					compute.accept(computeUpdaterVisitor);
+
+					// log the updated source table
+					logSourceTable(COMPUTE, compute.getClass().getSimpleName(), computeKey,
+							connector.getCompiledFilename(), computeVisitor.getSourceTable());
 				}
 
 				hostMonitoring
 						.getConnectorNamespace(connector)
-						.addSourceTable(source.getKey(), computeVisitor.getSourceTable());
+						.addSourceTable(sourceKey, computeVisitor.getSourceTable());
 			} else {
 				hostMonitoring
 						.getConnectorNamespace(connector)
-						.addSourceTable(source.getKey(), sourceTable);
+						.addSourceTable(sourceKey, sourceTable);
 			}
 		}
+	}
+
+	/**
+	 * Log a begin entry for the given source
+	 * 
+	 * @param <T>
+	 * 
+	 * @param operationTag  the tag of the operation. E.g. source or compute
+	 * @param execution     the source or the compute we want to log
+	 * @param executionKey  the source or the compute unique key
+	 * @param connectorName the connector file name
+	 */
+	private static <T> void logBeginOperation(final String operationTag, final T execution, final String executionKey,
+			final String connectorName) {
+
+		if (!log.isInfoEnabled()) {
+			return;
+		}
+
+		log.info("Begin {} [{} {}] for hardware connector [{}]:\n{}\n", 
+				operationTag,
+				execution.getClass().getSimpleName(),
+				executionKey,
+				connectorName,
+				execution.toString());
+	}
+
+	/**
+	 * Log the {@link SourceTable} result.
+	 * 
+	 * @param <T>
+	 * 
+	 * @param operationTag   the tag of the operation. E.g. source or compute
+	 * @param executionClassName the source or the compute class name we want to log
+	 * @param executionKey   the key of the source or the compute we want to log
+	 * @param connectorName  the compiled file name of the connector
+	 * @param sourceTable    the source's result we wish to log
+	 */
+	private static void logSourceTable(final String operationTag, final String executionClassName,
+			final String executionKey, final String connectorName, final SourceTable sourceTable) {
+
+		if (!log.isInfoEnabled()) {
+			return;
+		}
+
+		// Is there any raw data to log?
+		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
+			log.info("End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
+					operationTag,
+					executionClassName,
+					executionKey,
+					connectorName,
+					sourceTable.getRawData());
+			return;
+		}
+
+		if (sourceTable.getRawData() == null) {
+			log.info("End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
+					operationTag,
+					executionClassName,
+					executionKey,
+					connectorName,
+					TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+			return;
+		}
+
+		log.info("End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+				operationTag,
+				executionClassName,
+				executionKey,
+				connectorName,
+				sourceTable.getRawData(),
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+
 	}
 
 	/**

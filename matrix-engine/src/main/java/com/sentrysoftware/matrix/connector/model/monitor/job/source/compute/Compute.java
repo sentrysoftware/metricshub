@@ -20,4 +20,11 @@ public abstract class Compute implements Serializable {
 	}
 
 	public abstract void accept(final IComputeVisitor computeVisitor);
+
+	@Override
+	public String toString() {
+		return new StringBuilder("- type=").append(this.getClass().getSimpleName())
+				.append("\n- index=").append(index)
+				.toString();
+	}
 }

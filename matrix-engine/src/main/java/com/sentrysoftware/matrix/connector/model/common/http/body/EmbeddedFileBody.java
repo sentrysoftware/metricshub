@@ -47,4 +47,9 @@ public class EmbeddedFileBody implements Body {
 	public Body copy() {
 		return EmbeddedFileBody.builder().body(body.copy()).build();
 	}
+
+	@Override
+	public String description() {
+		return body != null ? body.description() : null;
+	}
 }

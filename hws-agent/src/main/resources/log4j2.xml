@@ -20,7 +20,7 @@
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />
-							<SizeBasedTriggeringPolicy size="30 MB" />
+							<SizeBasedTriggeringPolicy size="100 MB" />
 						</Policies>
 						<DefaultRolloverStrategy>
 							<Delete basePath="${ctx:outputDirectory}" maxDepth="3">

@@ -1,22 +1,23 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class Json2CSV extends Compute {
 
 	private static final long serialVersionUID = -4481018666787412274L;
@@ -37,4 +38,16 @@ public class Json2CSV extends Compute {
 		computeVisitor.visit(this);
 	}
 
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- entryKey=", entryKey);
+		addNonNull(stringJoiner, "- properties=", properties);
+		addNonNull(stringJoiner, "- separator=", separator);
+
+		return stringJoiner.toString();
+	}
 }

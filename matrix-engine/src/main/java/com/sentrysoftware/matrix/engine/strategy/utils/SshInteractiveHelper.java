@@ -14,6 +14,7 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 
@@ -60,7 +61,7 @@ public class SshInteractiveHelper {
 
 		final int timeout = sshProtocol.getTimeout() != null ?
 				sshProtocol.getTimeout().intValue() :
-					SSHProtocol.DEFAULT_TIMEOUT.intValue();
+					AbstractCommand.DEFAULT_TIMEOUT.intValue();
 
 		try (final SSHClient sshClient = MatsyaClientsExecutor.connectSshClientTerminal(
 				hostname,

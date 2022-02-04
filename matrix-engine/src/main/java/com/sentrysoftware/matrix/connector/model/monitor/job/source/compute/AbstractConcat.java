@@ -1,16 +1,20 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
+import java.util.StringJoiner;
+
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public abstract class AbstractConcat extends Compute {
 
 	private static final long serialVersionUID = -4171343812982964238L;
@@ -24,5 +28,18 @@ public abstract class AbstractConcat extends Compute {
 
 		this.column = column;
 		this.string = string;
+	}
+
+	@Override
+	public String toString() {
+
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- column=", column);
+		addNonNull(stringJoiner, "- string=", string);
+
+		return stringJoiner.toString();
 	}
 }
