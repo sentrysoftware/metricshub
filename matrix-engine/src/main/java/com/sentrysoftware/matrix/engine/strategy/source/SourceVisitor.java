@@ -373,8 +373,6 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final SourceTable origin = getSourceTable(reference);
 
-		logSourceReference(connector.getCompiledFilename(), reference, referenceSource.getKey(), sourceTable);
-
 		if (origin == null) {
 			return SourceTable.empty();
 		}
@@ -390,6 +388,8 @@ public class SourceVisitor implements ISourceVisitor {
 		if (origin.getRawData() != null) {
 			sourceTable.setRawData(origin.getRawData());
 		}
+
+		logSourceReference(connector.getCompiledFilename(), reference, referenceSource.getKey(), sourceTable);
 
 		return sourceTable;
 	}
