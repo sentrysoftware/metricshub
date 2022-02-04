@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.http;
+package com.sentrysoftware.matrix.connector.parser.state.source.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -11,11 +11,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.parser.state.source.http.HttpProcessor;
 
-class EntryConcatStartProcessorTest {
+class ExecuteForEachEntryOfProcessorTest {
 
-	private static final String ENTRY_CONCAT_START_KEY = "enclosure.discovery.source(3).entryconcatstart";
-	private static final String VALUE = "entry concat start";
+	private static final String ENTRY_CONCAT_END_KEY = "enclosure.discovery.source(3).executeforeachentryof";
+	private static final String VALUE = "%Enclosure.Discovery.Source(2)%";
+	private static final String RESULT = "Enclosure.Discovery.Source(2)";
 
 	@Test
 	void testParse() {
@@ -30,7 +32,7 @@ class EntryConcatStartProcessorTest {
 		Connector connector = new Connector();
 		connector.setHardwareMonitors(Collections.singletonList(hardwareMonitor));
 
-		new EntryConcatStartProcessor().parse(ENTRY_CONCAT_START_KEY, VALUE, connector);
-		assertEquals(VALUE, httpSource.getEntryConcatStart());
+		new ExecuteForEachEntryOfProcessor(HTTPSource.class, HttpProcessor.HTTP_TYPE_VALUE).parse(ENTRY_CONCAT_END_KEY, VALUE, connector);
+		assertEquals(RESULT, httpSource.getExecuteForEachEntryOf());
 	}
 }

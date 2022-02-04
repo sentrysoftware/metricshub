@@ -5,8 +5,11 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
@@ -37,9 +40,10 @@ public class SshInteractiveSource extends Source {
 	@Builder
 	public SshInteractiveSource(List<Compute> computes, boolean forceSerialization, Integer port,
 			String excludeRegExp, String keepOnlyRegExp, Integer removeHeader, Integer removeFooter,
-			String separators, List<String> selectColumns, List<Step> steps, int index, String key) {
+			String separators, List<String> selectColumns, List<Step> steps, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, index, key);
+		super(computes, forceSerialization, index, key, executeForEachEntry);
 		this.port = port;
 		this.excludeRegExp = excludeRegExp;
 		this.keepOnlyRegExp = keepOnlyRegExp;
@@ -53,6 +57,34 @@ public class SshInteractiveSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	public SshInteractiveSource copy() {
+		return SshInteractiveSource.builder()
+				.index(index)
+				.key(key)
+				.forceSerialization(forceSerialization)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.port(port)
+				.excludeRegExp(excludeRegExp)
+				.keepOnlyRegExp(keepOnlyRegExp)
+				.removeHeader(removeHeader)
+				.removeFooter(removeFooter)
+				.separators(separators)
+				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+				.steps(steps != null ? steps.stream().map(Step::copy).collect(Collectors.toList()) : null)
+ 				.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		excludeRegExp = updater.apply(excludeRegExp);
+		keepOnlyRegExp = updater.apply(keepOnlyRegExp);
+		separators = updater.apply(separators);
+		if (steps != null) {
+			steps.forEach(step -> step.update(updater));
+		}
 	}
 
 	@Override

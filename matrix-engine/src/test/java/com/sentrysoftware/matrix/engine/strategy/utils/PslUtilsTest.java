@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 class PslUtilsTest {
@@ -133,10 +134,10 @@ class PslUtilsTest {
 		SourceTable sourceTable = SourceTable.builder().build();
 		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON("", null));
 		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON(null, sourceTable));
-		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON("", sourceTable), "Empty row of values");
+		assertEquals(HardwareConstants.EMPTY, PslUtils.formatExtendedJSON("", sourceTable));
 
 		String row = "val1,val2,val3";
-		assertThrows(IllegalArgumentException.class, () -> PslUtils.formatExtendedJSON(row, sourceTable), "Empty SourceTable data: " + sourceTable);
+		assertEquals(HardwareConstants.EMPTY, PslUtils.formatExtendedJSON(row, sourceTable));
 
 		sourceTable.setRawData("source table raw data");
 		assertEquals("{\n" +

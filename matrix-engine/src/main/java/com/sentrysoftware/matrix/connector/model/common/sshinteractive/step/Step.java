@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 
 import java.io.Serializable;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
 
@@ -26,6 +27,8 @@ public abstract class Step implements Serializable {
 
 	public abstract void accept(final IStepVisitor visitor) throws StepException;
 
+	public abstract Step copy();
+
 	@Override
 	public String toString() {
 		return new StringBuilder("- type=").append(this.getClass().getSimpleName())
@@ -34,4 +37,6 @@ public abstract class Step implements Serializable {
 				.append("\n- ignored=").append(ignored)
 				.toString();
 	}
+
+	public abstract void update(UnaryOperator<String> updater);
 }

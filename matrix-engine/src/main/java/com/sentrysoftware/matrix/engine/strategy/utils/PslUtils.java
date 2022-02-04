@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.NonNull;
@@ -360,17 +361,19 @@ public class PslUtils {
 	 *
 	 * @param entry The row of values.
 	 * @param tableResult The output returned by the SourceVisitor.
-	 * @return
+	 * @return String value
 	 */
 	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
 			throws IllegalArgumentException{
 		if (row.isEmpty()) {
-			throw new IllegalArgumentException("Empty row of values");
+			log.error("formatExtendedJSON received Empty row of values. Returning empty string.");
+			return HardwareConstants.EMPTY;
 		}
 
 		String rawData = tableResult.getRawData();
 		if (rawData == null || rawData.isEmpty()) {
-			throw new IllegalArgumentException("Empty SourceTable data: " + tableResult);
+			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", tableResult);
+			return HardwareConstants.EMPTY;
 		}
 
 		StringBuilder jsonContent = new StringBuilder();
@@ -390,7 +393,7 @@ public class PslUtils {
 			i++;
 		}
 
-		jsonContent.append("\"Value\":").append(tableResult.getRawData()).append("\n}\n}");
+		jsonContent.append("\"Value\":").append(rawData).append("\n}\n}");
 
 		return jsonContent.toString();
 	}

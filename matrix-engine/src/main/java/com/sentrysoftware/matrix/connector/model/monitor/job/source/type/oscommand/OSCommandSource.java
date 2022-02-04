@@ -6,9 +6,10 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -40,9 +41,11 @@ public class OSCommandSource extends Source {
 	public OSCommandSource(List<Compute> computes, boolean forceSerialization, String commandLine,
 			Long timeout, boolean executeLocally,
 			String excludeRegExp, String keepOnlyRegExp, Integer removeHeader, Integer removeFooter,
-			String separators, List<String> selectColumns, int index, String key) {
+			String separators, List<String> selectColumns, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, index, key);
+		super(computes, forceSerialization, index, key, executeForEachEntry);
+
 		this.commandLine = commandLine;
 		this.timeout = timeout;
 		this.executeLocally = executeLocally;
@@ -66,20 +69,29 @@ public class OSCommandSource extends Source {
 	 */
 	public OSCommandSource copy() {
 		return OSCommandSource.builder()
+				.index(index)
+				.key(key)
+				.forceSerialization(forceSerialization)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
 				.commandLine(commandLine)
-				.computes(getComputes() != null ? getComputes().stream().collect(Collectors.toList()) : null)
 				.executeLocally(executeLocally)
 				.excludeRegExp(excludeRegExp)
-				.forceSerialization(isForceSerialization())
-				.index(getIndex() != null ? getIndex() : 0)
 				.keepOnlyRegExp(keepOnlyRegExp)
-				.key(getKey())
 				.removeFooter(removeFooter)
 				.removeHeader(removeHeader)
-				.selectColumns(selectColumns)
+				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
 				.separators(separators)
 				.timeout(timeout)
 				.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		commandLine = updater.apply(commandLine);
+		excludeRegExp = updater.apply(excludeRegExp);
+		keepOnlyRegExp = updater.apply(keepOnlyRegExp);
+		separators = updater.apply(separators);
 	}
 
 	@Override

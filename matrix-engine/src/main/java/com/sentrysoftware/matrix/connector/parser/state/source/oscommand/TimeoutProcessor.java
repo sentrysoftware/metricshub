@@ -30,7 +30,7 @@ public class TimeoutProcessor extends OsCommandProcessor {
 			((OSCommandSource) getSource(key, connector)).setTimeout(Long.valueOf(value));
 		} catch (final Exception e) {
 			throw new IllegalStateException(
-					String.format("TimeoutProcessor parse %s, error: ", value, e.getMessage()), 
+					String.format("TimeoutProcessor parse %s, error: %s", value, e.getMessage()), 
 					e);
 		}
 	}

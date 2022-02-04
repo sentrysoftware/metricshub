@@ -4,8 +4,10 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 
@@ -22,10 +24,16 @@ public abstract class SNMPSource extends Source {
 
 	protected String oid;
 
-	protected SNMPSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key) {
+	protected SNMPSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, index, key);
+		super(computes, forceSerialization, index, key, executeForEachEntry);
 		this.oid = oid;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		oid = updater.apply(oid);
 	}
 
 	@Override

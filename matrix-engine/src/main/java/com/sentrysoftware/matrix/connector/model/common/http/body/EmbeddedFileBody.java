@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.common.http.body;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
+
+import java.util.Base64;
+import java.util.function.UnaryOperator;
+
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 
 import lombok.AllArgsConstructor;
@@ -7,14 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.Base64;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
 
 @Data
 @NoArgsConstructor
@@ -51,5 +52,12 @@ public class EmbeddedFileBody implements Body {
 	@Override
 	public String description() {
 		return body != null ? body.description() : null;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		if (body != null) {
+			body.update(updater);
+		}
 	}
 }

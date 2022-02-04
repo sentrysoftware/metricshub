@@ -1,11 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
-import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
-import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
-import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
+import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -13,7 +24,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.referen
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
@@ -24,20 +34,10 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 @AllArgsConstructor
 @Slf4j
@@ -62,12 +62,6 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
-
-		if (httpSource == null) {
-			log.error("HTTPSource cannot be null, the HTTPSource operation will return an empty result.");
-			return SourceTable.empty();
-		}
-
 		// Very important! otherwise we will overlap in multi-host mode
 		final HTTPSource copy = httpSource.copy();
 
@@ -77,106 +71,173 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 				copy.getAuthenticationToken(),
 				"authenticationToken"));
 
-		final String sourceTableKey = copy.getExecuteForEachEntryOf();
-
-		if (sourceTableKey != null && !sourceTableKey.isEmpty()) {
-			SourceTable result =  processExecuteForEachEntryOf(copy, sourceTableKey);
-			if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
-					|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod()))
-					&& result != null) {
-				result.setRawData(String.format("[%s]", result.getRawData()));
-			}
-			return result;
-		}
-
-		if (monitor != null) {
-			replaceDeviceIdsInHttpSource(copy, monitor);
-			return copy.accept(sourceVisitor);
-		}
-
-		return copy.accept(sourceVisitor);
+		return processSource(copy);
 	}
 
 	/**
-	 * Process the given {@link HTTPSource} for the source table entries identified by the <em>sourceTableKey</em>
+	 * Run an execution for each entry in the {@link SourceTable} referenced by the given source copy.
 	 * 
-	 * @param httpSource     The {@link HTTPSource} we wish to process
-	 * @param sourceTableKey The key of the source table defining the entries
-	 * @return {@link SourceTable} containing all the result concatenated using the EntryConcatMethod defined in the original {@link HTTPSource}
+	 * @param copy Must be a copy of the source.
+	 * @return {@link SourceTable} result
 	 */
-	private SourceTable processExecuteForEachEntryOf(final HTTPSource httpSource, final String sourceTableKey) {
-		final SourceTable sourceTable = getSourceTable(sourceTableKey);
-		if (sourceTable == null) {
-			log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", sourceTableKey);
-			return SourceTable.empty();
-		}
+	private SourceTable runExecuteForEachEntryOf(final Source copy) {
 
-		final SourceTable result = SourceTable.builder().rawData("").build();
+		final String sourceTableKey = copy.getExecuteForEachEntryOf();
 
-		for  (List<String> row : sourceTable.getTable()) {
-			final HTTPSource copy = httpSource.copy();
+		SourceTable result = processExecuteForEachEntryOf(copy, sourceTableKey);
 
-			try {
-				replaceDynamicEntriesInHttpSource(copy, row);
-			} catch (NumberFormatException e) {
-				log.warn("The dynamic key from HTTPSource is badly formatted : {}", copy);
-				continue;
-			}
-
-			if (monitor != null) {
-				replaceDeviceIdsInHttpSource(copy, monitor);
-			}
-
-			final SourceTable thisSourceTable = copy.accept(sourceVisitor);
-
-			if (thisSourceTable.getRawData() != null) {
-				if (httpSource.getEntryConcatMethod() == null) {
-					result.setRawData(
-							result.getRawData()
-							.concat(thisSourceTable.getRawData()));
-				} else {
-					concatHttpResult(httpSource, result, row, thisSourceTable);
-				}
-			}
+		if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
+				|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod())) && result != null) {
+			result.setRawData(String.format("[%s]", result.getRawData()));
 		}
 
 		return result;
 	}
 
 	/**
+	 * Process the given {@link Source} for the source table entries in the source result of <em>sourceTableKey</em>
+	 * 
+	 * @param source         The {@link Source} we wish to process
+	 * @param sourceTableKey The key of the source table defining the entries
+	 * @return {@link SourceTable} containing all the result concatenated using the
+	 *         EntryConcatMethod defined in the original {@link Source}
+	 */
+	private SourceTable processExecuteForEachEntryOf(final Source source, final String sourceTableKey) {
+		final SourceTable sourceTable = getSourceTable(sourceTableKey);
+		if (sourceTable == null) {
+			log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", sourceTableKey);
+			return SourceTable.empty();
+		}
+
+		final SourceTable result = SourceTable.builder().rawData(EMPTY).build();
+
+		for (List<String> row : sourceTable.getTable()) {
+			final Source copy = source.copy();
+
+			try {
+				copy.update(dataValue -> replaceDynamicEntry(dataValue, row));
+			} catch (NumberFormatException e) {
+				log.warn("The dynamic key from Source is badly formatted : {}", copy);
+				continue;
+			}
+
+			copy.update(dataValue -> replaceDeviceId(dataValue, monitor));
+
+			concatEntryResult(source, result, row, copy.accept(sourceVisitor));
+		}
+
+		return result;
+	}
+
+	
+	/**
 	 * Based on the EntryConcatMethod, concatenate the <em>sourceTableToConcat</em> in the <em>result</em> source table
 	 * 
-	 * @param httpSource           The http source used to get the entry concat start/end
-	 * @param result               The result we wish to update
+	 * @param source               The source used to get the entry concat start/end
+	 * @param currentResult        The current result we wish to update
 	 * @param row                  The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
 	 * @param sourceTableToConcat  The current source table result
 	 */
-	private void concatHttpResult(final HTTPSource httpSource, final SourceTable result, final List<String> row,
+	private void concatEntryResult(final Source source, final SourceTable currentResult, final List<String> row,
 			final SourceTable sourceTableToConcat) {
-		switch (httpSource.getEntryConcatMethod()) {
+
+		final EntryConcatMethod entryConcatMethod = source.getEntryConcatMethod() != null ? source.getEntryConcatMethod()
+				: EntryConcatMethod.LIST;
+		final String rawData = sourceTableToConcat.getRawData();
+
+		switch (entryConcatMethod) {
 		case JSON_ARRAY:
-			result.setRawData(
-					(result.getRawData().isEmpty() ? result.getRawData() : result.getRawData().concat(",\n"))
-					.concat(sourceTableToConcat.getRawData()));
+			appendJsonToArray(currentResult, rawData);
 			break;
 		case JSON_ARRAY_EXTENDED:
-			result.setRawData(
-					(result.getRawData().isEmpty() ? "" : result.getRawData().concat(",\n"))
-					.concat(PslUtils.formatExtendedJSON(rowToCsv(row, ","), sourceTableToConcat)));
+			appendExtendedJsonToArray(currentResult, row, sourceTableToConcat);
 			break;
 		case CUSTOM:
-			result.setRawData(
-					result.getRawData()
-					.concat(httpSource.getEntryConcatStart())
-					.concat(sourceTableToConcat.getRawData())
-					.concat(httpSource.getEntryConcatEnd()));
+			appendCustomEntryResult(source, currentResult, rawData);
 			break;
 		default: // LIST or empty
-			result.setRawData(
-					result.getRawData()
-					.concat(sourceTableToConcat.getRawData()));
+			if (rawData != null && !rawData.isBlank()) {
+				joinStringValue(currentResult, rawData, "\n");
+			}
+
+			final List<List<String>> table = sourceTableToConcat.getTable();
+
+			if (table != null && !table.isEmpty()) {
+				currentResult.getTable().addAll(table.stream().filter(line -> !line.isEmpty())
+						.collect(Collectors.toCollection(ArrayList::new)));
+			}
 			break;
 		}
+	}
+
+	/**
+	 * Append the custom entry result <em>rawData</em> to the given <em>currentResult</em> {@link SourceTable}.
+	 * 
+	 * @param source         The source defining the <em>entryConcatStart</em> and <em>entryConcatEnd</em> properties
+	 * @param currentResult  The {@link SourceTable} result to update
+	 * @param rawData        The rawData to append
+	 */
+	private void appendCustomEntryResult(final Source source, final SourceTable currentResult, final String rawData) {
+		if (rawData == null) {
+			return;
+		}
+
+		final String entryConcatStart = source.getEntryConcatStart() != null ? source.getEntryConcatStart() : EMPTY;
+		final String entryConcatEnd = source.getEntryConcatEnd() != null ? source.getEntryConcatEnd() : EMPTY;
+
+		currentResult.setRawData(
+				currentResult.getRawData()
+				.concat(entryConcatStart)
+				.concat(rawData)
+				.concat(entryConcatEnd));
+	}
+
+	/**
+	 * Build the Extended JSON then append it to the <em>currentResult</em> {@link SourceTable}.
+	 * 
+	 * @param currentResult       The {@link SourceTable} result to update
+	 * @param row                 The row used to build the Extended JSON
+	 * @param sourceTableToConcat The {@link SourceTable} defining the <em>rawData</em> to concatenate.
+	 */
+	private void appendExtendedJsonToArray(final SourceTable currentResult, final List<String> row,
+			final SourceTable sourceTableToConcat) {
+
+		final String formattedExtendedJSON = PslUtils.formatExtendedJSON(rowToCsv(row, ","), sourceTableToConcat);
+		// This will mess the JSON Extended
+		if (formattedExtendedJSON.isBlank()) {
+			return;
+		}
+
+		joinStringValue(currentResult, formattedExtendedJSON, ",\n");
+	}
+
+	/**
+	 * Append the string value to the <em>currentResult</em> {@link SourceTable} using the passed <em>separator</em>.
+	 * The separator is not appended for the first value
+	 * 
+	 * @param currentResult The {@link SourceTable} result to update
+	 * @param string        String value to append
+	 * @param separator     Separator of the appended values 
+	 */
+	private void joinStringValue(final SourceTable currentResult, final String string, @NonNull String separator) {
+		currentResult.setRawData(
+				(currentResult.getRawData().isBlank() ? EMPTY : currentResult.getRawData().concat(separator)).concat(string));
+	}
+
+	/**
+	 * Append the given <em>json</em> node to the <em>currentResult</em> {@link SourceTable} with
+	 * the intent of building a JSON Array
+	 * 
+	 * @param currentResult The {@link SourceTable} result to update
+	 * @param json      The JSON node as string to append
+	 */
+	private void appendJsonToArray(final SourceTable currentResult, final String json) {
+		// Don't mess the JSON Array
+		if (json == null || json.isBlank()) {
+			return;
+		}
+
+		joinStringValue(currentResult, json, ",\n");
 	}
 
 	/**
@@ -195,7 +256,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		}
 
 		if (foreignSourceKey.isEmpty()) {
-			return "";
+			return EMPTY;
 		}
 
 		// Get the source table defining where we are going to fetch the value
@@ -235,156 +296,93 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	@Override
 	public SourceTable visit(final IPMI ipmi) {
-		
-		return ipmi.accept(sourceVisitor);
+		return processSource(ipmi.copy());
 	}
 
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
-
-		// We must copy the source so that we don't modify the original source 
-		// which needs to be passed for each monitor when running the mono instance collect.
-		final OSCommandSource copy = osCommandSource.copy();
-		if (monitor != null) {
-			copy.setCommandLine(
-					replaceDeviceId(osCommandSource.getCommandLine(), monitor));
-
-			if (osCommandSource.getExcludeRegExp() != null) {
-				copy.setExcludeRegExp(
-						replaceDeviceId(osCommandSource.getExcludeRegExp(), monitor));
-			}
-
-			if (osCommandSource.getKeepOnlyRegExp() != null) {
-				copy.setKeepOnlyRegExp(
-						replaceDeviceId(osCommandSource.getKeepOnlyRegExp(), monitor));
-			}
-		}
-
-		return copy.accept(sourceVisitor);
+		return processSource(osCommandSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
-
-		return referenceSource.accept(sourceVisitor);
+		return processSource(referenceSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final StaticSource staticSource) {
-
-		return staticSource.accept(sourceVisitor);
+		return processSource(staticSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
-
-		if (monitor != null) {
-			// We must copy the source so that we don't modify the original source 
-			// which needs to be passed for each monitor when running the mono instance collect.
-			final SNMPGetSource copy = snmpGetSource.copy();
-			replaceDeviceIdInSNMPOid(copy, monitor);
-			return copy.accept(sourceVisitor);
-		}
-
-		return snmpGetSource.accept(sourceVisitor);
+		return processSource(snmpGetSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
-
-		if (monitor != null) {
-			// We must copy the source so that we don't modify the original source 
-			// which needs to be passed for each monitor when running the mono instance collect.
-			final SNMPGetTableSource copy = snmpGetTableSource.copy();
-			replaceDeviceIdInSNMPOid(copy, monitor);
-			return copy.accept(sourceVisitor);
-		}
-
-		return snmpGetTableSource.accept(sourceVisitor);
+		return processSource(snmpGetTableSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
-		
-		return tableJoinSource.accept(sourceVisitor);
+		return processSource(tableJoinSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
-		
-		return tableUnionSource.accept(sourceVisitor);
+		return processSource(tableUnionSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
-		
-		return sshInteractiveSource.accept(sourceVisitor);
+		return processSource(sshInteractiveSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final UCSSource ucsSource) {
-		
-		return ucsSource.accept(sourceVisitor);
+		return processSource(ucsSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final WBEMSource wbemSource) {
-		
-		return wbemSource.accept(sourceVisitor);
+		return processSource(wbemSource.copy());
 	}
 
 	@Override
 	public SourceTable visit(final WMISource wmiSource) {
-		
-		return wmiSource.accept(sourceVisitor);
+		return processSource(wmiSource.copy());
 	}
 
 	/**
-	 * Detect the mono instance replacements in the given {@link SNMPSource} oid then replace all the occurrences by the DeviceID
+	 * Process the given source copy
 	 * 
-	 * @param snmpSource The Source we wish to update
-	 * @param monitor The monitor passed by the mono instance collect
+	 * @param copy copy of the original source
+	 * @return {@link SourceTable}
 	 */
-	void replaceDeviceIdInSNMPOid(@NonNull final SNMPSource snmpSource, final Monitor monitor) {
-		Assert.notNull(snmpSource.getOid(), "snmpSource Oid cannot be null.");
-
-		snmpSource.setOid(replaceDeviceId(snmpSource.getOid(), monitor));
-	}
-
-	/**
-	 * Replace all dynamic entries from the {@link HTTPSource} by the values in the row.
-	 * 
-	 * @param httpSource
-	 * @param row
-	 */
-	void replaceDynamicEntriesInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final List<String> row) throws NumberFormatException {
-		final String url = httpSource.getUrl();
-		final Header header = httpSource.getHeader();
-		final Body body = httpSource.getBody();
-
-		if (url != null) {
-			httpSource.setUrl(replaceDynamicEntry(url, row));
+	private SourceTable processSource(final Source copy) {
+		if (copy.isExecuteForEachEntry()) {
+			return runExecuteForEachEntryOf(copy);
 		}
 
-		if (header != null && header.getClass().isInstance(StringHeader.class)) {
-			httpSource.setHeader(new StringHeader(replaceDynamicEntry(((StringHeader) httpSource.getHeader()).getHeader(), row)));
-		}
+		copy.update(value -> replaceDeviceId(value, monitor));
 
-		if (body != null && body.getClass().isInstance(StringBody.class)) {
-			httpSource.setBody(new StringBody(replaceDynamicEntry(((StringBody) httpSource.getBody()).getBody(), row)));
-		}
+		return copy.accept(sourceVisitor);
 	}
 
 	/**
 	 * Replace the dynamic parts of the key by the right column from the row.
 	 * 
-	 * @param key
-	 * @param row
-	 * @return
+	 * @param dataValue Source's member value
+	 * @param row       The row used to extract the value to replace
+	 * @return String value
 	 */
-	static String replaceDynamicEntry(@NonNull final String key, @NonNull final List<String> row) throws NumberFormatException {
+	static String replaceDynamicEntry(final String dataValue, @NonNull final List<String> row) throws NumberFormatException {
+		if (dataValue == null) {
+			return null;
+		}
 
-		final Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(key);
+		final Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(dataValue);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -398,38 +396,14 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Replace the deviceId in the {@link HTTPSource} by the one in the metadata in MonoInstance collects.
-	 * 
-	 * @param httpSource
-	 * @param monitor
-	 */
-	void replaceDeviceIdsInHttpSource(@NonNull final HTTPSource httpSource, @NonNull final Monitor monitor) {
-		final String url = httpSource.getUrl();
-		final Header header = httpSource.getHeader();
-		final Body body = httpSource.getBody();
-
-		if (url != null) {
-			httpSource.setUrl(replaceDeviceId(url, monitor));
-		}
-
-		if (header != null && header.getClass().isInstance(StringHeader.class)) {
-			httpSource.setHeader(new StringHeader(replaceDeviceId(((StringHeader) httpSource.getHeader()).getHeader(), monitor)));
-		}
-
-		if (body != null && body.getClass().isInstance(StringBody.class)) {
-			httpSource.setBody(new StringBody(replaceDeviceId(((StringBody) httpSource.getBody()).getBody(), monitor)));
-		}
-	}
-
-	/**
 	 * Replace the deviceId in the key by the one in the metadata in MonoInstance collects.
 	 * 
 	 * @param key The key where to replace the deviceId.
 	 * @param monitor Can be null, in that case key is directly returned.
-	 * @return
+	 * @return String value
 	 */
-	String replaceDeviceId(final String key, final Monitor monitor) {
-		if (monitor == null) {
+	static String replaceDeviceId(final String key, final Monitor monitor) {
+		if (monitor == null || key == null) {
 			return key;
 		}
 
@@ -487,6 +461,6 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 					.collect(Collectors.joining(separator));
 		}
 
-		return "";
+		return EMPTY;
 	}
 }

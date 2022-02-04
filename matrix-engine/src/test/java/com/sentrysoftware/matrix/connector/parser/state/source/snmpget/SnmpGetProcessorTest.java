@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 
-public class SnmpGetProcessorTest {
+class SnmpGetProcessorTest {
 	@Test
 	void testGetType() {
 		assertEquals(SNMPGetSource.class, new SnmpGetOidProcessor().getType());

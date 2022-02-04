@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.http;
+package com.sentrysoftware.matrix.connector.parser.state.source.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.parser.state.detection.http.HttpProcessor;
 
 class EntryConcatEndProcessorTest {
 
@@ -30,7 +31,7 @@ class EntryConcatEndProcessorTest {
 		Connector connector = new Connector();
 		connector.setHardwareMonitors(Collections.singletonList(hardwareMonitor));
 
-		new EntryConcatEndProcessor().parse(ENTRY_CONCAT_END_KEY, VALUE, connector);
+		new EntryConcatEndProcessor(HTTPSource.class, HttpProcessor.HTTP_TYPE_VALUE).parse(ENTRY_CONCAT_END_KEY, VALUE, connector);
 		assertEquals(VALUE, httpSource.getEntryConcatEnd());
 	}
 }

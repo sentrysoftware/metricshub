@@ -1,8 +1,9 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -20,9 +21,10 @@ public class SNMPGetSource extends SNMPSource {
 	private static final long serialVersionUID = 9174253450745863940L;
 
 	@Builder
-	public SNMPGetSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key) {
+	public SNMPGetSource(List<Compute> computes, boolean forceSerialization, String oid, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, oid, index, key);
+		super(computes, forceSerialization, oid, index, key, executeForEachEntry);
 	}
 
 	@Override
@@ -37,13 +39,12 @@ public class SNMPGetSource extends SNMPSource {
 	 */
 	public SNMPGetSource copy() {
 		return SNMPGetSource.builder()
-				.oid(getOid())
-				.index(getIndex())
-				.key(getKey())
-				.forceSerialization(isForceSerialization())
-				.computes(
-						getComputes() != null ? getComputes().stream()
-								.collect(Collectors.toList()) : null)
+				.index(index)
+				.key(key)
+				.forceSerialization(forceSerialization)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.oid(oid)
 				.build();
 	}
 

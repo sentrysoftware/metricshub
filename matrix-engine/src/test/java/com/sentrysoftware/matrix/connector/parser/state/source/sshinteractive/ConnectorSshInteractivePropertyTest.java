@@ -8,7 +8,11 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatStartProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.ExcludeRegExpProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ExecuteForEachEntryOfProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.KeepOnlyRegExpProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.RemoveFooterProcessor;
@@ -41,8 +45,13 @@ class ConnectorSshInteractivePropertyTest {
 						TextProcessor.class,
 						TimeoutProcessor.class,
 						TelnetOnlyProcessor.class,
-						DurationProcessor.class),
-				ConnectorSshInteractiveProperty.getConnectorProperties().stream()
+						DurationProcessor.class,
+						ExecuteForEachEntryOfProcessor.class,
+						EntryConcatMethodProcessor.class,
+						EntryConcatStartProcessor.class,
+						EntryConcatEndProcessor.class),
+				ConnectorSshInteractiveProperty.getConnectorProperties()
+					.stream()
 					.map(IConnectorStateParser::getClass)
 					.collect(Collectors.toSet()));
 	}

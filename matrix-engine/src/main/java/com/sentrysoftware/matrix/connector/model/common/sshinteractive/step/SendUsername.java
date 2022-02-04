@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 
+import java.util.function.UnaryOperator;
+
 import com.sentrysoftware.matrix.common.exception.StepException;
 
 import lombok.Builder;
@@ -23,6 +25,21 @@ public class SendUsername extends Step {
 	@Override
 	public void accept(final IStepVisitor visitor) throws StepException {
 		visitor.visit(this);
+	}
+
+	@Override
+	public SendUsername copy() {
+
+		final SendUsername sendUsername =  new SendUsername(index);
+		sendUsername.setCapture(capture);
+		sendUsername.setIgnored(ignored);
+
+		return sendUsername;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		// For now nothing to update
 	}
 
 	@Override

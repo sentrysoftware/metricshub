@@ -1,17 +1,21 @@
-package com.sentrysoftware.matrix.connector.parser.state.source.http;
+package com.sentrysoftware.matrix.connector.parser.state.source.common;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
-public class ExecuteForEachEntryOfProcessor extends HttpProcessor {
+public class ExecuteForEachEntryOfProcessor extends AbstractExecuteForEachEntry {
 
 	private static final Pattern EXECUTE_FOR_EACH_ENTRY_OF_KEY_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.executeforeachentryof\\s*$",
 			Pattern.CASE_INSENSITIVE);
+
+	public ExecuteForEachEntryOfProcessor(Class<? extends Source> type, String typeValue) {
+		super(type, typeValue);
+	}
 
 	@Override
 	public Matcher getMatcher(String key) {
@@ -23,7 +27,7 @@ public class ExecuteForEachEntryOfProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((HTTPSource) getSource(key, connector)).setExecuteForEachEntryOf(
+		getSource(key, connector).setExecuteForEachEntryOf(
 				value.replaceAll(ConnectorParserConstants.SOURCE_REFERENCE_REGEX_REPLACEMENT, "$1"));
 	}
 }
