@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sentrysoftware.hardware.matrix</groupId>
 		<artifactId>matrix</artifactId>
-		<version>1.1-SNAPSHOT</version>
+		<version>1.1.00-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>connector-serializer</artifactId>
