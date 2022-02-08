@@ -32,9 +32,6 @@ public class AlertConditionsBuilder {
 	public static final Set<AlertCondition> CORRECTED_ERROR_COUNT_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(1D).build());
 
-	public static final Set<AlertCondition> CORRECTED_ERROR_COUNT_WARN_CONDITION = Collections
-		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(1D).build());
-
 	public static final Set<AlertCondition> SPEED_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().eq(0D).build());
 

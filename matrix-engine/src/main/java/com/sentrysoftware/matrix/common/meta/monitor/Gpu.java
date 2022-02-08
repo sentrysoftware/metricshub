@@ -52,7 +52,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_ALARM_CONDITION;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_WARN_CONDITION;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
@@ -141,11 +141,18 @@ public class Gpu implements IMetaMonitor {
 		.build();
 
 	public static final MetaParameter CORRECTED_ERROR_COUNT = MetaParameter.builder()
-		.basicCollect(true)
+		.basicCollect(false)
 		.name(CORRECTED_ERROR_COUNT_PARAMETER)
 		.unit(ERROR_COUNT_PARAMETER_UNIT)
 		.type(SimpleParamType.NUMBER)
 		.build();
+
+	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(ERROR_COUNT_PARAMETER)
+			.unit(ERROR_COUNT_PARAMETER_UNIT)
+			.type(SimpleParamType.NUMBER)
+			.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, DRIVER_VERSION, FIRMWARE_VERSION,
 		SERIAL_NUMBER, SIZE, IDENTIFYING_INFORMATION);
@@ -159,11 +166,7 @@ public class Gpu implements IMetaMonitor {
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Gpu::checkStatusAlarmCondition,
 		STATUS_ALARM_CONDITION,
 		Severity.ALARM);
-	public static final AlertRule CORRECTED_ERROR_COUNT_WARN_ALERT_RULE = new AlertRule(
-		Gpu::checkCorrectedFewErrorCountCondition,
-		CORRECTED_ERROR_COUNT_WARN_CONDITION,
-		Severity.ALARM);
-	public static final AlertRule CORRECTED_ERROR_COUNT_ALARM_ALERT_RULE = new AlertRule(
+	public static final AlertRule CORRECTED_ERROR_COUNT_ALERT_RULE = new AlertRule(
 		Gpu::checkCorrectedFewErrorCountCondition,
 		CORRECTED_ERROR_COUNT_ALARM_CONDITION,
 		Severity.ALARM);
@@ -186,6 +189,9 @@ public class Gpu implements IMetaMonitor {
 		Gpu::checkMemoryUtilizationAlarmCondition,
 		MEMORY_UTILIZATION_ALARM_CONDITION,
 		Severity.ALARM);
+	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(Gpu::checkErrorCountCondition,
+			ERROR_COUNT_ALARM_CONDITION,
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;
@@ -220,12 +226,13 @@ public class Gpu implements IMetaMonitor {
 		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
 		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
 		alertRulesMap.put(CORRECTED_ERROR_COUNT_PARAMETER,
-			List.of(CORRECTED_ERROR_COUNT_WARN_ALERT_RULE, CORRECTED_ERROR_COUNT_ALARM_ALERT_RULE));
+				Collections.singletonList(CORRECTED_ERROR_COUNT_ALERT_RULE));
 		alertRulesMap.put(PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
 		alertRulesMap.put(USED_TIME_PERCENT_PARAMETER,
 			List.of(USED_TIME_PERCENT_WARN_ALERT_RULE, USED_TIME_PERCENT_ALARM_ALERT_RULE));
 		alertRulesMap.put(MEMORY_UTILIZATION_PARAMETER,
 			List.of(MEMORY_UTILIZATION_WARN_ALERT_RULE, MEMORY_UTILIZATION_ALARM_ALERT_RULE));
+		alertRulesMap.put(ERROR_COUNT_PARAMETER, Collections.singletonList(ERROR_COUNT_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
@@ -355,8 +362,7 @@ public class Gpu implements IMetaMonitor {
 					assertedCorrectedErrorCount.getParameter().getValue()))
 				.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
 				.recommendedAction("Check as soon as possible whether the GPU environment is normal" +
-					" (voltage levels and temperature)." +
-					" If so, the GPU may be defective and needs to be replaced quickly.")
+					" (voltage levels and temperature). If so, the GPU may be defective and needs to be replaced quickly.")
 				.build();
 		}
 
@@ -486,6 +492,31 @@ public class Gpu implements IMetaMonitor {
 				.consequence("The memory utilization may not be optimal and therefore lead to lower system performance.")
 				.recommendedAction("Check why this GPU memory utilization is used so much.")
 				.build();
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * Check condition when the monitor error count parameter is abnormal.
+	 * 
+	 * @param monitor    The monitor we wish to check its error count
+	 * @param conditions The condition used to check the error count parameter value
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<NumberParam> assertedErrorCount = monitor.assertNumberParameter(ERROR_COUNT_PARAMETER, conditions);
+		if (assertedErrorCount.isAbnormal()) {
+
+			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
+			return AlertDetails.builder()
+					.problem(String.format("The GPU encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
+					.recommendedAction("Check as soon as possible whether the GPU environment is normal (voltage levels and temperature)."
+							+ " If so, the GPU may be defective and needs to be replaced quickly."
+							+ ((serialNumber != null) ? String.format(" Please note this GPU's serial number: %s.", serialNumber) : ""))
+					.build();
 		}
 
 		return null;
