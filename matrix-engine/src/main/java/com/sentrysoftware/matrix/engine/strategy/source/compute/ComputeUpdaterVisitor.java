@@ -168,7 +168,7 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 		Assert.notNull(deviceId, "monitor deviceId cannot be null.");
 
 		substring.setStart(monoInstanceReplace(substring.getStart(), deviceId));
-		substring.setLength(monoInstanceReplace(substring.getLength(),deviceId));
+		substring.setLength(monoInstanceReplace(substring.getLength(), deviceId));
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
-			matcher.appendReplacement(sb, replacement);
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
 		}
 		matcher.appendTail(sb);
 

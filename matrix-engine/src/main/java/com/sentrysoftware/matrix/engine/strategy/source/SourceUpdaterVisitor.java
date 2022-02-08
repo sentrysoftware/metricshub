@@ -387,7 +387,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
 			String value = row.get(Integer.parseInt(matcher.group(1)) - 1);
-			matcher.appendReplacement(sb, value);
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(value));
 		}
 
 		matcher.appendTail(sb);
@@ -416,7 +416,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
-			matcher.appendReplacement(sb, deviceId);
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(deviceId));
 		}
 		matcher.appendTail(sb);
 
