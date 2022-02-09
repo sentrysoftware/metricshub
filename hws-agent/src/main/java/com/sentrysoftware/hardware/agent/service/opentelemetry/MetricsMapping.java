@@ -649,7 +649,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.voltage.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the voltage is present or not")
+			.description("Whether the voltage sensor is present or not")
 			.build());
 
 		return map;
@@ -1556,6 +1556,11 @@ public class MetricsMapping {
 			.type(MetricType.GAUGE)
 			.description("GPU power consumption")
 			.build());
+		map.put(Gpu.ERROR_COUNT.getName(), MetricInfo.builder()
+				.name("hw.gpu.errors")
+				.type(MetricType.COUNTER)
+				.description("Number of errors encountered by the GPU since the last reinitialization")
+				.build());
 
 		return map;
 	}

@@ -1129,7 +1129,7 @@ class MonitorCollectVisitorTest {
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		// No error count set
-		monitorCollectVisitor.collectErrorCount();
+		monitorCollectVisitor.collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 		NumberParam errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
 		NumberParam startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertNull(errorCountParameter);
@@ -1143,7 +1143,7 @@ class MonitorCollectVisitorTest {
 				Collections.singletonList("10"))
 		);
 
-		monitorCollectVisitor.collectErrorCount();
+		monitorCollectVisitor.collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 		errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
 		startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(0.0, errorCountParameter.getRawValue());
@@ -1161,7 +1161,7 @@ class MonitorCollectVisitorTest {
 				Collections.singletonList("25"))
 		);
 
-		monitorCollectVisitor.collectErrorCount();
+		monitorCollectVisitor.collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 		errorCountParameter = monitor.getParameter(ERROR_COUNT_PARAMETER, NumberParam.class);
 		startingErrorCountParameter = monitor.getParameter(STARTING_ERROR_COUNT_PARAMETER, NumberParam.class);
 		assertEquals(10.0, errorCountParameter.getRawValue());

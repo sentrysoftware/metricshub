@@ -7,6 +7,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_RATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
@@ -40,6 +41,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_G
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_CORRECTED_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
@@ -76,7 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -87,6 +88,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -256,6 +258,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectPowerConsumption();
 
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
+		collectErrorCount(CORRECTED_ERROR_COUNT_PARAMETER, STARTING_CORRECTED_ERROR_COUNT_PARAMETER);
+
 		collectStatusInformation();
 	}
 
@@ -277,7 +282,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectBasicParameters(logicalDisk);
 
-		collectErrorCount();
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		collectLogicalDiskUnallocatedSpace();
 
@@ -299,7 +304,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectBasicParameters(memory);
 
-		collectErrorCount();
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		collectStatusInformation();
 
@@ -360,7 +365,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectPhysicalDiskParameters();
 
-		collectErrorCount();
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		collectStatusInformation();
 
@@ -384,7 +389,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectIncrementCount(MOVE_COUNT_PARAMETER, MOVE_COUNT_PARAMETER_UNIT);
 
-		collectErrorCount();
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		estimateRoboticsPowerConsumption();
 
@@ -401,7 +406,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectIncrementCount(UNMOUNT_COUNT_PARAMETER, UNMOUNT_COUNT_PARAMETER_UNIT);
 
-		collectErrorCount();
+		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		estimateTapeDrivePowerConsumption();
 
@@ -821,18 +826,21 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	/**
 	 * Collects the error counts
+	 * 
+	 * @param errorCountParameter           the name of the error count parameter
+	 * @param startingErrorCounterParameter the name of the starting error count parameter
 	 */
-	void collectErrorCount() {
+	void collectErrorCount(@NonNull String errorCountParameter, @NonNull String startingErrorCounterParameter) {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		Double rawErrorCount = extractParameterValue(monitor.getMonitorType(),
-			ERROR_COUNT_PARAMETER);
+				errorCountParameter);
 
 		if (rawErrorCount != null) {
 			double errorCount = 0.0;
 			final Double startingErrorCount = CollectHelper.getNumberParamRawValue(
-					monitor, STARTING_ERROR_COUNT_PARAMETER, true);
+					monitor, startingErrorCounterParameter, true);
 
 			if (startingErrorCount != null) {
 				// Remove existing error count from the current value
@@ -845,7 +853,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					// Reset the starting error count
 					CollectHelper.updateNumberParameter(
 							monitor,
-							STARTING_ERROR_COUNT_PARAMETER,
+							startingErrorCounterParameter,
 							ERROR_COUNT_PARAMETER_UNIT,
 							monitorCollectInfo.getCollectTime(),
 							0.0,
@@ -855,7 +863,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					// Copy the last startingErrorCount
 					CollectHelper.updateNumberParameter(
 							monitor,
-							STARTING_ERROR_COUNT_PARAMETER,
+							startingErrorCounterParameter,
 							ERROR_COUNT_PARAMETER_UNIT,
 							monitorCollectInfo.getCollectTime(),
 							startingErrorCount,
@@ -869,7 +877,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				}
 				CollectHelper.updateNumberParameter(
 						monitor,
-						STARTING_ERROR_COUNT_PARAMETER,
+						startingErrorCounterParameter,
 						ERROR_COUNT_PARAMETER_UNIT,
 						monitorCollectInfo.getCollectTime(),
 						rawErrorCount,
@@ -879,7 +887,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			CollectHelper.updateNumberParameter(
 					monitor,
-					ERROR_COUNT_PARAMETER,
+					errorCountParameter,
 					ERROR_COUNT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
 					errorCount,
