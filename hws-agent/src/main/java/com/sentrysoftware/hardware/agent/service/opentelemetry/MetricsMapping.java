@@ -649,7 +649,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.voltage.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the voltage is present or not")
+			.description("Whether the voltage sensor is present or not")
 			.build());
 
 		return map;
