@@ -1,13 +1,17 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.tablejoin;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
-import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
-import com.sentrysoftware.matrix.connector.parser.state.source.common.ForceSerializationProcessor;
-import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor;
+import static com.sentrysoftware.matrix.connector.parser.state.source.tablejoin.TableJoinProcessor.TABLE_JOIN_TYPE_VALUE;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
+import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatStartProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ExecuteForEachEntryOfProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ForceSerializationProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor;
 
 public class ConnectorTableJoinProperty {
 
@@ -16,16 +20,18 @@ public class ConnectorTableJoinProperty {
 
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
-		return Stream
-			.of(
-				new TypeProcessor(TableJoinSource.class, TableJoinProcessor.TABLE_JOIN_TYPE_VALUE),
-				new ForceSerializationProcessor(TableJoinSource.class, TableJoinProcessor.TABLE_JOIN_TYPE_VALUE),
+		return Set.of(
+				new TypeProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE),
+				new ForceSerializationProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE),
 				new LeftTableProcessor(),
 				new RightTableProcessor(),
 				new LeftKeyColumnProcessor(),
 				new RightKeyColumnProcessor(),
 				new KeyTypeProcessor(),
-				new DefaultRightLineProcessor())
-			.collect(Collectors.toSet());
+				new DefaultRightLineProcessor(),
+				new ExecuteForEachEntryOfProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE),
+				new EntryConcatMethodProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE),
+				new EntryConcatStartProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE),
+				new EntryConcatEndProcessor(TableJoinSource.class, TABLE_JOIN_TYPE_VALUE));
 	}
 }

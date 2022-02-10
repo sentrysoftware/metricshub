@@ -1,24 +1,25 @@
 package com.sentrysoftware.matrix.connector.model.common.http.header;
 
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
-
 import static org.springframework.util.Assert.isTrue;
+
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
@@ -63,6 +64,7 @@ public class EmbeddedFileHeader implements Header {
 		return result;
 	}
 
+	
 	public Header copy() {
 		return EmbeddedFileHeader.builder().header(header.copy()).build();
 	}
@@ -70,6 +72,13 @@ public class EmbeddedFileHeader implements Header {
 	@Override
 	public String description() {
 		return header != null ? header.description() : null;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		if (header != null) {
+			header.update(updater);
+		}
 	}
 
 }

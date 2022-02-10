@@ -2,10 +2,13 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablej
 
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
@@ -33,9 +36,10 @@ public class TableJoinSource extends Source {
 	@Builder
 	public TableJoinSource(List<Compute> computes, boolean forceSerialization, String leftTable,
 			String rightTable, Integer leftKeyColumn, Integer rightKeyColumn, List<String> defaultRightLine,
-			String keyType, int index, String key) {
+			String keyType, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, index, key);
+		super(computes, forceSerialization, index, key, executeForEachEntry);
 		this.leftTable = leftTable;
 		this.rightTable = rightTable;
 		this.leftKeyColumn = leftKeyColumn;
@@ -47,6 +51,30 @@ public class TableJoinSource extends Source {
 	@Override
 	public SourceTable accept(final ISourceVisitor sourceVisitor) {
 		return sourceVisitor.visit(this);
+	}
+
+	@Override
+	public TableJoinSource copy() {
+		return TableJoinSource.builder()
+				.index(index)
+				.key(key)
+				.forceSerialization(forceSerialization)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.leftTable(leftTable)
+				.rightTable(rightTable)
+				.leftKeyColumn(leftKeyColumn)
+				.rightKeyColumn(rightKeyColumn)
+				.defaultRightLine(defaultRightLine != null ? new ArrayList<>(defaultRightLine) : null)
+				.keyType(keyType)
+				.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		leftTable = updater.apply(leftTable);
+		rightTable = updater.apply(rightTable);
+		keyType = updater.apply(keyType);
 	}
 
 	@Override

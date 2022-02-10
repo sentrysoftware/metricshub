@@ -1,11 +1,13 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.wmi;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatStartProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.source.common.ExecuteForEachEntryOfProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.TypeProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemNamespaceProcessor;
@@ -19,12 +21,14 @@ public class ConnectorWmiProperty {
 
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
-		return Stream
-			.of(
+		return Set.of(
 				new TypeProcessor(WMISource.class, WMI_TYPE_VALUE),
 				new ForceSerializationProcessor(WMISource.class, WMI_TYPE_VALUE),
 				new WbemQueryProcessor(WMISource.class, WMI_TYPE_VALUE),
-				new WbemNamespaceProcessor(WMISource.class, WMI_TYPE_VALUE))
-			.collect(Collectors.toSet());
+				new WbemNamespaceProcessor(WMISource.class, WMI_TYPE_VALUE),
+				new ExecuteForEachEntryOfProcessor(WMISource.class, WMI_TYPE_VALUE),
+				new EntryConcatMethodProcessor(WMISource.class, WMI_TYPE_VALUE),
+				new EntryConcatStartProcessor(WMISource.class, WMI_TYPE_VALUE),
+				new EntryConcatEndProcessor(WMISource.class, WMI_TYPE_VALUE));
 	}
 }

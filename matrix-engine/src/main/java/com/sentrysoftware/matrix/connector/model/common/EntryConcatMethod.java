@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http;
+package com.sentrysoftware.matrix.connector.model.common;
 
 import java.util.Arrays;
 

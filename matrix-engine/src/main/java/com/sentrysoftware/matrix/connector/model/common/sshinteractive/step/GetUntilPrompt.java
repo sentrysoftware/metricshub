@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -31,6 +32,21 @@ public class GetUntilPrompt extends Step {
 	@Override
 	public void accept(final IStepVisitor visitor) throws StepException {
 		visitor.visit(this);
+	}
+
+	@Override
+	public GetUntilPrompt copy() {
+
+		final GetUntilPrompt getUntilPrompt =  new GetUntilPrompt(index, timeout);
+		getUntilPrompt.setCapture(capture);
+		getUntilPrompt.setIgnored(ignored);
+
+		return getUntilPrompt;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		// For now nothing to update
 	}
 
 	@Override

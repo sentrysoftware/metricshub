@@ -20,8 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.EntryConcatMethod;
+import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
@@ -97,9 +98,9 @@ class SourceUpdaterVisitorTest {
 		assertEquals(expectedSnmp, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(snmpGetSource));
 
 		HTTPSource httpSource = HTTPSource.builder()
-				.executeForEachEntryOf("enclosure.collect.source(1)")
 				.url("urlprefix_%Entry.Column(1)%_urlmidsection_%Entry.Column(2)%_urlsuffix")
 				.build();
+		httpSource.setExecuteForEachEntryOf("enclosure.collect.source(1)");
 
 		List<List<String>> table = Arrays.asList(
 				Arrays.asList("val1", "val2", "val3"),
@@ -115,7 +116,7 @@ class SourceUpdaterVisitorTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 
-		String expectedResult = "expectedVal1expectedVal2";
+		String expectedResult = "expectedVal1\nexpectedVal2";
 
 		SourceTable expected1 = SourceTable.builder().rawData("expectedVal1").build();
 		SourceTable expected2 = SourceTable.builder().rawData("expectedVal2").build();
@@ -241,6 +242,7 @@ class SourceUpdaterVisitorTest {
 		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(resultTable).build();
 		doReturn(expected).when(sourceVisitor).visit(any(StaticSource.class));
+		doReturn(metadata).when(monitor).getMetadata();
 		assertEquals(expected, new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(staticSource));
 	}
 
@@ -321,18 +323,10 @@ class SourceUpdaterVisitorTest {
 	void testReplaceDeviceIdInSNMPOid() {
 
 		{
-			// No monitor no replacement
-			final SNMPGetTableSource snmpGetTableSource = buildSNMPGetTableSource("1.3.6.1.4.1.674.10893.1.20.140.1.1.4.%Enclosure.Collect.DeviceID%");
-			sourceUpdaterVisitor.replaceDeviceIdInSNMPOid(snmpGetTableSource, null);
-
-			assertEquals("1.3.6.1.4.1.674.10893.1.20.140.1.1.4.%Enclosure.Collect.DeviceID%", snmpGetTableSource.getOid());
-		}
-
-		{
 			// No replacement
 			doReturn(metadata).when(monitor).getMetadata();
 			final SNMPGetTableSource snmpGetTableSource = buildSNMPGetTableSource("1.3.6.1.4.1.674.10893.1.20.140.1.1.4.");
-			sourceUpdaterVisitor.replaceDeviceIdInSNMPOid(snmpGetTableSource, monitor);
+			snmpGetTableSource.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
 
 			assertEquals("1.3.6.1.4.1.674.10893.1.20.140.1.1.4.", snmpGetTableSource.getOid());
 		}
@@ -340,7 +334,7 @@ class SourceUpdaterVisitorTest {
 		{
 			doReturn(metadata).when(monitor).getMetadata();
 			final SNMPGetTableSource snmpGetTableSource = buildSNMPGetTableSource("1.3.6.%Enclosure.Collect.DeviceID%.4.1.674.10893.1.20.140.1.1.4.%Enclosure.Collect.DeviceID%");
-			sourceUpdaterVisitor.replaceDeviceIdInSNMPOid(snmpGetTableSource, monitor);
+			snmpGetTableSource.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
 
 			assertEquals("1.3.6."+ ENCLOSURE_DEVICE_ID +".4.1.674.10893.1.20.140.1.1.4." + ENCLOSURE_DEVICE_ID, snmpGetTableSource.getOid());
 		}
@@ -444,6 +438,65 @@ class SourceUpdaterVisitorTest {
 					AUTHENTICATION_TOKEN_FIELD);
 			assertEquals("token", value);
 		}
+	}
+
+	@Test
+	void testVisitWmiWithExecuteForEachEntry() {
+		final WMISource wmiSource = WMISource.builder()
+				.wbemQuery("SELECT Caption, DeviceID, Size FROM Win32_LogicalDisk WHERE FileSystem = '%Entry.Column(2)%'")
+				.wbemNamespace("root\\cimv2")
+				.build();
+		wmiSource.setExecuteForEachEntryOf(VALUE_TABLE);
+
+		final List<List<String>> table = List.of(
+				List.of("FileSystem", "NTFS"),
+				List.of("FileSystem", "FAT32")
+		);
+
+		final SourceTable sourceTable = SourceTable.builder()
+				.table(table)
+				.build();
+
+		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
+				Map.of(VALUE_TABLE, sourceTable)).build();
+
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
+
+
+
+		final SourceTable resultQuery1 = SourceTable
+				.builder()
+				.table(
+						List.of(
+								List.of("C:", "C:", "492084465664")
+						)
+				)
+				.build();
+		final SourceTable resultQuery2 = SourceTable
+				.builder()
+				.table(
+						List.of(
+								List.of("D:", "D:", "502084465664")
+						)
+				)
+				.build();
+
+		doReturn(resultQuery1, resultQuery2).when(sourceVisitor).visit(any(WMISource.class));
+
+		final SourceTable actual = new SourceUpdaterVisitor(sourceVisitor, connector, null, strategyConfig).visit(wmiSource);
+
+		final SourceTable expected = SourceTable
+				.builder()
+				.table(
+						List.of(
+								List.of("C:", "C:", "492084465664"),
+								List.of("D:", "D:", "502084465664"))
+				)
+				.rawData(HardwareConstants.EMPTY)
+				.build();
+
+		assertEquals(expected, actual);
 	}
 
 	private static SNMPGetTableSource buildSNMPGetTableSource(final String oid) {

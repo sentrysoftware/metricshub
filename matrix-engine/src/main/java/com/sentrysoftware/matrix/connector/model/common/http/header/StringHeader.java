@@ -1,20 +1,21 @@
 package com.sentrysoftware.matrix.connector.model.common.http.header;
 
-import java.util.Base64;
-import java.util.Map;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
 import static org.springframework.util.Assert.isTrue;
+
+import java.util.Base64;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
@@ -55,5 +56,10 @@ public class StringHeader implements Header {
 	@Override
 	public String description() {
 		return header;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		header = updater.apply(header);
 	}
 }

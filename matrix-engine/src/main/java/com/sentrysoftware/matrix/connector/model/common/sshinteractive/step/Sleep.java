@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -31,6 +32,21 @@ public class Sleep extends Step {
 	@Override
 	public void accept(final IStepVisitor visitor) throws StepException {
 		visitor.visit(this);
+	}
+
+	@Override
+	public Sleep copy() {
+
+		final Sleep sleep =  new Sleep(index, duration);
+		sleep.setCapture(capture);
+		sleep.setIgnored(ignored);
+
+		return sleep;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		// For now nothing to update
 	}
 
 	@Override

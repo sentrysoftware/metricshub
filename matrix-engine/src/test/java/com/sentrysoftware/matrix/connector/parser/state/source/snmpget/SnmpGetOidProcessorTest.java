@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 
-public class SnmpGetOidProcessorTest {
+class SnmpGetOidProcessorTest {
 	private static final String SNMP_GET_OID_KEY = "enclosure.discovery.source(1).snmpoid";
 	private static final String VALUE = "1.3.6.1.2.1.1.1.0";
 	

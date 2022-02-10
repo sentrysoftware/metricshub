@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
 import java.io.Serializable;
+import java.util.function.UnaryOperator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,4 +33,8 @@ public class EmbeddedFile implements Serializable {
 		return String.format("EmbeddedFile(%d)", index);
 	}
 
+	public void update(UnaryOperator<String> updater) {
+		content = updater.apply(content);
+		type = updater.apply(type);
+	}
 }

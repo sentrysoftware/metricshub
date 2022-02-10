@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
 public abstract class HttpProcessor extends AbstractStateParser {
 
-	protected static final String HTTP_TYPE_VALUE = "HTTP";
+	public static final String HTTP_TYPE_VALUE = "HTTP";
 
 	@Override
 	public Class<HTTP> getType() {

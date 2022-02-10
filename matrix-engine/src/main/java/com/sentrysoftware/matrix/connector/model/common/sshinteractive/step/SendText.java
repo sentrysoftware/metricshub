@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -31,6 +32,21 @@ public class SendText extends Step {
 	@Override
 	public void accept(final IStepVisitor visitor) throws StepException {
 		visitor.visit(this);
+	}
+
+	@Override
+	public SendText copy() {
+
+		final SendText sendText =  new SendText(index, text);
+		sendText.setCapture(capture);
+		sendText.setIgnored(ignored);
+
+		return sendText;
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		text = updater.apply(text);
 	}
 
 	@Override

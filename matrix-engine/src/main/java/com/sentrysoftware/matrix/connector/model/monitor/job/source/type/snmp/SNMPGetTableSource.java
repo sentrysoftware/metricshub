@@ -5,9 +5,9 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.engine.strategy.source.ISourceVisitor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -28,9 +28,10 @@ public class SNMPGetTableSource extends SNMPSource {
 
 	@Builder
 	public SNMPGetTableSource(List<Compute> computes, boolean forceSerialization, String oid,
-			List<String> snmpTableSelectColumns, int index, String key) {
+			List<String> snmpTableSelectColumns, int index, String key,
+			ExecuteForEachEntry executeForEachEntry) {
 
-		super(computes, forceSerialization, oid, index, key);
+		super(computes, forceSerialization, oid, index, key, executeForEachEntry);
 		this.snmpTableSelectColumns = snmpTableSelectColumns;
 	}
 
@@ -46,17 +47,14 @@ public class SNMPGetTableSource extends SNMPSource {
 	 */
 	public SNMPGetTableSource copy() {
 		return SNMPGetTableSource.builder()
-				.oid(getOid())
+				.index(index)
+				.key(key)
+				.forceSerialization(forceSerialization)
+				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.oid(oid)
 				.snmpTableSelectColumns(
-						snmpTableSelectColumns != null ? snmpTableSelectColumns
-								.stream()
-								.collect(Collectors.toList()) : null)
-				.index(getIndex())
-				.key(getKey())
-				.forceSerialization(isForceSerialization())
-				.computes(
-						getComputes() != null ? getComputes().stream()
-								.collect(Collectors.toList()) : null)
+						snmpTableSelectColumns != null ? new ArrayList<>(snmpTableSelectColumns) : null)
 				.build();
 	}
 
