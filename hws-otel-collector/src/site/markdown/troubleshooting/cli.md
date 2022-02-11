@@ -81,6 +81,15 @@ To learn more about the various options available, simply run the below command:
 $ hws -h
 ```
 
+### Verbose modes
+
+If the `hws` command doesn't yield the expected result, you can use the `-v` option to get more detailed information about the operations performed by the *Hardware Sentry Engine*. Repeat the option to get even more details:
+
+* `-v` to display internal warning messages (**WARN**)
+* `-vv` to also display details about each operation performed (**INFO**)
+* `-vvv` to display initialization and connections details (**DEBUG**)
+* `-vvvv` to get excruciating details about everything (**TRACE**)
+
 ## Examples
 
 ### Storage System, REST API
