@@ -81,14 +81,14 @@ To learn more about the various options available, simply run the below command:
 $ hws -h
 ```
 
-### Verbose modes
+### Verbose Modes
 
-If the `hws` command doesn't yield the expected result, you can use the `-v` option to get more detailed information about the operations performed by the *Hardware Sentry Engine*. Repeat the option to get even more details:
+To get additional details about the operations performed by the *Hardware Sentry Engine*, run:
 
 * `-v` to display internal warning messages (**WARN**)
-* `-vv` to also display details about each operation performed (**INFO**)
-* `-vvv` to display initialization and connections details (**DEBUG**)
-* `-vvvv` to get excruciating details about everything (**TRACE**)
+* `-vv` to get details about each operation performed (**INFO**)
+* `-vvv` to get initialization and connections details (**DEBUG**)
+* `-vvvv` to get full visibility about what is happening (**TRACE**)
 
 ## Examples
 
