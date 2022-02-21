@@ -581,7 +581,7 @@ class MonitorAlertRulesVisitorTest {
 		assertEquals(Collections.singleton(AVAILABLE_PATH_COUNT_PARAMETER), result);
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(2D)
+				.lte(2D)
 				.build();
 
 		assertAlertRule(monitor.getAlertRules(), AVAILABLE_PATH_COUNT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);

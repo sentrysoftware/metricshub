@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
@@ -102,6 +104,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -127,7 +131,7 @@ class MonitorCollectVisitorTest {
 	private static final String VALUETABLE_COLUMN_6 = "Valuetable.Column(6)";
 	private static final String MONITOR_DEVICE_ID = "1.1";
 	private static final String MONITOR_ID = "myConnecctor1.connector_monitor_ecs1-01_1.1";
-	private static final String ECS1_01 = "ecs1-01";
+	private static final String TARGET_ID = "target-id";
 	private static final String MY_CONNECTOR_NAME = "myConnecctor";
 	private static final String VALUE_TABLE = "MonitorType.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
@@ -675,7 +679,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.connectorName(MY_CONNECTOR_NAME)
 			.hostMonitoring(hostMonitoring)
-			.hostname(ECS1_01)
+			.hostname(TARGET_ID)
 			.mapping(mapping)
 			.monitor(monitor)
 			.row(row)
@@ -690,7 +694,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.connectorName(MY_CONNECTOR_NAME)
 			.hostMonitoring(hostMonitoring)
-			.hostname(ECS1_01)
+			.hostname(TARGET_ID)
 			.mapping(mapping)
 			.monitor(monitor)
 			.row(row)
@@ -2567,5 +2571,196 @@ class MonitorCollectVisitorTest {
 		assertEquals(1024.0, monitor.getParameter(TRANSMITTED_BYTES_RATE_PARAMETER, NumberParam.class).getValue());
 		assertNull(monitor.getParameter(RECEIVED_BYTES_PARAMETER, NumberParam.class));
 		assertNull(monitor.getParameter(RECEIVED_BYTES_RATE_PARAMETER, NumberParam.class));
+	}
+
+	@Test
+	void testCollectAvailablePathWarning() {
+		// Case 1: available path count is not collected.
+		// Expect that the available path warning is not collected.
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.monitorType(MonitorType.LUN)
+					.build();
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			final List<String> row = List.of("OK", "", "FC Paths of the LUN");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+			assertNull(lun.getMetadata(AVAILABLE_PATH_WARNING));
+		}
+
+		// Case 2: available path count is collected and available path warning is collected.
+		// Expect that the available path warning is unchanged in the collect
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.monitorType(MonitorType.LUN)
+					.build();
+			lun.addMetadata(AVAILABLE_PATH_WARNING, "3");
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			final List<String> row = List.of("OK", "10", "FC Paths of the LUN");
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+			assertEquals(3, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+		}
+
+		// Case 3: available path count is collected and available path warning isn't collected.
+		// Expect that the available path warning is updated in the collect
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.monitorType(MonitorType.LUN)
+					.build();
+
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			final List<String> row = List.of("OK", "10", "FC Paths of the LUN"); // availablePathCount = 10
+			final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+			assertEquals(9, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+		}
+
+		// Case 4: available path count is collected, and unchanged during 2 collects, the available path warning isn't collected by the connector.
+		// Expect that the available path warning is not updated in the second collect
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.monitorType(MonitorType.LUN)
+					.build();
+
+			// Collect 1
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			final List<String> row = List.of("OK", "10", "FC Paths of the LUN"); // availablePathCount = 10
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(9, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+
+			// Collect 2
+			monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(9, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+			
+		}
+
+		// Case 5: available path count is collected, and increased in the 2nd collect, the available path warning isn't collected by the connector.
+		// Expect that the available path warning is updated in the second collect
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.id(DEVICE_ID)
+					.name(DEVICE_ID)
+					.parentId(TARGET_ID)
+					.targetId(TARGET_ID)
+					.monitorType(MonitorType.LUN)
+					.build();
+
+			hostMonitoring.addMonitor(lun);
+
+			// Collect 1
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			List<String> row = List.of("OK", "10", "FC Paths of the LUN"); // availablePathCount = 10
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(10, CollectHelper.getNumberParamValue(lun, MAX_AVAILABLE_PATH_COUNT_PARAMETER));
+
+			// Collect 2
+			hostMonitoring.saveParameters();
+
+			row = List.of("OK", "12", "FC Paths of the LUN"); // availablePathCount = 12
+
+			monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(11, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+			assertEquals(12, CollectHelper.getNumberParamValue(lun, MAX_AVAILABLE_PATH_COUNT_PARAMETER));
+			
+		}
+
+		// Case 6: available path count is collected, and equals 1, the available path warning isn't collected by the connector.
+		// Expect that the available path warning is not collected. Because 0 is reserved for the ALARM threshold
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.id(DEVICE_ID)
+					.name(DEVICE_ID)
+					.parentId(TARGET_ID)
+					.targetId(TARGET_ID)
+					.monitorType(MonitorType.LUN)
+					.build();
+
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			List<String> row = List.of("OK", "1", "FC Paths of the LUN"); // availablePathCount = 10
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertNull(lun.getMetadata(AVAILABLE_PATH_WARNING));
+
+		}
+
+		// Case 7: available path count is collected, the available path warning isn't
+		// collected by the connector in the first collect but collected in the second one.
+		// Expect that the 2nd collect updates the available path warning
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor lun = Monitor.builder().id(DEVICE_ID)
+					.name("lun")
+					.id(DEVICE_ID)
+					.name(DEVICE_ID)
+					.parentId(TARGET_ID)
+					.targetId(TARGET_ID)
+					.monitorType(MonitorType.LUN)
+					.build();
+
+			hostMonitoring.addMonitor(lun);
+
+			// Collect 1
+			final Map<String, String> mapping = Map.of(
+					STATUS_PARAMETER, VALUETABLE_COLUMN_1,
+					AVAILABLE_PATH_COUNT_PARAMETER, VALUETABLE_COLUMN_2,
+					AVAILABLE_PATH_INFORMATION_PARAMETER, VALUETABLE_COLUMN_3);
+			List<String> row = List.of("OK", "10", "FC Paths of the LUN"); // availablePathCount = 10
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(9, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+
+			// Collect 2
+			hostMonitoring.saveParameters();
+
+			lun.addMetadata(AVAILABLE_PATH_WARNING, "5");
+
+			monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, lun, mapping, row);
+			monitorCollectVisitor.collectAvailablePathWarning();
+
+			assertEquals(5, Double.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING)));
+			
+		}
+
 	}
 }

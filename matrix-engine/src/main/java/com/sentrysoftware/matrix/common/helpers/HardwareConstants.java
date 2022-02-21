@@ -103,6 +103,7 @@ public class HardwareConstants {
 	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
+	public static final String MAX_AVAILABLE_PATH_COUNT_PARAMETER = "maxAvailablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
 	public static final String BANDWIDTH_UTILIZATION_PARAMETER = "bandwidthUtilization";
 	public static final String DUPLEX_MODE_PARAMETER = "duplexMode";

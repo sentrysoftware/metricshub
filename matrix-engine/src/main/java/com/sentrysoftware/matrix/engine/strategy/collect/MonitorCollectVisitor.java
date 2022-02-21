@@ -72,6 +72,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
 
 import java.math.RoundingMode;
 import java.util.List;
@@ -297,6 +300,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectStatusInformation();
 
+		collectAvailablePathWarning();
 	}
 
 	@Override
@@ -1895,5 +1899,72 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				statusInformation,
 				status
 		);
+	}
+
+	/**
+	 * Collect the available path warning metadata
+	 */
+	void collectAvailablePathWarning() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// Extract the available path count parameter value
+		final Double availablePathCount = extractParameterValue(monitor.getMonitorType(), AVAILABLE_PATH_COUNT_PARAMETER);
+		if (availablePathCount == null) {
+			// Parameter not collected or simply not activated by the connector
+			return;
+		}
+
+		// Get the maximum of available paths
+		final Double maxAvailablePathCount = CollectHelper.getNumberParamRawValue(monitor, MAX_AVAILABLE_PATH_COUNT_PARAMETER, true);
+
+		// The available path warning threshold
+		final Double availablePathWarning = NumberHelper.parseDouble(monitor.getMetadata(AVAILABLE_PATH_WARNING), null);
+
+		// If we do not have an available path warning threshold but we have the current
+		// number of paths, set a warning thresholds of (current paths - 1).
+		// Do this if the number of current paths increases too.
+		if (((availablePathWarning == null)
+				|| (maxAvailablePathCount != null && availablePathCount > maxAvailablePathCount))
+				&& availablePathCount > 1) {// If available path count is 1 or 0 just leave the known default threshold
+											// of ALARM on 0
+
+			monitor.addMetadata(AVAILABLE_PATH_WARNING, Double.toString(availablePathCount - 1));
+
+		}
+
+		// If the number of available paths is higher than the highest number of paths we've found so far, set its new value.
+		// Take new paths into account here and make sure that if error occurs on multiple paths at the same time
+		// when they are plugged back in we don't change the thresholds.
+		updateMaxAvailablePaths(monitor, availablePathCount, maxAvailablePathCount);
+
+	}
+
+	/**
+	 * Update the maximum number of available paths
+	 * 
+	 * @param monitor               The monitor we want to update its maximum
+	 *                              available paths parameter
+	 * @param availablePathCount    The current available paths value
+	 * @param maxAvailablePathCount The current maximum available paths value
+	 */
+	void updateMaxAvailablePaths(final Monitor monitor, final Double availablePathCount,
+			Double maxAvailablePathCount) {
+
+		if (maxAvailablePathCount == null || availablePathCount > maxAvailablePathCount) {
+
+			log.info("Number of paths increased to {} for LUN instance [id: {}, name: {}] on host {}",
+					availablePathCount, monitor.getId(), monitor.getName(), monitorCollectInfo.getHostname());
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					MAX_AVAILABLE_PATH_COUNT_PARAMETER,
+					EMPTY,
+					monitorCollectInfo.getCollectTime(),
+					availablePathCount,
+					availablePathCount
+			);
+
+		}
 	}
 }
