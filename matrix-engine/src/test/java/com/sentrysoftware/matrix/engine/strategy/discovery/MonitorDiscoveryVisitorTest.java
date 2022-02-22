@@ -464,6 +464,8 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ERROR_PERCENT_ALARM_THRESHOLD, "30");
+		metadata.put(ERROR_PERCENT_WARNING_THRESHOLD, "20");
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
