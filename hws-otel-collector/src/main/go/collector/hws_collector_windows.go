@@ -72,17 +72,12 @@ func (s *WindowsService) Execute(args []string, requests <-chan svc.ChangeReques
 
 func (s *WindowsService) start(colErrorChannel chan error) error {
 
-	// Call flags which prepares a new flagSet including the default configuration
-	flagSet, err := flags()
-	if err != nil {
-		return err
-	}
-
 	// Parse all the flags manually.
-	if err := flagSet.Parse(os.Args[1:]); err != nil {
+	if err := flags().Parse(os.Args[1:]); err != nil {
 		return err
 	}
 
+	var err error
 	s.col, err = newColWithLogCore(s.settings)
 	if err != nil {
 		return err
@@ -129,7 +124,7 @@ func openEventLog(serviceName string) (*eventlog.Log, error) {
 
 func newColWithLogCore(set service.CollectorSettings) (*service.Collector, error) {
 	if set.ConfigProvider == nil {
-		set.ConfigProvider = service.NewDefaultConfigProvider(getConfigFlag(), getSetFlag())
+		set.ConfigProvider = service.MustNewDefaultConfigProvider(getConfigFlag(), getSetFlag())
 	}
 
 	cfg, err := set.ConfigProvider.Get(context.Background(), set.Factories)

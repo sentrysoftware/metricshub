@@ -23,7 +23,7 @@
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
-		<otelVersion>0.42.0</otelVersion>
+		<otelVersion>0.45.0</otelVersion>
 
 		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
 		<commitId>${buildNumber}</commitId>
