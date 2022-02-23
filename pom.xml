@@ -21,7 +21,7 @@
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>https://sentrysoftware.atlassian.net/jira/software/c/projects/HWS</url>
+		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/MAT</url>
 	</issueManagement>
 
 	<properties>

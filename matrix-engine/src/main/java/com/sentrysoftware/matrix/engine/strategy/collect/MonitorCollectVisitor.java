@@ -1926,9 +1926,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Do this if the number of current paths increases too.
 		if (((availablePathWarning == null)
 				|| (maxAvailablePathCount != null && availablePathCount > maxAvailablePathCount))
-				&& availablePathCount > 1) {// If available path count is 1 or 0 just leave the known default threshold
-											// of ALARM on 0
+				&& availablePathCount > 1) {
 
+			// If the available path count is 1 or 0, this code is never reached as 0 is the ALARM threshold
+			// when the LUN cannot be accessed anymore.
 			monitor.addMetadata(AVAILABLE_PATH_WARNING, Double.toString(availablePathCount - 1));
 
 		}
