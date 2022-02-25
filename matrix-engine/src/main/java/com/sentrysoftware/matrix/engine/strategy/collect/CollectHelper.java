@@ -612,7 +612,7 @@ public class CollectHelper {
 	 * @param percent The percentage value to check
 	 * @return boolean value, <code>true</code> if the percentage is valid otherwise <code>false</code>
 	 */
-	static boolean isValidPercentage(final Double percent) {
+	public static boolean isValidPercentage(final Double percent) {
 		return percent != null
 				&& percent >= 0
 				&& percent <= 100;

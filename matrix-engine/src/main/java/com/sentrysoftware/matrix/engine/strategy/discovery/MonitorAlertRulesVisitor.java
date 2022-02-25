@@ -658,7 +658,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 		if (availablePathWarning != null && availablePathWarning > 0) {
 			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-					.gte(availablePathWarning)
+					.lte(availablePathWarning)
 					.build();
 
 			final AlertRule warnAlertRule = new AlertRule(Lun::checkLowerAvailablePathCountCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);

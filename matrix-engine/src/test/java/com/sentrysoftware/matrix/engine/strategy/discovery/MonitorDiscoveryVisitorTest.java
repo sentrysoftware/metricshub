@@ -1,18 +1,22 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
-import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
@@ -22,6 +26,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.Lun;
@@ -33,6 +38,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
@@ -458,6 +464,8 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(TARGET_FQDN, null);
+		metadata.put(ERROR_PERCENT_ALARM_THRESHOLD, "30");
+		metadata.put(ERROR_PERCENT_WARNING_THRESHOLD, "20");
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
@@ -852,5 +860,111 @@ class MonitorDiscoveryVisitorTest {
 
 		assertDoesNotThrow(() ->
 			new MonitorDiscoveryVisitor(createBuildingInfo(new HostMonitoring(), MonitorType.GPU)).visit(new Gpu()));
+	}
+
+	@Test
+	void testSetExpectedPathCount() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LUN);
+
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new Lun());
+
+			final Monitor lun = hostMonitoring
+					.selectFromType(MonitorType.LUN)
+					.entrySet()
+					.stream()
+					.map(Entry::getValue)
+					.findFirst()
+					.orElse(null);
+
+			assertNotNull(lun);
+			assertNull(lun.getMetadata(EXPECTED_PATH_COUNT));
+		}
+
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.LUN);
+
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new Lun());
+			buildingInfo.getMonitor().addMetadata(AVAILABLE_PATH_WARNING, "5");
+
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new Lun());
+
+			final Monitor lun = hostMonitoring
+					.selectFromType(MonitorType.LUN)
+					.entrySet()
+					.stream()
+					.map(Entry::getValue)
+					.findFirst()
+					.orElse(null);
+
+			assertNotNull(lun);
+			assertEquals(6, Double.parseDouble(lun.getMetadata(EXPECTED_PATH_COUNT)));
+		}
+
+	}
+
+	@Test
+	void testNormalizeErrorPercentThresholds() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.NETWORK_CARD);
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "-1");
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "50");
+
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new NetworkCard());
+
+			final Monitor networkCard = hostMonitoring
+					.selectFromType(MonitorType.NETWORK_CARD)
+					.entrySet()
+					.stream()
+					.map(Entry::getValue)
+					.findFirst()
+					.orElse(null);
+
+			assertNotNull(networkCard);
+			assertEquals(20, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD)));
+			assertEquals(30, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD)));
+		}
+
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.NETWORK_CARD);
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "30");
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "-2");
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new NetworkCard());
+
+			final Monitor networkCard = hostMonitoring
+					.selectFromType(MonitorType.NETWORK_CARD)
+					.entrySet()
+					.stream()
+					.map(Entry::getValue)
+					.findFirst()
+					.orElse(null);
+
+			assertNotNull(networkCard);
+			assertEquals(20, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD)));
+			assertEquals(30, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD)));
+		}
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final MonitorBuildingInfo buildingInfo = createBuildingInfo(hostMonitoring, MonitorType.NETWORK_CARD);
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "10");
+			buildingInfo.getMonitor().addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "20");
+			new MonitorDiscoveryVisitor(buildingInfo).visit(new NetworkCard());
+
+			final Monitor networkCard = hostMonitoring
+					.selectFromType(MonitorType.NETWORK_CARD)
+					.entrySet()
+					.stream()
+					.map(Entry::getValue)
+					.findFirst()
+					.orElse(null);
+
+			assertNotNull(networkCard);
+			assertEquals(10, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD)));
+			assertEquals(20, Double.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD)));
+		}
 	}
 }
