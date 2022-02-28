@@ -4,54 +4,53 @@ import (
 	"flag"
 	"strings"
 
-	"go.opentelemetry.io/collector/config/configtelemetry"
 	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 var (
-	// default
-	defaultConfig = ""
-
 	// Command-line flag that control the configuration file.
-	configFlag = &defaultConfig
-	setFlag    = new(valueCollection)
+	configFlag = new(stringArrayValue)
+	setFlag    = new(stringArrayValue)
 )
 
-type valueCollection struct {
+type stringArrayValue struct {
 	values []string
 }
 
-func (v *valueCollection) Set(val string) error {
-	v.values = append(v.values, val)
+func (s *stringArrayValue) Set(val string) error {
+	s.values = append(s.values, val)
 	return nil
 }
 
-func (v *valueCollection) String() string {
-	return "[" + strings.Join(v.values, ",") + "]"
+func (s *stringArrayValue) String() string {
+	return "[" + strings.Join(s.values, ", ") + "]"
 }
 
-func flags() (*flag.FlagSet, error) {
+func flags() *flag.FlagSet {
 	flagSet := new(flag.FlagSet)
-	configtelemetry.Flags(flagSet)
 	featuregate.Flags(flagSet)
 
-	defaultConfig, err := getDefaultConfigFile()
-	if err != nil {
-		return nil, err
-	}
-
-	configFlag = flagSet.String("config", defaultConfig, "Path to the config file")
+	flagSet.Var(configFlag, "config", "Locations to the config file(s), note that only a"+
+		" single location can be set per flag entry e.g. `-config=file:/path/to/first --config=file:path/to/second`.")
 
 	flagSet.Var(setFlag, "set",
 		"Set arbitrary component config property. The component has to be defined in the config file and the flag"+
 			" has a higher precedence. Array config properties are overridden and maps are joined, note that only a single"+
 			" (first) array property can be set e.g. -set=processors.attributes.actions.key=some_key. Example --set=processors.batch.timeout=2s")
 
-	return flagSet, nil
+	return flagSet
 }
 
-func getConfigFlag() string {
-	return *configFlag
+func getConfigFlag() []string {
+	if len(configFlag.values) > 0 {
+		return configFlag.values
+	}
+
+	defaultConfig, err := getDefaultConfigFile()
+	if err != nil {
+		panic(err)
+	}
+	return []string{defaultConfig}
 }
 
 func getSetFlag() []string {

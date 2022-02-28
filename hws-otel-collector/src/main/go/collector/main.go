@@ -41,12 +41,8 @@ func main() {
 }
 
 func runInteractive(params service.CollectorSettings) error {
-	cmd, err := NewCommand(params)
-	if err != nil {
-		log.Fatalf("cannot build the collector server command: %v", err)
-	}
 
-	if err := cmd.Execute(); err != nil {
+	if err := NewCommand(params).Execute(); err != nil {
 		log.Fatalf("collector server run finished with error: %v", err)
 	}
 

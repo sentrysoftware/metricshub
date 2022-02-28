@@ -8,7 +8,7 @@ import (
 )
 
 // NewCommand constructs a new cobra.Command using the given Collector.
-func NewCommand(set service.CollectorSettings) (*cobra.Command, error) {
+func NewCommand(set service.CollectorSettings) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:          set.BuildInfo.Command,
 		Version:      set.BuildInfo.Version,
@@ -16,7 +16,7 @@ func NewCommand(set service.CollectorSettings) (*cobra.Command, error) {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			featuregate.Apply(featuregate.GetFlags())
 			if set.ConfigProvider == nil {
-				set.ConfigProvider = service.NewDefaultConfigProvider(getConfigFlag(), getSetFlag())
+				set.ConfigProvider = service.MustNewDefaultConfigProvider(getConfigFlag(), getSetFlag())
 			}
 			col, err := service.New(set)
 			if err != nil {
@@ -26,13 +26,7 @@ func NewCommand(set service.CollectorSettings) (*cobra.Command, error) {
 		},
 	}
 
-	// Build a new flagSet including the default configuration
-	flagSet, err := flags()
-	if err != nil {
-		return nil, err
-	}
+	rootCmd.Flags().AddGoFlagSet(flags())
 
-	rootCmd.Flags().AddGoFlagSet(flagSet)
-
-	return rootCmd, nil
+	return rootCmd
 }
