@@ -50,14 +50,10 @@
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
 		</dependency>
-		<!-- Swagger -->
+		<!-- OpenAPI -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
 		</dependency>
 		<!-- Jackson -->
 		<dependency>
