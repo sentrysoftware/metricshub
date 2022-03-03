@@ -5,6 +5,8 @@ description: How to import and configure Hardware Sentry's Sustainable IT Dashbo
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
+<div class="alert alert-danger"><i class="icon-remove-sign"></i><strong>Warning: </strong>The current version of the Grafana dashboards has been designed and tested with Grafana v8.3.6. Note that previous versions of Grafana are not compatible with the built-in dashboards.</div>
+
 [Grafana](https://grafana.com/) can easily display the metrics collected by **${project.name}** and stored in a Prometheus Server. Sentry Software provides pre-built **Sustainable IT** dashboards that leverage these metrics to report on the health of the hardware of the monitored systems, and on the carbon emissions of these systems:
 
 ![**${project.name}** Sustainable IT Dashboard](../images/grafana-sustainable-it.png)
@@ -19,7 +21,7 @@ Before you can start configuring and using **${project.name}** dashboards, you m
 
 ## Loading Dashboards in Grafana
 
-First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00). The package contains:
+First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html). The package contains:
 
 ![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
 
