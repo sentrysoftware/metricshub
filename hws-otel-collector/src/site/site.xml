@@ -19,7 +19,8 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html"/>
-			<!-- <item name="Release Notes" href="release-notes.html" /> -->
+			<item name="Release Notes" href="release-notes.html" />
+			<item name="Supported Platforms" href="platform-requirements.html " />
 			<item name="Installation" href="install.html"/>
 		</menu>
 
@@ -44,8 +45,7 @@
 
 		<menu name="Appendix">
 			<item name="Metrics" href="metrics.html"/>
-			<item name="Platforms Prerequisites" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html" target="_blank"/>
-			<item name="Hardware Connector Library Reference Guide" href="https://www.sentrysoftware.com/docs/hardware-connectors/latest/hdf-reference.html" target="_blank" />
+			<item name="Hardware Connector Library" href="hdf-reference.html" />
 			<item name="About" href="about.html" />
 		</menu>
 	</body>
