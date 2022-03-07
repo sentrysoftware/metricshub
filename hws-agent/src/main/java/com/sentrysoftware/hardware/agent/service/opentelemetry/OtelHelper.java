@@ -158,8 +158,7 @@ public class OtelHelper {
 				.put(RESOURCE_HOST_NAME_PROP, hostname)
 				.put("host.type", hostType)
 				.put("os.type", osType)
-				.put("agent.host.name", AGENT_HOSTNAME)
-				.put("fqdn", fqdn);
+				.put("agent.host.name", AGENT_HOSTNAME);
 
 		// Global extra attributes? Ok let's override them here
 		globalExtraLabels

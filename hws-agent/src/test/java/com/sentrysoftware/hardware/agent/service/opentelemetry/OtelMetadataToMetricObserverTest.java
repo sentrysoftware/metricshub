@@ -90,7 +90,7 @@ class OtelMetadataToMetricObserverTest {
 		final Attributes actual = dataPoint.getAttributes();
 		assertEquals("id_cpu", actual.get(AttributeKey.stringKey("id")));
 		assertEquals("cpu 1", actual.get(AttributeKey.stringKey("label")));
-		assertEquals("host.my.domain.net", actual.get(AttributeKey.stringKey("fqdn")));
+		assertNull(actual.get(AttributeKey.stringKey("fqdn")));
 		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
 		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
 		assertTrue(actual.get(AttributeKey.stringKey("device_id")).isEmpty());

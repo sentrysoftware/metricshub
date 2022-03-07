@@ -4,7 +4,6 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMap
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.LABEL;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.PARENT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 
 import java.util.Collection;
 import java.util.Map;
@@ -30,7 +29,6 @@ public abstract class AbstractOtelObserver {
 	protected final MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
 	protected static final Map<String, Function<Monitor, String>> ATTRIBUTE_FUNCTIONS = Map.of(
-			FQDN, Monitor::getFqdn,
 			ID, Monitor::getId,
 			LABEL, Monitor::getName,
 			PARENT, mo -> getValueOrElse(mo.getParentId(), EMPTY)
