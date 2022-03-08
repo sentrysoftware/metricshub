@@ -127,6 +127,7 @@ class DiscoveryOperationTest {
 	private DiscoveryOperation discoveryOperation;
 
 	private static EngineConfiguration engineConfiguration;
+	private static EngineConfiguration engineConfigurationSerial;
 
 	private static Connector connector;
 
@@ -134,10 +135,19 @@ class DiscoveryOperationTest {
 	public static void setUp() {
 		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
 				.timeout(120L).build();
-		engineConfiguration = EngineConfiguration.builder()
+		engineConfiguration = EngineConfiguration
+				.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.build();
 
+		engineConfigurationSerial = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.sequential(true)
+				.build();
+	
 		connector = Connector.builder().compiledFilename(MY_CONNECTOR_1_NAME).build();
 	}
 
@@ -1116,5 +1126,99 @@ class DiscoveryOperationTest {
 		assertEquals("true", cpuSensorMetadata);
 		String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
 		assertEquals("75.0", averageCpuTemperatureWarningMetadata);
+	}
+
+	@Test
+	void testDiscoverMultiJobsSerial() throws Exception {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor targetMonitor = Monitor
+				.builder()
+				.id(ECS1_01)
+				.parentId(null)
+				.targetId(ECS1_01)
+				.name(ECS1_01)
+				.monitorType(MonitorType.TARGET)
+				.build();
+		final HardwareMonitor enclosureMonitor = buildHardwareEnclosureMonitor();
+		final HardwareMonitor fanMonitor = buildHardwareFanMonitor();
+
+		final Connector connector = Connector
+				.builder()
+				.compiledFilename(MY_CONNECTOR_1_NAME)
+				.hardwareMonitors(Arrays.asList(enclosureMonitor, fanMonitor, null))
+				.build();
+
+		final List<List<String>> enclosureData = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
+		final List<List<String>> fanData = Collections.singletonList(Arrays.asList(ID, FAN_1, SPEED_VALUE));
+
+		hostMonitoring.addMonitor(targetMonitor);
+
+		doReturn(engineConfigurationSerial).when(strategyConfig).getEngineConfiguration();
+
+		doReturn(enclosureData).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());
+
+		doReturn(fanData).when(matsyaClientsExecutor)
+				.executeSNMPTable(eq(OID_FAN), any(), any(), any(), anyBoolean());
+
+		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		enclosureMetadata.put(DEVICE_ID, ID);
+		enclosureMetadata.put(DISPLAY_ID, POWER_EDGE_54DSF);
+		enclosureMetadata.put(VENDOR, DELL);
+		enclosureMetadata.put(MODEL, MODEL_VALUE);
+		enclosureMetadata.put(ID_COUNT, ID_COUNT_0);
+		enclosureMetadata.put(TYPE, COMPUTER);
+		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
+		enclosureMetadata.put(TARGET_FQDN, null);
+		enclosureMetadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
+		enclosureMetadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
+
+		final Monitor expectedEnclosure = Monitor.builder()
+				.id(ENCLOSURE_ID)
+				.name(ENCLOSURE_NAME)
+				.parentId(ECS1_01)
+				.targetId(ECS1_01)
+				.metadata(enclosureMetadata)
+				.monitorType(MonitorType.ENCLOSURE)
+				.extendedType(COMPUTER)
+				.alertRules(MonitorType.ENCLOSURE.getMetaMonitor().getStaticAlertRules())
+				.parameters(Map.of("Present", DiscreteParam.present()))
+				.discoveryTime(strategyTime)
+				.build();
+
+		final Map<String, String> fanMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		fanMetadata.put(DEVICE_ID, ID);
+		fanMetadata.put(DISPLAY_ID, FAN_1);
+		fanMetadata.put(SPEED, SPEED_VALUE);
+		fanMetadata.put(ID_COUNT, ID_COUNT_0);
+		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
+		fanMetadata.put(TARGET_FQDN, null);
+		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
+
+		final Monitor expectedFan = Monitor.builder()
+				.id(FAN_ID)
+				.name(FAN_NAME)
+				.parentId(ENCLOSURE_ID)
+				.targetId(ECS1_01)
+				.metadata(fanMetadata)
+				.monitorType(MonitorType.FAN)
+				.extendedType(MonitorType.FAN.getNameInConnector())
+				.parameters(Map.of(PRESENT_PARAMETER, DiscreteParam.present()))
+				.alertRules(MonitorType.FAN.getMetaMonitor().getStaticAlertRules())
+				.discoveryTime(strategyTime)
+				.build();
+
+		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
+
+		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
+
+		assertEquals(expectedEnclosure, enclosures.values().stream().findFirst().get());
+
+		final Map<String, Monitor> fans = hostMonitoring.selectFromType(MonitorType.FAN);
+
+		assertEquals(expectedFan, fans.values().stream().findFirst().get());
 	}
 }

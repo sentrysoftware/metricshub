@@ -203,3 +203,13 @@ This list displays the internal name (**id**) of each connector, its applicable 
 ### Exclude Connectors
 
 To exclude specific connectors from being tested in the detection phase, use the `--exclude CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list connectors' internal name (**id**).
+
+## Force Sequential Mode
+
+By default, the *Hardware Sentry Engine* sends the queries simultaneously to the target host. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host.
+
+Use the `--sequential` option to force all the requests to be executed in a sequential order, thus the monitored target is not overloaded.
+
+```batch
+$ hws SERVER01 -t linux --snmp 1 --community COMM02 --sequential
+```

@@ -448,3 +448,35 @@ targets:
     host.name: host01.internal.domain.net
     app: Jenkins
 ```
+
+### Force Sequential Mode
+
+By default, **${project.name}** sends the queries to the target host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
+
+To force all the network calls to be executed in sequential order:
+
+* for all your targets, enable the `sequential` option just before the `targets` section:
+
+    ```yaml
+    sequential: true
+
+    targets: # ...
+    ```
+
+* for a specific target, enable the `sequential` option in the relevant `target` section:
+
+    ```yaml
+    targets:
+
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      sequential: true # Customized
+    ```
+
+<div class="alert alert-warning"><i class="icon-hand-up"></i>Remember that running the collects using the sequential mode will slow down the monitoring, you may need to increase the maximum number of allowed concurrent requests in the monitored target.</div>
