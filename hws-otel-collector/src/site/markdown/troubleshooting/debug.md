@@ -107,7 +107,7 @@ processors:
       include:
         match_type: expr
         expressions:
-        - Label("fqdn") == "my-server.big-corp.com"
+        - Label("host.name") == "my-server.big-corp.com"
 ```
 
 Declare the `filter/keep1HostOnly` processor in the pipeline and restart the *Collector*:
