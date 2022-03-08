@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 class MetricsMappingTest {
-
 
 	@Test
 	void testGetAttributesMap() {
@@ -36,6 +36,9 @@ class MetricsMappingTest {
 				.get(ServiceHelper.camelCaseToSnakeCase(POWER_SUPPLY_POWER)));
 		assertNull(MetricsMapping.getAttributesMap(MonitorType.LUN)
 				.get(ServiceHelper.camelCaseToSnakeCase(EXPECTED_PATH_COUNT)));
+
+		assertEquals(HardwareConstants.HOSTNAME, MetricsMapping.getAttributesMap(MonitorType.VM)
+				.get(MetricsMapping.VM_HOST_NAME));
 	}
 
 	@Test

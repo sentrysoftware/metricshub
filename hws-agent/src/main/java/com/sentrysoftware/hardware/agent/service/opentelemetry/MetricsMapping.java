@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
@@ -83,8 +84,11 @@ public class MetricsMapping {
 	private static final String RPM = "rpm";
 	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors";
 	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors";
+	static final String VM_HOST_NAME = "vm.host.name";
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, LABEL, PARENT);
+
+	private static final Map<MonitorType, Map<String, String>> monitorTypeToOverriddenAttributeMap;
 
 	private static final Map<MonitorType, Map<String, String>> monitorTypeToAttributeMap;
 
@@ -101,6 +105,12 @@ public class MetricsMapping {
 			.build();
 
 	static {
+
+		final Map<MonitorType, Map<String, String>> overriddenAttributeNames = new EnumMap<>(MonitorType.class);
+
+		overriddenAttributeNames.put(MonitorType.VM, Map.of(HOSTNAME, VM_HOST_NAME));
+
+		monitorTypeToOverriddenAttributeMap = Collections.unmodifiableMap(overriddenAttributeNames);
 
 		final Map<MonitorType, Map<String, MetricInfo>> matrixParamToMetric = new EnumMap<>(MonitorType.class);
 
@@ -1588,7 +1598,9 @@ public class MetricsMapping {
 			.filter(matrixMetadata -> !isMetadataMappedAsMetric(monitorType, matrixMetadata))
 			.sorted()
 			.collect(Collectors.toMap(
-						ServiceHelper::camelCaseToSnakeCase,
+						metadataKey -> monitorTypeToOverriddenAttributeMap
+											.getOrDefault(monitorType, Collections.emptyMap())
+											.getOrDefault(metadataKey, ServiceHelper.camelCaseToSnakeCase(metadataKey)),
 						Function.identity(),
 						(k1, k2) -> k2
 					)
