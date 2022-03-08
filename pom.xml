@@ -441,7 +441,7 @@
 						</goals>
 						<configuration>
 							<versionString>${hardware-connectors.version}</versionString>
-							<formattedPropertyPrefix>parsedHcVersion</formattedPropertyPrefix>
+							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 					<!-- Same as above, but when run with simple `mvn site` -->
