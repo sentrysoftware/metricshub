@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
@@ -21,7 +21,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -85,7 +84,7 @@ public class MetricsMapping {
 	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors";
 	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors";
 
-	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(FQDN, ID, LABEL, PARENT);
+	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, LABEL, PARENT);
 
 	private static final Map<MonitorType, Map<String, String>> monitorTypeToAttributeMap;
 

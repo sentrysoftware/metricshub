@@ -54,7 +54,7 @@ processors:
       include:
         match_type: expr
         expressions:
-        - Label("fqdn") == "my-server.big-corp.com"
+        - Label("host.name") == "my-server.big-corp.com"
 
   # batch
   # Processes and sends data in batch of 10s. See:

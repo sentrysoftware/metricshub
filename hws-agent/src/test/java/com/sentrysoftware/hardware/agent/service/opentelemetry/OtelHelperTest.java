@@ -63,7 +63,6 @@ class OtelHelperTest {
 					.put("host.name", "host")
 					.put("host.type", OtelHelper.HOST_TYPE_COMPUTE)
 					.put("os.type", "linux")
-					.put("fqdn", "host.my.domain.net")
 					.put("agent.host.name", OtelHelper.AGENT_HOSTNAME)
 					.build());
 
@@ -78,7 +77,6 @@ class OtelHelperTest {
 					.put("host.name", "host.my.domain.net")
 					.put("host.type", OtelHelper.HOST_TYPE_COMPUTE)
 					.put("os.type", "linux")
-					.put("fqdn", "host.my.domain.net")
 					.put("agent.host.name", OtelHelper.AGENT_HOSTNAME)
 					.build());
 
@@ -93,7 +91,6 @@ class OtelHelperTest {
 					.put("host.name", "host.my.domain")
 					.put("host.type", OtelHelper.HOST_TYPE_COMPUTE)
 					.put("os.type", "linux")
-					.put("fqdn", "host.my.domain.net")
 					.put("agent.host.name", OtelHelper.AGENT_HOSTNAME)
 					.build());
 
@@ -104,7 +101,7 @@ class OtelHelperTest {
 			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", true,
 					Map.of(
 							"host.name", "host.my.domain",
-							"fqdn", "host-01.my.domain.com"
+							"fqdn", "host-01.my.domain.com" // The user added a new extra label: fqdn.
 					),
 					emptyMap);
 			final Resource expected = Resource.create(Attributes.builder()
@@ -130,7 +127,6 @@ class OtelHelperTest {
 					.put("host.name", "host.my.domain.net")
 					.put("host.type", OtelHelper.HOST_TYPE_COMPUTE)
 					.put("os.type", "linux")
-					.put("fqdn", "host.my.domain.net")
 					.put("agent.host.name", "my.agent.host.name")
 					.build());
 
