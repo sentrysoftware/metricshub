@@ -371,9 +371,9 @@ public class DetectionOperation extends AbstractStrategy {
 		// The user may want to run queries sent to the target one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Running detection in serial mode. Hostname: {}", hostname);
+			log.info("Running detection in sequential mode. Hostname: {}", hostname);
 
-			// Run detection in serial mode
+			// Run detection in sequential mode
 			stream.forEach(
 					connector -> testedConnectors.add(runConnectorDetection(connector, hostname)));
 

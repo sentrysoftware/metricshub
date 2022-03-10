@@ -175,10 +175,10 @@ public class CollectOperation extends AbstractStrategy {
 					&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 					&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()));
 
-		// The user may want to run queries in serial mode
+		// The user may want to run queries in sequential mode
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Running collect in serial mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+			log.info("Running collect in sequential mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
 
 			hardwareMonitors.forEach(
 					hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));

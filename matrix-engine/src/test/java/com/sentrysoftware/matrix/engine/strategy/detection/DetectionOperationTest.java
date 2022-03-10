@@ -91,7 +91,7 @@ class DetectionOperationTest {
 	private DetectionOperation detectionOperation;
 
 	private static EngineConfiguration engineConfigurationAuto;
-	private static EngineConfiguration engineConfigurationAutoSerial;
+	private static EngineConfiguration engineConfigurationAutoSequential;
 	private static EngineConfiguration engineConfigurationSelection;
 	private static SNMPGetNext criterion1;
 	private static Connector connector1;
@@ -119,7 +119,7 @@ class DetectionOperationTest {
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.build();
 
-		engineConfigurationAutoSerial = EngineConfiguration
+		engineConfigurationAutoSequential = EngineConfiguration
 				.builder()
 				.target(HardwareTarget
 						.builder()
@@ -460,10 +460,10 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCallAutoDetectionSerial() throws Exception {
+	void testCallAutoDetectionSequential() throws Exception {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		doReturn(engineConfigurationAutoSerial).when(strategyConfig).getEngineConfiguration();
+		doReturn(engineConfigurationAutoSequential).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
 				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)

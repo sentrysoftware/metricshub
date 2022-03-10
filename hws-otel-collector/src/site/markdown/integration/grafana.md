@@ -5,7 +5,7 @@ description: How to import and configure Hardware Sentry's Sustainable IT Dashbo
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-<div class="alert alert-danger"><i class="icon-remove-sign"></i><strong>Warning: </strong>The current version of the Grafana dashboards has been designed and tested with Grafana v8.3.6. Note that previous versions of Grafana are not compatible with the built-in dashboards.</div>
+> **Warning**: The current version of the Grafana dashboards has been designed and tested with Grafana v8.3.6. Note that previous versions of Grafana are not compatible with the built-in dashboards.
 
 [Grafana](https://grafana.com/) can easily display the metrics collected by **${project.name}** and stored in a Prometheus Server. Sentry Software provides pre-built **Sustainable IT** dashboards that leverage these metrics to report on the health of the hardware of the monitored systems, and on the carbon emissions of these systems:
 

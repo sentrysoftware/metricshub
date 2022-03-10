@@ -125,7 +125,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
 		// The order is important so that each monitor can be attached to its parent correctly
-		// Start the discovery of the first order in serial mode
+		// Start the discovery of the first order in sequential mode
 		connector
 			.getHardwareMonitors()
 			.stream()
@@ -147,7 +147,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// The user may want to run queries sent to the target one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Running discovery in serial mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+			log.info("Running discovery in sequential mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
 
 			hardwareMonitors.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector,
 					hostMonitoring, targetMonitor, hostname));

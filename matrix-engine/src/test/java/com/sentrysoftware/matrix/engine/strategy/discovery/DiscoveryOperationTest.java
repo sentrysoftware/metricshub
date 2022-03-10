@@ -127,7 +127,7 @@ class DiscoveryOperationTest {
 	private DiscoveryOperation discoveryOperation;
 
 	private static EngineConfiguration engineConfiguration;
-	private static EngineConfiguration engineConfigurationSerial;
+	private static EngineConfiguration engineConfigurationSequential;
 
 	private static Connector connector;
 
@@ -141,7 +141,7 @@ class DiscoveryOperationTest {
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.build();
 
-		engineConfigurationSerial = EngineConfiguration
+		engineConfigurationSequential = EngineConfiguration
 				.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
@@ -1129,7 +1129,7 @@ class DiscoveryOperationTest {
 	}
 
 	@Test
-	void testDiscoverMultiJobsSerial() throws Exception {
+	void testDiscoverMultiJobsSequential() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		final Monitor targetMonitor = Monitor
@@ -1154,7 +1154,7 @@ class DiscoveryOperationTest {
 
 		hostMonitoring.addMonitor(targetMonitor);
 
-		doReturn(engineConfigurationSerial).when(strategyConfig).getEngineConfiguration();
+		doReturn(engineConfigurationSequential).when(strategyConfig).getEngineConfiguration();
 
 		doReturn(enclosureData).when(matsyaClientsExecutor)
 				.executeSNMPTable(eq(OID_ENCLOSURE), any(), any(), any(), anyBoolean());

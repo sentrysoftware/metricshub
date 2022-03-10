@@ -152,7 +152,7 @@ class CollectOperationTest {
 	private CollectOperation collectOperation;
 
 	private static EngineConfiguration engineConfiguration;
-	private static EngineConfiguration engineConfigurationSerial;
+	private static EngineConfiguration engineConfigurationSequential;
 
 	private static Connector connector;
 	private static SNMPGetNext criterion;
@@ -182,7 +182,7 @@ class CollectOperationTest {
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.build();
 
-		engineConfigurationSerial = EngineConfiguration
+		engineConfigurationSequential = EngineConfiguration
 				.builder()
 				.target(HardwareTarget
 						.builder()
@@ -2237,9 +2237,9 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testCollectSerial() throws Exception {
+	void testCollectSequential() throws Exception {
 
-		doReturn(engineConfigurationSerial).when(strategyConfig).getEngineConfiguration();
+		doReturn(engineConfigurationSequential).when(strategyConfig).getEngineConfiguration();
 
 		final Monitor connectorMonitor = buildConnectorMonitor();
 
