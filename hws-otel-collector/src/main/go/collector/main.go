@@ -18,9 +18,9 @@ func main() {
 		log.Println("starting Hardware Sentry OpenTelemetry Collector")
 		log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
 
-		err := rollAndRouteLogs()
+		err := rollLogsAtStartup()
 		if err != nil {
-			log.Println("failed to roll and route logs: %v", err)
+			log.Println("failed to roll logs: %v", err)
 		}
 	}
 
@@ -41,7 +41,6 @@ func main() {
 }
 
 func runInteractive(params service.CollectorSettings) error {
-
 	if err := NewCommand(params).Execute(); err != nil {
 		log.Fatalf("collector server run finished with error: %v", err)
 	}
@@ -49,8 +48,8 @@ func runInteractive(params service.CollectorSettings) error {
 	return nil
 }
 
-// Roll the log files and redirect the stdout and stderr to the /logs/otel.log file
-func rollAndRouteLogs() error {
+// Roll the log files
+func rollLogsAtStartup() error {
 
 	logsDir, err := getLogsDir()
 	if err != nil {
@@ -104,7 +103,6 @@ func rollAndRouteLogs() error {
 	}
 
 	logFile := buildLogPath(logsDir, 0)
-	redirectLogs(logFile)
 
 	log.Println("redirected output to: " + formatPath(logFile))
 
@@ -119,17 +117,6 @@ func buildLogPath(dir string, number int) string {
 	}
 
 	return dir + "/otel~" + strconv.Itoa(number) + ".log"
-
-}
-
-// redirect logs to logFile
-func redirectLogs(logFile string) {
-
-	// open file read/write | create if not exist | clear file at open if exists
-	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-
-	os.Stdout = f
-	os.Stderr = f
 
 }
 

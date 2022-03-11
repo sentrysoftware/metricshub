@@ -16,6 +16,10 @@ The **${project.name}** writes details about its operations (from initialization
 
 This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed-up as **otel~1.log**, **otel~2.log** and **otel~3.log** (**~1** being the most recent and **~3** the oldest).
 
+The **${project.name}** rotates the **otel.log** file when it reaches a maximum size of **100MB**. Old logs are rotated as `otel-timestamp.log` where `timestamp` is the time at which the log was rotated, example: `otel-2022-03-11T18-50-20.292.log`.
+
+The **${project.name}** is configured to retain **3** old log files (**otel-timestamp.log**) for **30 days**.
+
 The level of details in **logs/otel.log** is configured in **config/otel-config.yaml**. Set the log level to `error`, `warn`, `info` (default), or `debug` to get more details as in the below example:
 
 ```yaml
