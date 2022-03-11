@@ -5,7 +5,7 @@ project:
   name: "@project.name@"
   version: "@project.version@"
 buildNumber: "@buildNumber@"
-timestamp: "@timestamp@"
+buildDate: "@timestamp@"
 hcVersion: "@hardware-connectors.version@"
 spring:
   main:

@@ -29,8 +29,8 @@ public class AgentConfig {
 	@Value("${buildNumber}")
 	private String buildNumber;
 
-	@Value("${timestamp}")
-	private String timestamp;
+	@Value("${buildDate}")
+	private String buildDate;
 
 	@Value("${hcVersion}")
 	private String hcVersion;
@@ -53,7 +53,7 @@ public class AgentConfig {
 				"project_name", projectName,
 				"project_version", projectVersion,
 				"build_number", buildNumber,
-				"timestamp", timestamp,
+				"build_date", buildDate,
 				"hc_version", hcVersion
 		);
 	}
