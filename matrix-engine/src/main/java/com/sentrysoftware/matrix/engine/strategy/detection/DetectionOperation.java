@@ -11,13 +11,14 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -61,25 +62,11 @@ public class DetectionOperation extends AbstractStrategy {
 		final Monitor target = createTarget(isLocalhost);
 
 		// No selectedConnectors then perform auto detection
-		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 		final List<TestedConnector> testedConnectorList;
 		if (selectedConnectors.isEmpty()) {
-			testedConnectorList = performAutoDetection(isLocalhost, threadsPool);
+			testedConnectorList = performAutoDetection(isLocalhost);
 		} else {
-			testedConnectorList = processSelectedConnectors(selectedConnectors, threadsPool);
-		}
-
-		// Order the shutdown
-		threadsPool.shutdown();
-
-		try {
-			// Blocks until all tasks have completed execution after a shutdown request
-			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				Thread.currentThread().interrupt();
-			}
-			log.debug("Waiting for threads termination aborted with an error", e);
+			testedConnectorList = processSelectedConnectors(selectedConnectors);
 		}
 
 		// Create the connector instances
@@ -92,12 +79,10 @@ public class DetectionOperation extends AbstractStrategy {
 	 * Process the user's selected connectors.
 	 *
 	 * @param selectedConnectorKeys	The keys of the user's selected connectors.
-	 * @param threadsPool			The threads pool that will be used to execute the detections.
 	 *
 	 * @return						A {@link List} of {@link TestedConnector}, successful or not.
 	 */
-	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys,
-													ExecutorService threadsPool) {
+	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Process selected connectors for system {}: {}",
@@ -107,18 +92,17 @@ public class DetectionOperation extends AbstractStrategy {
 		final Stream<Connector> connectorStream = store.getConnectors().entrySet().stream()
 				.filter(entry -> selectedConnectorKeys.contains(entry.getKey())).map(Entry::getValue);
 
-		return detectConnectors(connectorStream, hostname, threadsPool).collect(Collectors.toList());
+		return detectConnectors(connectorStream, hostname).collect(Collectors.toList());
 	}
 
 	/**
 	 * Perform auto detection.
 	 *
 	 * @param isLocalhost				Whether the monitored system is local host or not.
-	 * @param threadsPool				The threads pool that will be used to execute the detections.
 	 *
 	 * @return							The {@link List} of successful {@link TestedConnector}s.
 	 */
-	List<TestedConnector> performAutoDetection(final boolean isLocalhost, ExecutorService threadsPool) {
+	List<TestedConnector> performAutoDetection(final boolean isLocalhost) {
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		log.debug("Start DETECTION for system {}", hostname);
@@ -153,7 +137,7 @@ public class DetectionOperation extends AbstractStrategy {
 		// Now detect the connectors, try to run the detection criteria for each
 		// connector and select only the connectors
 		// matching the succeeded criteria
-		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname, threadsPool);
+		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname);
 
 		// Only successful connectors for the auto detection
 		final List<TestedConnector> testedConnectorList = keepOnlySuccessConnectors(testedConnectors, hostname)
@@ -377,59 +361,71 @@ public class DetectionOperation extends AbstractStrategy {
 	 *
 	 * @param stream		The {@link Stream} of {@link Connector}s whose {@link Detection} will be tested.
 	 * @param hostname		The name of the host against with the {@link Detection}s will be tested.
-	 * @param threadsPool	The threads pool that will be used to execute the detections.
 	 *
 	 * @return				A {@link Stream} of {@link Connector} instances.
 	 */
-	Stream<TestedConnector> detectConnectors(final Stream<Connector> stream, final String hostname, ExecutorService threadsPool) {
+	Stream<TestedConnector> detectConnectors(final Stream<Connector> stream, final String hostname) {
 
-		return stream
-			.map(connector -> {
+		final List<TestedConnector> testedConnectors = new ArrayList<>();
 
-				log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
+		// The user may want to run queries sent to the target one by one instead of everything in parallel
+		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-				TestedConnector testedConnector;
-				try {
+			log.info("Running detection in sequential mode. Hostname: {}", hostname);
 
-					testedConnector = threadsPool.submit(() -> testConnector(connector, hostname)).get();
+			// Run detection in sequential mode
+			stream.forEach(
+					connector -> testedConnectors.add(runConnectorDetection(connector, hostname)));
 
-				} catch (InterruptedException e) {
+		} else {
 
-					log.warn("Connector {} detection has been interrupted", connector.getCompiledFilename());
-					log.debug("Interrupted Exception", e);
+			log.info("Running detection in parallel mode. Hostname: {}", hostname);
 
+			// Default mode is parallel.
+			// Make sure our list is thread-safe, in our case it is not required to manually synchronize this list as there is no traversal
+			// using stream or iterator in the threads.
+			final List<TestedConnector> testedConnectorsSynchronized = Collections.synchronizedList(testedConnectors);
+
+			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+
+			stream.forEach(connector -> threadsPool
+					.execute(() -> testedConnectorsSynchronized.add(runConnectorDetection(connector, hostname))));
+
+			// Order the shutdown
+			threadsPool.shutdown();
+
+			try {
+				// Blocks until all tasks have completed execution after a shutdown request
+				threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				if (e instanceof InterruptedException) {
 					Thread.currentThread().interrupt();
-
-					return TestedConnector
-						.builder()
-						.connector(connector)
-						.build();
-
-				} catch (ExecutionException e) {
-
-					Throwable cause = e.getCause();
-					if (cause == null) {
-						cause = e;
-					}
-					log.error(
-							"Connector {} detection failed: {}: {}",
-							connector.getCompiledFilename(),
-							cause.getClass().getSimpleName(),
-							cause.getMessage()
-					);
-					log.debug("Execution exception", cause);
-
-					return TestedConnector
-						.builder()
-						.connector(connector)
-						.build();
 				}
+				log.debug("Waiting for threads termination aborted with an error", e);
+			}
+		}
 
-				log.debug("End of Detection for Connector {}. Detection Status: {}", connector.getCompiledFilename(),
-					getTestedConnectorStatus(testedConnector));
+		return testedConnectors.stream();
+	}
 
-				return testedConnector;
-			});
+	/**
+	 * Run the detection using the criteria defined in the given connector.
+	 * 
+	 * @param connector The connector we wish to test
+	 * @param hostname  The hostname of the target device
+	 * 
+	 * @return {@link TestedConnector} instance which tells if the connector test succeeded or not.
+	 */
+	private TestedConnector runConnectorDetection(final Connector connector, final String hostname) {
+
+		log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
+
+		final TestedConnector testedConnector = testConnector(connector, hostname);
+
+		log.debug("End of Detection for Connector {}. Detection Status: {}", connector.getCompiledFilename(),
+				getTestedConnectorStatus(testedConnector));
+
+		return testedConnector;
 	}
 
 	/**

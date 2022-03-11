@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -124,7 +125,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
 		// The order is important so that each monitor can be attached to its parent correctly
-		// Start the discovery of the first order in serial mode
+		// Start the discovery of the first order in sequential mode
 		connector
 			.getHardwareMonitors()
 			.stream()
@@ -136,32 +137,49 @@ public class DiscoveryOperation extends AbstractStrategy {
 				targetMonitor, hostname));
 
 
-		// Now discover the rest of the monitors in parallel mode
-		// This might depend on a user configuration
-		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+		final Stream<HardwareMonitor> hardwareMonitors = connector
+				.getHardwareMonitors()
+				.stream()
+				.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+						&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
+						&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()));
 
-		connector
-		.getHardwareMonitors()
-		.stream()
-		.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
-				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
-				&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
-		.forEach(hardwareMonitor ->
-			threadsPool.execute(() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor,
-				hostname)));
+		// The user may want to run queries sent to the target one by one instead of everything in parallel
+		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-		// Order the shutdown
-		threadsPool.shutdown();
+			log.info("Running discovery in sequential mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
 
-		try {
-			// Blocks until all tasks have completed execution after a shutdown request
-			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				Thread.currentThread().interrupt();
+			hardwareMonitors.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector,
+					hostMonitoring, targetMonitor, hostname));
+
+		} else {
+
+			log.info("Running discovery in parallel mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+
+			// Now discover the rest of the monitors in parallel mode
+			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+
+			hardwareMonitors
+				.forEach(hardwareMonitor -> 
+					threadsPool.execute(
+							() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, hostname)
+					)
+			);
+
+			// Order the shutdown
+			threadsPool.shutdown();
+
+			try {
+				// Blocks until all tasks have completed execution after a shutdown request
+				threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				if (e instanceof InterruptedException) {
+					Thread.currentThread().interrupt();
+				}
+				log.debug("Waiting for threads termination aborted with an error", e);
 			}
-			log.debug("Waiting for threads termination aborted with an error", e);
 		}
+
 	}
 
 	/**

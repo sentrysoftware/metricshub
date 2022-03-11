@@ -152,6 +152,7 @@ class CollectOperationTest {
 	private CollectOperation collectOperation;
 
 	private static EngineConfiguration engineConfiguration;
+	private static EngineConfiguration engineConfigurationSequential;
 
 	private static Connector connector;
 	private static SNMPGetNext criterion;
@@ -179,6 +180,18 @@ class CollectOperationTest {
 						.type(TargetType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.build();
+
+		engineConfigurationSequential = EngineConfiguration
+				.builder()
+				.target(HardwareTarget
+						.builder()
+						.hostname(TEST_HOST_01)
+						.id(TEST_HOST_01)
+						.type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.sequential(true)
 				.build();
 
 		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();
@@ -374,8 +387,6 @@ class CollectOperationTest {
 
 		hostMonitoring.addMonitor(enclosure);
 		hostMonitoring.addMonitor(connectorMonitor);
-
-		//doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		final String snmpResult = CRITERION_OID + " ASN_OCT " + VERSION;
 
@@ -2222,6 +2233,44 @@ class CollectOperationTest {
 
 		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
 		assertNull(CollectHelper.getNumberParamValue(vm1Oneline, POWER_CONSUMPTION_PARAMETER));
+
+	}
+
+	@Test
+	void testCollectSequential() throws Exception {
+
+		doReturn(engineConfigurationSequential).when(strategyConfig).getEngineConfiguration();
+
+		final Monitor connectorMonitor = buildConnectorMonitor();
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor enclosure = buildEnclosure(metadata);
+
+		hostMonitoring.addMonitor(enclosure);
+		hostMonitoring.addMonitor(connectorMonitor);
+
+		final String snmpResult = CRITERION_OID + " ASN_OCT " + VERSION;
+
+		doReturn(snmpResult).when(matsyaClientsExecutor)
+			.executeSNMPGetNext(eq(CRITERION_OID), any(), any(), anyBoolean());
+
+		doReturn(table).when(matsyaClientsExecutor)
+			.executeSNMPTable(eq(OID1), any(), any(), any(), anyBoolean());
+
+		collectOperation.collect(connector, connectorMonitor, hostMonitoring, TEST_HOST_01);
+
+		final Monitor expectedEnclosure = buildExpectedEnclosure();
+		final Monitor actualEnclosure = getCollectedMonitor(hostMonitoring, MonitorType.ENCLOSURE, ENCLOSURE_ID);
+
+		assertEquals(expectedEnclosure, actualEnclosure);
+
+		final Monitor expectedConnector = buildExpectedConnectorMonitor(true, snmpResult,
+				SUCCESSFUL_SNMP_GET_NEXT_MESSAGE);
+		expectedConnector.getMonitorType().getMetaMonitor().accept(new MonitorAlertRulesVisitor(expectedConnector));
+
+		final Monitor actualConnector = getCollectedMonitor(hostMonitoring, MonitorType.CONNECTOR, CONNECTOR_NAME);
+
+		assertEquals(expectedConnector, actualConnector);
 
 	}
 }

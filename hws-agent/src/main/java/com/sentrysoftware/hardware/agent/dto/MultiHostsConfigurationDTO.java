@@ -65,6 +65,8 @@ public class MultiHostsConfigurationDTO {
 	@Default
 	private boolean resolveHostnameToFqdn = true;
 
+	private boolean sequential;
+
 	/**
 	 * Build a new empty instance
 	 * 

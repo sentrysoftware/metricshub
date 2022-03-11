@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
@@ -167,32 +168,51 @@ public class CollectOperation extends AbstractStrategy {
 					&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 			.forEach(hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
 
-		// Now collecting the rest of the monitors in parallel mode
-		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
-
-		connector
-			.getHardwareMonitors()
-			.stream()
-			.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
+		final Stream<HardwareMonitor> hardwareMonitors = connector
+				.getHardwareMonitors()
+				.stream()
+				.filter(hardwareMonitor -> Objects.nonNull(hardwareMonitor)
 					&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
-					&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
-			.forEach(hardwareMonitor ->
-				threadsPool.execute(() -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname)));
+					&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()));
 
-		// Order the shutdown
-		threadsPool.shutdown();
+		// The user may want to run queries in sequential mode
+		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-		try {
-			// Blocks until all tasks have completed execution after a shutdown request
-			threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
-		} catch (Exception e) {
+			log.info("Running collect in sequential mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
 
-			if (e instanceof InterruptedException) {
-				Thread.currentThread().interrupt();
+			hardwareMonitors.forEach(
+					hardwareMonitor -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname));
+
+		} else {
+
+			log.info("Running collect in parallel mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+
+			// Now collecting the rest of the monitors in parallel mode. (Default mode)
+			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
+
+			hardwareMonitors
+				.forEach(hardwareMonitor ->
+					threadsPool.execute(
+						() -> collectSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostname)
+				)
+			);
+
+			// Order the shutdown
+			threadsPool.shutdown();
+
+			try {
+				// Blocks until all tasks have completed execution after a shutdown request
+				threadsPool.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
+			} catch (Exception e) {
+
+				if (e instanceof InterruptedException) {
+					Thread.currentThread().interrupt();
+				}
+
+				log.debug("Waiting for threads termination aborted with an error", e);
 			}
-
-			log.debug("Waiting for threads termination aborted with an error", e);
 		}
+
 	}
 
 	/**

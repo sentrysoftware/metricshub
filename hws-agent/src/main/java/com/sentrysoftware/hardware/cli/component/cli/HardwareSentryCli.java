@@ -195,8 +195,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private boolean listConnectors;
 
 	@Option(
-			names = "-v",
+			names = { "-s", "--sequential" },
 			order = 8,
+			defaultValue = "false",
+			description = "Force all network calls to be executed in sequential order. (default: ${DEFAULT-VALUE})",
+			help = true
+	)
+	private boolean sequential;
+
+	@Option(
+			names = "-v",
+			order = 9,
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
@@ -237,6 +246,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 		if (excludedConnectors != null) {
 			engineConf.setExcludedConnectors(excludedConnectors);
 		}
+
+		// Sequential flag
+		engineConf.setSequential(sequential);
 
 		// Create a new HostMonitoring
 		IHostMonitoring hostMonitoring =

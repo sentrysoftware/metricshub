@@ -77,4 +77,6 @@ public class HostConfigurationDTO {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private Map<String, String> extraLabels = new HashMap<>();
+
+	private Boolean sequential;
 }

@@ -127,6 +127,7 @@ public class ConfigHelper {
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
 			.target(target.toHardwareTarget())
+			.sequential(Boolean.TRUE.equals(hostConfigurationDto.getSequential()))
 			.build();
 	}
 
@@ -208,6 +209,11 @@ public class ConfigHelper {
 				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
 				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
 
+				// Set global sequential flag in the target configuration if this target doesn't define the sequential flag
+				// It is more practical to set the flag only once when the requirement is that each target must run the network calls in serial mode
+				if (configDto.getSequential() == null) {
+					configDto.setSequential(multiHostsConfig.isSequential());
+				}
 			});
 
 			return multiHostsConfig;

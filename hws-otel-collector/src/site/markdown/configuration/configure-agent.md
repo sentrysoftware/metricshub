@@ -290,17 +290,6 @@ The above example configures the *OpenTelemetry Collector* to expose the carbon 
 
 ## Other Configuration Settings
 
-### Timeout, Duration and Period Format
-
-Timeouts, durations and periods are specified with the below format:
-
-| Unit | Description                     | Examples         |
-| ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s             |
-| m    | minutes                         | 90m, 1m15s       |
-| h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d               |
-
 ### Collect Period
 
 By default, **${project.name}** collects metrics from the monitored targets every minute. To change the default collect period:
@@ -331,53 +320,7 @@ By default, **${project.name}** collects metrics from the monitored targets ever
 
 There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape interval** to avoid gaps or duplicate points, which would affect rate calculations.
 
-<div class="alert alert-danger"><i class="icon-hand-up"></i>Collecting metrics too frequently can cause CPU-intensive workloads.</div>
-
-### Discovery Cycle
-
-**${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
-
-* for all your targets, add the `discoveryCycle` just before the `targets` section:
-
-    ```yaml
-    discoveryCycle: 15
-
-    targets: # ...
-    ```
-
-* for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
-
-    ```yaml
-    targets:
-
-    - target:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      discoveryCycle: 5 # Customized
-    ```
-
-and indicate the number of collects after which a discovery will be performed.
-
-<div class="alert alert-danger"><i class="icon-hand-up"></i>Running discoveries too frequently can cause CPU-intensive workloads.</div>
-
-### Job Pool Size
-
-By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
-
-```yaml
-jobPoolSize: 20
-
-targets: # ...
-```
-
-and indicate a number of jobs.
-
-<div class="alert alert-danger"><i class="icon-hand-up"></i>Running too many jobs in parallel can lead to an OutOfMemory error.</div>
+> **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
 
 ### Connectors
 
@@ -414,21 +357,39 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
-### Hostname Resolution
+### Discovery Cycle
 
-By default, **${project.name}** resolves the `hostname` of the target to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+**${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
 
-```yaml
-resolveHostnameToFqdn: false
+* for all your targets, add the `discoveryCycle` just before the `targets` section:
 
-targets:
+    ```yaml
+    discoveryCycle: 15
 
-- target:
-    hostname: host01
-    type: Linux
-```
+    targets: # ...
+    ```
 
-### extraLabels
+* for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
+
+    ```yaml
+    targets:
+
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      discoveryCycle: 5 # Customized
+    ```
+
+and indicate the number of collects after which a discovery will be performed.
+
+> **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
+
+### Extra Labels
 
 All labels specified under `extraLabels` for a specific host will be added as additional attributes to the corresponding [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). The attributes of a *Resource* typically end up added to each metric attached to that *Resource* when exported to time series platforms like Prometheus.
 
@@ -448,3 +409,74 @@ targets:
     host.name: host01.internal.domain.net
     app: Jenkins
 ```
+
+### Hostname Resolution
+
+By default, **${project.name}** resolves the `hostname` of the target to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+
+```yaml
+resolveHostnameToFqdn: false
+
+targets:
+
+- target:
+    hostname: host01
+    type: Linux
+```
+
+### Job Pool Size
+
+By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
+
+```yaml
+jobPoolSize: 20
+
+targets: # ...
+```
+
+and indicate a number of jobs.
+
+> **Warning**: Running too many jobs in parallel can lead to an OutOfMemory error.
+
+### Sequential Mode
+
+By default, **${project.name}** sends the queries to the target host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
+
+To force all the network calls to be executed in sequential order:
+
+* for all your targets, enable the `sequential` option just before the `targets` section (**NOT RECOMMENDED**):
+
+    ```yaml
+    sequential: true
+
+    targets: # ...
+    ```
+
+* for a specific target, enable the `sequential` option in the relevant `target` section:
+
+    ```yaml
+    targets:
+
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      sequential: true # Customized
+    ```
+
+> **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
+
+### Timeout, Duration and Period Format
+
+Timeouts, durations and periods are specified with the below format:
+
+| Unit | Description                     | Examples         |
+| ---- | ------------------------------- | ---------------- |
+| s    | seconds                         | 120s             |
+| m    | minutes                         | 90m, 1m15s       |
+| h    | hours                           | 1h, 1h30m        |
+| d    | days (based on a 24-hour day)   | 1d               |

@@ -71,6 +71,8 @@ public class EngineConfiguration {
 	@Default
 	private Set<String> excludedConnectors = new HashSet<>();
 
+	private boolean sequential;
+
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 * 

@@ -19,6 +19,7 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,6 +91,7 @@ class DetectionOperationTest {
 	private DetectionOperation detectionOperation;
 
 	private static EngineConfiguration engineConfigurationAuto;
+	private static EngineConfiguration engineConfigurationAutoSequential;
 	private static EngineConfiguration engineConfigurationSelection;
 	private static SNMPGetNext criterion1;
 	private static Connector connector1;
@@ -105,9 +108,28 @@ class DetectionOperationTest {
 	public static void setUp() {
 		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
 				.timeout(120L).build();
-		engineConfigurationAuto = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(TARGET_HOSTNAME).id(TARGET_HOSTNAME).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
+		engineConfigurationAuto = EngineConfiguration
+				.builder()
+				.target(HardwareTarget
+						.builder()
+						.hostname(TARGET_HOSTNAME)
+						.id(TARGET_HOSTNAME)
+						.type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.build();
+
+		engineConfigurationAutoSequential = EngineConfiguration
+				.builder()
+				.target(HardwareTarget
+						.builder()
+						.hostname(TARGET_HOSTNAME)
+						.id(TARGET_HOSTNAME)
+						.type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.sequential(true)
+				.build();
 
 		criterion1 = SNMPGetNext.builder().oid(OID1).build();
 		connector1 = Connector.builder()
@@ -251,7 +273,7 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testCreatetargetOnExistingtarget() throws UnknownHostException {
+	void testCreateTargetOnExistingTarget() throws UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString(), null);
 
@@ -436,4 +458,45 @@ class DetectionOperationTest {
 		Set<Connector> connectorsSetResult = connectorsStreamResult.collect(Collectors.toSet());
 		assertEquals(Set.of(connector1, connector2), connectorsSetResult);
 	}
+
+	@Test
+	void testCallAutoDetectionSequential() throws Exception {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		doReturn(engineConfigurationAutoSequential).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
+				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)
+						.getConnectors();
+
+		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
+			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(TARGET_HOSTNAME))).thenReturn(false);
+
+			doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
+
+			doReturn(SUCCESS_SNMP_RESULT2).when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID2), any(), any(), anyBoolean());
+
+			doReturn(EMPTY).when(matsyaClientsExecutor)
+					.executeSNMPGetNext(eq(OID5), any(), any(), anyBoolean());
+
+			detectionOperation.call();
+
+			final Monitor target = hostMonitoring.selectFromType(TARGET).get(TARGET_HOSTNAME);
+			assertEquals(TARGET_HOSTNAME, target.getName());
+			assertEquals(TARGET_HOSTNAME, target.getId());
+			assertEquals(TARGET_HOSTNAME, target.getTargetId());
+
+			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
+			assertEquals(1, connectors.size());  // connector 1 supersedes connector 2 that's why we've detected only one connector
+			Monitor connector = connectors.get(TARGET_HOSTNAME + "@" + CONNECTOR1_ID);
+			assertEquals(TARGET_HOSTNAME, connector.getParentId());
+			assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
+			assertEquals(CONNECTOR1_ID, connector.getName());
+			assertEquals(TARGET_HOSTNAME, connector.getTargetId());
+		}
+
+	}
+
 }
