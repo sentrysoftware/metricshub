@@ -3,6 +3,8 @@ description: The hws CLI is the core Hardware Sentry engine wrapped in a command
 
 # Hardware Sentry CLI (`hws`)
 
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
 ## Overview
 
 The `hws` CLI is the core *Hardware Sentry engine* wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.

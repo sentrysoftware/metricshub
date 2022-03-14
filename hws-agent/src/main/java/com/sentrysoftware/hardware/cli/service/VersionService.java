@@ -21,7 +21,7 @@ public class VersionService implements IVersionProvider {
 		final String projectName = props.get("project.name").toString();
 		final String projectVersion = props.get("project.version").toString();
 		final String buildNumber = props.get("buildNumber").toString();
-		final String timestamp = props.get("timestamp").toString();
+		final String buildDate = props.get("buildDate").toString();
 		final String hcVersion = props.get("hcVersion").toString();
 
 		return new String[] {
@@ -31,7 +31,7 @@ public class VersionService implements IVersionProvider {
 				"                                        @|faint Copyright (c) Sentry Software|@",
 				"",
 				String.format("@|bold %s|@ version @|bold,green %s|@", projectName, projectVersion),
-				String.format("@|faint - Build Number:|@ @|green %s (on %s)|@", buildNumber, timestamp),
+				String.format("@|faint - Build Number:|@ @|green %s (on %s)|@", buildNumber, buildDate),
 				String.format(
 						"- Hardware Connector Library version @|green,bold %s|@ @|green (%d connectors)|@",
 						hcVersion,
