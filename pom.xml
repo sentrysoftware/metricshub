@@ -21,7 +21,7 @@
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/MAT</url>
+		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/HWS</url>
 	</issueManagement>
 
 	<properties>
@@ -368,6 +368,11 @@
 					<version>3.0.0</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.11.0</version>
+				</plugin>
+				<plugin>
 					<groupId>com.googlecode.maven-download-plugin</groupId>
 					<artifactId>download-maven-plugin</artifactId>
 					<version>1.6.7</version>
@@ -376,6 +381,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<groupId>com.sentrysoftware.maven</groupId>
+					<artifactId>hdf-maven-plugin</artifactId>
+					<version>5.0-SNAPSHOT</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -389,7 +399,7 @@
 				<executions>
 
 					<!-- initialize -->
-					<!-- Create ${buildNumber} based on the build number -->
+					<!-- Create ${buildNumber} based on the last commit ID -->
 					<execution>
 						<phase>initialize</phase>
 						<goals>
@@ -423,24 +433,42 @@
 							<goal>parse-version</goal>
 						</goals>
 					</execution>
-
-					<!-- Set parsedVersion.noSnapshot -->
 					<execution>
-						<id>remove-snapshot</id>
+						<id>parse-hc-version</id>
 						<phase>initialize</phase>
 						<goals>
-							<goal>regex-property</goal>
+							<goal>parse-version</goal>
 						</goals>
 						<configuration>
-							<name>parsedVersion.noSnapshot</name>
-							<value>${project.version}</value>
-							<regex>^([0-9a-zA-Z.]+)(-SNAPSHOT)?$</regex>
-							<replacement>$1</replacement>
-							<failIfNoMatch>false</failIfNoMatch>
+							<versionString>${hardware-connectors.version}</versionString>
+							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
-
+					<!-- Same as above, but when run with simple `mvn site` -->
+					<execution>
+						<id>parse-version-for-site</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>parse-hc-version-for-site</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<versionString>${hardware-connectors.version}</versionString>
+							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
 				</executions>
+				<configuration>
+					<formatMajor>%d</formatMajor>
+					<formatMinor>%d</formatMinor>
+					<formatIncremental>%02d</formatIncremental>
+				</configuration>
 			</plugin>
 
 		</plugins>

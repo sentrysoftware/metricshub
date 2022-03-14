@@ -40,73 +40,9 @@
 		</dependency>
 	</dependencies>
 
-	<profiles>
-
-		<!-- The build is going to be platform-specific, so we need to set properties -->
-		<!-- based on the platform -->
-
-		<profile>
-			<id>windows-amd64</id>
-			<activation>
-				<os>
-					<family>windows</family>
-					<arch>amd64</arch>
-				</os>
-			</activation>
-			<properties>
-				<system.family>windows</system.family>
-				<system.arch>amd64</system.arch>
-				<system.exeExtension>.exe</system.exeExtension>
-				<chmod.skip>true</chmod.skip>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>linux-amd64</id>
-			<activation>
-				<os>
-					<name>Linux</name>
-					<arch>amd64</arch>
-				</os>
-			</activation>
-			<properties>
-				<system.family>linux</system.family>
-				<system.arch>amd64</system.arch>
-				<system.exeExtension></system.exeExtension>
-				<chmod.skip>false</chmod.skip>
-			</properties>
-		</profile>
-
-	</profiles>
-
 	<build>
 
 		<plugins>
-
-			<!-- enforcer -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-os</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireProperty>
-									<property>system.family</property>
-								</requireProperty>
-								<requireProperty>
-									<property>system.arch</property>
-								</requireProperty>
-							</rules>
-							<fail>true</fail>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 
 			<!-- resources -->
 			<plugin>
@@ -262,22 +198,6 @@
 						<artifactId>sentry-skin-velocity-tools</artifactId>
 						<version>${sentrySkinVersion}</version>
 					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-core</artifactId>
-						<version>1.10</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-module-xhtml</artifactId>
-						<version>1.10</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.10</version>
-					</dependency>
-
 				</dependencies>
 				<executions>
 					<!-- package -->
@@ -350,25 +270,43 @@
 				</reportSets>
 			</plugin>
 
-			<!-- about -->
-			<!-- (to generate about.html and release-notes.html -->
+			<!-- The Connector Reference -->
 			<plugin>
 				<groupId>com.sentrysoftware.maven</groupId>
-				<artifactId>about-maven-plugin</artifactId>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>about</report>
-						</reports>
-					</reportSet>
-				</reportSets>
+				<artifactId>hdf-maven-plugin</artifactId>
 				<configuration>
-					<jql><![CDATA[
-					project = MAT AND fixVersion > 0.9 AND fixVersion <= ${parsedVersion.noSnapshot} AND (component in (Prometheus, Core, Agent) OR component is EMPTY) AND issuetype in standardIssueTypes() ORDER BY priority DESC, created ASC
-				]]></jql>
+					<sourceDirectory>${project.basedir}/../matrix-connectors/target/dependency</sourceDirectory>
+					<terminology>otel</terminology>
 				</configuration>
 			</plugin>
 
+			<!-- about-maven-plugin -->
+			<!-- Force the JQL to include issues from MSHW and HC projects -->
+			<plugin>
+				<groupId>com.sentrysoftware.maven</groupId>
+				<artifactId>about-maven-plugin</artifactId>
+				<configuration>
+					<jql>
+<![CDATA[
+(
+	(
+		project = HWS
+		AND fixVersion > 0.9
+		AND fixVersion <= ${formattedVersion.majorVersion}.${formattedVersion.minorVersion}.${formattedVersion.incrementalVersion}
+	)
+	OR
+	(
+		project = HC
+		AND fixVersion > 25
+		AND fixVersion <= ${formattedHcVersion.majorVersion}
+	)
+)
+AND issuetype in standardIssueTypes()
+ORDER BY priority DESC, created ASC
+]]>
+					</jql>
+				</configuration>
+			</plugin>
 		</plugins>
 	</reporting>
 
