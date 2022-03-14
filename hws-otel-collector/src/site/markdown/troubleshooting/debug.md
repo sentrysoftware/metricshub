@@ -3,6 +3,8 @@ description: There are several options to debug ${project.name} and troubleshoot
 
 # Debugging
 
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
 As there are 2 separate processes in **${project.name}**, there are 2 separate debugging mechanisms. Depending on the issue you're experiencing, you may need to troubleshoot one or the other of these main components:
 
 1. **OpenTelemetry Collector**, which is in charge of launching the core engine (**Hardware Sentry Agent**), extracting its data and pushing them to the destination.

@@ -3,6 +3,8 @@ description: ${project.name} ships with pre-made alert rules for Prometheus Aler
 
 # Prometheus AlertManager
 
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
 When **${project.name}** is integrated with [Prometheus Server](prometheus.md), it is recommended to configure *Alert Rules* if you use [Prometheus AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
 ## Default Rules
