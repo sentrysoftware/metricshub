@@ -19,9 +19,9 @@
       extraLabels: 
         site: 'Datacenter 1'
       extraMetrics: 
-        hw_carbon_density_grams: 0.066
-        hw_electricity_cost_dollars: 0.02
-        hw_pue_ratio: 1.8
+        hw.site.carbon_density_grams: 0.066
+        hw.site.electricity_cost_dollars: 0.02
+        hw.site.pue_ratio: 1.8
 
       targets:
         - target:
