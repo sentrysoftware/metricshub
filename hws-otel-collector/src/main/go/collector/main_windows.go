@@ -6,7 +6,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"golang.org/x/sys/windows/svc"
 
@@ -49,8 +48,4 @@ func runService(params service.CollectorSettings) error {
 	}
 
 	return nil
-}
-
-func formatPath(path string) string {
-	return strings.ReplaceAll(path, "/", "\\")
 }

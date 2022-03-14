@@ -47,6 +47,7 @@ func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
 			MaxSize:    100,                   // The maximum size in megabytes of the log file before it gets rotated
 			MaxBackups: 3,                     // The maximum number of old log files to retain
 			MaxAge:     30,                    // The maximum number of days to retain old log files based on the timestamp encoded in their filename
+			LocalTime:  true,                  // Use the computer's local time instead of UTC time
 		})
 		return zapcore.NewCore(zapcore.NewConsoleEncoder(pe), w, logLevel)
 	}

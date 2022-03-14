@@ -13,7 +13,7 @@ func executablePath() (string, error) {
 	}
 
 	// Get the directory of currently running process
-	return formatPath(filepath.Dir(ex)), nil
+	return filepath.Dir(ex), nil
 }
 
 // Get the logs directory
@@ -24,7 +24,7 @@ func getLogsDir() (string, error) {
 		return "", err
 	}
 
-	return formatPath(execPath + "/../logs"), nil
+	return filepath.Join(execPath, "..", "logs"), nil
 }
 
 // Get the default configuration file path
@@ -35,5 +35,5 @@ func getDefaultConfigFile() (string, error) {
 		return "", err
 	}
 
-	return formatPath(execPath + "/../config/otel-config.yaml"), nil
+	return filepath.Join(execPath, "..", "config", "otel-config.yaml"), nil
 }
