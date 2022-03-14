@@ -3,6 +3,8 @@ description: There are several ways to easily assess the status of ${project.nam
 
 # Health Check
 
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
 General troubleshooting information is [available in the OpenTelemetry Collector's Troubleshooting Guide](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md).
 
 ## Processes

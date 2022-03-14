@@ -3,6 +3,8 @@ description: ${project.name} lets you encrypt the passwords stored in its YAML c
 
 # Password Encryption
 
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
 ## Encrypting Passwords
 
 To encrypt a password, use the `hws-encrypt` command:
