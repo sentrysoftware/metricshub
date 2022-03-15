@@ -281,9 +281,9 @@ Similarly, you can specify additional static metrics to be exposed with the `ext
 
 ```yaml
 extraMetrics:
-  hw_carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe
-  hw_electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
-  hw_pue_ratio: 1.8
+  hw.site.carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
+  hw.site.pue_ratio: 1.8
 ```
 
 The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon densities for each monitored site, for example.
