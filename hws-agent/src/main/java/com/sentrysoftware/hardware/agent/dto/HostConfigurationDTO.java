@@ -72,7 +72,7 @@ public class HostConfigurationDTO {
 	private String loggerLevel = "OFF";
 
 	@Default
-	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
+	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY.toString();
 
 	@Default
 	@JsonSetter(nulls = SKIP)

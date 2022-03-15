@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigHelper {
 
-	public static final String DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs");
+	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -228,13 +228,12 @@ public class ConfigHelper {
 	/**
 	 * Build the {@link IHostMonitoring} map. Each entry is index by the targetId
 	 * 
-	 * @param configFile             the target configuration file
-	 * @param acceptedConnectorNames set of accepted compiled connector names
+	 * @param multiHostsConfigurationDto DTO that wraps the agent configuration for all the targets
+	 * @param acceptedConnectorNames     set of accepted compiled connector names
 	 * @return Map of {@link IHostMonitoring} instances indexed by the target id
 	 */
-	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final File configFile, Set<String> acceptedConnectorNames) {
-
-		final MultiHostsConfigurationDTO multiHostsConfigurationDto = readConfigurationSafe(configFile);
+	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final MultiHostsConfigurationDTO multiHostsConfigurationDto,
+			final Set<String> acceptedConnectorNames) {
 
 		final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
 
@@ -307,15 +306,22 @@ public class ConfigHelper {
 	}
 
 	/**
+	 * @param dir    the directory assumed under the product directory. E.g. logs
+	 *               assumed under /usr/local/bin/hws-otel-collector
+	 * @param create indicate if we should create the sub directory or not
 	 * @return The absolute path of the sub directory
 	 */
-	public static String getSubDirectory(@NonNull final String dir) {
+	public static Path getSubDirectory(@NonNull final String dir, boolean create) {
 
-		Path logsDirectory = getSubPath(dir);
+		Path subDirectory = getSubPath(dir);
+		if (!create) {
+			return subDirectory;
+		}
+
 		try {
-			return Files.createDirectories(logsDirectory).toRealPath().toString();
+			return Files.createDirectories(subDirectory).toRealPath();
 		} catch (IOException e) {
-			throw new IllegalStateException("Could not create " + dir + " directory " + logsDirectory, e);
+			throw new IllegalStateException("Could not create " + dir + " directory " + subDirectory, e);
 		}
 	}
 
@@ -326,17 +332,7 @@ public class ConfigHelper {
 	 * @return {@link Path} instance
 	 */
 	public static Path getSubPath(@NonNull final String subPath) {
-		File me;
-		try {
-			me = ResourceHelper.findSource(ConfigHelper.class);
-		} catch (Exception e) {
-			throw new IllegalStateException(
-				"Error detected when getting local source file to get '" + subPath + "'.", e);
-		}
-
-		if (me == null) {
-			throw new IllegalStateException("Could not get the local source file to get the '"+ subPath +"'.");
-		}
+		File me = getExecutableDir();
 
 		final Path path = me.getAbsoluteFile().toPath();
 
@@ -348,6 +344,25 @@ public class ConfigHelper {
 		}
 
 		return parentLibPath.resolve("../" + subPath);
+	}
+
+	/**
+	 * Get the directory of the current executable jar.
+	 * 
+	 * @return {@link File} instance
+	 */
+	public static File getExecutableDir() {
+		final File me;
+		try {
+			me = ResourceHelper.findSource(ConfigHelper.class);
+		} catch (Exception e) {
+			throw new IllegalStateException("Error detected when getting local source file", e);
+		}
+
+		if (me == null) {
+			throw new IllegalStateException("Could not get the local source file.");
+		}
+		return me;
 	}
 
 }
