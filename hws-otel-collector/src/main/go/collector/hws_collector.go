@@ -34,7 +34,6 @@ func newCollectorWithLogCore(set service.CollectorSettings) (*service.Collector,
 func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
 	return func(core zapcore.Core) zapcore.Core {
 		pe := zap.NewProductionEncoderConfig()
-		pe.LineEnding = "\r\n"
 		pe.EncodeTime = zapcore.ISO8601TimeEncoder
 
 		logsDir, err := getLogsDir()

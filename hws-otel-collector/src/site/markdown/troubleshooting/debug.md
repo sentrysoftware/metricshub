@@ -16,7 +16,7 @@ If you're not getting any data at all at the destination framework, you are prob
 
 The **${project.name}** writes details about its operations (from initialization, to pipeline, to termination) to the **logs/otel.log** file.
 
-This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed-up as `logs/otel-timestamp.log` where `timestamp` is the time at which the log was backed-up, example: `otel-2022-03-11T18-50-20.292.log`.
+This **logs/otel.log** file is reset each time the *Collector* is started. Previous logs are backed up as `logs/otel-timestamp.log` where `timestamp` is the time at which the log was backed up, example: `otel-2022-03-11T18-50-20.292.log`.
 
 The **${project.name}** rotates the **otel.log** file when it reaches a maximum size of **100MB** and retains **3** old log files (**otel-timestamp.log**) for **30 days**.
 
