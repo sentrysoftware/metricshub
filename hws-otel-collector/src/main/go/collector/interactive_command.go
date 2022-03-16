@@ -15,10 +15,7 @@ func NewCommand(set service.CollectorSettings) *cobra.Command {
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			featuregate.Apply(featuregate.GetFlags())
-			if set.ConfigProvider == nil {
-				set.ConfigProvider = service.MustNewDefaultConfigProvider(getConfigFlag(), getSetFlag())
-			}
-			col, err := service.New(set)
+			col, err := newCollectorWithLogCore(set)
 			if err != nil {
 				return err
 			}

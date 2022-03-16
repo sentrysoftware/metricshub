@@ -80,7 +80,7 @@
 
 				<executions>
 
-					<!-- go mod tidy -compact=1.17 -->
+					<!-- go mod tidy -compat=1.17 -->
 					<!-- Ensure that the go.mod file matches the source code in the module -->
 					<execution>
 						<phase>compile</phase>

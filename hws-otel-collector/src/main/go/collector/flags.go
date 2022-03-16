@@ -30,6 +30,15 @@ func flags() *flag.FlagSet {
 	flagSet := new(flag.FlagSet)
 	featuregate.Flags(flagSet)
 
+	// Update the default config file
+	if len(configFlag.values) == 0 {
+		defaultConfig, err := getDefaultConfigFile()
+		if err != nil {
+			panic(err)
+		}
+		configFlag.values = []string{defaultConfig}
+	}
+
 	flagSet.Var(configFlag, "config", "Locations to the config file(s), note that only a"+
 		" single location can be set per flag entry e.g. `-config=file:/path/to/first --config=file:path/to/second`.")
 
@@ -42,15 +51,7 @@ func flags() *flag.FlagSet {
 }
 
 func getConfigFlag() []string {
-	if len(configFlag.values) > 0 {
-		return configFlag.values
-	}
-
-	defaultConfig, err := getDefaultConfigFile()
-	if err != nil {
-		panic(err)
-	}
-	return []string{defaultConfig}
+	return configFlag.values
 }
 
 func getSetFlag() []string {

@@ -4,13 +4,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"strconv"
+	"path/filepath"
+	"time"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/service"
 )
+
+const backupTimeFormat = "2006-01-02T15-04-05.000"
 
 func main() {
 
@@ -18,9 +22,9 @@ func main() {
 		log.Println("starting Hardware Sentry OpenTelemetry Collector")
 		log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
 
-		err := rollAndRouteLogs()
+		err := backupOtelLogAtStartup()
 		if err != nil {
-			log.Println("failed to roll and route logs: %v", err)
+			log.Println("failed to backup logs: %v", err)
 		}
 	}
 
@@ -41,7 +45,6 @@ func main() {
 }
 
 func runInteractive(params service.CollectorSettings) error {
-
 	if err := NewCommand(params).Execute(); err != nil {
 		log.Fatalf("collector server run finished with error: %v", err)
 	}
@@ -49,8 +52,8 @@ func runInteractive(params service.CollectorSettings) error {
 	return nil
 }
 
-// Roll the log files and redirect the stdout and stderr to the /logs/otel.log file
-func rollAndRouteLogs() error {
+// Backup the otel.log file
+func backupOtelLogAtStartup() error {
 
 	logsDir, err := getLogsDir()
 	if err != nil {
@@ -70,66 +73,39 @@ func rollAndRouteLogs() error {
 		}
 	}
 
-	maxLogFiles := 3
+	// otel.log
+	logFile := buildLogPath(logsDir, false)
 
-	// Loop over each file index and remove or rename the file
-	for i := maxLogFiles; i >= 0; i-- {
-
-		oldLogFile := buildLogPath(logsDir, i)
-
-		// Old log file doesn't exist? go to the next iteration
-		exist, err = exists(oldLogFile)
-		if !exist {
-			continue
-		}
-
-		// Max log files? remove the latest log file, example: otel~3.log
-		if i == maxLogFiles {
-			err = os.Remove(oldLogFile)
-			if err != nil {
-				return err
-			}
-			continue
-		}
+	exist, err = exists(logFile)
+	// otel.log exist? rename it to 'otel-timestamp.log'. E.g. otel-2022-03-11T18-50-20.292.log
+	// We delegate the removal to the lumberjack library which takes care of handling MaxBackups and MaxAge.
+	if exist {
 
 		// Build the new log file name
-		newLogFile := buildLogPath(logsDir, i+1)
+		newLogFile := buildLogPath(logsDir, true)
 
 		// Rename old file name
-		err = os.Rename(oldLogFile, newLogFile)
+		err = os.Rename(logFile, newLogFile)
 		if err != nil {
 			return err
 		}
 
 	}
 
-	logFile := buildLogPath(logsDir, 0)
-	redirectLogs(logFile)
-
-	log.Println("redirected output to: " + formatPath(logFile))
+	log.Println("redirected output to: " + logFile)
 
 	return nil
 
 }
 
-// Build log path assuming that the first log file name is 'otel.log' then otel~number.log
-func buildLogPath(dir string, number int) string {
-	if number == 0 {
-		return dir + "/otel.log"
+// Build log path assuming that the first log file name is 'otel.log' then 'otel-timestamp.log'
+func buildLogPath(dir string, withTimestamp bool) string {
+	if withTimestamp {
+		timestamp := time.Now().Format(backupTimeFormat)
+		return filepath.Join(dir, fmt.Sprintf("%s-%s%s", "otel", timestamp, ".log"))
 	}
 
-	return dir + "/otel~" + strconv.Itoa(number) + ".log"
-
-}
-
-// redirect logs to logFile
-func redirectLogs(logFile string) {
-
-	// open file read/write | create if not exist | clear file at open if exists
-	f, _ := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-
-	os.Stdout = f
-	os.Stderr = f
+	return filepath.Join(dir, "otel.log")
 
 }
 

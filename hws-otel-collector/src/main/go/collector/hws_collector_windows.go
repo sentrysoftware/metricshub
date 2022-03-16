@@ -9,8 +9,6 @@ import (
 	"os"
 	"time"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 
@@ -78,7 +76,7 @@ func (s *WindowsService) start(colErrorChannel chan error) error {
 	}
 
 	var err error
-	s.col, err = newColWithLogCore(s.settings)
+	s.col, err = newCollectorWithLogCore(s.settings)
 	if err != nil {
 		return err
 	}
@@ -120,30 +118,4 @@ func openEventLog(serviceName string) (*eventlog.Log, error) {
 	}
 
 	return elog, nil
-}
-
-func newColWithLogCore(set service.CollectorSettings) (*service.Collector, error) {
-	if set.ConfigProvider == nil {
-		set.ConfigProvider = service.MustNewDefaultConfigProvider(getConfigFlag(), getSetFlag())
-	}
-
-	cfg, err := set.ConfigProvider.Get(context.Background(), set.Factories)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	set.LoggingOptions = append(
-		set.LoggingOptions,
-		zap.WrapCore(withLogCore(cfg.Service.Telemetry.Logs.Level)),
-	)
-	return service.New(set)
-}
-
-func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
-	return func(core zapcore.Core) zapcore.Core {
-		pe := zap.NewProductionEncoderConfig()
-		pe.LineEnding = "\r\n"
-		pe.EncodeTime = zapcore.ISO8601TimeEncoder
-		return zapcore.NewCore(zapcore.NewConsoleEncoder(pe), zapcore.AddSync(os.Stdout), logLevel)
-	}
 }
