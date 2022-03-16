@@ -173,7 +173,7 @@ public class ConnectorsLoaderService {
 	 * </pre>
 	 * 
 	 * @param connectorFilePath The path of the connector file
-	 * @return <code>true</code> if the file doens't have an extension means a
+	 * @return <code>true</code> if the file doesn't have an extension means a
 	 *         serialized connector otherwise <code>false</code>
 	 */
 	boolean isConnector(String connectorFilePath) {
