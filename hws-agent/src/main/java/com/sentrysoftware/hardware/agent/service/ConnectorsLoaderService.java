@@ -1,11 +1,14 @@
 package com.sentrysoftware.hardware.agent.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,25 +59,49 @@ public class ConnectorsLoaderService {
 			return;
 		}
 
-		// First, build the list of connectors
-		final Set<String> parsedConnectorPaths;
-
+		// First, determine the source and serialized connectors
+		final Set<String> connectorSources = new TreeSet<>();
+		final Set<String> serializedConnectors = new TreeSet<>();
 		try (Stream<Path> pathStream = Files.list(connectorDir)) {
-			parsedConnectorPaths = pathStream
+
+			// Partition the stream
+			pathStream
 					.map(path -> path.toAbsolutePath().toString())
-					.filter(pathString -> pathString.toLowerCase().endsWith(".hdfs"))
-					.collect(Collectors.toCollection(TreeSet::new));
+					.forEach(path -> {
+						var pathLowerCase = path.toLowerCase();
+						if (pathLowerCase.endsWith(".hdfs")) {
+							connectorSources.add(path);
+						}
+						if (isConnector(pathLowerCase)) {
+							serializedConnectors.add(path);
+						}
+					});
 		}
 
 		// Get the ConnectorStore
 		final ConnectorStore store = ConnectorStore.getInstance();
 
-		// Go through each files
-		parsedConnectorPaths.forEach(sourceFilePath -> {
+		// Go through each connector source
+		connectorSources.stream()
+				.forEach(sourceFilePath -> {
+
+					try {
+						parseAndAddConnector(store, sourceFilePath);
+					} catch (Exception e) {
+						log.error("Exception detected when parsing connector {}. Errors:\n{}\n", sourceFilePath,
+								StringHelper.getStackMessages(e));
+					}
+
+				});
+
+		// Go through each serialized connector
+		serializedConnectors.stream()
+			.forEach(sourceFilePath -> {
+
 			try {
-				parseAndAddConnector(store, sourceFilePath);
+				deserializeAndAddConnector(store, new File(sourceFilePath));
 			} catch (Exception e) {
-				log.error("Exception detected when parsing connector {}. Errors:\n{}\n", sourceFilePath,
+				log.error("Exception detected when deserializing connector {}. Errors:\n{}\n", sourceFilePath,
 						StringHelper.getStackMessages(e));
 			}
 
@@ -86,8 +113,7 @@ public class ConnectorsLoaderService {
 	/**
 	 * Parse and add the {@link Connector} in the {@link ConnectorStore}
 	 * 
-	 * @param store           The connector store containing all the hardware
-	 *                        connectors
+	 * @param store           The connector store containing all the hardware connectors
 	 * @param sourceFilePath  The connector source file path
 	 * @throws IOException can be thrown by {@link ConnectorParser}
 	 */
@@ -110,5 +136,54 @@ public class ConnectorsLoaderService {
 
 			connector.getProblemList().forEach(log::debug);
 		}
+	}
+
+	/**
+	 * Deserialize and add the {@link Connector} in the {@link ConnectorStore}
+	 *
+	 * @param The                 connector store containing all the hardware connectors
+	 * @param connectorSerialized The serialized connector
+	 *
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void deserializeAndAddConnector(final ConnectorStore store, final File connectorSerialized) throws IOException, ClassNotFoundException {
+
+		log.info("Deserializing connector {}", connectorSerialized);
+
+		try (InputStream inputStream = new FileInputStream(connectorSerialized);
+				ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+
+			final Connector connector = (Connector) objectInputStream.readObject();
+
+			store.getConnectors().put(connector.getCompiledFilename(), connector);
+
+			log.info("Added connector {}", connector.getCompiledFilename());
+
+		}
+
+	}
+
+	/**
+	 * Check if the given connector file path is a real serialized connector without
+	 * any extension.
+	 * 
+	 * <pre>
+	 * E.g. /opt/hws/lib/connectors/SuperConnector
+	 * </pre>
+	 * 
+	 * @param connectorFilePath The path of the connector file
+	 * @return <code>true</code> if the file doens't have an extension means a
+	 *         serialized connector otherwise <code>false</code>
+	 */
+	boolean isConnector(String connectorFilePath) {
+
+		final int extensionPosition = connectorFilePath.lastIndexOf(".");
+
+		// We are sure to handle both LINUX and WINDOWS paths with the maximum last index
+		final int lastSeparator = Math.max(connectorFilePath.lastIndexOf("/"), connectorFilePath.lastIndexOf("\\"));
+
+		// The last separator is after the last dot
+		return lastSeparator > extensionPosition;
 	}
 }
