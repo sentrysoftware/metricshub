@@ -96,12 +96,12 @@ public class ConnectorsLoaderService {
 
 		// Go through each serialized connector
 		serializedConnectors.stream()
-			.forEach(sourceFilePath -> {
+			.forEach(connectorFilePath -> {
 
 				try {
-					deserializeAndAddConnector(store, new File(sourceFilePath));
+					deserializeAndAddConnector(store, new File(connectorFilePath));
 				} catch (Exception e) {
-					log.error("Exception detected when deserializing connector {}. Errors:\n{}\n", sourceFilePath,
+					log.error("Exception detected when deserializing connector {}. Errors:\n{}\n", connectorFilePath,
 							StringHelper.getStackMessages(e));
 				}
 
