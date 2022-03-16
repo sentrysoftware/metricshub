@@ -81,19 +81,6 @@ public class ConnectorsLoaderService {
 		// Get the ConnectorStore
 		final ConnectorStore store = ConnectorStore.getInstance();
 
-		// Go through each connector source
-		connectorSources.stream()
-			.forEach(sourceFilePath -> {
-
-				try {
-					parseAndAddConnector(store, sourceFilePath);
-				} catch (Exception e) {
-					log.error("Exception detected when parsing connector {}. Errors:\n{}\n", sourceFilePath,
-							StringHelper.getStackMessages(e));
-				}
-
-		});
-
 		// Go through each serialized connector
 		serializedConnectors.stream()
 			.forEach(connectorFilePath -> {
@@ -102,6 +89,19 @@ public class ConnectorsLoaderService {
 					deserializeAndAddConnector(store, new File(connectorFilePath));
 				} catch (Exception e) {
 					log.error("Exception detected when deserializing connector {}. Errors:\n{}\n", connectorFilePath,
+							StringHelper.getStackMessages(e));
+				}
+
+		});
+
+		// Go through each connector source
+		connectorSources.stream()
+			.forEach(sourceFilePath -> {
+
+				try {
+					parseAndAddConnector(store, sourceFilePath);
+				} catch (Exception e) {
+					log.error("Exception detected when parsing connector {}. Errors:\n{}\n", sourceFilePath,
 							StringHelper.getStackMessages(e));
 				}
 
