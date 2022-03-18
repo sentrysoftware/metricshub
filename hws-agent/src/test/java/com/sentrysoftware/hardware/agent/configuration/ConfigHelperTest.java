@@ -114,17 +114,21 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testBuildHostMonitoringMap() {
-		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper.buildHostMonitoringMap(
-				configFile, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
+	void testBuildHostMonitoringMap() throws IOException {
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = ConfigHelper.deserializeYamlFile(configFile,
+				MultiHostsConfigurationDTO.class);
+		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper
+				.buildHostMonitoringMap(multiHostsConfigurationDTO, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
 
 		assertFalse(hostMonitoringMap.isEmpty());
 	}
 
 	@Test
-	void testBuildHostMonitoringMapBadConfig() {
+	void testBuildHostMonitoringMapBadConfig() throws IOException {
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = ConfigHelper.deserializeYamlFile(configFile,
+				MultiHostsConfigurationDTO.class);
 		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper.buildHostMonitoringMap(
-				configFile, Collections.singleton("StoreAcceptsOnlyThisConnector"));
+				multiHostsConfigurationDTO, Collections.singleton("StoreAcceptsOnlyThisConnector"));
 
 		assertTrue(hostMonitoringMap.isEmpty());
 	}

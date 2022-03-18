@@ -11,7 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.service.ConnectorsLoaderService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 @Configuration
@@ -36,14 +38,23 @@ public class AgentConfig {
 	private String hcVersion;
 
 	@Bean
-	public MultiHostsConfigurationDTO multiHostsConfigurationDto(final File configFile) {
+	public ConnectorParser connectorParser() {
+		return new ConnectorParser();
+	}
+
+	@Bean
+	public MultiHostsConfigurationDTO multiHostsConfigurationDto(final File configFile, final ConnectorsLoaderService connectorsLoader) {
+
+		// Load additional connectors before reading the configuration
+		connectorsLoader.load();
+
 		return readConfigurationSafe(configFile);
 	}
 
 	@Bean
-	public Map<String, IHostMonitoring> hostMonitoringMap(final File configFile) {
+	public Map<String, IHostMonitoring> hostMonitoringMap(final MultiHostsConfigurationDTO multiHostsConfigurationDto) {
 		// The host monitoring is instantiated only once (singleton)
-		return buildHostMonitoringMap(configFile, ConnectorStore.getInstance().getConnectors().keySet());
+		return buildHostMonitoringMap(multiHostsConfigurationDto, ConnectorStore.getInstance().getConnectors().keySet());
 	}
 
 	@Bean

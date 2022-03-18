@@ -1,8 +1,5 @@
 package com.sentrysoftware.hardware.agent.configuration;
 
-import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.readConfigurationSafe;
-
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -17,9 +14,7 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 public class SchedulerConfig {
 
 	@Bean
-	public ThreadPoolTaskScheduler taskScheduler(final File configFile) {
-		// Read the configuration
-		final MultiHostsConfigurationDTO multiHostsConfigurationDto = readConfigurationSafe(configFile);
+	public ThreadPoolTaskScheduler taskScheduler(final MultiHostsConfigurationDTO multiHostsConfigurationDto) {
 
 		return createScheduler(multiHostsConfigurationDto.getJobPoolSize(), "hws-agent-task-");
 	}
