@@ -290,6 +290,24 @@ The above example configures the *OpenTelemetry Collector* to expose the carbon 
 
 ## Other Configuration Settings
 
+### Basic Authentication Header
+
+The **${project.name}** internal `OTLP Exporter` ensures to authenticate itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+
+To override the default value of the *Basic Authentication Header*, configure the `basicAuthHeader` parameter just before the `targets` section:
+
+```yaml
+basicAuthHeader: Basic <credentials>
+
+targets: # ...
+```
+
+You should provide a value as `Basic <credentials>` where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`), and then by encoding the resulting value in `base64`.
+
+You can also proceed with an additional security level by encypting the `Basic <credentials>` value. See [Encrypting Passwords](passwords.md#Encrypting_Passwords).
+
+> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
+
 ### Collect Period
 
 By default, **${project.name}** collects metrics from the monitored targets every minute. To change the default collect period:
@@ -480,3 +498,18 @@ Timeouts, durations and periods are specified with the below format:
 | m    | minutes                         | 90m, 1m15s       |
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
+
+### Trusted Certificates File
+
+A **TLS** handshake takes place when the *Hardware Sentry Agent's* `OTLP Exporter` instantiates a communication with the 
+`OTLP gRPC Receiver` and by dafault, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
+
+If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `trustedCertificatesFile` parameter just before the `targets` section:
+
+```yaml
+trustedCertificatesFile: security/new-server-cert.crt
+
+targets: # ...
+```
+
+The file should be placed under the `security` folder and should contain one or more X.509 certificates in PEM format.

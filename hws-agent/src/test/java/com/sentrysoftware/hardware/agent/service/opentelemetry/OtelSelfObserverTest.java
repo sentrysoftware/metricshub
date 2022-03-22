@@ -17,8 +17,10 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import lombok.NonNull;
 
 @SpringBootTest
 class OtelSelfObserverTest {
@@ -30,7 +32,7 @@ class OtelSelfObserverTest {
 	void testInit() {
 		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), Collections.emptyMap());
 		InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
-		final SdkMeterProvider sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, inMemoryReader);
+		final SdkMeterProvider sdkMeterProvider = initOpenTelemetryMetrics(resource, inMemoryReader);
 	
 		MultiHostsConfigurationDTO multiHostsConfigurationDTO = MultiHostsConfigurationDTO
 				.builder()
@@ -64,4 +66,19 @@ class OtelSelfObserverTest {
 		assertNotNull(metricMap.get("hw.site.pue_ratio"));
 	}
 
+	/**
+	 * Initializes a Metrics SDK with a Resource and an instance of IntervalMetricReader.
+	 *
+	 * @param resource the resource used for the SdkMeterProvider
+	 * @param periodicReaderFactory the periodic reader running the metrics collect then the OTLP metrics export
+	 * @return a ready-to-use {@link SdkMeterProvider} instance
+	 */
+	public static SdkMeterProvider initOpenTelemetryMetrics(@NonNull final Resource resource,
+			@NonNull final MetricReaderFactory periodicReaderFactory) {
+
+		return SdkMeterProvider.builder()
+					.setResource(resource)
+					.registerMetricReader(periodicReaderFactory)
+					.build();
+	}
 }

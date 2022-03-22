@@ -67,6 +67,14 @@ public class MultiHostsConfigurationDTO {
 
 	private boolean sequential;
 
+	// Security settings
+
+	@Default
+	private char[] basicAuthHeader = new char[] { 'B', 'a', 's', 'i', 'c', ' ', 'a', 'H', 'd', 'z', 'O', 'l', 'N', 'l', 'b', 'n', 'R', 'y', 'e', 'V',
+			'N', 'v', 'Z', 'n', 'R', '3', 'Y', 'X', 'J', 'l', 'M', 'S', 'E', '=' };
+
+	private String trustedCertificatesFile;
+
 	/**
 	 * Build a new empty instance
 	 * 
@@ -84,4 +92,5 @@ public class MultiHostsConfigurationDTO {
 	public boolean isEmpty() {
 		return targets.isEmpty();
 	}
+
 }

@@ -31,8 +31,8 @@ import com.sentrysoftware.hardware.agent.service.task.StrategyTaskInfo;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,10 +59,10 @@ public class TaskSchedulingService {
 	private Map<String, ScheduledFuture<?>> targetSchedules;
 
 	@Autowired
-	private MetricReaderFactory periodicReaderFactory;
+	private Map<String, String> agentInfo;
 
 	@Autowired
-	private Map<String, String> agentInfo;
+	private Map<String, String> otelSdkConfiguration;
 
 	@PostConstruct
 	public void startScheduling() {
@@ -93,22 +93,25 @@ public class TaskSchedulingService {
 	void scheduleAgentSelfObserver() {
 
 		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), multiHostsConfigurationDto.getExtraLabels());
-		final SdkMeterProvider sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, periodicReaderFactory);
+		final AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
 
 		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period
 		final PeriodicTrigger trigger = new PeriodicTrigger(multiHostsConfigurationDto.getCollectPeriod(), TimeUnit.SECONDS);
+
+		// Get the SDK Meter provider
+		final SdkMeterProvider meterProvider = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
 
 		// Init the observer
 		OtelSelfObserver
 			.builder()
 			.agentInfo(agentInfo)
-			.sdkMeterProvider(sdkMeterProvider)
+			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDTO(multiHostsConfigurationDto)
 			.build()
 			.init();
 
 		// Here we go
-		taskScheduler.schedule(sdkMeterProvider::forceFlush, trigger);
+		taskScheduler.schedule(meterProvider::forceFlush, trigger);
 	}
 
 	/**
@@ -250,7 +253,7 @@ public class TaskSchedulingService {
 					.serverPort(serverPort)
 					.build(),
 				new UserConfiguration(multiHostsConfigurationDto, hostConfigDto),
-				periodicReaderFactory
+				otelSdkConfiguration
 		);
 
 		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period

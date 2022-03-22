@@ -5,6 +5,7 @@ import (
 	prometheusexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter"
 	prometheusremotewriteexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter"
 	signalfxexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter"
+	basicauthextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension"
 	healthcheckextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension"
 	hwsagentextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension"
 	pprofextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension"
@@ -32,6 +33,7 @@ func components() (component.Factories, error) {
 		pprofextension.NewFactory(),
 		healthcheckextension.NewFactory(),
 		hwsagentextension.NewFactory(),
+		basicauthextension.NewFactory(),
 	)
 	if err != nil {
 		return component.Factories{}, err
