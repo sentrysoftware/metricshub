@@ -82,7 +82,7 @@ public class OtelConfig {
 
 	@Bean
 	public Map<String, String> otelSdkConfiguration(final MultiHostsConfigurationDTO multiHostsConfigurationDTO,
-			@Value("#{ '${grpc}'.trim() <= '' ? 'https://localhost:4317' : '${grpc}' }") final String grpcEndpoint) {
+			@Value("#{ '${grpc}'.isBlank() ? 'https://localhost:4317' : '${grpc}' }") final String grpcEndpoint) {
 
 		final Map<String, String> properties = new HashMap<>();
 

@@ -80,7 +80,7 @@ Clients requests are authenticated through the [Basic Authenticator](#Basic_Auth
 
 If you want to set your own certificate file, please make sure to configure the **Hardware Sentry Agent** to set the correct [Trusted Certificates File](configure-agent.md#Trusted_Certificates_File).
 
-You also need to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of your new generated certificate.
+Since the communication operates on the same host, you need to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of your new generated certificate.
 
 > **Warning**: Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration. See [Hardware Sentry Agent](#Hardware_Sentry_Agent)
 
@@ -98,7 +98,7 @@ The *OpenTelemetry Collector*'s internal *Exporter for Prometheus* is an optiona
             - targets: [ localhost:8888 ]
 ```
 
-Under the `service:telemetry:metrics` section, you can set the metrics `level` or the `address` of the OpenTelemetry Collector Internal Exporter (by default: **0.0.0.0:8888**).
+Under the `service:telemetry:metrics` section, you can set the metrics `level` or the `address` of the OpenTelemetry Collector Internal Exporter (by default: **localhost:8888**).
 
 ```yaml
 service:
