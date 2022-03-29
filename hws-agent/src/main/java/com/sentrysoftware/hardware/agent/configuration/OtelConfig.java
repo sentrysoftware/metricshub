@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDTO;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -21,27 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class OtelConfig {
 
 	private static final String SECURITY_DIR_NAME = "security";
-
-	/**
-	 * Get the basic auth header from the configuration
-	 * 
-	 * @param multiHostsConfigurationDTO
-	 * @return {@link Optional} string value
-	 */
-	static Optional<String> getBasicAuthHeader(final MultiHostsConfigurationDTO multiHostsConfigurationDTO) {
-
-		final char[] basicAuthHeader = multiHostsConfigurationDTO.getBasicAuthHeader();
-
-		if (basicAuthHeader != null && basicAuthHeader.length != 0) {
-
-			// The basic authentication header can be encrypted
-			// If the header is not encrypted then decrypt(...) returns the original header
-			return Optional.of(new String(ConfigHelper.decrypt(basicAuthHeader)));
-
-		}
-
-		return Optional.empty();
-	}
 
 	/**
 	 * Get security file path. E.g certificate or key file path
@@ -90,11 +70,20 @@ public class OtelConfig {
 		properties.put("otel.exporter.otlp.endpoint", grpcEndpoint);
 		properties.put("otel.metric.export.interval", String.valueOf(Duration.ofDays(365 * 10L).toMillis()));
 
-		getSecurityFilePath(SECURITY_DIR_NAME, "otel.crt", multiHostsConfigurationDTO.getTrustedCertificatesFile(), grpcEndpoint)
-				.ifPresent(trustedServerCertificate -> properties.put("otel.exporter.otlp.certificate", trustedServerCertificate));
+		String certificatesFileToTrust = null;
+		if (multiHostsConfigurationDTO.hasExporterOtlpConfig()) {
 
-		getBasicAuthHeader(multiHostsConfigurationDTO)
-				.ifPresent(basicHeader -> properties.put("otel.exporter.otlp.headers", "Authorization=" + basicHeader));
+			final OtlpConfigDTO otlpConfig = multiHostsConfigurationDTO.getExporter().getOtlp();
+
+			otlpConfig.getHeadersInOtlpFormat()
+					.ifPresent(headers -> properties.put("otel.exporter.otlp.headers", headers));
+
+			certificatesFileToTrust = otlpConfig.getTrustedCertificatesFile();
+		}
+
+		getSecurityFilePath(SECURITY_DIR_NAME, "otel.crt", certificatesFileToTrust, grpcEndpoint)
+			.ifPresent(
+				trustedCertificatesFile -> properties.put("otel.exporter.otlp.certificate", trustedCertificatesFile));
 
 		return properties;
 	}

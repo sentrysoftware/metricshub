@@ -294,10 +294,13 @@ The above example configures the *OpenTelemetry Collector* to expose the carbon 
 
 The **${project.name}** internal `OTLP Exporter` ensures to authenticate itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
 
-To override the default value of the *Basic Authentication Header*, configure the `basicAuthHeader` parameter just before the `targets` section:
+To override the default value of the *Basic Authentication Header*, add a new `Authorization` header under the `exporter:otlp:headers` section:
 
 ```yaml
-basicAuthHeader: Basic <credentials>
+exporter:
+  otlp:
+    headers:
+      Authorization: Basic <credentials>
 
 targets: # ...
 ```
@@ -501,13 +504,15 @@ Timeouts, durations and periods are specified with the below format:
 
 ### Trusted Certificates File
 
-A **TLS** handshake takes place when the *Hardware Sentry Agent's* `OTLP Exporter` instantiates a communication with the 
+A **TLS** handshake takes place when the **Hardware Sentry Agent**'s `OTLP Exporter` instantiates a communication with the 
 `OTLP gRPC Receiver` and by default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
 
-If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `trustedCertificatesFile` parameter just before the `targets` section:
+If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `trustedCertificatesFile` parameter under the `exporter:otlp` section:
 
 ```yaml
-trustedCertificatesFile: security/new-server-cert.crt
+exporter:
+  otlp:
+    trustedCertificatesFile: security/new-server-cert.crt
 
 targets: # ...
 ```

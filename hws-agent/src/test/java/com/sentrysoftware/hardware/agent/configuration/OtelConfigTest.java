@@ -2,11 +2,15 @@ package com.sentrysoftware.hardware.agent.configuration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDTO;
+import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDTO;
 
 class OtelConfigTest {
 
@@ -44,12 +48,54 @@ class OtelConfigTest {
 	}
 
 	@Test
-	void testGetBasicAuthHeader() {
-		assertTrue(OtelConfig.getBasicAuthHeader(new MultiHostsConfigurationDTO()).isPresent());
-		assertTrue(OtelConfig.getBasicAuthHeader(MultiHostsConfigurationDTO.builder().basicAuthHeader(null).build())
-				.isEmpty());
-		assertTrue(OtelConfig
-				.getBasicAuthHeader(MultiHostsConfigurationDTO.builder().basicAuthHeader(new char[] {}).build())
-				.isEmpty());
+	void testOtelSdkConfigurationHeaders() {
+
+		{
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(MultiHostsConfigurationDTO.empty(),
+					HTTPS_GRPC_ENDPOINT);
+			assertTrue(sdkConfig.containsKey("otel.exporter.otlp.headers"));
+		}
+
+		{
+			final MultiHostsConfigurationDTO mHCD = MultiHostsConfigurationDTO.builder()
+					.exporter(ExporterConfigDTO
+							.builder()
+							.otlp(OtlpConfigDTO.builder().headers(null).build())
+							.build())
+					.build();
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
+		}
+
+		{
+			final MultiHostsConfigurationDTO mHCD = MultiHostsConfigurationDTO
+					.builder()
+					.exporter(ExporterConfigDTO
+							.builder()
+							.otlp(OtlpConfigDTO.builder().headers(Collections.emptyMap()).build())
+							.build())
+					.build();
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
+		}
+
+		{
+			final MultiHostsConfigurationDTO mHCD = MultiHostsConfigurationDTO
+					.builder()
+					.exporter(ExporterConfigDTO.builder().otlp(null).build())
+					.build();
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
+		}
+
+		{
+			final MultiHostsConfigurationDTO mHCD = MultiHostsConfigurationDTO
+					.builder()
+					.exporter(null)
+					.build();
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
+		}
+
 	}
 }

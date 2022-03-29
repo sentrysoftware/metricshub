@@ -11,7 +11,8 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
-
+import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDTO;
+import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -67,13 +68,10 @@ public class MultiHostsConfigurationDTO {
 
 	private boolean sequential;
 
-	// Security settings
-
+	// Exporter settings
 	@Default
-	private char[] basicAuthHeader = new char[] { 'B', 'a', 's', 'i', 'c', ' ', 'a', 'H', 'd', 'z', 'O', 'l', 'N', 'l', 'b', 'n', 'R', 'y', 'e', 'V',
-			'N', 'v', 'Z', 'n', 'R', '3', 'Y', 'X', 'J', 'l', 'M', 'S', 'E', '=' };
-
-	private String trustedCertificatesFile;
+	@JsonSetter(nulls = SKIP)
+	private ExporterConfigDTO exporter = ExporterConfigDTO.builder().build();
 
 	/**
 	 * Build a new empty instance
@@ -93,4 +91,21 @@ public class MultiHostsConfigurationDTO {
 		return targets.isEmpty();
 	}
 
+	/**
+	 * Whether the {@link OtlpConfigDTO} is present or not
+	 * 
+	 * @return boolean value
+	 */
+	public boolean hasExporterOtlpConfig() {
+		return hasExporterConfig() && exporter.getOtlp() != null;
+	}
+
+	/**
+	 * Whether the {@link ExporterConfigDTO} is present or not
+	 * 
+	 * @return boolean value
+	 */
+	public boolean hasExporterConfig() {
+		return exporter != null;
+	}
 }

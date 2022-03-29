@@ -20,6 +20,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
+import com.sentrysoftware.hardware.agent.configuration.OtelConfig;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
@@ -28,6 +29,7 @@ import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelSelfObserver;
 import com.sentrysoftware.hardware.agent.service.task.FileWatcherTask;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTaskInfo;
+import com.sentrysoftware.matrix.common.helpers.MapHelper;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
@@ -42,6 +44,9 @@ public class TaskSchedulingService {
 
 	@Value("${server.port:8080}")
 	private int serverPort;
+
+	@Value("#{ '${grpc}'.isBlank() ? 'https://localhost:4317' : '${grpc}' }")
+	private String grpcEndpoint;
 
 	@Autowired
 	private File configFile;
@@ -148,7 +153,7 @@ public class TaskSchedulingService {
 	 *
 	 * @param configFile the target configuration file (YAML file: hws-config.yaml)
 	 */
-	void updateConfiguration(final File configFile) {
+	synchronized void updateConfiguration(final File configFile) {
 
 		final MultiHostsConfigurationDTO newMultiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
@@ -161,9 +166,21 @@ public class TaskSchedulingService {
 		multiHostsConfigurationDto.setLoggerLevel(newMultiHostsConfigurationDto.getLoggerLevel());
 		multiHostsConfigurationDto.setExtraLabels(newMultiHostsConfigurationDto.getExtraLabels());
 		multiHostsConfigurationDto.setExtraMetrics(newMultiHostsConfigurationDto.getExtraMetrics());
+		multiHostsConfigurationDto.setSequential(newMultiHostsConfigurationDto.isSequential());
+		multiHostsConfigurationDto.setResolveHostnameToFqdn(newMultiHostsConfigurationDto.isResolveHostnameToFqdn());
+		multiHostsConfigurationDto.setExporter(newMultiHostsConfigurationDto.getExporter());
 
 		// Make sure the logger is configured correctly
 		configureLoggerLevel();
+
+		final Map<String, String> newOtelSdkConfiguration = new OtelConfig()
+				.otelSdkConfiguration(newMultiHostsConfigurationDto, grpcEndpoint);
+
+		// The SDK configuration has been updated? reschedule everything
+		if (!MapHelper.areEqual(otelSdkConfiguration, newOtelSdkConfiguration)) {
+			restartAll(newOtelSdkConfiguration, newMultiHostsConfigurationDto);
+			return;
+		}
 
 		// Do we have new targets?
 		final Set<HostConfigurationDTO> newTargets = newMultiHostsConfigurationDto
@@ -186,6 +203,40 @@ public class TaskSchedulingService {
 				.collect(Collectors.toSet());
 
 		// Clean the scheduling, host monitoring and the internal configuration for the targets that need to be removed
+		rescheduleNewTargets(newMultiHostsConfigurationDto, newTargets, targetsToRemove);
+	}
+
+	/**
+	 * Restart all the targets scheduling
+	 * 
+	 * @param newOtelSdkConfiguration       The new SDK configuration
+	 * @param newMultiHostsConfigurationDto The new configuration
+	 */
+	void restartAll(final Map<String, String> newOtelSdkConfiguration, final MultiHostsConfigurationDTO newMultiHostsConfigurationDto) {
+
+		// Update the SDK configuration
+		otelSdkConfiguration.putAll(newOtelSdkConfiguration);
+
+		// All the targets are considered as new
+		final Set<HostConfigurationDTO> newTargets = newMultiHostsConfigurationDto.getTargets();
+
+		// All the existing targets are considered as old
+		final Set<HostConfigurationDTO> targetsToRemove = multiHostsConfigurationDto.getTargets();
+
+		// Now reschedule the new targets
+		rescheduleNewTargets(newMultiHostsConfigurationDto, newTargets, targetsToRemove);
+	}
+
+	/**
+	 * Reschedule the given new targets
+	 * 
+	 * @param newMultiHostsConfigurationDto The new configuration
+	 * @param newTargets                    The new configured targets
+	 * @param targetsToRemove               The targets to remove from the scheduler
+	 */
+	private void rescheduleNewTargets(final MultiHostsConfigurationDTO newMultiHostsConfigurationDto,
+			final Set<HostConfigurationDTO> newTargets, final Set<HostConfigurationDTO> targetsToRemove) {
+
 		targetsToRemove
 			.stream()
 			.map(target -> target.getTarget().getId())
@@ -195,12 +246,7 @@ public class TaskSchedulingService {
 
 				// Remove the host monitoring
 				hostMonitoringMap.remove(targetId);
-
-				// Remove targets from the DTO
-				multiHostsConfigurationDto.getTargets().removeAll(targetsToRemove);
 			});
-
-		// Now reschedule the new targets
 
 		// First create new HostMonitoring instances for the new targets
 		newTargets.forEach(newTarget ->
@@ -210,6 +256,9 @@ public class TaskSchedulingService {
 					newTarget
 			)
 		);
+
+		// Remove targets from the DTO
+		multiHostsConfigurationDto.getTargets().removeAll(targetsToRemove);
 
 		// Then update the existing multi-hosts configuration DTO for the next schedules
 		multiHostsConfigurationDto.getTargets().addAll(newTargets);
