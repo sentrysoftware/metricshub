@@ -44,7 +44,7 @@ To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configur
 ### Basic Authenticator
 
 The [`Basic Authentication Extension`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) authenticates `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
-Please check the [Apache htpasswd](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html) documentation for more details on how to manage user files for basic authentication.
+Please check the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) documentation for more details on how to manage user files for basic authentication.
 
 ```yaml
   basicauth:
