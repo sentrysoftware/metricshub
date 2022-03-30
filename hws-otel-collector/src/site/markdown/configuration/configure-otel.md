@@ -62,7 +62,7 @@ The `.htpasswd` file should be placed under the `security` directory.
 
 The primary data source is [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver), which is configured to receive the metrics collected by the  **Hardware Sentry Agent** via [gRPC](https://grpc.io/) on port **TCP/4317**.
 
-To make network communications encrypted, by default, the `OTLP Receiver` is configured with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the **TLS** protocol.
+To make network communications encrypted, by default, the `OTLP Receiver` is configured with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol
 
 Clients requests are authenticated through the [Basic Authenticator](#Basic_Authenticator) type `basicauth`.
 
@@ -80,9 +80,9 @@ Clients requests are authenticated through the [Basic Authenticator](#Basic_Auth
 
 If you want to set your own certificate file, please make sure to configure the **Hardware Sentry Agent** to set the correct [Trusted Certificates File](configure-agent.md#Trusted_Certificates_File).
 
-Since the communication operates on the same host, you need to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of your new generated certificate.
+Since the communication operates on the same host, you need to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of your new generated certificate because the **Hardware Sentry Agent**'s `OTLP Exporter` performs the hostname verification by default.
 
-> **Warning**: Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration. See [Hardware Sentry Agent](#Hardware_Sentry_Agent)
+> **Warning**: Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration. See [Hardware Sentry Agent](#Hardware_Sentry_Agent).
 
 ### OpenTelemetry Collector Internal Exporter for Prometheus
 

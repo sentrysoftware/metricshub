@@ -27,7 +27,10 @@
 		<menu name="Configuration">
 			<item name="OpenTelemetry Configuration" href="configuration/configure-otel.html" />
 			<item name="Monitoring Configuration" href="configuration/configure-agent.html" />
-			<item name="Password Encryption" href="configuration/passwords.html" />
+			<item name="Security" href="security/security.html">
+				<item name="Password Encryption" href="security/passwords.html" />
+				<item name="Security Settings" href="security/settings.html" />
+			</item>
 		</menu>
 
 		<menu name="Integrations">

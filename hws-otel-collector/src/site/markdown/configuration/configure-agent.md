@@ -307,7 +307,7 @@ targets: # ...
 
 You should provide a value as `Basic <credentials>` where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`), and then by encoding the resulting value in `base64`.
 
-You can also proceed with an additional security level by encrypting the `Basic <credentials>` value. See [Encrypting Passwords](passwords.md#Encrypting_Passwords).
+You can also proceed with an additional security level by encrypting the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords).
 
 > **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
 
@@ -504,7 +504,7 @@ Timeouts, durations and periods are specified with the below format:
 
 ### Trusted Certificates File
 
-A **TLS** handshake takes place when the **Hardware Sentry Agent**'s `OTLP Exporter` instantiates a communication with the 
+A TLS handshake takes place when the **Hardware Sentry Agent**'s `OTLP Exporter` instantiates a communication with the 
 `OTLP gRPC Receiver` and by default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
 
 If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `trustedCertificatesFile` parameter under the `exporter:otlp` section:
