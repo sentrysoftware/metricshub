@@ -49,7 +49,7 @@ Here is the `OTLP gRPC Receiver` configuration including TLS (`config/otel-confi
 
 ```
 
-To customize the default TLS settings, see [Customize TLS Certificates](settings.md#Customize_TLS_Certificates).
+To customize the default TLS settings, see [Customizing TLS Certificates](settings.md#Customizing_TLS_Certificates).
 ### Requests Authentication
 
 Once TLS is established, each metric request moves to the authentication step. That's why the `OTLP gRPC Receiver` is configured to authenticate any incoming request using the `basicauth` authenticator.
@@ -68,4 +68,4 @@ Here is the `OTLP gRPC Receiver` configuration including the authenticator (`con
           authenticator: basicauth
 ```
 
-To customize the default authentication secret, see [Customize OTLP Authentication Password](settings.md#Customize_OTLP_Authentication_Password).
+To customize the default authentication secret, see [Customizing OTLP Authentication Password](settings.md#Customizing_OTLP_Authentication_Password).

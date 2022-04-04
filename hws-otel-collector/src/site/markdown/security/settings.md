@@ -5,7 +5,7 @@ description: How to configure ${project.name} security settings.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
 
-## Customize TLS Certificates
+## Customizing TLS Certificates
 
 If required, you can replace the default TLS certificate of the `OTLP gRPC Receiver`. After you replace the certificate, the data transmission that operates between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** will have encryption provided by your own certificate.
 
@@ -109,7 +109,7 @@ OpenSSL is a command line tool that helps you generate your X.509 certificates, 
        my-otel.crt
    ```
 
-## Customize OTLP Authentication Password
+## Customizing OTLP Authentication Password
 
 If needed, you can update the password of the **OpenTelemetry Collector**'s `OTLP gRPC Receiver`. After you update the password, the `OTLP gRPC Receiver` will authenticate any received request using your new password.
 
@@ -190,13 +190,9 @@ If needed, you can update the password of the **OpenTelemetry Collector**'s `OTL
 
 8. Restart the ${project.name}. Refer to the [Installation](../install.md) page to see how to start the ${project.name}.
 
-## Disabling TLS
-
-**NOT RECOMMENDED**
+## Disabling TLS (Not recommended)
 
 When you disable TLS on ${project.name}, the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** moves to `HTTP` (unencrypted) instead of `HTTPS`.
-
-### Procedure
 
 1. Remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration in the `config/otel-config.yaml` file:
 
@@ -239,13 +235,9 @@ When you disable TLS on ${project.name}, the communications between the **Hardwa
 
 4. Restart the ${project.name}.
 
-## Disabling Authentication
-
-**NOT RECOMMENDED**
+## Disabling Authentication (Not Recommended)
 
 By disabling the authentication on ${project.name}, the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` will skip the authentication step when intercepting metric requests.
-
-### Procedure
 
 1. Remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration in the `config/otel-config.yaml` file:
 
