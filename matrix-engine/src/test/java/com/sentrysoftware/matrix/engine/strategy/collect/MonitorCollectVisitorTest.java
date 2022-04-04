@@ -1259,11 +1259,13 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Map
-					.of(USED_WATTS_PARAMETER, VALUETABLE_COLUMN_1,
-						POWER_SUPPLY_POWER, VALUETABLE_COLUMN_2),
+					.of(USED_WATTS_PARAMETER, VALUETABLE_COLUMN_1),
 				monitor,
-				Arrays.asList("25", "50"))
+				Arrays.asList("25"))
 		);
+
+		monitor.setMetadata(Map.of(POWER_SUPPLY_POWER, "50"));
+
 		monitorCollectVisitor.collectPowerSupplyUsedCapacity();
 		usedCapacityParameter = monitor.getParameter(USED_CAPACITY_PARAMETER, NumberParam.class);
 		assertNull(usedCapacityParameter.getRawValue());
