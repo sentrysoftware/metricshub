@@ -7,23 +7,19 @@ description: How to configure ${project.name} security settings.
 
 ## Customizing TLS Certificates
 
-If required, you can replace the default TLS certificate of the `OTLP gRPC Receiver`. After you replace the certificate, the data transmission that operates between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** will have encryption provided by your own certificate.
+You can use your own certificate to secure the communications between between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** by replacing the default TLS certificate of the `OTLP gRPC Receiver`.
 
 ### Prerequisites
 
-- The new certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements is automatically selected.
-
-- The new private key must be unencrypted and provided in PEM format.
-
-- Since the internal communications operates only on `localhost` and by default, the **Hardware Sentry Agent**'s `OTLP Exporter` performs the hostname verification, the new certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1`.
+- The certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements will be automatically selected.
+- The private key must be nonencrypted and in PEM format.
+- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only athe **Hardware Sentry Agent**'s `OTLP Exporter` performs hostname verification.
 
 ### Procedure
 
-1. Generate your new private key and certificate files. E.g. `my-otel.key` and `my-otel.crt`.
-
+1. Generate your new private key and certificate files (for example: `my-otel.key` and `my-otel.crt`).
 2. Copy the generated certificate and private key files into the `security` directory.
-
-3. Update the `tls:cert_file` and `tls:key_file` attributes of the `OTLP gRPC Receiver` in the `config/otel-config.yaml` file:
+3. In the `config/otel-config.yaml` file, update the `tls:cert_file` and `tls:key_file` attributes of the `OTLP gRPC Receiver`:
 
     ```yaml
     receivers:
@@ -38,7 +34,7 @@ If required, you can replace the default TLS certificate of the `OTLP gRPC Recei
               authenticator: basicauth
     ```
 
-4. Set your new certificate (`security/my-otel.crt`) as `trustedCertificatesFile` in the `OTLP Exporter` configuration located in the `config/hws-config.yaml` file:
+4. In the `config/hws-config.yaml` file, set your new certificate (`security/my-otel.crt`) as `trustedCertificatesFile` in the `OTLP Exporter` configuration section:
 
     ```yaml
     exporter:
@@ -48,13 +44,13 @@ If required, you can replace the default TLS certificate of the `OTLP gRPC Recei
     targets: # ...
     ```
 
-5. Restart the ${project.name}. Refer to the [Installation](../install.md) page to see how to start the ${project.name}.
+5. Restart **${project.name}**. See [Installation](../install.md) for more details.
 
 #### Generating a Self-Signed Certificate with OpenSSL (Example)
 
-OpenSSL is a command line tool that helps you generate your X.509 certificates, you can use this tool to generate your Self-Signed Certificates.
+OpenSSL is a command line tool to generate X.509 certificates and can be used to generate Self-Signed Certificates.
 
-> This is an example on how to generate a server certificate using the OpenSSL utility on a Linux machine. Your organization may define its own security policy to handle certificates and private keys. Before proceeding further, make sure that this procedure is right for your organization.
+> The example below explains how to generate a server certificate using the OpenSSL utility on a Linux machine. Your organization may define its own security policy to handle certificates and private keys. Before proceeding further, make sure that this procedure is right for your organization.
 
 1. Create a private key for the Certificate Authority (CA):
 
@@ -111,14 +107,15 @@ OpenSSL is a command line tool that helps you generate your X.509 certificates, 
 
 ## Customizing OTLP Authentication Password
 
-If needed, you can update the password of the **OpenTelemetry Collector**'s `OTLP gRPC Receiver`. After you update the password, the `OTLP gRPC Receiver` will authenticate any received request using your new password.
+You can use your own paswword to have the `OTLP gRPC Receiver` authenticate any incoming request.
+
 
 ### Prerequisites
 
-- Have access to the `htpasswd` tool. 
-   - On a Linux system, you can install the `httpd-tools` package.
-   - On a Windows system, the `htpasswd` utility is embedded in one of the packages listed in the [*Downloading Apache for Windows*](https://httpd.apache.org/docs/2.4/platform/windows.html#down) page.
+Access to the `htpasswd` tool:
 
+- On a Linux system, you can install the `httpd-tools` package.
+- On a Windows system, the `htpasswd` utility is embedded in one of the packages listed in the [*Downloading Apache for Windows*](https://httpd.apache.org/docs/2.4/platform/windows.html#down) page.
 
 ### Procedure
 
@@ -131,7 +128,7 @@ If needed, you can update the password of the **OpenTelemetry Collector**'s `OTL
 
 2. Copy the `.htpasswd-otel` file into the `security` directory.
 
-3. Update the `file` attribute of the `basicauth` extension in the `config/otel-config.yaml` file:
+3. In the `config/otel-config.yaml` file, update the `file` attribute of the `basicauth` extension:
 
    ```yaml
    extensions:
@@ -143,20 +140,22 @@ If needed, you can update the password of the **OpenTelemetry Collector**'s `OTL
          file: security/.htpasswd-otel  # Your new htpasswd file
    ```
 
-4. Make sure the `basicauth` is declared as a service extension in the `config/otel-config.yaml` file:
+4. In the `config/otel-config.yaml` file:
+   
+   - make sure the `basicauth` is declared as a service extension :
 
-   ```yaml
-   service:
+    ```yaml
+    service:
 
-     # ...
+      # ...
 
-     extensions: [health_check, basicauth, hws_agent] # basicauth is added to the extensions list
-     pipelines:
-     
-     # ...
-   ```
+      extensions: [health_check, basicauth, hws_agent] # basicauth is added to the extensions list
+      pipelines:
+      
+      # ...
+    ```
 
-5. Make sure the `basicauth` extension is declared as `OTLP gRPC Receiver` *authenticator* in the `config/otel-config.yaml` file:
+   - make sure the `basicauth` extension is declared as `OTLP gRPC Receiver` *authenticator*:
 
    ```yaml
    receivers:
@@ -168,15 +167,14 @@ If needed, you can update the password of the **OpenTelemetry Collector**'s `OTL
              authenticator: basicauth
     ```
 
-6. Generate a `base64` string using the same credentials that you have provided to generate the `.htpasswd-otel` file. 
-   Join your username and password with a colon `myUsername:myPassword`, and then encode the resulting string in `base64`.
+5. Generate a `base64` string using the same credentials provided to generate the `.htpasswd-otel` file. Join your username and password with a colon `myUsername:myPassword`, and then encode the resulting string in `base64`.
 
    ```shell-session
    $ echo -n 'myUsername:myPassword' | base64
    bXlVc2VybmFtZTpteVBhc3N3b3Jk
    ```
 
-7. Add a new `Authorization` header under the `exporter:otlp:headers` section in the `config/hws-config.yaml` file:
+6. In the `config/otel-config.yaml` file, add a new `Authorization` header under the `exporter:otlp:headers` section:
 
    ```yaml
    exporter:
@@ -186,15 +184,16 @@ If needed, you can update the password of the **OpenTelemetry Collector**'s `OTL
 
         Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
    ```
-   The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step (6).
 
-8. Restart the ${project.name}. Refer to the [Installation](../install.md) page to see how to start the ${project.name}.
+   The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step.
+
+7. Restart **${project.name}**. See [Installation](../install.md) for more details.
 
 ## Disabling TLS (Not recommended)
 
-When you disable TLS on ${project.name}, the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** moves to `HTTP` (unencrypted) instead of `HTTPS`.
+When you disable TLS on **${project.name}**, the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
 
-1. Remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration in the `config/otel-config.yaml` file:
+1. In the `config/otel-config.yaml` file, remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration:
 
     ```yaml
     receivers:
@@ -233,13 +232,13 @@ When you disable TLS on ${project.name}, the communications between the **Hardwa
     targets: # ...
     ```
 
-4. Restart the ${project.name}.
+4. Restart **${project.name}**. See [Installation](../install.md) for more details.
 
 ## Disabling Authentication (Not Recommended)
 
-By disabling the authentication on ${project.name}, the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` will skip the authentication step when intercepting metric requests.
+If you disable the authentication on **${project.name}**, incoming requests will no longer be authenticated by the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` and might expose you to malicious attacks.
 
-1. Remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration in the `config/otel-config.yaml` file:
+1. In the `config/otel-config.yaml` file, remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration:
 
     ```yaml
     receivers:
@@ -254,7 +253,7 @@ By disabling the authentication on ${project.name}, the **OpenTelemetry Collecto
               # authenticator: basicauth   # No authentication
     ```
 
-2. Remove the `basicauth` extension from the service extensions list in the `config/otel-config.yaml` file:
+2. In the `config/otel-config.yaml` file, remove the `basicauth` extension from the service extensions list:
 
    ```yaml
    service:
@@ -267,7 +266,7 @@ By disabling the authentication on ${project.name}, the **OpenTelemetry Collecto
      # ...
    ```
 
-3. Remove or comment out the `Authorization` header from the `OTLP Exporter` configuration in the `config/hws-config.yaml` file:
+3. In the `config/hws-config.yaml` file, remove or comment out the `Authorization` header from the `OTLP Exporter` configuration:
 
     ```yaml
     exporter:
@@ -279,4 +278,4 @@ By disabling the authentication on ${project.name}, the **OpenTelemetry Collecto
     targets: # ...
     ```
 
-4. Restart the ${project.name}.
+4. Restart **${project.name}**. See [Installation](../install.md) for more details.

@@ -43,8 +43,8 @@ To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configur
 
 ### Basic Authenticator
 
-The [`Basic Authentication Extension`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) authenticates `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
-Please check the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) documentation for more details on how to manage user files for basic authentication.
+The [`Basic Authentication Extension`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) authenticates the `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
+Refer to the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) documentation to know how to manage user files for basic authentication.
 
 ```yaml
   basicauth:
@@ -52,9 +52,9 @@ Please check the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/ht
       file: security/.htpasswd
 ```
 
-The `.htpasswd` file should be placed under the `security` directory.
+The `.htpasswd` file is stored in the `security` directory.
 
-> **Warning**: If you update your `.htpasswd` file, please make sure to configure the **Hardware Sentry Agent** to set the correct [Basic Authentication Header](configure-agent.md#Basic_Authentication_Header).
+> **Warning**: If a different password is specified in the `.htpasswd` file, update the [Basic Authentication Header](configure-agent.md#Basic_Authentication_Header) of the **Hardware Sentry Agent**.
 
 ## Receivers
 

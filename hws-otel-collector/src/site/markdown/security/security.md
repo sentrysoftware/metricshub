@@ -1,5 +1,5 @@
 keywords: security, password, encrypt, key, certificate, tls, authentication
-description: ${project.name} delivers several security mechanisms to help secure its passwords stored in the YAML configuration files and its internal network communications.
+description: Security mechanisms to encrypt passwords and secure the configuration files and its internal network communications.
 
 # Security
 
@@ -7,23 +7,22 @@ description: ${project.name} delivers several security mechanisms to help secure
 
 ## Overview
 
-The ${project.name} provides a set of security aspects to help securing:
-- The **Hardware Sentry Agent**'s passwords stored in the YAML configuration file.
+The **${project.name}** provides a set of security mechanisms to secure:
+
+- The **Hardware Sentry Agent**'s passwords stored in the YAML configuration file
 - The communications instantiated between the **Hardware Sentry Agent** and the **OpenTelemetry Collector**.
 
 ## Encryption
 
-The ${project.name} wraps the `hws-encrypt` CLI which can be used to encrypt the passwords configured in the `config/hws-config.yaml` file. This protects the loss of sensitive data if your configuration file is exposed.
-
-To understand how the `hws-encrypt` CLI works, review the procedure defined in the [Passwords Encryption](passwords.md#Passwords_Encryption) page.
+The **${project.name}** includes the `hws` CLI  CLI which can be used to encrypt the passwords configured in the `config/hws-config.yaml` file using the `hws-encrypt`  command to prevent sensitive data from being exposed. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
 
 ## OpenTelemetry Collector Security
 
 ### Receiver Security
 
-To avoid any incorrect data feed, by default, the ${project.name}'s internal `OTLP gRPC Receiver` ensures to open its `gRPC` listener on `localhost` only.
+By default, the internal `OTLP gRPC Receiver` of **${project.name}** only opens the `gRPC` listener on `localhost` to prevent malicious attacks.
 
-Here is how the endpoint is configured for the `OTLP gRPC Receiver` (`config/otel-config.yaml`):
+The endpoint for the `OTLP gRPC Receiver` is configured as followed in the `config/otel-config.yaml` file:
 
 ```yaml
   otlp:
@@ -34,9 +33,9 @@ Here is how the endpoint is configured for the `OTLP gRPC Receiver` (`config/ote
 
 ### Transport Security
 
-The ${project.name} secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
+The **${project.name}** secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
 
-Here is the `OTLP gRPC Receiver` configuration including TLS (`config/otel-config.yaml`):
+The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
 
 ```yaml
   otlp:
@@ -50,11 +49,12 @@ Here is the `OTLP gRPC Receiver` configuration including TLS (`config/otel-confi
 ```
 
 To customize the default TLS settings, see [Customizing TLS Certificates](settings.md#Customizing_TLS_Certificates).
+
 ### Requests Authentication
 
-Once TLS is established, each metric request moves to the authentication step. That's why the `OTLP gRPC Receiver` is configured to authenticate any incoming request using the `basicauth` authenticator.
+Once TLS is established, the `OTLP gRPC Receiver` authenticates any incoming request by using the `basicauth` authenticator.
 
-Here is the `OTLP gRPC Receiver` configuration including the authenticator (`config/otel-config.yaml`):
+The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
 
 ```yaml
   otlp:
