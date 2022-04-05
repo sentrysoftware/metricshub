@@ -13,6 +13,7 @@ import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class Connector implements Serializable {
 	private Boolean remoteSupport;
 	private Boolean localSupport;
 	private Boolean noAutoDetection;
+	private MonitorType onLastResort;
 
 	@Default
 	private Set<OSType> appliesToOS = new HashSet<>();

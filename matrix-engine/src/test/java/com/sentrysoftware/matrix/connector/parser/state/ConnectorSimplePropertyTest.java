@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.NoAutoDetectionProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.OnLastResortProcessor;
+
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOSProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.CommentsProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.DisplayNameProcessor;
@@ -1002,7 +1005,7 @@ class ConnectorSimplePropertyTest {
 		assertEquals(
 				Stream.of(DisplayNameProcessor.class, TypicalPlatformProcessor.class, ReliesOnProcessor.class, VersionProcessor.class,
 						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class,
-						CommentsProcessor.class, NoAutoDetectionProcessor.class)
+						CommentsProcessor.class, NoAutoDetectionProcessor.class, OnLastResortProcessor.class)
 						.collect(Collectors.toSet()),
 				ConnectorSimpleProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
 	}
@@ -1069,4 +1072,52 @@ class ConnectorSimplePropertyTest {
 		noAutoDetectionProcessor.parse(NO_AUTODETECTION_KEY, Boolean.TRUE.toString(), connector);
 		assertTrue(connector.getNoAutoDetection());
 	}
+	
+	@Test
+	void testOnLastResortDetect() {
+		
+		OnLastResortProcessor onLastResortProcessor = new OnLastResortProcessor();
+		
+		Connector connector = new Connector();
+
+		assertTrue(onLastResortProcessor.detect("hdf.onLastResort", "Enclosure", connector));
+		assertFalse(onLastResortProcessor.detect("hdf.doesNoExist", "Enclosure", connector));
+	}
+	
+	@Test
+	void testOnLastResortParse() {
+		
+		OnLastResortProcessor onLastResortProcessor = new OnLastResortProcessor();
+		
+		// An empty connector cannot be of type "last resort". Obviously ;-)
+		Connector connector = new Connector();
+		assertNull(connector.getOnLastResort());
+		
+		// An empty last resort directive is considered as null
+		connector = new Connector();
+		onLastResortProcessor.parse("hdf.onLastResort", "", connector);
+		assertNull(connector.getOnLastResort());
+		
+		// The last resort type must be properly parsed
+		connector = new Connector();
+		onLastResortProcessor.parse("hdf.onLastResort", "Enclosure", connector);
+		assertEquals(MonitorType.ENCLOSURE, connector.getOnLastResort());
+		
+		//The last resort type must be properly parsed (case insensitive)
+		connector = new Connector();
+		onLastResortProcessor.parse("hdf.onLastResort", "eNclOsuRe", connector);
+		assertEquals(MonitorType.ENCLOSURE, connector.getOnLastResort());
+		
+		// Any hardware monitor type should be supported
+		connector = new Connector();
+		onLastResortProcessor.parse("hdf.onLastResort", "Fan", connector);
+		assertEquals(MonitorType.FAN, connector.getOnLastResort());
+		
+		// Error handling
+		assertDoesNotThrow(() -> onLastResortProcessor.parse("hdf.onLastResort", "Enclosure", null));
+		assertDoesNotThrow(() -> onLastResortProcessor.parse("hdf.onLastResort", null, new Connector()));
+		
+	}
+
+	
 }

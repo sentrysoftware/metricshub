@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -29,6 +30,7 @@ import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
@@ -134,17 +136,20 @@ public class DetectionOperation extends AbstractStrategy {
 		// Now we know what would be executed, filter the connectors based on the accepted protocols
 		connectorStream = filterConnectorsByAcceptedSources(connectorStream, acceptedSources);
 
-		// Now detect the connectors, try to run the detection criteria for each
-		// connector and select only the connectors
-		// matching the succeeded criteria
-		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname);
-
+		// Now detect the connectors, try to run the detection criteria for each connector and select only the connectors
+		// matching the succeeded criteria. Sort the connectors alphabetically
+		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname)
+				.sorted(Comparator.comparing(tc -> tc.getConnector().getCompiledFilename()));
+		
 		// Only successful connectors for the auto detection
 		final List<TestedConnector> testedConnectorList = keepOnlySuccessConnectors(testedConnectors, hostname)
 				.collect(Collectors.toList());
 
 		// Supersedes handling
 		handleSupersedes(testedConnectorList);
+		
+		// Filter out last resort connectors when appropriate
+		filterLastResortConnectors(testedConnectorList);
 
 		// We have detected connectors, now we need to handle Supersedes
 		log.debug(
@@ -154,6 +159,62 @@ public class DetectionOperation extends AbstractStrategy {
 
 		return testedConnectorList;
 	}
+
+	/**
+	 * Removes detected connectors of type "last resort" if their specified "last resort" monitor type (enclosure, fan, etc.) is already 
+	 * discovered by "regular" connector.
+	 * 
+	 * @param matchingConnectorList The list of detected connectors, that match the host
+	 * 
+	 */
+	
+	void filterLastResortConnectors(List<TestedConnector> matchingConnectorList) {
+
+		// Extract the list of last resort connectors from the list of matching connectors
+		final List<TestedConnector> lastResortConnectorList = matchingConnectorList
+				.stream()
+				.filter(tc -> tc.getConnector().getOnLastResort() != null)
+				.collect(Collectors.toList());
+		
+		if (lastResortConnectorList.isEmpty()) {
+			return;
+		}
+		
+		// Extract the list of regular connectors connectors from the list of matching connectors
+		final List<TestedConnector> regularConnectorList = matchingConnectorList
+				.stream()
+				.filter(tc -> tc.getConnector().getOnLastResort() == null)
+				.collect(Collectors.toList());
+		
+		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type 
+		lastResortConnectorList.forEach(lastResortTC -> {
+			
+			boolean hasLastResortMonitor = regularConnectorList.stream().anyMatch(tc -> { 
+				List<HardwareMonitor> hardwareMonitors = tc.getConnector().getHardwareMonitors();
+				
+				if (hardwareMonitors == null || hardwareMonitors.isEmpty()) {
+					log.warn("{} connector detection. On last resort filter: connector {} has no hardware monitors",
+							strategyConfig.getEngineConfiguration().getTarget().getHostname(),
+							tc.getConnector().getCompiledFilename());
+					return false;
+				}
+	
+				// The monitor's instance table must not be empty
+				return hardwareMonitors.stream().anyMatch(hm -> lastResortTC.getConnector().getOnLastResort().equals(hm.getType())
+						&& hm.getDiscovery() != null && hm.getDiscovery().getInstanceTable() != null);	
+			});
+		
+			if (hasLastResortMonitor) {
+				// The current connector discovers the same type has the defined last resort type. Discard last resort connector 
+				matchingConnectorList.remove(lastResortTC);
+			} else {
+				// Add the last resort connector to the list of "regular" connectors so that it prevents other
+				// last resort connectors of the same type from matching (but that should never happen, right connector developers?)
+				regularConnectorList.add(lastResortTC);
+			}
+		});
+	}
+
 
 	/**
 	 * Filter the given stream of {@link Connector} instances based on the source
