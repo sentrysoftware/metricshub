@@ -7,13 +7,13 @@ description: How to configure ${project.name} security settings.
 
 ## Customizing TLS Certificates
 
-You can use your own certificate to secure the communications between between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** by replacing the default TLS certificate of the `OTLP gRPC Receiver`.
+You can use your own certificate to secure the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** by replacing the default TLS certificate of the `OTLP gRPC Receiver`.
 
 ### Prerequisites
 
 - The certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements will be automatically selected.
 - The private key must be nonencrypted and in PEM format.
-- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only athe **Hardware Sentry Agent**'s `OTLP Exporter` performs hostname verification.
+- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only and the **Hardware Sentry Agent**'s `OTLP Exporter` performs hostname verification.
 
 ### Procedure
 
@@ -48,7 +48,7 @@ You can use your own certificate to secure the communications between between th
 
 #### Generating a Self-Signed Certificate with OpenSSL (Example)
 
-OpenSSL is a command line tool to generate X.509 certificates and can be used to generate Self-Signed Certificates.
+OpenSSL is a command line tool to generate X.509 certificates. It can be used to generate Self-Signed Certificates.
 
 > The example below explains how to generate a server certificate using the OpenSSL utility on a Linux machine. Your organization may define its own security policy to handle certificates and private keys. Before proceeding further, make sure that this procedure is right for your organization.
 

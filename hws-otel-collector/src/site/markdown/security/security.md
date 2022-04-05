@@ -7,14 +7,14 @@ description: Security mechanisms to encrypt passwords and secure the configurati
 
 ## Overview
 
-The **${project.name}** provides a set of security mechanisms to secure:
+**${project.name}** provides a set of security mechanisms to secure:
 
 - The **Hardware Sentry Agent**'s passwords stored in the YAML configuration file
 - The communications instantiated between the **Hardware Sentry Agent** and the **OpenTelemetry Collector**.
 
 ## Encryption
 
-The **${project.name}** includes the `hws` CLI  CLI which can be used to encrypt the passwords configured in the `config/hws-config.yaml` file using the `hws-encrypt`  command to prevent sensitive data from being exposed. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
+**${project.name}** includes the `hws` CLI which can be used to encrypt the passwords configured in the `config/hws-config.yaml` file using the `hws-encrypt`  command to prevent sensitive data from being exposed. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
 
 ## OpenTelemetry Collector Security
 
@@ -22,7 +22,7 @@ The **${project.name}** includes the `hws` CLI  CLI which can be used to encrypt
 
 By default, the internal `OTLP gRPC Receiver` of **${project.name}** only opens the `gRPC` listener on `localhost` to prevent malicious attacks.
 
-The endpoint for the `OTLP gRPC Receiver` is configured as followed in the `config/otel-config.yaml` file:
+The endpoint for the `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
 
 ```yaml
   otlp:
@@ -33,7 +33,7 @@ The endpoint for the `OTLP gRPC Receiver` is configured as followed in the `conf
 
 ### Transport Security
 
-The **${project.name}** secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
+**${project.name}** secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
 
 The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
 
