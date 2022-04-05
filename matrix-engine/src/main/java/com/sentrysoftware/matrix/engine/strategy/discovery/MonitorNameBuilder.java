@@ -69,8 +69,7 @@ public class MonitorNameBuilder {
 	public static final String NETWORK_SWITCH_ENCLOSURE = "Network Switch";
 	public static final String STORAGE_ENCLOSURE = "Storage System";
 	public static final String SUN_SOLARIS_COMPUTER = "Oracle Solaris Computer";
-	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure" + ": " 
-			+ System.getProperty("os.name") + " " + System.getProperty("os.arch");
+	public static final String LOCALHOST_ENCLOSURE = System.getProperty("os.name") + " " + System.getProperty("os.arch");
 
 	// Error messages
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
