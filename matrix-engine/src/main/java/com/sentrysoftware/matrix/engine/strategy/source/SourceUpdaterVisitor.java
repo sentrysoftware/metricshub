@@ -104,8 +104,10 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 */
 	private SourceTable processExecuteForEachEntryOf(final Source source, final String sourceTableKey) {
 		final SourceTable sourceTable = getSourceTable(sourceTableKey);
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (sourceTable == null) {
-			log.error("The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", sourceTableKey);
+			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", 
+					hostname, sourceTableKey);
 			return SourceTable.empty();
 		}
 
@@ -117,7 +119,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			try {
 				copy.update(dataValue -> replaceDynamicEntry(dataValue, row));
 			} catch (NumberFormatException e) {
-				log.warn("The dynamic key from Source is badly formatted : {}", copy);
+				log.warn("Hostname {} - The dynamic key from Source is badly formatted : {}", hostname, copy);
 				continue;
 			}
 
@@ -261,9 +263,10 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 		// Get the source table defining where we are going to fetch the value
 		final SourceTable sourceTable = getSourceTable(foreignSourceKey);
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (sourceTable == null) {
-			log.error("Couldn't extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
-					foreignSourceKey, originalSourceKey, fieldLabel);
+			log.error("Hostname {} - Couldn't extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
+					hostname, foreignSourceKey, originalSourceKey, fieldLabel);
 			return null;
 		}
 
@@ -271,7 +274,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final List<List<String>> table = sourceTable.getTable();
 		String value = null;
 		if (table != null && !table.isEmpty()) {
-			log.debug("Get {} defined in source {} from list table.", fieldLabel, foreignSourceKey);
+			log.debug("Hostname {} - Get {} defined in source {} from list table.", hostname, fieldLabel, foreignSourceKey);
 			final List<String> firstRow = table.get(0);
 			if (firstRow != null && !firstRow.isEmpty()) {
 				// First column
@@ -282,13 +285,13 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		// Try raw data
 		final String rawData = sourceTable.getRawData();
 		if (value == null && rawData != null) {
-			log.debug("Get {} defined in source {} from raw data.", fieldLabel, foreignSourceKey);
+			log.debug("Hostname {} - Get {} defined in source {} from raw data.", hostname, fieldLabel, foreignSourceKey);
 			// First column
 			value = rawData.split(";")[0];
 		}
 
 		if (value == null) {
-			log.error("Couldn't extract the {} defined in source {}.", fieldLabel, originalSourceKey);
+			log.error("Hostname {} - Couldn't extract the {} defined in source {}.", hostname, fieldLabel, originalSourceKey);
 		}
 
 		return value;

@@ -51,12 +51,12 @@ public class CollectHelper {
 	 * @param interpreter   interpret function used to translate the state
 	 * @param parameterName The name of the parameter we wish to collect
 	 * @param monitorId     Current collected monitor identifier
-	 * @param hostname      Current hostname
+	 * @param hostname      Current hostname used for logging only
 	 * @return {@link IState} value
 	 */
 	public static IState translateState(final String stateValue, 
 			@NonNull final Function<String, Optional<? extends IState>> interpreter,
-			@NonNull final String parameterName, @NonNull final String monitorId, @NonNull String hostname) {
+			@NonNull final String parameterName, @NonNull final String monitorId, @NonNull final String hostname) {
 
 		if (stateValue == null) {
 			return null;
@@ -64,7 +64,7 @@ public class CollectHelper {
 
 		final Optional<? extends IState> state = interpreter.apply(stateValue);
 		if (state.isEmpty()) {
-			log.error("For host {}, unexpected state value for instance {}. {} = null",
+			log.error("Hostname {} - Unexpected state value for instance {}. {} = null",
 					hostname,
 					monitorId,
 					parameterName
@@ -83,11 +83,12 @@ public class CollectHelper {
 	 * @param monitorType      The type of the monitor we wish to collect
 	 * @param row              The data which indicate the parameters to collect
 	 * @param valueTableColumn The column index formatted as `ValueTable.Column($number)`
+	 * @param hostname         Current hostname used for logging only
 	 * @return {@link String} value
 	 */
 	public static String getValueTableColumnValue(@NonNull final String valueTable, @NonNull final String parameterKey,
 			@NonNull final MonitorType monitorType, @NonNull final List<String> row,
-			final String valueTableColumn) {
+			final String valueTableColumn, @NonNull final String hostname) {
 
 		if (valueTableColumn == null) {
 			return null;
@@ -104,7 +105,8 @@ public class CollectHelper {
 				return row.get(columnIndex);
 
 			} else {
-				log.warn("Collect - Column {} doesn't match the value table source {}. parameterKey {} - row {} - monitorType {}",
+				log.warn("Hostname {} - Collect - Column {} doesn't match the value table source {}. parameterKey {} - row {} - monitorType {}",
+						hostname,
 						columnIndex,
 						valueTable,
 						parameterKey,
@@ -213,10 +215,11 @@ public class CollectHelper {
 	 * @param parameterName	The name of the parameter
 	 * @param minuend		Minuend of the subtraction
 	 * @param subtrahend	Subtrahend of the subtraction
+	 * @param hostname      Current hostname used for logging only
 	 *
 	 * @return {@link Double} value
 	 */
-	public static Double subtract(final String parameterName, final Double minuend, final Double subtrahend) {
+	public static Double subtract(final String parameterName, final Double minuend, final Double subtrahend, final String hostname) {
 
 		if (minuend == null || subtrahend == null) {
 			return null;
@@ -225,7 +228,8 @@ public class CollectHelper {
 		final double result = minuend - subtrahend;
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameterName)) {
-			log.warn("Suspicious negative value ({} - {}) = {} for parameter {}", minuend, subtrahend, result, parameterName);
+			log.warn("Hostname {} - Suspicious negative value ({} - {}) = {} for parameter {}", 
+					hostname, minuend, subtrahend, result, parameterName);
 			return null;
 		}
 
@@ -239,16 +243,17 @@ public class CollectHelper {
 	 * @param parameter The parameter we wish to compute using a division (Rate, Percentage...)
 	 * @param dividend  The dividend to use
 	 * @param divisor   The divisor to use
+	 * @param hostname  Current hostname used for logging only
 	 * @return {@link Double} value
 	 */
-	public static Double divide(final String parameter, final Double dividend, final Double divisor) {
+	public static Double divide(final String parameter, final Double dividend, final Double divisor, final String hostname) {
 
 		if (dividend == null || divisor == null) {
 			return null;
 		}
 
 		if (divisor == 0) {
-			log.debug("Couldn't compute ({} / {}) for parameter {}", dividend, divisor, parameter);
+			log.debug("Hostname {} - Couldn't compute ({} / {}) for parameter {}", hostname, dividend, divisor, parameter);
 			return null;
 		}
 
@@ -293,14 +298,15 @@ public class CollectHelper {
 	 * @param previousValue       The value from the previous collect
 	 * @param collectTime         The time of the current collect
 	 * @param previousCollectTime The time of the previous collect
+	 * @param hostname            Current hostname used for logging only
 	 *
 	 * @return {@link Double} value
 	 */
 	public static Double rate(String parameterName, Double value, Double previousValue, Double collectTime,
-			Double previousCollectTime) {
+			Double previousCollectTime, String hostname) {
 		return CollectHelper.divide(parameterName,
-				CollectHelper.subtract(parameterName, value, previousValue),
-				CollectHelper.subtract(parameterName, collectTime, previousCollectTime));
+				CollectHelper.subtract(parameterName, value, previousValue, hostname),
+				CollectHelper.subtract(parameterName, collectTime, previousCollectTime, hostname), hostname);
 	}
 
 	/**
@@ -311,12 +317,13 @@ public class CollectHelper {
 	 * @param currentCollectTimeInMilliseconds	The time when the current value of the parameter was collected,
 	 *                                          in milliseconds.
 	 * @param monitor							The {@link Monitor} having the parameter.
+	 * @param hostname                          Current hostname used for logging only
 	 *
 	 * @return									The value of the parameter's rate.<br>
 	 * 											Null if the computation could not be done.
 	 */
 	public static Double rate(String parameterName, Double currentValue,
-							  Long currentCollectTimeInMilliseconds, Monitor monitor) {
+							  Long currentCollectTimeInMilliseconds, Monitor monitor, String hostname) {
 
 		if (parameterName == null || currentValue == null || currentCollectTimeInMilliseconds == null
 			|| monitor == null) {
@@ -336,15 +343,15 @@ public class CollectHelper {
 		if (previousCollectTimeInMilliseconds == null) {
 
 			// This should never happen
-			log.warn(String.format("Found previous %s value, but could not find previous collect time.",
-				parameterName));
+			log.warn("Hostname {} - Found previous {} value, but could not find previous collect time.",
+				hostname, parameterName);
 
 			return null;
 		}
 
 		// Converting the collect times from milliseconds to seconds, and computing the rate
 		return rate(parameterName, currentValue, previousValue,
-			currentCollectTimeInMilliseconds.doubleValue() / 1000.0, previousCollectTimeInMilliseconds / 1000.0);
+			currentCollectTimeInMilliseconds.doubleValue() / 1000.0, previousCollectTimeInMilliseconds / 1000.0, hostname);
 	}
 
 	/**
@@ -469,7 +476,7 @@ public class CollectHelper {
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, POWER_CONSUMPTION_PARAMETER, true);
 
 		final Double deltaTimeMs = CollectHelper.subtract(POWER_CONSUMPTION_PARAMETER,
-				collectTime.doubleValue(), collectTimePrevious);
+				collectTime.doubleValue(), collectTimePrevious, hostname);
 
 		// Convert deltaTimeMs from milliseconds (ms) to seconds
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
@@ -513,8 +520,8 @@ public class CollectHelper {
 			);
 
 		} else {
-			log.debug("Cannot compute energy usage for monitor {} on system {}. Current power consumption {}, current time {}, previous time {}",
-					monitor.getId(), hostname, powerConsumption, collectTime, collectTimePrevious);
+			log.debug("Hostname {} - Cannot compute energy usage for monitor {}. Current power consumption {}, current time {}, previous time {}",
+					hostname, monitor.getId(), powerConsumption, collectTime, collectTimePrevious);
 		}
 	}
 
@@ -544,10 +551,10 @@ public class CollectHelper {
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, ENERGY_USAGE_PARAMETER, true);
 
 		// Calculate the delta to get the energy usage value
-		final Double energyUsageKw = CollectHelper.subtract(ENERGY_USAGE_PARAMETER, energyRawKw, energyRawKwPrevious);
+		final Double energyUsageKw = CollectHelper.subtract(ENERGY_USAGE_PARAMETER, energyRawKw, energyRawKwPrevious, hostname);
 
 		// Calculate the delta time in milliseconds
-		final Double deltaTimeMs = CollectHelper.subtract("energyUsage.collectTime", collectTime.doubleValue(), collectTimePrevious);
+		final Double deltaTimeMs = CollectHelper.subtract("energyUsage.collectTime", collectTime.doubleValue(), collectTimePrevious, hostname);
 
 		// Convert delta time milliseconds to seconds
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
@@ -563,8 +570,8 @@ public class CollectHelper {
 			);
 
 		} else {
-			log.debug("Cannot compute energy usage for monitor {} on system {}. Current raw energy {}, previous raw energy {}",
-					monitor.getId(), hostname, energyRawKw, energyRawKwPrevious);
+			log.debug("Hostname {} - Cannot compute energy usage for monitor {}. Current raw energy {}, previous raw energy {}",
+					hostname, monitor.getId(), energyRawKw, energyRawKwPrevious);
 		}
 
 		if (energyUsageKw != null && deltaTime != null && deltaTime != 0.0) {
@@ -580,8 +587,8 @@ public class CollectHelper {
 				powerConsumptionWatts
 			);
 		} else {
-			log.debug("Cannot compute power consumption for monitor {} on system {}. Current raw energy {}, previous raw energy {}, current time {}, previous time {}",
-					monitor.getId(), hostname, energyRawKw, energyRawKwPrevious, collectTime, collectTimePrevious);
+			log.debug("Hostname {} - Cannot compute power consumption for monitor {}. Current raw energy {}, previous raw energy {}, current time {}, previous time {}",
+					hostname, monitor.getId(), energyRawKw, energyRawKwPrevious, collectTime, collectTimePrevious);
 		}
 
 		// Updating the monitor's energy parameter

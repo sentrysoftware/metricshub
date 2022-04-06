@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
 
-	private static final String NO_HW_MONITORS_FOUND_MSG = "Could not discover system {}. No hardware monitors found in the connector {}";
+	private static final String NO_HW_MONITORS_FOUND_MSG = "Hostname {} - Could not discover. No hardware monitors found in the connector {}";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
@@ -52,7 +52,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	public Boolean call() throws Exception {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Start discovery for system {}", hostname);
+		log.debug("Hostname {} - Start discovery", hostname);
 
 		// Get the connectors previously created/selected in the DetectionOperation
 		// strategy
@@ -62,13 +62,13 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
 
 		if (targets == null) {
-			log.error("No target found for system {}. Stop discovery operation", hostname);
+			log.error("Hostname {} - No target found. Stop discovery operation", hostname);
 			return false;
 		}
 
 		final Monitor targetMonitor = targets.values().stream().findFirst().orElse(null);
 		if (targetMonitor == null) {
-			log.error("No target monitor found for system {}. Stop discovery operation", hostname);
+			log.error("Hostname {} - No target monitor found. Stop discovery operation", hostname);
 			return false;
 		}
 
@@ -80,7 +80,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("No connector detected in the detection operation. Stop discovery operation");
+			log.error("Hostname {} - No connector detected in the detection operation. Stop discovery operation", hostname);
 			return false;
 		}
 
@@ -120,7 +120,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
 			final Monitor targetMonitor) {
 
-		log.debug("Processing connector {} for system {}", connector.getCompiledFilename(), hostname);
+		log.debug("Hostname {} - Processing connector {}", hostname, connector.getCompiledFilename());
 
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
@@ -147,14 +147,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// The user may want to run queries sent to the target one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Running discovery in sequential mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+			log.info("Hostname {} - Running discovery in sequential mode. Connector: {}", hostname, connector.getCompiledFilename());
 
 			hardwareMonitors.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector,
 					hostMonitoring, targetMonitor, hostname));
 
 		} else {
 
-			log.info("Running discovery in parallel mode. Connector: {}. Hostname: {}", connector.getCompiledFilename(), hostname);
+			log.info("Hostname {} - Running discovery in parallel mode. Connector: {}", hostname, connector.getCompiledFilename());
 
 			// Now discover the rest of the monitors in parallel mode
 			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
@@ -176,7 +176,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				if (e instanceof InterruptedException) {
 					Thread.currentThread().interrupt();
 				}
-				log.debug("Waiting for threads termination aborted with an error", e);
+				log.debug("Hostname {} - Waiting for threads termination aborted with an error", hostname, e);
 			}
 		}
 
@@ -238,15 +238,15 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (instanceTable == null) {
-			log.warn("No instance table found with {} during the discovery for the connector {} on system {}",
-					monitorType.getNameInConnector(), connectorName, hostname);
+			log.warn("Hostname {} - No instance table found with {} during the discovery for the connector {}",
+					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
 
 		// Check discovery parameters, so we can create the monitor with the metadata
 		if (parameters == null || parameters.isEmpty()) {
-			log.warn("No parameter found with {} during the discovery for the connector {} on system {}",
-					monitorType.getNameInConnector(), connectorName, hostname);
+			log.warn("Hostname {} - No parameter found with {} during the discovery for the connector {}",
+					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
 
@@ -261,8 +261,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceKey no monitor
 			if (sourceKey == null) {
 				log.error(
-						"No source key found with monitor {} for connector {} on system {}",
-						monitorType.getNameInConnector(), connectorName, hostname);
+						"Hostname {} - No source key found with monitor {} for connector {}",
+						hostname, monitorType.getNameInConnector(), connectorName);
 				return;
 			}
 
@@ -273,8 +273,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceTable no monitor
 			if (sourceTable == null) {
 				log.debug(
-						"No source table created with source key {} for connector {} on system {}",
-						sourceKey, connectorName, hostname);
+						"Hostname {} - No source table created with source key {} for connector {}",
+						hostname, sourceKey, connectorName);
 				return;
 			}
 
@@ -385,6 +385,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void processSourceTableMetadata(final String connectorName, final Map<String, String> parameters,
 									final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
@@ -405,8 +407,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 					}
 
 				} else {
-					log.warn("Column {} doesn't match the instance table source {} for connector {}", columnIndex,
-							sourceKey, connectorName);
+					log.warn("Hostname {} - Column {} doesn't match the instance table source {} for connector {}", columnIndex,
+							hostname, sourceKey, connectorName);
 				}
 			} else {
 				// Hard coded value
@@ -444,13 +446,13 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Is there any discovery job here ?
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("No type specified for hardware monitor job with connector {} on system {}", connectorName, hostname);
+			log.warn("Hostname {} - No type specified for hardware monitor job with connector {}", hostname, connectorName);
 			return false;
 		}
 
 		if (hardwareMonitor.getDiscovery() == null) {
-			log.warn("No {} monitor job specified during the discovery for the connector {} on system {}",
-					monitorType.getNameInConnector(), connectorName, hostname);
+			log.warn("Hostname {} - No {} monitor job specified during the discovery for the connector {}",
+					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
 
@@ -478,7 +480,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
-					"Could not detect cpu temperature sensors on the given host: {}. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
+					"Hostname {} - Could not detect cpu temperature sensors. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
 					strategyConfig.getEngineConfiguration().getTarget().getHostname());
 			return;
 		}
