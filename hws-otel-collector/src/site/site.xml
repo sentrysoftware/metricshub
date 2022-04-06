@@ -25,8 +25,8 @@
 		</menu>
 
 		<menu name="Configuration">
-			<item name="OpenTelemetry Configuration" href="configuration/configure-otel.html" />
-			<item name="Monitoring Configuration" href="configuration/configure-agent.html" />
+			<item name="OpenTelemetry Collector" href="configuration/configure-otel.html" />
+			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
 			<item name="Security" href="security/security.html">
 				<item name="Password Encryption" href="security/passwords.html" />
 				<item name="Security Settings" href="security/settings.html" />
