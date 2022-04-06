@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,6 +69,7 @@ import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.detection.TestedConnector;
 import com.sentrysoftware.matrix.engine.strategy.discovery.HardwareMonitorComparator;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
@@ -92,6 +94,10 @@ public class CollectOperation extends AbstractStrategy {
 		// Why ? Before the next collect we save the parameters previous values
 		// in order to compute delta and rates
 		strategyConfig.getHostMonitoring().saveParameters();
+
+		// Set the trigger and the alert information on each alert rule
+		prepareAlertRules();
+
 	}
 
 	@Override
@@ -1465,5 +1471,50 @@ public class CollectOperation extends AbstractStrategy {
 			return  6.0;
 		}
 		return 3.0;
+	}
+
+	/**
+	 * Prepare all the alert rules before starting the collect.<br>
+	 * This method sets the alert trigger {@link Consumer} and the alert information
+	 * {@link AlertInfo} used to build the final alert content on each alert rule.
+	 */
+	void prepareAlertRules() {
+		// Inject the alert trigger and alert information in each alert rule
+		// We set the values in the collect because an engine wrapper (e.g. hws-agent)
+		// could build the alert trigger (consumer) only after the discovery is completed as it requires discovered information
+		final Consumer<AlertInfo> alertTrigger = strategyConfig.getEngineConfiguration().getAlertTrigger();
+		if (alertTrigger != null) {
+			// Flatten all the monitors
+			final Stream<Monitor> allMonitors = strategyConfig.getHostMonitoring()
+					.getMonitors()
+					.values()
+					.stream()
+					.map(Map::values)
+					.flatMap(Collection::stream);
+
+			// Loop over each monitor then each alert rule and set the required attributes
+			allMonitors.forEach(monitor -> 
+
+				// Loop over all the alert rules
+				monitor.getAlertRules().entrySet().forEach(alertRulesEntry -> {
+					final String parameterName = alertRulesEntry.getKey();
+					// A parameter can have several alert rules
+					alertRulesEntry.getValue().forEach(alertRule -> {
+						// The trigger passed by the hws-agent
+						alertRule.setTrigger(alertTrigger);
+						// Create and set a new AlertInfo
+						alertRule.setAlertInfo(AlertInfo
+								.builder()
+								.alertRule(alertRule)
+								.monitor(monitor)
+								.parameterName(parameterName)
+								.hardwareTarget(strategyConfig.getEngineConfiguration().getTarget())
+								.hostMonitoring(strategyConfig.getHostMonitoring())
+								.build()
+						);
+					});
+				})
+			);
+		}
 	}
 }

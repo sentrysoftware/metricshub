@@ -4,17 +4,24 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 public class AlertRule {
 	@JsonIgnore
 	private BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker;
@@ -25,6 +32,13 @@ public class AlertRule {
 	private AlertDetails details;
 	private AlertRuleState active = AlertRuleState.INACTIVE;
 	private AlertRuleType type;
+	@JsonIgnore
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	private AlertInfo alertInfo;
+	@JsonIgnore
+	private Consumer<AlertInfo> trigger;
+	private boolean triggered;
 
 	public AlertRule(@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker, @NonNull Set<AlertCondition> conditions,
 			long period, @NonNull Severity severity, @NonNull AlertRuleType type) {
@@ -64,10 +78,8 @@ public class AlertRule {
 	 * @param monitor The monitor on wish we apply the condition
 	 */
 	public void evaluate(Monitor monitor) {
-		if (conditions != null) {
-			details = conditionsChecker.apply(monitor, conditions);
-			refresh();
-		}
+		details = conditionsChecker.apply(monitor, conditions);
+		refresh();
 	}
 
 	/**
@@ -91,21 +103,50 @@ public class AlertRule {
 	}
 
 	/**
-	 * Refresh the current {@link AlertRule}.
+	 * Refresh the current {@link AlertRule} and trigger the alert if the alert rule
+	 * state is active and not triggered yet
 	 */
 	private void refresh() {
+
 		// We have a details ? means the condition returned true (unfortunately)
 		if (details != null) {
+
 			long currentTimeMillis = System.currentTimeMillis();
 			firstTriggerTimestamp = firstTriggerTimestamp == null ? currentTimeMillis : firstTriggerTimestamp;
+
 			// If we reach the time limit defined by the period then the AlertRule becomes ACTIVE otherwise it is PENDING
 			if (currentTimeMillis - firstTriggerTimestamp >= period) {
+
 				active = AlertRuleState.ACTIVE;
+
+				// If the alert is not triggered yet then trigger a new one
+				if (!isTriggered() && trigger != null && alertInfo != null) {
+
+					try {
+						// Trigger the alert by consuming the alert information
+						trigger.accept(alertInfo);
+					} catch (Exception e) {
+						log.debug("Hostname {} - Exception detected when triggering alert.", StringHelper.getValue(
+								() -> alertInfo.getHardwareTarget().getHostname(), HardwareConstants.EMPTY), e);
+					}
+
+					// Set triggered to true to avoid triggering the same alert in future collects
+					triggered = true;
+
+				}
+
 			} else {
+
 				active = AlertRuleState.PENDING;
+
 			}
 		} else {
+
+			// Reset the first trigger time stamp as we are not in an abnormality
 			firstTriggerTimestamp = null;
+
+			// Release the trigger for a future abnormality
+			triggered = false;
 		}
 	}
 

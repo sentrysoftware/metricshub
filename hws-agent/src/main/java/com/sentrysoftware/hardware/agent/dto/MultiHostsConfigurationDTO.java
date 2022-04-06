@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.agent.dto;
 
-import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MultiHostsConfigurationDTO {
 
+	public static final String HW_PROBLEM_DEFAULT_TEMPLATE = "Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}";
 	public static final int DEFAULT_JOB_POOL_SIZE = 20;
 	public static final long DEFAULT_COLLECT_PERIOD = 120;
 	public static final int DEFAULT_DISCOVERY_CYCLE = 30;
@@ -72,6 +73,12 @@ public class MultiHostsConfigurationDTO {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private ExporterConfigDTO exporter = ExporterConfigDTO.builder().build();
+
+	@Default
+	private String hardwareProblemTemplate = HW_PROBLEM_DEFAULT_TEMPLATE;
+
+	@Default
+	private boolean disableAlerting = false;
 
 	/**
 	 * Build a new empty instance

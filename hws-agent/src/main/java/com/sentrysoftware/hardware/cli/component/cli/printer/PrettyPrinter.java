@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli.printer;
 
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +10,7 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
+import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.alert.Severity;
@@ -39,8 +39,6 @@ public class PrettyPrinter {
 			HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER.toLowerCase(),
 			HardwareConstants.DISK_CONTROLLER_NUMBER.toLowerCase()
 	);
-
-	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#########.###");
 
 	private PrintWriter out;
 	private IHostMonitoring result;
@@ -191,7 +189,7 @@ public class PrettyPrinter {
 						out.println(Ansi.ansi()
 								.a(String.format(paramNameFormat, param.getName()))
 								.bold()
-								.a(formatValue(param.numberValue()))
+								.a(NumberHelper.formatNumber(param.numberValue(), "%10s%s"))
 								.boldOff()
 								.a(" ")
 								.a(Attribute.INTENSITY_FAINT)
@@ -233,11 +231,4 @@ public class PrettyPrinter {
 		out.print(" ".repeat(indentation));
 	}
 
-	private static String formatValue(Number n) {
-		String stringValue = DECIMAL_FORMAT.format(n);
-		String[] valueParts = stringValue.split("\\.");
-		String leftPart = valueParts[0];
-		String rightPart = valueParts.length == 2 ? "." + valueParts[1] : "";
-		return String.format("%10s%s", leftPart, rightPart);
-	}
 }

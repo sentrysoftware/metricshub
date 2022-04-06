@@ -79,4 +79,8 @@ public class HostConfigurationDTO {
 	private Map<String, String> extraLabels = new HashMap<>();
 
 	private Boolean sequential;
+
+	private String hardwareProblemTemplate;
+
+	private Boolean disableAlerting;
 }

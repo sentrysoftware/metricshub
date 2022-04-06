@@ -54,7 +54,7 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 	 * @param parameterName The name of the parameter to check
 	 * @return <code>true</code> if the metricInfo is collected otherwise <code>false</code>
 	 */
-	static boolean isParameterAvailable(final Monitor monitor, final String parameterName) {
+	public static boolean isParameterAvailable(final Monitor monitor, final String parameterName) {
 		return checkParameter(monitor, parameterName)
 				&& getParameterValue(monitor, parameterName) != null;
 	}
@@ -79,7 +79,7 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 	 * @param parameterName The parameter name we want to extract from the given monitor instance
 	 * @return {@link Number} value
 	 */
-	static Number getParameterValue(final Monitor monitor, final String parameterName) {
+	public static Number getParameterValue(final Monitor monitor, final String parameterName) {
 
 		return monitor.getParameters().get(parameterName).numberValue();
 	}
