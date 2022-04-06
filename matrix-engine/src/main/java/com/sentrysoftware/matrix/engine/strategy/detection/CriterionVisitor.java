@@ -592,7 +592,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
 				process.getProcessCommandLine(),
-				wqlDetectionHelper
+				wqlDetectionHelper,
+				hostname
 		);
 		maybeLocalOS.get().accept(localOSVisitor);
 		return localOSVisitor.getCriterionTestResult();

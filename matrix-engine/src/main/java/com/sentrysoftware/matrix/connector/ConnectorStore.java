@@ -15,7 +15,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.sentrysoftware.matrix.common.exception.DeserializationException;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,6 @@ public class ConnectorStore {
 
 	@Getter
 	private Map<String, Connector> connectors;
-	
-	private StrategyConfig strategyConfig;
 
 	public static ConnectorStore getInstance() {
 
@@ -42,8 +39,7 @@ public class ConnectorStore {
 		try {
 			connectors = deserializeConnectors();
 		} catch (Exception e) {
-			log.error("Hostname {} - Error while deserializing connectors. The ConnectorStore is empty!", 
-					strategyConfig.getEngineConfiguration().getTarget().getHostname(), e);
+			log.error("Error while deserializing connectors. The ConnectorStore is empty!", e);
 			connectors = new HashMap<>();
 		}
 
@@ -63,11 +59,10 @@ public class ConnectorStore {
 						return (Connector) objectInputStream.readObject();
 
 					} catch (ClassNotFoundException | IOException e) {
-						final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-						String message = String.format("Hostname %s - Error while deserializing connector %s",
-								hostname, resource.getFilename());
+						String message = String.format("Error while deserializing connector %s",
+								resource.getFilename());
 						log.error(message);
-						log.error("Hostname {} - Exception: ", hostname, e);
+						log.error("Exception: ", e);
 						throw new DeserializationException(message, e);
 					}
 				})

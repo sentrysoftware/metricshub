@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -78,6 +79,7 @@ public class MatsyaClientsExecutor {
 	private static final String SSH_FILE_MODE = "0700";
 	private static final String SSH_REMOTE_DIRECTORY = "/var/tmp/";
 	
+	@Autowired
 	private StrategyConfig strategyConfig;
 
 	/**

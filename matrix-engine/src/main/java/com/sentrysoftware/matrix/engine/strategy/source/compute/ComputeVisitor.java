@@ -51,7 +51,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.FilterResultHelper;
@@ -87,7 +86,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Setter
 	private Connector connector;
 	
-	private StrategyConfig strategyConfig;
+	private String hostname;
 
 	@Setter
 	private MatsyaClientsExecutor matsyaClientsExecutor;
@@ -121,8 +120,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Add add) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (add == null) {
 			log.warn("Hostname {} - Compute Operation (Add) is null, the table remains unchanged.", hostname);
 			return;
@@ -147,8 +144,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final ArrayTranslate arrayTranslate) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (arrayTranslate == null) {
 			log.warn("Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.");
 			return;
@@ -229,8 +224,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final And and) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (and == null) {
 			log.warn("Hostname {} - Compute Operation (And) is null, the table remains unchanged.", hostname);
 			return;
@@ -271,8 +264,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Awk awk) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (awk == null) {
 			log.warn("Hostname {} - Compute Operation (Awk) is null, the table remains unchanged.", hostname);
 			return;
@@ -339,8 +330,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	public void visit(final Convert convert) {
 
 		if (!checkConvert(convert)) {
-			log.warn("Hostname {} - The convert {} is not valid, the table remains unchanged.", 
-					strategyConfig.getEngineConfiguration().getTarget().getHostname(), convert);
+			log.warn("Hostname {} - The convert {} is not valid, the table remains unchanged.",
+					hostname, convert);
 			return;
 		}
 
@@ -369,7 +360,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 
 				log.warn("Hostname {} - Couldn't perform Array2SimpleStatus conversion compute on row {} at index {}", 
-						strategyConfig.getEngineConfiguration().getTarget().getHostname(), row, columnIndex);
+						hostname, row, columnIndex);
 			});
 	}
 
@@ -433,7 +424,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Divide divide) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (divide == null) {
 			log.warn("Hostname {} - Compute Operation (Divide) is null, the table remains unchanged.", hostname);
@@ -461,7 +451,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final DuplicateColumn duplicateColumn) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		if (duplicateColumn == null) {
 			log.warn("Hostname {} - Duplicate Column object is null, the table remains unchanged.", hostname);
@@ -492,7 +481,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Extract extract) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		if (extract == null) {
 			log.warn("Hostname {} - Extract object is null, the table remains unchanged.", hostname);
@@ -550,7 +538,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		if (extractPropertyFromWbemPath == null) {
 			log.warn("Hostname {} - Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.", hostname);
@@ -598,8 +585,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Json2CSV json2csv) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (json2csv == null) {
 			log.warn("Hostname {} - Compute Operation (Json2CSV) is null, the table remains unchanged.", hostname);
 			return;
@@ -626,7 +611,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final KeepColumns keepColumns) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		if (keepColumns == null) {
 			log.warn("Hostname {} - KeepColumns object is null, the table remains unchanged.", hostname);
@@ -860,7 +844,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Multiply multiply) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (multiply == null) {
 			log.warn("Hostname {} - Compute Operation (Multiply) is null, the table remains unchanged.", hostname);
@@ -906,8 +889,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					// The integer value could be modified and converted to a double by a prior compute
 					valueToBeReplacedLong = (long) Double.parseDouble(line.get(columnIndex));
 				} catch (NumberFormatException e) {
-					log.warn("Hostname {} - Data is not correctly formatted.",
-							strategyConfig.getEngineConfiguration().getTarget().getHostname());
+					log.warn("Hostname {} - Data is not correctly formatted.", hostname);
 					return;
 				}
 
@@ -934,8 +916,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private boolean perBitTranslationCheck(final PerBitTranslation perBitTranslation) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (perBitTranslation == null) {
 			log.warn("Hostname {} - The Source (Per Bit Translation) to visit is null, the Per Bit Translation computation cannot be performed.",
 					hostname);
@@ -974,8 +954,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Replace replace) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (replace == null) {
 			log.warn("Hostname {} - Compute Operation (Replace) is null, the table remains unchanged.", hostname);
 			return;
@@ -1055,8 +1033,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Substract substract) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (substract == null) {
 			log.warn("Hostname {} - Compute Operation (Substract) is null, the table remains unchanged.", hostname);
 			return;
@@ -1085,8 +1061,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Override
 	public void visit(final Substring substring) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (!checkSubstring(substring)) {
 			log.warn("Hostname {} - The substring {} is not valid, the table remains unchanged.", hostname, substring);
 			return;
@@ -1139,7 +1113,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 		final Function<ComputeValue, String> startFunction = getValueFunction(startColumnIndex);
 		final Function<ComputeValue, String> endFunction = getValueFunction(endColumnIndex);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		sourceTable.getTable()
 		.forEach(row ->  {
@@ -1237,7 +1210,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Translate translate) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		if (translate == null) {
 			log.warn("Hostname {} - The Source (Translate) to visit is null, the translate computation cannot be performed.", hostname);
@@ -1296,7 +1268,6 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final Xml2Csv xml2csv) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (xml2csv == null) {
 			log.warn("Hostname {} - Compute Operation (Xml2Csv) is null, the table remains unchanged.", hostname);
@@ -1334,8 +1305,6 @@ public class ComputeVisitor implements IComputeVisitor {
 	 */
 	private void performMathematicalOperation(final Compute computeOperation, Integer column, String operand2) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		if (!MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass())) {
 			log.warn("Hostname {} - The compute operation must be one of : Add, Substract, Multiply, Divide.", hostname);
 			return;
@@ -1430,8 +1399,6 @@ public class ComputeVisitor implements IComputeVisitor {
 			return;
 		}
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
 		try {
 			if(MATH_FUNCTIONS_MAP.containsKey(computeOperation)) {
 				String resultFunction = MATH_FUNCTIONS_MAP.get(computeOperation).apply(op1, op2);

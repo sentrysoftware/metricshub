@@ -18,7 +18,6 @@ import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
 import lombok.Getter;
@@ -36,12 +35,11 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	@NonNull
 	private final String command;
 	private final WqlDetectionHelper wqlDetectionHelper;
+	private final String hostname;
 
 	@Getter
 	private CriterionTestResult criterionTestResult;
 	
-	private StrategyConfig strategyConfig;
-
 	@Override
 	public void visit(final Windows os) {
 
@@ -168,7 +166,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	 * @param message error message.
 	 */
 	private void fail(final String message) {
-		log.error("Hostname {} - Process Criterion, {}", strategyConfig.getEngineConfiguration().getTarget().getHostname(), message);
+		log.error("Hostname {} - Process Criterion, {}", hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.message(message)
 				.build();
@@ -179,7 +177,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	 * @param message success message.
 	 */
 	private void success(final String message) {
-		log.debug("Hostname {} - Process Criterion, {}", strategyConfig.getEngineConfiguration().getTarget().getHostname(), message);
+		log.debug("Hostname {} - Process Criterion, {}", hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.success(true)
 				.message(message)
