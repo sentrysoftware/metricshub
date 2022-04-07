@@ -20,17 +20,16 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
-import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
 class OtelHelperTest {
 
 	@Test
-	void testInitOpenTelemetryMetrics() {
-		final InMemoryMetricReader metricReader = InMemoryMetricReader.create();
+	void testInitOpenTelemetrySdk() {
+		Map<String, String> emptyMap = Collections.emptyMap();
 		final Resource resource = Resource.create(Attributes.empty());
-		assertNotNull(OtelHelper.initOpenTelemetryMetrics(resource, metricReader));
-		assertThrows(IllegalArgumentException.class, () -> OtelHelper.initOpenTelemetryMetrics(null, metricReader));
-		assertThrows(IllegalArgumentException.class, () -> OtelHelper.initOpenTelemetryMetrics(resource, null));
+		assertNotNull(OtelHelper.initOpenTelemetrySdk(resource, emptyMap));
+		assertThrows(IllegalArgumentException.class, () -> OtelHelper.initOpenTelemetrySdk(null, emptyMap));
+		assertThrows(IllegalArgumentException.class, () -> OtelHelper.initOpenTelemetrySdk(resource, null));
 	}
 
 	@Test
