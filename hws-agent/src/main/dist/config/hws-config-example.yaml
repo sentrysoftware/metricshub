@@ -9,6 +9,9 @@ extraMetrics:
   hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
   hw.site.pue_ratio: 1.8
 
+exporter:
+  otlp:
+
 targets:
 
 ####################################################

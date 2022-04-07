@@ -24,7 +24,7 @@ public class PasswordEncrypt {
 
 		File me;
 		try {
-			me = ResourceHelper.findSource(SecurityManager.class);
+			me = ResourceHelper.findSource(PasswordEncrypt.class);
 		} catch (Exception e) {
 			throw new IllegalStateException(
 					"Error detected when getting local source file to get the keyStore.", e);

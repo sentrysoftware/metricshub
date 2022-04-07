@@ -18,6 +18,16 @@ const backupTimeFormat = "2006-01-02T15-04-05.000"
 
 func main() {
 
+	homeDir, err := getHomeDir()
+	if err != nil {
+		log.Println("failed to get the home directory: %v", err)
+	} else {
+		err = os.Chdir(homeDir)
+		if err != nil {
+			log.Println("failed to set the working directory: %v", err)
+		}
+	}
+
 	if !checkVersionOrHelp(os.Args) {
 		log.Println("starting Hardware Sentry OpenTelemetry Collector")
 		log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
