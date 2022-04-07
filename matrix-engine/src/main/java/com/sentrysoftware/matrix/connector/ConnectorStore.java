@@ -39,7 +39,8 @@ public class ConnectorStore {
 		try {
 			connectors = deserializeConnectors();
 		} catch (Exception e) {
-			log.error("Error while deserializing connectors. The ConnectorStore is empty!", e);
+			log.error("Error while deserializing connectors. The ConnectorStore is empty!");
+			log.debug("Error while deserializing connectors. The ConnectorStore is empty!", e);
 			connectors = new HashMap<>();
 		}
 
@@ -62,7 +63,7 @@ public class ConnectorStore {
 						String message = String.format("Error while deserializing connector %s",
 								resource.getFilename());
 						log.error(message);
-						log.error("Exception: ", e);
+						log.debug("Exception: ", e);
 						throw new DeserializationException(message, e);
 					}
 				})
