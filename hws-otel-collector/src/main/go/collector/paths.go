@@ -27,6 +27,17 @@ func getLogsDir() (string, error) {
 	return filepath.Join(execPath, "..", "logs"), nil
 }
 
+// Get the home directory
+func getHomeDir() (string, error) {
+	execPath, err := executablePath()
+
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(execPath, ".."), nil
+}
+
 // Get the default configuration file path
 func getDefaultConfigFile() (string, error) {
 	execPath, err := executablePath()

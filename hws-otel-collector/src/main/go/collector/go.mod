@@ -7,6 +7,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter v${otelVersion}
+	github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion}
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v${otelVersion}
@@ -39,6 +40,7 @@ require (
 	github.com/DataDog/datadog-agent/pkg/trace/exportable v0.0.0-20201016145401-4646cf596b02 // indirect
 	github.com/DataDog/datadog-agent/pkg/util/log v0.0.0-20201009092105-58e18918b2db // indirect
 	github.com/DataDog/datadog-go v4.8.2+incompatible // indirect
+	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962 // indirect
 	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/Showmax/go-fqdn v1.0.0 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -166,6 +168,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/tg123/go-htpasswd v1.2.0 // indirect
 	github.com/tidwall/gjson v1.10.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect

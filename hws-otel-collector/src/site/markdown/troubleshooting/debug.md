@@ -56,7 +56,7 @@ The first critical task the *Collector* has to complete is to launch the Java pr
 2021-12-22T11:26:16.288+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:16,288][INFO ][c.s.h.a.HardwareSentryAgentApp] No active profile set, falling back to default profiles: default	{"kind": "extension", "name": "hws_agent"}
 2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "prometheus/internal"}
 2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:68	Receiver is starting...	{"kind": "receiver", "name": "otlp"}
-2021-12-22T11:26:16.608+0100	info	otlpreceiver/otlp.go:69	Starting GRPC server on endpoint 0.0.0.0:4317	{"kind": "receiver", "name": "otlp"}
+2021-12-22T11:26:16.608+0100	info	otlpreceiver/otlp.go:69	Starting GRPC server on endpoint localhost:4317	{"kind": "receiver", "name": "otlp"}
 2021-12-22T11:26:16.608+0100	info	builder/receivers_builder.go:73	Receiver started.	{"kind": "receiver", "name": "otlp"}
 2021-12-22T11:26:16.608+0100	info	healthcheck/handler.go:129	Health Check state change	{"kind": "extension", "name": "health_check", "status": "ready"}
 2021-12-22T11:26:16.608+0100	info	service/telemetry.go:92	Setting up own telemetry...

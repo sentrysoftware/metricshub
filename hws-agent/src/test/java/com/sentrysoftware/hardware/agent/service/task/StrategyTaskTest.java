@@ -37,10 +37,9 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
-import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
 @ExtendWith(MockitoExtension.class)
 class StrategyTaskTest {
@@ -52,7 +51,7 @@ class StrategyTaskTest {
 	private UserConfiguration userConfiguration;
 
 	@Mock
-	private MetricReaderFactory periodicReaderFactory;
+	private Map<String, String> otelSdkConfiguration;
 
 	@InjectMocks
 	private StrategyTask strategyTask;
@@ -121,11 +120,21 @@ class StrategyTaskTest {
 
 			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to
 			// build PeriodicMetricReaderFactory using the gRPC exporter in this test.
-			otelHelper.when(() -> OtelHelper.initOpenTelemetryMetrics(any(Resource.class), any(MetricReaderFactory.class)))
-				.thenAnswer(answer -> SdkMeterProvider.builder()
-						.setResource(answer.getArgument(0))
-						.registerMetricReader(InMemoryMetricReader.create())
-						.build());
+			otelHelper.when(() -> OtelHelper.initOpenTelemetrySdk(any(Resource.class), any())).thenAnswer(answer -> {
+
+				final var sdkBuilder = AutoConfiguredOpenTelemetrySdk.builder();
+
+				sdkBuilder
+						.addMeterProviderCustomizer((builder, u) -> { 
+							return builder
+									.registerMetricReader(InMemoryMetricReader.create())
+									.setResource(answer.getArgument(0));
+						});
+				sdkBuilder.registerShutdownHook(false);
+
+				return sdkBuilder.build();
+
+			});
 
 			strategyTask.run(); // Discover + Collect
 			strategyTask.run(); // Collect
