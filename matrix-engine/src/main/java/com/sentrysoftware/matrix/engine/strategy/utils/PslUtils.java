@@ -37,8 +37,6 @@ public class PslUtils {
 	private static final char GREATER_THAN_CHAR = '>';
 	private static final char DASH_CHAR = '-';
 	
-	private static StrategyConfig strategyConfig;
-
 	private PslUtils() { }
 
 	/**
@@ -294,8 +292,6 @@ public class PslUtils {
 		int fromColumnNumber;
 		int toColumnNumber;
 		
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
 		try {
 
 			int dashIndex = columns.indexOf(DASH_CHAR);
@@ -334,8 +330,8 @@ public class PslUtils {
 
 			if (fromColumnNumber > columnCount || toColumnNumber > columnCount) {
 
-				log.warn("Hostname {} - getColumnRange: Invalid range for a {}-length array: [{}-{}]",
-					hostname, columnCount, fromColumnNumber, toColumnNumber);
+				log.warn("getColumnRange: Invalid range for a {}-length array: [{}-{}]",
+					columnCount, fromColumnNumber, toColumnNumber);
 
 				fromColumnNumber = 0;
 				toColumnNumber = 0;
@@ -343,8 +339,8 @@ public class PslUtils {
 
 		} catch (NumberFormatException e) {
 
-			log.warn("Hostname {} - getColumnRange: Could not determine the range denoted by {}: {}", 
-					hostname, columns, e.getMessage());
+			log.warn("getColumnRange: Could not determine the range denoted by {}: {}", 
+					columns, e.getMessage());
 
 			fromColumnNumber = 0;
 			toColumnNumber = 0;
@@ -371,17 +367,16 @@ public class PslUtils {
 	 */
 	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
 			throws IllegalArgumentException{
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (row.isEmpty()) {
-			log.error("Hostname {} - formatExtendedJSON received Empty row of values. Returning empty string.", hostname);
+			log.error("formatExtendedJSON received Empty row of values. Returning empty string.");
 			return HardwareConstants.EMPTY;
 		}
 
 		String rawData = tableResult.getRawData();
 		if (rawData == null || rawData.isEmpty()) {
-			log.error("Hostname {} - formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", 
-					hostname, tableResult);
+			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", 
+					tableResult);
 			return HardwareConstants.EMPTY;
 		}
 

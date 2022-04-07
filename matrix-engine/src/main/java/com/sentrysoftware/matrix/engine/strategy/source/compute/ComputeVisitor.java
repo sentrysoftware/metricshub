@@ -86,6 +86,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	@Setter
 	private Connector connector;
 	
+	@Setter
 	private String hostname;
 
 	@Setter
@@ -134,7 +135,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		if (columnIndex < 1 ) {
-			log.warn("The index of the column to add cannot be < 1, the addition computation cannot be performed.");
+			log.warn("Hostname {} - The index of the column to add cannot be < 1, the addition computation cannot be performed.", hostname);
 			return;
 		}
 
@@ -145,14 +146,13 @@ public class ComputeVisitor implements IComputeVisitor {
 	public void visit(final ArrayTranslate arrayTranslate) {
 
 		if (arrayTranslate == null) {
-			log.warn("Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.");
+			log.warn("Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.", hostname);
 			return;
 		}
 
 		TranslationTable translationTable = arrayTranslate.getTranslationTable();
 		if (translationTable == null) {
-			log.warn("Hostname {} - Translation Table is null, the array translate computation cannot be performed.",
-					hostname);
+			log.warn("Hostname {} - Translation Table is null, the array translate computation cannot be performed.", hostname);
 			return;
 		}
 
@@ -1225,7 +1225,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		Map<String, String> translations = translationTable.getTranslations();
 		if (translations == null) {
 			log.warn("Hostname {} - The Translation Map {} is null, the translate computation cannot be performed.",
-					translationTable.getName(), hostname);
+					hostname, translationTable.getName());
 			return;
 		}
 

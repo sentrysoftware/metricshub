@@ -1149,16 +1149,16 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 			if (!pattern.matcher(value).find()) {
 				message = String.format(
-						"Hostname %s - SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
+						"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the value of the returned OID did not match with the expected result. ",
 						hostname, oid);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, value);
 				success = false;
 			} else {
-				message = String.format("Hostname %s - Successful SNMP GetNext of %s on %s. Returned Result: %s.", hostname, oid, result);
+				message = String.format("Hostname %s - Successful SNMP GetNext of %s. Returned Result: %s.", hostname, oid, result);
 			}
 		} else {
 			message = String.format(
-					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value cannot be extracted. ",
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
 					hostname, oid);
 			message += String.format("Returned Result: %s.", result);
 			success = false;
@@ -1183,16 +1183,16 @@ public class CriterionVisitor implements ICriterionVisitor {
 		boolean success = false;
 		if (result == null) {
 			message = String.format(
-					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to a null result.", hostname, oid);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was unsuccessful due to a null result.", hostname, oid);
 		} else if (result.trim().isEmpty()) {
 			message = String.format(
-					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to an empty result.", hostname, oid);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was unsuccessful due to an empty result.", hostname, oid);
 		} else if (!result.startsWith(oid)) {
 			message = String.format(
-					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s on %s was successful but the returned OID is not under the same tree. Returned OID: %s.",
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the returned OID is not under the same tree. Returned OID: %s.",
 					hostname, oid, result.split("\\s")[0]);
 		} else {
-			message = String.format("Hostname %s - Successful SNMP GetNext of %s on %s. Returned Result: %s.", hostname, oid, result);
+			message = String.format("Hostname %s - Successful SNMP GetNext of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 
