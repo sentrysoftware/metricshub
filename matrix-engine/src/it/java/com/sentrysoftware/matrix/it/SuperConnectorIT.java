@@ -23,11 +23,11 @@ import java.util.Set;
 
 class SuperConnectorIT {
 
-	private static final String EXPECTED_PATH = "os/superConnector/expected.json";
+	private static final String EXPECTED_PATH = "os/SuperConnector/expected.json";
 
-	private static final String CONNECTOR_NAME = "MS_HW_SuperConnectorOS";
+	private static final String CONNECTOR_NAME = "SuperConnectorOS";
 
-	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "os", "superConnector", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();
+	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "os", "SuperConnector", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();
 
 	private static EngineConfiguration engineConfiguration;
 
@@ -42,9 +42,8 @@ class SuperConnectorIT {
 		// Configure the engine
 		final OSCommandConfig protocol = OSCommandConfig.builder().build();
 
-		
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("0.0.0.0").id("localhost").type(TargetType.STORAGE).build())
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.STORAGE).build())
 				.selectedConnectors(Set.of(CONNECTOR_NAME))
 				.protocolConfigurations(Map.of(OSCommandConfig.class, protocol)).build();
 	}
