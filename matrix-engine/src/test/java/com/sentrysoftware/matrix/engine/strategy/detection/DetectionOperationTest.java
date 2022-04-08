@@ -510,10 +510,11 @@ class DetectionOperationTest {
 			// A single "last resort" connector discovering the same hardware monitor as a regular connector
 			Connector lastResortConnector = Connector.builder().onLastResort(MonitorType.ENCLOSURE).build();
 			TestedConnector testedLastResortConnector = TestedConnector.builder().connector(lastResortConnector).build();
-					
+
 			List<TestedConnector> testedConnectors = new ArrayList<>();
 			testedConnectors.add(testedLastResortConnector);
-			detectionOperation.filterLastResortConnectors(testedConnectors);
+			
+			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
 			
 			// The last resort connector should be kept
 			assertTrue(testedConnectors.size() == 1);
@@ -523,16 +524,15 @@ class DetectionOperationTest {
 			Connector regularConnector = Connector.builder().hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
 					.discovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build())
 					.build())).build();
-			
+		
 			TestedConnector testedRegularConnector = TestedConnector.builder().connector(regularConnector).build();
-			
 			testedConnectors.add(testedRegularConnector);
-			detectionOperation.filterLastResortConnectors(testedConnectors);
+
+			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
 			
 			// We should only have the regular connector left
 			assertEquals(1, testedConnectors.size());
 			assertTrue(testedConnectors.contains(testedRegularConnector));
-				
 		}
 		
 		{
@@ -548,7 +548,7 @@ class DetectionOperationTest {
 			
 			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector, testedRegularConnector));
 			
-			detectionOperation.filterLastResortConnectors(testedConnectors);
+			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
 			
 			// Our two connectors should still be in the list as the regular connector does not discover disk controllers
 			assertEquals(2, testedConnectors.size());
@@ -580,7 +580,7 @@ class DetectionOperationTest {
 			// Build the list
 			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
 			
-			detectionOperation.filterLastResortConnectors(testedConnectors);
+			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
 			
 			// The regular connector and the first last resort connector should be in the list. The second last resort connector should 
 			// have been removed because we already have a connector that discovers the same monitor type (the first last resort connector) 
@@ -616,7 +616,7 @@ class DetectionOperationTest {
 			// Build the list
 			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
 			
-			detectionOperation.filterLastResortConnectors(testedConnectors);
+			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
 			
 			// All connectors should be kept 
 			assertEquals(3, testedConnectors.size());
@@ -624,8 +624,5 @@ class DetectionOperationTest {
 			assertTrue(testedConnectors.contains(testedLastResortConnector1));
 			assertTrue(testedConnectors.contains(testedLastResortConnector2));
 		}
-		
-		
 	}
-
 }

@@ -150,7 +150,7 @@ public class DetectionOperation extends AbstractStrategy {
 		handleSupersedes(testedConnectorList);
 		
 		// Filter out last resort connectors when appropriate
-		filterLastResortConnectors(testedConnectorList);
+		filterLastResortConnectors(testedConnectorList, hostname);
 
 		// We have detected connectors, now we need to handle Supersedes
 		log.debug(
@@ -163,13 +163,13 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Removes detected connectors of type "last resort" if their specified "last resort" monitor type (enclosure, fan, etc.) is already 
-	 * discovered by "regular" connector.
+	 * discovered by a "regular" connector.
 	 * 
 	 * @param matchingConnectorList The list of detected connectors, that match the host
+	 * @param hostname      		The name of the host currently discovered
 	 * 
 	 */
-	
-	void filterLastResortConnectors(List<TestedConnector> matchingConnectorList) {
+	void filterLastResortConnectors(List<TestedConnector> matchingConnectorList, final String hostname) {
 
 		// Extract the list of last resort connectors from the list of matching connectors
 		final List<TestedConnector> lastResortConnectorList = matchingConnectorList
@@ -187,16 +187,23 @@ public class DetectionOperation extends AbstractStrategy {
 				.filter(tc -> tc.getConnector().getOnLastResort() == null)
 				.collect(Collectors.toList());
 		
-		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type 
+		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type
+		String[] connectorNameHolder = new String[1];
 		lastResortConnectorList.forEach(lastResortTC -> {
-			
 			boolean hasLastResortMonitor = regularConnectorList.stream().anyMatch(tc -> { 
 				List<HardwareMonitor> hardwareMonitors = tc.getConnector().getHardwareMonitors();
 				
+				// Remember connector's filename
+				connectorNameHolder[0] = tc.getConnector().getCompiledFilename();
+				
 				if (hardwareMonitors == null || hardwareMonitors.isEmpty()) {
-					log.warn("{} connector detection. On last resort filter: connector {} has no hardware monitors",
+					log.warn(
+							"Hostname {} - {} connector detection. On last resort filter: connector {} has no hardware monitors",
+							hostname,
 							strategyConfig.getEngineConfiguration().getTarget().getHostname(),
-							tc.getConnector().getCompiledFilename());
+							connectorNameHolder[0]
+							);
+					
 					return false;
 				}
 	
@@ -208,6 +215,14 @@ public class DetectionOperation extends AbstractStrategy {
 			if (hasLastResortMonitor) {
 				// The current connector discovers the same type has the defined last resort type. Discard last resort connector 
 				matchingConnectorList.remove(lastResortTC);
+				
+				log.info(
+						"Hostname {} - {} is a \"last resort\" connector and its components are already discovered thanks to connector {}. Connector is therefore discarded.",
+						hostname,
+						lastResortTC.getConnector().getCompiledFilename(),
+						connectorNameHolder[0]
+						);
+				
 			} else {
 				// Add the last resort connector to the list of "regular" connectors so that it prevents other
 				// last resort connectors of the same type from matching (but that should never happen, right connector developers?)
