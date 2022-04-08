@@ -426,16 +426,18 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		log.trace("Engine called for thread {}", Thread.currentThread().getName());
+		final String hostname = engineConfiguration.getTarget().getHostname();
+
+		log.trace("Hostname {} - Engine called for thread {}", hostname, Thread.currentThread().getName());
 
 		checkEngineConfiguration();
-		final String hostname = engineConfiguration.getTarget().getHostname();
+
 
 		EngineResult lastEngineResult = null;
 
 		for (IStrategy strategy : strategies) {
 
-			log.trace("Calling strategy {}", strategy.getClass().getSimpleName());
+			log.trace("Hostname {} - Calling strategy {}", hostname, strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
 			log.info("Hostname {} - {} status {}", 
 					hostname, strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
@@ -482,12 +484,8 @@ public class HostMonitoring implements IHostMonitoring {
 				);
 				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, cause);
 			} else {
-				log.error(
-						"{} operation failed: {}: {}",
-						strategy.getClass().getSimpleName(),
-						e.getClass().getSimpleName(),
-						e.getMessage()
-				);
+				log.error("Hostname {} - {} operation failed: {}: {}", hostname, strategy.getClass().getSimpleName(),
+						e.getClass().getSimpleName(), e.getMessage());
 				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, e);
 			}
 

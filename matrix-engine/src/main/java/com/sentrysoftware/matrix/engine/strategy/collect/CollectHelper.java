@@ -56,7 +56,8 @@ public class CollectHelper {
 	 */
 	public static IState translateState(final String stateValue, 
 			@NonNull final Function<String, Optional<? extends IState>> interpreter,
-			@NonNull final String parameterName, @NonNull final String monitorId, @NonNull final String hostname) {
+			@NonNull final String parameterName, @NonNull final String monitorId,
+			@NonNull final String hostname) {
 
 		if (stateValue == null) {
 			return null;

@@ -59,6 +59,7 @@ import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,8 +79,9 @@ public class MatsyaClientsExecutor {
 
 	private static final String SSH_FILE_MODE = "0700";
 	private static final String SSH_REMOTE_DIRECTORY = "/var/tmp/";
-	
+
 	@Autowired
+	@Getter
 	private StrategyConfig strategyConfig;
 
 	/**
@@ -359,7 +361,7 @@ public class MatsyaClientsExecutor {
 			)
 		);
 		
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = getStrategyConfig().getEngineConfiguration().getTarget().getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
 
@@ -374,6 +376,7 @@ public class MatsyaClientsExecutor {
 				log.error("Hostname {} - Error detected in the arguments when translating the JSON structure into CSV.", hostname);
 			} catch (Exception e) {
 				log.warn("Hostname {} - Error detected when running jsonFlat parsing:\n{}", hostname, jsonSource);
+				log.debug("Hostname {} - Exception detected when running jsonFlat parsing: ", hostname, e);
 			}
 
 			return null;
@@ -813,8 +816,9 @@ public class MatsyaClientsExecutor {
 
 			if (logMode) {
 
-				log.error("Hostname {} - Error detected when running HTTP request {} {} : {}\nReturning null.", hostname, method, fullUrl,
+				log.error("Hostname {} - Error detected when running HTTP request {} {}: {}\nReturning null.", hostname, method, fullUrl,
 					e.getMessage());
+				log.debug("Hostname {} - Exception detected when running HTTP request {} {}:", hostname, method, fullUrl, e);
 			}
 		}
 

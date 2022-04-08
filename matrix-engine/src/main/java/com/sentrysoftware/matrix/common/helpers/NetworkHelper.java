@@ -68,7 +68,8 @@ public class NetworkHelper {
 		try {
 			return NetworkInterface.getByInetAddress(inetAddress) != null;
 		} catch (SocketException e) {
-			log.warn("Hostname {} - Error while checking network interfaces. Assuming non-local.", hostname, e);
+			log.warn("Hostname {} - Error while checking network interfaces. Assuming non-local.", hostname);
+			log.debug("Hostname {} - Exception while checking network interfaces: ", hostname, e);
 			return false;
 		}
 	}

@@ -1208,7 +1208,7 @@ class CriterionVisitorTest {
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
@@ -1336,7 +1336,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1411,7 +1411,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();

@@ -129,8 +129,8 @@ public class WqlDetectionHelper {
 					// This error indicates that the CIM server will probably never respond to anything
 					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
 					Throwable cause = e.getCause();
-					String message = String.format(
-							"Hostname %s - Does not respond to WBEM requests. %s: %s\nCancelling namespace detection.",
+					String message = String.format( // NOSONAR on \n
+							"Hostname %s - Does not respond to WBEM requests. %s: %s\nCancelling namespace detection.", 
 							hostname,
 							cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
 							cause != null ? cause.getMessage() : e.getMessage()
@@ -215,7 +215,7 @@ public class WqlDetectionHelper {
 			// Get the cause in the exception
 			Throwable cause = e.getCause();
 
-			String message = String.format(
+			String message = String.format( // NOSONAR on \n
 					"Hostname %s - Does not respond to WMI requests. %s: %s\nCancelling namespace detection.",
 					hostname,
 					cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),

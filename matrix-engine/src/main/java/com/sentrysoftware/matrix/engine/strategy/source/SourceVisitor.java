@@ -879,7 +879,7 @@ public class SourceVisitor implements ISourceVisitor {
 	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
 			final String wmiQuery, final String namespace, final String sourceKey) {
 
-		log.info("Executing IPMI Query for [{}] on {}:\nWMI Query: {}:\n", sourceKey, hostname, wmiQuery);
+		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);
 
 		List<List<String>> result;
 
@@ -1003,7 +1003,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format(
-					"Hostname {} - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
+					"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 					hostname, sourceKey, context, connectorName), throwable);
 		}
 	}

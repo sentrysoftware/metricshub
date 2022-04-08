@@ -1356,7 +1356,7 @@ public class CollectOperation extends AbstractStrategy {
 				if (parent != null) {
 					dataList.add(parent.getName());
 				} else {
-					log.error("Hostname {} - No parent found for the physical disk identified by: {}. Physical disk name: {}",
+					log.error("Hostname {} - No parent found for the Physical Disk identified by: {}. Physical disk name: {}",
 							hostname, monitor.getId(), monitor.getName());
 				}
 

@@ -106,7 +106,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost) {
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Hostname {} - Start DETECTION", hostname);
+		log.debug("Hostname {} - Start Detection", hostname);
 
 		// Get the excluded connectors
 		final Set<String> excludedConnectors = strategyConfig.getEngineConfiguration().getExcludedConnectors();
@@ -149,7 +149,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		// We have detected connectors, now we need to handle Supersedes
 		log.debug(
-				"Hostname {} - DETECTION: CONCLUSION: The following connectors match the system and will be used to monitor its hardware: {}",
+				"Hostname {} - Detection Conclusion: The following connectors match the system and will be used to monitor its hardware: {}",
 				hostname, testedConnectorList.stream()
 						.map(c -> c.getConnector().getCompiledFilename()).collect(Collectors.toList()));
 
@@ -320,7 +320,8 @@ public class DetectionOperation extends AbstractStrategy {
 		}
 
 		if (!success) {
-			log.debug("Hostname {} - The connector {} matches {}'s platform.", hostname, testedConnector.getConnector().getCompiledFilename());
+			log.debug("Hostname {} - The connector {} matches {}'s platform.", hostname,
+					testedConnector.getConnector().getCompiledFilename(), hostname);
 		}
 
 		return success;

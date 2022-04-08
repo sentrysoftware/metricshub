@@ -144,7 +144,19 @@ class ComputeVisitorTest {
 	void setUp() {
 		computeVisitor = new ComputeVisitor();
 		sourceTable = new SourceTable();
-		strategyConfig = new StrategyConfig();
+		strategyConfig = StrategyConfig
+				.builder()
+				.engineConfiguration(EngineConfiguration
+						.builder()
+						.target(HardwareTarget
+								.builder()
+								.hostname("localhost")
+								.id("localhost")
+								.type(TargetType.MS_WINDOWS)
+								.build())
+						.build())
+				.build();
+
 		computeVisitor.setSourceTable(sourceTable);
 		computeVisitor.setConnector(Connector.builder().build());
 		computeVisitor.setHostname("localhost");
@@ -2196,16 +2208,8 @@ class ComputeVisitorTest {
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
 				.build();
-		
-		final EngineConfiguration engineConfiguration = EngineConfiguration
-				.builder()
-				.target(HardwareTarget.builder()
-						.hostname("localhost")
-						.id("localhost")
-						.type(TargetType.MS_WINDOWS)
-						.build())
-				.build();
-		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		doReturn(strategyConfig).when(matsyaClientsExecutor).getStrategyConfig();
 
 		computeVisitor.visit(json2CSV);
 

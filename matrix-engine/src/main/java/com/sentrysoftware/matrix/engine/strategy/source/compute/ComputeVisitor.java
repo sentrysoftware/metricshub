@@ -85,7 +85,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 	@Setter
 	private Connector connector;
-	
+
 	@Setter
 	private String hostname;
 
@@ -405,7 +405,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					}
 				}
 
-				log.warn("Couldn't perform Hex2Dec conversion compute on row {} at index {}", row, columnIndex);
+				log.warn("Hostname {} - Couldn't perform Hex2Dec conversion compute on row {} at index {}", hostname, row, columnIndex);
 			});
 	}
 
@@ -1325,7 +1325,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			} catch (NumberFormatException e) {
 				log.warn("Hostname {} - NumberFormatException: {} is not a correct operand2 for {}, the table remains unchanged.", 
 						hostname, operand2, computeOperation);
-				log.debug("Stack trace:", e);
+				log.debug("Hostname {} - Stack trace:", hostname, e);
 				return;
 			}
 

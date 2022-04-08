@@ -52,7 +52,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	public Boolean call() throws Exception {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Hostname {} - Start discovery", hostname);
+		log.debug("Hostname {} - Start Discovery", hostname);
 
 		// Get the connectors previously created/selected in the DetectionOperation
 		// strategy
