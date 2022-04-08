@@ -72,11 +72,18 @@ class NetworkHelperTest {
 
 		// hostname is blank
 		String hostname = "   ";
-		assertEquals(null, NetworkHelper.resolveDns(hostname));
-
+		assertNull(NetworkHelper.resolveDns(hostname));
+		
+		// hostname is empty
+		hostname = "";
+		assertNull(NetworkHelper.resolveDns(hostname));
+		
+		// hostname is an illegal hostname
+		hostname = "-host";
+		assertNull(NetworkHelper.resolveDns(hostname));
+		
 		// hostname can be resolved
 		hostname = "localhost";
 		assertNotNull(NetworkHelper.resolveDns(hostname));
 	}
 }
-
