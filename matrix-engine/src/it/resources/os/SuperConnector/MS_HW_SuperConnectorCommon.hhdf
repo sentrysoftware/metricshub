@@ -1378,12 +1378,12 @@ BEGIN {
 	print "COLLECT;3;OK;20000000000000000"
 
   OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW_logical_disk.log"
+  tmpfile = "/tmp/MSHW/MSHW_logical_disk.log"
   if ( OS ~ /NT/ )
   {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW_logical_disk.log"
+   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_logical_disk.log"
    # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW_logical_disk.log type %TEMP%\\MSHW_logical_disk.log" | getline readline
+   "IF EXIST %TEMP%\\MSHW\\MSHW_logical_disk.log type %TEMP%\\MSHW\\MSHW_logical_disk.log" | getline readline
    if (length(readline) == 0)
    {
      print "COLLECT;4;OK;0;0"
@@ -1402,7 +1402,7 @@ BEGIN {
     # Check if a file exist for unix platform
     if (!system("test -e " tmpfile))
     {
-      "cat /tmp/MSHW_logical_disk.log"  | getline readline
+      "cat /tmp/MSHW/MSHW_logical_disk.log"  | getline readline
      split (readline,tab,";")
      UnallocatedSpace = 20000000000000000
      ErrorCount = tab[5] + 11
@@ -1445,12 +1445,12 @@ BEGIN {
   print "COLLECT;2;WARN;0;WARN;;;"
 
   OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW_memory.log"
+  tmpfile = "/tmp/MSHW/MSHW_memory.log"
   if ( OS ~ /NT/ )
   {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW_memory.log"
+   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_memory.log"
    # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW_memory.log type %TEMP%\\MSHW_memory.log" | getline readline
+   "IF EXIST %TEMP%\\MSHW\\MSHW_memory.log type %TEMP%\\MSHW\\MSHW_memory.log" | getline readline
    if (length(readline) == 0)
    {
      print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;0;"
@@ -1468,7 +1468,7 @@ BEGIN {
     # Check if a file exist for unix platform
     if (!system("test -e " tmpfile))
     {
-      "cat /tmp/MSHW_memory.log"  | getline readline
+      "cat /tmp/MSHW/MSHW_memory.log"  | getline readline
       split (readline,tab,";")
       ErrorCount = tab[7] + 5
       print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"tab[6]";"ErrorCount";" > tmpfile
@@ -1511,12 +1511,12 @@ BEGIN {
 	print "COLLECT;3;OK;OK;1000;1000;5;5222;4111;0;0;0;"
 
   OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW_network.log"
+  tmpfile = "/tmp/MSHW/MSHW_network.log"
   if ( OS ~ /NT/ )
   {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW_network.log"
+   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_network.log"
    # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW_network.log type %TEMP%\\MSHW_network.log" | getline readline
+   "IF EXIST %TEMP%\\MSHW\\MSHW_network.log type %TEMP%\\MSHW\\MSHW_network.log" | getline readline
    if (length(readline) == 0)
    {
      print "COLLECT;4;OK;OK;56000;1;0;0;0;0;0;0;"
@@ -1539,7 +1539,7 @@ BEGIN {
     # Check if a file exist for unix platform
     if (!system("test -e " tmpfile))
     {
-      "cat /tmp/MSHW_network.log"  | getline readline
+      "cat /tmp/MSHW/MSHW_network.log"  | getline readline
       split (readline,tab,";")
       ErrorCount = tab[7] + 5
       ReceivedBytes = tab[8] + 8000000
@@ -1669,12 +1669,12 @@ BEGIN {
 	print "COLLECT;2;ALARM;Cassette blocked;250;30"
 
     OS = ENVIRON["OS"]
-    tmpfile = "/tmp/MSHW_robotic.log"
+    tmpfile = "/tmp/MSHW/MSHW_robotic.log"
     if ( OS ~ /NT/ )
     {
      tmpfile = ENVIRON["TEMP"]"\\MSHW_robotic.log"
      # Check if a file exist for NT platform
-     "IF EXIST %TEMP%\\MSHW_robotic.log type %TEMP%\\MSHW_robotic.log" | getline readline
+     "IF EXIST %TEMP%\\MSHW\\MSHW_robotic.log type %TEMP%\\MSHW\\MSHW_robotic.log" | getline readline
      if (length(readline) == 0)
      {
        print "COLLECT;3;OK;;0;0;"
@@ -1693,7 +1693,7 @@ BEGIN {
       # Check if a file exist for unix platform
       if (!system("test -e " tmpfile))
       {
-        "cat /tmp/MSHW_robotic.log"  | getline readline
+        "cat /tmp/MSHW/MSHW_robotic.log"  | getline readline
         split (readline,tab,";")
 	      MoveCount = tab[5] + 100
         ErrorCount = tab[6] + 33
@@ -1734,12 +1734,12 @@ BEGIN {
     print "COLLECT;2;ALARM;Critical failure;0;0;0;0;"
 
 	OS = ENVIRON["OS"]
-    tmpfile = "/tmp/MSHW_tape.log"
+    tmpfile = "/tmp//MSHW/MSHW_tape.log"
     if ( OS ~ /NT/ )
     {
-     tmpfile = ENVIRON["TEMP"]"\\MSHW_tape.log"
+     tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_tape.log"
      # Check if a file exist for NT platform
-     "IF EXIST %TEMP%\\MSHW_tape.log type %TEMP%\\MSHW_tape.log" | getline readline
+     "IF EXIST %TEMP%\\MSHW\\MSHW_tape.log type %TEMP%\\MSHW\\MSHW_tape.log" | getline readline
      if (length(readline) == 0)
      {
        print "COLLECT;3;UNKNOWN;;0;0;0;2;"
@@ -1759,7 +1759,7 @@ BEGIN {
       # Check if a file exist for unix platform
       if (!system("test -e " tmpfile))
       {
-       "cat /tmp/MSHW_tape.log"  | getline readline
+       "cat /tmp/MSHW/MSHW_tape.log"  | getline readline
        split (readline,tab,";")
 	   MountCount = tab[5] + 1
 	   UnmountCount = tab[6] + 2
@@ -1841,7 +1841,7 @@ BEGIN {
 ############################################### Value to be set manually ###############################################
 
 	maxdisk=250;
-	maxrandom=300000000000;
+	maxsize=300000000000;
 	i=1;
 	# DISCOVERY WITH TABLEJOINT
 	# JOIN1;PdID
@@ -1859,8 +1859,8 @@ BEGIN {
 	# DISCOVERY WITH TABLEJOINT
 	# JOIN2;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber;AdditionalInformation
 	while (i<=maxdisk) {
-		disksizerandom = int(rand() * maxrandom);
-		physicaldisks[$i]="JOIN2;"i";Disk "i";1;Enclosure;1;Western Digital;Modeltest;12E;"disksizerandom";154ERFD455;Slot : B"i
+		disksizefunction = int(i * (maxsize/maxdisk));
+		physicaldisks[$i]="JOIN2;"i";Disk "i";1;Enclosure;1;Western Digital;Modeltest;12E;"disksizefunction";154ERFD455;Slot : B"i
 		print physicaldisks[$i]
 		i=i+1;
 	}
@@ -1875,14 +1875,14 @@ BEGIN {
 	i=1;
 	## COLLECT
 	while (i<=maxdisk) {
-		diskendurancerandom = int(rand() * 100);
+		diskendurancefunction = int(i * (100 / maxdisk));
 		if ( i > (maxdisk/2) )
 		{
-			physicaldisks[$i]="COLLECT;"i";OK;Disk OK;True;1;1;1;41;1;1;1;1;"diskendurancerandom
+			physicaldisks[$i]="COLLECT;"i";OK;Disk OK;True;1;1;1;41;1;1;1;1;"diskendurancefunction
 		}
 		else
 		{
-			physicaldisks[$i]="COLLECT;"i";OK;Disk OK;False;1;1;1;41;1;1;1;1;"diskendurancerandom
+			physicaldisks[$i]="COLLECT;"i";OK;Disk OK;False;1;1;1;41;1;1;1;1;"diskendurancefunction
 		}
 
 		print physicaldisks[$i]
@@ -1894,12 +1894,12 @@ BEGIN {
 	print "COLLECT;"502";OK;Disk OK;False;1;1;1;41;1;1;1;1;"10
 
   OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW_physicaldisk.log"
+  tmpfile = "/tmp/MSHW/MSHW_physicaldisk.log"
   if ( OS ~ /NT/ )
   {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW_physicaldisk.log"
+   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_physicaldisk.log"
    # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW_physicaldisk.log type %TEMP%\\MSHW_physicaldisk.log" | getline readline
+   "IF EXIST %TEMP%\\MSHW\\MSHW_physicaldisk.log type %TEMP%\\MSHW\\MSHW_physicaldisk.log" | getline readline
    if (length(readline) == 0)
    {
    	# COLLECT;PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount;EnduranceRemaining
@@ -1925,7 +1925,7 @@ BEGIN {
     # Check if a file exist for unix platform
     if (!system("test -e " tmpfile))
     {
-      "cat /tmp/MSHW_physicaldisk.log"  | getline readline
+      "cat /tmp/MSHW/MSHW_physicaldisk.log"  | getline readline
       split (readline,tab,";")
       ErrorCount = tab[6] + 5
       DeviceNotReadyErrorCount = tab[7] + 0.5
@@ -1960,9 +1960,6 @@ EmbeddedFile(21).End
 EmbeddedFile(22):
 BEGIN {
 
-  random=int(rand() * 10000000);
-  random2=int(rand() * 10000000);
-
   # GPU  Discovery
   # GPU  DISCOVERY;DeviceID;DisplayID;Vendor;Model;DriverVersion;FirmwareVersion;SerialNumber;Size;Location
   print "DISCOVERY;GPUNvidia;Nvidia 3080ti rtx;Nvidia;3080 ti;458.52635;35135131;AZEAX12454;16384;Location: Computer;1;Enclosure"
@@ -1971,16 +1968,16 @@ BEGIN {
 
   # GPU  COLLECT
   # UsedTime;DecoderUsedTime;EncoderUsedTime;ReceivedBytes;TransmittedBytes
-  print "COLLECT;GPUNvidia;OK;Normal;0;10;122;10;60;50;55;"random";"random2";800;"
+  print "COLLECT;GPUNvidia;OK;Normal;0;10;122;10;60;50;55;15000;37500;800;"
   print "COLLECT;GPUAMD150;ALARM;Overheat;1;13;154;150;150;150;18;"";"";654;"
 
   OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW_librehardwaremonitor.log"
+  tmpfile = "/tmp/MSHW/MSHW_librehardwaremonitor.log"
   if ( OS ~ /NT/ )
   {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW_librehardwaremonitor.log"
+   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_librehardwaremonitor.log"
    # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW_librehardwaremonitor.log type %TEMP%\\MSHW_librehardwaremonitor.log" | getline readline
+   "IF EXIST %TEMP%\\MSHW\\MSHW_librehardwaremonitor.log type %TEMP%\\MSHW\\MSHW_librehardwaremonitor.log" | getline readline
    if (length(readline) == 0)
    {
      print "COLLECT;GPUINTEL;WARN;Idle;0;0;0;0;0;0;0;0;0;0;0;0;0;0;"
@@ -2004,7 +2001,7 @@ BEGIN {
     # Check if a file exist for unix platform
     if (!system("test -e " tmpfile))
     {
-      "cat /tmp/MSHW_librehardwaremonitor.log"  | getline readline
+      "cat /tmp/MSHW/MSHW_librehardwaremonitor.log"  | getline readline
       split (readline,tab,";")
       CorrectedErrorCount = tab[6] + 5
       ErrorCount = tab[7] + 5

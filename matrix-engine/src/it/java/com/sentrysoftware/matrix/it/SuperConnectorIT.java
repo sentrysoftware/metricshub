@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.it;
 
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
@@ -14,9 +15,12 @@ import com.sentrysoftware.matrix.it.job.ITJob;
 import com.sentrysoftware.matrix.it.job.SuperConnectorITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import org.apache.tools.ant.util.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
@@ -54,11 +58,31 @@ class SuperConnectorIT {
 		final ITJob itJob = new SuperConnectorITJob();
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
+
+		File tmp;
+
+		//Remove old test data so that we can run cleanly
+		if(LocalOSHandler.isWindows()){
+			tmp = new File("%TEMP%\\MSHW\\");
+		} else {
+			tmp = new File("/tmp/MSHW/");
+		}
+
+		if(tmp != null && tmp.exists()){
+			for(File f : tmp.listFiles()){
+				FileUtils.delete(f);
+			}
+			tmp.delete();
+		}
+
+		tmp.mkdir();
+			
 		itJob
 			.prepareEngine(engineConfiguration, hostMonitoring)
 			.executeStrategy(new DetectionOperation())
 			.executeStrategy(new DiscoveryOperation())
 			.executeStrategy(new CollectOperation())
 			.verifyExpected(EXPECTED_PATH);
+
 	}
 }
