@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -56,8 +55,6 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	private ISourceVisitor sourceVisitor;
 	private Connector connector;
 	private Monitor monitor;
-
-	@Autowired
 	private StrategyConfig strategyConfig;
 
 	@Override

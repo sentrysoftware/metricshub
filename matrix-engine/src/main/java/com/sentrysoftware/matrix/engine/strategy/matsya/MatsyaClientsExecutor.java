@@ -995,7 +995,7 @@ public class MatsyaClientsExecutor {
 				authenticated = sshClient.authenticate(username);
 			}
 		} catch (final Exception e) {
-			final String message = String.format("Hostname {} - Authentication failed as %s with %s.", 
+			final String message = String.format("Hostname %s - Authentication failed as %s with %s.", 
 					hostname,
 					username, 
 					privateKey != null ? privateKey.getAbsolutePath() : null);
@@ -1003,7 +1003,7 @@ public class MatsyaClientsExecutor {
 			throw new MatsyaException(message, e);
 		}
 		if (!authenticated) {
-			final String message = String.format("Hostname {} - Authentication failed as %s with %s.", 
+			final String message = String.format("Hostname %s - Authentication failed as %s with %s.", 
 					hostname,
 					username, 
 					privateKey != null ? privateKey.getAbsolutePath() : null);

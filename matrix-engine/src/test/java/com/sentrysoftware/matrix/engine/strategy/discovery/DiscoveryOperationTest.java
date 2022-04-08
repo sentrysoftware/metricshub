@@ -884,6 +884,7 @@ class DiscoveryOperationTest {
 				OUT_OF_RANGE, INSTANCETABLE_COLUMN_5);
 		final List<String> row = Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE, null);
 		final Monitor monitor = Monitor.builder().build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		discoveryOperation.processSourceTableMetadata(MY_CONNECTOR_1_NAME, parameters, ENCLOSURE_SOURCE_KEY, row , monitor , 0);
 
 		final Map<String, String> metadata = monitor.getMetadata();

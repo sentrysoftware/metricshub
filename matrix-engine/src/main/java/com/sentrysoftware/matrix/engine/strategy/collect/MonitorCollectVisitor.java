@@ -485,7 +485,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				hostname);
 
 		if (state == null) {
-			log.warn("Hostname {} - Could not collect {} for monitor id {}. Hostname {}", hostname, parameterName, monitor.getId());
+			log.warn("Hostname {} - Could not collect {} for monitor id {}", hostname, parameterName, monitor.getId());
 			return;
 		}
 

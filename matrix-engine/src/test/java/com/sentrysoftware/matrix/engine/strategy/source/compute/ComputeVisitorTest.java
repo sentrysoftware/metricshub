@@ -52,13 +52,18 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 
 class ComputeVisitorTest {
 
 	private ComputeVisitor computeVisitor;
 	private SourceTable sourceTable;
+	private StrategyConfig strategyConfig;
 
 	private final MatsyaClientsExecutor matsyaClientsExecutor = Mockito.spy(MatsyaClientsExecutor.class);
 
@@ -139,8 +144,10 @@ class ComputeVisitorTest {
 	void setUp() {
 		computeVisitor = new ComputeVisitor();
 		sourceTable = new SourceTable();
+		strategyConfig = new StrategyConfig();
 		computeVisitor.setSourceTable(sourceTable);
 		computeVisitor.setConnector(Connector.builder().build());
+		computeVisitor.setHostname("localhost");
 		computeVisitor.setMatsyaClientsExecutor(matsyaClientsExecutor);
 	}
 
@@ -2189,6 +2196,16 @@ class ComputeVisitorTest {
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
 				.build();
+		
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder()
+						.hostname("localhost")
+						.id("localhost")
+						.type(TargetType.MS_WINDOWS)
+						.build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		computeVisitor.visit(json2CSV);
 

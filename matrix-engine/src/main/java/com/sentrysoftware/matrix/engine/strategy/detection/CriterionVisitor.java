@@ -742,11 +742,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 		if (result == null || !pattern.matcher(result).find()) {
 			message = String.format(
-					"Hostname %s - SNMP Test Failed - SNMP Get of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
+					"Hostname %s - SNMP Test Failed - SNMP Get of %s was successful but the value of the returned OID did not match with the expected result. ",
 					hostname, oid);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
-			message = String.format("Hostname %s - Successful SNMP Get of %s on %s. Returned Result: %s.", hostname, oid, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 
@@ -768,13 +768,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to a null result.",
+			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s was unsuccessful due to a null result.",
 					hostname, oid);
 		} else if (result.trim().isEmpty()) {
-			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an empty result.",
+			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s was unsuccessful due to an empty result.",
 					hostname, oid);
 		} else {
-			message = String.format("Hostname %s - Successful SNMP Get of %s on %s. Returned Result: %s.", hostname, oid, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 

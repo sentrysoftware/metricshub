@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 
 import lombok.NonNull;
