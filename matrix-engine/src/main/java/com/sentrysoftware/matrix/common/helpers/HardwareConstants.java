@@ -266,6 +266,7 @@ public class HardwareConstants {
 	public static final String DOMAIN = "domain";
 	public static final String HOSTNAME = "hostname";
 	public static final String POWER_METER = "powerMeter";
+	public static final String IP_ADDRESS = "ipAddress";
 
 	/////////////////////
 	//                 //

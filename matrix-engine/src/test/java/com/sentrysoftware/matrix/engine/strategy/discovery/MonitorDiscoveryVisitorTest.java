@@ -82,6 +82,8 @@ class MonitorDiscoveryVisitorTest {
 	private static final String ENCLOSURE_ID = "myConnector_enclosure_ecs1-01_1.1";
 	private static final String FAN_ID = "myConnector_fan_ecs1-01_1.1";
 	private static final String ROBOTICS_ID = "myConnector_robotics_ecs1-01_1.1";
+	private static final String IP_ADDRESS = "ipAddress";
+	private static final String IP = "0.0.0.0";
 
 
 	@Test
@@ -251,6 +253,7 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(MODEL, MODEL_VALUE);
 		metadata.put(ID_COUNT, _0);
 		metadata.put(TYPE, COMPUTER);
+		metadata.put(IP_ADDRESS, IP);
 
 		final Monitor monitor = Monitor
 				.builder()

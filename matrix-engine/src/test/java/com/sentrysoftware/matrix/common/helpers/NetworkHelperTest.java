@@ -63,4 +63,20 @@ class NetworkHelperTest {
 		// hostname can be resolved
 		assertNotNull(NetworkHelper.getFqdn(hostname));
 	}
+
+	@Test
+	void testResolveDns() throws Exception {
+
+		// hostname is null
+		assertNull(NetworkHelper.resolveDns(null));
+
+		// hostname is blank
+		String hostname = "   ";
+		assertEquals(null, NetworkHelper.resolveDns(hostname));
+
+		// hostname can be resolved
+		hostname = "localhost";
+		assertNotNull(NetworkHelper.resolveDns(hostname));
+	}
 }
+

@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -128,7 +129,17 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = targetMonitor.getId();
 		Assert.notNull(id, TARGET_ID_CANNOT_BE_NULL);
 
-		createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
+		Monitor enclosureMonitor = createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
+
+		discoverEnclosureIpAddress(enclosureMonitor);
+	}
+	
+	private void discoverEnclosureIpAddress(Monitor enclosureMonitor) {
+		final String enclosureHostname = enclosureMonitor.getMetadata("DeviceHostname");
+		String ipAddress = NetworkHelper.resolveDns(enclosureHostname);
+		if (ipAddress != null) {
+			enclosureMonitor.addMetadata("ipAddress", ipAddress);
+		}
 	}
 
 	@Override
