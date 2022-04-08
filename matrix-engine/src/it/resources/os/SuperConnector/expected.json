@@ -578,7 +578,7 @@
       "idCount" : "0",
       "identifyingInformation" : "Model Number: GVAX57A1-BNNX14X Partition: 0",
       "serialnumber" : "S*15E4582A*N",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -707,7 +707,7 @@
       "idCount" : "1",
       "identifyingInformation" : "Model Number: GVAX57A1-CNNX14Y Partition: 4",
       "serialnumber" : "S*15A4586Z*N",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -800,7 +800,7 @@
       "compiledFileName" : "SuperConnectorOS",
       "description" : "This connector provides super power connector.",
       "displayName" : "SuperConnector Test OS",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "status" : [ {
@@ -1460,7 +1460,7 @@
       "displayid" : "CORE #1",
       "idCount" : "0",
       "identifyingInformation" : "Location: a",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -1579,7 +1579,7 @@
       "displayid" : "CORE #4",
       "idCount" : "9",
       "identifyingInformation" : "Location: 4",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -1698,7 +1698,7 @@
       "displayid" : "CORE #5",
       "idCount" : "10",
       "identifyingInformation" : "Location: 5",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -1817,7 +1817,7 @@
       "displayid" : "CORE #6",
       "idCount" : "11",
       "identifyingInformation" : "Location: 6",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -1936,7 +1936,7 @@
       "displayid" : "CORE #2",
       "idCount" : "1",
       "identifyingInformation" : "Location: b",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2059,7 +2059,7 @@
       "displayid" : "CORE #3",
       "idCount" : "2",
       "identifyingInformation" : "Location: c",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2178,7 +2178,7 @@
       "displayid" : "CORE #4",
       "idCount" : "3",
       "identifyingInformation" : "Location: d",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2301,7 +2301,7 @@
       "displayid" : "CORE #1",
       "idCount" : "4",
       "identifyingInformation" : "Location: e",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2420,7 +2420,7 @@
       "displayid" : "CORE #2",
       "idCount" : "5",
       "identifyingInformation" : "Location: f",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2543,7 +2543,7 @@
       "displayid" : "CORE #1",
       "idCount" : "6",
       "identifyingInformation" : "Location: 1",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2662,7 +2662,7 @@
       "displayid" : "CORE #2",
       "idCount" : "7",
       "identifyingInformation" : "Location: 2",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -2781,7 +2781,7 @@
       "displayid" : "CORE #3",
       "idCount" : "8",
       "identifyingInformation" : "Location: 3",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -3662,7 +3662,7 @@
       "identifyingInformation" : "Fan Module: A Slot: 0",
       "percentalarmthreshold" : "",
       "percentwarningthreshold" : "",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -3855,7 +3855,7 @@
       "identifyingInformation" : "Fan Module: B Slot: 1",
       "percentalarmthreshold" : "",
       "percentwarningthreshold" : "",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -5250,7 +5250,7 @@
       "logicaldisktype" : "pool",
       "raidlevel" : "5",
       "size" : "5.0E9",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5374,7 +5374,7 @@
       "logicaldisktype" : "pool",
       "raidlevel" : "5",
       "size" : "2.0E9",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5498,7 +5498,7 @@
       "logicaldisktype" : "volume",
       "raidlevel" : "5",
       "size" : "1.5E10",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5642,7 +5642,7 @@
       "logicaldisktype" : "volume",
       "raidlevel" : "5",
       "size" : "3.0E10",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -8041,7 +8041,7 @@
       "displayid" : "OtherDevices",
       "idCount" : "0",
       "identifyingInformation" : "Manufacturer:LSI - Model:9205-8e Serial Number:Onboard Firmware Version: 17.11.00.00",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -8181,7 +8181,7 @@
       "displayid" : "OtherDevices",
       "idCount" : "1",
       "identifyingInformation" : "Part Number: GV-BE2LSW1X1-Y Serial Number: 002212 Model Number:",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -8315,7 +8315,7 @@
       "displayid" : "OtherDevices",
       "idCount" : "2",
       "identifyingInformation" : "Part Number: GVX-BE2MNG1X1 Serial Number: H9900652C04 Model Number: HBS03-BC",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -65179,7 +65179,7 @@
       "identifyingInformation" : "Serial Number: 100350353 Part Number: 357+KPA0018540-1",
       "powersupplypower" : "500",
       "powersupplytype" : "AC",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -65324,7 +65324,7 @@
       "identifyingInformation" : "Serial Number: 100350347 Part Number: 357+KPA0018540-1",
       "powersupplypower" : "600",
       "powersupplytype" : "AC",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -65473,7 +65473,7 @@
       "identifyingInformation" : "Serial Number: Part Number:",
       "powersupplypower" : "700",
       "powersupplytype" : "AC",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "present" : [ {
@@ -67094,7 +67094,7 @@
       "idCount" : "0",
       "identifyingInformation" : "Bay1",
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "status" : [ {
@@ -67205,7 +67205,7 @@
       "idCount" : "1",
       "identifyingInformation" : "Bay2",
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "status" : [ {
@@ -67316,7 +67316,7 @@
       "idCount" : "2",
       "identifyingInformation" : "Bay2",
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "127.0.0.1"
+
     },
     "alertRules" : {
       "status" : [ {
