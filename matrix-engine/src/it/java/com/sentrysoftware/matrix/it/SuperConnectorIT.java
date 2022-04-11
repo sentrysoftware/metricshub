@@ -20,7 +20,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -62,19 +62,20 @@ class SuperConnectorIT {
 		if(LocalOSHandler.isWindows()){	
 			mshwTmp = Files.createDirectories(new File(System.getProperty("java.io.tmpdir") + "/MSHW").toPath()).toFile();
 		} else {
+			// Unix will generate a folder with a random id unlike windows, so we need to target this folder specifically.
 			mshwTmp = Files.createDirectories(new File("/tmp/MSHW/").toPath()).toFile();
 		}
 
 		// Delete existing files, in case a previous execution of this test was brutally stopped
        	Stream.of(mshwTmp.listFiles())
-                .forEach(file -> assertTrue(file.delete()));
+                .forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
     }
 
     @AfterAll
     static void dispose() {
         // Make sure the files are removed
         Stream.of(mshwTmp.listFiles())
-                .forEach(file -> assertTrue(file.delete()));
+                .forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
         // Delete the MSHW directory
         mshwTmp.delete();
     }
