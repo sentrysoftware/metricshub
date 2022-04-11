@@ -107,7 +107,7 @@ exporters:
   # Prometheus Server with Remote Write protocol
   # All options are described at:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter
-  # Note: The Prometheus server must have been started with the --enable-feature=remote-write-receiver option
+  # Note: The Prometheus server must have been started with the --web.enable-remote-write-receiver option
   prometheusremotewrite/your-server:
     endpoint: http://prom-server:9090/api/v1/write
     resource_to_telemetry_conversion:
