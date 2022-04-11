@@ -1,5 +1,18 @@
 package com.sentrysoftware.matrix.it;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -16,19 +29,6 @@ import com.sentrysoftware.matrix.it.job.SuperConnectorITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
 class SuperConnectorIT {
 
 	private static final String EXPECTED_PATH = "os/SuperConnector/expected.json";
@@ -41,8 +41,8 @@ class SuperConnectorIT {
 
 	private static File mshwTmp;
 
-    @BeforeAll
-    static void setUp() throws Exception {
+	@BeforeAll
+	static void setUp() throws Exception {
 
 		// Compile the connector and add it to the store
 		ConnectorParser connectorParser = new ConnectorParser();
@@ -59,26 +59,28 @@ class SuperConnectorIT {
 
 		// Create the MSHW directory under the system's temporary directory
 		// Detect windows
-		if(LocalOSHandler.isWindows()){	
-			mshwTmp = Files.createDirectories(new File(System.getProperty("java.io.tmpdir") + "/MSHW").toPath()).toFile();
+		if (LocalOSHandler.isWindows()) {
+			mshwTmp = Files.createDirectories(new File(System.getenv("TEMP") + "/MSHW").toPath())
+					.toFile();
 		} else {
-			// Unix will generate a folder with a random id unlike windows, so we need to target this folder specifically.
+			// Unix will generate a folder with a random id unlike windows, so we need to
+			// target this folder specifically.
 			mshwTmp = Files.createDirectories(new File("/tmp/MSHW/").toPath()).toFile();
 		}
 
 		// Delete existing files, in case a previous execution of this test was brutally stopped
-       	Stream.of(mshwTmp.listFiles())
-                .forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
-    }
+		Stream.of(mshwTmp.listFiles())
+				.forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
+	}
 
-    @AfterAll
-    static void dispose() {
-        // Make sure the files are removed
-        Stream.of(mshwTmp.listFiles())
-                .forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
-        // Delete the MSHW directory
-        mshwTmp.delete();
-    }
+	@AfterAll
+	static void dispose() {
+		// Make sure the files are removed
+		Stream.of(mshwTmp.listFiles())
+				.forEach(file -> assertTrue(file.delete(), "Cannot delete the file: " + file.toString()));
+		// Delete the MSHW directory
+		mshwTmp.delete();
+	}
 
 	@Test
 	void test() throws Exception {

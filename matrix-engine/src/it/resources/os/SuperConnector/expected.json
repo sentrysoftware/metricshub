@@ -93,7 +93,6 @@
       "idCount" : "0",
       "identifyingInformation" : "Location: Rack1",
       "model" : "MegaPack800",
-      "targetFqdn" : "localhost",
       "vendor" : "Tesla"
     },
     "alertRules" : {
@@ -249,7 +248,6 @@
       "idCount" : "1",
       "identifyingInformation" : "Location: Rack2",
       "model" : "Power1000",
-      "targetFqdn" : "localhost",
       "vendor" : "Panasonic"
     },
     "alertRules" : {
@@ -417,7 +415,6 @@
       "idCount" : "2",
       "identifyingInformation" : "Location:",
       "model" : "Power3000",
-      "targetFqdn" : "localhost",
       "vendor" : "Panasonic"
     },
     "alertRules" : {
@@ -577,8 +574,7 @@
       "displayid" : "Blade1",
       "idCount" : "0",
       "identifyingInformation" : "Model Number: GVAX57A1-BNNX14X Partition: 0",
-      "serialnumber" : "S*15E4582A*N",
-      "targetFqdn" : "localhost"
+      "serialnumber" : "S*15E4582A*N"
     },
     "alertRules" : {
       "present" : [ {
@@ -706,8 +702,7 @@
       "displayid" : "Blade2",
       "idCount" : "1",
       "identifyingInformation" : "Model Number: GVAX57A1-CNNX14Y Partition: 4",
-      "serialnumber" : "S*15A4586Z*N",
-      "targetFqdn" : "localhost"
+      "serialnumber" : "S*15A4586Z*N"
     },
     "alertRules" : {
       "present" : [ {
@@ -799,8 +794,7 @@
     "metadata" : {
       "compiledFileName" : "SuperConnectorOS",
       "description" : "This connector provides super power connector.",
-      "displayName" : "SuperConnector Test OS",
-      "targetFqdn" : "localhost"
+      "displayName" : "SuperConnector Test OS"
     },
     "alertRules" : {
       "status" : [ {
@@ -938,7 +932,6 @@
       "maximumspeed" : "3000",
       "model" : "Xeon E7",
       "powerconsumption" : "200",
-      "targetFqdn" : "localhost",
       "vendor" : "INTEL"
     },
     "alertRules" : {
@@ -1128,7 +1121,6 @@
       "maximumspeed" : "2800",
       "model" : "Xeon E5",
       "powerconsumption" : "220",
-      "targetFqdn" : "localhost",
       "vendor" : "INTEL"
     },
     "alertRules" : {
@@ -1308,7 +1300,6 @@
       "maximumspeed" : "3200",
       "model" : "EPYC 7601",
       "powerconsumption" : "180",
-      "targetFqdn" : "localhost",
       "vendor" : "AMD"
     },
     "alertRules" : {
@@ -1459,8 +1450,7 @@
       "deviceid" : "1",
       "displayid" : "CORE #1",
       "idCount" : "0",
-      "identifyingInformation" : "Location: a",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: a"
     },
     "alertRules" : {
       "present" : [ {
@@ -1578,8 +1568,7 @@
       "deviceid" : "10",
       "displayid" : "CORE #4",
       "idCount" : "9",
-      "identifyingInformation" : "Location: 4",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 4"
     },
     "alertRules" : {
       "present" : [ {
@@ -1697,8 +1686,7 @@
       "deviceid" : "11",
       "displayid" : "CORE #5",
       "idCount" : "10",
-      "identifyingInformation" : "Location: 5",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 5"
     },
     "alertRules" : {
       "present" : [ {
@@ -1816,8 +1804,7 @@
       "deviceid" : "12",
       "displayid" : "CORE #6",
       "idCount" : "11",
-      "identifyingInformation" : "Location: 6",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 6"
     },
     "alertRules" : {
       "present" : [ {
@@ -1935,8 +1922,7 @@
       "deviceid" : "2",
       "displayid" : "CORE #2",
       "idCount" : "1",
-      "identifyingInformation" : "Location: b",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: b"
     },
     "alertRules" : {
       "present" : [ {
@@ -2058,8 +2044,7 @@
       "deviceid" : "3",
       "displayid" : "CORE #3",
       "idCount" : "2",
-      "identifyingInformation" : "Location: c",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: c"
     },
     "alertRules" : {
       "present" : [ {
@@ -2177,8 +2162,7 @@
       "deviceid" : "4",
       "displayid" : "CORE #4",
       "idCount" : "3",
-      "identifyingInformation" : "Location: d",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: d"
     },
     "alertRules" : {
       "present" : [ {
@@ -2300,8 +2284,7 @@
       "deviceid" : "5",
       "displayid" : "CORE #1",
       "idCount" : "4",
-      "identifyingInformation" : "Location: e",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: e"
     },
     "alertRules" : {
       "present" : [ {
@@ -2419,8 +2402,7 @@
       "deviceid" : "6",
       "displayid" : "CORE #2",
       "idCount" : "5",
-      "identifyingInformation" : "Location: f",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: f"
     },
     "alertRules" : {
       "present" : [ {
@@ -2542,8 +2524,7 @@
       "deviceid" : "7",
       "displayid" : "CORE #1",
       "idCount" : "6",
-      "identifyingInformation" : "Location: 1",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 1"
     },
     "alertRules" : {
       "present" : [ {
@@ -2661,8 +2642,7 @@
       "deviceid" : "8",
       "displayid" : "CORE #2",
       "idCount" : "7",
-      "identifyingInformation" : "Location: 2",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 2"
     },
     "alertRules" : {
       "present" : [ {
@@ -2780,8 +2760,7 @@
       "deviceid" : "9",
       "displayid" : "CORE #3",
       "idCount" : "8",
-      "identifyingInformation" : "Location: 3",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Location: 3"
     },
     "alertRules" : {
       "present" : [ {
@@ -2915,7 +2894,6 @@
       "idCount" : "0",
       "identifyingInformation" : "Manufacturer: FXN - Spare Part Number: 683245-001 - Product Number: QR482A - Alternative Serial Number: 0000000000 Bios: 4.7.8 - Kernel: 3.1.3",
       "model" : "Model 15",
-      "targetFqdn" : "localhost",
       "vendor" : "EMC"
     },
     "alertRules" : {
@@ -3069,7 +3047,6 @@
       "idCount" : "1",
       "identifyingInformation" : "Manufacturer: FXN - Spare Part Number: 683245-001 - Product Number: QR482A - Alternative Serial Number: CZ33169605 Bios: 4.7.8 - Kernel: 3.1.3",
       "model" : "Model 15",
-      "targetFqdn" : "localhost",
       "vendor" : "EMC"
     },
     "alertRules" : {
@@ -3231,7 +3208,6 @@
       "idCount" : "2",
       "identifyingInformation" : "Manufacturer: BIG - Spare Part Number: F5-D106 - Product Number: D106 - Alternative Serial Number: f5-iryj-vgrt",
       "model" : "D106",
-      "targetFqdn" : "localhost",
       "vendor" : "F5-BigIP"
     },
     "alertRules" : {
@@ -3400,7 +3376,6 @@
       "idCount" : "0",
       "identifyingInformation" : "Machine ID: 00F6BA5A4C00 System ID: 8000121245100000 LPAR System ID: 8000121245100002",
       "model" : "ZED",
-      "targetFqdn" : "localhost",
       "type" : "Storage",
       "vendor" : "EMC"
     },
@@ -3528,7 +3503,6 @@
       "idCount" : "1",
       "identifyingInformation" : "Serial number : 297800620",
       "model" : "VMAX250F",
-      "targetFqdn" : "localhost",
       "type" : "Storage",
       "vendor" : "EMC"
     },
@@ -3661,8 +3635,7 @@
       "idCount" : "0",
       "identifyingInformation" : "Fan Module: A Slot: 0",
       "percentalarmthreshold" : "",
-      "percentwarningthreshold" : "",
-      "targetFqdn" : "localhost"
+      "percentwarningthreshold" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -3854,8 +3827,7 @@
       "idCount" : "1",
       "identifyingInformation" : "Fan Module: B Slot: 1",
       "percentalarmthreshold" : "",
-      "percentwarningthreshold" : "",
-      "targetFqdn" : "localhost"
+      "percentwarningthreshold" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -4094,7 +4066,6 @@
       "model" : "6800 xt",
       "serialnumber" : "SER14L",
       "size" : "8192",
-      "targetFqdn" : "localhost",
       "vendor" : "Amd"
     },
     "alertRules" : {
@@ -4377,7 +4348,6 @@
       "model" : "Xe",
       "serialnumber" : "DG2",
       "size" : "8192",
-      "targetFqdn" : "localhost",
       "vendor" : "Intel"
     },
     "alertRules" : {
@@ -4708,7 +4678,6 @@
       "model" : "3080 ti",
       "serialnumber" : "AZEAX12454",
       "size" : "16384",
-      "targetFqdn" : "localhost",
       "vendor" : "Nvidia"
     },
     "alertRules" : {
@@ -4939,7 +4908,6 @@
       "name" : "Enclosure 1 Indicator 1",
       "offstatus" : "WARN",
       "onstatus" : "ALARM",
-      "targetFqdn" : "localhost",
       "warningoncolor" : "GREEN"
     },
     "alertRules" : {
@@ -5110,7 +5078,6 @@
       "name" : "Enclosure 1 Indicator 2",
       "offstatus" : "WARN",
       "onstatus" : "ALARM",
-      "targetFqdn" : "localhost",
       "warningoncolor" : "YELLOW"
     },
     "alertRules" : {
@@ -5249,8 +5216,7 @@
       "identifyingInformation" : "Protection Policy: HDD+2d:1n1-4:bay2-6",
       "logicaldisktype" : "pool",
       "raidlevel" : "5",
-      "size" : "5.0E9",
-      "targetFqdn" : "localhost"
+      "size" : "5.0E9"
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5373,8 +5339,7 @@
       "identifyingInformation" : "Protection Policy: HDD+2d:1n1-4:bay7-12",
       "logicaldisktype" : "pool",
       "raidlevel" : "5",
-      "size" : "2.0E9",
-      "targetFqdn" : "localhost"
+      "size" : "2.0E9"
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5497,8 +5462,7 @@
       "identifyingInformation" : "Protection Policy:",
       "logicaldisktype" : "volume",
       "raidlevel" : "5",
-      "size" : "1.5E10",
-      "targetFqdn" : "localhost"
+      "size" : "1.5E10"
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5641,8 +5605,7 @@
       "identifyingInformation" : "Protection Policy:",
       "logicaldisktype" : "volume",
       "raidlevel" : "5",
-      "size" : "3.0E10",
-      "targetFqdn" : "localhost"
+      "size" : "3.0E10"
     },
     "alertRules" : {
       "errorCount" : [ {
@@ -5777,7 +5740,6 @@
       "identifyingInformation" : "Hardware Location Code: U78AB.001.WZSGGSC-P1-C5-T2-W5006016408E03079-L07",
       "localdevicename" : "localhost",
       "remotedevicename" : "remotehost",
-      "targetFqdn" : "localhost",
       "wwn" : "WWN=WWN1"
     },
     "alertRules" : {
@@ -5895,7 +5857,6 @@
       "idCount" : "1",
       "identifyingInformation" : "Hardware Location Code: U78AB.001.WZSGGSC-P1-C5-T2-W500601693EA04D2B-L0",
       "localdevicename" : "bacon",
-      "targetFqdn" : "localhost",
       "wwn" : "WWN=WWN2"
     },
     "alertRules" : {
@@ -6031,7 +5992,6 @@
       "idCount" : "2",
       "identifyingInformation" : "Hardware Location Code: U78AB.001.WZSGGSC-P1-C5-T2-W500601603CE010D5-L0",
       "localdevicename" : "pc-hds",
-      "targetFqdn" : "localhost",
       "wwn" : "WWN=WWN3"
     },
     "alertRules" : {
@@ -6170,7 +6130,6 @@
       "idCount" : "3",
       "identifyingInformation" : "Hardware Location Code: U78AB.001.WZSGGSC-P1-C5-T2-W500601603CE010D5-L0",
       "localdevicename" : "",
-      "targetFqdn" : "localhost",
       "wwn" : "WWN=WWN4"
     },
     "alertRules" : {
@@ -6336,7 +6295,6 @@
       "model" : "MEM44",
       "serialnumber" : "ER4521DFE",
       "size" : "32024.0",
-      "targetFqdn" : "localhost",
       "type" : "DDR4",
       "vendor" : "DELL"
     },
@@ -6526,7 +6484,6 @@
       "model" : "MEM44",
       "serialnumber" : "ER4521DFE",
       "size" : "16024.0",
-      "targetFqdn" : "localhost",
       "type" : "DDR4",
       "vendor" : "DELL"
     },
@@ -6740,7 +6697,6 @@
       "model" : "MEM44",
       "serialnumber" : "ER4521DFE",
       "size" : "16024.0",
-      "targetFqdn" : "localhost",
       "type" : "DDR4",
       "vendor" : "DELL"
     },
@@ -7010,7 +6966,6 @@
       "model" : "RG1G",
       "physicaladdress" : "00:0a:95:9d:68:16",
       "serialnumber" : "D4566ES45",
-      "targetFqdn" : "localhost",
       "vendor" : "Gigabyt"
     },
     "alertRules" : {
@@ -7271,7 +7226,6 @@
       "model" : "GigaHP",
       "physicaladdress" : "00:0a:95:9d:68:16",
       "serialnumber" : "D4566ES46",
-      "targetFqdn" : "localhost",
       "vendor" : "HP"
     },
     "alertRules" : {
@@ -7562,7 +7516,6 @@
       "model" : "AZ100G",
       "physicaladdress" : "00:0a:95:9d:68:16",
       "serialnumber" : "D4566ES47",
-      "targetFqdn" : "localhost",
       "vendor" : "AZUS"
     },
     "alertRules" : {
@@ -7853,7 +7806,6 @@
       "model" : "AZ100G",
       "physicaladdress" : "00:0a:95:9d:68:16",
       "serialnumber" : "D4566ES48",
-      "targetFqdn" : "localhost",
       "vendor" : "AZUS"
     },
     "alertRules" : {
@@ -8040,8 +7992,7 @@
       "deviceid" : "1",
       "displayid" : "OtherDevices",
       "idCount" : "0",
-      "identifyingInformation" : "Manufacturer:LSI - Model:9205-8e Serial Number:Onboard Firmware Version: 17.11.00.00",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Manufacturer:LSI - Model:9205-8e Serial Number:Onboard Firmware Version: 17.11.00.00"
     },
     "alertRules" : {
       "present" : [ {
@@ -8180,8 +8131,7 @@
       "deviceid" : "2",
       "displayid" : "OtherDevices",
       "idCount" : "1",
-      "identifyingInformation" : "Part Number: GV-BE2LSW1X1-Y Serial Number: 002212 Model Number:",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Part Number: GV-BE2LSW1X1-Y Serial Number: 002212 Model Number:"
     },
     "alertRules" : {
       "present" : [ {
@@ -8314,8 +8264,7 @@
       "deviceid" : "3",
       "displayid" : "OtherDevices",
       "idCount" : "2",
-      "identifyingInformation" : "Part Number: GVX-BE2MNG1X1 Serial Number: H9900652C04 Model Number: HBS03-BC",
-      "targetFqdn" : "localhost"
+      "identifyingInformation" : "Part Number: GVX-BE2MNG1X1 Serial Number: H9900652C04 Model Number: HBS03-BC"
     },
     "alertRules" : {
       "present" : [ {
@@ -8492,7 +8441,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "1200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -8721,7 +8669,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "12000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -8946,7 +8893,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "120000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -9167,7 +9113,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "121200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -9388,7 +9333,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "122400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -9609,7 +9553,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "123600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -9830,7 +9773,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "124800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -10051,7 +9993,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "126000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -10272,7 +10213,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "127200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -10493,7 +10433,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "128400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -10714,7 +10653,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "129600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -10935,7 +10873,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "130800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -11156,7 +11093,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "13200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -11381,7 +11317,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "132000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -11602,7 +11537,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "133200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -11823,7 +11757,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "134400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -12044,7 +11977,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "135600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -12265,7 +12197,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "136800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -12486,7 +12417,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "138000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -12707,7 +12637,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "139200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -12928,7 +12857,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "140400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -13149,7 +13077,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "141600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -13370,7 +13297,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "142800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -13591,7 +13517,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "14400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -13816,7 +13741,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "144000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -14037,7 +13961,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "145200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -14258,7 +14181,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "146400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -14479,7 +14401,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "147600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -14700,7 +14621,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "148800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -14921,7 +14841,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "150000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -15142,7 +15061,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "151200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -15367,7 +15285,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "152400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -15592,7 +15509,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "153600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -15817,7 +15733,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "154800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -16042,7 +15957,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "15600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -16267,7 +16181,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "156000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -16492,7 +16405,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "157200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -16717,7 +16629,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "158400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -16942,7 +16853,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "159600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -17167,7 +17077,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "160800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -17392,7 +17301,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "162000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -17617,7 +17525,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "163200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -17842,7 +17749,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "164400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -18067,7 +17973,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "165600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -18292,7 +18197,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "166800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -18517,7 +18421,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "16800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -18742,7 +18645,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "168000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -18967,7 +18869,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "169200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -19192,7 +19093,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "170400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -19417,7 +19317,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "171600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -19642,7 +19541,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "172800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -19867,7 +19765,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "174000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -20092,7 +19989,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "175200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -20317,7 +20213,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "176400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -20542,7 +20437,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "177600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -20767,7 +20661,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "178800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -20992,7 +20885,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "18000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -21213,7 +21105,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "180000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -21438,7 +21329,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "181200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -21663,7 +21553,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "182400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -21888,7 +21777,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "183600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -22113,7 +22001,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "184800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -22338,7 +22225,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "186000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -22563,7 +22449,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "187200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -22788,7 +22673,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "188400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -23013,7 +22897,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "189600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -23238,7 +23121,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "190800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -23463,7 +23345,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "19200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -23684,7 +23565,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "192000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -23909,7 +23789,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "193200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -24134,7 +24013,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "194400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -24359,7 +24237,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "195600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -24584,7 +24461,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "196800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -24809,7 +24685,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "198000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -25034,7 +24909,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "199200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -25259,7 +25133,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "200400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -25484,7 +25357,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "201600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -25709,7 +25581,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "202800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -25934,7 +25805,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "20400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -26155,7 +26025,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "204000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -26380,7 +26249,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "205200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -26605,7 +26473,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "206400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -26830,7 +26697,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "207600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -27055,7 +26921,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "208800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -27280,7 +27145,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "210000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -27505,7 +27369,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "211200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -27730,7 +27593,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "212400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -27955,7 +27817,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "213600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -28180,7 +28041,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "214800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -28405,7 +28265,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "21600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -28626,7 +28485,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "216000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -28851,7 +28709,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "217200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -29076,7 +28933,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "218400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -29301,7 +29157,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "219600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -29526,7 +29381,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "220800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -29751,7 +29605,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "222000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -29976,7 +29829,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "223200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -30201,7 +30053,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "224400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -30426,7 +30277,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "225600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -30651,7 +30501,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "226800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -30876,7 +30725,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "22800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -31097,7 +30945,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "228000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -31322,7 +31169,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "229200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -31547,7 +31393,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "230400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -31772,7 +31617,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "231600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -31997,7 +31841,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "232800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -32222,7 +32065,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "234000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -32447,7 +32289,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "235200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -32672,7 +32513,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "236400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -32897,7 +32737,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "237600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -33122,7 +32961,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "238800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -33347,7 +33185,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "2400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -33576,7 +33413,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "24000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -33797,7 +33633,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "240000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -34022,7 +33857,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "241200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -34247,7 +34081,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "242400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -34472,7 +34305,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "243600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -34697,7 +34529,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "244800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -34922,7 +34753,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "246000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -35147,7 +34977,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "247200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -35372,7 +35201,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "248400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -35597,7 +35425,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "249600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -35822,7 +35649,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "250800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -36047,7 +35873,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "25200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -36268,7 +36093,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "252000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -36493,7 +36317,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "253200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -36718,7 +36541,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "254400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -36943,7 +36765,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "255600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -37168,7 +36989,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "256800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -37393,7 +37213,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "258000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -37618,7 +37437,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "259200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -37843,7 +37661,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "260400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -38068,7 +37885,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "261600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -38293,7 +38109,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "262800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -38518,7 +38333,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "26400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -38739,7 +38553,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "264000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -38964,7 +38777,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "265200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -39189,7 +39001,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "266400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -39414,7 +39225,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "267600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -39639,7 +39449,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "268800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -39864,7 +39673,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "270000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -40089,7 +39897,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "271200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -40314,7 +40121,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "272400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -40539,7 +40345,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "273600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -40764,7 +40569,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "274800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -40989,7 +40793,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "27600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -41210,7 +41013,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "276000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -41435,7 +41237,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "277200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -41660,7 +41461,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "278400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -41885,7 +41685,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "279600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -42110,7 +41909,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "280800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -42335,7 +42133,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "282000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -42560,7 +42357,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "283200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -42785,7 +42581,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "284400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -43010,7 +42805,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "285600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -43235,7 +43029,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "286800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -43460,7 +43253,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "28800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -43681,7 +43473,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "288000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -43906,7 +43697,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "289200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -44131,7 +43921,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "290400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -44356,7 +44145,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "291600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -44581,7 +44369,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "292800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -44806,7 +44593,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "294000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -45031,7 +44817,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "295200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -45256,7 +45041,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "296400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -45481,7 +45265,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "297600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -45706,7 +45489,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "298800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -45931,7 +45713,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "30000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -46152,7 +45933,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "300000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -46377,7 +46157,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "31200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -46598,7 +46377,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "32400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -46819,7 +46597,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "33600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -47040,7 +46817,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "34800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -47261,7 +47037,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "3600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -47490,7 +47265,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "36000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -47711,7 +47485,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "37200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -47932,7 +47705,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "38400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -48153,7 +47925,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "39600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -48374,7 +48145,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "40800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -48595,7 +48365,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "42000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -48816,7 +48585,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "43200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -49037,7 +48805,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "44400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -49258,7 +49025,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "45600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -49479,7 +49245,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "46800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -49700,7 +49465,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "4800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -49929,7 +49693,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "48000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -50150,7 +49913,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "49200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -50371,7 +50133,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "50400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -50592,7 +50353,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "51600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -50813,7 +50573,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "52800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -51034,7 +50793,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "54000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -51255,7 +51013,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "55200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -51476,7 +51233,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "56400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -51697,7 +51453,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "57600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -51918,7 +51673,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "58800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -52139,7 +51893,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "6000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -52368,7 +52121,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "60000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -52589,7 +52341,6 @@
       "model" : "H101860SFSUN600G",
       "serialnumber" : "D3006RGL",
       "size" : "5001514",
-      "targetFqdn" : "localhost",
       "vendor" : "SEAGATE"
     },
     "alertRules" : {
@@ -52818,7 +52569,6 @@
       "model" : "ST2000NXCLAR2000",
       "serialnumber" : "6SE40JGC",
       "size" : "10000000",
-      "targetFqdn" : "localhost",
       "vendor" : "IBM-ESXS"
     },
     "alertRules" : {
@@ -53043,7 +52793,6 @@
       "model" : "Modeltest",
       "serialnumber" : "H101860",
       "size" : "999999999999",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -53264,7 +53013,6 @@
       "model" : "MX500",
       "serialnumber" : "LEC88FOL",
       "size" : "545154",
-      "targetFqdn" : "localhost",
       "vendor" : "Crucial"
     },
     "alertRules" : {
@@ -53493,7 +53241,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "61200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -53714,7 +53461,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "62400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -53935,7 +53681,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "63600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -54156,7 +53901,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "64800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -54377,7 +54121,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "66000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -54598,7 +54341,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "67200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -54819,7 +54561,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "68400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -55040,7 +54781,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "69600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -55261,7 +55001,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "70800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -55482,7 +55221,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "7200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -55711,7 +55449,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "72000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -55932,7 +55669,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "73200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -56153,7 +55889,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "74400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -56374,7 +56109,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "75600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -56595,7 +56329,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "76800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -56816,7 +56549,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "78000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -57037,7 +56769,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "79200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -57258,7 +56989,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "80400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -57479,7 +57209,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "81600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -57700,7 +57429,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "82800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -57921,7 +57649,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "8400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -58150,7 +57877,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "84000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -58371,7 +58097,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "85200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -58592,7 +58317,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "86400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -58813,7 +58537,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "87600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -59034,7 +58757,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "88800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -59255,7 +58977,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "90000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -59476,7 +59197,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "91200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -59697,7 +59417,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "92400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -59918,7 +59637,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "93600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -60139,7 +59857,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "94800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -60360,7 +60077,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "9600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -60585,7 +60301,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "96000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -60806,7 +60521,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "97200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -61027,7 +60741,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "98400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -61248,7 +60961,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "99600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -61469,7 +61181,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "100800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -61690,7 +61401,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "102000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -61911,7 +61621,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "103200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -62132,7 +61841,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "104400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -62353,7 +62061,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "105600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -62574,7 +62281,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "106800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -62795,7 +62501,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "10800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -63020,7 +62725,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "108000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -63241,7 +62945,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "109200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -63462,7 +63165,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "110400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -63683,7 +63385,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "111600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -63904,7 +63605,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "112800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -64125,7 +63825,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "114000000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -64346,7 +64045,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "115200000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -64567,7 +64265,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "116400000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -64788,7 +64485,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "117600000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -65009,7 +64705,6 @@
       "model" : "Modeltest",
       "serialnumber" : "154ERFD455",
       "size" : "118800000000",
-      "targetFqdn" : "localhost",
       "vendor" : "Western Digital"
     },
     "alertRules" : {
@@ -65178,8 +64873,7 @@
       "idCount" : "0",
       "identifyingInformation" : "Serial Number: 100350353 Part Number: 357+KPA0018540-1",
       "powersupplypower" : "500",
-      "powersupplytype" : "AC",
-      "targetFqdn" : "localhost"
+      "powersupplytype" : "AC"
     },
     "alertRules" : {
       "present" : [ {
@@ -65323,8 +65017,7 @@
       "idCount" : "1",
       "identifyingInformation" : "Serial Number: 100350347 Part Number: 357+KPA0018540-1",
       "powersupplypower" : "600",
-      "powersupplytype" : "AC",
-      "targetFqdn" : "localhost"
+      "powersupplytype" : "AC"
     },
     "alertRules" : {
       "present" : [ {
@@ -65472,8 +65165,7 @@
       "idCount" : "2",
       "identifyingInformation" : "Serial Number: Part Number:",
       "powersupplypower" : "700",
-      "powersupplytype" : "AC",
-      "targetFqdn" : "localhost"
+      "powersupplytype" : "AC"
     },
     "alertRules" : {
       "present" : [ {
@@ -65653,7 +65345,6 @@
       "model" : "Robot Rock 5",
       "robotictype" : "Cassette Robot",
       "serialnumber" : "SN12454EE",
-      "targetFqdn" : "localhost",
       "vendor" : "DELL"
     },
     "alertRules" : {
@@ -65807,7 +65498,6 @@
       "model" : "Robot Rock 5",
       "robotictype" : "Cassette Robot",
       "serialnumber" : "SN12454EE",
-      "targetFqdn" : "localhost",
       "vendor" : "DELL"
     },
     "alertRules" : {
@@ -65965,7 +65655,6 @@
       "model" : "Robot Rock 5",
       "robotictype" : "Cassette Robot",
       "serialnumber" : "SN12454EE",
-      "targetFqdn" : "localhost",
       "vendor" : "DELL"
     },
     "alertRules" : {
@@ -66147,7 +65836,6 @@
       "identifyingInformation" : "Element ID: 500 Fibre Node Name: 500104f00094c3c4 Hardware Version: L29S",
       "model" : "S40",
       "serialnumber" : "154ERD",
-      "targetFqdn" : "localhost",
       "vendor" : "Sony"
     },
     "alertRules" : {
@@ -66368,7 +66056,6 @@
       "identifyingInformation" : "Element ID: 2270 Hardware Version: TS2270",
       "model" : "TS2270",
       "serialnumber" : "IBMTS2270TapeDrive",
-      "targetFqdn" : "localhost",
       "vendor" : "IBM"
     },
     "alertRules" : {
@@ -66571,7 +66258,6 @@
       "identifyingInformation" : "Element ID: 500 Fibre Node Name: 500104f00094c3c4 Hardware Version: TS2280",
       "model" : "TS2280",
       "serialnumber" : "IBMTS2280TapeDrive",
-      "targetFqdn" : "localhost",
       "vendor" : "IBM"
     },
     "alertRules" : {
@@ -66727,7 +66413,6 @@
     },
     "metadata" : {
       "averageCpuTemperatureWarning" : "60.0",
-      "fqdn" : "localhost",
       "location" : "localhost",
       "operatingSystemType" : "STORAGE",
       "powerMeter" : "collected"
@@ -66816,7 +66501,6 @@
       "idCount" : "0",
       "identifyingInformation" : "Ambient: PSU-1",
       "isCpuSensor" : "true",
-      "targetFqdn" : "localhost",
       "temperaturetype" : "CPU",
       "warningthreshold" : "60"
     },
@@ -66951,7 +66635,6 @@
       "idCount" : "1",
       "identifyingInformation" : "Ambient: PSU-2",
       "isCpuSensor" : "true",
-      "targetFqdn" : "localhost",
       "temperaturetype" : "CPU",
       "warningthreshold" : "60"
     },
@@ -67094,8 +66777,7 @@
       "hostname" : "localname",
       "idCount" : "0",
       "identifyingInformation" : "Bay1",
-      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "localhost"
+      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
       "status" : [ {
@@ -67205,8 +66887,7 @@
       "hostname" : "127.0.0.1",
       "idCount" : "1",
       "identifyingInformation" : "Bay2",
-      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "localhost"
+      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
       "status" : [ {
@@ -67316,8 +66997,7 @@
       "hostname" : "thehostname",
       "idCount" : "2",
       "identifyingInformation" : "Bay2",
-      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1",
-      "targetFqdn" : "localhost"
+      "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
       "status" : [ {
@@ -67425,7 +67105,6 @@
       "displayid" : "Voltage1",
       "idCount" : "0",
       "identifyingInformation" : "Location: Bay-2",
-      "targetFqdn" : "localhost",
       "voltagetype" : "CPU"
     },
     "alertRules" : {
@@ -67534,7 +67213,6 @@
       "displayid" : "Voltage2",
       "idCount" : "1",
       "identifyingInformation" : "Location: PCI-E",
-      "targetFqdn" : "localhost",
       "voltagetype" : "GPU"
     },
     "alertRules" : {

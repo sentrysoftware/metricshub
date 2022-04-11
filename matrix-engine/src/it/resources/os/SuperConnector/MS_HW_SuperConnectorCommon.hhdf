@@ -1672,7 +1672,7 @@ BEGIN {
     tmpfile = "/tmp/MSHW/MSHW_robotic.log"
     if ( OS ~ /NT/ )
     {
-     tmpfile = ENVIRON["TEMP"]"\\MSHW_robotic.log"
+     tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_robotic.log"
      # Check if a file exist for NT platform
      "IF EXIST %TEMP%\\MSHW\\MSHW_robotic.log type %TEMP%\\MSHW\\MSHW_robotic.log" | getline readline
      if (length(readline) == 0)
