@@ -426,20 +426,24 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		log.trace("Engine called for thread {}", Thread.currentThread().getName());
+		final String hostname = engineConfiguration.getTarget().getHostname();
+
+		log.trace("Hostname {} - Engine called for thread {}", hostname, Thread.currentThread().getName());
 
 		checkEngineConfiguration();
+
 
 		EngineResult lastEngineResult = null;
 
 		for (IStrategy strategy : strategies) {
 
-			log.trace("Calling strategy {}", strategy.getClass().getSimpleName());
+			log.trace("Hostname {} - Calling strategy {}", hostname, strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
-			log.info("{} status {}", strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
+			log.info("Hostname {} - {} status {}", 
+					hostname, strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
 
 			if (log.isDebugEnabled()) {
-				log.debug(">>> {} >>>\n{}", strategy.getClass().getSimpleName(), toJson());
+				log.debug("Hostname {} - >>> {} >>>\n{}", hostname, strategy.getClass().getSimpleName(), toJson());
 			}
 		}
 
@@ -455,6 +459,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private EngineResult run(@NonNull final IStrategy strategy) {
 		final ApplicationContext applicationContext = createApplicationContext(strategy);
+		final String hostname = engineConfiguration.getTarget().getHostname();
 
 		try {
 
@@ -471,20 +476,17 @@ public class HostMonitoring implements IHostMonitoring {
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				log.error(
-						"{} operation failed: {}: {}",
+						"Hostname {} - {} operation failed: {}: {}",
+						hostname,
 						strategy.getClass().getSimpleName(),
 						cause.getClass().getSimpleName(),
 						cause.getMessage()
 				);
-				log.debug("Operation failed with ExecutionException", cause);
+				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, cause);
 			} else {
-				log.error(
-						"{} operation failed: {}: {}",
-						strategy.getClass().getSimpleName(),
-						e.getClass().getSimpleName(),
-						e.getMessage()
-				);
-				log.debug("Operation failed with ExecutionException", e);
+				log.error("Hostname {} - {} operation failed: {}: {}", hostname, strategy.getClass().getSimpleName(),
+						e.getClass().getSimpleName(), e.getMessage());
+				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, e);
 			}
 
 			return EngineResult
@@ -495,8 +497,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (TimeoutException e) {
 
-			log.error("{} operation timeout!", strategy.getClass().getSimpleName());
-			log.debug("Operation failed with TimeoutException", e);
+			log.error("Hostname {} - {} operation timeout!", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with TimeoutException", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -506,8 +508,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (InterruptedException e) {
 
-			log.error("{} operation interrupted", strategy.getClass().getSimpleName());
-			log.debug("Operation failed with InterruptedException", e);
+			log.error("Hostname {} - {} operation interrupted", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with InterruptedException", hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -519,8 +521,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (Exception e) {
 
-			log.error("{} operation failed with {}", strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
-			log.debug("Operation failed with unknown exception", e);
+			log.error("Hostname {} - {} operation failed with {}", hostname, strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with unknown exception", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -554,7 +556,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private ApplicationContext createApplicationContext(final IStrategy strategy) {
 
-		log.debug("Creating spring context");
+		log.debug("Hostname {} - Creating spring context", engineConfiguration.getTarget().getHostname());
 
 		final StrategyConfig strategyConfig = StrategyConfig
 			.builder()
