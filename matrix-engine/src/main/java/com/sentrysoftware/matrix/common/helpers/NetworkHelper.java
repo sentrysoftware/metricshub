@@ -87,14 +87,14 @@ public class NetworkHelper {
 		if (hostname != null && !hostname.isBlank()) {	
 			try { 
 				inetAddress = InetAddress.getByName(hostname);
+				
+				if (inetAddress != null) {
+					ipAddress = inetAddress.getHostAddress();
+				}
 			} catch (UnknownHostException e) {
-				log.warn("Could not resolve %s into an IP address. Assuming non-local.", hostname);
+				log.warn("Could not resolve {} into an IP address.", hostname);
 				log.debug("UnknownHostException: ", e);
 			}
-		}
-		
-		if (inetAddress != null) {
-			ipAddress = inetAddress.getHostAddress();
 		}
 		
 		return ipAddress;
