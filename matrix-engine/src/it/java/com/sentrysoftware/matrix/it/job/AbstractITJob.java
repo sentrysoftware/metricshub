@@ -217,6 +217,10 @@ public abstract class AbstractITJob implements ITJob {
 		final InputStream is = ITJobUtils.getItResourceAsInputStream(expectedPath);
 		final HostMonitoringVO hostMonitoringVO = JsonHelper.deserialize(is, HostMonitoringVO.class);
 
+		final HostMonitoringVO actual = hostMonitoring.getVo();
+
+		assertEquals(hostMonitoringVO.getTotal(), actual.getTotal());
+
 		hostMonitoringVO.getMonitors().forEach(monitor -> assertMonitor(
 				monitor, hostMonitoring.selectFromType(monitor.getMonitorType())));
 
