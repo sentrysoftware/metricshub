@@ -51,7 +51,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_P
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
-	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Cannot create monitor {} with null name. Connector {}. System {}.";
+	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Hostname {} - Cannot create monitor {} with null name. Connector {}";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null.";
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -61,7 +61,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null.";
 	public static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
-	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
+	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Hostname {} - Cannot create {} with deviceId {}. Connector {}";
 
 	private final MonitorBuildingInfo monitorBuildingInfo;
 
@@ -249,9 +249,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		if (monitorName == null) {
 			log.error(CANNOT_CREATE_MONITOR_NULL_NAME_MSG,
+					hostname, 
 					monitorType.getNameInConnector(),
-					connectorName,
-					hostname);
+					connectorName);
 			return null;
 		}
 
@@ -260,10 +260,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = metadata.get(DEVICE_ID);
 		if (!checkNotBlankDataValue(id)) {
 			log.error(CANNOT_CREATE_MONITOR_ERROR_MSG,
+					hostname,
 					monitorType.getNameInConnector(),
 					id,
-					connectorName,
-					hostname);
+					connectorName);
 			return null;
 		}
 

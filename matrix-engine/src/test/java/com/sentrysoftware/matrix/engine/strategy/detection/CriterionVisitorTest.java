@@ -157,7 +157,10 @@ class CriterionVisitorTest {
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((HTTP) null));
 
 		// HTTP is not null, protocol is null
-		engineConfiguration = EngineConfiguration.builder().build();
+		engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(TargetType.LINUX).build())
+				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final HTTP http = new HTTP();
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(http));
@@ -338,7 +341,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			assertEquals(CriterionTestResult.builder().result("").success(false)
-					.message("No OS Command Configuration for " + HOST_LINUX + ". Return empty result.").build(),
+					.message("Hostname " + HOST_LINUX + " - No OS Command Configuration. Return empty result.").build(),
 					criterionVisitor.visit(new IPMI()));
 		}
 		final SSHProtocol ssh = SSHProtocol.builder().username("root").password("nationale".toCharArray()).build();
@@ -473,7 +476,7 @@ class CriterionVisitorTest {
 				final String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
-				assertTrue(cmdResult.startsWith("Couldn't")); // Not Successful command the response starts with
+				assertTrue(cmdResult.contains("Couldn't")); // Not Successful command the response starts with
 				// Couldn't identify
 			}
 
@@ -1159,11 +1162,23 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitProcessProcessNull() {
 		final Process process = null;
+		
+        final EngineConfiguration engineConfiguration = EngineConfiguration
+                .builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .build();
+        doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+        
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(process));
 	}
 
 	@Test
 	void testVisitProcessCommandLineNull() {
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final Process process = new Process();
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit(process));
 	}
@@ -1172,6 +1187,12 @@ class CriterionVisitorTest {
 	void testVisitProcessCommandLineEmpty() {
 		final Process process = new Process();
 		process.setProcessCommandLine("");
+
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
 
@@ -1185,7 +1206,11 @@ class CriterionVisitorTest {
 	void testVisitProcessNotLocalHost() {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
-
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
 
 		final CriterionTestResult criterionTestResult = criterionVisitor.visit(process);
@@ -1200,10 +1225,16 @@ class CriterionVisitorTest {
 	void testVisitProcessUnknownOS() {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
-
+		
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-
+		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
@@ -1223,9 +1254,15 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-
+		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
@@ -1297,9 +1334,15 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-
+		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
@@ -1330,9 +1373,15 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-
+		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
@@ -1360,9 +1409,15 @@ class CriterionVisitorTest {
 		final Process process = new Process();
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+				.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.build();
+		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
 		hostMonitoring.setLocalhost(true);
-
+		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class)) {
@@ -1528,7 +1583,7 @@ class CriterionVisitorTest {
 				any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an exception. Message: SNMPGet timeout.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an exception. Message: SNMPGet timeout.")
 				.build();
 		assertEquals(expected, actual);
 	}
@@ -1542,7 +1597,7 @@ class CriterionVisitorTest {
 		doReturn(null).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to a null result.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to a null result.")
 				.build();
 		assertEquals(expected, actual);
 	}
@@ -1556,7 +1611,7 @@ class CriterionVisitorTest {
 		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an empty result.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.")
 				.result(EMPTY).build();
 		assertEquals(expected, actual);
 	}
@@ -1570,7 +1625,7 @@ class CriterionVisitorTest {
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
+				"Hostname ecs1-01 - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned Result: UCS System Cisco.")
 				.result(UCS_SYSTEM_CISCO_RESULT)
 				.success(true).build();
 		assertEquals(expected, actual);
@@ -1585,7 +1640,7 @@ class CriterionVisitorTest {
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value UCS System Cisco.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value UCS System Cisco.")
 				.result(UCS_SYSTEM_CISCO_RESULT)
 				.build();
 		assertEquals(expected, actual);
@@ -1600,7 +1655,7 @@ class CriterionVisitorTest {
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGet.builder().oid(OID).expectedResult(UCS_EXPECTED).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: UCS System Cisco.")
+				"Hostname ecs1-01 - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned Result: UCS System Cisco.")
 				.result(UCS_SYSTEM_CISCO_RESULT)
 				.success(true)
 				.build();
@@ -1612,12 +1667,11 @@ class CriterionVisitorTest {
 
 		initSNMP();
 
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((SNMPGet) null));
 		assertEquals(CriterionTestResult.empty(),
 				criterionVisitor.visit(SNMPGet.builder().oid(null).build()));
-		doReturn(new EngineConfiguration()).when(strategyConfig).getEngineConfiguration();
-		assertEquals(CriterionTestResult.empty(),
-				criterionVisitor.visit(SNMPGet.builder().oid(OID).build()));
+		assertNull(criterionVisitor.visit(SNMPGet.builder().oid(OID).build()).getResult());
 	}
 
 	@Test
@@ -2017,7 +2071,7 @@ class CriterionVisitorTest {
 				any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an exception. Message: SNMPGetNext timeout.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an exception. Message: SNMPGetNext timeout.")
 				.build();
 		assertEquals(expected, actual);
 	}
@@ -2031,7 +2085,7 @@ class CriterionVisitorTest {
 		doReturn(null).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to a null result.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to a null result.")
 				.build();
 		assertEquals(expected, actual);
 	}
@@ -2045,7 +2099,7 @@ class CriterionVisitorTest {
 		doReturn(EMPTY).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was unsuccessful due to an empty result.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.")
 				.result(EMPTY).build();
 		assertEquals(expected, actual);
 	}
@@ -2059,7 +2113,7 @@ class CriterionVisitorTest {
 		doReturn(RESULT_1).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the returned OID is not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.")
 				.result(RESULT_1).build();
 		assertEquals(expected, actual);
 	}
@@ -2073,7 +2127,7 @@ class CriterionVisitorTest {
 		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.")
+				"Hostname ecs1-01 - Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.")
 				.result(RESULT_2)
 				.success(true).build();
 		assertEquals(expected, actual);
@@ -2088,7 +2142,7 @@ class CriterionVisitorTest {
 		doReturn(RESULT_2).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.")
 				.result(RESULT_2)
 				.build();
 		assertEquals(expected, actual);
@@ -2103,7 +2157,7 @@ class CriterionVisitorTest {
 		doReturn(RESULT_3).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.")
+				"Hostname ecs1-01 - Successful SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.")
 				.result(RESULT_3)
 				.success(true)
 				.build();
@@ -2119,7 +2173,7 @@ class CriterionVisitorTest {
 		doReturn(RESULT_4).when(matsyaClientsExecutor).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SNMPGetNext.builder().oid(OID).expectedResult(VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 on ecs1-01 was successful but the value cannot be extracted. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.")
+				"Hostname ecs1-01 - SNMP Test Failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value cannot be extracted. Returned Result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.")
 				.result(RESULT_4)
 				.build();
 		assertEquals(expected, actual);
@@ -2130,12 +2184,11 @@ class CriterionVisitorTest {
 
 		initSNMP();
 
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(CriterionTestResult.empty(), criterionVisitor.visit((SNMPGetNext) null));
 		assertEquals(CriterionTestResult.empty(),
 				criterionVisitor.visit(SNMPGetNext.builder().oid(null).build()));
-		doReturn(new EngineConfiguration()).when(strategyConfig).getEngineConfiguration();
-		assertEquals(CriterionTestResult.empty(),
-				criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build()));
+		assertNull(criterionVisitor.visit(SNMPGetNext.builder().oid(OID).build()).getResult());
 	}
 
 	@Test

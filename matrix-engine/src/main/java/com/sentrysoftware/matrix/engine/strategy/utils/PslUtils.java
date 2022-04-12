@@ -35,7 +35,7 @@ public class PslUtils {
 	private static final char LOWER_THAN_CHAR = '<';
 	private static final char GREATER_THAN_CHAR = '>';
 	private static final char DASH_CHAR = '-';
-
+	
 	private PslUtils() { }
 
 	/**
@@ -290,7 +290,7 @@ public class PslUtils {
 
 		int fromColumnNumber;
 		int toColumnNumber;
-
+		
 		try {
 
 			int dashIndex = columns.indexOf(DASH_CHAR);
@@ -338,7 +338,8 @@ public class PslUtils {
 
 		} catch (NumberFormatException e) {
 
-			log.warn("getColumnRange: Could not determine the range denoted by {}: {}", columns, e.getMessage());
+			log.warn("getColumnRange: Could not determine the range denoted by {}: {}", 
+					columns, e.getMessage());
 
 			fromColumnNumber = 0;
 			toColumnNumber = 0;
@@ -365,6 +366,7 @@ public class PslUtils {
 	 */
 	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
 			throws IllegalArgumentException{
+		
 		if (row.isEmpty()) {
 			log.error("formatExtendedJSON received Empty row of values. Returning empty string.");
 			return HardwareConstants.EMPTY;
@@ -372,7 +374,8 @@ public class PslUtils {
 
 		String rawData = tableResult.getRawData();
 		if (rawData == null || rawData.isEmpty()) {
-			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", tableResult);
+			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", 
+					tableResult);
 			return HardwareConstants.EMPTY;
 		}
 

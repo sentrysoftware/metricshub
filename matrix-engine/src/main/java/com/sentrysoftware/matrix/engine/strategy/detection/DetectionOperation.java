@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,6 +31,7 @@ import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
@@ -57,10 +59,11 @@ public class DetectionOperation extends AbstractStrategy {
 		final Set<String> selectedConnectors = strategyConfig.getEngineConfiguration().getSelectedConnectors();
 
 		// Localhost check
-		final boolean isLocalhost = NetworkHelper.isLocalhost(strategyConfig.getEngineConfiguration().getTarget().getHostname());
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final boolean isLocalhost = NetworkHelper.isLocalhost(hostname);
 
 		// Create the target
-		log.debug("Create the Target");
+		log.debug("Hostname {} - Create the Target", hostname);
 		final Monitor target = createTarget(isLocalhost);
 
 		// No selectedConnectors then perform auto detection
@@ -87,7 +90,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Process selected connectors for system {}: {}",
+		log.debug("Hostname {} - Process selected connectors: {}",
 				hostname, selectedConnectorKeys);
 
 		// Get the selected connectors from the store singleton bean
@@ -107,7 +110,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost) {
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Start DETECTION for system {}", hostname);
+		log.debug("Hostname {} - Start Detection", hostname);
 
 		// Get the excluded connectors
 		final Set<String> excludedConnectors = strategyConfig.getEngineConfiguration().getExcludedConnectors();
@@ -136,26 +139,100 @@ public class DetectionOperation extends AbstractStrategy {
 		// Now we know what would be executed, filter the connectors based on the accepted protocols
 		connectorStream = filterConnectorsByAcceptedSources(connectorStream, acceptedSources);
 
-		// Now detect the connectors, try to run the detection criteria for each
-		// connector and select only the connectors
-		// matching the succeeded criteria
-		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname);
-
+		// Now detect the connectors, try to run the detection criteria for each connector and select only the connectors
+		// matching the succeeded criteria. Sort the connectors alphabetically
+		Stream<TestedConnector> testedConnectors = detectConnectors(connectorStream, hostname)
+				.sorted(Comparator.comparing(tc -> tc.getConnector().getCompiledFilename()));
+		
 		// Only successful connectors for the auto detection
 		final List<TestedConnector> testedConnectorList = keepOnlySuccessConnectors(testedConnectors, hostname)
 				.collect(Collectors.toList());
 
 		// Supersedes handling
 		handleSupersedes(testedConnectorList);
+		
+		// Filter out last resort connectors when appropriate
+		filterLastResortConnectors(testedConnectorList, hostname);
 
 		// We have detected connectors, now we need to handle Supersedes
 		log.debug(
-				"DETECTION: CONCLUSION: The following connectors match {}'s system and will be used to monitor its hardware: {}",
+				"Hostname {} - Detection Conclusion: The following connectors match the system and will be used to monitor its hardware: {}",
 				hostname, testedConnectorList.stream()
 						.map(c -> c.getConnector().getCompiledFilename()).collect(Collectors.toList()));
 
 		return testedConnectorList;
 	}
+
+	/**
+	 * Removes detected connectors of type "last resort" if their specified "last resort" monitor type (enclosure, fan, etc.) is already 
+	 * discovered by a "regular" connector.
+	 * 
+	 * @param matchingConnectorList The list of detected connectors, that match the host
+	 * @param hostname      		The name of the host currently discovered
+	 * 
+	 */
+	void filterLastResortConnectors(List<TestedConnector> matchingConnectorList, final String hostname) {
+
+		// Extract the list of last resort connectors from the list of matching connectors
+		final List<TestedConnector> lastResortConnectorList = matchingConnectorList
+				.stream()
+				.filter(tc -> tc.getConnector().getOnLastResort() != null)
+				.collect(Collectors.toList());
+		
+		if (lastResortConnectorList.isEmpty()) {
+			return;
+		}
+		
+		// Extract the list of regular connectors connectors from the list of matching connectors
+		final List<TestedConnector> regularConnectorList = matchingConnectorList
+				.stream()
+				.filter(tc -> tc.getConnector().getOnLastResort() == null)
+				.collect(Collectors.toList());
+		
+		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type
+		String[] connectorNameHolder = new String[1];
+		lastResortConnectorList.forEach(lastResortTC -> {
+			boolean hasLastResortMonitor = regularConnectorList.stream().anyMatch(tc -> { 
+				List<HardwareMonitor> hardwareMonitors = tc.getConnector().getHardwareMonitors();
+				
+				// Remember connector's filename
+				connectorNameHolder[0] = tc.getConnector().getCompiledFilename();
+				
+				if (hardwareMonitors == null || hardwareMonitors.isEmpty()) {
+					log.warn(
+							"Hostname {} - {} connector detection. On last resort filter: connector {} has no hardware monitors",
+							hostname,
+							strategyConfig.getEngineConfiguration().getTarget().getHostname(),
+							connectorNameHolder[0]
+							);
+					
+					return false;
+				}
+	
+				// The monitor's instance table must not be empty
+				return hardwareMonitors.stream().anyMatch(hm -> lastResortTC.getConnector().getOnLastResort().equals(hm.getType())
+						&& hm.getDiscovery() != null && hm.getDiscovery().getInstanceTable() != null);	
+			});
+		
+			if (hasLastResortMonitor) {
+				// The current connector discovers the same type has the defined last resort type. Discard last resort connector 
+				matchingConnectorList.remove(lastResortTC);
+				
+				log.info(
+						"Hostname {} - {} is a \"last resort\" connector and its components are already discovered thanks to connector {}. Connector is therefore discarded.",
+						hostname,
+						lastResortTC.getConnector().getCompiledFilename(),
+						connectorNameHolder[0]
+						);
+				
+			} else {
+				// Add the last resort connector to the list of "regular" connectors so that it prevents other
+				// last resort connectors of the same type from matching (but that should never happen, right connector developers?)
+				regularConnectorList.add(lastResortTC);
+			}
+		});
+	}
+
 
 	/**
 	 * Filter the given stream of {@link Connector} instances based on the source
@@ -288,7 +365,7 @@ public class DetectionOperation extends AbstractStrategy {
 						.targetType(target.getType())
 						.build()));
 
-		log.debug("Created Target: {} ID: {} ", target.getHostname(), target.getId());
+		log.debug("Hostname {} - Created Target ID: {} ", target.getHostname(), target.getId());
 
 		return hostMonitoring.getTargetMonitor();
 	}
@@ -322,8 +399,8 @@ public class DetectionOperation extends AbstractStrategy {
 		}
 
 		if (!success) {
-			log.debug("The connector {} matches {}'s platform.", testedConnector.getConnector().getCompiledFilename(),
-					hostname);
+			log.debug("Hostname {} - The connector {} matches {}'s platform.", hostname,
+					testedConnector.getConnector().getCompiledFilename(), hostname);
 		}
 
 		return success;
@@ -374,7 +451,7 @@ public class DetectionOperation extends AbstractStrategy {
 		// The user may want to run queries sent to the target one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Running detection in sequential mode. Hostname: {}", hostname);
+			log.info("Hostname {} - Running detection in sequential mode", hostname);
 
 			// Run detection in sequential mode
 			stream.forEach(
@@ -382,7 +459,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		} else {
 
-			log.info("Running detection in parallel mode. Hostname: {}", hostname);
+			log.info("Hostname {} - Running detection in parallel mode", hostname);
 
 			// Default mode is parallel.
 			// Make sure our list is thread-safe, in our case it is not required to manually synchronize this list as there is no traversal
@@ -404,7 +481,7 @@ public class DetectionOperation extends AbstractStrategy {
 				if (e instanceof InterruptedException) {
 					Thread.currentThread().interrupt();
 				}
-				log.debug("Waiting for threads termination aborted with an error", e);
+				log.debug("Hostname {} - Waiting for threads termination aborted with an error", hostname, e);
 			}
 		}
 
@@ -421,11 +498,11 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	private TestedConnector runConnectorDetection(final Connector connector, final String hostname) {
 
-		log.debug("Start Detection for Connector {}", connector.getCompiledFilename());
+		log.debug("Hostname {} - Start Detection for Connector {}", hostname, connector.getCompiledFilename());
 
 		final TestedConnector testedConnector = testConnector(connector, hostname);
 
-		log.debug("End of Detection for Connector {}. Detection Status: {}", connector.getCompiledFilename(),
+		log.debug("Hostname {} - End of Detection for Connector {}. Detection Status: {}", hostname, connector.getCompiledFilename(),
 				getTestedConnectorStatus(testedConnector));
 
 		return testedConnector;
