@@ -160,7 +160,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final Monitor lunMonitor = createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
 
-		setExpectedPathCount(lunMonitor);
+		if (lunMonitor != null) {
+			setExpectedPathCount(lunMonitor);
+		}
+
 	}
 
 	@Override
@@ -174,7 +177,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final Monitor networkCardMonitor = createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
 
-		normalizeErrorPercentThresholds(networkCardMonitor);
+		if (networkCardMonitor != null) {
+			normalizeErrorPercentThresholds(networkCardMonitor);
+		}
 	}
 
 	@Override
@@ -364,7 +369,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * @param networkCard The monitor we wish to update its {@value HardwareConstants#ERROR_PERCENT_WARNING_THRESHOLD}
 	 *                    and {@value HardwareConstants#ERROR_PERCENT_ALARM_THRESHOLD} metadata
 	 */
-	void normalizeErrorPercentThresholds(final Monitor networkCard) {
+	void normalizeErrorPercentThresholds(@NonNull final Monitor networkCard) {
 		final Double errorPercentWarningThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD), null);
 		final Double errorPercentAlarmThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD), null);
 
