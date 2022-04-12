@@ -23,8 +23,8 @@ import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdkBuilder;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -99,19 +99,33 @@ public class OtelHelper {
 			LocalOSHandler.AIX, OS_TYPE_AIX);
 
 	/**
-	 * Initializes a Metrics SDK with a Resource and an instance of IntervalMetricReader.
+	 * Initializes an OpenTelemetry SDK with a Resource and an instance of
+	 * IntervalMetricReader.
 	 *
-	 * @param resource the resource used for the SdkMeterProvider
-	 * @param periodicReaderFactory the periodic reader running the metrics collect then the OTLP metrics export
-	 * @return a ready-to-use {@link SdkMeterProvider} instance
+	 * @param resource             the resource used for the SdkMeterProvider
+	 * @param otelSdkConfiguration configuration for the OpenTelemetry SDK.
+	 * @return a ready-to-use {@link AutoConfiguredOpenTelemetrySdk} instance
 	 */
-	public static SdkMeterProvider initOpenTelemetryMetrics(@NonNull final Resource resource,
-			@NonNull final MetricReaderFactory periodicReaderFactory) {
+	public static AutoConfiguredOpenTelemetrySdk initOpenTelemetrySdk(@NonNull final Resource resource,
+			@NonNull final Map<String, String> otelSdkConfiguration) {
 
-		return SdkMeterProvider.builder()
-					.setResource(resource)
-					.registerMetricReader(periodicReaderFactory)
-					.build();
+		final AutoConfiguredOpenTelemetrySdkBuilder sdkBuilder = AutoConfiguredOpenTelemetrySdk.builder();
+
+		// Properties
+		sdkBuilder.addPropertiesSupplier(() -> otelSdkConfiguration);
+
+		// Resource
+		sdkBuilder.addResourceCustomizer((r, c) -> resource);
+
+		// Control the registration of a shutdown hook to shut down the SDK when
+		// appropriate. By default, the shutdown hook is registered.
+		sdkBuilder.registerShutdownHook(false);
+
+		// We are not instrumenting our code execution and because this method is called
+		// for each target, we must disable the global result
+		sdkBuilder.setResultAsGlobal(false);
+
+		return sdkBuilder.build();
 	}
 
 	/**
