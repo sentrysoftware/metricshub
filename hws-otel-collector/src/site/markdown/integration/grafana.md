@@ -143,9 +143,9 @@ You must define at least one site. You can add as may sites as needed. Note that
 
 Also, you need to provide the electricity rate and the estimated CO₂ emissions that **${project.name}** will use to calculate the cost of electricity and carbon footprint of your monitored environment:
 
-* the electricity price (in dollar per kiloWattHour): This is the price of the kWh of electricity used to calculate the energy cost of the physical systems in your monitored infrastructure. Refer to your energy contract to know the tariff by kilowatt/hour charged by your supplier.
-* the carbon density (in grams per kiloWattHour): This is the	CO₂ emissions in kg per kWh used to calculate the total carbon emissions based on the electricity consumed by physical systems in your monitored infrastructure. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. This information is required to evaluate the carbon footprint of your IT infrastructure based on the energy source you are using.
-* the Power Usage Effectiveness (PUE) of the data center: This is the metric used to determine the energy efficiency of a data center. PUE is determined by dividing the amount of power entering a data center by the power used to run the computer infrastructure within it. The typical PUE in data centers worldwide ranges between 1 to 2.5.
+* **the electricity price (in dollar per kiloWattHour)**: This is the price of the kWh of electricity used to calculate the energy cost of the physical systems in your monitored infrastructure. Refer to your energy contract to know the tariff by kilowatt/hour charged by your supplier.
+* **the carbon density (in grams per kiloWattHour)**: This is the	CO₂ emissions in kg per kWh used to calculate the total carbon emissions based on the electricity consumed by physical systems in your monitored infrastructure. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. This information is required to evaluate the carbon footprint of your IT infrastructure based on the energy source you are using.
+* **the Power Usage Effectiveness (PUE)**: This is the metric used to determine the energy efficiency of a data center. PUE is determined by dividing the amount of power entering a data center by the power used to run the computer infrastructure within it. The typical PUE in data centers worldwide ranges between 1 to 2.5.
 
 To customize these settings, open the `hws-config.yaml` file and customize the `extraLabels` as shown in the example below:
 
