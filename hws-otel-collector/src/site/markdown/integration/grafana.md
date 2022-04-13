@@ -160,9 +160,7 @@ The **Observability and Sustainability** dashboard is optimized to
 
 Based on your actual energy use and user-defined reference grids, it also calculates monthly and yearly trends to help you anticipate and control expenditures, identify opportunities to reduce environmental impact and prepare for future legislation.
 
-a set of panels that exposes the health of the hardware of the monitored systems and their power consumption, related electricity costs, carbon emissions, temperature, heating margin, etc.
-
-The dashboard design allows you to instantly shift from an overview of your data to a more detailed and granular view within the same collected dataset by clicking on a panel or a metric.
+The dashboard allows you to instantly shift from an overview of your data to a more detailed and granular view within the same collected dataset by clicking on a panel or a metric.
 
 ### Global View
 
