@@ -23,12 +23,14 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDTO;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
+import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+import com.sentrysoftware.matrix.security.SecurityManager;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -365,4 +367,20 @@ public class ConfigHelper {
 		return me;
 	}
 
+	/**
+	 * Decrypt the given crypted password.
+	 * 
+	 * @param crypted
+	 * @return char array
+	 */
+	public static char[] decrypt(final char[] crypted) {
+		try {
+			return SecurityManager.decrypt(crypted, PasswordEncrypt.getKeyStoreFile(false));
+		} catch(Exception e) {
+			// This is a real problem, let's log the error
+			log.error("Could not decrypt password: {}", e.getMessage());
+			log.debug("Exception", e);
+			return crypted;
+		}
+	}
 }

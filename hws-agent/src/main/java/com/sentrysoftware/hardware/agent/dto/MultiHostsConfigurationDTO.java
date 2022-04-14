@@ -11,7 +11,8 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
-
+import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDTO;
+import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -67,6 +68,11 @@ public class MultiHostsConfigurationDTO {
 
 	private boolean sequential;
 
+	// Exporter settings
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private ExporterConfigDTO exporter = ExporterConfigDTO.builder().build();
+
 	/**
 	 * Build a new empty instance
 	 * 
@@ -83,5 +89,23 @@ public class MultiHostsConfigurationDTO {
 	 */
 	public boolean isEmpty() {
 		return targets.isEmpty();
+	}
+
+	/**
+	 * Whether the {@link OtlpConfigDTO} is present or not
+	 * 
+	 * @return boolean value
+	 */
+	public boolean hasExporterOtlpConfig() {
+		return hasExporterConfig() && exporter.getOtlp() != null;
+	}
+
+	/**
+	 * Whether the {@link ExporterConfigDTO} is present or not
+	 * 
+	 * @return boolean value
+	 */
+	public boolean hasExporterConfig() {
+		return exporter != null;
 	}
 }

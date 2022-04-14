@@ -109,8 +109,7 @@ class ConfigHelperTest {
 
 	@Test
 	void testReadConfigurationSafeUnknownFile() {
-
-		assertEquals(MultiHostsConfigurationDTO.empty(), ConfigHelper.readConfigurationSafe(new File("unknownFile.yml")));
+		assertTrue(ConfigHelper.readConfigurationSafe(new File("unknownFile.yml")).isEmpty());
 	}
 
 	@Test

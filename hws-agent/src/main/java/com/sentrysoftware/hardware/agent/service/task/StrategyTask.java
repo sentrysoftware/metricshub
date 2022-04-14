@@ -19,8 +19,7 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +34,11 @@ public class StrategyTask implements Runnable {
 	@NonNull
 	private UserConfiguration userConfiguration;
 	@NonNull
-	private MetricReaderFactory periodicReaderFactory;
+	private Map<String, String> otelSdkConfiguration;
 
 	private int numberOfCollects;
 
-	private SdkMeterProvider sdkMeterProvider;
+	private AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk;
 
 	private Set<String> otelInitializedMonitors = new HashSet<>();
 
@@ -74,7 +73,7 @@ public class StrategyTask implements Runnable {
 		hostMonitoring.run(new CollectOperation());
 
 		// Call the flush of all the metricInfo readers associated with this meter provider
-		sdkMeterProvider.forceFlush();
+		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
 
 		// Increment the number of collects
 		numberOfCollects++;
@@ -92,7 +91,7 @@ public class StrategyTask implements Runnable {
 	 */
 	void initOtelObservers(final IHostMonitoring hostMonitoring) {
 		// Create a resource if it hasn't been created by the previous cycle
-		if (sdkMeterProvider == null) {
+		if (autoConfiguredOpenTelemetrySdk == null) {
 
 			// Create the resource
 			final Monitor targetMonitor = hostMonitoring.getTargetMonitor();
@@ -108,7 +107,7 @@ public class StrategyTask implements Runnable {
 					userConfiguration.getMultiHostsConfigurationDTO().getExtraLabels()
 			);
 
-			sdkMeterProvider = OtelHelper.initOpenTelemetryMetrics(resource, periodicReaderFactory);
+			autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
 		}
 
 		hostMonitoring
@@ -147,7 +146,7 @@ public class StrategyTask implements Runnable {
 							.monitor(monitor)
 							.matrixMetadata(metricEntry.getKey())
 							.metricInfo(metricEntry.getValue())
-							.sdkMeterProvider(sdkMeterProvider)
+							.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
 							.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
 							.build()
 							.init()
@@ -174,7 +173,7 @@ public class StrategyTask implements Runnable {
 					.metricInfo(metricInfo)
 					.matrixParameterName(parameterName)
 					.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
-					.sdkMeterProvider(sdkMeterProvider)
+					.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
 					.build()
 					.init() // Initialize using the current monitor/parameter context
 				)
