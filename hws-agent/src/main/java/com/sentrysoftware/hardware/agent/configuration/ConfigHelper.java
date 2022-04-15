@@ -206,11 +206,10 @@ public class ConfigHelper {
 	 * @param password	password of the target
 	 * @param timeout	timeout of the target
 	 * @param port		port of the target
-	 * @param namespace	namespace of the target
 	 * @throws BusinessException
 	 */	
 	static void validateWbem(final String hostname, final String username, final char[] password, final Long timeout, 
-			final Integer port, final String namespace) throws BusinessException{
+			final Integer port) throws BusinessException{
 		
 		if (username == null || username.isBlank()) {
 			String message = String.format("No username configured for hostname: %s", hostname);
@@ -235,12 +234,6 @@ public class ConfigHelper {
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_PORT, message);
 		}
-		
-		if (namespace == null || namespace.isBlank()) {
-			String message = String.format("No namespace configured for hostname: %s", hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.NO_NAMESPACE, message);
-		}
 	}
 	
 	/**
@@ -250,11 +243,9 @@ public class ConfigHelper {
 	 * @param username	username of the target
 	 * @param password	password of the target
 	 * @param timeout	timeout of the target
-	 * @param namespace	namespace of the target
 	 * @throws BusinessException
 	 */	
-	static void validateWmi(final String hostname, final String username, final char[] password, final Long timeout, 
-			final String namespace) throws BusinessException{
+	static void validateWmi(final String hostname, final String username, final char[] password, final Long timeout) throws BusinessException{
 		
 		if (username == null || username.isBlank()) {
 			String message = String.format("No username configured for hostname: %s", hostname);
@@ -273,12 +264,6 @@ public class ConfigHelper {
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}	
-		
-		if (namespace == null || namespace.isBlank()) {
-			String message = String.format("No namespace configured for hostname: %s", hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.NO_NAMESPACE, message);
-		}
 	}
 	
 	/**
@@ -540,15 +525,13 @@ public class ConfigHelper {
 						hostConfigurationDto.getWbem().getUsername(), 
 						hostConfigurationDto.getWbem().getPassword(), 
 						hostConfigurationDto.getWbem().getTimeout(), 
-						hostConfigurationDto.getWbem().getPort(),
-						hostConfigurationDto.getWbem().getNamespace());
+						hostConfigurationDto.getWbem().getPort());
 			
 			if (hostConfigurationDto.getWmi() != null)
 				validateWmi(hostname, 
 						hostConfigurationDto.getWmi().getUsername(), 
 						hostConfigurationDto.getWmi().getPassword(), 
-						hostConfigurationDto.getWmi().getTimeout(),
-						hostConfigurationDto.getWmi().getNamespace());
+						hostConfigurationDto.getWmi().getTimeout());
 			
 			if (hostConfigurationDto.getHttp() != null)
 				validateHttp(hostname, 
