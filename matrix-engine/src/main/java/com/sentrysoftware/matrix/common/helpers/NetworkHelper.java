@@ -73,6 +73,32 @@ public class NetworkHelper {
 		}
 	}
 
+	/**
+	 * @param hostname					The hostname whose IP is being searched for.
+	 *
+	 * @return							The IP Address of the given hostname
+	 */
+	
+	public static String resolveDns(final String hostname) {	
+		
+		String ipAddress = null;
+		InetAddress inetAddress = null;
+		
+		if (hostname != null && !hostname.isBlank()) {	
+			try { 
+				inetAddress = InetAddress.getByName(hostname);
+				
+				if (inetAddress != null) {
+					ipAddress = inetAddress.getHostAddress();
+				}
+			} catch (UnknownHostException e) {
+				log.warn("Could not resolve {} into an IP address.", hostname);
+				log.debug("UnknownHostException: ", e);
+			}
+		}
+		
+		return ipAddress;
+	}
 
 	/**
 	 * @param hostname					The hostname whose FQDN is being searched for.

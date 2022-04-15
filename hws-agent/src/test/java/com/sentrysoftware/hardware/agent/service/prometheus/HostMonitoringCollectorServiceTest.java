@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IP_ADDRESS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
@@ -122,8 +123,9 @@ class HostMonitoringCollectorServiceTest {
 		enclosureMonitor.addMetadata(MODEL, "PowerEdge R630");
 		enclosureMonitor.addMetadata(TYPE, "Computer");
 		enclosureMonitor.addMetadata(IDENTIFYING_INFORMATION, "Identifying info test");
+		enclosureMonitor.addMetadata(IP_ADDRESS, "192.168.1.1");
 		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
-
+		
 		Monitor fan1Monitor = Monitor.builder()
 			.id(FAN_ID + 1)
 			.parentId(ENCLOSURE_ID)
