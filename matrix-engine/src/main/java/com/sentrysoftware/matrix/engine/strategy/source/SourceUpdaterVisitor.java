@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
@@ -352,6 +353,11 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WMISource wmiSource) {
 		return processSource(wmiSource.copy());
+	}
+
+	@Override
+	public SourceTable visit(final WinRMSource winRMSource) {
+		return processSource(winRMSource.copy());
 	}
 
 	/**

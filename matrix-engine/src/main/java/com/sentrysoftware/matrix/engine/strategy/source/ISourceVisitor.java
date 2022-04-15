@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 
 public interface ISourceVisitor {
@@ -41,5 +42,7 @@ public interface ISourceVisitor {
 	SourceTable visit(final WBEMSource wbemSource);
 
 	SourceTable visit(final WMISource wmiSource);
+
+	SourceTable visit(final WinRMSource winRMSource);
 
 }

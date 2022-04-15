@@ -4,11 +4,11 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +37,9 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.WmiHelper;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
@@ -51,6 +53,9 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
+import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
+import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
@@ -1178,6 +1183,69 @@ public class MatsyaClientsExecutor {
 		return result;
 	}
 
+	/**
+	 * Execute a WinRM query through Matsya
+	 *
+	 * @param hostname  The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @return The result of the query
+	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 */
+	public String executeWqlThroughWinRM(
+			@NonNull final String hostname,
+			@NonNull final WinRMProtocol winRMProtocol
+			) throws MatsyaException {
+		final String username = winRMProtocol.getUsername();
+		final String command = winRMProtocol.getCommand();
+		final String workingDirectory = winRMProtocol.getWorkingDirectory();
+		final HttpProtocolEnum httpProtocol = winRMProtocol.getProtocol() == null ?
+				HttpProtocolEnum.HTTP : HttpProtocolEnum.valueOf(winRMProtocol.getProtocol());
+		final Integer port = winRMProtocol.getPort();
+		final Path ticketCache = winRMProtocol.getTicketCache();
+		final List<AuthenticationEnum> authentications = winRMProtocol.getAuthentications();
+		final Long timeout = winRMProtocol.getTimeout();
+
+		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n- workingDirectory: {}\n"
+				+ "- protocol: {}\n- port: {}\n- ticketCache: {}\n- forceNtlm: {}\n"
+				+ "- kerberosOnly: {}\n- timeout: {}\n",
+				hostname,
+				username,
+				command,
+				workingDirectory,
+				httpProtocol.toString(),
+				port,
+				ticketCache,
+				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
+				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
+				timeout
+		));
+
+		// launching the request
+		try {
+			WindowsRemoteCommandResult result = WinRMCommandExecutor.execute(
+					command,
+					httpProtocol,
+					hostname,
+					port,
+					username,
+					winRMProtocol.getPassword(),
+					workingDirectory,
+					timeout * 1000L,
+					null,
+					ticketCache,
+					authentications);
+			String stderr = result.getStderr();
+
+			if (stderr != null && !stderr.isEmpty()) {
+				log.error("WinRM query failed on {}: status code: {}, error: {}", hostname, result.getStatusCode(), stderr);
+			}
+
+			return result.getStdout();
+		} catch (Exception e) {
+			log.error("WinRM query failed on " + hostname + ". Error : " + e);
+			throw new MatsyaException("WinRM query failed on " + hostname, e);
+		}
+	}
 
 	/**
 	 * Run the given runnable if the tracing mode of the logger is enabled

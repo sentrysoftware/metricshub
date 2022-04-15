@@ -30,6 +30,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
@@ -39,6 +40,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -983,6 +985,47 @@ public class SourceVisitor implements ISourceVisitor {
 			log.debug(String.format(
 					"Source [%s] on %s was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 					sourceKey, hostname, context, connectorName), throwable);
+		}
+	}
+
+	@Override
+	public SourceTable visit(final WinRMSource winRMSource) {
+
+		if (winRMSource == null || winRMSource.getWbemQuery() == null) {
+			log.warn("Malformed WinRMSource {}. Returning an empty table.", winRMSource);
+			return SourceTable.empty();
+		}
+
+		final WinRMProtocol protocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WinRMProtocol.class);
+
+		if (protocol == null) {
+			log.debug("The WinRM Credentials are not configured. Returning an empty table for WinRM source {}.",
+					winRMSource.getKey());
+			return SourceTable.empty();
+		}
+
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+
+		try {
+
+			final String csvResult =
+					matsyaClientsExecutor.executeWqlThroughWinRM(hostname, protocol);
+
+			return SourceTable
+					.builder()
+					.table(SourceTable.csvToTable(csvResult, ";"))
+					.build();
+
+
+		} catch (Exception e) {
+
+			logSourceError(connector.getCompiledFilename(), winRMSource.getKey(),
+					String.format("WinRMQuery=%s, username=%s, timeout=%d",
+							winRMSource.getWbemQuery(), protocol.getUsername(), protocol.getTimeout()),
+					hostname, e);
+
+			return SourceTable.empty();
 		}
 	}
 }

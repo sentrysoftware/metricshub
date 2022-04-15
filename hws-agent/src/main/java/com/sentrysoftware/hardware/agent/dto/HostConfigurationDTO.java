@@ -3,9 +3,9 @@ package com.sentrysoftware.hardware.agent.dto;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -17,6 +17,7 @@ import com.sentrysoftware.hardware.agent.dto.protocol.OsCommandConfigDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.SshProtocolDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.WbemProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.WinRMProtocolDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.WmiProtocolDTO;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 
@@ -55,6 +56,8 @@ public class HostConfigurationDTO {
 	private HttpProtocolDTO http;
 
 	private OsCommandConfigDTO osCommand;
+
+	private WinRMProtocolDTO winRM;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

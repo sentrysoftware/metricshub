@@ -70,6 +70,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
+			<artifactId>module-winrm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-wmiclient</artifactId>
 		</dependency>
 		<dependency>

@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.common.OSType;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
@@ -32,11 +31,13 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRMConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -45,9 +46,12 @@ import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
@@ -82,7 +86,7 @@ import picocli.CommandLine.Spec;
 				"@|bold ${ROOT-COMMAND-NAME}|@ " +
 						"@|yellow HOSTNAME|@ " +
 						"@|yellow -t|@=@|italic TYPE|@ " +
-						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@> " +
+						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winRM|@> " +
 						"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 		}
 )
@@ -140,6 +144,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
 	private WmiConfigCli wmiConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
+	private WinRMConfigCli winRMConfigCli;
 
 	@Option(
 			names = { "-u", "--username" },
@@ -209,7 +216,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
-
+	
 	@Override
 	public Integer call() throws IOException {
 
@@ -254,6 +261,24 @@ public class HardwareSentryCli implements Callable<Integer> {
 		IHostMonitoring hostMonitoring =
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
 
+		MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
+		String res = "";
+		try {
+			res = matsyaClientsExecutor.executeWqlThroughWinRM(hostname, (WinRMProtocol) engineConf.getProtocolConfigurations().get(WinRMProtocol.class));
+		} catch (Exception e) {
+			spec.commandLine().getOut().println(e.getMessage());
+			spec.commandLine().getOut().flush();
+		}
+		spec.commandLine().getOut().println(res);
+		spec.commandLine().getOut().flush();
+		List<List<String>> table = SourceTable.csvToTable(res, ";");
+		for (List<String> line : table) {
+			for (String value : line) {
+				spec.commandLine().getOut().println(value + ";");
+				spec.commandLine().getOut().flush();
+			}
+		}
+		
 		// Detection
 		if (ConsoleService.hasConsole()) {
 			String protocolDisplay = protocols.values()
@@ -366,12 +391,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 					wmiConfigCli.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfigCli.getUsername()));
 				}
 			}
+			if (winRMConfigCli != null) {
+				if (winRMConfigCli.getUsername() != null && winRMConfigCli.getPassword() == null) {
+					winRMConfigCli.setPassword(System.console().readPassword("%s password for WinRM: ", winRMConfigCli.getUsername()));
+				}
+			}
 		}
 
 		// No protocol at all?
 		if (httpConfigCli == null && ipmiConfigCli == null && snmpConfigCli == null
-				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi.");
+				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null && winRMConfigCli == null) {
+			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winRM.");
 		}
 
 		// SNMP inconsistencies
@@ -454,7 +484,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
 
-		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli)
+		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli, winRMConfigCli)
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(

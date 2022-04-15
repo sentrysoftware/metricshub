@@ -1,16 +1,12 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.target.TargetType;
-
-import org.junit.jupiter.api.Test;
-import picocli.CommandLine;
-import picocli.CommandLine.MissingParameterException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,7 +15,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRMConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.target.TargetType;
+
+import picocli.CommandLine;
+import picocli.CommandLine.MissingParameterException;
 
 class HardwareSentryCliTest {
 
@@ -256,6 +264,43 @@ class HardwareSentryCliTest {
 			assertEquals("localhost", sentryCli.getHostname());
 			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertNotNull(sentryCli.getWmiConfigCli());
+		}
+
+	}
+
+	@Test
+	void winRMArgumentsTest() {
+		{
+			String[] args_hdfs = { "hostaa",
+					"-t", "win",
+					"--winrm-namespace", "root\\cimv2",
+					"--winrm-username", "admin",
+					"--winrm-password", "password",
+					"-f", "hdfs1,hdfs2,hdfs3" };
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(args_hdfs);
+
+			assertEquals("hostaa", sentryCli.getHostname());
+			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals("root\\cimv2", sentryCli.getWinRMConfigCli().getNamespace());
+			assertEquals(WinRMConfigCli.DEFAULT_TIMEOUT, sentryCli.getWinRMConfigCli().getTimeout());
+			assertEquals("admin", sentryCli.getWinRMConfigCli().getUsername());
+			assertArrayEquals("password".toCharArray(), sentryCli.getWinRMConfigCli().getPassword());
+			assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+		}
+
+		{
+			String[] args_hdfs = {
+					"localhost",
+					"-t", "windows",
+					"--winrm"
+			};
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(args_hdfs);
+
+			assertEquals("localhost", sentryCli.getHostname());
+			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertNotNull(sentryCli.getWinRMConfigCli());
 		}
 
 	}

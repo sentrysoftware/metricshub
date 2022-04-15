@@ -115,7 +115,8 @@ public class ConfigHelper {
 								hostConfigurationDto.getWbem(),
 								hostConfigurationDto.getWmi(),
 								hostConfigurationDto.getOsCommand(),
-								hostConfigurationDto.getIpmi()
+								hostConfigurationDto.getIpmi(),
+								hostConfigurationDto.getWinRM()
 						)
 						.filter(Objects::nonNull)
 						.map(IProtocolConfigDTO::toProtocol)

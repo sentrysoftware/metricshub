@@ -15,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SN
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
@@ -24,6 +25,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -50,7 +52,8 @@ public class EngineConfiguration {
 				SSHProtocol.class, Set.of(OSCommandSource.class, SshInteractiveSource.class),
 				HTTPProtocol.class, Collections.singleton(HTTPSource.class),
 				IPMIOverLanProtocol.class, Collections.singleton(IPMI.class),
-				OSCommandConfig.class, Collections.singleton(OSCommandSource.class));
+				OSCommandConfig.class, Collections.singleton(OSCommandSource.class),
+				WinRMProtocol.class, Collections.singleton(WinRMSource.class));
 
 	}
 
@@ -97,15 +100,24 @@ public class EngineConfiguration {
 			sources.remove(WMISource.class);
 		}
 
-		// Add IPMI through WMI
+		// Add IPMI and WinRM through WMI
 		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(WMISource.class)) {
 			sources.add(IPMI.class);
+			sources.add(WinRMSource.class);
 		}
 
-		// Add IPMI through OSCommand remote (SSH)
-		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
-				&& protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
-			sources.add(IPMI.class);
+		// Add IPMI and WinRM through OSCommand remote (SSH)
+		if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			sources.add(WinRMSource.class);
+			
+			if (protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
+				sources.add(IPMI.class);
+			}
+		}
+
+		// Add WinRM through IPMI
+		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(IPMI.class)) {
+			sources.add(WinRMSource.class);
 		}
 
 		// Handle localhost protocols
