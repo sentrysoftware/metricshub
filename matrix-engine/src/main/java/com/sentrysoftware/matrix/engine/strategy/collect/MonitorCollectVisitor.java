@@ -567,7 +567,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
-
+		
 		// Making sure the parameter is not in the parameterActivation Set
 		if (EMPTY.equals(monitor.getMetadata(String.format("ParameterActivation.%s", parameterName)))) {
 			return null;
@@ -952,8 +952,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				USED_WATTS_PARAMETER);
 
 			// Getting the power
-			final Double power = extractParameterValue(monitor.getMonitorType(),
-				POWER_SUPPLY_POWER);
+			final Double power = NumberHelper.parseDouble(monitor.getMetadata(POWER_SUPPLY_POWER), null);
 
 			if (powerSupplyUsedWatts  != null && power != null && power > 0) {
 				usedPercent = 100.0 * powerSupplyUsedWatts / power;
