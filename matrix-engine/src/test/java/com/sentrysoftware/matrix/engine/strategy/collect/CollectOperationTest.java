@@ -107,8 +107,6 @@ import com.sentrysoftware.matrix.model.parameter.TextParam;
 class CollectOperationTest {
 
 	private static final String PARENT_ID1 = "parent1";
-	private static final String SNMP_TEST_FAILED = "SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 on test-host-01 was unsuccessful due to an empty result.";
-	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Successful SNMP GetNext of 1.2.3.4.5.6 on test-host-01. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
 	private static final String POWER_CONSUMPTION_WATTS = "150";
 	private static final String OK_RAW_STATUS = "OK";
 	private static final String OPERABLE = "Operable";
@@ -138,6 +136,8 @@ class CollectOperationTest {
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
 	private static final String VERSION = "4.2.3";
 	private static final String MONITOR_ID = "monitorId";
+	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Hostname " + TEST_HOST_01 + " - Successful SNMP GetNext of 1.2.3.4.5.6. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
+	private static final String SNMP_TEST_FAILED = "Hostname " + TEST_HOST_01 + " - SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 was unsuccessful due to an empty result.";
 
 	@Mock
 	private StrategyConfig strategyConfig;

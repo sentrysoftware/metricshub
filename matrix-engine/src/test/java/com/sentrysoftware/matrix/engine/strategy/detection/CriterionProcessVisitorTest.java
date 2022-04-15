@@ -53,7 +53,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitWindowsMatsyaClientsExecutorKO() {
 		{
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", null, null);
 			assertThrows(IllegalStateException.class, () -> visitor.visit((Windows) null));
 		}
 	}
@@ -61,7 +61,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitWindowsExecuteWMIFailed() throws Exception {
 
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
 		doThrow(new MatsyaException("over")).when(matsyaClientsExecutor).executeWql(
 				eq("localhost"),
@@ -81,7 +81,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitWindowsEmptyResult() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
 		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
@@ -108,7 +108,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitWindowsResultWithoutSearchedProcess() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
 		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
@@ -139,7 +139,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitWindowsOK() throws Exception {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
 		final WMIProtocol wmiConfig = WMIProtocol
 				.builder()
@@ -175,7 +175,7 @@ class CriterionProcessVisitorTest {
 			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
 					List.of(List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -200,7 +200,7 @@ class CriterionProcessVisitorTest {
 							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 							List.of("2", "cimserver", "root", "0", "cimserver args1 args2")));
 
-			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+			final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 			visitor.visit((Linux) null);
 
 			final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -216,7 +216,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedSunOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((Sun) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -229,7 +229,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedSolarisOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((Solaris) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -242,7 +242,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedHpOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((Hp) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -255,7 +255,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedAixOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((Aix) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -268,7 +268,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedFreeBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((FreeBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -281,7 +281,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedOpenBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((OpenBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -294,7 +294,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedNetBsdOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((NetBSD) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
@@ -307,7 +307,7 @@ class CriterionProcessVisitorTest {
 
 	@Test
 	void testVisitNotImplementedMacOsxOK() {
-		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper);
+		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 		visitor.visit((MacOSX) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
