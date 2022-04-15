@@ -201,18 +201,16 @@ class ConfigHelperTest {
 		final char[] password = new char[] { 'p', 'w'};
 		final char[] emptyPassword = new char[] {};
 		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "", password, 60L, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", null, password, 60L, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", emptyPassword, 60L, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", null, 60L, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, -60L, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, null, 1234, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, -1, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, null, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 66666, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 1234, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 1234, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 1234, "root\\cimv2"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "", password, 60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", null, password, 60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", emptyPassword, 60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", null, 60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, -60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, null, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, -1));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 66666));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 1234));
 	}
 	
 	@Test
@@ -220,15 +218,13 @@ class ConfigHelperTest {
 		final char[] password = new char[] { 'p', 'w'};
 		final char[] emptyPassword = new char[] {};
 		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "", password, 60L, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", null, password, 60L, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", emptyPassword, 60L, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", null, 60L, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, -60L, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, null, "root\\cimv2"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, 60L, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, 60L, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWmi("hostname", "username", password, 60L, "root\\cimv2"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "", password, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", null, password, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", emptyPassword, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", null, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, null));
+		assertDoesNotThrow(() -> ConfigHelper.validateWmi("hostname", "username", password, 60L));
 	}
 	
 	@Test

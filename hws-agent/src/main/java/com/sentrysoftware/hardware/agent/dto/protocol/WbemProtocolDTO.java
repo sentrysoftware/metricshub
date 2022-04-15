@@ -43,6 +43,8 @@ public class WbemProtocolDTO extends AbstractProtocolDTO {
 	 */
 	@Override
 	public IProtocolConfiguration toProtocol() {
+		
+		
 		return WBEMProtocol
 				.builder()
 				.namespace(namespace)
