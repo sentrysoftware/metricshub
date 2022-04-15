@@ -357,21 +357,29 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public String toJson() {
 
+		final HostMonitoringVO hostMonitoringVO = getVo();
+
+		return JsonHelper.serialize(hostMonitoringVO);
+	}
+
+	/**
+	 * Get the actual {@link HostMonitoring} as {@link HostMonitoringVO}
+	 * 
+	 * @return {@link HostMonitoringVO} object
+	 */
+	public HostMonitoringVO getVo() {
 		final HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
 
 		final List<MonitorType> monitorTypes = new ArrayList<>(monitors.keySet());
 
-		monitorTypes.stream()
-			.sorted(new MonitorTypeComparator())
-			.filter(monitorType -> monitors.get(monitorType) != null && monitors.get(monitorType).values() != null)
-			.forEach(monitorType ->
-				{
+		monitorTypes.stream().sorted(new MonitorTypeComparator())
+				.filter(monitorType -> monitors.get(monitorType) != null && monitors.get(monitorType).values() != null)
+				.forEach(monitorType -> {
 					final List<Monitor> monitorList = new ArrayList<>(monitors.get(monitorType).values());
 					Collections.sort(monitorList, new MonitorComparator());
 					hostMonitoringVO.addAll(monitorList);
 				});
-
-		return JsonHelper.serialize(hostMonitoringVO);
+		return hostMonitoringVO;
 	}
 
 	@Override

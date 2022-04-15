@@ -36,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
@@ -119,10 +118,6 @@ class CriterionVisitorTest {
 
 	@InjectMocks
 	private CriterionVisitor criterionVisitor;
-
-	@InjectMocks
-	@Spy
-	private CriterionVisitor criterionVisitorSpy;
 
 	private static EngineConfiguration engineConfiguration;
 
@@ -357,9 +352,7 @@ class CriterionVisitorTest {
 			final HostMonitoring hostMonitoring = new HostMonitoring();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-			doReturn("blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(), any(),
-					anyInt());
-			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
+			assertFalse(criterionVisitor.visit(new IPMI()).isSuccess());
 
 		}
 		{
@@ -374,12 +367,10 @@ class CriterionVisitorTest {
 			final HostMonitoring hostMonitoring = new HostMonitoring();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
-			doReturn("PATH=blabla").when(criterionVisitorSpy).buildIpmiCommand(eq(TargetType.LINUX), any(), any(),
-					any(), anyInt());
-
-			doReturn("wrong result").when(criterionVisitorSpy).runOsCommand(eq("PATH=blabla"), eq(HOST_LINUX), eq(ssh), anyInt());
-			assertFalse(criterionVisitorSpy.visit(new IPMI()).isSuccess());
+			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+				oscmd.when(() -> OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), eq(ssh), anyInt(), isNull(), isNull())).thenReturn("wrong result");
+				assertFalse(criterionVisitor.visit(new IPMI()).isSuccess());
+			}
 
 		}
 

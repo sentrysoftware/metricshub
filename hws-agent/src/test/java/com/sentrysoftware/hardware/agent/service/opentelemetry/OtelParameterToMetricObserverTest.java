@@ -14,6 +14,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IP_ADDRESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -118,6 +119,7 @@ class OtelParameterToMetricObserverTest {
 		enclosure.addMetadata(BIOS_VERSION, "v1.1");
 		enclosure.addMetadata(TYPE, "Server");
 		enclosure.addMetadata(IDENTIFYING_INFORMATION, "Server 1 - Dell");
+		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
 
 		OtelParameterToMetricObserver
 			.builder()
@@ -171,6 +173,7 @@ class OtelParameterToMetricObserverTest {
 				.put("bios_version", "v1.1")
 				.put("type", "Server")
 				.put("identifying_information", "Server 1 - Dell")
+				.put("ip_address", "192.168.1.1")
 				.build();
 
 		assertEquals(expected, dataPoint.getAttributes());
@@ -289,6 +292,7 @@ class OtelParameterToMetricObserverTest {
 					.build();
 		enclosure.addMetadata(FQDN, "host.my.domain.net");
 		enclosure.addMetadata("serialNumber", "Serial1234");
+		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
 
 		final Attributes actual = parameterToMetricObserver.createAttributes(enclosure);
 
@@ -304,6 +308,7 @@ class OtelParameterToMetricObserverTest {
 				.put("bios_version", "")
 				.put("type", "")
 				.put("identifying_information", "")
+				.put("ip_address", "192.168.1.1")
 				.build();
 
 		assertEquals(expected, actual);
