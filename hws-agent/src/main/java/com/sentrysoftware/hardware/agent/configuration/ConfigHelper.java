@@ -90,6 +90,256 @@ public class ConfigHelper {
 			throw new BusinessException(ErrorCode.NO_TARGET_TYPE, message);
 		}
 	}
+	
+	/**
+	 * Validate the given SNMP information (community, port and timeout)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param community community string of the target
+	 * @param port		port of the target
+	 * @param timeout	timeout of the target
+	 * @throws BusinessException
+	 */
+	static void validateSnmp(final String hostname, final char[] community, final Integer port, final Long timeout) throws BusinessException{
+			
+		if (community == null || community.length == 0) {
+			String message = String.format("No community string configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_COMMUNITY_STRING, message);
+		}
+		
+		if (port == null || port < 1 || port > 65535) {
+			String message = String.format("Invalid port configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_PORT, message);
+		}
+		
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}		
+	}
+
+	/**
+	 * Validate the given IPMI information (username, password, bmckey and timeout)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param username	username of the target
+	 * @param password	password of the target
+	 * @param bmckey	bmckey of the target
+	 * @param timeout	timeout of the target
+	 * @throws BusinessException
+	 */
+	static void validateIpmi(final String hostname, final String username, final char[] password, final byte[] bmcKey, 
+			final Long timeout) throws BusinessException{
+		
+		if (username == null || username.isBlank()) {
+			String message = String.format("No username configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+		}
+		
+		if (password == null || password.length == 0) {
+			String message = String.format("No password configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_PASSWORD, message);
+		}
+		
+		if (bmcKey == null || bmcKey.length == 0) {
+			String message = String.format("No BMC Key configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_BMC_KEY, message);
+		}
+		
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}		
+	}
+	
+	/**
+	 * Validate the given SSH information (username, password, timeout and sudoCommand)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param username	username of the target
+	 * @param password	password of the target
+	 * @param timeout	timeout of the target
+	 * @param sudoCommand	sudo command of the target
+	 * @throws BusinessException
+	 */	
+	static void validateSsh(final String hostname, final String username, final char[] password, final Long timeout, 
+			final String sudoCommand) throws BusinessException{
+		
+		if (username == null || username.isBlank()) {
+			String message = String.format("No username configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+		}
+		
+		if (password == null || password.length == 0) {
+			String message = String.format("No password configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_PASSWORD, message);
+		}
+
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}	
+		
+		if (sudoCommand == null || sudoCommand.isEmpty()) {
+			String message = String.format("No sudo command configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_SUDO_COMMAND, message);
+			
+		}
+	}
+	
+	/**
+	 * Validate the given WBEM information (username, password, timeout, port and namespace)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param username	username of the target
+	 * @param password	password of the target
+	 * @param timeout	timeout of the target
+	 * @param port		port of the target
+	 * @param namespace	namespace of the target
+	 * @throws BusinessException
+	 */	
+	static void validateWbem(final String hostname, final String username, final char[] password, final Long timeout, 
+			final Integer port, final String namespace) throws BusinessException{
+		
+		if (username == null || username.isBlank()) {
+			String message = String.format("No username configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+		}
+		
+		if (password == null || password.length == 0) {
+			String message = String.format("No password configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_PASSWORD, message);
+		}
+
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}		
+		
+		if (port == null || port < 1 || port > 65535) {
+			String message = String.format("Invalid port configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_PORT, message);
+		}
+		
+		if (namespace == null || namespace.isBlank()) {
+			String message = String.format("No namespace configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_NAMESPACE, message);
+		}
+	}
+	
+	/**
+	 * Validate the given WMI information (username, password, timeout and namespace)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param username	username of the target
+	 * @param password	password of the target
+	 * @param timeout	timeout of the target
+	 * @param namespace	namespace of the target
+	 * @throws BusinessException
+	 */	
+	static void validateWmi(final String hostname, final String username, final char[] password, final Long timeout, 
+			final String namespace) throws BusinessException{
+		
+		if (username == null || username.isBlank()) {
+			String message = String.format("No username configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+		}
+		
+		if (password == null || password.length == 0) {
+			String message = String.format("No password configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_PASSWORD, message);
+		}
+
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}	
+		
+		if (namespace == null || namespace.isBlank()) {
+			String message = String.format("No namespace configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_NAMESPACE, message);
+		}
+	}
+	
+	/**
+	 * Validate the given HTTP information (username, password, timeout and namespace)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param username	username of the target
+	 * @param password	password of the target
+	 * @param timeout	timeout of the target
+	 * @param port		port of the target
+	 * @throws BusinessException
+	 */	
+	static void validateHttp(final String hostname, final String username, final char[] password, final Long timeout, 
+			final Integer port) throws BusinessException{
+		
+		if (username == null || username.isBlank()) {
+			String message = String.format("No username configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+		}
+		
+		if (password == null || password.length == 0) {
+			String message = String.format("No password configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_PASSWORD, message);
+		}
+
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}		
+		
+		if (port == null || port < 1 || port > 65535) {
+			String message = String.format("Invalid port configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_PORT, message);
+		}
+	}
+	
+	/**
+	 * Validate the given OS Command information (timeout and sudoCommand)
+	 *
+	 * @param timeout	timeout of the target
+	 * @param sudoCommand	sudo command of the target
+	 * @throws BusinessException
+	 */	
+	static void validateOsCommand(final String hostname, final Long timeout, final String sudoCommand) throws BusinessException{
+		
+		if (timeout == null || timeout < 0L) {
+			String message = String.format("Timeout value is invalid: %d", timeout);
+			log.error(message);
+			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+		}
+		
+		if (sudoCommand == null || sudoCommand.isEmpty()) {
+			String message = String.format("No sudo command configured for hostname: %s", hostname);
+			log.error(message);
+			throw new BusinessException(ErrorCode.NO_SUDO_COMMAND, message);
+		}
+	}
 
 	/**
 	 * Build the {@link EngineConfiguration} instance from the given
@@ -264,7 +514,54 @@ public class ConfigHelper {
 
 		try {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
-
+			
+			if (hostConfigurationDto.getSnmp() != null)
+				validateSnmp(hostname, 
+						hostConfigurationDto.getSnmp().getCommunity(), 
+						hostConfigurationDto.getSnmp().getPort(), 
+						hostConfigurationDto.getSnmp().getTimeout());
+			
+			if (hostConfigurationDto.getIpmi() != null)
+				validateIpmi(hostname, 
+						hostConfigurationDto.getIpmi().getUsername(), 
+						hostConfigurationDto.getIpmi().getPassword(), 
+						hostConfigurationDto.getIpmi().getBmcKey(), 
+						hostConfigurationDto.getIpmi().getTimeout());
+			
+			if (hostConfigurationDto.getSsh() != null)
+				  validateSsh(hostname, 
+						hostConfigurationDto.getSsh().getUsername(), 
+						hostConfigurationDto.getSsh().getPassword(), 
+						hostConfigurationDto.getSsh().getTimeout(), 
+						hostConfigurationDto.getSsh().getSudoCommand());
+			
+			if (hostConfigurationDto.getWbem() != null)
+				validateWbem(hostname,
+						hostConfigurationDto.getWbem().getUsername(), 
+						hostConfigurationDto.getWbem().getPassword(), 
+						hostConfigurationDto.getWbem().getTimeout(), 
+						hostConfigurationDto.getWbem().getPort(),
+						hostConfigurationDto.getWbem().getNamespace());
+			
+			if (hostConfigurationDto.getWmi() != null)
+				validateWmi(hostname, 
+						hostConfigurationDto.getWmi().getUsername(), 
+						hostConfigurationDto.getWmi().getPassword(), 
+						hostConfigurationDto.getWmi().getTimeout(),
+						hostConfigurationDto.getWmi().getNamespace());
+			
+			if (hostConfigurationDto.getHttp() != null)
+				validateHttp(hostname, 
+						hostConfigurationDto.getHttp().getUsername(), 
+						hostConfigurationDto.getHttp().getPassword(), 
+						hostConfigurationDto.getHttp().getTimeout(), 
+						hostConfigurationDto.getHttp().getPort());
+			
+			if (hostConfigurationDto.getOsCommand() != null)
+				validateOsCommand(hostname, 
+						hostConfigurationDto.getOsCommand().getTimeout(), 
+						hostConfigurationDto.getOsCommand().getSudoCommand());
+			
 			final Set<String> selectedConnectors = validateAndGetConnectors(
 					acceptedConnectorNames,
 					hostConfigurationDto.getSelectedConnectors(),
