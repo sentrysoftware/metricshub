@@ -35,10 +35,11 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	@NonNull
 	private final String command;
 	private final WqlDetectionHelper wqlDetectionHelper;
+	private final String hostname;
 
 	@Getter
 	private CriterionTestResult criterionTestResult;
-
+	
 	@Override
 	public void visit(final Windows os) {
 
@@ -133,7 +134,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	}
 
 	/**
-	 * Process the command pocess list result.
+	 * Process the command process list result.
 	 * @param result
 	 */
 	private void processResult(final List<List<String>> result) {
@@ -165,7 +166,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	 * @param message error message.
 	 */
 	private void fail(final String message) {
-		log.error("Process Criterion, {}", message);
+		log.error("Hostname {} - Process Criterion, {}", hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.message(message)
 				.build();
@@ -176,7 +177,7 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 	 * @param message success message.
 	 */
 	private void success(final String message) {
-		log.debug("Process Criterion, {}", message);
+		log.debug("Hostname {} - Process Criterion, {}", hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.success(true)
 				.message(message)

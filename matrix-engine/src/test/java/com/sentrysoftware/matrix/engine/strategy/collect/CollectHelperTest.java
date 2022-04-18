@@ -113,37 +113,43 @@ class CollectHelperTest {
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				Collections.emptyList(),
-				null));
+				null,
+				HOST_NAME));
 
 		assertEquals("100", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(2)"));
+				"Valuetable.Column(2)",
+				HOST_NAME));
 
 		assertEquals("400", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(3)"));
+				"Valuetable.Column(3)",
+				HOST_NAME));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(4)"));
+				"Valuetable.Column(4)",
+				HOST_NAME));
 
 		assertEquals("Server", CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Server"));
+				"Server",
+				HOST_NAME));
 
 		assertNull(CollectHelper.getValueTableColumnValue(VALUE_TABLE,
 				STATUS_PARAMETER,
 				ENCLOSURE,
 				ROW,
-				"Valuetable.Column(0)"));
+				"Valuetable.Column(0)",
+				HOST_NAME));
 	}
 
 	@Test
@@ -204,20 +210,20 @@ class CollectHelperTest {
 
 	@Test
 	void testSubtract() {
-		assertEquals(10, CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 50D, 40D));
-		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, 40D));
-		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, null, 40D));
-		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, null));
+		assertEquals(10, CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 50D, 40D, HOST_NAME));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, 40D, HOST_NAME));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, null, 40D, HOST_NAME));
+		assertNull(CollectHelper.subtract(ENERGY_USAGE_PARAMETER, 30D, null, HOST_NAME));
 	}
 
 	@Test
 	void testDivide() {
-		assertEquals(2, CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, 25D));
-		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, 0D));
-		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, null, 40D));
-		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, null));
-		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, -50D, 25D));
-		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, -25D));
+		assertEquals(2, CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, 25D, HOST_NAME));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, 0D, HOST_NAME));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, null, 40D, HOST_NAME));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 30D, null, HOST_NAME));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, -50D, 25D, HOST_NAME));
+		assertNull(CollectHelper.divide(ENERGY_USAGE_PARAMETER, 50D, -25D, HOST_NAME));
 	}
 
 	@Test
@@ -237,31 +243,31 @@ class CollectHelperTest {
 
 		assertEquals(1, CollectHelper.rate(ENERGY_USAGE_PARAMETER,
 				240000D, 120000D,
-			(double) collectTime, (double) previousCollectTime));
+			(double) collectTime, (double) previousCollectTime, HOST_NAME));
 	}
 
 	@Test
 	void testRateWithPreviousValuesComputations() {
 
 		// parameterName is null
-		assertNull(CollectHelper.rate(null, null, null, null));
+		assertNull(CollectHelper.rate(null, null, null, null, HOST_NAME));
 
 		// parameterName is not null, currentValue is null
-		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, null, null, null));
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, null, null, null, HOST_NAME));
 
 		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is null
 		Double currentValue = 200.0;
-		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, null, null));
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, null, null, HOST_NAME));
 
 		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
 		// monitor is null
 		final Long currentCollectTimeInMilliseconds = new Date().getTime();
-		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, null));
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, null, HOST_NAME));
 
 		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
 		// monitor is not null, previousValue is null
 		final Monitor monitor = Monitor.builder().id("monitorId").monitorType(MonitorType.GPU).build();
-		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor, HOST_NAME));
 
 		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
 		// monitor is not null, previousValue is not null, previousCollectTimeInMilliseconds is null
@@ -274,7 +280,7 @@ class CollectHelperTest {
 			.build();
 		usedTimeParameter.save();
 		monitor.addParameter(usedTimeParameter);
-		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
+		assertNull(CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor, HOST_NAME));
 
 		// parameterName is not null, currentValue is not null, currentCollectTimeInMilliseconds is not null,
 		// monitor is not null, previousValue is not null, previousCollectTimeInMilliseconds is not null
@@ -288,7 +294,7 @@ class CollectHelperTest {
 			.build();
 		usedTimeParameter.save();
 		monitor.addParameter(usedTimeParameter);
-		assertEquals(0.5, CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor));
+		assertEquals(0.5, CollectHelper.rate(USED_TIME_PARAMETER, currentValue, currentCollectTimeInMilliseconds, monitor, HOST_NAME));
 	}
 
 	@Test
