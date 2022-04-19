@@ -166,82 +166,52 @@ class ConfigHelperTest {
 	void testValidateIpmi() {
 		final char[] password = new char[] { 'p', 'w'};
 		final char[] emptyPassword = new char[] {};
-		final byte[] bmcKey = new byte[] { 1, 1, 1};
-		final byte[] emptyBmcKey = new byte[] {};
 		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "", password, bmcKey, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", null, password, bmcKey, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", emptyPassword, bmcKey, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", null, bmcKey, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, emptyBmcKey, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, null, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, bmcKey, -60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, bmcKey, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateIpmi("hostname", "username", password, bmcKey, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "", password, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", null, password, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", emptyPassword, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", null, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, null));
+		assertDoesNotThrow(() -> ConfigHelper.validateIpmi("hostname", "username", password, 60L));
 	}
 	
 	@Test
-	void testValidateSsh() {
-		final char[] password = new char[] { 'p', 'w'};
-		final char[] emptyPassword = new char[] {};
-		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "", password, 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", null, password, 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", emptyPassword, 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", null, 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", password, -60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", password, null, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", password, 60L, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", password, 60L, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateSsh("hostname", "username", password, 60L, "sudo"));
+	void testValidateSsh() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "", 60L, "sudo"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", null, 60L, "sudo"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", -60L, "sudo"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", null, "sudo"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", 60L, ""));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", 60L, null));
+		assertDoesNotThrow(() -> ConfigHelper.validateSsh("hostname", "username", 60L, "sudo"));
 	}
 	
 	@Test
-	void testValidateWbem() {
-		final char[] password = new char[] { 'p', 'w'};
-		final char[] emptyPassword = new char[] {};
-		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "", password, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", null, password, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", emptyPassword, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", null, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, -1));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateWbem("hostname", "username", password, 60L, 1234));
+	void testValidateWbem() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", -60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", null, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, -1));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, 66666));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbem("hostname", 60L, 1234));
 	}
 	
 	@Test
-	void testValidateWmi() {
-		final char[] password = new char[] { 'p', 'w'};
-		final char[] emptyPassword = new char[] {};
-		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "", password, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", null, password, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", emptyPassword, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", null, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, -60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", "username", password, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWmi("hostname", "username", password, 60L));
+	void testValidateWmi() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", null));
+		assertDoesNotThrow(() -> ConfigHelper.validateWmi("hostname", 60L));
 	}
 	
 	@Test
-	void testValidateHttp() {
-		final char[] password = new char[] { 'p', 'w'};
-		final char[] emptyPassword = new char[] {};
-		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "", password, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", null, password, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", emptyPassword, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", null, 60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", password, -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", password, null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", password, 60L, -1));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", password, 60L, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", "username", password, 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateHttp("hostname", "username", password, 60L, 1234));
+	void testValidateHttp() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", -60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", null, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, -1));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, 66666));
+		assertDoesNotThrow(() -> ConfigHelper.validateHttp("hostname", 60L, 1234));
 	}
 	
 	@Test
