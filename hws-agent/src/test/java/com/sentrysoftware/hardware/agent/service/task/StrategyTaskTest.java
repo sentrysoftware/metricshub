@@ -245,7 +245,7 @@ class StrategyTaskTest {
 					.target(HardwareTargetDTO.builder().hostname("target").id("id").type(TargetType.LINUX).build())
 					.hardwareProblemTemplate("Hardware problem on ${FQDN} with ${MONITOR_NAME}.")
 					.build();
-			hostConfig.setDisableAlerting(disableAlerting);
+			hostConfig.setDisableAlerts(disableAlerting);
 			doReturn(hostConfig).when(userConfiguration).getHostConfigurationDTO();
 
 			strategyTask2.initOtelSdk(hostMonitoring);

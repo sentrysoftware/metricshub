@@ -82,5 +82,5 @@ public class HostConfigurationDTO {
 
 	private String hardwareProblemTemplate;
 
-	private Boolean disableAlerting;
+	private Boolean disableAlerts;
 }

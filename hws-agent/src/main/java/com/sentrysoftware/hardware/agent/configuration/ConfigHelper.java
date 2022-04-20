@@ -222,9 +222,9 @@ public class ConfigHelper {
 					configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
 				}
 
-				// Set the disableAlerting flag to enable or disable alerting
-				if (configDto.getDisableAlerting() == null) {
-					configDto.setDisableAlerting(multiHostsConfig.isDisableAlerting());
+				// Set the disableAlerts flag to enable or disable alerting
+				if (configDto.getDisableAlerts() == null) {
+					configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
 				}
 			});
 

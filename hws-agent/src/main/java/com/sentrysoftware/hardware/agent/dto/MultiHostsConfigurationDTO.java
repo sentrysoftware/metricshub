@@ -78,7 +78,7 @@ public class MultiHostsConfigurationDTO {
 	private String hardwareProblemTemplate = HW_PROBLEM_DEFAULT_TEMPLATE;
 
 	@Default
-	private boolean disableAlerting = false;
+	private boolean disableAlerts = false;
 
 	/**
 	 * Build a new empty instance

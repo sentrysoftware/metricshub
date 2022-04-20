@@ -105,8 +105,8 @@ public class StrategyTask implements Runnable {
 	 */
 	void triggerAlertAsOtelLog(@NonNull final AlertInfo alertInfo) {
 
-		// Is alerting disabled?
-		if (Boolean.TRUE.equals(userConfiguration.getHostConfigurationDTO().getDisableAlerting())) {
+		// Is alerts disabled?
+		if (Boolean.TRUE.equals(userConfiguration.getHostConfigurationDTO().getDisableAlerts())) {
 			return;
 		}
 
