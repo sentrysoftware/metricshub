@@ -42,6 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
+	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname: %s";
+	private static final String PORT_ERROR = "Invalid port configured for hostname: %s";
+	private static final String USERNAME_ERROR = "No username configured for hostname: %s";
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -67,11 +70,7 @@ public class ConfigHelper {
 				.readValue(file, type);
 
 	}
-	
-	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname: %s";
-	private static final String PORT_ERROR = "Invalid port configured for hostname: %s";
-	private static final String USERNAME_ERROR = "No username configured for hostname: %s";
-	
+
 	/**
 	 * Validate the given target information (hostname and targetType)
 	 *
@@ -93,7 +92,7 @@ public class ConfigHelper {
 			throw new BusinessException(ErrorCode.NO_TARGET_TYPE, message);
 		}
 	}
-	
+
 	/**
 	 * Validate the given SNMP information (hostname, community, port and timeout)
 	 *
@@ -156,7 +155,7 @@ public class ConfigHelper {
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
 	}
-	
+
 	/**
 	 * Validate the given SSH information (hostname, username, timeout and
 	 * sudoCommand)
@@ -202,7 +201,7 @@ public class ConfigHelper {
 
 		validateHttp(hostname, timeout, port);
 	}
-	
+
 	/**
 	 * Validate the given WMI information (username and namespace)
 	 *
@@ -241,7 +240,7 @@ public class ConfigHelper {
 			throw new BusinessException(ErrorCode.INVALID_PORT, message);
 		}
 	}
-	
+
 	/**
 	 * Validate the given OS Command information (timeout and sudoCommand)
 	 *
