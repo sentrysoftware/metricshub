@@ -4106,7 +4106,10 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
         "details" : null,
@@ -4392,11 +4395,18 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
+        "details" : {
+          "problem" : "The GPU memory utilization is outside of tolerated range (1000.000000 %).",
+          "consequence" : "The memory utilization may not be optimal and therefore lead to lower system performance.",
+          "recommendedAction" : "Check why this GPU memory utilization is used so much."
+        },
+        "firstTriggerTimestamp" : 1649435081483,
+        "active" : "ACTIVE",
         "type" : "STATIC"
       } ],
       "predictedFailure" : [ {
@@ -4718,7 +4728,10 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
         "details" : null,

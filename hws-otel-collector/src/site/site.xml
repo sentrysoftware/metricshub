@@ -31,6 +31,7 @@
 				<item name="Password Encryption" href="security/passwords.html" />
 				<item name="Security Settings" href="security/settings.html" />
 			</item>
+			<item  name="Alerts" href="alerts.html"/>
 		</menu>
 
 		<menu name="Integrations">
