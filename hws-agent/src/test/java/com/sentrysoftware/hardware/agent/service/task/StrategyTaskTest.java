@@ -8,13 +8,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -183,9 +185,26 @@ class StrategyTaskTest {
 	@Test
 	void testTriggerAlertAsOtelLog() {
 
-		try (MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)) {
+		final List<LogData> actualLogs = triggerAlertAsOtelLog(false);
+		assertEquals("Hardware problem on localhost with SAS Flash Module - CH0.BAY9.",
+				actualLogs.stream().findFirst().orElseThrow().getBody().asString());
 
-			final Collection<LogData> actualLogs = new ArrayList<>();
+		assertEquals(Collections.emptyList(), triggerAlertAsOtelLog(true));
+
+		assertThrows(IllegalArgumentException.class, () -> strategyTask2.triggerAlertAsOtelLog(null));
+	}
+
+	/**
+	 * Trigger alert as log, capture the OpenTelemetry logs then return the list of
+	 * captured {@link LogData}
+	 * 
+	 * @param disableAlerting whether the alerting is disabled or not
+	 * @return List of captured {@link LogData}
+	 */
+	List<LogData> triggerAlertAsOtelLog(final boolean disableAlerting) {
+		final List<LogData> actualLogs = new ArrayList<>();
+
+		try (MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)) {
 
 			otelHelper.when(() -> OtelHelper.createHostResource(anyString(), anyString(), any(TargetType.class),
 					anyString(), anyBoolean(), any(), any())).thenCallRealMethod();
@@ -219,13 +238,15 @@ class StrategyTaskTest {
 
 			hostMonitoring.setEngineConfiguration(engineConfigWithAlertConfig);
 
-			doReturn(MultiHostsConfigurationDTO.builder().build()).when(userConfiguration)
+			lenient().doReturn(MultiHostsConfigurationDTO.builder().build()).when(userConfiguration)
 					.getMultiHostsConfigurationDTO();
-			doReturn(HostConfigurationDTO
+			HostConfigurationDTO hostConfig = HostConfigurationDTO
 					.builder()
 					.target(HardwareTargetDTO.builder().hostname("target").id("id").type(TargetType.LINUX).build())
 					.hardwareProblemTemplate("Hardware problem on ${FQDN} with ${MONITOR_NAME}.")
-					.build()).when(userConfiguration).getHostConfigurationDTO();
+					.build();
+			hostConfig.setDisableAlerting(disableAlerting);
+			doReturn(hostConfig).when(userConfiguration).getHostConfigurationDTO();
 
 			strategyTask2.initOtelSdk(hostMonitoring);
 
@@ -241,10 +262,8 @@ class StrategyTaskTest {
 
 			strategyTask2.triggerAlertAsOtelLog(alertInfo);
 
-			assertEquals("Hardware problem on localhost with SAS Flash Module - CH0.BAY9.",
-					actualLogs.stream().findFirst().orElseThrow().getBody().asString());
 		}
 
-		assertThrows(IllegalArgumentException.class, () -> strategyTask2.triggerAlertAsOtelLog(null));
+		return actualLogs;
 	}
 }

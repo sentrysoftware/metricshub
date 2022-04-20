@@ -78,12 +78,7 @@ public class StrategyTask implements Runnable {
 		log.info("Calling the engine to collect target: {}.", targetId);
 
 		// Make sure the engine configuration is updated correctly with the trigger
-		if (Boolean.FALSE.equals(userConfiguration.getHostConfigurationDTO().getDisableAlerting())) {
-			hostMonitoring.getEngineConfiguration().setAlertTrigger(this::triggerAlertAsOtelLog);
-		} else {
-			// Alerting is disabled
-			hostMonitoring.getEngineConfiguration().setAlertTrigger(null);
-		}
+		hostMonitoring.getEngineConfiguration().setAlertTrigger(this::triggerAlertAsOtelLog);
 
 		// One more, run only the collect strategy
 		hostMonitoring.run(new CollectOperation());
@@ -109,6 +104,11 @@ public class StrategyTask implements Runnable {
 	 * @param alertInfo
 	 */
 	void triggerAlertAsOtelLog(@NonNull final AlertInfo alertInfo) {
+
+		// Is alerting disabled?
+		if (Boolean.TRUE.equals(userConfiguration.getHostConfigurationDTO().getDisableAlerting())) {
+			return;
+		}
 
 		final String message = OtelAlertHelper.buildHardwareProblem(alertInfo,
 				userConfiguration.getHostConfigurationDTO().getHardwareProblemTemplate());
