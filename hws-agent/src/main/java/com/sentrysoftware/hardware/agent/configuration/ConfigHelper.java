@@ -68,9 +68,9 @@ public class ConfigHelper {
 
 	}
 	
-	final static private String timeoutError = "Timeout value is invalid for hostname: %s";
-	final static private String portError = "Invalid port configured for hostname: %s";
-	final static private String usernameError = "No username configured for hostname: %s";
+	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname: %s";
+	private static final String PORT_ERROR = "Invalid port configured for hostname: %s";
+	private static final String USERNAME_ERROR = "No username configured for hostname: %s";
 	
 	/**
 	 * Validate the given target information (hostname and targetType)
@@ -113,13 +113,13 @@ public class ConfigHelper {
 		}
 
 		if (port == null || port < 1 || port > 65535) {
-			String message = String.format(portError, hostname);
+			String message = String.format(PORT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_PORT, message);
 		}
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, hostname);
+			String message = String.format(TIMEOUT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
@@ -139,7 +139,7 @@ public class ConfigHelper {
 			throws BusinessException {
 
 		if (username == null || username.isBlank()) {
-			String message = String.format(usernameError, hostname);
+			String message = String.format(USERNAME_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.NO_USERNAME, message);
 		}
@@ -151,7 +151,7 @@ public class ConfigHelper {
 		}
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, hostname);
+			String message = String.format(TIMEOUT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
@@ -171,13 +171,13 @@ public class ConfigHelper {
 			throws BusinessException {
 
 		if (username == null || username.isBlank()) {
-			String message = String.format(usernameError, hostname);
+			String message = String.format(USERNAME_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.NO_USERNAME, message);
 		}
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, hostname);
+			String message = String.format(TIMEOUT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
@@ -213,7 +213,7 @@ public class ConfigHelper {
 	static void validateWmi(final String hostname, final Long timeout) throws BusinessException {
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, hostname);
+			String message = String.format(TIMEOUT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
@@ -230,13 +230,13 @@ public class ConfigHelper {
 	static void validateHttp(final String hostname, final Long timeout, final Integer port) throws BusinessException {
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, hostname);
+			String message = String.format(TIMEOUT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
 
 		if (port == null || port < 1 || port > 65535) {
-			String message = String.format(portError, hostname);
+			String message = String.format(PORT_ERROR, hostname);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_PORT, message);
 		}
@@ -254,7 +254,7 @@ public class ConfigHelper {
 			throws BusinessException {
 
 		if (timeout == null || timeout < 0L) {
-			String message = String.format(timeoutError, timeout);
+			String message = String.format(TIMEOUT_ERROR, timeout);
 			log.error(message);
 			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
 		}
